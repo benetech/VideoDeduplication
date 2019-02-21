@@ -1,7 +1,24 @@
 Winnow Project
 ==============================
 
-A short description of the project.
+Near Duplicate detection for video files.
+
+# Installing Instructions
+
+Install Conda as instructed on https://www.anaconda.com/distribution/
+
+
+`conda env create -f environment.yaml`
+
+
+Activate new conda environment
+
+`conda activate winnow`
+
+Run jupyter notebook in order visualize examples
+
+`jupyter notebook`
+
 
 Project Organization
 ------------
@@ -19,9 +36,7 @@ Project Organization
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries
     │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
+    ├── notebooks          <- Notebooks containing API Demonstration / Validation on different datasets.
     │
     ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
     │
