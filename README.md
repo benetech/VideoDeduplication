@@ -3,7 +3,7 @@ Winnow Project
 
 Near Duplicate detection for video files.
 
-# Installing Instructions
+# Installation
 
 Install Conda as instructed on https://www.anaconda.com/distribution/
 
