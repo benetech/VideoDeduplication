@@ -3,25 +3,12 @@
 import os
 import argparse
 import numpy as np
+
 from tqdm import tqdm
 from multiprocessing import Pool
 from .utils import load_video, load_image
 from .model_tf import CNN_tf
 import os
-import requests
-import shutil
-
-
-def download_file(local_filename,url):
-    local_filename = url.split('/')[-1]
-    r = requests.get(url, stream=True)
-    with open(local_filename, 'wb') as f:
-        shutil.copyfileobj(r.raw, f)
-
-    return local_filename
-    
-
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
@@ -30,19 +17,8 @@ package_directory = os.path.dirname(os.path.abspath(__file__))
 PRETRAINED_MODEL = 'vgg_16.ckpt'
 PRETRAINED_MODEL_PATH = os.path.join(package_directory,'pretrained_models',PRETRAINED_MODEL)
 
-if os.path.exists(PRETRAINED_MODEL_PATH):
-    print('Pretrained Model Found')
-    
-else:
-    
-    try:
-        os.path.mkdir(os.path.join(package_directory,'pretrained_models'))
-    except:
-        pass
-    
-    download_file(PRETRAINED_MODEL_PATH,)
-     
-
+ model = CNN_tf('vgg', PRETRAINED_MODEL_PATH)
+if os.path.exists()
 
 def pload_video(p,size):
 	return load_video(p,size)

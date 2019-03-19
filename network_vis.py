@@ -12,6 +12,8 @@ with open("config.yaml", 'r') as ymlfile:
 
 DISTANCE = float(cfg['match_distance'])
 DST_FOLDER = cfg['destination_folder']
+VIDEO_LEVEL_SAVE_FOLDER = cfg["video_level_folder"]
+
 
 print('Extracting Video Signatures')
 sm = SimilarityModel()

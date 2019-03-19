@@ -3,13 +3,17 @@ import os
 from glob import glob
 from winnow.feature_extraction import IntermediateCnnExtractor,frameToVideoRepresentation,SimilarityModel
 
+import yaml
+with open("config.yaml", 'r') as ymlfile:
+    cfg = yaml.load(ymlfile)
+
 
 # SOURCE Directory
 
-DATASET_DIR = '/datadrive/test_dataset/'
-DST_DIR = '/datadrive/'
-VIDEO_LIST_TXT = 'video_dataset_list.txt'
-ROOT_FOLDER_INTERMEDIATE_REPRESENTATION = 'representations'
+DATASET_DIR = cfg['video_source_folder']
+DST_DIR = cfg['destination_folder']
+VIDEO_LIST_TXT = cfg['video_list_filename']
+ROOT_FOLDER_INTERMEDIATE_REPRESENTATION =cfg['root_folder_intermediate']
 
 print('Searching for Dataset Video Files')
 
