@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+import numpy as np
 from sklearn.neighbors import NearestNeighbors,KDTree,BallTree,LSHForest,NearestCentroid
 from pyvis.network import Network
 from winnow.feature_extraction import SimilarityModel
