@@ -40,7 +40,7 @@ else:
     except:
         pass
     
-    download_file(PRETRAINED_MODEL_PATH,)
+    download_file(PRETRAINED_MODEL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
      
 
 
