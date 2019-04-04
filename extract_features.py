@@ -70,7 +70,7 @@ video_signatures = np.nan_to_num(video_signatures)
 
 print('Saving Video Signatures on :{}'.format(VIDEO_SIGNATURES_SAVE_FOLDER))
 
-np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,VIDEO_SIGNATURES_FILENAME))
+np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,VIDEO_SIGNATURES_FILENAME),video_signatures)
 
 print('Signatures of shape {} saved on :{}'.format(video_signatures.shape,VIDEO_SIGNATURES_SAVE_FOLDER))
 
