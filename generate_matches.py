@@ -10,7 +10,7 @@ import yaml
 
 print('Loading config file')
 
-with open("../config.yaml", 'r') as ymlfile:
+with open("./config.yaml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
 
