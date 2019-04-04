@@ -5,11 +5,11 @@ destination_folder:
 root_folder_intermediate:
     representations
 video_level_folder:
-    /datadrive/intermediate/video_level
+    /datadrive/representations/video_level
 video_signatures_folder:
-    /datadrive/intermediate/video_signatures
+    /datadrive/representations/video_signatures
 match_distance:
-    0.3
+    0.75
 video_list_filename:
     video_dataset_list.txt
     
