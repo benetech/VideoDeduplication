@@ -13,12 +13,24 @@ Assuming docker has been installed run the following command and install the NVI
 
 After the runtime has been installed, build the Docker Image using the provided Dockerfile
 
+GPU Version
+
 `sudo docker build  -t [IMAGE_NAME] . `
+
+CPU version
+
+`sudo docker build   -f Dockerfile-cpu -t wincpu .`
 
 
 Once the Image has been built, run it by using the following command
 
+GPU version
+
 `sudo docker run --runtime=nvidia -it -p 8888:8888 -v /datadrive:/datadrive [IMAGE_NAME]`
+
+CPU VERSION
+
+`sudo docker run  -it -p 8889:8889 -v /datadrive:/datadrive wincpu`
 
 The example above the directory "/datadrive" has been mounted to the "/datadrive" path within the Docker image.
 
