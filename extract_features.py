@@ -49,11 +49,11 @@ for r in representations:
 # Instantiates the extractor
 extractor = IntermediateCnnExtractor(VIDEOS_LIST,FRAME_LEVEL_SAVE_FOLDER)
 # Starts Extracting Frame Level Features
-extractor.start(batch_size=64,cores=6)
+extractor.start(batch_size=16,cores=4)
 
 
 
-print('Converting Frame by Frame representatinos to Video Representations')
+print('Converting Frame by Frame representations to Video Representations')
 
 converter = frameToVideoRepresentation(FRAME_LEVEL_SAVE_FOLDER,VIDEO_LEVEL_SAVE_FOLDER)
 

@@ -3,21 +3,25 @@
 import os
 import argparse
 import numpy as np
-from tqdm import tqdm
+
 from multiprocessing import Pool
 from .utils import load_video, load_image
 from .model_tf import CNN_tf
 import os
 import requests
 import shutil
+import multiprocessing
+from tqdm import tqdm
+
+    
+
 
 
 def download_file(local_filename,url):
-    local_filename = url.split('/')[-1]
+    # local_filename = url.split('/')[-1]
     r = requests.get(url, stream=True)
     with open(local_filename, 'wb') as f:
         shutil.copyfileobj(r.raw, f)
-
     return local_filename
     
 
@@ -36,10 +40,11 @@ if os.path.exists(PRETRAINED_MODEL_PATH):
 else:
     
     try:
-        os.path.mkdir(os.path.join(package_directory,'pretrained_models'))
-    except:
+        os.makedirs(os.path.join(package_directory,'pretrained_models'))
+    except Exception as e:
+        print(e)
         pass
-    
+    print('Downloading pretrained model to:{}'.format(PRETRAINED_MODEL_PATH))
     download_file(PRETRAINED_MODEL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
      
 
@@ -66,9 +71,11 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
 
     print('\nFeature Extraction Process')
     print('==========================')
+        
     pool = Pool(cores)
     future_videos = dict()
     output_list = []
+
     pbar = tqdm(range(np.max(list(video_list.keys()))+1), mininterval=1.0, unit='video')
     for video in pbar:
         if os.path.exists(video_list[video]):
