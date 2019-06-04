@@ -4,7 +4,7 @@ channels:
   - defaults
 dependencies:
   - gnutls=3.6.5=ha0399c4_1
-  - matplotlib-base=3.0.2=py36h20b835b_1
+  - matplotlib-base=3.0.2
   - nettle=3.4.1=h470a237_2
   - openh264=1.8.0=hd28b015_0
   - x264=1!152.20180717=h470a237_1
@@ -144,7 +144,7 @@ dependencies:
   - termcolor=1.1.0=py36_1
   - terminado=0.8.1=py36_1
   - testpath=0.4.2=py36_0
-  - tk=8.6.8=hbc83047_0
+  - tk=8.6.9
   - tornado=5.1.1=py36h7b6447c_0
   - tqdm=4.31.1=py_0
   - traitlets=4.3.2=py36_0
