@@ -10,7 +10,11 @@ import yaml
 
 print('Loading config file')
 
+<<<<<<< aef9c07a22dc921c886c6f23cb19b4ee7585cd40
 with open("./config.yaml", 'r') as ymlfile:
+=======
+with open("config.yaml", 'r') as ymlfile:
+>>>>>>> Report Improvements and Automatic Detection of files that have already been processed
     cfg = yaml.load(ymlfile)
 
 
@@ -35,6 +39,9 @@ def filter_results(thr):
         results_distances.append(distances[i,r])
     return results,results_distances
 
+def uniq(row):
+    
+    return ''.join([str(x) for x in sorted([row['query'],row['match']])])
 
 
 
@@ -67,7 +74,13 @@ for i,r in enumerate(results_sorted):
 match_df = pd.DataFrame({"query":q,"match":m,"distance":distance})            
 match_df['query_video'] = labels[match_df['query']]
 match_df['match_video'] = labels[match_df['match']]
-
+match_df['self_match'] = match_df['query_video'] == match_df['match_video']
+# Remove self matches
+match_df = match_df.loc[~match_df['self_match'],:]
+# Creates unique index from query, match 
+match_df['unique_index'] = match_df.apply(uniq,axis=1)
+# Removes duplicated entries (eg if A matches B, we don't need B matches A)
+match_df = match_df.drop_duplicates(subset=['unique_index'])
 
 
 REPORT_PATH = DST_FOLDER + '/matches_at_{}_distance.csv'.format(DISTANCE)

@@ -100,12 +100,14 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
             # extract features
             features = model.extract(video_tensor, batch_sz)
 
-            path = os.path.join(output_path, '{}_{}'.format(video_name, model.net_name))
+            path = os.path.join(output_path, '{}_{}_features'.format(video_name, model.net_name))
+            frame_path = os.path.join(output_path, '{}_{}_frames'.format(video_name, model.net_name))
             output_list += ['{}\t{}'.format(video_name, path)]
             pbar.set_postfix(video=video_name)
 
             # save features
             np.save(path, features)
+            np.save(frame_path, video_tensor)
     np.savetxt('{}/video_feature_list.txt'.format(output_path), output_list, fmt='%s')
 
 
@@ -115,3 +117,8 @@ def start_video_extraction(video_list,output_path,cores = 4,batch_sz=8):
 
     feature_extraction_videos(model, cores, batch_sz, video_list, output_path)
 
+def load_featurizer():
+    
+    model = CNN_tf('vgg', PRETRAINED_MODEL_PATH)
+    
+    return  model

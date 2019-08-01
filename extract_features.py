@@ -21,13 +21,6 @@ videos = glob(DATASET_DIR + '**')
 
 print('Number of files found: {}'.format(len(videos)))
 
-with open(VIDEO_LIST_TXT, 'w') as f:
-    for item in videos:
-        f.write("%s\n" % item)
-        
-VIDEOS_LIST = os.path.abspath(VIDEO_LIST_TXT)
-
-print('Video List saved on :{}'.format(VIDEOS_LIST))
 
 representations = ['frame_level','video_level','video_signatures']
 
@@ -44,6 +37,32 @@ for r in representations:
         os.makedirs(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,r))
     except Exception as e:
         print(e)
+
+processed_videos = glob(FRAME_LEVEL_SAVE_FOLDER + '/**_vgg_features.npy')
+print('Found {} videos that have already been processed.'.format(len(processed_videos)))
+
+# Get filenames
+processed_filenames = [x.split('_vgg_features')[0].split('/')[-1] for x in processed_videos]
+full_video_names = [x.split('.')[0].split('/')[-1] for x in videos]
+
+# Check for remaining videos
+remaining_videos = [i for i,x in enumerate(full_video_names) if x not in processed_filenames]
+
+
+remaining_videos_path = np.array(videos)[remaining_videos]
+
+print('There are {} videos left'.format(len(remaining_videos_path)))
+
+        
+
+with open(VIDEO_LIST_TXT, 'w') as f:
+    for item in remaining_videos_path:
+        f.write("%s\n" % item)
+        
+VIDEOS_LIST = os.path.abspath(VIDEO_LIST_TXT)
+
+print('Processed video List saved on :{}'.format(VIDEOS_LIST))
+
 
     
 # Instantiates the extractor
