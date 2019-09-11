@@ -7,15 +7,32 @@ Near Duplicate detection for video files.
 
 ### Using Docker
 
-Assuming docker has been installed run the following command and install the NVIDIA Docker runtime:
+Assuming docker has been installed run the following command and install the NVIDIA Docker runtime [GPU LINUX ONLY]:
 
 `bash install_nvidia_docker.sh`
 
-After the runtime has been installed, build the Docker Image using the provided Dockerfile
+Assuming Docker is has been installed correctly, there are two options:
+ 
+    1. Pulling pre-built images from Dockerhub
+    2. Build the Images from the suitable Dockerfile
+
+#### Pre-Built Images
+
 
 GPU Version
 
-`sudo docker build  -t [IMAGE_NAME] . `
+`docker pull fsbatista1/videodeduplication-gpu`
+
+CPU version
+
+`docker pull fsbatista1/videodeduplication`
+
+
+#### Building Images
+
+GPU Version
+
+`sudo docker build   -f Dockerfile-gpu -t wingpu .`
 
 CPU version
 
@@ -32,19 +49,34 @@ CPU VERSION
 
 `sudo docker run  -it -p 8889:8889 -v /datadrive:/datadrive wincpu`
 
+Within the Image's command line:
+
+`source activate winnow`
+
+This will activate the project's conda environment
+
 The example above the directory "/datadrive" has been mounted to the "/datadrive" path within the Docker image.
 
 Generally, it's useful to use this mounting procedure to allow the Docker environment to interact with the file system that contains the video files subject to analysis
 
 Notice that a binding of ports 8888 was also setup as a way to serve jupyter notebooks from within the Docker container
 
+
+
+
+
 ### Without Docker
 
 Install Conda as instructed on https://www.anaconda.com/distribution/
 
 
+GPU Version 
 
-`conda env create -f environment.yaml`
+`conda env create -f environment-lean-gpu.yaml`
+
+CPU Version 
+
+`conda env create -f environment-lean-cpu.yaml`
 
 
 Activate new conda environment
@@ -102,54 +134,15 @@ Generate network visualization
 
 `python networ_vis.py`
 
-
-Project Organization
-------------
-
-    ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
-    ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
-    │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
-    │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── notebooks          <- Notebooks containing API Demonstration / Validation on different datasets.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
+### Supported Platforms
 
 
---------
+1. Linux / Ubuntu (Preferred) -- > Docker (CPU / GPU) | CONDA (CPU / GPU)
+2. Windows  -- > Docker (CPU) | CONDA (CPU / GPU)
+3. MacOS --> Docker (CPU) | CONDA (CPU)
+
+
+
+
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
