@@ -35,7 +35,7 @@ class SimilarityModel:
     
     def build_features(self):
 
-        video_level_paths = glob(os.path.join(self.src,'**.npy'))
+        video_level_paths = glob(os.path.join(self.src,'**vgg_features.npy'))
 
         for vid in video_level_paths:
             self.features.append(np.load(vid)[0])

@@ -17,6 +17,7 @@ ROOT_FOLDER_INTERMEDIATE_REPRESENTATION =cfg['root_folder_intermediate']
 
 print('Searching for Dataset Video Files')
 
+# TODO: ADD REGEX to only scan compatible videos
 videos = glob(DATASET_DIR + '**')
 
 print('Number of files found: {}'.format(len(videos)))
@@ -48,13 +49,11 @@ full_video_names = [x.split('.')[0].split('/')[-1] for x in videos]
 # Check for remaining videos
 remaining_videos = [i for i,x in enumerate(full_video_names) if x not in processed_filenames]
 
-
 remaining_videos_path = np.array(videos)[remaining_videos]
 
 print('There are {} videos left'.format(len(remaining_videos_path)))
 
-        
-
+    
 with open(VIDEO_LIST_TXT, 'w') as f:
     for item in remaining_videos_path:
         f.write("%s\n" % item)
@@ -63,14 +62,12 @@ VIDEOS_LIST = os.path.abspath(VIDEO_LIST_TXT)
 
 print('Processed video List saved on :{}'.format(VIDEOS_LIST))
 
-
+if len(remaining_videos_path) > 0:
     
-# Instantiates the extractor
-extractor = IntermediateCnnExtractor(VIDEOS_LIST,FRAME_LEVEL_SAVE_FOLDER)
-# Starts Extracting Frame Level Features
-extractor.start(batch_size=16,cores=4)
-
-
+    # Instantiates the extractor
+    extractor = IntermediateCnnExtractor(VIDEOS_LIST,FRAME_LEVEL_SAVE_FOLDER)
+    # Starts Extracting Frame Level Features
+    extractor.start(batch_size=16,cores=4)
 
 print('Converting Frame by Frame representations to Video Representations')
 
@@ -78,9 +75,7 @@ converter = frameToVideoRepresentation(FRAME_LEVEL_SAVE_FOLDER,VIDEO_LEVEL_SAVE_
 
 converter.start()
 
-
 print('Extracting Signatures from Video representations')
-
 
 sm = SimilarityModel()
 video_signatures = sm.predict(VIDEO_LEVEL_SAVE_FOLDER)
