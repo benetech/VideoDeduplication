@@ -10,11 +10,8 @@ import yaml
 
 print('Loading config file')
 
-<<<<<<< aef9c07a22dc921c886c6f23cb19b4ee7585cd40
-with open("./config.yaml", 'r') as ymlfile:
-=======
+
 with open("config.yaml", 'r') as ymlfile:
->>>>>>> Report Improvements and Automatic Detection of files that have already been processed
     cfg = yaml.load(ymlfile)
 
 
@@ -46,7 +43,7 @@ def uniq(row):
 
 
 print('Finding Matches...')
-nn = NearestNeighbors(n_neighbors=50,metric='euclidean',algorithm='kd_tree')
+nn = NearestNeighbors(n_neighbors=20,metric='euclidean',algorithm='kd_tree')
 nn.fit(video_signatures)
 distances,indices = nn.kneighbors(video_signatures)
 
