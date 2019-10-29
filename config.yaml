@@ -12,4 +12,11 @@ match_distance:
     0.75
 video_list_filename:
     video_dataset_list.txt
-    
+filter_dark_videos:
+    true
+filter_dark_videos_thr:
+    2
+min_video_duration_seconds:
+    3
+
+
