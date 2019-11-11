@@ -76,7 +76,7 @@ GPU Version
 
 CPU Version 
 
-`conda env create -f environment-lean-cpu.yaml`
+`conda env create -f environment-lean.yaml`
 
 
 Activate new conda environment
