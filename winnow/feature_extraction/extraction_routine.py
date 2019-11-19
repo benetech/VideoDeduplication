@@ -13,9 +13,6 @@ import shutil
 import multiprocessing
 from tqdm import tqdm
 
-    
-
-
 
 def download_file(local_filename,url):
     # local_filename = url.split('/')[-1]
@@ -24,13 +21,8 @@ def download_file(local_filename,url):
         shutil.copyfileobj(r.raw, f)
     return local_filename
     
-
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
-
 package_directory = os.path.dirname(os.path.abspath(__file__))
-
 PRETRAINED_MODEL = 'vgg_16.ckpt'
 PRETRAINED_MODEL_PATH = os.path.join(package_directory,'pretrained_models',PRETRAINED_MODEL)
 

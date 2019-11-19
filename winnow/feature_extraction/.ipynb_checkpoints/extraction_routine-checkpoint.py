@@ -4,21 +4,42 @@ import os
 import argparse
 import numpy as np
 
-from tqdm import tqdm
 from multiprocessing import Pool
 from .utils import load_video, load_image
 from .model_tf import CNN_tf
 import os
+import requests
+import shutil
+import multiprocessing
+from tqdm import tqdm
+
+
+def download_file(local_filename,url):
+    # local_filename = url.split('/')[-1]
+    r = requests.get(url, stream=True)
+    with open(local_filename, 'wb') as f:
+        shutil.copyfileobj(r.raw, f)
+    return local_filename
+    
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
-
 package_directory = os.path.dirname(os.path.abspath(__file__))
-
 PRETRAINED_MODEL = 'vgg_16.ckpt'
 PRETRAINED_MODEL_PATH = os.path.join(package_directory,'pretrained_models',PRETRAINED_MODEL)
 
- model = CNN_tf('vgg', PRETRAINED_MODEL_PATH)
-if os.path.exists()
+if os.path.exists(PRETRAINED_MODEL_PATH):
+    print('Pretrained Model Found')
+    
+else:
+    
+    try:
+        os.makedirs(os.path.join(package_directory,'pretrained_models'))
+    except Exception as e:
+        print(e)
+        pass
+    print('Downloading pretrained model to:{}'.format(PRETRAINED_MODEL_PATH))
+    download_file(PRETRAINED_MODEL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
+     
+
 
 def pload_video(p,size):
 	return load_video(p,size)
@@ -42,9 +63,11 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
 
     print('\nFeature Extraction Process')
     print('==========================')
+        
     pool = Pool(cores)
     future_videos = dict()
     output_list = []
+
     pbar = tqdm(range(np.max(list(video_list.keys()))+1), mininterval=1.0, unit='video')
     for video in pbar:
         if os.path.exists(video_list[video]):
@@ -69,12 +92,14 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
             # extract features
             features = model.extract(video_tensor, batch_sz)
 
-            path = os.path.join(output_path, '{}_{}'.format(video_name, model.net_name))
+            path = os.path.join(output_path, '{}_{}_features'.format(video_name, model.net_name))
+            frame_path = os.path.join(output_path, '{}_{}_frames'.format(video_name, model.net_name))
             output_list += ['{}\t{}'.format(video_name, path)]
             pbar.set_postfix(video=video_name)
 
             # save features
             np.save(path, features)
+            np.save(frame_path, video_tensor)
     np.savetxt('{}/video_feature_list.txt'.format(output_path), output_list, fmt='%s')
 
 
@@ -84,3 +109,8 @@ def start_video_extraction(video_list,output_path,cores = 4,batch_sz=8):
 
     feature_extraction_videos(model, cores, batch_sz, video_list, output_path)
 
+def load_featurizer():
+    
+    model = CNN_tf('vgg', PRETRAINED_MODEL_PATH)
+    
+    return  model
