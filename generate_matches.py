@@ -7,6 +7,7 @@ from sklearn.neighbors import NearestNeighbors
 from winnow.feature_extraction import SimilarityModel
 import cv2
 import yaml
+from scenedetection import extract_scenes
 
 print('Loading config file')
 
@@ -23,6 +24,7 @@ VIDEO_SIGNATURES_SAVE_FOLDER = cfg['video_signatures_folder']
 DISTANCE = float(cfg['match_distance'])
 MIN_VIDEO_DURATION = float(cfg['min_video_duration_seconds'])
 HANDLE_DARK = str(cfg['filter_dark_videos'])
+DETECT_SCENES = str(cfg['detect_scenes'])
 DARK_THR = float(cfg['filter_dark_videos_thr'])
 DST_FOLDER = cfg['destination_folder']
 VIDEO_LEVEL_SAVE_FOLDER = cfg['video_level_folder']
@@ -79,7 +81,7 @@ def filter_results(thr):
 def uniq(row):
     
     return ''.join([str(x) for x in sorted([row['query'],row['match']])])
-
+HANDLE_DARK
 
 
 print('Finding Matches...')
@@ -126,6 +128,14 @@ print('Saving unfiltered report to {}'.format(REPORT_PATH))
 
 match_df.to_csv(REPORT_PATH)
 
+if DETECT_SCENES == 'True':
+    
+    frame_level_repres = glob(FRAME_LEVEL_SAVE_FOLDER + '/**_features.npy')
+    filtered_videos,durations,num_scenes,avg_duration,total_video = extract_scenes(frame_level_repres)
+    scene_metadata = pd.DataFrame(dict(fp=filtered_videos,scene_duration=durations,num_scenes=num_scenes,avg_duration=avg_duration,video_duration=total_video))
+    scene_metadata.to_csv('scene_metadata.csv')
+    
+    
 
 
 

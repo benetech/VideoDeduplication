@@ -1,8 +1,9 @@
-name: winnow
+name: winnow-gpu
 channels:
   - conda-forge
   - defaults
 dependencies:
+  - python=3.6
   - numpy
   - matplotlib
   - pandas

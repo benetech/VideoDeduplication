@@ -18,5 +18,7 @@ filter_dark_videos_thr:
     2
 min_video_duration_seconds:
     3
+detect_scenes:
+    true
 
 
