@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:latest-gpu
+FROM tensorflow/tensorflow:1.15.0-gpu-py3
 
 RUN apt-get update
 RUN apt-get --yes install curl
@@ -11,7 +11,7 @@ RUN conda update -y conda
 
 ADD environment-lean-gpu.yaml /tmp/environment-lean-gpu.yaml
 
-RUN conda env create -f /tmp/environment-lean-gpu.yaml python=3.7
+RUN conda env create -f /tmp/environment-lean-gpu.yaml
 
 RUN echo "source activate $(head -1 /tmp/environment-lean-gpu.yml | cut -d' ' -f2)" > ~/.bashrc
 

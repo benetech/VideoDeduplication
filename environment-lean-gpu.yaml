@@ -9,7 +9,7 @@ dependencies:
   - pandas
   - scikit-learn
   - scipy
-  - tensorflow-gpu==1.9
+  - tensorflow-gpu==1.15
   - tqdm
   - pip:
     - image
