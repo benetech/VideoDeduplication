@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     print('There are {} videos left'.format(len(remaining_videos_path)))
 
-    with open(VIDEO_LIST_TXT, 'w') as f:
+    with open(VIDEO_LIST_TXT, 'w', encoding="utf-8") as f:
         for item in remaining_videos_path:
             f.write("%s\n" % item)
 
