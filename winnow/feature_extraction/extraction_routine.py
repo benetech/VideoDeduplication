@@ -55,7 +55,7 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
         video_list: list of video to extract features
         output_path: path to store video features
     """
-    video_list = {i: video.strip() for i, video in enumerate(open(video_list).readlines())}
+    video_list = {i: video.strip() for i, video in enumerate(open(video_list, encoding="utf-8").readlines())}
     print('\nNumber of videos: ', len(video_list))
     print('Storage directory: ', output_path)
     print('CPU cores: ', cores)
