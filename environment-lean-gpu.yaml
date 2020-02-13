@@ -9,7 +9,11 @@ dependencies:
   - pandas
   - scikit-learn
   - scipy
+<<<<<<< Updated upstream
   - tensorflow-gpu==1.15
+=======
+  - tensorflow-gpu=1.15
+>>>>>>> Stashed changes
   - tqdm
   - pip:
     - image

@@ -3,4 +3,4 @@ __pycache__/
 data/
 winnow/feature_extraction/pretrained_models/**
 .ipynb_checkpoints/**
-**/**/.ipynb_checkpoints/**
+**/**.pyc

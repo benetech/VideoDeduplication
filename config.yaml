@@ -1,13 +1,13 @@
 video_source_folder:
-    /datadrive/test_dataset/
+    /home/felipe/ai/toptal/benetech/VideoDeduplication/data/augmented_videos/
 destination_folder:
-    /datadrive/
+    /home/felipe/ai/toptal/benetech/VideoDeduplication/data/
 root_folder_intermediate:
     representations
 video_level_folder:
-    /datadrive/representations/video_level
+    /home/felipe/ai/toptal/benetech/VideoDeduplication/data/representations/video_level
 video_signatures_folder:
-    /datadrive/representations/video_signatures
+    /home/felipe/ai/toptal/benetech/VideoDeduplication/data/representations/video_signatures
 match_distance:
     0.75
 video_list_filename:
