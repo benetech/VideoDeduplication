@@ -17,6 +17,7 @@ class SimilarityModel:
         self.features = []
         self.embeddings = None
         self.index = []
+        self.original_filenames = []
     
     def predict(self,src):
         self.src = src
@@ -41,12 +42,14 @@ class SimilarityModel:
         for vid in video_level_paths:
             self.features.append(np.load(vid)[0])
             self.index.append(vid)
+            self.original_filenames.append(os.path.basename(vid).split('_vgg_')[0])
 
         
     def save(dst):
 
         if self.embeddings is not None:
             np.save(dst,self.features)
+            
 
         else:
             print('Please use the model to extract embeddings first by using the predict method')

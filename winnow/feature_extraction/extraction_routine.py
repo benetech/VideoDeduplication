@@ -71,7 +71,9 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
     pbar = tqdm(range(np.max(list(video_list.keys()))+1), mininterval=1.0, unit='video')
     for video in pbar:
         if os.path.exists(video_list[video]):
-            video_name = os.path.splitext(os.path.basename(video_list[video]))[0]
+            
+#             video_name = os.path.splitext(os.path.basename(video_list[video]))[0]
+            video_name = os.path.basename(video_list[video])
             if video not in future_videos:
                 video_tensor = pload_video(video_list[video], model.desired_size)
             else:

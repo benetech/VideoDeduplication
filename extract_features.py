@@ -27,6 +27,10 @@ if __name__ == '__main__':
 
     representations = ['frame_level','video_level','video_signatures']
 
+    FRAME_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0]))
+    VIDEO_LEVEL_SAVE_FOLDER = DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1])
+    VIDEO_SIGNATURES_SAVE_FOLDER = DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[2])
+    VIDEO_SIGNATURES_FILENAME = 'video_signatures'
 
     FRAME_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0])
     
@@ -86,7 +90,7 @@ if __name__ == '__main__':
 
     print('Saving Video Signatures on :{}'.format(VIDEO_SIGNATURES_SAVE_FOLDER))
 
-    np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,VIDEO_SIGNATURES_FILENAME),video_signatures)
-
+    np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,'{}.npy'.format(VIDEO_SIGNATURES_FILENAME)),video_signatures)
+    np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,'{}-filenames.npy'.format(VIDEO_SIGNATURES_FILENAME)),sm.original_filenames)
     print('Signatures of shape {} saved on :{}'.format(video_signatures.shape,VIDEO_SIGNATURES_SAVE_FOLDER))
 
