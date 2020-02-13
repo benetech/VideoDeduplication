@@ -1,3 +1,4 @@
+**/**/**.pyc
 __pycache__/
 data/
 winnow/feature_extraction/pretrained_models/**
