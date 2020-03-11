@@ -83,6 +83,10 @@ Activate new conda environment
 
 `conda activate winnow`
 
+or
+
+`conda activate winnow-gpu`
+
 Run jupyter notebook in order visualize examples
 
 `jupyter notebook`
