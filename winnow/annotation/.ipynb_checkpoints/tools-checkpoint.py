@@ -3,14 +3,13 @@ from .utils import create_interface
 
 class Annotator:
 
-    def __init__(self,report_path,save_path,annotation_label = 'is_match',annotation_default_value=-1,transform_query_path=True,frames_directory=None):
+    def __init__(self,report_path,save_path,annotation_label = 'is_match',annotation_default_value=-1,transform_query_path=True):
 
         self.report_path = report_path
         self.save_path = save_path
         self.annotation_label = annotation_label
         self.annotation_default_value = annotation_default_value
         self.transform_query_path = transform_query_path
-        self.frames_directory = frames_directory
         self.matches_df = None
         self.unique_qs = None
         self.build()
@@ -34,7 +33,7 @@ class Annotator:
 
     def run(self):
 
-        grid = create_interface(self.matches_df,self.save_path,self.annotation_label,transform_query_path=self.transform_query_path,frames_directory=self.frames_directory)
+        grid = create_interface(self.matches_df,self.save_path,self.annotation_label,transform_query_path=self.transform_query_path)
         return grid
 
 

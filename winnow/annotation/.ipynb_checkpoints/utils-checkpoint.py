@@ -10,7 +10,7 @@ def create_expanded_button(description, button_style):
     return Button(description=description, button_style=button_style, layout=Layout(height='auto', width='auto'))
 
 
-def create_interface(matches_df,save_path,annotation_label,transform_query_path = True,frames_directory=None):
+def create_interface(matches_df,save_path,annotation_label,transform_query_path = True):
 
     # Create Buttons 
     a = create_expanded_button('Next Video', 'info')
@@ -53,7 +53,7 @@ def create_interface(matches_df,save_path,annotation_label,transform_query_path 
         
         fp = video_list[idx]
         if transform_query_path:
-            FRAMES_PATH = os.path.join(frames_directory,fp+'_vgg_frames.npy')
+            FRAMES_PATH = os.path.join('data','representations','frame_level',fp+'_vgg_frames.npy')
         else:
             FRAMES_PATH = fp 
         
