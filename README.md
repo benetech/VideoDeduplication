@@ -15,6 +15,18 @@ Assuming Docker is has been installed correctly, there are two options:
  
     1. Pulling pre-built images from Dockerhub
     2. Build the Images from the suitable Dockerfile
+    
+    
+#### Pre-Built Images
+
+
+GPU Version
+
+`docker pull johnhbenetech/videodeduplication:gpu`
+
+CPU version
+
+`docker pull johnhbenetech/videodeduplication:cpu`
 
 
 #### Building Images
