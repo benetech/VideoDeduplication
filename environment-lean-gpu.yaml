@@ -11,6 +11,8 @@ dependencies:
   - scipy
   - tensorflow-gpu==1.15
   - tqdm
+  - sqlalchemy
+  - psycopg2
   - pip:
     - image
     - imageio
