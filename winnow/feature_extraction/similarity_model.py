@@ -38,7 +38,9 @@ class SimilarityModel:
 
         video_level_paths = glob(os.path.join(self.src,'**features.npy'))
         print(video_level_paths)
-
+        if len(video_level_paths) == 0:
+            raise Exception('No video features files were found')
+            
         for vid in video_level_paths:
             self.features.append(np.load(vid)[0])
             self.index.append(vid)
@@ -50,7 +52,6 @@ class SimilarityModel:
         if self.embeddings is not None:
             np.save(dst,self.features)
             
-
         else:
             print('Please use the model to extract embeddings first by using the predict method')
 

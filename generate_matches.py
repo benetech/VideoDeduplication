@@ -5,10 +5,11 @@ import os
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from winnow.feature_extraction import SimilarityModel
+from winnow.utils import extract_additional_info, extract_scenes,filter_results,uniq
 import cv2
 import yaml
-from scenedetection import extract_scenes
-
+from db import *
+from db.schema import *
 print('Loading config file')
 
 
@@ -28,37 +29,17 @@ DETECT_SCENES = str(cfg['detect_scenes'])
 DARK_THR = float(cfg['filter_dark_videos_thr'])
 DST_FOLDER = cfg['destination_folder']
 VIDEO_LEVEL_SAVE_FOLDER = cfg['video_level_folder']
-FRAME_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR +
-                                          '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0]))
+FRAME_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0]))
+USE_DB = cfg['use_db'] 
+CONNINFO = cfg['conninfo']
+KEEP_FILES = cfg['keep_fileoutput'] 
 
 
+if USE_DB:
 
-def extract_additional_info(x):
-    
-    v = np.load(x)
-    frames = np.load(x.replace('_vgg_features','_vgg_frames'))
-    grays = np.array([cv2.cvtColor(x,cv2.COLOR_BGR2GRAY) for x in frames])
-    grays = np.array([np.mean(x) for x in grays])
-
-    grays_avg = np.mean(grays,axis=0)
-    grays_std = np.std(grays,axis=0)
-    try:
-        grays_max = np.max(grays)
-    except:
-        grays_max = 0
-
-    shape = v.shape
-    intra_sum = np.sum(v,axis=1)
-    mean_act = np.mean(intra_sum)
-    try:
-        
-        max_dif = np.max(intra_sum) - np.min(intra_sum)
-        
-    except:
-        max_dif = 0
-    std_sum = np.std(intra_sum)
-    
-    return shape[0],mean_act,std_sum,max_dif,grays_avg,grays_std,grays_max
+        db_engine,session = create_engine_session(CONNINFO)
+        # Creates tables if not yet created (will only change DB if any operations are eventually performed)
+        create_tables(db_engine)
 
 
 
@@ -69,26 +50,11 @@ video_signatures = np.nan_to_num(video_signatures)
 labels = np.array([x.split('_vgg')[0].split('/')[-1] for x in  sm.index])
 
 
-def filter_results(thr):
-    results = []
-    results_distances = []
-    msk = distances < thr
-    for i,r in enumerate(msk):
-        results.append(indices[i,r])
-        results_distances.append(distances[i,r])
-    return results,results_distances
-
-def uniq(row):
-    
-    return ''.join([str(x) for x in sorted([row['query'],row['match']])])
-HANDLE_DARK
-
 
 print('Finding Matches...')
 nn = NearestNeighbors(n_neighbors=20,metric='euclidean',algorithm='kd_tree')
 nn.fit(video_signatures)
-distances,indices = nn.kneighbors(video_signatures)
-
+distances,indices =  nn.kneighbors(video_signatures)
 
 results,results_distances = filter_results(DISTANCE)
 
@@ -133,12 +99,27 @@ if DETECT_SCENES == 'True':
     frame_level_repres = glob(FRAME_LEVEL_SAVE_FOLDER + '/**_features.npy')
     filtered_videos,durations,num_scenes,avg_duration,total_video = extract_scenes(frame_level_repres)
     scene_metadata = pd.DataFrame(dict(fp=filtered_videos,scene_duration=durations,num_scenes=num_scenes,avg_duration=avg_duration,video_duration=total_video))
-    scene_metadata.to_csv('scene_metadata.csv')
+
+    if USE_DB:
+
+        add_scenes(session,scene_metadata)
+
+        try:
+            session.commit()
+        except:
+            session.rollback()
+            print('DB Exception')
+        
+        finally:
+            # Get DB stats
+            scenes = get_all(session,Scenes)
+            print(f"Scenes table rows:{len(scenes)}")
+        
+    if KEEP_FILES or USE_DB is False:
+    
+        scene_metadata.to_csv('scene_metadata.csv')
     
     
-
-
-
 if HANDLE_DARK == 'True':
     
     print('Filtering dark and/or short videos')
@@ -191,5 +172,34 @@ if HANDLE_DARK == 'True':
     filtered_match_df = match_df.loc[~discard_msk,:]
     filtered_match_df.to_csv(FILTERED_REPORT_PATH)
     print('Saving filtered report to {}'.format(FILTERED_REPORT_PATH))
-    print('Saving metadata to {}'.format(METADATA_REPORT_PATH))
-    merged.to_csv(METADATA_REPORT_PATH)
+    
+    if USE_DB:
+
+        add_metadata(session,video_signatures,sm.original_filenames)
+        try:
+            session.commit()
+    
+        except:
+            session.rollback()
+            print('DB Exception')
+            # raise
+
+        finally:
+            # Get DB stats
+            metadata = get_all(session,VideoMetadata)
+            print(f"Signatures table rows:{len(metadata)}")
+
+        session.close()
+
+
+    if USE_DB is False or KEEP_FILES:
+
+        print('Saving metadata to {}'.format(METADATA_REPORT_PATH))
+        merged.to_csv(METADATA_REPORT_PATH)
+
+        
+
+
+
+
+    

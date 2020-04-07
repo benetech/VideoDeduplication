@@ -20,3 +20,12 @@ min_video_duration_seconds:
     3
 detect_scenes:
     true
+
+# DB Settings
+use_db:
+    true
+conninfo:
+    postgres://postgres:admin@localhost:5432/test
+
+keep_fileoutput:
+    true
