@@ -19,7 +19,6 @@ Assuming Docker is has been installed correctly, there are two options:
     
 #### Pre-Built Images
 
-
 GPU Version
 
 `docker pull johnhbenetech/videodeduplication:gpu`
