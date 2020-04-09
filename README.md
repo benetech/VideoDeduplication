@@ -102,6 +102,12 @@ This repo contains three main scripts that perform the following tasks:
     2. generate_matches.py : Signature to Matches (saved as CSV)
     3. network_vis.py : Saves a visualiation of the generated videos and their matches as a Network system
 
+
+Important notebooks include:
+
+    1. Visualization and Annotation Tool.ipynb: Allows the output of the generate_matches script to be reviewed and annotated.
+    2. Template Matching Demo.ipynb: Allows the output of the extract_features script to be queried against known videos / images [as defined in custom templates built by the user]
+
 These scripts use the 'config.yaml' file to define where to collect data from, hyperparameters (...)
 
 **video_source_folder**: Directory where the source video files are located
@@ -120,8 +126,30 @@ These scripts use the 'config.yaml' file to define where to collect data from, h
 
 **match_distance**: Distance threshold that determines whether two videos are a match [FLOAT - 0.0 to 1.0]
     
-**video_list_filename**: Name of the file that contains the list of processed video files (to be save by the extraction script)
+**video_list_filename**: Name of the file that contains the list of processed video files (to be saved by the extraction script)
     
+
+**filter_dark_videos**: [true / false] Whether to remove dark videos from final output files.
+    
+**filter_dark_videos_thr**:[1-10 int range] Ideally a number 1 and 10. Higher numbers means we will less strict when filtering out dark videos.
+    
+***min_video_duration_seconds**: Minimum video duration in secondds
+    
+**detect_scenes**: [true / false] Whether to run scene detection or not.
+    
+
+**use_pretrained_model_local_path:** [true / false] Whether to use the pretrained model from your local file system
+    
+
+**pretrained_model_local_path:**: Absolute path to pretrained model in case the user doesn't want to download it from S3
+    
+**use_db:** : [true / false]
+    true
+**conninfo**: Connection string (eg. postgres://[USER]:[PASSWORD]@[URL]:[PORT]/[DBNAME])
+    
+**keep_fileoutput:** [true / false]. Whether to keep regular output even with results being saved in DB
+
+
     
 ### Running 
 
@@ -138,6 +166,23 @@ Generate matches
 Generate network visualization
 
 `python networ_vis.py`
+
+
+Visualize and annotate results (after running generate matches)
+
+`jupyter notebook`
+
+Choose the Visualization and Annotation tool notebook
+
+Run template matching and visualize results
+
+`jupyter notebook`
+
+Choose the Template Matching Demo notebook
+
+Please note that for the last two examples we used jupyter notebook and not jupyter lab. This is related to the widgets module, which doesn't work on Jupyter Lab. Feel free to use Jupyter Lab for other notebooks.
+
+
 
 ### Supported Platforms
 

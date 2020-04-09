@@ -1,30 +1,37 @@
-
-
 import os
 import argparse
 import numpy as np
-
 from multiprocessing import Pool
-from .utils import load_video, load_image
+from .utils import load_video, load_image, download_file
 from .model_tf import CNN_tf
 import os
 import requests
 import shutil
 import multiprocessing
 from tqdm import tqdm
+import yaml
 
-
-def download_file(local_filename,url):
-    # local_filename = url.split('/')[-1]
-    r = requests.get(url, stream=True)
-    with open(local_filename, 'wb') as f:
-        shutil.copyfileobj(r.raw, f)
-    return local_filename
+package_directory = os.path.dirname(os.path.abspath(__file__))
     
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-package_directory = os.path.dirname(os.path.abspath(__file__))
+
+try:
+    CONFIG_FP = os.environ['WINNOW_CONFIG']
+    with open(CONFIG_FP,'r') as ymlfile:
+        cfg=yaml.load(ymlfile)
+
+    USE_LOCAL_PRETRAINED = cfg['use_pretrained_model_local_path']
+    PRETRAINED_LOCAL_PATH = cfg['pretrained_model_local_path']
+except Exception as e:
+    print("In order to use the config file, please add its path to the OS environ as a variable eg:os.environ['WINNOW_CONFIG'] = [ABSFILEPATH]"  )
+    USE_LOCAL_PRETRAINED = False
+
+
+
 PRETRAINED_MODEL = 'vgg_16.ckpt'
 PRETRAINED_MODEL_PATH = os.path.join(package_directory,'pretrained_models',PRETRAINED_MODEL)
+
+# Pre-trained model file availability assessment
 
 if os.path.exists(PRETRAINED_MODEL_PATH):
     print('Pretrained Model Found')
@@ -36,13 +43,21 @@ else:
     except Exception as e:
         print(e)
         pass
-    print('Downloading pretrained model to:{}'.format(PRETRAINED_MODEL_PATH))
-    download_file(PRETRAINED_MODEL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
+    if USE_LOCAL_PRETRAINED:
+        print('Copying from source directory (as defined in the config file')
+        try:
+            shutil.copy(PRETRAINED_LOCAL_PATH,PRETRAINED_MODEL_PATH)
+        except:
+            raise('Please check your config file (Make sure you used an absolute path for the local pretrained model)')
+    else:
+        print('Downloading pretrained model to:{}'.format(PRETRAINED_MODEL_PATH))
+        download_file(PRETRAINED_MODEL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
      
 
 
 def pload_video(p,size):
 	return load_video(p,size)
+
 def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
     """
       Function that extracts the intermediate CNN features
@@ -72,7 +87,6 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
     for video in pbar:
         if os.path.exists(video_list[video]):
             
-#             video_name = os.path.splitext(os.path.basename(video_list[video]))[0]
             video_name = os.path.basename(video_list[video])
             if video not in future_videos:
                 video_tensor = pload_video(video_list[video], model.desired_size)

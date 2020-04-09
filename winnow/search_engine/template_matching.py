@@ -6,6 +6,7 @@ from scipy.spatial.distance import cdist
 from glob import glob
 from winnow.feature_extraction.extraction_routine import load_featurizer
 from winnow.feature_extraction.utils import load_image,load_video
+
 class SearchEngine:
     def __init__(self,templates_root,library_glob,model):
         
@@ -30,9 +31,6 @@ class SearchEngine:
         features = self.model.extract(resized,batch_sz=10)
         return features
     
-   
-
-
     def load_available_templates(self):
         
         cache = dict()

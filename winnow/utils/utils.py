@@ -10,9 +10,6 @@ import cv2
 import yaml
 
 
-
-
-
 def filter_results(thr):
     results = []
     results_distances = []
@@ -25,9 +22,6 @@ def filter_results(thr):
 def uniq(row):
     
     return ''.join([str(x) for x in sorted([row['query'],row['match']])])
-
-
-
 
 def extract_additional_info(x):
     

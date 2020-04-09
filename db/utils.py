@@ -28,6 +28,11 @@ def create_engine_session(conn_string):
 
 # Initial table creation / deletion
 def create_tables(engine):
+    """Creates all tables specified on our internal schema
+    
+    Arguments:
+        engine {SQL Alchemy DB Engine instance} -- Instance of SQL Alchemy DB session
+    """
     
     Signature.metadata.create_all(engine)
     Scenes.metadata.create_all(engine)

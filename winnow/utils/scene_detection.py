@@ -57,13 +57,25 @@ def get_duration(scenes):
     return [y-x for x,y in scenes]
 
 def extract_scenes(list_of_files,minimum_duration=10):
+    """Extracts scenes from a list of files
+    
+    Arguments:
+        list_of_files {[List[npy files]]} -- List of filepaths for framelevel representations of videos
+    
+    Keyword Arguments:
+        minimum_duration {int} -- Minimum duration of video in seconds. (default: {10})
+    
+    Returns:
+        Filtered Videos [list] -- List of the videos processed (after filtering for the minimum duration threshold)
+        Durations [list[Duration]] -- List of lists containing duration (in seconds) of each scene where List i corresponds to filtered_video[i]
+        Number of Scenes [list] -- Derived from Durations -> Mainly the length of the list of scene durations
+        Average Duration [list] -- Derived from Durations -> Average Scene length
+        Total Video Duration [list] -- Total video duration
+    """
 
     filtered_videos = [x for x in list_of_files if np.load(x).shape[0] > minimum_duration]
-
     raw_scenes = [visualize_features(x) for x in filtered_videos]
-
     scene_ident = [((diffs > np.quantile(diffs,.90)) & (diffs > 0.05)) for diffs in raw_scenes]
-
     num_scens = [sum(sid) for sid in scene_ident]
 
     video_scenes = []
@@ -84,4 +96,5 @@ def extract_scenes(list_of_files,minimum_duration=10):
     num_scenes = [len(x) for x in video_scenes]
     avg_duration = [np.mean(x) for x in durations]
     total_video = [sid.shape[0] for sid in scene_ident]
+
     return filtered_videos,durations,num_scenes,avg_duration,total_video

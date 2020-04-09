@@ -1,10 +1,14 @@
 import numpy as np
 import os
+
+os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
+
 from glob import glob
 from winnow.feature_extraction import IntermediateCnnExtractor,frameToVideoRepresentation,SimilarityModel
 from db import *
 from db.schema import *
 import yaml
+
 
 sep = '/'
 if os.name == 'nt':
@@ -33,6 +37,7 @@ if __name__ == '__main__':
     VIDEO_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1])
     VIDEO_SIGNATURES_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[2])
     VIDEO_SIGNATURES_FILENAME = 'video_signatures.npy'
+    
 
     print('Searching for Dataset Video Files')
 
