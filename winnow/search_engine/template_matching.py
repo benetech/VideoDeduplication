@@ -5,7 +5,10 @@ import matplotlib.pyplot as plt
 from scipy.spatial.distance import cdist
 from glob import glob
 from winnow.feature_extraction.extraction_routine import load_featurizer
-from winnow.feature_extraction.utils import load_image,load_video
+from winnow.feature_extraction.utils import load_image,load_video,download_file
+import requests
+import shutil
+import os
 
 class SearchEngine:
     def __init__(self,templates_root,library_glob,model):
@@ -43,6 +46,12 @@ class SearchEngine:
         
     def create_annotation_report(self,threshold = 0.07,fp = 'template_test.csv',queries = None):
 
+        """Creates an annotation report suitable for annotation (using our own Annotator class)
+        
+        Returns:
+            [pandas.DataFrame] -- Dataframe in the same format as the output from the "generate_matches.py" script
+        """
+
         def create_template_summary(files):
             resized = np.array([load_image(x,224) for x in files])
             return resized
@@ -70,12 +79,6 @@ class SearchEngine:
         return filtered
 
     
-    
-    
-    def digest(self):
-        pass
-    
-    
     def find(self,query,threshold=0.07,plot=True):
         
         feats = self.template_cache[query]
@@ -91,8 +94,7 @@ class SearchEngine:
                 min_d = min(distances)
                 self.results_cache[query][video_summary] = min_d
                 
-                
-                
+        
                 if (min_d < threshold) and plot:
                     print('Minimum distance:{}'.format(min_d))
                     frame_of_interest = np.hstack(video_frames[np.argmin(distances):][:5])
@@ -101,12 +103,34 @@ class SearchEngine:
                     plt.imshow(frame_of_interest)
                     plt.show()
             except:
+
                 pass
+
+
+def download_sample_templates(TEMPLATES_PATH,DOWNLOAD_URL="https://s3.amazonaws.com/winnowpretrainedmodels/templates.tar.gz"):
+    if os.path.exists(TEMPLATES_PATH):
+        print('Templates Found',glob(TEMPLATES_PATH + '/**'))
+
+    else:    
+        try:
+            os.makedirs(TEMPLATES_PATH)
+        except Exception as e:
+            print(e)
+            pass
+        print('Downloading sample templates to:{}'.format(TEMPLATES_PATH))
+        DST = TEMPLATES_PATH + '/templates.tar.gz'
+        download_file(DST,DOWNLOAD_URL)
+        # unzip files
+        shutil.unpack_archive(DST,format='gztar')
+        # Delete tar
+        os.unlink(DST)
+
+
 
 
 def search_from_features(feats,threshold=0.07):
     for i in range(len(frame_summaries)):
-    #     random = np.random.randint(0,len(frame_summaries))
+    
         try:
             video_summary = frame_summaries[i]
             sample = np.load(video_summary)
@@ -124,5 +148,5 @@ def search_from_features(feats,threshold=0.07):
                 plt.imshow(frame_of_interest)
                 plt.show()
         except Exception as e:
-#             print(e)
-            pass
+            print(e)
+            
