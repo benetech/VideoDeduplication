@@ -1,6 +1,0 @@
-/home/felipe/ai/toptal/benetech/WinnowProject v2/winnow_project/data/external/CC_WEB_VIDEO/videos/15_1741_G.avi
-/home/felipe/ai/toptal/benetech/WinnowProject v2/winnow_project/data/external/CC_WEB_VIDEO/videos/1_880_H.flv
-/home/felipe/ai/toptal/benetech/WinnowProject v2/winnow_project/data/external/CC_WEB_VIDEO/videos/6_696_Y.flv
-/home/felipe/ai/toptal/benetech/WinnowProject v2/winnow_project/data/external/CC_WEB_VIDEO/videos/2_287_Y.flv
-/home/felipe/ai/toptal/benetech/WinnowProject v2/winnow_project/data/external/CC_WEB_VIDEO/videos/4_325_G.avi
-/home/felipe/ai/toptal/benetech/WinnowProject v2/winnow_project/data/external/CC_WEB_VIDEO/videos/4_71_Y.flv

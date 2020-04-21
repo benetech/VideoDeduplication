@@ -72,11 +72,11 @@ Install Conda as instructed on https://www.anaconda.com/distribution/
 
 GPU Version 
 
-`conda env create -f environment-lean-gpu.yaml`
+`conda env create -f environment-gpu.yaml`
 
 CPU Version 
 
-`conda env create -f environment-lean.yaml`
+`conda env create -f environment.yaml`
 
 
 Activate new conda environment
@@ -102,7 +102,7 @@ This repo contains three main scripts that perform the following tasks:
     3. network_vis.py : Saves a visualiation of the generated videos and their matches as a Network system
 
 
-Important notebooks include:
+Important notebooks include (located inside the notebooks folder):
 
     1. Visualization and Annotation Tool.ipynb: Allows the output of the generate_matches script to be reviewed and annotated.
     2. Template Matching Demo.ipynb: Allows the output of the extract_features script to be queried against known videos / images [as defined in custom templates built by the user]
@@ -164,7 +164,7 @@ Generate matches
 
 Generate network visualization
 
-`python networ_vis.py`
+`python network_vis.py`
 
 
 Visualize and annotate results (after running generate matches)

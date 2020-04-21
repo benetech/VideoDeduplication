@@ -10,8 +10,9 @@ import cv2
 import yaml
 from db import *
 from db.schema import *
-print('Loading config file')
 
+
+print('Loading config file')
 
 with open("config.yaml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
@@ -76,7 +77,7 @@ for i,r in enumerate(results_sorted):
         m.append(matches)
         distance.append(results_sorted_distance[i][j])
 
-match_df = pd.DataFrame({"query":q,"match":m,"distance":distance})            
+match_df = pd.DataFrame({"query":q,"match":m,"disturlance":distance})            
 match_df['query_video'] = labels[match_df['query']]
 match_df['match_video'] = labels[match_df['match']]
 match_df['self_match'] = match_df['query_video'] == match_df['match_video']
