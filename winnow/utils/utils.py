@@ -10,7 +10,7 @@ import cv2
 import yaml
 
 
-def filter_results(thr):
+def filter_results(thr,distances,indices):
     results = []
     results_distances = []
     msk = distances < thr

@@ -57,7 +57,7 @@ nn = NearestNeighbors(n_neighbors=20,metric='euclidean',algorithm='kd_tree')
 nn.fit(video_signatures)
 distances,indices =  nn.kneighbors(video_signatures)
 
-results,results_distances = filter_results(DISTANCE)
+results,results_distances = filter_results(DISTANCE,distances,indices)
 
 ss = sorted(zip(results,results_distances),key=lambda x:len(x[0]),reverse=True)
 results_sorted = [x[0] for x in ss]
@@ -176,7 +176,7 @@ if HANDLE_DARK == 'True':
     
     if USE_DB:
 
-        add_metadata(session,video_signatures,sm.original_filenames)
+        add_metadata(session,merged)
         try:
             session.commit()
     

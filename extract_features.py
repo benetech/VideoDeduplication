@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     # Get filenames
     processed_filenames = [x.split('_vgg_features')[0].split(sep)[-1] for x in processed_videos]
-    full_video_names = [x.split('.')[0].split(sep)[-1] for x in videos]
+    full_video_names = [x.split(sep)[-1] for x in videos]
 
     # Check for remaining videos
     remaining_videos = [i for i,x in enumerate(full_video_names) if x not in processed_filenames]
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     print('Saving Video Signatures on :{}'.format(VIDEO_SIGNATURES_SAVE_FOLDER))
 
     if USE_DB:
-        db_engine,session = create_engine_session(CONN_STRING)
+        db_engine,session = create_engine_session(CONNINFO)
         create_tables(db_engine)
         add_signatures(session,video_signatures,sm.original_filenames)
         try:
