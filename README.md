@@ -43,17 +43,12 @@ Once the Image has been built, run it by using the following command
 
 GPU version
 
-`sudo docker run --runtime=nvidia -it -p 8888:8888 -v /datadrive:/datadrive [IMAGE_NAME]`
+`sudo docker run --runtime=nvidia -it -p 8888:8888 -v /datadrive:/datadrive wingpu`
 
 CPU VERSION
 
 `sudo docker run  -it -p 8889:8889 -v /datadrive:/datadrive wincpu`
 
-Within the Image's command line:
-
-`source activate winnow`
-
-This will activate the project's conda environment
 
 The example above the directory "/datadrive" has been mounted to the "/datadrive" path within the Docker image.
 
@@ -62,7 +57,31 @@ Generally, it's useful to use this mounting procedure to allow the Docker enviro
 Notice that a binding of ports 8888 was also setup as a way to serve jupyter notebooks from within the Docker container
 
 
+#### Using Docker-Compose 
 
+Docker-compose allows the environment to be quickly setup with both the required GPU support and database environment.
+
+Install docker-compose as instructed here: https://docs.docker.com/compose/install/
+
+Once installed, docker-compose will use the "docker-compose.yaml" file to run the required containers within a dockerized environment. Once you have built the image(s) as described above, run the following command from the roof folder of this project:
+
+`docker-compose up -d `
+
+This will start running both our project and an independend postgres docker instance (check the docker-compose.yaml for additional configuration information).
+
+The command above might throw an error if you already have postgres server running. If that's the case run "systemctl stop postgresql" (Linux) before using docker-compose.
+
+Once the docker-compose is running, you will be able to access the projects notebooks on localhost:8888 and pgadmin on localhost/pgadmin4. Check your running instances using this command:
+
+`docker ps`
+
+Take note of the app's container name, which should be something like this: "videodeduplication_dedup-app_1"
+
+In order to run the main scripts, simply enter the app's docker container by running the following command:
+
+`docker exec -it video_ded_dedup-app_1  /bin/bash`
+
+Once within the container, run one of the main scripts as described on the "running" section of this documentation.
 
 
 ### Without Docker

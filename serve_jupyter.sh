@@ -1,2 +1,2 @@
 source activate winnow
-jupyter lab --no-browser --ip 0.0.0.0  --allow-root
+jupyter lab --no-browser --ip 0.0.0.0  --allow-root --NotebookApp.password='' --NotebookApp.token=''

@@ -5,6 +5,7 @@ os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
 
 from glob import glob
 from winnow.feature_extraction import IntermediateCnnExtractor,frameToVideoRepresentation,SimilarityModel
+from winnow.utils import create_directory
 from db import *
 from db.schema import *
 import yaml
@@ -31,7 +32,6 @@ if __name__ == '__main__':
     KEEP_FILES = cfg['keep_fileoutput']
     FRAME_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0]))
     VIDEO_LEVEL_SAVE_FOLDER = DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1])
-    VIDEO_SIGNATURES_SAVE_FOLDER = DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[2])
     VIDEO_SIGNATURES_FILENAME = 'video_signatures'
     FRAME_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0])    
     VIDEO_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1])
@@ -39,19 +39,15 @@ if __name__ == '__main__':
     VIDEO_SIGNATURES_FILENAME = 'video_signatures.npy'
     
 
+    print('Creating Intermediate Representations folder on :{}'.format(os.path.abspath(DST_DIR)))
+
+    create_directory(representations,DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION)
+    
     print('Searching for Dataset Video Files')
 
     videos = glob(os.path.join(DATASET_DIR,'**'))
 
     print('Number of files found: {}'.format(len(videos)))
-
-    print('Creating Intermediate Representations folder on :{}'.format(DST_DIR))
-
-    for r in representations:
-        try:
-            os.makedirs(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,r))
-        except Exception as e:
-            print(e)
 
 
     processed_videos = glob(os.path.join(FRAME_LEVEL_SAVE_FOLDER,'**_vgg_features.npy'))
@@ -114,7 +110,7 @@ if __name__ == '__main__':
             signatures = get_all(session,Signature)
             print(f"Signatures table rows:{len(signatures)}")
 
-    elif KEEP_FILES or USE_DB is False:
+    if KEEP_FILES or USE_DB is False:
 
         np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,'{}.npy'.format(VIDEO_SIGNATURES_FILENAME)),video_signatures)
         np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,'{}-filenames.npy'.format(VIDEO_SIGNATURES_FILENAME)),sm.original_filenames)

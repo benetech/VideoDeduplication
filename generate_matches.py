@@ -22,15 +22,15 @@ representations = ['frame_level','video_level','video_signatures']
     
 DST_DIR = cfg['destination_folder']
 ROOT_FOLDER_INTERMEDIATE_REPRESENTATION =cfg['root_folder_intermediate']
-VIDEO_SIGNATURES_SAVE_FOLDER = cfg['video_signatures_folder'] 
+VIDEO_SIGNATURES_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[2])
+VIDEO_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1]))
+FRAME_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0]))
 DISTANCE = float(cfg['match_distance'])
 MIN_VIDEO_DURATION = float(cfg['min_video_duration_seconds'])
-HANDLE_DARK = str(cfg['filter_dark_videos'])
-DETECT_SCENES = str(cfg['detect_scenes'])
+HANDLE_DARK = cfg['filter_dark_videos']
+DETECT_SCENES = cfg['detect_scenes']
 DARK_THR = float(cfg['filter_dark_videos_thr'])
 DST_FOLDER = cfg['destination_folder']
-VIDEO_LEVEL_SAVE_FOLDER = cfg['video_level_folder']
-FRAME_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0]))
 USE_DB = cfg['use_db'] 
 CONNINFO = cfg['conninfo']
 KEEP_FILES = cfg['keep_fileoutput'] 
@@ -53,7 +53,10 @@ labels = np.array([x.split('_vgg')[0].split('/')[-1] for x in  sm.index])
 
 
 print('Finding Matches...')
-nn = NearestNeighbors(n_neighbors=20,metric='euclidean',algorithm='kd_tree')
+# Handles small tests for which number of videos <  number of neighbors
+neighbors = min(20,video_signatures.shape[0])
+
+nn = NearestNeighbors(n_neighbors=neighbors,metric='euclidean',algorithm='kd_tree')
 nn.fit(video_signatures)
 distances,indices =  nn.kneighbors(video_signatures)
 
@@ -95,7 +98,7 @@ print('Saving unfiltered report to {}'.format(REPORT_PATH))
 
 match_df.to_csv(REPORT_PATH)
 
-if DETECT_SCENES == 'True':
+if DETECT_SCENES:
     
     frame_level_repres = glob(FRAME_LEVEL_SAVE_FOLDER + '/**_features.npy')
     filtered_videos,durations,num_scenes,avg_duration,total_video = extract_scenes(frame_level_repres)
@@ -121,13 +124,15 @@ if DETECT_SCENES == 'True':
         scene_metadata.to_csv('scene_metadata.csv')
     
     
-if HANDLE_DARK == 'True':
+if HANDLE_DARK:
     
     print('Filtering dark and/or short videos')
 
     frame_level_repres = glob(FRAME_LEVEL_SAVE_FOLDER + '/**_features.npy')
-    frame_level_data = np.array([extract_additional_info(x) for x in frame_level_repres])
 
+    assert len(frame_level_repres) > 0
+
+    frame_level_data = np.array([extract_additional_info(x) for x in frame_level_repres])
     video_length = np.array(frame_level_data)[:,0]
     video_avg_act = frame_level_data[:,1]
     video_avg_mean = frame_level_data[:,2]

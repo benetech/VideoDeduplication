@@ -38,7 +38,7 @@ class SimilarityModel:
 
         video_level_paths = glob(os.path.join(self.src,'**features.npy'))
         if len(video_level_paths) == 0:
-            raise Exception('No video features files were found')
+            raise Exception('No video features files were found on {}'.format(self.src))
             
         for vid in video_level_paths:
             self.features.append(np.load(vid)[0])

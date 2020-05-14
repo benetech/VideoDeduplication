@@ -1,13 +1,9 @@
 video_source_folder:
-    /datadrive/test_dataset/
+    data/augmented_videos/
 destination_folder:
-    /datadrive/
+    data/
 root_folder_intermediate:
     representations
-video_level_folder:
-    /datadrive/representations/video_level
-video_signatures_folder:
-    /datadrive/representations/video_signatures
 match_distance:
     0.75
 video_list_filename:
@@ -25,12 +21,12 @@ use_pretrained_model_local_path:
     true
 
 pretrained_model_local_path:
-    /home/felipe/ai/toptal/benetech/VideoDeduplication/data/vgg_16.ckpt
+    data/model/vgg_16.ckpt
 
 # DB Settings
 use_db:
     true
 conninfo:
-    postgres://postgres:admin@localhost:5432/test
+    postgres://postgres:admin@postgres:5432/videodeduplicationdb
 keep_fileoutput:
     true

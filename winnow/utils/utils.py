@@ -10,6 +10,16 @@ import cv2
 import yaml
 
 
+def create_directory(directories,root_dir,alias):
+
+    for r in directories:
+        try:
+            os.makedirs(os.path.abspath(os.path.join(root_dir,alias,r)))
+        except Exception as e:
+            print(e)
+
+
+
 def filter_results(thr,distances,indices):
     results = []
     results_distances = []
