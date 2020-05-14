@@ -79,7 +79,7 @@ Take note of the app's container name, which should be something like this: "vid
 
 In order to run the main scripts, simply enter the app's docker container by running the following command:
 
-`docker exec -it video_ded_dedup-app_1  /bin/bash`
+`docker exec -it videodeduplication_dedup-app_1  /bin/bash`
 
 Once within the container, run one of the main scripts as described on the "running" section of this documentation.
 
