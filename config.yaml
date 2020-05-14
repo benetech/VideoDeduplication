@@ -1,7 +1,7 @@
 video_source_folder:
-    data/augmented_videos/
+    /datadrive/test_dataset/
 destination_folder:
-    data/
+    datadrive/
 root_folder_intermediate:
     representations
 match_distance:
@@ -21,7 +21,7 @@ use_pretrained_model_local_path:
     true
 
 pretrained_model_local_path:
-    data/model/vgg_16.ckpt
+    /datadrive/model/vgg_16.ckpt
 
 # DB Settings
 use_db:
