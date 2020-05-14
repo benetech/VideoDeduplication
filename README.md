@@ -135,13 +135,6 @@ These scripts use the 'config.yaml' file to define where to collect data from, h
     
 **root_folder_intermediate**: Folder name used for the intermediate representations (Make sure it's compatible with the next paremeter)
 
-    
-**video_level_folder**: Folder that contains the video level embeddings generated from the video files
-
-    
-**video_signatures_folder**:Folder that contains the video  signatures generated from the video files
-
-
 **match_distance**: Distance threshold that determines whether two videos are a match [FLOAT - 0.0 to 1.0]
     
 **video_list_filename**: Name of the file that contains the list of processed video files (to be saved by the extraction script)
