@@ -13,9 +13,9 @@ ADD environment-gpu.yaml /tmp/environment-gpu.yaml
 
 RUN conda env create -f /tmp/environment-gpu.yaml
 
-RUN echo "source activate winnow-gpu" > ~/.bashrc
+RUN echo "source activate winnow" > ~/.bashrc
 
-ENV PATH /opt/conda/envs/winnow-gpu/bin:$PATH
+ENV PATH /opt/conda/envs/winnow/bin:$PATH
 
 RUN mkdir project
 
@@ -28,5 +28,3 @@ RUN pip install -e .
 RUN apt update 
 
 RUN apt-get install -y libsm6 libxext6 libxrender-dev nano
-
-RUN source activate winnow-gpu

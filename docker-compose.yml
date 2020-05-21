@@ -11,7 +11,7 @@ services:
       - "5432:5432"
     volumes:
       # Replace by the path on your host machine where you would like to save your DB data
-      - HOSTPATH/postgres:/var/lib/postgresql/data 
+      - ~/ai/toptal/postgres:/var/lib/postgresql/data 
     networks:
       - postgres-compose-network
       
@@ -19,13 +19,13 @@ services:
     # This can be replaced by the online repository reference if you haven't built a local docker image
     image: wingpu 
     runtime: nvidia
-    command: bash serve_jupyter.sh
+    command: bash -ic "bash serve_jupyter.sh"
     environment:
       PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
       PGADMIN_DEFAULT_PASSWORD: "admin"
     volumes:
       # Replace by the path on your host machine where you placed the source data
-        - HOSTPATH/data:/project/data
+        - /home/felipe/ai/toptal/benetech/data:/project/data
     ports:
       - "16543:80"
       - "8888:8888"

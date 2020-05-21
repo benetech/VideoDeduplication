@@ -12,9 +12,9 @@ ADD environment.yaml /tmp/environment.yaml
 
 RUN conda env create -f /tmp/environment.yaml
 
-RUN echo "source activate winnow-cpu" > ~/.bashrc
+RUN echo "source activate winnow" > ~/.bashrc
 
-ENV PATH /opt/conda/envs/winnow-cpu/bin:$PATH
+ENV PATH /opt/conda/envs/winnow/bin:$PATH
 
 RUN mkdir project
 

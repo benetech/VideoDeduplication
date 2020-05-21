@@ -1,4 +1,4 @@
-name: winnow-cpu
+name: winnow
 channels:
   - conda-forge
   - defaults
@@ -13,6 +13,8 @@ dependencies:
   - tqdm
   - sqlalchemy
   - psycopg2
+  - jupyter
+  - jupyterlab
   - pip:
     - image
     - imageio
