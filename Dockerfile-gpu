@@ -23,7 +23,8 @@ ADD . project/
 
 WORKDIR project/
 
-RUN pip install -e .
+    RUN /bin/bash -c "source activate winnow && \
+        pip install -e ."
 
 RUN apt update 
 

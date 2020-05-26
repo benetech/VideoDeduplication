@@ -9,6 +9,7 @@ from winnow.feature_extraction.utils import load_image,load_video,download_file
 import requests
 import shutil
 import os
+from collections import defaultdict
 
 class SearchEngine:
     def __init__(self,templates_root,library_glob,model):
@@ -65,13 +66,16 @@ class SearchEngine:
 
         records = pd.DataFrame.from_records(self.results_cache,index=None).reset_index()
         df = pd.melt(records,id_vars='index')
+        additional_columns = pd.json_normalize(df['value'])
+        df['distance'] = additional_columns['distance']
+        df['closest_match'] = additional_columns['closest_match']
+        df.drop(labels='value',axis=1,inplace=True)
         summaries = dict() 
         for k,v in self.available_queries.items():        
             n = '{}.npy'.format(k)
             summaries[k] = n
             np.save(n,create_template_summary(glob(v + '/**')))
         df['match_video'] = df['index'].apply(lambda x:x.split('/')[-1].split('_vgg')[0])
-        df['distance'] = df['value']
         df['query_video'] = df['variable'].apply(lambda x:summaries[x])
         msk = df['distance'] < threshold
         filtered = df.loc[msk,:]
@@ -83,7 +87,7 @@ class SearchEngine:
         
         feats = self.template_cache[query]
         print('Loaded query embeddings',feats.shape)
-        self.results_cache[query] = dict()
+        self.results_cache[query] = defaultdict()
         for i in range(len(self.frame_summaries)):
             try:
                 video_summary = self.frame_summaries[i]
@@ -92,18 +96,22 @@ class SearchEngine:
                 
                 distances = np.mean(cdist(feats,sample,metric='cosine'),axis=0)
                 min_d = min(distances)
-                self.results_cache[query][video_summary] = min_d
+                self.results_cache[query][video_summary] = dict()
+                self.results_cache[query][video_summary]['distance'] = min_d
+                self.results_cache[query][video_summary]['closest_match'] = np.argmin(distances)
                 
         
-                if (min_d < threshold) and plot:
-                    print('Minimum distance:{}'.format(min_d))
+                if (min_d < threshold):
+                    # print('Minimum distance:{}'.format(min_d))
+                    
                     frame_of_interest = np.hstack(video_frames[np.argmin(distances):][:5])
 
-                    plt.figure(figsize=(20,10))
-                    plt.imshow(frame_of_interest)
-                    plt.show()
-            except:
-
+                    if plot:
+                        plt.figure(figsize=(20,10))
+                        plt.imshow(frame_of_interest)
+                        plt.show()
+            except Exception as e:
+                print('Error:',e)
                 pass
 
 
