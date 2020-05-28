@@ -1,7 +1,7 @@
 video_source_folder:
-    /datadrive/test_dataset/
+    datadrive/test_dataset/
 destination_folder:
-    datadrive/
+    /home/felipe/ai/toptal/benetech/data/
 root_folder_intermediate:
     representations
 match_distance:
@@ -30,3 +30,8 @@ conninfo:
     postgres://postgres:admin@postgres:5432/videodeduplicationdb
 keep_fileoutput:
     true
+
+# Template matching
+templates_source_path: 
+    datadrive/templates/test-group/CCSI Object Recognition External/
+

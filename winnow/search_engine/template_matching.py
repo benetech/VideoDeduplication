@@ -1,20 +1,25 @@
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from scipy.spatial.distance import cdist
+from collections import defaultdict
+import datetime
 from glob import glob
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import pandas as pd
+import requests
+from scipy.spatial.distance import cdist
+import shutil
 from winnow.feature_extraction.extraction_routine import load_featurizer
 from winnow.feature_extraction.utils import load_image,load_video,download_file
-import requests
-import shutil
-import os
-from collections import defaultdict
+
+
 
 class SearchEngine:
-    def __init__(self,templates_root,library_glob,model):
-        
-        self.templates_root = templates_root
+    def __init__(self,templates_root,library_path,model):
+
+        library_glob = os.path.join(library_path,"*features.npy")
+        templates_glob = os.path.join(templates_root,'*')
+
+        self.templates_root = templates_glob
         self.library_glob = library_glob
         self.model = model
         self.available_queries = self.find_available_templates()
@@ -69,6 +74,7 @@ class SearchEngine:
         additional_columns = pd.json_normalize(df['value'])
         df['distance'] = additional_columns['distance']
         df['closest_match'] = additional_columns['closest_match']
+        df['closest_match_time'] = df['closest_match'].apply(lambda x: datetime.timedelta(seconds=x))
         df.drop(labels='value',axis=1,inplace=True)
         summaries = dict() 
         for k,v in self.available_queries.items():        
@@ -95,23 +101,30 @@ class SearchEngine:
                 video_frames = np.load(video_summary.replace('features','frames'))
                 
                 distances = np.mean(cdist(feats,sample,metric='cosine'),axis=0)
-                min_d = min(distances)
-                self.results_cache[query][video_summary] = dict()
-                self.results_cache[query][video_summary]['distance'] = min_d
-                self.results_cache[query][video_summary]['closest_match'] = np.argmin(distances)
                 
+                self.results_cache[query][video_summary] = dict()
+
+                if len(distances) > 0:
+                    frame_of_interest_index = np.argmin(distances)
+                    min_d = min(distances)
+                else:
+                    frame_of_interest_index = 0
+                    min_d = 1.0
+                
+                
+                self.results_cache[query][video_summary]['distance'] = min_d
+                self.results_cache[query][video_summary]['closest_match'] = frame_of_interest_index
         
-                if (min_d < threshold):
+                if (min_d < threshold) and plot:
                     # print('Minimum distance:{}'.format(min_d))
                     
-                    frame_of_interest = np.hstack(video_frames[np.argmin(distances):][:5])
+                    frame_of_interest = np.hstack(video_frames[frame_of_interest_index:][:5])
+                    plt.figure(figsize=(20,10))
+                    plt.imshow(frame_of_interest)
+                    plt.show()
 
-                    if plot:
-                        plt.figure(figsize=(20,10))
-                        plt.imshow(frame_of_interest)
-                        plt.show()
             except Exception as e:
-                print('Error:',e)
+                print('Error:',e,distances,video_summary,frame_of_interest_index)
                 pass
 
 
