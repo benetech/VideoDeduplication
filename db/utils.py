@@ -52,10 +52,12 @@ def add_scenes(session,scenes):
         session {DB Session} -- created by a previous instatiation of the db session
         scenes {pd.Dataframe} -- Pandas Dataframe containing scene information 
     """
-    session.add_all([Scenes(original_filename=x['fp'],
-                            video_duration = x['video_duration'],
-                            avg_duration = x['avg_duration'],
-                            scene_duration = json.loads(str(x['scene_duration']))
+    session.add_all([Scenes(original_filename=x['video_filename'],
+                            video_duration_seconds = x['video_duration_seconds'],
+                            avg_duration_seconds = x['avg_duration_seconds'],
+                            scenes_timestamp = x['scenes_timestamp'],
+                            total_video_duration_timestamp = x['total_video_duration_timestamp'],
+                            scene_duration_seconds = json.loads(str(x['scene_duration_seconds']))
                             
     ) for i,x in scenes.iterrows()])
 
