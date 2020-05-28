@@ -4,6 +4,7 @@ import numpy as np
 import os
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
+from tqdm import tqdm
 from winnow.feature_extraction import SimilarityModel
 from winnow.utils import extract_additional_info, extract_scenes,filter_results,uniq
 import cv2
@@ -55,7 +56,6 @@ labels = np.array([x.split('_vgg')[0].split('/')[-1] for x in  sm.index])
 print('Finding Matches...')
 # Handles small tests for which number of videos <  number of neighbors
 neighbors = min(20,video_signatures.shape[0])
-
 nn = NearestNeighbors(n_neighbors=neighbors,metric='euclidean',algorithm='kd_tree')
 nn.fit(video_signatures)
 distances,indices =  nn.kneighbors(video_signatures)
@@ -80,7 +80,7 @@ for i,r in enumerate(results_sorted):
         m.append(matches)
         distance.append(results_sorted_distance[i][j])
 
-match_df = pd.DataFrame({"query":q,"match":m,"disturlance":distance})            
+match_df = pd.DataFrame({"query":q,"match":m,"distance":distance})            
 match_df['query_video'] = labels[match_df['query']]
 match_df['match_video'] = labels[match_df['match']]
 match_df['self_match'] = match_df['query_video'] == match_df['match_video']
@@ -101,8 +101,17 @@ match_df.to_csv(REPORT_PATH)
 if DETECT_SCENES:
     
     frame_level_repres = glob(FRAME_LEVEL_SAVE_FOLDER + '/**_features.npy')
-    filtered_videos,durations,num_scenes,avg_duration,total_video = extract_scenes(frame_level_repres)
-    scene_metadata = pd.DataFrame(dict(fp=filtered_videos,scene_duration=durations,num_scenes=num_scenes,avg_duration=avg_duration,video_duration=total_video))
+    filtered_videos,durations,num_scenes,avg_duration,total_video,scenes_timestamp,total_video_duration_timestamp= extract_scenes(frame_level_repres)
+    scene_metadata = pd.DataFrame(dict(
+                                       video_filename = [os.path.basename(x).split('_vgg')[0] for x in filtered_videos],
+                                       scenes_timestamp = scenes_timestamp,
+                                       scene_duration_seconds=durations,
+                                       num_scenes=num_scenes,
+                                       avg_duration_seconds=avg_duration,
+                                       video_duration_seconds=total_video,
+                                       total_video_duration_timestamp = total_video_duration_timestamp,
+                                       fp=filtered_videos))
+    
 
     if USE_DB:
 
@@ -120,8 +129,10 @@ if DETECT_SCENES:
             print(f"Scenes table rows:{len(scenes)}")
         
     if KEEP_FILES or USE_DB is False:
-    
-        scene_metadata.to_csv('scene_metadata.csv')
+        
+        SCENE_METADATA_OUTPUT_PATH = os.path.join(DST_FOLDER,'scene_metadata.csv')
+        scene_metadata.to_csv(SCENE_METADATA_OUTPUT_PATH)
+        print('Scene Metadata saved in:'.format(SCENE_METADATA_OUTPUT_PATH))
     
     
 if HANDLE_DARK:
@@ -132,7 +143,9 @@ if HANDLE_DARK:
 
     assert len(frame_level_repres) > 0
 
-    frame_level_data = np.array([extract_additional_info(x) for x in frame_level_repres])
+
+    print('Extracting additional information from video files')
+    frame_level_data = np.array([extract_additional_info(x) for x in tqdm(frame_level_repres)])
     video_length = np.array(frame_level_data)[:,0]
     video_avg_act = frame_level_data[:,1]
     video_avg_mean = frame_level_data[:,2]
