@@ -118,7 +118,8 @@ This repo contains three main scripts that perform the following tasks:
 
     1. extract_features.py : Signature extraction Pipeline
     2. generate_matches.py : Signature to Matches (saved as CSV)
-    3. network_vis.py : Saves a visualiation of the generated videos and their matches as a Network system
+    3. template_matching.py: Uses source templates to query the extracted embeddings and generates a report containing potential matches
+    4. network_vis.py : Saves a visualiation of the generated videos and their matches as a Network system
 
 
 Important notebooks include (located inside the notebooks folder):

@@ -69,24 +69,35 @@ class SearchEngine:
             for q in queries:
                 self.find(q,threshold=threshold,plot=False)
 
-        records = pd.DataFrame.from_records(self.results_cache,index=None).reset_index()
-        df = pd.melt(records,id_vars='index')
-        additional_columns = pd.json_normalize(df['value'])
-        df['distance'] = additional_columns['distance']
-        df['closest_match'] = additional_columns['closest_match']
-        df['closest_match_time'] = df['closest_match'].apply(lambda x: datetime.timedelta(seconds=x))
-        df.drop(labels='value',axis=1,inplace=True)
-        summaries = dict() 
-        for k,v in self.available_queries.items():        
-            n = '{}.npy'.format(k)
-            summaries[k] = n
-            np.save(n,create_template_summary(glob(v + '/**')))
-        df['match_video'] = df['index'].apply(lambda x:x.split('/')[-1].split('_vgg')[0])
-        df['query_video'] = df['variable'].apply(lambda x:summaries[x])
-        msk = df['distance'] < threshold
-        filtered = df.loc[msk,:]
-        filtered.to_csv(fp)
-        return filtered
+        print(self.available_queries)
+
+        if self.results_cache:
+
+            records = pd.DataFrame.from_records(self.results_cache,index=None).reset_index()
+
+            df = pd.melt(records,id_vars='index')
+            additional_columns = pd.json_normalize(df['value'])
+            df['distance'] = additional_columns['distance']
+            df['closest_match'] = additional_columns['closest_match']
+            df['closest_match_time'] = df['closest_match'].apply(lambda x: datetime.timedelta(seconds=x))
+            df.drop(labels='value',axis=1,inplace=True)
+            summaries = dict() 
+            for k,v in self.available_queries.items():        
+                n = '{}.npy'.format(k)
+                summaries[k] = n
+                np.save(n,create_template_summary(glob(v + '/**')))
+            df['match_video'] = df['index'].apply(lambda x:x.split('/')[-1].split('_vgg')[0])
+            df['query_video'] = df['variable'].apply(lambda x:summaries[x])
+            msk = df['distance'] < threshold
+            filtered = df.loc[msk,:]
+            filtered.to_csv(fp)
+            return filtered
+
+        elif not self.available_queries:
+            raise Exception('No templates were found. Please check if the templates are located at {}'.format(self.templates_root))
+            
+        else:
+            raise Exception('No matches were found at the current distance configuration ({})'.format(threshold))
 
     
     def find(self,query,threshold=0.07,plot=True):
