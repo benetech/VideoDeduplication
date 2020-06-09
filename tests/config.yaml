@@ -1,0 +1,30 @@
+video_source_folder:
+    tests/test_data/test_videos
+destination_folder:
+    tests/test_data/test_output
+root_folder_intermediate:
+    representations
+match_distance:
+    0.75
+video_list_filename:
+    video_dataset_list.txt
+filter_dark_videos:
+    true
+filter_dark_videos_thr:
+    2
+min_video_duration_seconds:
+    3
+detect_scenes:
+    true
+use_pretrained_model_local_path:
+    true
+pretrained_model_local_path:
+    /home/felipe/ai/toptal/benetech/VideoDeduplication/data/vgg_16.ckpt
+
+# DB Settings
+use_db:
+    true
+conninfo:
+    postgres://postgres:admin@localhost:5432/test
+keep_fileoutput:
+    true

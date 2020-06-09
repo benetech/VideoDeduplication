@@ -18,6 +18,33 @@ def create_directory(directories,root_dir,alias):
         except Exception as e:
             print(e)
 
+def scan_videos(path,wildcard):
+
+    return glob(os.path.join(path,wildcard))
+
+def get_original_fn_from_artifact(fp_list,sep):
+    """Get original video filename using our encoding convention for generating additional training
+    artifacts
+
+    Arguments:
+        fp_list {List} -- List of filepaths to training artifacts (such as [path/filename.mp4_vgg_features.npy])
+        sep {String} -- Artifact separator (eg. 'vgg_features.npy')
+
+    Returns:
+        [List] -- List of the original video filenames
+    """
+
+    return  [os.path.basename(x).split(sep)[0] for x in fp_list]
+
+
+def create_video_list(videos_to_be_processed,fp):
+
+    with open(fp, 'w', encoding="utf-8") as f:
+        for item in videos_to_be_processed:
+            f.write("%s\n" % item)
+
+    return os.path.abspath(fp)
+
 
 
 def filter_results(thr,distances,indices):

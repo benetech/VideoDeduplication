@@ -5,15 +5,10 @@ os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
 
 from glob import glob
 from winnow.feature_extraction import IntermediateCnnExtractor,frameToVideoRepresentation,SimilarityModel
-from winnow.utils import create_directory
+from winnow.utils import create_directory,scan_videos,create_video_list,get_original_fn_from_artifact
 from db import *
 from db.schema import *
 import yaml
-
-
-sep = '/'
-if os.name == 'nt':
-    sep = '\\'
 
 
 if __name__ == '__main__':
@@ -45,18 +40,17 @@ if __name__ == '__main__':
     
     print('Searching for Dataset Video Files')
 
-    videos = glob(os.path.join(DATASET_DIR,'**'))
+    videos = scan_videos(DATASET_DIR,'**')
 
     print('Number of files found: {}'.format(len(videos)))
 
-
-    processed_videos = glob(os.path.join(FRAME_LEVEL_SAVE_FOLDER,'**_vgg_features.npy'))
+    processed_videos = scan_videos(FRAME_LEVEL_SAVE_FOLDER,'**_vgg_features.npy')
 
     print('Found {} videos that have already been processed.'.format(len(processed_videos)))
 
     # Get filenames
-    processed_filenames = [x.split('_vgg_features')[0].split(sep)[-1] for x in processed_videos]
-    full_video_names = [x.split(sep)[-1] for x in videos]
+    processed_filenames = get_original_fn_from_artifact(processed_videos,'_vgg_features')
+    full_video_names = [os.path.basename(x) for x in videos]
 
     # Check for remaining videos
     remaining_videos = [i for i,x in enumerate(full_video_names) if x not in processed_filenames]
@@ -65,13 +59,10 @@ if __name__ == '__main__':
 
     print('There are {} videos left'.format(len(remaining_videos_path)))
 
-    with open(VIDEO_LIST_TXT, 'w', encoding="utf-8") as f:
-        for item in remaining_videos_path:
-            f.write("%s\n" % item)
-
-    VIDEOS_LIST = os.path.abspath(VIDEO_LIST_TXT)
+    VIDEOS_LIST = create_video_list(remaining_videos_path,VIDEO_LIST_TXT)
 
     print('Processed video List saved on :{}'.format(VIDEOS_LIST))
+
     if len(remaining_videos_path) > 0:
         # Instantiates the extractor
         extractor = IntermediateCnnExtractor(VIDEOS_LIST,FRAME_LEVEL_SAVE_FOLDER)

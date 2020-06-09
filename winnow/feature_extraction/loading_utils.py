@@ -87,19 +87,18 @@ def global_vector(video):
 
 def frame_to_global(src_dir,output_dir):
 
-    videos = glob(os.path.join(src_dir,'**.npy'))
-    sep = '/'
-    if os.name == 'nt':
-        sep = '\\'
+    videos = glob(os.path.join(src_dir,'**_vgg_features.npy'))
         
     for vid in videos:
         try:
-            dst = os.path.join(output_dir, vid.split(sep)[-1])
+            dst = os.path.join(output_dir, os.path.basename(vid))
             print(dst)
             video_representation = global_vector(vid)
+            print('Saving to ',dst)
             np.save(dst,video_representation)
         except Exception as e:
-            print('Cant save video to destination:{}'.format(e))
+
+            raise Exception('Cant save video to destination:{}'.format(e))
 
 
 
