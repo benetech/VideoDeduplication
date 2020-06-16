@@ -1,69 +1,54 @@
-Winnow Project
+Benetech Video Deduplication Project
 ==============================
 
-Near Duplicate detection for video files.
+Near Duplicate, object, and metadata detection for video files.
 
-# Installation
+# Installation (Ubuntu with Docker)
 
-### Using Docker
+### Fetch Codebase
 
-Assuming docker has been installed run the following command and install the NVIDIA Docker runtime [GPU LINUX ONLY]:
+run:
+
+git clone https://github.com/benetech/VideoDeduplication.git
+
+### Install and configure Docker
+
+The easiest, most consistent method for installing Docker on Ubuntu can be found at: https://get.docker.com/
+
+run:
+
+curl -fsSL https://get.docker.com -o get-docker.sh
+
+followed by:
+
+bash get-docker.sh
+
+Once the above has been completed. Open a command prompt window and type the ‘docker’ command to confirm that the Docker service is available and returning the help guide.
+
+### Enable GPU support for Docker
+
+Assuming docker has been installed run the following command and install the NVIDIA Docker runtime using the script in the main project folder [GPU LINUX ONLY]:
 
 `bash install_nvidia_docker.sh`
 
-Assuming Docker is has been installed correctly, there are two options:
- 
-    1. Pulling pre-built images from Dockerhub
-    2. Build the Images from the suitable Dockerfile
-    
-    
-#### Pre-Built Images
+### Install docker-compose
 
-GPU Version
+run:
 
-`docker pull johnhbenetech/videodeduplication:gpu`
+sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
-CPU version
+then modify permissions:
 
-`docker pull johnhbenetech/videodeduplication:cpu`
+sudo chmod +x /usr/local/bin/docker-compose
 
 
-#### Building Images
+#### Building and running images
 
-GPU Version
+Build VideoDeduplication Image:
 
-`sudo docker build   -f Dockerfile-gpu -t wingpu .`
+`sudo docker build -f Dockerfile-gpu -t wingpu .`
 
-CPU version
-
-`sudo docker build   -f Dockerfile-cpu -t wincpu .`
-
-
-Once the Image has been built, run it by using the following command
-
-GPU version
-
-`sudo docker run --runtime=nvidia -it -p 8888:8888 -v /datadrive:/datadrive wingpu`
-
-CPU VERSION
-
-`sudo docker run  -it -p 8889:8889 -v /datadrive:/datadrive wincpu`
-
-
-The example above the directory "/datadrive" has been mounted to the "/datadrive" path within the Docker image.
-
-Generally, it's useful to use this mounting procedure to allow the Docker environment to interact with the file system that contains the video files subject to analysis
-
-Notice that a binding of ports 8888 was also setup as a way to serve jupyter notebooks from within the Docker container
-
-
-#### Using Docker-Compose 
-
-Docker-compose allows the environment to be quickly setup with both the required GPU support and database environment.
-
-Install docker-compose as instructed here: https://docs.docker.com/compose/install/
-
-Once installed, docker-compose will use the "docker-compose.yaml" file to run the required containers within a dockerized environment. Once you have built the image(s) as described above, run the following command from the roof folder of this project:
+Once the Image has been built, using Docker-compose allows the environment to be quickly setup with both the required GPU support and database environment. The docker-compose.yml file can be reviewed if you wish to adjust defaults:
 
 `docker-compose up -d `
 
@@ -84,34 +69,6 @@ In order to run the main scripts, simply enter the app's docker container by run
 Once within the container, run one of the main scripts as described on the "running" section of this documentation.
 
 
-### Without Docker
-
-Install Conda as instructed on https://www.anaconda.com/distribution/
-
-
-GPU Version 
-
-`conda env create -f environment-gpu.yaml`
-
-CPU Version 
-
-`conda env create -f environment.yaml`
-
-
-Activate new conda environment
-
-`conda activate winnow`
-
-or
-
-`conda activate winnow-gpu`
-
-Run jupyter notebook in order visualize examples
-
-`jupyter notebook`
-
-
-
 ### Configuration
 
 This repo contains three main scripts that perform the following tasks:
@@ -119,8 +76,6 @@ This repo contains three main scripts that perform the following tasks:
     1. extract_features.py : Signature extraction Pipeline
     2. generate_matches.py : Signature to Matches (saved as CSV)
     3. template_matching.py: Uses source templates to query the extracted embeddings and generates a report containing potential matches
-    4. network_vis.py : Saves a visualiation of the generated videos and their matches as a Network system
-
 
 Important notebooks include (located inside the notebooks folder):
 
@@ -160,6 +115,7 @@ These scripts use the 'config.yaml' file to define where to collect data from, h
 **conninfo**: Connection string (eg. postgres://[USER]:[PASSWORD]@[URL]:[PORT]/[DBNAME])
     
 **keep_fileoutput:** [true / false]. Whether to keep regular output even with results being saved in DB
+
 **templates_source_path**: Directory where templates of interest are located (should be the path to a directory where each folder contains images related to the template - eg: if set for the path datadrive/templates/, this folder could contain sub-folders like plane, smoke or bomb with its respective images on each folder)
 
     
@@ -175,36 +131,6 @@ Generate matches
 
 `python generate_matches.py`
 
-Generate network visualization
+Template Object Matching
 
-`python network_vis.py`
-
-
-Visualize and annotate results (after running generate matches)
-
-`jupyter notebook`
-
-Choose the Visualization and Annotation tool notebook
-
-Run template matching and visualize results
-
-`jupyter notebook`
-
-Choose the Template Matching Demo notebook
-
-Please note that for the last two examples we used jupyter notebook and not jupyter lab. This is related to the widgets module, which doesn't work on Jupyter Lab. Feel free to use Jupyter Lab for other notebooks.
-
-
-
-### Supported Platforms
-
-
-1. Linux / Ubuntu (Preferred) -- > Docker (CPU / GPU) | CONDA (CPU / GPU)
-2. Windows  -- > Docker (CPU) | CONDA (CPU / GPU)
-3. MacOS --> Docker (CPU) | CONDA (CPU)
-
-
-
-
-
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+`python template_matching.py`
