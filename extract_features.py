@@ -5,14 +5,10 @@ os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
 
 from glob import glob
 from winnow.feature_extraction import IntermediateCnnExtractor,frameToVideoRepresentation,SimilarityModel
+from winnow.utils import create_directory,scan_videos,create_video_list,get_original_fn_from_artifact
 from db import *
 from db.schema import *
 import yaml
-
-
-sep = '/'
-if os.name == 'nt':
-    sep = '\\'
 
 
 if __name__ == '__main__':
@@ -31,7 +27,6 @@ if __name__ == '__main__':
     KEEP_FILES = cfg['keep_fileoutput']
     FRAME_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0]))
     VIDEO_LEVEL_SAVE_FOLDER = DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1])
-    VIDEO_SIGNATURES_SAVE_FOLDER = DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[2])
     VIDEO_SIGNATURES_FILENAME = 'video_signatures'
     FRAME_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0])    
     VIDEO_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1])
@@ -39,28 +34,23 @@ if __name__ == '__main__':
     VIDEO_SIGNATURES_FILENAME = 'video_signatures.npy'
     
 
+    print('Creating Intermediate Representations folder on :{}'.format(os.path.abspath(DST_DIR)))
+
+    create_directory(representations,DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION)
+    
     print('Searching for Dataset Video Files')
 
-    videos = glob(os.path.join(DATASET_DIR,'**'))
+    videos = scan_videos(DATASET_DIR,'**')
 
     print('Number of files found: {}'.format(len(videos)))
 
-    print('Creating Intermediate Representations folder on :{}'.format(DST_DIR))
-
-    for r in representations:
-        try:
-            os.makedirs(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,r))
-        except Exception as e:
-            print(e)
-
-
-    processed_videos = glob(os.path.join(FRAME_LEVEL_SAVE_FOLDER,'**_vgg_features.npy'))
+    processed_videos = scan_videos(FRAME_LEVEL_SAVE_FOLDER,'**_vgg_features.npy')
 
     print('Found {} videos that have already been processed.'.format(len(processed_videos)))
 
     # Get filenames
-    processed_filenames = [x.split('_vgg_features')[0].split(sep)[-1] for x in processed_videos]
-    full_video_names = [x.split('.')[0].split(sep)[-1] for x in videos]
+    processed_filenames = get_original_fn_from_artifact(processed_videos,'_vgg_features')
+    full_video_names = [os.path.basename(x) for x in videos]
 
     # Check for remaining videos
     remaining_videos = [i for i,x in enumerate(full_video_names) if x not in processed_filenames]
@@ -69,13 +59,10 @@ if __name__ == '__main__':
 
     print('There are {} videos left'.format(len(remaining_videos_path)))
 
-    with open(VIDEO_LIST_TXT, 'w', encoding="utf-8") as f:
-        for item in remaining_videos_path:
-            f.write("%s\n" % item)
-
-    VIDEOS_LIST = os.path.abspath(VIDEO_LIST_TXT)
+    VIDEOS_LIST = create_video_list(remaining_videos_path,VIDEO_LIST_TXT)
 
     print('Processed video List saved on :{}'.format(VIDEOS_LIST))
+
     if len(remaining_videos_path) > 0:
         # Instantiates the extractor
         extractor = IntermediateCnnExtractor(VIDEOS_LIST,FRAME_LEVEL_SAVE_FOLDER)
@@ -98,7 +85,7 @@ if __name__ == '__main__':
     print('Saving Video Signatures on :{}'.format(VIDEO_SIGNATURES_SAVE_FOLDER))
 
     if USE_DB:
-        db_engine,session = create_engine_session(CONN_STRING)
+        db_engine,session = create_engine_session(CONNINFO)
         create_tables(db_engine)
         add_signatures(session,video_signatures,sm.original_filenames)
         try:
@@ -114,7 +101,7 @@ if __name__ == '__main__':
             signatures = get_all(session,Signature)
             print(f"Signatures table rows:{len(signatures)}")
 
-    elif KEEP_FILES or USE_DB is False:
+    if KEEP_FILES or USE_DB is False:
 
         np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,'{}.npy'.format(VIDEO_SIGNATURES_FILENAME)),video_signatures)
         np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,'{}-filenames.npy'.format(VIDEO_SIGNATURES_FILENAME)),sm.original_filenames)

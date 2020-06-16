@@ -1,0 +1,27 @@
+name: winnow
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.6
+  - numpy
+  - matplotlib
+  - pandas
+  - scikit-learn
+  - scipy
+  - tensorflow-gpu==1.15
+  - tqdm
+  - sqlalchemy
+  - psycopg2
+  - jupyter
+  - jupyterlab
+  - pip:
+    - image
+    - imageio
+    - moviepy
+    - opencv-contrib-python
+    - pillow
+    - scenedetect
+    - pyyaml
+prefix: C:\ProgramData\Anaconda3\envs\winnow
+

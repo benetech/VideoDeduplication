@@ -36,7 +36,8 @@ class Scenes(Base):
 
     __tablename__ = 'scenes'
     original_filename = Column(String,primary_key=True)
-    video_duration = Column(Float)
-    avg_duration = Column(Float)
-    scene_duration = Column(ARRAY(Integer))
-    
+    video_duration_seconds = Column(Float)
+    avg_duration_seconds = Column(Float)
+    scene_duration_seconds = Column(ARRAY(Integer))
+    scenes_timestamp = Column(ARRAY(String))
+    total_video_duration_timestamp = Column(String)

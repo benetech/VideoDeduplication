@@ -4,3 +4,7 @@ data/
 winnow/feature_extraction/pretrained_models/**
 .ipynb_checkpoints/**
 **/**.pyc
+*.npy
+*.csv
+notebooks/.ipynb_checkpoints/
+tests/test_data/test_output/

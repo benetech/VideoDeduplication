@@ -26,8 +26,6 @@ except Exception as e:
     print("In order to use the config file, please add its path to the OS environ as a variable eg:os.environ['WINNOW_CONFIG'] = [ABSFILEPATH]"  )
     USE_LOCAL_PRETRAINED = False
 
-
-
 PRETRAINED_MODEL = 'vgg_16.ckpt'
 PRETRAINED_MODEL_PATH = os.path.join(package_directory,'pretrained_models',PRETRAINED_MODEL)
 
@@ -48,7 +46,9 @@ else:
         try:
             shutil.copy(PRETRAINED_LOCAL_PATH,PRETRAINED_MODEL_PATH)
         except:
-            raise('Please check your config file (Make sure you used an absolute path for the local pretrained model)')
+            print('Please check your config file (Make sure you used an absolute path for the local pretrained model) - downloading file')
+            print('Downloading pretrained model to:{}'.format(PRETRAINED_MODEL_PATH))
+            download_file(PRETRAINED_MODEL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
     else:
         print('Downloading pretrained model to:{}'.format(PRETRAINED_MODEL_PATH))
         download_file(PRETRAINED_MODEL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")

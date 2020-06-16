@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from glob import glob 
 from scipy.spatial.distance import cosine
-
+import datetime
 
 def cosine_series(arr):
     output = [1.0]
@@ -56,6 +56,25 @@ def visualize_vid(fp):
 def get_duration(scenes):
     return [y-x for x,y in scenes]
 
+
+def seconds_to_time(list_of_durations):
+    start = 0 
+    results = []
+    for i,n in enumerate(list_of_durations):
+        n = int(n)
+        
+        if i == 0:
+            start_time = datetime.timedelta(seconds=0)
+            end_time = datetime.timedelta(seconds=n)
+        else:
+            start_time = end_time
+            end_time = start_time + datetime.timedelta(seconds=n)
+
+        results.append((str(start_time),str(end_time)))
+
+    return results
+
+
 def extract_scenes(list_of_files,minimum_duration=10):
     """Extracts scenes from a list of files
     
@@ -93,8 +112,10 @@ def extract_scenes(list_of_files,minimum_duration=10):
 
 
     durations = [get_duration(x) for x in video_scenes]
+    scenes_timestamp = [seconds_to_time(d) for d in durations]
     num_scenes = [len(x) for x in video_scenes]
     avg_duration = [np.mean(x) for x in durations]
     total_video = [sid.shape[0] for sid in scene_ident]
+    total_video_duration_timestamp = [datetime.timedelta(seconds=x) for x in total_video]
 
-    return filtered_videos,durations,num_scenes,avg_duration,total_video
+    return filtered_videos,durations,num_scenes,avg_duration,total_video,scenes_timestamp,total_video_duration_timestamp

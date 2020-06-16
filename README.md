@@ -1,97 +1,72 @@
-Winnow Project
+Benetech Video Deduplication Project
 ==============================
 
-Near Duplicate detection for video files.
+Near Duplicate, object, and metadata detection for video files.
 
-# Installation
+# Installation (Ubuntu with Docker)
 
-### Using Docker
+### Fetch Codebase
 
-Assuming docker has been installed run the following command and install the NVIDIA Docker runtime [GPU LINUX ONLY]:
+run:
+
+git clone https://github.com/benetech/VideoDeduplication.git
+
+### Install and configure Docker
+
+The easiest, most consistent method for installing Docker on Ubuntu can be found at: https://get.docker.com/
+
+run:
+
+curl -fsSL https://get.docker.com -o get-docker.sh
+
+followed by:
+
+bash get-docker.sh
+
+Once the above has been completed. Open a command prompt window and type the ‘docker’ command to confirm that the Docker service is available and returning the help guide.
+
+### Enable GPU support for Docker
+
+Assuming docker has been installed run the following command and install the NVIDIA Docker runtime using the script in the main project folder [GPU LINUX ONLY]:
 
 `bash install_nvidia_docker.sh`
 
-Assuming Docker is has been installed correctly, there are two options:
- 
-    1. Pulling pre-built images from Dockerhub
-    2. Build the Images from the suitable Dockerfile
-    
-    
-#### Pre-Built Images
+### Install docker-compose
+
+run:
+
+sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+then modify permissions:
+
+sudo chmod +x /usr/local/bin/docker-compose
 
 
-GPU Version
+#### Building and running images
 
-`docker pull johnhbenetech/videodeduplication:gpu`
+Build VideoDeduplication Image:
 
-CPU version
+`sudo docker build -f Dockerfile-gpu -t wingpu .`
 
-`docker pull johnhbenetech/videodeduplication:cpu`
+Once the Image has been built, using Docker-compose allows the environment to be quickly setup with both the required GPU support and database environment. The docker-compose.yml file can be reviewed if you wish to adjust defaults:
 
+`docker-compose up -d `
 
-#### Building Images
+This will start running both our project and an independend postgres docker instance (check the docker-compose.yaml for additional configuration information).
 
-GPU Version
+The command above might throw an error if you already have postgres server running. If that's the case run "systemctl stop postgresql" (Linux) before using docker-compose.
 
-`sudo docker build   -f Dockerfile-gpu -t wingpu .`
+Once the docker-compose is running, you will be able to access the projects notebooks on localhost:8888 and pgadmin on localhost/pgadmin4. Check your running instances using this command:
 
-CPU version
+`docker ps`
 
-`sudo docker build   -f Dockerfile-cpu -t wincpu .`
+Take note of the app's container name, which should be something like this: "videodeduplication_dedup-app_1"
 
+In order to run the main scripts, simply enter the app's docker container by running the following command:
 
-Once the Image has been built, run it by using the following command
+`docker exec -it videodeduplication_dedup-app_1  /bin/bash`
 
-GPU version
-
-`sudo docker run --runtime=nvidia -it -p 8888:8888 -v /datadrive:/datadrive [IMAGE_NAME]`
-
-CPU VERSION
-
-`sudo docker run  -it -p 8889:8889 -v /datadrive:/datadrive wincpu`
-
-Within the Image's command line:
-
-`source activate winnow`
-
-This will activate the project's conda environment
-
-The example above the directory "/datadrive" has been mounted to the "/datadrive" path within the Docker image.
-
-Generally, it's useful to use this mounting procedure to allow the Docker environment to interact with the file system that contains the video files subject to analysis
-
-Notice that a binding of ports 8888 was also setup as a way to serve jupyter notebooks from within the Docker container
-
-
-
-
-
-### Without Docker
-
-Install Conda as instructed on https://www.anaconda.com/distribution/
-
-
-GPU Version 
-
-`conda env create -f environment-lean-gpu.yaml`
-
-CPU Version 
-
-`conda env create -f environment-lean.yaml`
-
-
-Activate new conda environment
-
-`conda activate winnow`
-
-or
-
-`conda activate winnow-gpu`
-
-Run jupyter notebook in order visualize examples
-
-`jupyter notebook`
-
+Once within the container, run one of the main scripts as described on the "running" section of this documentation.
 
 
 ### Configuration
@@ -100,10 +75,9 @@ This repo contains three main scripts that perform the following tasks:
 
     1. extract_features.py : Signature extraction Pipeline
     2. generate_matches.py : Signature to Matches (saved as CSV)
-    3. network_vis.py : Saves a visualiation of the generated videos and their matches as a Network system
+    3. template_matching.py: Uses source templates to query the extracted embeddings and generates a report containing potential matches
 
-
-Important notebooks include:
+Important notebooks include (located inside the notebooks folder):
 
     1. Visualization and Annotation Tool.ipynb: Allows the output of the generate_matches script to be reviewed and annotated.
     2. Template Matching Demo.ipynb: Allows the output of the extract_features script to be queried against known videos / images [as defined in custom templates built by the user]
@@ -116,13 +90,6 @@ These scripts use the 'config.yaml' file to define where to collect data from, h
     
     
 **root_folder_intermediate**: Folder name used for the intermediate representations (Make sure it's compatible with the next paremeter)
-
-    
-**video_level_folder**: Folder that contains the video level embeddings generated from the video files
-
-    
-**video_signatures_folder**:Folder that contains the video  signatures generated from the video files
-
 
 **match_distance**: Distance threshold that determines whether two videos are a match [FLOAT - 0.0 to 1.0]
     
@@ -149,6 +116,7 @@ These scripts use the 'config.yaml' file to define where to collect data from, h
     
 **keep_fileoutput:** [true / false]. Whether to keep regular output even with results being saved in DB
 
+**templates_source_path**: Directory where templates of interest are located (should be the path to a directory where each folder contains images related to the template - eg: if set for the path datadrive/templates/, this folder could contain sub-folders like plane, smoke or bomb with its respective images on each folder)
 
     
 ### Running 
@@ -163,36 +131,6 @@ Generate matches
 
 `python generate_matches.py`
 
-Generate network visualization
+Template Object Matching
 
-`python networ_vis.py`
-
-
-Visualize and annotate results (after running generate matches)
-
-`jupyter notebook`
-
-Choose the Visualization and Annotation tool notebook
-
-Run template matching and visualize results
-
-`jupyter notebook`
-
-Choose the Template Matching Demo notebook
-
-Please note that for the last two examples we used jupyter notebook and not jupyter lab. This is related to the widgets module, which doesn't work on Jupyter Lab. Feel free to use Jupyter Lab for other notebooks.
-
-
-
-### Supported Platforms
-
-
-1. Linux / Ubuntu (Preferred) -- > Docker (CPU / GPU) | CONDA (CPU / GPU)
-2. Windows  -- > Docker (CPU) | CONDA (CPU / GPU)
-3. MacOS --> Docker (CPU) | CONDA (CPU)
-
-
-
-
-
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+`python template_matching.py`

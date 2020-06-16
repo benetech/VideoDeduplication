@@ -4,14 +4,16 @@ import numpy as np
 import os
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
+from tqdm import tqdm
 from winnow.feature_extraction import SimilarityModel
 from winnow.utils import extract_additional_info, extract_scenes,filter_results,uniq
 import cv2
 import yaml
 from db import *
 from db.schema import *
-print('Loading config file')
 
+
+print('Loading config file')
 
 with open("config.yaml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
@@ -21,15 +23,15 @@ representations = ['frame_level','video_level','video_signatures']
     
 DST_DIR = cfg['destination_folder']
 ROOT_FOLDER_INTERMEDIATE_REPRESENTATION =cfg['root_folder_intermediate']
-VIDEO_SIGNATURES_SAVE_FOLDER = cfg['video_signatures_folder'] 
+VIDEO_SIGNATURES_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[2])
+VIDEO_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1]))
+FRAME_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0]))
 DISTANCE = float(cfg['match_distance'])
 MIN_VIDEO_DURATION = float(cfg['min_video_duration_seconds'])
-HANDLE_DARK = str(cfg['filter_dark_videos'])
-DETECT_SCENES = str(cfg['detect_scenes'])
+HANDLE_DARK = cfg['filter_dark_videos']
+DETECT_SCENES = cfg['detect_scenes']
 DARK_THR = float(cfg['filter_dark_videos_thr'])
 DST_FOLDER = cfg['destination_folder']
-VIDEO_LEVEL_SAVE_FOLDER = cfg['video_level_folder']
-FRAME_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0]))
 USE_DB = cfg['use_db'] 
 CONNINFO = cfg['conninfo']
 KEEP_FILES = cfg['keep_fileoutput'] 
@@ -52,11 +54,13 @@ labels = np.array([x.split('_vgg')[0].split('/')[-1] for x in  sm.index])
 
 
 print('Finding Matches...')
-nn = NearestNeighbors(n_neighbors=20,metric='euclidean',algorithm='kd_tree')
+# Handles small tests for which number of videos <  number of neighbors
+neighbors = min(20,video_signatures.shape[0])
+nn = NearestNeighbors(n_neighbors=neighbors,metric='euclidean',algorithm='kd_tree')
 nn.fit(video_signatures)
 distances,indices =  nn.kneighbors(video_signatures)
 
-results,results_distances = filter_results(DISTANCE)
+results,results_distances = filter_results(DISTANCE,distances,indices)
 
 ss = sorted(zip(results,results_distances),key=lambda x:len(x[0]),reverse=True)
 results_sorted = [x[0] for x in ss]
@@ -94,11 +98,20 @@ print('Saving unfiltered report to {}'.format(REPORT_PATH))
 
 match_df.to_csv(REPORT_PATH)
 
-if DETECT_SCENES == 'True':
+if DETECT_SCENES:
     
     frame_level_repres = glob(FRAME_LEVEL_SAVE_FOLDER + '/**_features.npy')
-    filtered_videos,durations,num_scenes,avg_duration,total_video = extract_scenes(frame_level_repres)
-    scene_metadata = pd.DataFrame(dict(fp=filtered_videos,scene_duration=durations,num_scenes=num_scenes,avg_duration=avg_duration,video_duration=total_video))
+    filtered_videos,durations,num_scenes,avg_duration,total_video,scenes_timestamp,total_video_duration_timestamp= extract_scenes(frame_level_repres)
+    scene_metadata = pd.DataFrame(dict(
+                                       video_filename = [os.path.basename(x).split('_vgg')[0] for x in filtered_videos],
+                                       scenes_timestamp = scenes_timestamp,
+                                       scene_duration_seconds=durations,
+                                       num_scenes=num_scenes,
+                                       avg_duration_seconds=avg_duration,
+                                       video_duration_seconds=total_video,
+                                       total_video_duration_timestamp = total_video_duration_timestamp,
+                                       fp=filtered_videos))
+    
 
     if USE_DB:
 
@@ -116,17 +129,23 @@ if DETECT_SCENES == 'True':
             print(f"Scenes table rows:{len(scenes)}")
         
     if KEEP_FILES or USE_DB is False:
+        
+        SCENE_METADATA_OUTPUT_PATH = os.path.join(DST_FOLDER,'scene_metadata.csv')
+        scene_metadata.to_csv(SCENE_METADATA_OUTPUT_PATH)
+        print('Scene Metadata saved in:'.format(SCENE_METADATA_OUTPUT_PATH))
     
-        scene_metadata.to_csv('scene_metadata.csv')
     
-    
-if HANDLE_DARK == 'True':
+if HANDLE_DARK:
     
     print('Filtering dark and/or short videos')
 
     frame_level_repres = glob(FRAME_LEVEL_SAVE_FOLDER + '/**_features.npy')
-    frame_level_data = np.array([extract_additional_info(x) for x in frame_level_repres])
 
+    assert len(frame_level_repres) > 0
+
+
+    print('Extracting additional information from video files')
+    frame_level_data = np.array([extract_additional_info(x) for x in tqdm(frame_level_repres)])
     video_length = np.array(frame_level_data)[:,0]
     video_avg_act = frame_level_data[:,1]
     video_avg_mean = frame_level_data[:,2]
@@ -175,7 +194,7 @@ if HANDLE_DARK == 'True':
     
     if USE_DB:
 
-        add_metadata(session,video_signatures,sm.original_filenames)
+        add_metadata(session,merged)
         try:
             session.commit()
     
