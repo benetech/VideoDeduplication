@@ -17,11 +17,11 @@ The easiest, most consistent method for installing Docker on Ubuntu can be found
 
 run:
 
-curl -fsSL https://get.docker.com -o get-docker.sh
+`curl -fsSL https://get.docker.com -o get-docker.sh`
 
 followed by:
 
-bash get-docker.sh
+`bash get-docker.sh`
 
 Once the above has been completed. Open a command prompt window and type the ‘docker’ command to confirm that the Docker service is available and returning the help guide.
 
@@ -35,11 +35,11 @@ Assuming docker has been installed run the following command and install the NVI
 
 run:
 
-sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+`sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`
 
 then modify permissions:
 
-sudo chmod +x /usr/local/bin/docker-compose
+`sudo chmod +x /usr/local/bin/docker-compose`
 
 
 #### Building and running images
