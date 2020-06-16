@@ -7,11 +7,12 @@ services:
       # Remember to change the config.yaml [conninfo] file if you change this 
       POSTGRES_PASSWORD: "admin"
       POSTGRES_DB: "videodeduplicationdb"
+      WINNOW_CONFIG: /config.yml
     ports:
       - "5432:5432"
     volumes:
       # Replace by the path on your host machine where you would like to save your DB data
-      - ~/ai/toptal/postgres:/var/lib/postgresql/data 
+      - ~/datadrive/postgres:/var/lib/postgresql/data 
     networks:
       - postgres-compose-network
       
@@ -25,7 +26,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "admin"
     volumes:
       # Replace by the path on your host machine where you placed the source data
-        - /home/felipe/ai/toptal/benetech/data:/project/data
+        - /datadrive:/project/data
     ports:
       - "16543:80"
       - "8888:8888"
