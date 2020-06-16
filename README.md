@@ -44,10 +44,24 @@ then modify permissions:
 
 #### Building and running images
 
-Build VideoDeduplication Image:
+Assuming Docker is has been installed correctly, there are two options:
+ 
+    1. Pulling pre-built images from Dockerhub
+    2. Build the Images from the suitable Dockerfile
+    
+    
+#### 1. Pre-Built Images
+RUN:
+`docker pull johnhbenetech/videodeduplication:gpu`
+
+
+
+#### 2. Build VideoDeduplication Image:
 
 `sudo docker build -f Dockerfile-gpu -t wingpu .`
 
+
+#### Running Docker containers
 Once the Image has been built, using Docker-compose allows the environment to be quickly setup with both the required GPU support and database environment. The docker-compose.yml file can be reviewed if you wish to adjust defaults:
 
 `docker-compose up -d `
