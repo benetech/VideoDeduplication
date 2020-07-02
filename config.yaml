@@ -27,7 +27,7 @@ pretrained_model_local_path:
 use_db:
     true
 conninfo:
-    postgres://postgres:admin@postgres:5432/videodeduplicationdb
+    postgres://postgres:admin@videodeduplication_postgres_1:5432/videodeduplicationdb
 keep_fileoutput:
     true
 

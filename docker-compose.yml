@@ -15,7 +15,20 @@ services:
       - ~/datadrive/postgres:/var/lib/postgresql/data 
     networks:
       - postgres-compose-network
-      
+
+  pgadmin-compose:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+      PGADMIN_SERVER_JSON_FILE: "/project/servers.json"
+    ports:
+      - "16543:80"
+    depends_on:
+      - postgres
+    networks:
+      - postgres-compose-network 
+
   dedup-app:
     # This can be replaced by the online repository reference if you haven't built a local docker image
     image: wingpu 
@@ -26,9 +39,9 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "admin"
     volumes:
       # Replace by the path on your host machine where you placed the source data
-        - /datadrive:/project/data
+        - /home/felipe/ai/toptal/benetech/data:/project/data
     ports:
-      - "16543:80"
+      # - "16543:80"
       - "8888:8888"
     depends_on:
       - postgres

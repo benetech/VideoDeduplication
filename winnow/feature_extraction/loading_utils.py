@@ -92,9 +92,7 @@ def frame_to_global(src_dir,output_dir):
     for vid in videos:
         try:
             dst = os.path.join(output_dir, os.path.basename(vid))
-            print(dst)
             video_representation = global_vector(vid)
-            print('Saving to ',dst)
             np.save(dst,video_representation)
         except Exception as e:
 

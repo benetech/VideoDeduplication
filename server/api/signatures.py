@@ -5,8 +5,6 @@ from flask import jsonify, request, g, url_for, current_app
 from model import Signature
 from . import api
 
-
-
 @api.route('/signatures/')
 def get_signatures():
     page = request.args.get('page', 1, type=int)

@@ -70,11 +70,23 @@ This will start running both our project and an independend postgres docker inst
 
 The command above might throw an error if you already have postgres server running. If that's the case run "systemctl stop postgresql" (Linux) before using docker-compose.
 
-Once the docker-compose is running, you will be able to access the projects notebooks on localhost:8888 and pgadmin on localhost/pgadmin4. Check your running instances using this command:
+Once the docker-compose is running, you will be able to access the projects notebooks on localhost:8888 and pgadmin on localhost/16543. Check your running instances using this command:
 
 `docker ps`
 
-Take note of the app's container name, which should be something like this: "videodeduplication_dedup-app_1"
+Take note of the following names: 
+
+    1. App -> "videodeduplication_dedup-app_1"
+    2. Postgres Server -> "videodeduplication_postgres_1"
+    3. PgAdmin -> "videodeduplication_pgadmin-compose_1"
+
+
+In order to use Pgadmin, follow these instructions:
+   1. go to localhost:1643 and use the credentials as defined on the docker-compose.yml file.
+   2. Click create new server
+   3. Choose a reference name for the server 
+   4. Go the connection tab and set the host name to "videodeduplication_postgres_1", maintenance database to "videodeduplicationdb" and user / password as "postgres" and "admin"
+
 
 In order to run the main scripts, simply enter the app's docker container by running the following command:
 
@@ -126,8 +138,8 @@ These scripts use the 'config.yaml' file to define where to collect data from, h
     
 **use_db:** : [true / false]
     true
-**conninfo**: Connection string (eg. postgres://[USER]:[PASSWORD]@[URL]:[PORT]/[DBNAME])
-    
+**conninfo**: Connection string (eg. postgres://[USER]:[PASSWORD]@[URL]:[PORT]/[DBNAME]). When using it using our Docker workflow, URL should default to  "videodeduplication_postgres_1" instead of localhost
+
 **keep_fileoutput:** [true / false]. Whether to keep regular output even with results being saved in DB
 
 **templates_source_path**: Directory where templates of interest are located (should be the path to a directory where each folder contains images related to the template - eg: if set for the path datadrive/templates/, this folder could contain sub-folders like plane, smoke or bomb with its respective images on each folder)

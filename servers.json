@@ -1,0 +1,15 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "vid",
+            "Group": "Server Group 1",
+            "Port": 5432,
+            "Username": "postgres",
+            "Host": "videodeduplication_postgres_1",
+            "SSLMode": "prefer",
+            "MaintenanceDB": "videodeduplicatiodb"
+        }
+
+    }
+
+}

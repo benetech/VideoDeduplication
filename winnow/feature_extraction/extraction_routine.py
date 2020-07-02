@@ -14,44 +14,55 @@ import yaml
 package_directory = os.path.dirname(os.path.abspath(__file__))
     
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
+hit_exc = False
 try:
+
     CONFIG_FP = os.environ['WINNOW_CONFIG']
     with open(CONFIG_FP,'r') as ymlfile:
         cfg=yaml.load(ymlfile)
 
     USE_LOCAL_PRETRAINED = cfg['use_pretrained_model_local_path']
     PRETRAINED_LOCAL_PATH = cfg['pretrained_model_local_path']
-except Exception as e:
-    print("In order to use the config file, please add its path to the OS environ as a variable eg:os.environ['WINNOW_CONFIG'] = [ABSFILEPATH]"  )
-    USE_LOCAL_PRETRAINED = False
 
-PRETRAINED_MODEL = 'vgg_16.ckpt'
-PRETRAINED_MODEL_PATH = os.path.join(package_directory,'pretrained_models',PRETRAINED_MODEL)
+except Exception as e:
+    hit_exc = True
+    print("In order to use the config file, please add its path to the OS environ as a variable eg:os.environ['WINNOW_CONFIG'] = [ABSFILEPATH]"  )
+    
+finally:
+
+    if hit_exc:
+
+        USE_LOCAL_PRETRAINED = False
+
+
+if not USE_LOCAL_PRETRAINED:
+
+    PRETRAINED_MODEL = 'vgg_16.ckpt'
+    PRETRAINED_LOCAL_PATH = os.path.join(package_directory,'pretrained_models',PRETRAINED_MODEL)
+
+
 
 # Pre-trained model file availability assessment
 
-if os.path.exists(PRETRAINED_MODEL_PATH):
+if os.path.exists(PRETRAINED_LOCAL_PATH):
     print('Pretrained Model Found')
-    
 else:
-    
-    try:
-        os.makedirs(os.path.join(package_directory,'pretrained_models'))
-    except Exception as e:
-        print(e)
-        pass
     if USE_LOCAL_PRETRAINED:
-        print('Copying from source directory (as defined in the config file')
         try:
-            shutil.copy(PRETRAINED_LOCAL_PATH,PRETRAINED_MODEL_PATH)
+            print('Downloading pretrained model to:{}'.format(PRETRAINED_LOCAL_PATH))
+            download_file(PRETRAINED_LOCAL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
         except:
-            print('Please check your config file (Make sure you used an absolute path for the local pretrained model) - downloading file')
-            print('Downloading pretrained model to:{}'.format(PRETRAINED_MODEL_PATH))
-            download_file(PRETRAINED_MODEL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
+              print('Copying from source directory (as defined in the config file')
+              print('Please check your config file and make sure you have a valid path to save the pretrained model ')
+              raise 
     else:
-        print('Downloading pretrained model to:{}'.format(PRETRAINED_MODEL_PATH))
-        download_file(PRETRAINED_MODEL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
+        try:
+            os.makedirs(os.path.join(package_directory,'pretrained_models'))
+        except Exception as e:
+            print(e)
+            pass
+        print('Downloading pretrained model to:{}'.format(PRETRAINED_LOCAL_PATH))
+        download_file(PRETRAINED_LOCAL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
      
 
 
@@ -62,7 +73,6 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
     """
       Function that extracts the intermediate CNN features
       of each video in a provided video list.
-
       Args:
         model: CNN network
         cores: CPU cores for the parallel video loading
@@ -121,12 +131,12 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
 
 def start_video_extraction(video_list,output_path,cores = 4,batch_sz=8):
 
-    model = CNN_tf('vgg', PRETRAINED_MODEL_PATH)
+    model = CNN_tf('vgg', PRETRAINED_LOCAL_PATH)
 
     feature_extraction_videos(model, cores, batch_sz, video_list, output_path)
 
 def load_featurizer():
     
-    model = CNN_tf('vgg', PRETRAINED_MODEL_PATH)
+    model = CNN_tf('vgg', PRETRAINED_LOCAL_PATH)
     
     return  model
