@@ -48,7 +48,10 @@ if __name__ == '__main__':
 
     print('Found {} videos that have already been processed.'.format(len(processed_videos)))
 
-    # Get filenames
+    # Get filenamessm = SimilarityModel()
+    video_signatures = sm.predict(VIDEO_LEVEL_SAVE_FOLDER)
+
+    video_signatures = np.nan_to_num(video_signatures)
     processed_filenames = get_original_fn_from_artifact(processed_videos,'_vgg_features')
     full_video_names = [os.path.basename(x) for x in videos]
 

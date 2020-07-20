@@ -2,6 +2,11 @@ import cv2
 import numpy as np
 import requests
 import shutil
+import os
+
+
+
+
 
 
 def download_file(local_filename,url):
@@ -24,7 +29,7 @@ def load_video(video, desired_size):
 
       Returns:
         video_tensor: the tensor of the given video
-
+cfg['pretrained_model_local_path']
       Raise:
         Exception: if provided video can not be load
     """
@@ -67,7 +72,7 @@ def load_image(image, desired_size):
 
       Returns:
         image_tensor: the tensor of the given image
-
+cfg['pretrained_model_local_path']
       Raise:
         Exception: if provided image can not be load
     """
@@ -109,3 +114,62 @@ def pad_and_resize(image, desired_size):
         image_processed, top, bottom, left, right, cv2.BORDER_CONSTANT, value=[0, 0, 0])
     return image_processed
 
+def download_pretrained(config_file):
+    hit_exc = False
+    try:
+
+        CONFIG_FP = config_file
+        with open(CONFIG_FP,'r') as ymlfile:
+            cfg=yaml.load(ymlfile)
+
+        USE_LOCAL_PRETRAINED = cfg['use_pretrained_model_local_path']
+        PRETRAINED_LOCAL_PATH = cfg['pretrained_model_local_path']
+        DST_DIR = cfg['destination_folder']
+
+    except Exception as e:
+        hit_exc = True
+        print("In order to use the config file, please add its path to the OS environ as a variable eg:os.environ['WINNOW_CONFIG'] = [ABSFILEPATH]"  )
+        
+    finally:
+
+        if hit_exc:
+
+            USE_LOCAL_PRETRAINED = False
+            DST_DIR = False
+
+
+    if not USE_LOCAL_PRETRAINED:
+
+        PRETRAINED_MODEL = 'vgg_16.ckpt'
+
+        if DST_DIR:
+
+            PRETRAINED_LOCAL_PATH = os.path.join(DST_DIR,'pretrained_models',PRETRAINED_MODEL)
+
+        else:
+            package_directory = os.path.dirname(os.path.abspath(__file__))
+            PRETRAINED_LOCAL_PATH = os.path.join(package_directory,'pretrained_models',PRETRAINED_MODEL)
+
+    # Pre-trained model file availability assessment
+
+    if os.path.exists(PRETRAINED_LOCAL_PATH):
+        print('Pretrained Model Found')
+    else:
+        if USE_LOCAL_PRETRAINED:
+            try:
+                print('Downloading pretrained model to:{}'.format(PRETRAINED_LOCAL_PATH))
+                download_file(PRETRAINED_LOCAL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
+            except:
+                print('Copying from source directory (as defined in the config file')
+                print('Please check your config file and make sure you have a valid path to save the pretrained model ')
+                raise 
+        else:
+            try:
+                os.makedirs(os.path.join(package_directory,'pretrained_models'))
+            except Exception as e:
+                print(e)
+                pass
+            print('Downloading pretrained model to:{}'.format(PRETRAINED_LOCAL_PATH))
+            download_file(PRETRAINED_LOCAL_PATH,"https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
+
+    return PRETRAINED_LOCAL_PATH

@@ -19,7 +19,7 @@ class SimilarityModel:
         self.index = []
         self.original_filenames = []
     
-    def predict(self,src):
+    def predict(self,src=None):
         self.src = src
         if len(self.features) == 0:
 
@@ -31,6 +31,12 @@ class SimilarityModel:
         
         embeddings = self.model.embeddings(np.array(self.features))
         return embeddings
+
+    def build_features_single(self,video_tensor,file_name):
+            self.features.append(video_tensor[0])
+            self.index.append(file_name)
+            self.original_filenames.append(os.path.basename(file_name).split('_vgg_')[0])
+
 
 
     

@@ -59,6 +59,21 @@ def normalize(X):
     return X
 
 
+def global_vector_from_tensor(video_tensor):
+  try:
+      X = video_tensor
+      X = normalize(X)
+      X = X.mean(axis=0, keepdims=True)
+      X = normalize(X)
+      return X
+  except Exception as e:
+      if video:
+          print('Cant process feature file {}\n{}'.format(video, e))
+      return np.array([])
+
+
+
+
 def global_vector(video):
     """
       Function that calculate the global feature vector from the
