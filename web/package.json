@@ -4,7 +4,9 @@
   "description": "Web UI for videos deduplication application.",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run prettier:check",
+    "prettier": "prettier --ignore-path .gitignore --write --list-different \"**/*.{js,ts,md,json,yml}\"",
+    "prettier:check": "prettier --ignore-path .gitignore --check \"**/*.{js,ts,md,json,yml}\""
   },
   "repository": {
     "type": "git",
@@ -20,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/benetech/VideoDeduplication/issues"
   },
-  "homepage": "https://github.com/benetech/VideoDeduplication#readme"
+  "homepage": "https://github.com/benetech/VideoDeduplication#readme",
+  "devDependencies": {
+    "prettier": "^2.0.5"
+  }
 }
