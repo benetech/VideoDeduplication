@@ -4,9 +4,10 @@
   "description": "Web UI for videos deduplication application.",
   "main": "src/index.js",
   "scripts": {
-    "test": "npm run prettier:check",
+    "test": "npm run prettier:check && npm run lint",
     "prettier": "prettier --ignore-path .gitignore --write --list-different \"**/*.{js,ts,md,json,yml}\"",
-    "prettier:check": "prettier --ignore-path .gitignore --check \"**/*.{js,ts,md,json,yml}\""
+    "prettier:check": "prettier --ignore-path .gitignore --check \"**/*.{js,ts,md,json,yml}\"",
+    "lint": "eslint src"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,8 @@
   },
   "homepage": "https://github.com/benetech/VideoDeduplication#readme",
   "devDependencies": {
+    "eslint": "^7.5.0",
+    "eslint-plugin-react": "^7.20.3",
     "prettier": "^2.0.5"
   }
 }
