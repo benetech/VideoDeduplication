@@ -1,0 +1,13 @@
+{
+  "presets": [
+    [
+      "@babel/env",
+      {
+        "targets": {
+          "browsers": ["> 1%", "last 50 versions"]
+        }
+      }
+    ],
+    "@babel/react"
+  ]
+}

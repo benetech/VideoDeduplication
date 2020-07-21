@@ -25,6 +25,10 @@
   },
   "homepage": "https://github.com/benetech/VideoDeduplication#readme",
   "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-react": "^7.10.4",
     "eslint": "^7.5.0",
     "eslint-plugin-react": "^7.20.3",
     "prettier": "^2.0.5"
