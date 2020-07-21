@@ -1,0 +1,24 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "Web UI for videos deduplication application.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/benetech/VideoDeduplication.git"
+  },
+  "keywords": [
+    "web",
+    "ui",
+    "frontend"
+  ],
+  "author": "Stepan Anokhin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/benetech/VideoDeduplication/issues"
+  },
+  "homepage": "https://github.com/benetech/VideoDeduplication#readme"
+}
