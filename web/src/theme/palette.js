@@ -22,6 +22,9 @@ const palette = {
     dark: "#F75537",
     light: "#FF846D",
   },
+  action: {
+    textInactive: "#808080",
+  },
 };
 
 export default palette;
