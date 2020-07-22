@@ -4,35 +4,38 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
-import Typography from "@material-ui/core/Typography";
-import Label from "../../../common/components/Label";
+import ExpandedLogo from "./ExpandedLogo";
+import CollapsedLogo from "./CollapsedLogo";
 
 const useStyles = makeStyles((theme) => ({
   headerRoot: {
     height: 146,
     flexShrink: 0,
   },
-  open: {
-    width: "100%",
+  openContent: {
+    margin: "7px 7px 0px 14px",
     height: theme.dimensions.list.itemHeight,
-    padding: theme.spacing(1),
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  close: {
+  closeContent: {
+    height: "100%",
     width: theme.dimensions.list.collapseWidth,
+    paddingTop: 17,
     display: "flex",
     alignItems: "center",
     flexDirection: "column",
   },
-  row: {
-    height: theme.dimensions.list.itemHeight,
+  closedContentButton: {
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  title: {
-    color: theme.palette.primary.main,
-  },
-  button: {
+  menuIcon: {
+    fontSize: 28,
     color: theme.palette.common.black,
   },
 }));
@@ -47,13 +50,13 @@ function AppMenuHeader(props) {
   if (open) {
     return (
       <div className={clsx(classes.headerRoot, className)}>
-        <div className={classes.open}>
-          <Typography variant="h4">++</Typography>
-          <Label role="title2" color="primary">
-            winnow
-          </Label>
-          <IconButton onClick={onToggle} className={classes.button}>
-            <MenuIcon fontSize="large" />
+        <div className={classes.openContent}>
+          <ExpandedLogo />
+          <IconButton onClick={onToggle}>
+            <MenuIcon
+              fontSize="large"
+              classes={{ fontSizeLarge: classes.menuIcon }}
+            />
           </IconButton>
         </div>
       </div>
@@ -62,16 +65,14 @@ function AppMenuHeader(props) {
 
   return (
     <div className={clsx(classes.headerRoot, className)}>
-      <div className={classes.close}>
-        <Label role="title2" color="primary">
-          wnn
-        </Label>
-        <div className={classes.row}>
-          <IconButton
-            className={clsx(classes.row, classes.button)}
-            onClick={onToggle}
-          >
-            <MenuIcon fontSize="large" />
+      <div className={classes.closeContent}>
+        <CollapsedLogo />
+        <div className={classes.closedContentButton}>
+          <IconButton onClick={onToggle}>
+            <MenuIcon
+              fontSize="large"
+              classes={{ fontSizeLarge: classes.menuIcon }}
+            />
           </IconButton>
         </div>
       </div>

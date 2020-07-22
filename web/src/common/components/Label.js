@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
   },
   title2: {
-    fontSize: 30,
+    fontSize: 31,
     letterSpacing: 0,
     fontWeight: "bold",
   },
