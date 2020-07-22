@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import ThemeProvider from "@material-ui/styles/ThemeProvider";
 import ApplicationLayout from "./ApplicationLayout";
+import CustomScrollbar from "../CustomScrollbar";
 
 /**
  * Application root component.
@@ -14,7 +15,9 @@ function Application(props) {
     <React.Fragment>
       <CssBaseline />
       <ThemeProvider theme={theme}>
-        <ApplicationLayout className={className} />
+        <CustomScrollbar>
+          <ApplicationLayout className={className} />
+        </CustomScrollbar>
       </ThemeProvider>
     </React.Fragment>
   );

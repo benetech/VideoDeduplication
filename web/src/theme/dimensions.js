@@ -9,6 +9,9 @@ const dimensions = {
   application: {
     maxWidth: 1455,
   },
+  scrollbar: {
+    width: 8,
+  },
 };
 
 export default dimensions;

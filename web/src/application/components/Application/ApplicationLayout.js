@@ -18,6 +18,9 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 2,
     maxWidth: theme.dimensions.application.maxWidth,
   },
+  menu: {
+    minHeight: "100vh",
+  },
   body: {
     flexGrow: 2,
   },
@@ -33,7 +36,7 @@ function ApplicationLayout(props) {
   return (
     <div className={clsx(classes.container, className)}>
       <div className={classes.content}>
-        <AppMenu />
+        <AppMenu className={classes.menu} />
         <div className={classes.body}>
           <Typography variant="h3">Hello winnow</Typography>
         </div>

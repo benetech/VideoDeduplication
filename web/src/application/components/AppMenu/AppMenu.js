@@ -14,7 +14,9 @@ import CompareOutlinedIcon from "@material-ui/icons/CompareOutlined";
 import AppMenuHeader from "./AppMenuHeader";
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
+  root: {
+    height: "100%",
+  },
   drawer: {
     width: theme.mixins.drawer.width,
     overflowX: "hidden",
@@ -23,6 +25,8 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "end",
     borderRight: "hidden",
     position: "relative",
+    height: "100%",
+    minHeight: "min-content",
   },
   drawerOpen: {
     width: theme.mixins.drawer.width,
