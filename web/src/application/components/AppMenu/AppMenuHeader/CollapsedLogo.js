@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import PlusPlusIcon from "./PlusPlusIcon";
 import Label from "../../../../common/components/Label";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   logo: {
     display: "flex",
     flexDirection: "column",
