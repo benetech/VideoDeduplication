@@ -2,8 +2,8 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import SelectionDecorator from "../SelectionDecorator";
-import Label from "../Label";
+import SelectionDecorator from "../../../common/components/SelectionDecorator";
+import Label from "../../../common/components/Label";
 
 const useStyles = makeStyles((theme) => ({
   item: {

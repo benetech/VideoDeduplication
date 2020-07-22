@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import Typography from "@material-ui/core/Typography";
-import Label from "../Label";
+import Label from "../../../common/components/Label";
 
 const useStyles = makeStyles((theme) => ({
   headerRoot: {
