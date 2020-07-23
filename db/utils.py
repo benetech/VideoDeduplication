@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine,Table, Column, String, MetaData,Integer,Binary,Boolean,Float,ARRAY
 from sqlalchemy.orm import sessionmaker
 
-from .schema import Signature,Scenes,VideoMetadata
+from .schema import Signature,Scenes,VideoMetadata,Matches
 
 def create_engine_session(conn_string):
     """Creates DB engine from connection string
@@ -37,11 +37,13 @@ def create_tables(engine):
     Signature.metadata.create_all(engine)
     Scenes.metadata.create_all(engine)
     VideoMetadata.metadata.create_all(engine)
+    Matches.metadata.create_all(engine)
     
 def delete_tables(engine):
     Signature.metadata.drop_all(engine)
     Scenes.metadata.drop_all(engine)
     VideoMetadata.metadata.drop_all(engine)
+    Matches.metadata.drop_all(engine)
     
 # Bulk loading the original output into target tables
 
@@ -125,7 +127,15 @@ def add_metadata(session,metadata):
                                    flagged = x['flagged']
                                    
                                    ) for i,x in metadata.iterrows()])
-    
+
+def add_matches(session,matches):
+
+    session.add_all([Matches(
+                                query_video=x['query_video'],
+                                match_video = x['match_video'],
+                                distance = x['distance']
+                                ) for i,x in matches.iterrows()])
+
 
 
 
@@ -143,6 +153,20 @@ def load_metadata(session,metadata_df_path):
     add_metadata(session,df)
 
 # DB Queries
+
+def load_matches(session,matches_df_path):
+    """Loads video metadata into DB (video metadata table)
+    
+    Arguments:
+        session {DB Session} -- created by a previous instantiation
+        matches_df_path {string} -- Path to the matches (csv file)
+    """
+    df = pd.read_csv(matches_df_path)
+
+    add_matches(session,df)
+
+
+
 
 def get_all(session,instance):
 

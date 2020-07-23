@@ -41,3 +41,12 @@ class Scenes(Base):
     scene_duration_seconds = Column(ARRAY(Integer))
     scenes_timestamp = Column(ARRAY(String))
     total_video_duration_timestamp = Column(String)
+
+
+class Matches(Base):
+
+    __tablename__ = 'matches'
+    id = Column(Integer, primary_key = True) 
+    query_video = Column(String)
+    match_video = Column(String)
+    distance = Column(Float)
