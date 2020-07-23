@@ -4,6 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import Typography from "@material-ui/core/Typography";
 import AppMenu from "../AppMenu";
 import clsx from "clsx";
+import Label from "../../../common/components/Label";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -23,6 +24,8 @@ const useStyles = makeStyles((theme) => ({
   },
   body: {
     flexGrow: 2,
+    paddingTop: 20,
+    paddingLeft: 15,
   },
 }));
 
@@ -38,7 +41,7 @@ function ApplicationLayout(props) {
       <div className={classes.content}>
         <AppMenu className={classes.menu} />
         <div className={classes.body}>
-          <Typography variant="h3">Hello winnow</Typography>
+          <Label variant="title2">My Collection</Label>
         </div>
       </div>
     </div>

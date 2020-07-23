@@ -22,7 +22,7 @@ function ExpandedLogo(props) {
   return (
     <div className={clsx(classes.logo, className)}>
       <PlusPlusIcon className={classes.icon} />
-      <Label role="title2" color="primary">
+      <Label variant="title2" color="primary">
         winnow
       </Label>
     </div>

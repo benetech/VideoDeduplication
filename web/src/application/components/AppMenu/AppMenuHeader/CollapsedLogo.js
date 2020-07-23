@@ -24,7 +24,7 @@ function CollapsedLogo(props) {
   return (
     <div className={clsx(classes.logo, className)}>
       <PlusPlusIcon className={classes.icon} />
-      <Label role="title2" color="primary" className={classes.title}>
+      <Label variant="title2" color="primary" className={classes.title}>
         wnn
       </Label>
     </div>

@@ -24,11 +24,10 @@ const useStyles = makeStyles((theme) => ({
     height: 45,
   },
   /**
-   * Inactive text must be gray
+   * Inactive text must be grey
    */
   inactive: {
     color: theme.palette.action.textInactive,
-    fontWeight: "normal",
   },
   /**
    * Title is visible and will fade smoothly when item is collapsed.
@@ -80,13 +79,14 @@ function AppMenuListItem(props) {
         {icon}
       </div>
       <Label
-        role="title3"
+        variant="title3"
         color="inherit"
         className={clsx({
           [classes.visible]: !collapsed,
           [classes.invisible]: collapsed,
           [classes.inactive]: !selected,
         })}
+        bold={selected}
       >
         {title}
       </Label>
