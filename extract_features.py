@@ -94,9 +94,9 @@ if __name__ == '__main__':
         try:
             session.commit()
     
-        except:
+        except Exception as e:
             session.rollback()
-            print('DB Exception')
+            print('DB Exception',e)
             # raise
 
         finally:

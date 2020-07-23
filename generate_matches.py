@@ -119,9 +119,9 @@ if DETECT_SCENES:
 
         try:
             session.commit()
-        except:
+        except Exception as e:
             session.rollback()
-            print('DB Exception')
+            print('DB Exception',e)
         
         finally:
             # Get DB stats
@@ -195,18 +195,21 @@ if HANDLE_DARK:
     if USE_DB:
 
         add_metadata(session,merged)
+        add_matches(session,filtered_match_df)
         try:
             session.commit()
     
-        except:
+        except Exception as e:
             session.rollback()
-            print('DB Exception')
+            print('DB Exception',e)
             # raise
 
         finally:
             # Get DB stats
             metadata = get_all(session,VideoMetadata)
-            print(f"Signatures table rows:{len(metadata)}")
+            matches = get_all(session,Matches)
+            print(f"Metadata table rows:{len(metadata)}")
+            print(f"Matches table rows:{len(matches)}")
 
         session.close()
 
