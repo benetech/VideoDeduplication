@@ -1,10 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import Typography from "@material-ui/core/Typography";
 import AppMenu from "../AppMenu";
 import clsx from "clsx";
-import Label from "../../../common/components/Label";
+import CollectionPage from "../../../collection/components/CollectionPage";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -24,8 +23,6 @@ const useStyles = makeStyles((theme) => ({
   },
   body: {
     flexGrow: 2,
-    paddingTop: 20,
-    paddingLeft: 15,
   },
 }));
 
@@ -40,9 +37,7 @@ function ApplicationLayout(props) {
     <div className={clsx(classes.container, className)}>
       <div className={classes.content}>
         <AppMenu className={classes.menu} />
-        <div className={classes.body}>
-          <Label variant="title2">My Collection</Label>
-        </div>
+        <CollectionPage className={classes.body} />
       </div>
     </div>
   );

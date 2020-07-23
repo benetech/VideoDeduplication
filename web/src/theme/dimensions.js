@@ -12,6 +12,12 @@ const dimensions = {
   scrollbar: {
     width: 8,
   },
+  header: {
+    padding: 23,
+  },
+  content: {
+    padding: 23,
+  },
 };
 
 export default dimensions;

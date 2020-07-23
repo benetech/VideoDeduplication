@@ -4,6 +4,7 @@ const white = "#FFFFFF";
 
 const palette = {
   white,
+  divider: "#979797",
   success: {
     contrastText: white,
     dark: colors.green[900],
