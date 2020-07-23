@@ -3,10 +3,20 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import HeaderLinks from "../../common/components/HeaderLinks";
 import HeaderLink from "../../common/components/HeaderLink";
+import clsx from "clsx";
 
 const { useState } = require("react");
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  links: {
+    flexGrow: 0,
+  },
+}));
 
 const links = [
   {
@@ -32,16 +42,18 @@ function CollectionNavigation(props) {
 
   const classes = useStyles();
   return (
-    <HeaderLinks className={className}>
-      {links.map((link, index) => (
-        <HeaderLink
-          title={link.title}
-          selected={selected === index}
-          onClick={() => setSelected(index)}
-          key={index}
-        />
-      ))}
-    </HeaderLinks>
+    <div className={clsx(classes.container, className)}>
+      <HeaderLinks className={classes.links}>
+        {links.map((link, index) => (
+          <HeaderLink
+            title={link.title}
+            selected={selected === index}
+            onClick={() => setSelected(index)}
+            key={index}
+          />
+        ))}
+      </HeaderLinks>
+    </div>
   );
 }
 

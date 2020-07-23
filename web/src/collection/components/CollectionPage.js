@@ -15,7 +15,11 @@ function CollectionPage(props) {
   const { className } = props;
   const classes = useStyles();
   return (
-    <AppPage title="My Collection" className={className}>
+    <AppPage
+      title="My Collection"
+      header={<CollectionNavigation />}
+      className={className}
+    >
       <div className={classes.body}>
         <Label variant="title1" color="primary">
           Dashboard

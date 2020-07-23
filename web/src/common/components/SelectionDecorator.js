@@ -11,22 +11,23 @@ const useStyles = makeStyles((theme) => ({
   },
   top: {
     top: 0,
-    width: "50%",
+    width: "100%",
     height: theme.dimensions.selectionDecorator.size,
   },
   bottom: {
     bottom: 0,
-    width: "50%",
+    left: 0,
+    width: "100%",
     height: theme.dimensions.selectionDecorator.size,
   },
   left: {
     left: 0,
-    height: "50%",
+    height: "100%",
     width: theme.dimensions.selectionDecorator.size,
   },
   right: {
     right: 0,
-    height: "50%",
+    height: "100%",
     width: theme.dimensions.selectionDecorator.size,
   },
 }));
