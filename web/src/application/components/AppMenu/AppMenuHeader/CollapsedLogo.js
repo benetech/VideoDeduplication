@@ -14,7 +14,7 @@ const useStyles = makeStyles(() => ({
     width: 30,
   },
   title: {
-    marginTop: -10,
+    marginTop: -6,
   },
 }));
 
@@ -25,7 +25,7 @@ function CollapsedLogo(props) {
     <div className={clsx(classes.logo, className)}>
       <PlusPlusIcon className={classes.icon} />
       <Label variant="title2" color="primary" className={classes.title}>
-        wnn
+        JAI
       </Label>
     </div>
   );
