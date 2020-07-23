@@ -16,7 +16,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 from api import api as api_blueprint
 
-print(api_blueprint)
 app.register_blueprint(api_blueprint, url_prefix='/api/v1')
 
 

@@ -83,3 +83,23 @@ class Scenes(Base):
         }
 
         return json_scenes
+
+    
+class Matches(Base):
+
+    __tablename__ = 'matches'
+    id = Column(Integer, primary_key = True) 
+    query_video = Column(String)
+    match_video = Column(String)
+    distance = Column(Float)
+
+
+    def to_json(self):
+
+        json_matches = {
+            "query_video" : self.query_video,
+            "match_video" : self.match_video,
+            "distance" : self.distance
+        }
+
+        return json_matches
