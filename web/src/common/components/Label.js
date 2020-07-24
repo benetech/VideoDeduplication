@@ -4,26 +4,17 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles((theme) => ({
-  title: {
-    fontFamily: "Roboto",
-  },
   title1: {
-    fontSize: 43,
-    letterSpacing: 0,
+    ...theme.mixins.title1,
   },
   title2: {
-    fontSize: 31,
-    letterSpacing: 0,
-    lineHeight: "35px",
+    ...theme.mixins.title2,
   },
   title3: {
-    fontSize: 20,
-    letterSpacing: 0,
+    ...theme.mixins.title3,
   },
   navlink: {
-    fontSize: 17,
-    letterSpacing: 0,
-    lineHeight: "20px",
+    ...theme.mixins.navlink,
   },
   colorPrimary: {
     color: theme.palette.primary.main,
@@ -59,7 +50,6 @@ function Label(props) {
   return (
     <div
       className={clsx(
-        classes.title,
         {
           [classes.title1]: variant === "title1",
           [classes.title2]: variant === "title2",
