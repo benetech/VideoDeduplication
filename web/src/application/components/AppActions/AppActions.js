@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
   },
   indicator: {
-    margin: "0px 12px 0px 12px",
+    margin: "0px 16px 0px 16px",
     alignSelf: "stretch",
   },
   divider: {
@@ -24,8 +24,8 @@ const useStyles = makeStyles((theme) => ({
   },
   notificationButton: {
     color: theme.palette.common.black,
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
+    marginLeft: theme.spacing(1.3),
+    marginRight: theme.spacing(1.3),
   },
   profileButton: {
     color: theme.palette.common.black,
