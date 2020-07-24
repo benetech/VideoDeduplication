@@ -6,8 +6,9 @@ import ConnectionIndicator from "./ConnectionIndicator";
 import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
 import NotificationsNoneOutlinedIcon from "@material-ui/icons/NotificationsNoneOutlined";
-import PersonOutlinedIcon from "@material-ui/icons/PersonOutlined";
+
 import PlusButton from "./PlusButton";
+import ProfileMenuButton from "./ProfileMenuButton";
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -19,12 +20,17 @@ const useStyles = makeStyles((theme) => ({
     alignSelf: "stretch",
   },
   divider: {
-    minHeight: 35,
+    minHeight: 30,
   },
-  button: {
+  notificationButton: {
     color: theme.palette.common.black,
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
+  },
+  profileButton: {
+    color: theme.palette.common.black,
+    marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(2),
   },
 }));
 
@@ -36,13 +42,11 @@ function AppActions(props) {
       <PlusButton />
       <ConnectionIndicator offline className={classes.indicator} />
       <Divider orientation="vertical" className={classes.divider} />
-      <IconButton className={classes.button}>
+      <IconButton className={classes.notificationButton}>
         <NotificationsNoneOutlinedIcon />
       </IconButton>
       <Divider orientation="vertical" className={classes.divider} />
-      <IconButton className={classes.button}>
-        <PersonOutlinedIcon />
-      </IconButton>
+      <ProfileMenuButton className={classes.profileButton} />
     </div>
   );
 }

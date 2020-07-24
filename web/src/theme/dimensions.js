@@ -13,10 +13,10 @@ const dimensions = {
     width: 8,
   },
   header: {
-    padding: 23,
+    padding: 16,
   },
   content: {
-    padding: 23,
+    padding: 16,
   },
 };
 
