@@ -1,0 +1,20 @@
+{
+  "locale": "ru-RU",
+  "messages": {
+    "app.title": "СправИИ",
+    "app.title.short": "СИИ",
+    "app.action.offline": "Оффлайн",
+    "app.action.online": "Онлайн",
+    "app.menu.collection": "Моя Коллекция",
+    "app.menu.database": "База Данных",
+    "app.menu.collaborators": "Сотрудники",
+    "app.menu.organization": "Организация",
+    "app.menu.processing": "Обработка",
+    "collection.title": "Моя Коллекция",
+    "collection.nav.analytics": "Анализ",
+    "collection.nav.fingerprints": "Мои Отпечатки",
+    "collection.nav.collaborators": "Сотрудники",
+    "collection.nav.organization": "Организация",
+    "collection.dashboard.title": "Управление"
+  }
+}
