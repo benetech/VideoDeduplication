@@ -14,7 +14,10 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
   },
   links: {
-    flexGrow: 0,
+    flexGrow: 1,
+  },
+  spacer: {
+    flexGrow: 2,
   },
 }));
 
@@ -43,6 +46,7 @@ function CollectionNavigation(props) {
   const classes = useStyles();
   return (
     <div className={clsx(classes.container, className)}>
+      <div className={classes.spacer} />
       <HeaderLinks className={classes.links}>
         {links.map((link, index) => (
           <HeaderLink
@@ -53,6 +57,7 @@ function CollectionNavigation(props) {
           />
         ))}
       </HeaderLinks>
+      <div className={classes.spacer} />
     </div>
   );
 }
