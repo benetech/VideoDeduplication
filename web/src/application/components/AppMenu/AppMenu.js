@@ -12,6 +12,7 @@ import GrainOutlinedIcon from "@material-ui/icons/GrainOutlined";
 import AccountTreeOutlinedIcon from "@material-ui/icons/AccountTreeOutlined";
 import CompareOutlinedIcon from "@material-ui/icons/CompareOutlined";
 import AppMenuHeader from "./AppMenuHeader";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,23 +51,23 @@ const useStyles = makeStyles((theme) => ({
 const menuItems = [
   {
     icon: <LayersOutlinedIcon fontSize="large" />,
-    title: "My Collection",
+    title: "app.menu.collection",
   },
   {
     icon: <GrainOutlinedIcon fontSize="large" />,
-    title: "Database",
+    title: "app.menu.database",
   },
   {
     icon: <PersonOutlinedIcon fontSize="large" />,
-    title: "Collaborators",
+    title: "app.menu.collaborators",
   },
   {
     icon: <AccountTreeOutlinedIcon fontSize="large" />,
-    title: "Organization",
+    title: "app.menu.organization",
   },
   {
     icon: <CompareOutlinedIcon fontSize="large" />,
-    title: "Processing",
+    title: "app.menu.processing",
   },
 ];
 
@@ -74,6 +75,7 @@ function AppMenu(props) {
   const { className } = props;
   const [open, setOpen] = useState(true);
   const [selected, setSelected] = useState(0);
+  const intl = useIntl();
 
   const classes = useStyles();
   return (
@@ -96,7 +98,7 @@ function AppMenu(props) {
           {menuItems.map((item, index) => (
             <AppMenuListItem
               icon={item.icon}
-              title={item.title}
+              title={intl.formatMessage({ id: item.title })}
               selected={index === selected}
               onClick={() => setSelected(index)}
               collapsed={!open}

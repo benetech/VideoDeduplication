@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import WifiOffOutlinedIcon from "@material-ui/icons/WifiOffOutlined";
 import WifiOutlinedIcon from "@material-ui/icons/WifiOutlined";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   indicator: {
@@ -23,9 +24,12 @@ const useStyles = makeStyles((theme) => ({
 function ConnectionIndicator(props) {
   const { offline = false, className } = props;
   const classes = useStyles();
+  const intl = useIntl();
 
   const Icon = offline ? WifiOffOutlinedIcon : WifiOutlinedIcon;
-  const text = offline ? "Offline" : "Online";
+  const text = offline
+    ? intl.formatMessage({ id: "app.action.offline" })
+    : intl.formatMessage({ id: "app.action.online" });
 
   return (
     <div className={clsx(classes.indicator, className)}>

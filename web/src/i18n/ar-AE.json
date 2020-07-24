@@ -1,0 +1,20 @@
+{
+  "locale": "ar-AE",
+  "messages": {
+    "app.title": "العدلاا",
+    "app.title.short": "لاا",
+    "app.action.offline": "غير متصل على الانترنت",
+    "app.action.online": "عبر الانترنت",
+    "app.menu.collection": "مجموعتي",
+    "app.menu.database": "قاعدة البيانات",
+    "app.menu.collaborators": "المتعاونين",
+    "app.menu.organization": "منظمة",
+    "app.menu.processing": "معالجة",
+    "collection.title": "مجموعتي",
+    "collection.nav.analytics": "تحليلات",
+    "collection.nav.fingerprints": "بصمات أصابعي",
+    "collection.nav.collaborators": "المتعاونين",
+    "collection.nav.organization": "منظمة",
+    "collection.dashboard.title": "لوحة القيادة"
+  }
+}

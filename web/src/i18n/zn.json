@@ -1,0 +1,20 @@
+{
+  "locale": "zn",
+  "messages": {
+    "app.title": "司法人工智能",
+    "app.title.short": "正义",
+    "app.action.offline": "线上",
+    "app.action.online": "线上",
+    "app.menu.collection": "我的收藏",
+    "app.menu.database": "数据库",
+    "app.menu.collaborators": "合作者",
+    "app.menu.organization": "组织",
+    "app.menu.processing": "处理中",
+    "collection.title": "我的收藏",
+    "collection.nav.analytics": "分析工具",
+    "collection.nav.fingerprints": "我的指纹",
+    "collection.nav.collaborators": "合作者",
+    "collection.nav.organization": "组织",
+    "collection.dashboard.title": "仪表板"
+  }
+}

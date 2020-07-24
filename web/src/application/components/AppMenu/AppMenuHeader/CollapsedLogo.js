@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import PlusPlusIcon from "./PlusPlusIcon";
 import Label from "../../../../common/components/Label";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles(() => ({
   logo: {
@@ -21,11 +22,13 @@ const useStyles = makeStyles(() => ({
 function CollapsedLogo(props) {
   const { className } = props;
   const classes = useStyles();
+  const intl = useIntl();
+
   return (
     <div className={clsx(classes.logo, className)}>
       <PlusPlusIcon className={classes.icon} />
       <Label variant="title2" color="primary" className={classes.title}>
-        JAI
+        {intl.formatMessage({ id: "app.title.short" })}
       </Label>
     </div>
   );

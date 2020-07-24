@@ -1,0 +1,20 @@
+{
+  "locale": "en-US",
+  "messages": {
+    "app.title": "JusticeAI",
+    "app.title.short": "JAI",
+    "app.action.offline": "Offline",
+    "app.action.online": "Online",
+    "app.menu.collection": "My Collection",
+    "app.menu.database": "Database",
+    "app.menu.collaborators": "Collaborators",
+    "app.menu.organization": "Organization",
+    "app.menu.processing": "Processing",
+    "collection.title": "My Collection",
+    "collection.nav.analytics": "Analytics",
+    "collection.nav.fingerprints": "My Fingerprints",
+    "collection.nav.collaborators": "Collaborators",
+    "collection.nav.organization": "Organization",
+    "collection.dashboard.title": "Dashboard"
+  }
+}

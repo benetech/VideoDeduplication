@@ -4,9 +4,13 @@ import { makeStyles } from "@material-ui/styles";
 import Label from "../../common/components/Label";
 import AppPage from "../../application/components/AppPage";
 import CollectionNavigation from "./CollectionNavigation";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   body: {
+    display: "flex",
+    paddingTop: theme.dimensions.content.padding * 2,
     padding: theme.dimensions.content.padding,
   },
 }));
@@ -14,16 +18,19 @@ const useStyles = makeStyles((theme) => ({
 function CollectionPage(props) {
   const { className } = props;
   const classes = useStyles();
+  const intl = useIntl();
+
   return (
     <AppPage
-      title="My Collection"
+      title={intl.formatMessage({ id: "collection.title" })}
       header={<CollectionNavigation />}
       className={className}
     >
       <div className={classes.body}>
         <Label variant="title1" color="primary">
-          Dashboard
+          {intl.formatMessage({ id: "collection.dashboard.title" })}
         </Label>
+        <ExpandMoreIcon />
       </div>
     </AppPage>
   );

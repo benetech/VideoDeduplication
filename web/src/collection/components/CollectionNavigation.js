@@ -4,6 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import HeaderLinks from "../../common/components/HeaderLinks";
 import HeaderLink from "../../common/components/HeaderLink";
 import clsx from "clsx";
+import { useIntl } from "react-intl";
 
 const { useState } = require("react");
 
@@ -23,16 +24,16 @@ const useStyles = makeStyles((theme) => ({
 
 const links = [
   {
-    title: "Analytics",
+    title: "collection.nav.analytics",
   },
   {
-    title: "My Fingerprints",
+    title: "collection.nav.fingerprints",
   },
   {
-    title: "Collaborators",
+    title: "collection.nav.collaborators",
   },
   {
-    title: "Organization",
+    title: "collection.nav.organization",
   },
 ];
 
@@ -42,6 +43,7 @@ const links = [
 function CollectionNavigation(props) {
   const { className } = props;
   const [selected, setSelected] = useState(0);
+  const intl = useIntl();
 
   const classes = useStyles();
   return (
@@ -50,7 +52,7 @@ function CollectionNavigation(props) {
       <HeaderLinks className={classes.links}>
         {links.map((link, index) => (
           <HeaderLink
-            title={link.title}
+            title={intl.formatMessage({ id: link.title })}
             selected={selected === index}
             onClick={() => setSelected(index)}
             key={index}
