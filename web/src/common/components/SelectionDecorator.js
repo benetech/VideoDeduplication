@@ -12,23 +12,23 @@ const useStyles = makeStyles((theme) => ({
   top: {
     top: 0,
     width: "100%",
-    height: theme.dimensions.selectionDecorator.size,
+    height: theme.dimensions.selectionDecorator.horizontalSize,
   },
   bottom: {
     bottom: 0,
     left: 0,
     width: "100%",
-    height: theme.dimensions.selectionDecorator.size,
+    height: theme.dimensions.selectionDecorator.horizontalSize,
   },
   left: {
     left: 0,
     height: "100%",
-    width: theme.dimensions.selectionDecorator.size,
+    width: theme.dimensions.selectionDecorator.verticalSize,
   },
   right: {
     right: 0,
     height: "100%",
-    width: theme.dimensions.selectionDecorator.size,
+    width: theme.dimensions.selectionDecorator.verticalSize,
   },
 }));
 

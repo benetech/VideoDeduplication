@@ -4,7 +4,8 @@ const dimensions = {
     collapseWidth: 85,
   },
   selectionDecorator: {
-    size: 4,
+    verticalSize: 4,
+    horizontalSize: 3,
   },
   application: {
     maxWidth: 1455,
@@ -16,7 +17,7 @@ const dimensions = {
     padding: 16,
   },
   content: {
-    padding: 16,
+    padding: 20,
   },
 };
 
