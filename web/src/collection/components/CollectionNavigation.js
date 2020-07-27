@@ -1,10 +1,9 @@
 import React from "react";
+import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import HeaderLinks from "../../common/components/HeaderLinks";
-import HeaderLink from "../../common/components/HeaderLink";
-import clsx from "clsx";
 import { useIntl } from "react-intl";
+import NavLinkListAdaptive from "../../common/components/NavLinkListAdaptive";
 
 const { useState } = require("react");
 
@@ -19,21 +18,25 @@ const useStyles = makeStyles((theme) => ({
   },
   spacer: {
     flexGrow: 2,
+    [theme.breakpoints.down("md")]: {
+      flexGrow: 0,
+      width: theme.spacing(2),
+    },
   },
 }));
 
-const links = [
+const makeLinks = (intl) => [
   {
-    title: "collection.nav.analytics",
+    title: intl.formatMessage({ id: "collection.nav.analytics" }),
   },
   {
-    title: "collection.nav.fingerprints",
+    title: intl.formatMessage({ id: "collection.nav.fingerprints" }),
   },
   {
-    title: "collection.nav.collaborators",
+    title: intl.formatMessage({ id: "collection.nav.collaborators" }),
   },
   {
-    title: "collection.nav.organization",
+    title: intl.formatMessage({ id: "collection.nav.organization" }),
   },
 ];
 
@@ -42,23 +45,21 @@ const links = [
  */
 function CollectionNavigation(props) {
   const { className } = props;
-  const [selected, setSelected] = useState(0);
   const intl = useIntl();
+  const links = makeLinks(intl);
+  const [selected, setSelected] = useState(links[0].title);
 
   const classes = useStyles();
   return (
     <div className={clsx(classes.container, className)}>
       <div className={classes.spacer} />
-      <HeaderLinks className={classes.links}>
-        {links.map((link, index) => (
-          <HeaderLink
-            title={intl.formatMessage({ id: link.title })}
-            selected={selected === index}
-            onClick={() => setSelected(index)}
-            key={index}
-          />
-        ))}
-      </HeaderLinks>
+      <NavLinkListAdaptive
+        collapseOn="md"
+        links={links}
+        selected={selected}
+        onSelect={(link) => setSelected(link.title)}
+        className={classes.links}
+      />
       <div className={classes.spacer} />
     </div>
   );

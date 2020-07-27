@@ -36,6 +36,7 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.navlink,
     display: "inline-block",
     textAlign: "center",
+    whiteSpace: "nowrap",
     /**
      * Reserve space for bolded content in ::before
      * pseudo element.
@@ -55,13 +56,14 @@ const useStyles = makeStyles((theme) => ({
 /**
  * Single navigation link.
  *
- * @see HeaderLinks
+ * @see NavLinkList
  */
-function HeaderLink(props) {
-  const { title, selected, onClick, className } = props;
+function NavLink(props) {
+  const { title, selected, decorated = true, onClick, className } = props;
   const classes = useStyles();
 
-  const decorator = selected ? <SelectionDecorator variant="bottom" /> : null;
+  const decorator =
+    selected && decorated ? <SelectionDecorator variant="bottom" /> : null;
 
   return (
     <div className={clsx(classes.container, className)} onClick={onClick}>
@@ -81,11 +83,12 @@ function HeaderLink(props) {
   );
 }
 
-HeaderLink.propTypes = {
+NavLink.propTypes = {
   title: PropTypes.string.isRequired,
   onClick: PropTypes.func,
   selected: PropTypes.bool,
+  decorated: PropTypes.bool,
   className: PropTypes.string,
 };
 
-export default HeaderLink;
+export default NavLink;
