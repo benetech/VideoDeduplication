@@ -10,6 +10,7 @@ import Dashlet from "./Dashlet";
 const useStyles = makeStyles((theme) => ({
   content: {
     minHeight: 300,
+    minWidth: 300,
   },
 }));
 
