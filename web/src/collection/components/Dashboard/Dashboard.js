@@ -25,8 +25,7 @@ const useStyles = makeStyles((theme) => ({
     filter: "blur(10px)",
   },
   body: {
-    width: "100%",
-    height: "100%",
+    minHeight: "min-content",
     transform: "translate(0%, 0px)",
   },
   content: {
