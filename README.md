@@ -1,4 +1,4 @@
-Benetech Video Deduplication Project
+Benetech Video Deduplication Project 
 ==============================
 
 Near Duplicate, object, and metadata detection for video files.
