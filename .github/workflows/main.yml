@@ -32,8 +32,6 @@ jobs:
         aws-region: us-west-2
     - name: Build static site
       working-directory: ${{env.working-directory}}
-      run: ls -R
-      run: npm install && npm run-script build
-      run: ls -R
+      run: ls -R && npm install && npm run-script build && ls -R
     - name: Deploy static site to S3 bucket
       run: aws s3 sync ./build/ s3://justiceai --delete
