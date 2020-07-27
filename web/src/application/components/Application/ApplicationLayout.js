@@ -15,8 +15,8 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     display: "flex",
-    flexGrow: 2,
-    overflow: "auto",
+    flexGrow: 1,
+    alignItems: "stretch",
     maxWidth: theme.dimensions.application.maxWidth,
   },
   menu: {
