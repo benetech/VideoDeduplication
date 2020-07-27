@@ -7,7 +7,7 @@ import CollectionPage from "../../../collection/components/CollectionPage";
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    width: "100%",
+    width: "100vw",
     height: "100vh",
     overflow: "auto",
     display: "flex",
@@ -16,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
   content: {
     display: "flex",
     flexGrow: 2,
+    overflow: "auto",
     maxWidth: theme.dimensions.application.maxWidth,
   },
   menu: {
