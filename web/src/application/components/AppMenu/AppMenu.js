@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import Drawer from "@material-ui/core/Drawer";
 import AppMenuList from "./AppMenuList";
 import AppMenuListItem from "./AppMenuListItem";
 
@@ -20,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
   drawer: {
     width: theme.mixins.drawer.width,
+    backgroundColor: theme.palette.background.paper,
     overflowX: "hidden",
     display: "flex",
     flexDirection: "column",
@@ -80,18 +80,11 @@ function AppMenu(props) {
   const classes = useStyles();
   return (
     <div className={clsx(classes.root, className)}>
-      <Drawer
-        variant="permanent"
+      <div
         className={clsx(classes.drawer, {
           [classes.drawerOpen]: open,
           [classes.drawerClose]: !open,
         })}
-        classes={{
-          paper: clsx(classes.drawer, {
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open,
-          }),
-        }}
       >
         <AppMenuList className={classes.links}>
           <AppMenuHeader open={open} onToggle={() => setOpen(!open)} />
@@ -106,7 +99,7 @@ function AppMenu(props) {
             />
           ))}
         </AppMenuList>
-      </Drawer>
+      </div>
     </div>
   );
 }
