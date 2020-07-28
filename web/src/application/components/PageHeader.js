@@ -18,6 +18,10 @@ const useStyles = makeStyles((theme) => ({
   content: {
     width: "100%",
   },
+  actions: {
+    flexGrow: 1,
+    justifyContent: "flex-end",
+  },
 }));
 
 function titleElement(title, classes) {
@@ -42,7 +46,7 @@ function PageHeader(props) {
     <div className={clsx(classes.header, className)}>
       {titleElement(title, classes)}
       <div className={classes.content}>{children}</div>
-      <AppActions />
+      <AppActions className={classes.actions} />
     </div>
   );
 }

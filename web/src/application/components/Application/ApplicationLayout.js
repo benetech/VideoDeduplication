@@ -11,6 +11,8 @@ import {
 import AppMenu from "../AppMenu";
 import CollectionPage from "../../../collection/components/CollectionPage";
 import { routes } from "../../../routing/routes";
+import AppPage from "../AppPage";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -44,6 +46,7 @@ const useStyles = makeStyles((theme) => ({
 function ApplicationLayout(props) {
   const { className } = props;
   const classes = useStyles();
+  const intl = useIntl();
 
   return (
     <div className={clsx(classes.root, className)}>
@@ -56,6 +59,30 @@ function ApplicationLayout(props) {
             </Route>
             <Route path={routes.collection.home}>
               <CollectionPage className={classes.body} />
+            </Route>
+            <Route path={routes.database.home}>
+              <AppPage
+                title={intl.formatMessage({ id: "app.menu.database" })}
+                className={classes.body}
+              />
+            </Route>
+            <Route path={routes.organization.home}>
+              <AppPage
+                title={intl.formatMessage({ id: "app.menu.organization" })}
+                className={classes.body}
+              />
+            </Route>
+            <Route path={routes.collaborators.home}>
+              <AppPage
+                title={intl.formatMessage({ id: "app.menu.collaborators" })}
+                className={classes.body}
+              />
+            </Route>
+            <Route path={routes.processing.home}>
+              <AppPage
+                title={intl.formatMessage({ id: "app.menu.processing" })}
+                className={classes.body}
+              />
             </Route>
           </Switch>
         </Router>
