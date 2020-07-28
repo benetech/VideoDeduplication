@@ -1,17 +1,17 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import Label from "../../common/components/Label";
 import AppPage from "../../application/components/AppPage";
 import CollectionNavigation from "./CollectionNavigation";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { useIntl } from "react-intl";
+import Dashboard from "./Dashboard";
 
 const useStyles = makeStyles((theme) => ({
   body: {
-    display: "flex",
-    paddingTop: theme.dimensions.content.padding * 2,
-    padding: theme.dimensions.content.padding,
+    height: "100%",
+  },
+  dashboard: {
+    height: "100%",
   },
 }));
 
@@ -27,10 +27,7 @@ function CollectionPage(props) {
       className={className}
     >
       <div className={classes.body}>
-        <Label variant="title1" color="primary">
-          {intl.formatMessage({ id: "collection.dashboard.title" })}
-        </Label>
-        <ExpandMoreIcon />
+        <Dashboard className={classes.dashboard} />
       </div>
     </AppPage>
   );

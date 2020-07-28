@@ -8,7 +8,7 @@ const useStyles = makeStyles((theme) => ({
   button: {
     width: 35,
     height: 35,
-    minWidth: 35,
+    minWidth: "min-content",
     padding: 0,
   },
 }));

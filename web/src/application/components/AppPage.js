@@ -10,6 +10,9 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     alignItems: "stretch",
   },
+  pageHeader: {
+    flexShrink: 0,
+  },
   pageBody: {
     flexGrow: 1,
     width: "100%",
@@ -24,7 +27,9 @@ function AppPage(props) {
   const classes = useStyles();
   return (
     <div className={clsx(classes.pageRoot, className)}>
-      <PageHeader title={title}>{header}</PageHeader>
+      <PageHeader title={title} className={classes.pageHeader}>
+        {header}
+      </PageHeader>
       <div className={classes.pageBody}>{children}</div>
     </div>
   );

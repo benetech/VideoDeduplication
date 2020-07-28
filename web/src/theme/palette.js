@@ -17,6 +17,10 @@ const palette = {
     main: colors.orange[600],
     light: colors.orange[400],
   },
+  secondary: {
+    contrastText: white,
+    main: "#677083",
+  },
   primary: {
     contrastText: white,
     main: "#F75537",
@@ -25,6 +29,9 @@ const palette = {
   },
   action: {
     textInactive: "#808080",
+  },
+  background: {
+    backdrop: "rgba(249, 251, 251, 0.8)",
   },
 };
 

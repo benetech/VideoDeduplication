@@ -47,10 +47,13 @@
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/styles": "^4.10.0",
+    "chart.js": "^2.9.3",
     "clsx": "^1.1.1",
     "fontsource-roboto": "^2.1.4",
+    "lodash": "^4.17.19",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
+    "react-chartjs-2": "^2.9.0",
     "react-dom": "^16.13.1",
     "react-intl": "^5.4.0"
   }
