@@ -48,8 +48,8 @@ function ApplicationLayout(props) {
   return (
     <div className={clsx(classes.root, className)}>
       <div className={classes.content}>
-        <AppMenu className={classes.menu} />
         <Router>
+          <AppMenu className={classes.menu} />
           <Switch>
             <Route exact path={routes.home}>
               <Redirect to={routes.collection.home} />
