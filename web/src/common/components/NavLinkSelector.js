@@ -43,7 +43,7 @@ function NavLinkSelector(props) {
   return (
     <div className={clsx(className)}>
       <div {...clickTrigger} className={classes.selector}>
-        <NavLink title={selected} selected className={classes.link} />
+        <NavLink link={selected} selected className={classes.link} />
         <ExpandMoreIcon />
       </div>
       <Popover {...popup}>
@@ -63,9 +63,10 @@ function NavLinkSelector(props) {
 
 NavLinkSelector.propTypes = {
   onSelect: PropTypes.func.isRequired,
-  selected: PropTypes.string.isRequired,
+  selected: PropTypes.any.isRequired,
   links: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.any.isRequired,
       title: PropTypes.string.isRequired,
     })
   ).isRequired,

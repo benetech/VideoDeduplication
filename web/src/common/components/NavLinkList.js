@@ -22,10 +22,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function handleSelect(handler, link) {
-  return () => handler(link);
-}
-
 function NavLinkList(props) {
   const {
     links,
@@ -50,9 +46,9 @@ function NavLinkList(props) {
     >
       {links.map((link) => (
         <NavLink
-          title={link.title}
-          selected={link.title === selected}
-          onClick={handleSelect(onSelect, link)}
+          link={link}
+          selected={link.title === selected.title}
+          onClick={onSelect}
           key={link.title}
           className={clsx({
             [classes.linkHorizontal]: variant === "horizontal",
@@ -67,10 +63,11 @@ function NavLinkList(props) {
 
 NavLinkList.propTypes = {
   variant: PropTypes.oneOf(["horizontal", "vertical"]),
-  selected: PropTypes.string.isRequired,
+  selected: PropTypes.any.isRequired,
   onSelect: PropTypes.func,
   links: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.any.isRequired,
       title: PropTypes.string.isRequired,
     })
   ),

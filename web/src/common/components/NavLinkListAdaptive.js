@@ -48,10 +48,11 @@ function NavLinkListAdaptive(props) {
 
 NavLinkListAdaptive.propTypes = {
   collapseOn: PropTypes.oneOf(breakpoints).isRequired,
-  selected: PropTypes.string.isRequired,
+  selected: PropTypes.any.isRequired,
   onSelect: PropTypes.func,
   links: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.any.isRequired,
       title: PropTypes.string.isRequired,
     })
   ),

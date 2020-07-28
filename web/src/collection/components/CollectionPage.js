@@ -5,12 +5,7 @@ import AppPage from "../../application/components/AppPage";
 import CollectionNavigation from "./CollectionNavigation";
 import { useIntl } from "react-intl";
 import Dashboard from "./Dashboard";
-import {
-  BrowserRouter as Router,
-  Redirect,
-  Route,
-  Switch,
-} from "react-router-dom";
+import { Redirect, Route, Switch } from "react-router-dom";
 import { routes } from "../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
@@ -34,19 +29,17 @@ function CollectionPage(props) {
       className={className}
     >
       <div className={classes.body}>
-        <Router>
-          <Switch>
-            <Route exact path={routes.collection.home}>
-              <Redirect to={routes.collection.analytics} />
-            </Route>
-            <Route path={routes.collection.analytics}>
-              <Dashboard className={classes.dashboard} />
-            </Route>
-            <Route path={routes.collection.fingerprints}>
-              <div>Hello Fingerprints</div>
-            </Route>
-          </Switch>
-        </Router>
+        <Switch>
+          <Route exact path={routes.collection.home}>
+            <Redirect to={routes.collection.analytics} />
+          </Route>
+          <Route path={routes.collection.analytics}>
+            <Dashboard className={classes.dashboard} />
+          </Route>
+          <Route path={routes.collection.fingerprints}>
+            <div>Hello Fingerprints</div>
+          </Route>
+        </Switch>
       </div>
     </AppPage>
   );
