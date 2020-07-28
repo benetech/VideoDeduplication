@@ -29,9 +29,7 @@ const useStyles = makeStyles((theme) => ({
     transform: "translate(0%, 0px)",
   },
   content: {
-    width: "100%",
     height: "100%",
-    minWidth: "min-content",
     paddingTop: theme.spacing(8),
     padding: theme.spacing(1),
   },
