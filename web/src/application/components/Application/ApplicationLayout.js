@@ -1,9 +1,16 @@
 import React from "react";
+import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+} from "react-router-dom";
 import AppMenu from "../AppMenu";
-import clsx from "clsx";
 import CollectionPage from "../../../collection/components/CollectionPage";
+import { routes } from "../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,7 +49,16 @@ function ApplicationLayout(props) {
     <div className={clsx(classes.root, className)}>
       <div className={classes.content}>
         <AppMenu className={classes.menu} />
-        <CollectionPage className={classes.body} />
+        <Router>
+          <Switch>
+            <Route exact path={routes.home}>
+              <Redirect to={routes.collection.home} />
+            </Route>
+            <Route path={routes.collection.home}>
+              <CollectionPage className={classes.body} />
+            </Route>
+          </Switch>
+        </Router>
       </div>
     </div>
   );
