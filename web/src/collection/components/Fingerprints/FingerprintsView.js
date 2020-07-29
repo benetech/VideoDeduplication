@@ -3,6 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import FingerprintViewActions, { View } from "./FingerprintsViewActions";
+import FilterPane from "./FilterPane";
 
 const { useState } = require("react");
 
@@ -10,6 +11,8 @@ const useStyles = makeStyles((theme) => ({
   container: {
     paddingTop: theme.dimensions.content.padding * 2,
     padding: theme.dimensions.content.padding,
+    display: "flex",
+    alignItems: "stretch",
   },
   header: {
     display: "flex",
@@ -18,44 +21,53 @@ const useStyles = makeStyles((theme) => ({
   actions: {
     flexGrow: 1,
   },
-  body: {
-    minHeight: "min-content",
-    display: "flex",
-    alignItems: "stretch",
-  },
+  data: {},
   content: {
     flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "stretch",
   },
-  settings: {},
+  filters: {
+    minWidth: 250,
+  },
+  hidden: {
+    display: "none",
+  },
 }));
 
 function FingerprintsView(props) {
   const { className } = props;
   const classes = useStyles();
-  const [showSettings, setShowSettings] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [sort, setSort] = useState("");
   const [view, setView] = useState(View.grid);
 
-  const toggleSettings = useCallback(() => setShowSettings(!showSettings), [
-    showSettings,
+  const toggleFilters = useCallback(() => setShowFilters(!showFilters), [
+    showFilters,
   ]);
 
   return (
     <div className={clsx(classes.container, className)}>
-      <div className={classes.header}>
-        <FingerprintViewActions
-          sort={sort}
-          onSortChange={setSort}
-          view={view}
-          onViewChange={setView}
-          onAddMedia={console.log}
-          onTune={toggleSettings}
-          className={classes.actions}
-        />
+      <div className={classes.content}>
+        <div className={classes.header}>
+          <FingerprintViewActions
+            sort={sort}
+            onSortChange={setSort}
+            view={view}
+            onViewChange={setView}
+            onAddMedia={console.log}
+            showFilters={!showFilters}
+            onToggleFilters={toggleFilters}
+            className={classes.actions}
+          />
+        </div>
+        <div className={classes.data}>Fingerprints go here...</div>
       </div>
-      <div className={classes.body}>
-        <div className={classes.content}>Hello Fingerprints</div>
-      </div>
+      <FilterPane
+        onClose={toggleFilters}
+        className={clsx({ [classes.hidden]: !showFilters })}
+      />
     </div>
   );
 }

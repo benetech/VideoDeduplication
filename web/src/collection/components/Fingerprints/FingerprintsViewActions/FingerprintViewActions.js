@@ -15,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "flex-end",
     alignItems: "center",
+    padding: theme.spacing(2),
   },
   action: {
     marginLeft: theme.spacing(2),
@@ -28,7 +29,8 @@ function FingerprintViewActions(props) {
     onViewChange,
     sort,
     onSortChange,
-    onTune,
+    showFilters = true,
+    onToggleFilters,
     className,
   } = props;
   const classes = useStyles();
@@ -51,14 +53,16 @@ function FingerprintViewActions(props) {
         className={classes.action}
         onChange={onViewChange}
       />
-      <SquaredIconButton
-        variant="outlined"
-        color="secondary"
-        onClick={onTune}
-        className={classes.action}
-      >
-        <TuneIcon />
-      </SquaredIconButton>
+      {showFilters && (
+        <SquaredIconButton
+          variant="outlined"
+          color="secondary"
+          onClick={onToggleFilters}
+          className={classes.action}
+        >
+          <TuneIcon />
+        </SquaredIconButton>
+      )}
     </div>
   );
 }
@@ -72,7 +76,8 @@ FingerprintViewActions.propTypes = {
    * Callback for switching List or Grid view
    */
   onViewChange: PropTypes.func,
-  onTune: PropTypes.func,
+  showFilters: PropTypes.bool,
+  onToggleFilters: PropTypes.func,
   className: PropTypes.string,
 };
 

@@ -39,6 +39,7 @@ function SortSelector(props) {
       variant="outlined"
       className={clsx(classes.select, className)}
       size="small"
+      color="secondary"
     >
       <InputLabel>Sort</InputLabel>
       <Select value={value} onChange={handleChange} label="Sort">
