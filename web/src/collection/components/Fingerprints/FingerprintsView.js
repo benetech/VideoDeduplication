@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import FingerprintViewActions, { View } from "./FingerprintsViewActions";
 import FilterPane from "./FilterPane";
+import SearchTextInput from "./SearchTextInput";
+import SearchCategorySelector, { Category } from "./SearchCategorySelector";
 
 const { useState } = require("react");
 
@@ -29,6 +31,19 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "stretch",
   },
   filters: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "stretch",
+    padding: theme.spacing(2),
+  },
+  textSearch: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+  },
+  categories: {
+    marginTop: theme.spacing(2),
+  },
+  filterPane: {
     minWidth: 250,
   },
   hidden: {
@@ -42,6 +57,7 @@ function FingerprintsView(props) {
   const [showFilters, setShowFilters] = useState(false);
   const [sort, setSort] = useState("");
   const [view, setView] = useState(View.grid);
+  const [category, setCategory] = useState(Category.all);
 
   const toggleFilters = useCallback(() => setShowFilters(!showFilters), [
     showFilters,
@@ -62,11 +78,22 @@ function FingerprintsView(props) {
             className={classes.actions}
           />
         </div>
+        <div className={classes.filters}>
+          <SearchTextInput
+            onSearch={console.log}
+            className={classes.textSearch}
+          />
+          <SearchCategorySelector
+            category={category}
+            onChange={setCategory}
+            className={classes.categories}
+          />
+        </div>
         <div className={classes.data}>Fingerprints go here...</div>
       </div>
       <FilterPane
         onClose={toggleFilters}
-        className={clsx({ [classes.hidden]: !showFilters })}
+        className={clsx(classes.filterPane, { [classes.hidden]: !showFilters })}
       />
     </div>
   );
