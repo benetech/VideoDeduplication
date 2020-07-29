@@ -4,6 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import NavLinkList from "./NavLinkList";
 import NavLinkSelector from "./NavLinkSelector";
 import clsx from "clsx";
+import { LinkType } from "./NavLink";
 
 const breakpoints = ["xs", "sm", "md", "lg", "xl"];
 
@@ -50,12 +51,7 @@ NavLinkListAdaptive.propTypes = {
   collapseOn: PropTypes.oneOf(breakpoints).isRequired,
   selected: PropTypes.any.isRequired,
   onSelect: PropTypes.func,
-  links: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.any.isRequired,
-      title: PropTypes.string.isRequired,
-    })
-  ),
+  links: PropTypes.arrayOf(LinkType).isRequired,
   className: PropTypes.string,
 };
 

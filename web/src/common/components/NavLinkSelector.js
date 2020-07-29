@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import NavLink from "./NavLink";
+import NavLink, { LinkType } from "./NavLink";
 import usePopup from "../hooks/usePopup";
 import Popover from "@material-ui/core/Popover";
 import NavLinkList from "./NavLinkList";
@@ -64,12 +64,7 @@ function NavLinkSelector(props) {
 NavLinkSelector.propTypes = {
   onSelect: PropTypes.func.isRequired,
   selected: PropTypes.any.isRequired,
-  links: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.any.isRequired,
-      title: PropTypes.string.isRequired,
-    })
-  ).isRequired,
+  links: PropTypes.arrayOf(LinkType).isRequired,
   styles: PropTypes.object,
   className: PropTypes.string,
 };

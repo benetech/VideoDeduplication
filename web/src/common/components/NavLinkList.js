@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import NavLink from "./NavLink";
+import NavLink, { LinkType } from "./NavLink";
 
 const useStyles = makeStyles((theme) => ({
   links: {
@@ -65,12 +65,7 @@ NavLinkList.propTypes = {
   variant: PropTypes.oneOf(["horizontal", "vertical"]),
   selected: PropTypes.any.isRequired,
   onSelect: PropTypes.func,
-  links: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.any.isRequired,
-      title: PropTypes.string.isRequired,
-    })
-  ),
+  links: PropTypes.arrayOf(LinkType).isRequired,
   decorate: PropTypes.bool,
   className: PropTypes.string,
 };
