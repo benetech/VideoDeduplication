@@ -5,6 +5,8 @@ import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
 import Button from "@material-ui/core/Button";
 import AddIcon from "@material-ui/icons/Add";
+import Hidden from "@material-ui/core/Hidden";
+import SquaredIconButton from "../../../../common/components/SquaredIconButton";
 
 const useStyles = makeStyles((theme) => ({
   buttonIcon: {
@@ -21,10 +23,22 @@ function AddMediaButton(props) {
   const classes = useStyles();
   const intl = useIntl();
   return (
-    <Button className={clsx(classes.button, className)} {...other}>
-      <AddIcon className={classes.buttonIcon} />
-      {intl.formatMessage({ id: "actions.addMedia" })}
-    </Button>
+    <React.Fragment>
+      <Hidden smDown>
+        <Button className={clsx(classes.button, className)} {...other}>
+          <AddIcon className={classes.buttonIcon} />
+          {intl.formatMessage({ id: "actions.addMedia" })}
+        </Button>
+      </Hidden>
+      <Hidden mdUp>
+        <SquaredIconButton
+          className={clsx(classes.button, className)}
+          {...other}
+        >
+          <AddIcon />
+        </SquaredIconButton>
+      </Hidden>
+    </React.Fragment>
   );
 }
 
