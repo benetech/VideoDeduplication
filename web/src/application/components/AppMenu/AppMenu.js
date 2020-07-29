@@ -108,7 +108,7 @@ function AppMenu(props) {
           <AppMenuListItem
             icon={item.icon}
             title={intl.formatMessage({ id: item.title })}
-            selected={item.location === selected.location}
+            selected={selected && item.location === selected.location}
             onClick={() => setSelected(item)}
             collapsed={!open}
             key={index}
