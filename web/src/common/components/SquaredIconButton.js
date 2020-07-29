@@ -10,6 +10,7 @@ const useStyles = makeStyles((theme) => ({
     height: 40,
     minWidth: 40,
     padding: 0,
+    boxShadow: "none",
   },
 }));
 

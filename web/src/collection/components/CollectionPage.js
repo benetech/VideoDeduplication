@@ -4,9 +4,10 @@ import { makeStyles } from "@material-ui/styles";
 import AppPage from "../../application/components/AppPage";
 import CollectionNavigation from "./CollectionNavigation";
 import { useIntl } from "react-intl";
-import Dashboard from "./Dashboard";
+import DashboardView from "./DashboardView";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { routes } from "../../routing/routes";
+import FingerprintsView from "./Fingerprints/FingerprintsView";
 
 const useStyles = makeStyles((theme) => ({
   body: {
@@ -34,10 +35,10 @@ function CollectionPage(props) {
             <Redirect to={routes.collection.analytics} />
           </Route>
           <Route path={routes.collection.analytics}>
-            <Dashboard className={classes.dashboard} />
+            <DashboardView />
           </Route>
           <Route path={routes.collection.fingerprints}>
-            <div>Hello Fingerprints</div>
+            <FingerprintsView />
           </Route>
         </Switch>
       </div>

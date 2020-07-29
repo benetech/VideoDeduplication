@@ -24,6 +24,11 @@
     "collection.analytics.mediaClass": "My Media Classifications",
     "collection.analytics.dbMatches": "Database Matches",
     "collection.analytics.advancedSearch": "Advanced Search",
-    "collection.analytics.collab": "Collaborations"
+    "collection.analytics.collab": "Collaborations",
+    "actions.addMedia": "Add Media",
+    "sort.duration": "Duration",
+    "sort.size": "Size",
+    "sort.date": "Date",
+    "sort.none": "None"
   }
 }

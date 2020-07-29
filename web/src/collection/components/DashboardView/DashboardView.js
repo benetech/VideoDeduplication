@@ -111,7 +111,7 @@ function menuActions(intl) {
   ];
 }
 
-function Dashboard(props) {
+function DashboardView(props) {
   const { className } = props;
   const classes = useStyles();
   const messages = useMessages();
@@ -151,8 +151,8 @@ function Dashboard(props) {
   );
 }
 
-Dashboard.propTypes = {
+DashboardView.propTypes = {
   className: PropTypes.string,
 };
 
-export default Dashboard;
+export default DashboardView;
