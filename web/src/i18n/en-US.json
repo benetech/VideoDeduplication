@@ -26,6 +26,8 @@
     "collection.analytics.advancedSearch": "Advanced Search",
     "collection.analytics.collab": "Collaborations",
     "actions.addMedia": "Add Media",
+    "actions.useListView": "List View",
+    "actions.useGridView": "Grid View",
     "sort.duration": "Duration",
     "sort.size": "Size",
     "sort.date": "Date",

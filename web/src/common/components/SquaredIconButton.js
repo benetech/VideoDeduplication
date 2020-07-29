@@ -14,7 +14,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function SquaredIconButton(props) {
+const SquaredIconButton = React.forwardRef(function SquaredIconButton(
+  props,
+  ref
+) {
   const { children, className, ...other } = props;
   const classes = useStyles();
   return (
@@ -22,13 +25,33 @@ function SquaredIconButton(props) {
       component="div"
       className={clsx(classes.squaredIconButton, className)}
       {...other}
+      ref={ref}
     >
       {children}
     </Button>
   );
-}
+});
 
+/**
+ * SquaredIconButton is a wrapper around Material-UI Button Component.
+ * Below are MUI Button's property types:
+ */
 SquaredIconButton.propTypes = {
+  classes: PropTypes.object,
+  color: PropTypes.oneOf(["default", "inherit", "primary", "secondary"]),
+  component: PropTypes.elementType,
+  disabled: PropTypes.bool,
+  disableElevation: PropTypes.bool,
+  disableFocusRipple: PropTypes.bool,
+  disableRipple: PropTypes.bool,
+  endIcon: PropTypes.node,
+  focusVisibleClassName: PropTypes.string,
+  fullWidth: PropTypes.bool,
+  href: PropTypes.string,
+  size: PropTypes.oneOf(["small", "medium", "large"]),
+  startIcon: PropTypes.node,
+  type: PropTypes.string,
+  variant: PropTypes.oneOf(["text", "outlined", "contained"]),
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,

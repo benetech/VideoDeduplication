@@ -7,6 +7,7 @@ import Button from "@material-ui/core/Button";
 import AddIcon from "@material-ui/icons/Add";
 import Hidden from "@material-ui/core/Hidden";
 import SquaredIconButton from "../../../../common/components/SquaredIconButton";
+import Tooltip from "@material-ui/core/Tooltip";
 
 const useStyles = makeStyles((theme) => ({
   buttonIcon: {
@@ -31,12 +32,14 @@ function AddMediaButton(props) {
         </Button>
       </Hidden>
       <Hidden mdUp>
-        <SquaredIconButton
-          className={clsx(classes.button, className)}
-          {...other}
-        >
-          <AddIcon />
-        </SquaredIconButton>
+        <Tooltip title={intl.formatMessage({ id: "actions.addMedia" })}>
+          <SquaredIconButton
+            className={clsx(classes.button, className)}
+            {...other}
+          >
+            <AddIcon />
+          </SquaredIconButton>
+        </Tooltip>
       </Hidden>
     </React.Fragment>
   );
