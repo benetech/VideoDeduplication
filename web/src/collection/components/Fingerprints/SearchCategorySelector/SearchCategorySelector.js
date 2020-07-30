@@ -14,9 +14,12 @@ const useStyles = makeStyles((theme) => ({
   selector: {
     display: "flex",
     alignItems: "center",
+    flexWrap: "wrap",
+    marginRight: -theme.spacing(2),
   },
   button: {
     flexGrow: 1,
+    marginBottom: theme.spacing(2),
   },
   margin: {
     marginRight: theme.spacing(2),
@@ -56,16 +59,14 @@ function SearchCategorySelector(props) {
 
   return (
     <div className={clsx(classes.selector, className)}>
-      {categories.map((category, index) => (
+      {categories.map((category) => (
         <CategoryButton
           name={names[category]}
           icon={icons[category]}
           quantity="9M+"
           onClick={() => onChange(category)}
           selected={category === selected}
-          className={clsx(classes.button, {
-            [classes.margin]: index < categories.length - 1,
-          })}
+          className={clsx(classes.button, classes.margin)}
           key={category}
         />
       ))}
