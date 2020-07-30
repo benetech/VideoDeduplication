@@ -1,5 +1,6 @@
 import React from "react";
 import "fontsource-roboto";
+import "lato-font";
 import PropTypes from "prop-types";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import ThemeProvider from "@material-ui/styles/ThemeProvider";
