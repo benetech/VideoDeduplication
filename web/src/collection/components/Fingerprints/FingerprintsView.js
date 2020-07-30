@@ -6,6 +6,8 @@ import FingerprintViewActions, { View } from "./FingerprintsViewActions";
 import FilterPane from "./FilterPane";
 import SearchTextInput from "./SearchTextInput";
 import SearchCategorySelector, { Category } from "./SearchCategorySelector";
+import FpLinearList from "./FPLinearList";
+import FpLinearListItem from "./FPLinearListItem";
 
 const { useState } = require("react");
 
@@ -23,7 +25,10 @@ const useStyles = makeStyles((theme) => ({
   actions: {
     flexGrow: 1,
   },
-  data: {},
+  data: {
+    marginTop: theme.spacing(1),
+    margin: theme.spacing(2),
+  },
   content: {
     flexGrow: 1,
     display: "flex",
@@ -72,7 +77,7 @@ function FingerprintsView(props) {
             onSortChange={setSort}
             view={view}
             onViewChange={setView}
-            onAddMedia={console.log}
+            onAddMedia={() => console.log("On Add Media")}
             showFilters={!showFilters}
             onToggleFilters={toggleFilters}
             className={classes.actions}
@@ -89,7 +94,11 @@ function FingerprintsView(props) {
             className={classes.categories}
           />
         </div>
-        <div className={classes.data}>Fingerprints go here...</div>
+        <FpLinearList className={classes.data}>
+          <FpLinearListItem button />
+          <FpLinearListItem button />
+          <FpLinearListItem button />
+        </FpLinearList>
       </div>
       <FilterPane
         onClose={toggleFilters}

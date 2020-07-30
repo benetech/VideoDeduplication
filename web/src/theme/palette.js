@@ -30,6 +30,9 @@ const palette = {
   action: {
     textInactive: "#808080",
   },
+  border: {
+    light: "#EDEDED",
+  },
   background: {
     backdrop: "rgba(249, 251, 251, 0.8)",
   },
