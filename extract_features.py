@@ -40,7 +40,7 @@ if __name__ == '__main__':
     
     print('Searching for Dataset Video Files')
 
-    videos = scan_videos(DATASET_DIR,'**')
+    videos = scan_videos(DATASET_DIR,'**',extensions=['.mp4','.ogv','.webm','.avi'])
 
     print('Number of files found: {}'.format(len(videos)))
 

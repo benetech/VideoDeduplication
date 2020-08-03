@@ -6,6 +6,7 @@ import os
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from winnow.feature_extraction import SimilarityModel
+from pathlib import Path
 import cv2
 import yaml
 
@@ -18,9 +19,24 @@ def create_directory(directories,root_dir,alias):
         except Exception as e:
             print(e)
 
-def scan_videos(path,wildcard):
+def scan_videos(path,wildcard,extensions = []):
+    """Scans a directory for a given wildcard
 
-    return glob(os.path.join(path,wildcard))
+    Args:
+        path (String): Root path of the directory to be scanned
+        wildcard (String): Wild card related to the files being searched (eg. ** for video files or **_vgg_features.npy for extracted features files)
+        extensions (list, optional): Filter files by giving a list of supported file extensions (eg a list of video extensions). Defaults to [].
+
+    Returns:
+        List[String]: A list of file paths
+    """
+
+    files = glob(os.path.join(path,wildcard),recursive = True)
+    files = [x for x in files if os.path.isfile(x)]
+    if len(extensions) > 0:
+        files = [x for x in files if Path(x).suffix in extensions]
+
+    return files
 
 def get_original_fn_from_artifact(fp_list,sep):
     """Get original video filename using our encoding convention for generating additional training
