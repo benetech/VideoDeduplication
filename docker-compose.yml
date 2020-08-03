@@ -4,7 +4,8 @@ services:
   postgres:
     image: postgres
     environment:
-      # Remember to change the config.yaml [conninfo] file if you change this 
+      # Remember to change the config.yaml [conninfo] file if you change this
+      POSTGRES_USER: "admin"
       POSTGRES_PASSWORD: "admin"
       POSTGRES_DB: "videodeduplicationdb"
       WINNOW_CONFIG: /config.yml
