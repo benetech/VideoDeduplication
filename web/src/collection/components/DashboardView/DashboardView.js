@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -9,8 +9,6 @@ import { useTheme } from "@material-ui/core";
 import BackdropMenu from "./BackdropMenu";
 import StackedLineChart from "./StackedLineChart";
 import Grid from "@material-ui/core/Grid";
-
-const { useState } = require("react");
 
 const useStyles = makeStyles((theme) => ({
   dashboardContainer: {

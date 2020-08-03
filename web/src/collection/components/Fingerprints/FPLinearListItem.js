@@ -68,8 +68,12 @@ function ExifIcon(props) {
   return <div className={className}>[EXIF]</div>;
 }
 
+ExifIcon.propTypes = {
+  className: PropTypes.string,
+};
+
 function FpLinearListItem(props) {
-  const { file, button = false, className } = props;
+  const { button = false, className } = props;
   const classes = useStyles();
   return (
     <div

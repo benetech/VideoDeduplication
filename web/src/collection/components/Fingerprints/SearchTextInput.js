@@ -11,7 +11,7 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   input: {
     backgroundColor: "#EBEBEB",
   },

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -8,8 +8,6 @@ import SearchTextInput from "./SearchTextInput";
 import SearchCategorySelector, { Category } from "./SearchCategorySelector";
 import FpLinearList from "./FPLinearList";
 import FpLinearListItem from "./FPLinearListItem";
-
-const { useState } = require("react");
 
 const useStyles = makeStyles((theme) => ({
   container: {

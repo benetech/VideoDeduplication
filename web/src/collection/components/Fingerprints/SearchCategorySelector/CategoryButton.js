@@ -77,6 +77,7 @@ function CategoryButton(props) {
 }
 
 CategoryButton.propTypes = {
+  onClick: PropTypes.func,
   name: PropTypes.string.isRequired,
   icon: PropTypes.elementType.isRequired,
   selected: PropTypes.bool,

@@ -9,7 +9,7 @@ import Hidden from "@material-ui/core/Hidden";
 import SquaredIconButton from "../../../../common/components/SquaredIconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   buttonIcon: {
     marginRight: 12,
   },

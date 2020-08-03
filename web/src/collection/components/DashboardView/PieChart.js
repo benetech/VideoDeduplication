@@ -7,7 +7,7 @@ import { Doughnut } from "react-chartjs-2";
 import { useTheme } from "@material-ui/core";
 import Dashlet from "./Dashlet";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   content: {
     minHeight: 300,
     minWidth: 300,

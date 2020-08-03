@@ -9,7 +9,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import { useIntl } from "react-intl";
 import { Sort } from "./sort";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   select: {
     width: 120,
   },

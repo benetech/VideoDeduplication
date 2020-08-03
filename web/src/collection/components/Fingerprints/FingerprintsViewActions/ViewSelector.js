@@ -10,7 +10,7 @@ import { View } from "./view";
 import { useIntl } from "react-intl";
 import Tooltip from "@material-ui/core/Tooltip";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   group: {},
   buttonLeft: {
     borderRight: "none",

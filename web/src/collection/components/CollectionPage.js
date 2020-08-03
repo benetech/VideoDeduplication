@@ -9,7 +9,7 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import { routes } from "../../routing/routes";
 import FingerprintsView from "./Fingerprints/FingerprintsView";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   body: {
     height: "100%",
   },

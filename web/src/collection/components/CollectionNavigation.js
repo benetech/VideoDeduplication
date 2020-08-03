@@ -7,8 +7,6 @@ import { useHistory, useLocation } from "react-router-dom";
 import NavLinkListAdaptive from "../../common/components/NavLinkListAdaptive";
 import { routes } from "../../routing/routes";
 
-const { useState } = require("react");
-
 const useStyles = makeStyles((theme) => ({
   container: {
     display: "flex",

@@ -7,7 +7,7 @@ import { Line } from "react-chartjs-2";
 import { useTheme } from "@material-ui/core";
 import Dashlet from "./Dashlet";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   content: {
     minHeight: 300,
     minWidth: 300,
@@ -69,7 +69,7 @@ const Actions = () => (
 );
 
 function StackedLineChart(props) {
-  const { title, labels, series, total: showTotal = false, className } = props;
+  const { title, labels, series, className } = props;
   const classes = useStyles();
   const theme = useTheme();
 
@@ -97,7 +97,6 @@ StackedLineChart.propTypes = {
       color: PropTypes.string,
     })
   ).isRequired,
-  total: PropTypes.bool,
   className: PropTypes.string,
 };
 

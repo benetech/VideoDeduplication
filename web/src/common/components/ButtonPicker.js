@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import Button from "@material-ui/core/Button";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   button: {
     textTransform: "none",
   },
@@ -31,6 +31,7 @@ function ButtonPicker(props) {
             color={color(option.value, selected)}
             className={classes.button}
             onClick={() => onChange(option.value)}
+            key={option.title}
           >
             {option.title}
           </Button>

@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Button from "@material-ui/core/Button";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   squaredIconButton: {
     width: 40,
     height: 40,
