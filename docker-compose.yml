@@ -53,6 +53,19 @@ services:
     networks:
       - postgres-compose-network
 
+  server:
+    # This could be replaced by the online repository reference
+    # if you don't want to built a local docker image
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    networks:
+      - postgres-compose-network
+
 networks:
   postgres-compose-network:
 
