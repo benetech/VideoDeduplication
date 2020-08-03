@@ -8,7 +8,7 @@ import yaml
 import pytest
 import warnings
 import shutil
-
+from pathlib import Path
 
 NUMBER_OF_TEST_VIDEOS = 40
 
@@ -66,8 +66,9 @@ frame_level_folder = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATIO
 video_level_folder = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1])
 video_signatures_folder = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[2])
 
+supported_video_extensions = ['.mp4','.ogv','.webm','.avi']
 
-videos = scan_videos(DATASET_DIR,'**')
+videos = scan_videos(DATASET_DIR,'**',extensions= supported_video_extensions)
 processed_videos = scan_videos(FRAME_LEVEL_SAVE_FOLDER,'**_vgg_features.npy')
 
 processed_filenames = get_original_fn_from_artifact(processed_videos,'_vgg_features')
@@ -118,6 +119,26 @@ def test_video_filenames_can_be_extracted():
 
     assert len(full_video_names) == NUMBER_OF_TEST_VIDEOS
     assert len(remaining_videos) == NUMBER_OF_TEST_VIDEOS
+
+def test_video_extension_filter():
+
+    not_video = [x for x in full_video_names if Path(x).suffix not in supported_video_extensions]
+
+    assert len(not_video) == 0
+
+def test_directory_with_multiple_levels():
+
+    nested_files = ['0f607171f4f9403ab0f800b39f86f8a6.webm','0f3404af257e4ec7a648b740a8f67755.mp4']
+    found = [x for x in nested_files if x in full_video_names]
+    assert len(found) == len(nested_files)
+
+def test_video_extension_filter_no_extensions_given():
+
+    videos = scan_videos(DATASET_DIR,'**')
+    full_video_names = [os.path.basename(x) for x in videos]
+    not_video = [x for x in full_video_names if Path(x).suffix not in supported_video_extensions]
+    
+    assert len(not_video) > 0
 
 
 def test_video_list_creation():
