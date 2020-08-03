@@ -2,3 +2,4 @@ flask
 SQLAlchemy
 Flask-SQLAlchemy
 PyYAML
+psycopg2
