@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import "regenerator-runtime/runtime.js";
 import defaultTheme from "./theme";
 import Application from "./application/components/Application/Application";
 import locale from "./i18n/en-US.json";
