@@ -3,6 +3,8 @@ import {
   ACTION_FETCH_FILES_FAILURE,
   ACTION_FETCH_FILES_SUCCESS,
   ACTION_UPDATE_FILTERS,
+  ACTION_UPDATE_FILTERS_FAILURE,
+  ACTION_UPDATE_FILTERS_SUCCESS,
 } from "./actions";
 
 export const initialState = {
@@ -26,7 +28,20 @@ export function collRootReducer(state = initialState, action) {
       return {
         ...state,
         filters: { ...state.filters, ...action.filters },
+        files: [],
         loading: true,
+      };
+    case ACTION_UPDATE_FILTERS_SUCCESS:
+      return {
+        ...state,
+        files: [...action.files],
+        loading: false,
+      };
+    case ACTION_UPDATE_FILTERS_FAILURE:
+      return {
+        ...state,
+        files: [],
+        loading: false,
       };
     case ACTION_FETCH_FILES:
       return {

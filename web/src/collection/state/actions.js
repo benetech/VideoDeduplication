@@ -4,11 +4,23 @@ export function updateFilters(filters) {
   return { type: ACTION_UPDATE_FILTERS, filters };
 }
 
-export const ACTION_FETCH_FILES = "coll.FETCH_FILES";
+export const ACTION_UPDATE_FILTERS_SUCCESS = "coll.UPDATE_FILTERS_SUCCESS";
+
+export function updateFiltersSuccess(files, counts) {
+  return { type: ACTION_UPDATE_FILTERS_SUCCESS, files, counts };
+}
+
+export const ACTION_UPDATE_FILTERS_FAILURE = "coll.UPDATE_FILTERS_FAILURE";
+
+export function updateFiltersFailure(error) {
+  return { type: ACTION_UPDATE_FILTERS_FAILURE, error };
+}
 
 /**
  * Fetch next `limit` files.
  */
+export const ACTION_FETCH_FILES = "coll.FETCH_FILES";
+
 export function fetchFiles() {
   return { type: ACTION_FETCH_FILES };
 }

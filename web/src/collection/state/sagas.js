@@ -4,13 +4,29 @@ import {
   ACTION_UPDATE_FILTERS,
   fetchFilesFailure,
   fetchFilesSuccess,
+  updateFiltersFailure,
+  updateFiltersSuccess,
 } from "./actions";
 import { selectColl } from "./selectors";
+
+function resolveReportActions(fetchAction) {
+  switch (fetchAction.type) {
+    case ACTION_UPDATE_FILTERS:
+      return [updateFiltersSuccess, updateFiltersFailure];
+    case ACTION_FETCH_FILES:
+      return [fetchFilesSuccess, fetchFilesFailure];
+    default:
+      throw new Error(`Unsupported fetch action type: ${fetchAction.type}`);
+  }
+}
 
 /**
  * Fetch next page of files.
  */
-function* fetchFilesSaga(server) {
+function* fetchFilesSaga(server, action) {
+  // Determine report-result actions
+  const [success, failure] = resolveReportActions(action);
+
   try {
     // Determine current limit, offset and filters from the state
     const { limit, files: loadedFiles, filters } = yield select(selectColl);
@@ -26,16 +42,16 @@ function* fetchFilesSaga(server) {
     // Handle error
     if (resp.failure) {
       console.error("Fetch files error", resp.error);
-      yield put(fetchFilesFailure(resp.error));
+      yield put(failure(resp.error));
       return;
     }
 
     // Update state
     const { counts, files } = resp.data;
-    yield put(fetchFilesSuccess(files, counts));
+    yield put(success(files, counts));
   } catch (error) {
     console.error(error);
-    yield put(fetchFilesFailure(error));
+    yield put(failure(error));
   }
 }
 
