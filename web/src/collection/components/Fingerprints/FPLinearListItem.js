@@ -10,6 +10,12 @@ import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import AttributeText from "../../../common/components/AttributeText";
 import IconButton from "@material-ui/core/IconButton";
+import {
+  formatBool,
+  formatDate,
+  formatDuration,
+} from "../../../common/helpers/format";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   decor: {
@@ -72,8 +78,21 @@ ExifIcon.propTypes = {
   className: PropTypes.string,
 };
 
+function useMessages(intl) {
+  return {
+    attr: {
+      filename: intl.formatMessage({ id: "file.attr.name" }),
+      fingerprint: intl.formatMessage({ id: "file.attr.fingerprint" }),
+      quality: intl.formatMessage({ id: "file.attr.quality" }),
+    },
+  };
+}
+
 function FpLinearListItem(props) {
-  const { button = false, className } = props;
+  const { file, button = false, className } = props;
+  const intl = useIntl();
+  const messages = useMessages(intl);
+
   const classes = useStyles();
   return (
     <div
@@ -88,34 +107,35 @@ function FpLinearListItem(props) {
         <VideocamOutlinedIcon className={classes.icon} />
       </div>
       <AttributeText
-        name="File name"
-        value="PolicemanDetroit01.mp4"
+        name={messages.attr.filename}
+        value={file.filename}
         variant="title"
         className={classes.fileName}
       />
       <AttributeText
-        name="Fingerprint"
-        value="#4242K"
+        name={messages.attr.fingerprint}
+        value={file.fingerprint}
         variant="primary"
         className={classes.attr}
       />
       <div className={classes.divider} />
       <AttributeText
-        value="7:40 minutes"
+        value={formatDuration(file.metadata.length, intl)}
         icon={ScheduleOutlinedIcon}
         variant="normal"
         className={classes.attr}
       />
       <div className={classes.divider} />
       <AttributeText
-        value="07/30/2020"
+        value={formatDate(file.metadata.uploadDate, intl)}
         icon={EventAvailableOutlinedIcon}
         variant="normal"
+        defaultValue="Unknown"
         className={classes.attr}
       />
       <div className={classes.divider} />
       <AttributeText
-        value="YES"
+        value={formatBool(file.metadata.hasEXIF, intl)}
         icon={ExifIcon}
         variant="primary"
         className={classes.attr}
@@ -131,7 +151,7 @@ function FpLinearListItem(props) {
 }
 
 FpLinearListItem.propTypes = {
-  file: FingerprintType,
+  file: FingerprintType.isRequired,
   button: PropTypes.bool,
   className: PropTypes.string,
 };

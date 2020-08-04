@@ -34,8 +34,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function AttributeText(props) {
-  const { icon: Icon, name, value, variant = "normal", className } = props;
+  const {
+    icon: Icon,
+    name,
+    value,
+    defaultValue = "NONE",
+    variant = "normal",
+    className,
+  } = props;
+
   const classes = useStyles();
+
   return (
     <div className={clsx(classes.container, className)}>
       {Icon != null && <Icon className={classes.icon} />}
@@ -48,7 +57,7 @@ function AttributeText(props) {
             [classes.valueHighlighted]: variant === "primary",
           })}
         >
-          {value}
+          {value || defaultValue}
         </div>
       </div>
     </div>
@@ -58,7 +67,8 @@ function AttributeText(props) {
 AttributeText.propTypes = {
   icon: PropTypes.elementType,
   name: PropTypes.string,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  defaultValue: PropTypes.string,
   variant: PropTypes.oneOf(["title", "normal", "primary"]),
   className: PropTypes.string,
 };

@@ -36,6 +36,14 @@
     "search.category.all": "All",
     "search.category.duplicates": "Duplicates",
     "search.category.related": "Possibly related",
-    "search.category.unique": "Unique files"
+    "search.category.unique": "Unique files",
+    "file.attr.name": "File name",
+    "file.attr.fingerprint": "Fingerprint",
+    "file.attr.quality": "Quality",
+    "value.time.seconds": "seconds",
+    "value.time.minutes": "minutes",
+    "value.time.hours": "hours",
+    "value.bool.true": "YES",
+    "value.bool.false": "NO"
   }
 }

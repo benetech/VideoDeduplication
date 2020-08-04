@@ -8,6 +8,11 @@ import SearchTextInput from "./SearchTextInput";
 import SearchCategorySelector, { Category } from "./SearchCategorySelector";
 import FpLinearList from "./FPLinearList";
 import FpLinearListItem from "./FPLinearListItem";
+import { useDispatch, useSelector } from "react-redux";
+import { selectFiles } from "../../state/selectors";
+import { updateFilters } from "../../state";
+
+const { useEffect } = require("react");
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -61,6 +66,12 @@ function FingerprintsView(props) {
   const [sort, setSort] = useState("");
   const [view, setView] = useState(View.grid);
   const [category, setCategory] = useState(Category.all);
+  const files = useSelector(selectFiles);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(updateFilters({ query: "" }));
+  }, []);
 
   const toggleFilters = useCallback(() => setShowFilters(!showFilters), [
     showFilters,
@@ -93,9 +104,9 @@ function FingerprintsView(props) {
           />
         </div>
         <FpLinearList className={classes.data}>
-          <FpLinearListItem button />
-          <FpLinearListItem button />
-          <FpLinearListItem button />
+          {files.map((file) => (
+            <FpLinearListItem file={file} button key={file.id} />
+          ))}
         </FpLinearList>
       </div>
       <FilterPane

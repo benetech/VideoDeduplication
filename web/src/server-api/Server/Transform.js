@@ -17,7 +17,7 @@ export default class Transform {
 
   videoMetadata(data) {
     return {
-      id: data.id,
+      id: data.original_filename,
       filename: data.original_filename,
       metadata: {
         grayAverage: data.gray_avg,
