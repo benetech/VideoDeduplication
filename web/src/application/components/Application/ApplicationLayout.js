@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     minWidth: 0,
-    minHeight: "min-content",
+    height: "min-content",
     display: "flex",
     flexGrow: 1,
     alignItems: "stretch",
@@ -32,8 +32,6 @@ const useStyles = makeStyles((theme) => ({
   },
   menu: {
     flexShrink: 0,
-    height: "100%",
-    minHeight: "min-content",
   },
   body: {
     flexGrow: 2,

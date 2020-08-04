@@ -9,6 +9,7 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
+    height: "min-content",
   },
   pageHeader: {
     flexShrink: 0,
