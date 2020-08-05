@@ -3,9 +3,9 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
+import { useHistory, useLocation } from "react-router-dom";
 import NavLinkListAdaptive from "../../common/components/NavLinkListAdaptive";
-
-const { useState } = require("react");
+import { routes } from "../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -28,17 +28,32 @@ const useStyles = makeStyles((theme) => ({
 const makeLinks = (intl) => [
   {
     title: intl.formatMessage({ id: "collection.nav.analytics" }),
+    location: routes.collection.analytics,
   },
   {
     title: intl.formatMessage({ id: "collection.nav.fingerprints" }),
+    location: routes.collection.fingerprints,
   },
   {
     title: intl.formatMessage({ id: "collection.nav.collaborators" }),
+    location: routes.collaborators.home,
   },
   {
     title: intl.formatMessage({ id: "collection.nav.organization" }),
+    location: routes.organization.home,
   },
 ];
+
+function useSelectedLink(links) {
+  const pathname = useLocation().pathname;
+  const found = links.find((link) => pathname.startsWith(link.location));
+  return found || links[0];
+}
+
+function useSelectPage() {
+  const history = useHistory();
+  return (link) => history.push(link.location);
+}
 
 /**
  * Navigation links in the collection page header.
@@ -47,7 +62,8 @@ function CollectionNavigation(props) {
   const { className } = props;
   const intl = useIntl();
   const links = makeLinks(intl);
-  const [selected, setSelected] = useState(links[0].title);
+  const selected = useSelectedLink(links);
+  const setSelected = useSelectPage();
 
   const classes = useStyles();
   return (
@@ -57,7 +73,7 @@ function CollectionNavigation(props) {
         collapseOn="md"
         links={links}
         selected={selected}
-        onSelect={(link) => setSelected(link.title)}
+        onSelect={setSelected}
         className={classes.links}
       />
       <div className={classes.spacer} />

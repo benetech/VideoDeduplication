@@ -1,0 +1,11 @@
+# This is a docker-compose.yml file extension to use CPU runtime (when Nvidia runtime is not available).
+# See https://docs.docker.com/compose/extends/ for more details on configuration file extensions.
+
+version: '2.3'
+
+services:
+  dedup-app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dedup-cpu
+    runtime: runc

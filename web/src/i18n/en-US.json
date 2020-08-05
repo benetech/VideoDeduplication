@@ -24,6 +24,26 @@
     "collection.analytics.mediaClass": "My Media Classifications",
     "collection.analytics.dbMatches": "Database Matches",
     "collection.analytics.advancedSearch": "Advanced Search",
-    "collection.analytics.collab": "Collaborations"
+    "collection.analytics.collab": "Collaborations",
+    "actions.addMedia": "Add Media",
+    "actions.useListView": "List View",
+    "actions.useGridView": "Grid View",
+    "actions.searchFingerprints": "Search Fingerprints",
+    "sort.duration": "Duration",
+    "sort.size": "Size",
+    "sort.date": "Date",
+    "sort.none": "None",
+    "search.category.all": "All",
+    "search.category.duplicates": "Duplicates",
+    "search.category.related": "Possibly related",
+    "search.category.unique": "Unique files",
+    "file.attr.name": "File name",
+    "file.attr.fingerprint": "Fingerprint",
+    "file.attr.quality": "Quality",
+    "value.time.seconds": "seconds",
+    "value.time.minutes": "minutes",
+    "value.time.hours": "hours",
+    "value.bool.true": "YES",
+    "value.bool.false": "NO"
   }
 }

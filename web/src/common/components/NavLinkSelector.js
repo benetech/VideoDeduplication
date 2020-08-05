@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import NavLink from "./NavLink";
+import NavLink, { LinkType } from "./NavLink";
 import usePopup from "../hooks/usePopup";
 import Popover from "@material-ui/core/Popover";
 import NavLinkList from "./NavLinkList";
@@ -43,7 +43,7 @@ function NavLinkSelector(props) {
   return (
     <div className={clsx(className)}>
       <div {...clickTrigger} className={classes.selector}>
-        <NavLink title={selected} selected className={classes.link} />
+        <NavLink link={selected} selected className={classes.link} />
         <ExpandMoreIcon />
       </div>
       <Popover {...popup}>
@@ -63,12 +63,8 @@ function NavLinkSelector(props) {
 
 NavLinkSelector.propTypes = {
   onSelect: PropTypes.func.isRequired,
-  selected: PropTypes.string.isRequired,
-  links: PropTypes.arrayOf(
-    PropTypes.shape({
-      title: PropTypes.string.isRequired,
-    })
-  ).isRequired,
+  selected: PropTypes.any.isRequired,
+  links: PropTypes.arrayOf(LinkType).isRequired,
   styles: PropTypes.object,
   className: PropTypes.string,
 };

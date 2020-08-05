@@ -1,5 +1,5 @@
 import useUniqueId from "./useUniqueId";
-import React, { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export default function usePopup(prefix = "") {
   const ref = useRef(null);

@@ -3,28 +3,28 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import AddIcon from "@material-ui/icons/Add";
 import IconButton from "@material-ui/core/IconButton";
-import { Doughnut } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import { useTheme } from "@material-ui/core";
 import Dashlet from "./Dashlet";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   content: {
     minHeight: 300,
     minWidth: 300,
   },
 }));
 
-const data = (categories, theme) => ({
-  datasets: [
-    {
-      data: categories.map((category) => category.value),
-      backgroundColor: categories.map((category) => category.color),
-      borderWidth: 2,
-      borderColor: theme.palette.white,
-      hoverBorderColor: theme.palette.white,
-    },
-  ],
-  labels: categories.map((category) => category.name),
+const data = (datasets, labels) => ({
+  labels,
+  datasets: datasets.map((series) => ({
+    label: series.name,
+    fill: true,
+    backgroundColor: series.color,
+    pointRadius: 0,
+    borderColor: series.color,
+    borderCapStyle: "butt",
+    data: series.data,
+  })),
 });
 
 const options = (theme) => ({
@@ -34,7 +34,10 @@ const options = (theme) => ({
   },
   responsive: true,
   maintainAspectRatio: false,
-  cutoutPercentage: 60,
+  scales: { yAxes: [{ stacked: true }] },
+  animation: {
+    duration: 750,
+  },
   layout: {
     padding: 0,
     width: "100%",
@@ -53,8 +56,11 @@ const options = (theme) => ({
   },
 });
 
-const total = (categories) =>
-  categories.reduce((acc, cat) => acc + cat.value, 0);
+function total(datasets) {
+  return datasets.reduce((acc, series) => {
+    return acc + series.data[series.data.length - 1];
+  }, 0);
+}
 
 const Actions = () => (
   <IconButton>
@@ -62,35 +68,36 @@ const Actions = () => (
   </IconButton>
 );
 
-function PieChart(props) {
-  const { title, categories, className } = props;
+function StackedLineChart(props) {
+  const { title, labels, series, className } = props;
   const classes = useStyles();
   const theme = useTheme();
 
   return (
     <Dashlet
       title={title}
-      summary={total(categories)}
+      summary={total(series)}
       actions={<Actions />}
       className={className}
     >
       <div className={classes.content}>
-        <Doughnut data={data(categories, theme)} options={options(theme)} />
+        <Line data={data(series, labels)} options={options(theme)} />
       </div>
     </Dashlet>
   );
 }
 
-PieChart.propTypes = {
+StackedLineChart.propTypes = {
   title: PropTypes.string.isRequired,
-  categories: PropTypes.arrayOf(
+  labels: PropTypes.arrayOf(PropTypes.string).isRequired,
+  series: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
-      value: PropTypes.number.isRequired,
-      color: PropTypes.string.isRequired,
+      data: PropTypes.arrayOf(PropTypes.number).isRequired,
+      color: PropTypes.string,
     })
   ).isRequired,
   className: PropTypes.string,
 };
 
-export default PieChart;
+export default StackedLineChart;

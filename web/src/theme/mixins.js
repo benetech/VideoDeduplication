@@ -19,6 +19,33 @@ const mixins = {
     fontSize: 20,
     letterSpacing: 0,
   },
+  title4: {
+    fontFamily: "Roboto",
+    fontSize: 17,
+    letterSpacing: 0.12,
+    lineHeight: "20px",
+  },
+  captionText: {
+    color: "#8A96A0",
+    fontFamily: "Lato",
+    fontSize: 12,
+    letterSpacing: 0.08,
+    lineHeight: "13px",
+  },
+  valueNormal: {
+    fontFamily: "Lato",
+    fontSize: 14,
+    fontWeight: "bold",
+    letterSpacing: 0.1,
+    lineHeight: "20px",
+  },
+  valueHighlighted: {
+    fontFamily: "Lato",
+    fontSize: 16,
+    fontWeight: "bold",
+    letterSpacing: 0.11,
+    lineHeight: "20px",
+  },
   navlink: {
     fontFamily: "Roboto",
     fontSize: 17,

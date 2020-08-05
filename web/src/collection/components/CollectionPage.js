@@ -4,9 +4,12 @@ import { makeStyles } from "@material-ui/styles";
 import AppPage from "../../application/components/AppPage";
 import CollectionNavigation from "./CollectionNavigation";
 import { useIntl } from "react-intl";
-import Dashboard from "./Dashboard";
+import DashboardView from "./DashboardView";
+import { Redirect, Route, Switch } from "react-router-dom";
+import { routes } from "../../routing/routes";
+import FingerprintsView from "./Fingerprints/FingerprintsView";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   body: {
     height: "100%",
   },
@@ -27,7 +30,17 @@ function CollectionPage(props) {
       className={className}
     >
       <div className={classes.body}>
-        <Dashboard className={classes.dashboard} />
+        <Switch>
+          <Route exact path={routes.collection.home}>
+            <Redirect to={routes.collection.analytics} />
+          </Route>
+          <Route path={routes.collection.analytics}>
+            <DashboardView />
+          </Route>
+          <Route path={routes.collection.fingerprints}>
+            <FingerprintsView />
+          </Route>
+        </Switch>
       </div>
     </AppPage>
   );

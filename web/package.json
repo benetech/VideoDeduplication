@@ -47,14 +47,23 @@
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/styles": "^4.10.0",
+    "axios": "^0.19.2",
     "chart.js": "^2.9.3",
     "clsx": "^1.1.1",
     "fontsource-roboto": "^2.1.4",
+    "http-status-codes": "^1.4.0",
+    "lato-font": "^3.0.0",
     "lodash": "^4.17.19",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-chartjs-2": "^2.9.0",
     "react-dom": "^16.13.1",
-    "react-intl": "^5.4.0"
+    "react-intl": "^5.4.0",
+    "react-redux": "^7.2.1",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
+    "redux": "^4.0.5",
+    "redux-saga": "^1.1.3",
+    "regenerator-runtime": "^0.13.7"
   }
 }

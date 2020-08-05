@@ -1,15 +1,26 @@
-Benetech Video Deduplication Project 
-==============================
+<h1 align="center">Benetech Video Deduplication Project</h1>
+<p align="center">Near Duplicate, object, and metadata detection for video files.</p> 
+<p align="center">
+    <a href="LICENSE"><img src="https://img.shields.io/github/license/benetech/VideoDeduplication.svg" alt="License"></a> 
+</p>
 
-Near Duplicate, object, and metadata detection for video files.
+ * [Installation](#installation-ubuntu-with-docker)
+   * [Prerequisites](#prerequisites)
+     * [Install and configure Docker](#install-and-configure-docker)
+     * [Enable GPU support for Docker](#enable-gpu-support-for-docker)
+     * [Install docker-compose](#install-docker-compose)
+     * [Fetch Codebase](#fetch-codebase)
+   * [Building and Running Application](#building-and-running-application)
+     * [Docker-Compose](#docker-compose)
+     * [Exploring Application](#exploring-application)
+     * [Pre-Built Images](#pre-built-images)
+     * [Build Images Manually](#build-images-manually)
+ * [Configuration](#configuration)
+ * [Running](#running)
 
 # Installation (Ubuntu with Docker)
 
-### Fetch Codebase
-
-run:
-
-git clone https://github.com/benetech/VideoDeduplication.git
+## Prerequisites
 
 ### Install and configure Docker
 
@@ -23,70 +34,91 @@ followed by:
 
 `bash get-docker.sh`
 
-Once the above has been completed. Open a command prompt window and type the ‘docker’ command to confirm that the Docker service is available and returning the help guide.
+Once the above has been completed. Open a command prompt window and type the ‘docker’ command to confirm that the Docker
+service is available and returning the help guide.
 
 ### Enable GPU support for Docker
 
-Assuming docker has been installed run the following command and install the NVIDIA Docker runtime using the script in the main project folder [GPU LINUX ONLY]:
+Assuming docker has been installed run the following command and install the NVIDIA Docker runtime using the script in 
+the main project folder [GPU LINUX ONLY]:
 
 `bash install_nvidia_docker.sh`
 
 ### Install docker-compose
 
-run:
-
-`sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`
+Run:
+```
+sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+```
 
 then modify permissions:
+```
+sudo chmod +x /usr/local/bin/docker-compose
+```
 
-`sudo chmod +x /usr/local/bin/docker-compose`
+### Fetch Codebase
 
+```
+git clone https://github.com/benetech/VideoDeduplication.git
+```
 
-#### Building and running images
+## Building and Running Application
 
-Assuming Docker is has been installed correctly, there are two options:
- 
-    1. Pulling pre-built images from Dockerhub
-    2. Build the Images from the suitable Dockerfile
-    
-    
-#### 1. Pre-Built Images
-RUN:
-`docker pull johnhbenetech/videodeduplication:gpu`
+### Docker-Compose
 
+The default approach to build and run the application is to use [docker-compose](https://docs.docker.com/compose/) utility.
 
+Shortcut commands to run the application are:
+ * `make run` - build and run application
+ * `make stop` - stop application
 
-#### 2. Build VideoDeduplication Image:
+The `make run` will ask you the following questions:
+ * Location of your source video files
+ * Availability of Nvidia GPU support for Docker (see [Enable GPU support for Docker](#enable-gpu-support-for-docker))
+ * Whether you want to use pre-built images
 
-`sudo docker build -f Dockerfile-gpu -t wingpu .`
+The [docker-compose.yml](./docker-compose.yml) configuration [relies](https://docs.docker.com/compose/compose-file/#variable-substitution) on 
+various environment variables. The only required variable is 
+ * `BENETECH_DATA_LOCATION` - path to the root folder containing your video files.
 
+You can set environment variables in the [.env](https://docs.docker.com/compose/env-file/) file at the repository root folder.  
 
-#### Running Docker containers
-Once the Image has been built, using Docker-compose allows the environment to be quickly setup with both the required GPU support and database environment. The docker-compose.yml file can be reviewed if you wish to adjust defaults:
+By default docker-compose will build all required containers and assume Nvidia GPU support is available. You can 
+also use various predefined configuration [extensions](https://docs.docker.com/compose/extends/) 
+placed in the `./docker-compose` directory (see [./docker-compose/README.md](./docker-compose/README.md))
 
-`docker-compose up -d `
+The `make run` shortcut is a tiny wrapper around the `docker-compose` command which chooses appropriate configuration 
+[extensions](./docker-compose). If you specified the `BENETECH_DATA_LOCATION` environment variable (either in your shell 
+or in `.env` file) you can simply execute `sudo docker-compose up -d` to run the default configuration. 
 
-This will start running both our project and an independend postgres docker instance (check the docker-compose.yaml for additional configuration information).
+The command above might throw an error if you already have postgres server running. 
+If that's the case run `systemctl stop postgresql` (Linux) before using docker-compose or choose 
+alternative postgres-port by setting the `BENETECH_PG_PORT` environment variable.
 
-The command above might throw an error if you already have postgres server running. If that's the case run "systemctl stop postgresql" (Linux) before using docker-compose.
+### Exploring Application
 
-Once the docker-compose is running, you will be able to access the projects notebooks on localhost:8888 and pgadmin on localhost/16543. Check your running instances using this command:
+Once the docker-compose is running, you will be able to access the following:
+ * User interface on http://localhost:5000
+ * projects notebooks on http://localhost:8888 
+ * [pgAdmin](https://www.pgadmin.org/) on http://localhost:16543
 
-`docker ps`
+You can check your running instances using this command:
+```
+sudo docker ps
+```
 
 Take note of the following names: 
 
-    1. App -> "videodeduplication_dedup-app_1"
-    2. Postgres Server -> "videodeduplication_postgres_1"
-    3. PgAdmin -> "videodeduplication_pgadmin-compose_1"
-
-
-In order to use Pgadmin, follow these instructions:
-   1. go to localhost:1643 and use the credentials as defined on the docker-compose.yml file.
+ 1. Deduplication App -> `videodeduplication_dedup-app_1`
+ 2. User Interface -> `videodeduplication_server_1`
+ 2. Postgres Server -> `videodeduplication_postgres_1`
+ 3. PgAdmin -> `videodeduplication_pgadmin-compose_1`
+ 
+In order to use pgAdmin, follow these instructions:
+   1. go to http://localhost:1643 and use the credentials as defined on the `docker-compose.yml` file.
    2. Click create new server
    3. Choose a reference name for the server 
-   4. Go the connection tab and set the host name to "videodeduplication_postgres_1", maintenance database to "videodeduplicationdb" and user / password as "postgres" and "admin"
-
+   4. Go the connection tab and set the host name to `postgres`, maintenance database to "videodeduplicationdb" and user / password as `postgres` and `admin`
 
 In order to run the main scripts, simply enter the app's docker container by running the following command:
 
@@ -95,7 +127,32 @@ In order to run the main scripts, simply enter the app's docker container by run
 Once within the container, run one of the main scripts as described on the "running" section of this documentation.
 
 
-### Configuration
+### Pre-Built Images
+
+If you don't want to build Docker images locally you can use prebuilt-images 
+hosted on [Docker Hub](https://hub.docker.com/r/johnhbenetech/videodeduplication)
+
+If you use `make run` command you can set `BENETECH_PREBUILT=YES` in the `.env` file. 
+
+If you use `docker-compose` explicitly you can run:
+```
+sudo docker-compose -f docker-compose.yml -f docker-compose/prebuilt.yml up -d
+```
+
+To pull images run:
+```
+docker pull johnhbenetech/videodeduplication:gpu
+```
+
+### Build Images Manually
+
+You can build and run containers manually: 
+```
+sudo docker build -f docker/Dockerfile.dedup-gpu -t benetech-dedup:gpu .
+sudo docker build -f docker/Dockerfile.server -t benetech-server .
+```
+
+## Configuration
 
 This repo contains three main scripts that perform the following tasks:
 
@@ -145,7 +202,7 @@ These scripts use the 'config.yaml' file to define where to collect data from, h
 **templates_source_path**: Directory where templates of interest are located (should be the path to a directory where each folder contains images related to the template - eg: if set for the path datadrive/templates/, this folder could contain sub-folders like plane, smoke or bomb with its respective images on each folder)
 
     
-### Running 
+## Running 
 
 Within the docker command line
 

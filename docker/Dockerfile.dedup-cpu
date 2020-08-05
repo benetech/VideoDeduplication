@@ -1,4 +1,5 @@
 FROM tensorflow/tensorflow:1.15.0-py3
+
 RUN apt-get update
 RUN apt-get --yes install curl
 RUN curl -LO https://repo.anaconda.com/archive/Anaconda3-2019.07-Linux-x86_64.sh 

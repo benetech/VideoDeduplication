@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -59,23 +59,29 @@ const useStyles = makeStyles((theme) => ({
  * @see NavLinkList
  */
 function NavLink(props) {
-  const { title, selected, decorated = true, onClick, className } = props;
+  const { link, selected, decorated = true, onClick, className } = props;
   const classes = useStyles();
 
   const decorator =
     selected && decorated ? <SelectionDecorator variant="bottom" /> : null;
 
+  const handleClick = useCallback(() => {
+    if (onClick != null) {
+      onClick(link);
+    }
+  }, [link, onClick]);
+
   return (
-    <div className={clsx(classes.container, className)} onClick={onClick}>
+    <div className={clsx(classes.container, className)} onClick={handleClick}>
       <div className={classes.link}>
         <div
-          title={title}
+          title={link.title}
           className={clsx(classes.text, {
             [classes.textSelected]: selected,
             [classes.textUnselected]: !selected,
           })}
         >
-          {title}
+          {link.title}
         </div>
         {decorator}
       </div>
@@ -83,8 +89,12 @@ function NavLink(props) {
   );
 }
 
-NavLink.propTypes = {
+export const LinkType = PropTypes.shape({
   title: PropTypes.string.isRequired,
+});
+
+NavLink.propTypes = {
+  link: LinkType.isRequired,
   onClick: PropTypes.func,
   selected: PropTypes.bool,
   decorated: PropTypes.bool,

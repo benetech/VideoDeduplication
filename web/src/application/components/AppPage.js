@@ -4,11 +4,12 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import PageHeader from "./PageHeader";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   pageRoot: {
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
+    height: "min-content",
   },
   pageHeader: {
     flexShrink: 0,

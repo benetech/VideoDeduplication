@@ -1,9 +1,18 @@
 import React from "react";
+import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+} from "react-router-dom";
 import AppMenu from "../AppMenu";
-import clsx from "clsx";
 import CollectionPage from "../../../collection/components/CollectionPage";
+import { routes } from "../../../routing/routes";
+import AppPage from "../AppPage";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -15,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     minWidth: 0,
-    minHeight: "min-content",
+    height: "min-content",
     display: "flex",
     flexGrow: 1,
     alignItems: "stretch",
@@ -23,8 +32,6 @@ const useStyles = makeStyles((theme) => ({
   },
   menu: {
     flexShrink: 0,
-    height: "100%",
-    minHeight: "min-content",
   },
   body: {
     flexGrow: 2,
@@ -37,12 +44,46 @@ const useStyles = makeStyles((theme) => ({
 function ApplicationLayout(props) {
   const { className } = props;
   const classes = useStyles();
+  const intl = useIntl();
 
   return (
     <div className={clsx(classes.root, className)}>
       <div className={classes.content}>
-        <AppMenu className={classes.menu} />
-        <CollectionPage className={classes.body} />
+        <Router>
+          <AppMenu className={classes.menu} />
+          <Switch>
+            <Route exact path={routes.home}>
+              <Redirect to={routes.collection.home} />
+            </Route>
+            <Route path={routes.collection.home}>
+              <CollectionPage className={classes.body} />
+            </Route>
+            <Route path={routes.database.home}>
+              <AppPage
+                title={intl.formatMessage({ id: "app.menu.database" })}
+                className={classes.body}
+              />
+            </Route>
+            <Route path={routes.organization.home}>
+              <AppPage
+                title={intl.formatMessage({ id: "app.menu.organization" })}
+                className={classes.body}
+              />
+            </Route>
+            <Route path={routes.collaborators.home}>
+              <AppPage
+                title={intl.formatMessage({ id: "app.menu.collaborators" })}
+                className={classes.body}
+              />
+            </Route>
+            <Route path={routes.processing.home}>
+              <AppPage
+                title={intl.formatMessage({ id: "app.menu.processing" })}
+                className={classes.body}
+              />
+            </Route>
+          </Switch>
+        </Router>
       </div>
     </div>
   );
