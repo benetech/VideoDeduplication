@@ -7,8 +7,8 @@ fi
 # Read source data locaion
 while ! [ -d "$BENETECH_DATA_LOCATION" ]; do
   DIRTY=yes
-  echo -n -e "\e[36mPlease specify the root folder with your video files: \e[0m"
-  read -r BENETECH_DATA_LOCATION
+  echo -n -e "\e[36mPlease specify the root folder with your video files (use Tab for auto-complete): \e[0m"
+  read -e -r BENETECH_DATA_LOCATION
   if ! [ -d "$BENETECH_DATA_LOCATION" ]; then
     echo -e "\e[31mERROR\e[0m No such directory: $BENETECH_DATA_LOCATION"
   fi
