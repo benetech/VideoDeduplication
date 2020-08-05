@@ -1,5 +1,3 @@
-import PropTypes from "prop-types";
-
 export default class Transform {
   constructor() {}
 

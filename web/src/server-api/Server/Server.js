@@ -13,7 +13,7 @@ export default class Server {
     this.transform = new Transform();
   }
 
-  async fetchFiles({ offset, limit, filters }) {
+  async fetchFiles() {
     try {
       const response = await this.axios.get("/videometadata/");
       const data = this.transform.fetchFileResults(response.data);

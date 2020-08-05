@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -11,8 +11,6 @@ import FpLinearListItem from "./FPLinearListItem";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFiles } from "../../state/selectors";
 import { updateFilters } from "../../state";
-
-const { useEffect } = require("react");
 
 const useStyles = makeStyles((theme) => ({
   container: {
