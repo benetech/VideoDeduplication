@@ -1,0 +1,13 @@
+version: '2.3'
+
+services:
+  dedup-app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dedup-gpu
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+

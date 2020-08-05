@@ -31,11 +31,6 @@ services:
       - postgres-compose-network
 
   dedup-app:
-    # This can be replaced by the online repository reference
-    # if you don't want to built a local docker image
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.dedup-gpu
     runtime: nvidia
     command: bash -ic "bash serve_jupyter.sh"
     environment:

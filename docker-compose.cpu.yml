@@ -1,8 +1,0 @@
-version: '2.3'
-
-services:
-  dedup-app:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.dedup-cpu
-    runtime: runc

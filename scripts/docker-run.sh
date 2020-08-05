@@ -17,5 +17,5 @@ fi
 if [ "$BENETECH_RUNTIME" = "GPU" ]; then
   sudo docker-compose up -d
 else
-  sudo docker-compose -f docker-compose.yml -f docker-compose.cpu.yml up -d
+  sudo docker-compose -f docker-compose.yml -f docker-compose/build.cpu.yml up
 fi
