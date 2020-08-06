@@ -3,7 +3,7 @@ import os
 
 class DatabaseConfig:
     """Database connection configuration."""
-    port = os.environ.get("DATABASE_PORT", 5432)
+    port = int(os.environ.get("DATABASE_PORT", 5432))
     host = os.environ.get("DATABASE_HOST", "localhost")
     name = os.environ.get("DATABASE_NAME", "videodeduplicationdb")
     user = os.environ.get("DATABASE_USER", "postgres")
@@ -23,5 +23,5 @@ class Config:
     """Server configuration."""
     database = DatabaseConfig()
     host = os.environ.get("SERVER_HOST", "0.0.0.0")
-    port = os.environ.get("SERVER_PORT", 5000)
+    port = int(os.environ.get("SERVER_PORT", 5000))
     static_folder = os.environ.get("STATIC_FOLDER", "static")
