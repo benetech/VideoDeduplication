@@ -54,14 +54,14 @@ services:
       context: .
       dockerfile: docker/Dockerfile.server
     environment:
-      ENV SERVER_HOST: "0.0.0.0"
-      ENV SERVER_PORT: "5000"
-      ENV STATIC_FOLDER: "static"
-      ENV DATABASE_HOST: "postgres"
-      ENV DATABASE_PORT: "5432"
-      ENV DATABASE_NAME: "videodeduplicationdb"
-      ENV DATABASE_USER: "postgres"
-      ENV DATABASE_PASS: "admin"
+      SERVER_HOST: "0.0.0.0"
+      SERVER_PORT: "5000"
+      STATIC_FOLDER: "static"
+      DATABASE_HOST: "postgres"
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: "videodeduplicationdb"
+      DATABASE_USER: "postgres"
+      DATABASE_PASS: "admin"
     ports:
       - "${BENETECH_SERVER_PORT:-5000}:5000"
     depends_on:
