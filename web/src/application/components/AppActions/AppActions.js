@@ -6,9 +6,9 @@ import ConnectionIndicator from "./ConnectionIndicator";
 import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
 import NotificationsNoneOutlinedIcon from "@material-ui/icons/NotificationsNoneOutlined";
-
-import PlusButton from "./PlusButton";
+import AddIcon from "@material-ui/icons/Add";
 import ProfileMenuButton from "./ProfileMenuButton";
+import SquaredIconButton from "../../../common/components/SquaredIconButton";
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -21,6 +21,11 @@ const useStyles = makeStyles((theme) => ({
   },
   divider: {
     minHeight: 30,
+  },
+  plus: {
+    width: 35,
+    height: 35,
+    minWidth: 35,
   },
   notificationButton: {
     color: theme.palette.common.black,
@@ -39,7 +44,13 @@ function AppActions(props) {
   const classes = useStyles();
   return (
     <div className={clsx(classes.actions, className)}>
-      <PlusButton />
+      <SquaredIconButton
+        color="primary"
+        variant="contained"
+        className={classes.plus}
+      >
+        <AddIcon />
+      </SquaredIconButton>
       <ConnectionIndicator offline className={classes.indicator} />
       <Divider orientation="vertical" className={classes.divider} />
       <IconButton className={classes.notificationButton}>
