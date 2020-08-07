@@ -2,6 +2,14 @@
 
 Server provides REST API and user interface for Video Deduplication app.
 
+## Installation 
+
+*Requires Python version 3.8 or above.*
+
+```
+pip install -r requirements.txt
+```
+
 ## Running the Server
 
 Execute 
@@ -26,6 +34,9 @@ Server honors the following environment variables:
  * `DATABASE_USER` - set database user (default is `postgres`)
  * `DATABASE_PASS` - set the database password (default is empty string)
  * `DATABASE_SECRET` - if specified, the server will read database password from that file
+ * `DATABASE_DIALECT` - set the database dialect (default is `postgres`)
+ * `DATABASE_URI` - set the database connection URI (if specified, other `DATABASE_*` variables will be ignored)
+ 
 
 
 Server accepts the following command-line arguments:
@@ -38,3 +49,18 @@ Server accepts the following command-line arguments:
  * `--db_user=DB_USER` - set database user (overrides `DATABASE_USER` variable)
  * `--db_secret=DB_SECRET` - if specified, the server will read database password from that file
  (overrides `DATABASE_SECRET` variable)
+ * `--db_dialect` - set database dialect (overrides `DATABASE_DIALECT` variable)
+ * `--db_uri` - set database connection URI (overrides the other `DATABASE_*` variables and `--db_*` flags)
+
+## Serving Frontend
+
+Build frontend project (in the `../web` directory):
+```
+npm install
+npm run build
+```
+
+Run server and point to the frontend build directory
+```
+STATIC_FOLDER=../web/build python app.py
+```
