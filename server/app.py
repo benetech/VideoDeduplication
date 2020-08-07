@@ -10,7 +10,7 @@ from model import database
 def init_single_page(app, basename=''):
     """Setup single-page frontend"""
 
-    @app.route(path.join(basename, '/'), defaults={'path': ''})
+    @app.route(path.join(basename, '/'), defaults={'_': None})
     @app.route(path.join(basename, '/<path:_>'))
     def root(_):
         return app.send_static_file('index.html')
