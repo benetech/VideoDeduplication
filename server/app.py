@@ -7,12 +7,6 @@ from flask import Flask
 from model import database
 
 
-def connection(config):
-    """Get database connection URI."""
-    db = config.database
-    return f"postgres://{db.user}:{db.password}@{db.host}:{db.port}/{db.name}"
-
-
 def init_single_page(app, basename=''):
     """Setup single-page frontend"""
 
@@ -26,7 +20,7 @@ def create_application(config):
     """Create configured flask application."""
     app = Flask(__name__, static_url_path="/static", static_folder=config.static_folder)
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = connection(config)
+    app.config['SQLALCHEMY_DATABASE_URI'] = config.database.uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     app.register_blueprint(api_blueprint, url_prefix='/api/v1')
@@ -36,7 +30,8 @@ def create_application(config):
     return app
 
 
-def serve(host=None, port=None, db_host=None, db_port=None, db_name=None, db_user=None, db_secret=None):
+def serve(host=None, port=None, db_host=None, db_port=None, db_name=None, db_user=None, db_secret=None, db_dialect=None,
+          db_uri=None):
     """Start Deduplication API Server."""
 
     # Read configuration
@@ -48,6 +43,8 @@ def serve(host=None, port=None, db_host=None, db_port=None, db_name=None, db_use
     config.database.name = db_name or config.database.name
     config.database.user = db_user or config.database.user
     config.database.secret = db_secret or config.database.secret
+    config.database.dialect = db_dialect or config.database.dialect
+    config.database.override_uri = db_uri or config.database.override_uri
 
     # Create application
     application = create_application(config)
