@@ -1,6 +1,7 @@
 <h1 align="center">Benetech Video Deduplication Project</h1>
 <p align="center">Near Duplicate, object, and metadata detection for video files.</p> 
 <p align="center">
+    <a href="https://github.com/benetech/VideoDeduplication/actions?query=workflow%3ACI"><img src="https://github.com/benetech/VideoDeduplication/workflows/CI/badge.svg?branch=development" alt="CI Workflow"></a>
     <a href="LICENSE"><img src="https://img.shields.io/github/license/benetech/VideoDeduplication.svg" alt="License"></a> 
 </p>
 
