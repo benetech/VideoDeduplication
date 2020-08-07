@@ -1,8 +1,9 @@
-import fire
-from flask import Flask
+from os import path
 
+import fire
 from api import api as api_blueprint
 from config import Config
+from flask import Flask
 from model import database
 
 
@@ -12,18 +13,25 @@ def connection(config):
     return f"postgres://{db.user}:{db.password}@{db.host}:{db.port}/{db.name}"
 
 
+def init_single_page(app, basename=''):
+    """Setup single-page frontend"""
+
+    @app.route(path.join(basename, '/'), defaults={'path': ''})
+    @app.route(path.join(basename, '/<path:_>'))
+    def root(_):
+        return app.send_static_file('index.html')
+
+
 def create_application(config):
     """Create configured flask application."""
-    app = Flask(__name__, static_url_path="", static_folder=config.static_folder)
+    app = Flask(__name__, static_url_path="/static", static_folder=config.static_folder)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = connection(config)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     app.register_blueprint(api_blueprint, url_prefix='/api/v1')
 
-    @app.route('/')
-    def root():
-        return app.send_static_file('index.html')
+    init_single_page(app)
 
     return app
 

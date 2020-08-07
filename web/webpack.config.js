@@ -9,7 +9,7 @@ module.exports = {
   entry: "./src/index.js",
   output: {
     path: outputDir,
-    publicPath: "/",
+    publicPath: "/static/",
     filename: "main.bundle.js",
   },
   module: {
