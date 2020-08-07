@@ -7,12 +7,12 @@ from flask import Flask
 from model import database
 
 
-def init_single_page(app, basename=''):
-    """Setup single-page frontend"""
+def setup_frontend(app, basename=''):
+    """Setup routing for single-page frontend"""
 
     @app.route(path.join(basename, '/'), defaults={'_': None})
     @app.route(path.join(basename, '/<path:_>'))
-    def root(_):
+    def frontend(_):
         return app.send_static_file('index.html')
 
 
@@ -25,7 +25,7 @@ def create_application(config):
 
     app.register_blueprint(api_blueprint, url_prefix='/api/v1')
 
-    init_single_page(app)
+    setup_frontend(app)
 
     return app
 
