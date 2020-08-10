@@ -32,7 +32,20 @@ const useStyles = makeStyles((theme) => ({
   layout: {
     display: "flex",
     alignItems: "center",
-    padding: theme.spacing(3),
+    flexWrap: "wrap",
+    padding: theme.spacing(2),
+  },
+  nameGroup: {
+    display: "flex",
+    alignItems: "center",
+    flexGrow: 1,
+    padding: theme.spacing(1),
+    paddingRight: theme.spacing(3),
+  },
+  attrGroup: {
+    display: "flex",
+    alignItems: "center",
+    padding: theme.spacing(1),
   },
   buttonStyle: {
     cursor: "pointer",
@@ -53,9 +66,13 @@ const useStyles = makeStyles((theme) => ({
   fileName: {
     flexGrow: 1,
     marginLeft: theme.spacing(3),
+    maxWidth: 340,
   },
   volume: {
     color: theme.palette.action.textInactive,
+  },
+  leftmostAttr: {
+    marginRight: theme.spacing(3),
   },
   attr: {
     marginLeft: theme.spacing(3),
@@ -103,49 +120,54 @@ function FpLinearListItem(props) {
         className
       )}
     >
-      <div className={classes.iconContainer}>
-        <VideocamOutlinedIcon className={classes.icon} />
+      <div className={classes.nameGroup}>
+        <div className={classes.iconContainer}>
+          <VideocamOutlinedIcon className={classes.icon} />
+        </div>
+        <AttributeText
+          name={messages.attr.filename}
+          value={file.filename}
+          variant="title"
+          overflow="ellipsis-start"
+          className={classes.fileName}
+        />
       </div>
-      <AttributeText
-        name={messages.attr.filename}
-        value={file.filename}
-        variant="title"
-        className={classes.fileName}
-      />
-      <AttributeText
-        name={messages.attr.fingerprint}
-        value={file.fingerprint}
-        variant="primary"
-        className={classes.attr}
-      />
-      <div className={classes.divider} />
-      <AttributeText
-        value={formatDuration(file.metadata.length, intl)}
-        icon={ScheduleOutlinedIcon}
-        variant="normal"
-        className={classes.attr}
-      />
-      <div className={classes.divider} />
-      <AttributeText
-        value={formatDate(file.metadata.uploadDate, intl)}
-        icon={EventAvailableOutlinedIcon}
-        variant="normal"
-        defaultValue="Unknown"
-        className={classes.attr}
-      />
-      <div className={classes.divider} />
-      <AttributeText
-        value={formatBool(file.metadata.hasEXIF, intl)}
-        icon={ExifIcon}
-        variant="primary"
-        className={classes.attr}
-      />
-      <div className={classes.divider} />
-      <VolumeOffOutlinedIcon className={clsx(classes.attr, classes.volume)} />
-      <div className={classes.divider} />
-      <IconButton>
-        <MoreHorizOutlinedIcon />
-      </IconButton>
+      <div className={classes.attrGroup}>
+        <AttributeText
+          name={messages.attr.fingerprint}
+          value={file.fingerprint}
+          variant="primary"
+          className={classes.leftmostAttr}
+        />
+        <div className={classes.divider} />
+        <AttributeText
+          value={formatDuration(file.metadata.length, intl)}
+          icon={ScheduleOutlinedIcon}
+          variant="normal"
+          className={classes.attr}
+        />
+        <div className={classes.divider} />
+        <AttributeText
+          value={formatDate(file.metadata.uploadDate, intl)}
+          icon={EventAvailableOutlinedIcon}
+          variant="normal"
+          defaultValue="Unknown"
+          className={classes.attr}
+        />
+        <div className={classes.divider} />
+        <AttributeText
+          value={formatBool(file.metadata.hasEXIF, intl)}
+          icon={ExifIcon}
+          variant="primary"
+          className={classes.attr}
+        />
+        <div className={classes.divider} />
+        <VolumeOffOutlinedIcon className={clsx(classes.attr, classes.volume)} />
+        <div className={classes.divider} />
+        <IconButton>
+          <MoreHorizOutlinedIcon />
+        </IconButton>
+      </div>
     </div>
   );
 }
