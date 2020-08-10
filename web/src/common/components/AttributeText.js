@@ -12,14 +12,36 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
   },
   attribute: {
+    minWidth: "inherit",
+    maxWidth: "inherit",
     display: "flex",
     flexDirection: "column",
   },
   attrName: {
     ...theme.mixins.captionText,
     marginBottom: theme.spacing(0.4),
+    minWidth: "inherit",
+    maxWidth: "inherit",
   },
-  value: {},
+  value: {
+    minWidth: "inherit",
+    maxWidth: "inherit",
+  },
+  overflowWrap: {
+    wordBreak: "break-word",
+  },
+  overflowEllipsisStart: {
+    textAlign: "left",
+    direction: "rtl",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+  },
+  overflowEllipsisEnd: {
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+  },
   valueTitle: {
     ...theme.mixins.title4,
     fontWeight: "bold",
@@ -40,6 +62,7 @@ function AttributeText(props) {
     value,
     defaultValue = "NONE",
     variant = "normal",
+    overflow = "none",
     className,
   } = props;
 
@@ -55,6 +78,9 @@ function AttributeText(props) {
             [classes.valueNormal]: variant === "normal",
             [classes.valueTitle]: variant === "title",
             [classes.valueHighlighted]: variant === "primary",
+            [classes.overflowWrap]: overflow === "wrap",
+            [classes.overflowEllipsisStart]: overflow === "ellipsis-start",
+            [classes.overflowEllipsisEnd]: overflow === "ellipsis-end",
           })}
         >
           {value || defaultValue}
@@ -69,6 +95,7 @@ AttributeText.propTypes = {
   name: PropTypes.string,
   value: PropTypes.string,
   defaultValue: PropTypes.string,
+  overflow: PropTypes.oneOf(["none", "wrap", "ellipsis-start", "ellipsis-end"]),
   variant: PropTypes.oneOf(["title", "normal", "primary"]),
   className: PropTypes.string,
 };
