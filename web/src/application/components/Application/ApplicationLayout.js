@@ -25,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
   content: {
     minWidth: 0,
     height: "min-content",
+    minHeight: "100vh",
     display: "flex",
     flexGrow: 1,
     alignItems: "stretch",
