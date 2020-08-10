@@ -16,8 +16,7 @@ export function formatDuration(duration, intl) {
     const units = intl.formatMessage({ id: "value.time.hours" });
     return `${pad(dur.hours)}:${pad(dur.minutes)}:${pad(dur.seconds)} ${units}`;
   }
-  const units = intl.formatMessage({ id: "value.time.minutes" });
-  return `${pad(dur.minutes)}:${pad(dur.seconds)} ${units}`;
+  return `${pad(dur.minutes)}:${pad(dur.seconds)}`;
 }
 
 export function formatDate(date, intl) {
