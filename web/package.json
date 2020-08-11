@@ -51,6 +51,7 @@
     "chart.js": "^2.9.3",
     "clsx": "^1.1.1",
     "fontsource-roboto": "^2.1.4",
+    "get-user-locale": "^1.4.0",
     "http-status-codes": "^1.4.0",
     "lato-font": "^3.0.0",
     "lodash": "^4.17.19",
