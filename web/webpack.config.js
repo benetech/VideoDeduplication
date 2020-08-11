@@ -29,6 +29,11 @@ module.exports = {
         ],
       },
       {
+        test: /i18n\/locales\/[^/]*\.json$/,
+        loader: "file-loader",
+        type: "javascript/auto",
+      },
+      {
         test: /\.css$/i,
         use: ["style-loader", "css-loader"],
       },
