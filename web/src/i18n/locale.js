@@ -8,21 +8,43 @@ import { getUserLocales } from "get-user-locale";
 import * as HttpStatus from "http-status-codes";
 import axios from "axios";
 
+function staticLoad(data) {
+  return async () => data;
+}
+
+function dynamicLoad(resource) {
+  return async function () {
+    const response = await axios.get(resource);
+    if (response.status !== HttpStatus.OK) {
+      throw new Error(
+        `Error loading locale ${this.name}: ${response.statusText}`
+      );
+    }
+    return response.data;
+  };
+}
+
 /**
  * Pattern to extract language from the locale identifier.
  */
 const languagePattern = /^(?<language>[a-zA-Z]+)[\-_]?/;
 
-const availableLocales = [
-  { name: "en-US", resource: enUS },
-  { name: "ar-AE", resource: arAE },
-  { name: "el-GR", resource: elGR },
-  { name: "he-IL", resource: heIL },
-  { name: "ru-RU", resource: ruRU },
-  { name: "zn", resource: zn },
-];
+/**
+ * Default locale
+ */
+const defaultLocale = { name: "en-US", load: staticLoad(enUS) };
 
-const defaultLocale = enUS;
+/**
+ * Available locales
+ */
+const availableLocales = [
+  defaultLocale,
+  { name: "ar-AE", load: dynamicLoad(arAE) },
+  { name: "el-GR", load: dynamicLoad(elGR) },
+  { name: "he-IL", load: dynamicLoad(heIL) },
+  { name: "ru-RU", load: dynamicLoad(ruRU) },
+  { name: "zn", load: dynamicLoad(zn) },
+];
 
 /**
  * Parse locale identifier and return language name.
@@ -51,17 +73,12 @@ function resolveLocale(preferred, available) {
   for (let locale of preferred) {
     const found = selectLocale(locale, available);
     if (found != null) {
-      return found.resource;
+      return found;
     }
   }
   return defaultLocale;
 }
 
-export async function loadLocale() {
-  const resource = resolveLocale(getUserLocales(), availableLocales);
-  const response = await axios.get(resource);
-  if (response.status !== HttpStatus.OK) {
-    throw new Error(`Cannot load locale: ${response.statusText}`);
-  }
-  return response.data;
+export function detectLocale() {
+  return resolveLocale(getUserLocales(), availableLocales);
 }
