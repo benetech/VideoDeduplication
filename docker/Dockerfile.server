@@ -16,7 +16,6 @@ EXPOSE 5000
 
 RUN mkdir /server
 ADD ["server", "/server"]
-ADD ["config.yaml", "/server/config.yaml"]
 WORKDIR /server
 
 RUN pip install -r requirements.txt

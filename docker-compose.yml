@@ -24,7 +24,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "admin"
       PGADMIN_SERVER_JSON_FILE: "/project/servers.json"
     ports:
-      - "16543:80"
+      - "${BENETECH_PG_ADMIN_PORT:-16543}:80"
     depends_on:
       - postgres
     networks:
@@ -41,7 +41,7 @@ services:
       # on your host machine where you placed the source data
       - "${BENETECH_DATA_LOCATION:?\n\nPlease set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
     ports:
-      - "8888:8888"
+      - "${BENETECH_DEDUP_PORT:-8888}:8888"
     depends_on:
       - postgres
     networks:
@@ -53,8 +53,17 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.server
+    environment:
+      SERVER_HOST: "0.0.0.0"
+      SERVER_PORT: "5000"
+      STATIC_FOLDER: "static"
+      DATABASE_HOST: "postgres"
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: "videodeduplicationdb"
+      DATABASE_USER: "postgres"
+      DATABASE_PASS: "admin"
     ports:
-      - "5000:5000"
+      - "${BENETECH_SERVER_PORT:-5000}:5000"
     depends_on:
       - postgres
     networks:

@@ -1,9 +1,8 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, Table, Column, String, MetaData, Integer, Binary, Boolean, Float, ARRAY
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Column, String, Integer, Binary, Boolean, Float, ARRAY
 
-from app import db
-
-Base = db.Model
+database = SQLAlchemy()
+Base = database.Model
 
 
 class Signature(Base):
