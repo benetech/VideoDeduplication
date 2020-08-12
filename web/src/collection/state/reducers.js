@@ -50,6 +50,7 @@ export function collRootReducer(state = initialState, action) {
       return {
         ...state,
         files: [...action.files],
+        counts: { ...action.counts },
         loading: false,
       };
     case ACTION_UPDATE_FILTERS_FAILURE:
