@@ -1,8 +1,19 @@
+import math
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, String, Integer, Binary, Boolean, Float, ARRAY
 
 database = SQLAlchemy()
 Base = database.Model
+
+
+def not_finite(value):
+    """Check if value is NaN or +-Infinity"""
+    return isinstance(value, float) and not math.isfinite(value)
+
+
+def filter_json(data, skip=not_finite):
+    return {key: value for (key, value) in data.items() if not skip(value)}
 
 
 class Signature(Base):
@@ -16,7 +27,7 @@ class Signature(Base):
             'id': self.id,
             'original_filename': self.original_filename
         }
-        return json_signature
+        return filter_json(json_signature)
 
 
 # TODO:Revaluate which columns are actually essential
@@ -52,7 +63,7 @@ class VideoMetadata(Base):
             "flagged": self.flagged
         }
 
-        return json_videometadata
+        return filter_json(json_videometadata)
 
 
 class Scenes(Base):
@@ -74,7 +85,7 @@ class Scenes(Base):
             "total_video_duration_timestamp": self.total_video_duration_timestamp
         }
 
-        return json_scenes
+        return filter_json(json_scenes)
 
 
 class Matches(Base):
@@ -91,4 +102,4 @@ class Matches(Base):
             "distance": self.distance
         }
 
-        return json_matches
+        return filter_json(json_matches)
