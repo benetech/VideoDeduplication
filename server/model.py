@@ -46,9 +46,9 @@ class VideoMetadata(Base):
             "video_max_dif": self.video_max_dif,
             "gray_avg": self.gray_avg,
             "gray_std": self.gray_std,
-            "gray_max ": self.gray_max,
+            "gray_max": self.gray_max,
             "video_duration_flag": self.video_duration_flag,
-            "video_dark_flag ": self.video_dark_flag,
+            "video_dark_flag": self.video_dark_flag,
             "flagged": self.flagged
         }
 
