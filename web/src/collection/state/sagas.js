@@ -28,14 +28,14 @@ function* fetchFilesSaga(server, action) {
   const [success, failure] = resolveReportActions(action);
 
   try {
-    // Determine current limit, offset and filters from the state
-    const { limit, files: loadedFiles, filters } = yield select(selectColl);
-    const offset = loadedFiles.length;
+    // Determine current page, pageSize and filters from the state
+    const { pageSize, files: loadedFiles, filters } = yield select(selectColl);
+    const page = Math.floor(loadedFiles / pageSize);
 
     // Send request to the server
     const resp = yield call([server, server.fetchFiles], {
-      limit,
-      offset,
+      page,
+      pageSize,
       filters,
     });
 

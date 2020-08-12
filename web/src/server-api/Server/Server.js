@@ -13,9 +13,14 @@ export default class Server {
     this.transform = new Transform();
   }
 
-  async fetchFiles() {
+  async fetchFiles({ page, pageSize }) {
     try {
-      const response = await this.axios.get("/videometadata/");
+      const response = await this.axios.get("/videometadata/", {
+        params: {
+          page: page,
+          per_page: pageSize,
+        },
+      });
       const data = this.transform.fetchFileResults(response.data);
       return Response.ok(data);
     } catch (error) {
