@@ -17,7 +17,7 @@ export default class Server {
     try {
       const response = await this.axios.get("/videometadata/", {
         params: {
-          page: page,
+          page: page + 1,
           per_page: pageSize,
         },
       });

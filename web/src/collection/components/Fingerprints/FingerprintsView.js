@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -9,8 +9,14 @@ import SearchCategorySelector, { Category } from "./SearchCategorySelector";
 import FpLinearList from "./FPLinearList";
 import FpLinearListItem from "./FPLinearListItem";
 import { useDispatch, useSelector } from "react-redux";
-import { selectFiles } from "../../state/selectors";
-import { updateFilters } from "../../state";
+import {
+  selectColl,
+  selectCounts,
+  selectFiles,
+  selectLoading,
+} from "../../state/selectors";
+import { fetchFiles, updateFilters } from "../../state";
+import LoadTrigger from "./LoadTrigger";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -64,12 +70,16 @@ function FingerprintsView(props) {
   const [sort, setSort] = useState("");
   const [view, setView] = useState(View.grid);
   const [category, setCategory] = useState(Category.all);
+  const loading = useSelector(selectLoading);
   const files = useSelector(selectFiles);
+  const counts = useSelector(selectCounts);
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(updateFilters({ query: "" }));
   }, []);
+
+  const fetchPage = useCallback(() => dispatch(fetchFiles()), []);
 
   const toggleFilters = useCallback(() => setShowFilters(!showFilters), [
     showFilters,
@@ -105,6 +115,12 @@ function FingerprintsView(props) {
           {files.map((file) => (
             <FpLinearListItem file={file} button key={file.id} />
           ))}
+          <LoadTrigger
+            loading={loading}
+            onLoad={fetchPage}
+            hasMore={files.length < counts.total}
+            showProgress
+          />
         </FpLinearList>
       </div>
       <FilterPane
