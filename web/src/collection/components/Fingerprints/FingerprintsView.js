@@ -33,6 +33,15 @@ const useStyles = makeStyles((theme) => ({
   },
   header: {
     display: "flex",
+    flexDirection: "column",
+    alignItems: "stretch",
+    position: "sticky",
+    top: 0,
+    zIndex: 1,
+    backgroundColor: theme.palette.background.default,
+  },
+  actionsContainer: {
+    display: "flex",
     alignItems: "center",
   },
   actions: {
@@ -75,6 +84,10 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "flex-end",
   },
+  top: {
+    width: "100%",
+    height: 1,
+  },
 }));
 
 function FingerprintsView(props) {
@@ -89,7 +102,7 @@ function FingerprintsView(props) {
   const counts = useSelector(selectCounts);
   const dispatch = useDispatch();
   const [top, setTop] = useState(true);
-  const actionsRef = useRef(null);
+  const topRef = useRef(null);
 
   useEffect(() => {
     dispatch(updateFilters({ query: "" }));
@@ -101,15 +114,17 @@ function FingerprintsView(props) {
     showFilters,
   ]);
 
-  const scrollTop = useCallback(() => scrollIntoView(actionsRef), [actionsRef]);
+  const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
 
   return (
     <div className={clsx(classes.container, className)}>
       <div className={classes.content}>
+        <VisibilitySensor onChange={setTop} partialVisibility>
+          <div className={classes.top} ref={topRef} />
+        </VisibilitySensor>
         <div className={classes.header}>
-          <VisibilitySensor onChange={setTop} partialVisibility>
+          <div className={classes.actionsContainer}>
             <FingerprintViewActions
-              ref={actionsRef}
               sort={sort}
               onSortChange={setSort}
               view={view}
@@ -119,18 +134,18 @@ function FingerprintsView(props) {
               onToggleFilters={toggleFilters}
               className={classes.actions}
             />
-          </VisibilitySensor>
-        </div>
-        <div className={classes.filters}>
-          <SearchTextInput
-            onSearch={console.log}
-            className={classes.textSearch}
-          />
-          <SearchCategorySelector
-            category={category}
-            onChange={setCategory}
-            className={classes.categories}
-          />
+          </div>
+          <div className={classes.filters}>
+            <SearchTextInput
+              onSearch={console.log}
+              className={classes.textSearch}
+            />
+            <SearchCategorySelector
+              category={category}
+              onChange={setCategory}
+              className={classes.categories}
+            />
+          </div>
         </div>
         <FpLinearList className={classes.data}>
           {files.map((file) => (
