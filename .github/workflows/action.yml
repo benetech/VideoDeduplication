@@ -1,0 +1,6 @@
+# Metadata file required in order to run docker based actions
+name: 'Build Docker Cpu'
+description: 'Runs Docker CPU build'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
