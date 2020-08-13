@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import VisibilitySensor from "react-visibility-sensor";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   triggerArea: {
     minWidth: 1,
     minHeight: 1,

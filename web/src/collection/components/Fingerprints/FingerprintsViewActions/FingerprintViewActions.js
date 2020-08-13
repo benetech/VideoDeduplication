@@ -22,7 +22,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const FingerprintViewActions = React.forwardRef((props, ref) => {
+const FingerprintViewActions = React.forwardRef(function FingerprintViewActions(
+  props,
+  ref
+) {
   const {
     onAddMedia,
     view,

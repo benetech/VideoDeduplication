@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -21,8 +21,6 @@ import Fab from "@material-ui/core/Fab";
 import Zoom from "@material-ui/core/Zoom";
 import VisibilitySensor from "react-visibility-sensor";
 import { scrollIntoView } from "../../../common/helpers/scroll";
-
-const { useRef } = require("react");
 
 const useStyles = makeStyles((theme) => ({
   container: {
