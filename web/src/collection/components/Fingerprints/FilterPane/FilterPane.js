@@ -9,6 +9,10 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper,
     minWidth: 250,
   },
+  filters: {
+    position: "sticky",
+    top: 0,
+  },
 }));
 
 function FilterPane(props) {
@@ -16,8 +20,10 @@ function FilterPane(props) {
   const classes = useStyles();
   return (
     <div className={clsx(classes.pane, className)}>
-      <FilterPaneHeader onClose={onClose} onSave={onSave} />
-      <div>Filters go here...</div>
+      <div className={classes.filters}>
+        <FilterPaneHeader onClose={onClose} onSave={onSave} />
+        <div>Filters go here...</div>
+      </div>
     </div>
   );
 }
