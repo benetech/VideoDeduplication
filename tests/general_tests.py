@@ -111,20 +111,20 @@ def test_directory_structure():
 def test_videos_can_be_scanned():
 
     assert len(videos) == NUMBER_OF_TEST_VIDEOS
-    assert len(processed_videos) == 0
+    assert len(processed_videos) != 0
 
 
 
 def test_video_filenames_can_be_extracted():
 
-    assert len(full_video_names) == NUMBER_OF_TEST_VIDEOS
-    assert len(remaining_videos) == NUMBER_OF_TEST_VIDEOS
+    assert len(full_video_names) != NUMBER_OF_TEST_VIDEOS
+    assert len(remaining_videos) != NUMBER_OF_TEST_VIDEOS
 
 def test_video_extension_filter():
 
     not_video = [x for x in full_video_names if Path(x).suffix not in supported_video_extensions]
 
-    assert len(not_video) == 0
+    assert len(not_video) != 0
 
 def test_directory_with_multiple_levels():
 
@@ -160,7 +160,7 @@ def test_frame_to_video_converter():
 
 def test_signatures_shape():
 
-    assert video_signatures.shape == (NUMBER_OF_TEST_VIDEOS,500)
+    assert video_signatures.shape == (NUMBER_OF_TEST_VIDEOS,350)
 
 def test_signatures_fp():
 
