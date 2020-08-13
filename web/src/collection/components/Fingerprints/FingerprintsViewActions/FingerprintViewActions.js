@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function FingerprintViewActions(props) {
+const FingerprintViewActions = React.forwardRef((props, ref) => {
   const {
     onAddMedia,
     view,
@@ -36,7 +36,7 @@ function FingerprintViewActions(props) {
   const classes = useStyles();
 
   return (
-    <div className={clsx(classes.actions, className)}>
+    <div className={clsx(classes.actions, className)} ref={ref}>
       <AddMediaButton
         onClick={onAddMedia}
         variant="contained"
@@ -65,7 +65,7 @@ function FingerprintViewActions(props) {
       )}
     </div>
   );
-}
+});
 
 FingerprintViewActions.propTypes = {
   onAddMedia: PropTypes.func,

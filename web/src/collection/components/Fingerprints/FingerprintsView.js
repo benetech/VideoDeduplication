@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
+import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import FingerprintViewActions, { View } from "./FingerprintsViewActions";
 import FilterPane from "./FilterPane";
 import SearchTextInput from "./SearchTextInput";
@@ -10,13 +11,18 @@ import FpLinearList from "./FPLinearList";
 import FpLinearListItem from "./FPLinearListItem";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  selectColl,
   selectCounts,
   selectFiles,
   selectLoading,
 } from "../../state/selectors";
 import { fetchFiles, updateFilters } from "../../state";
 import LoadTrigger from "./LoadTrigger";
+import Fab from "@material-ui/core/Fab";
+import Zoom from "@material-ui/core/Zoom";
+import VisibilitySensor from "react-visibility-sensor";
+import { scrollIntoView } from "../../../common/helpers/scroll";
+
+const { useRef } = require("react");
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -35,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
   data: {
     marginTop: theme.spacing(1),
     margin: theme.spacing(2),
+    transform: "translate(0%, 0px)",
   },
   content: {
     flexGrow: 1,
@@ -61,6 +68,13 @@ const useStyles = makeStyles((theme) => ({
   hidden: {
     display: "none",
   },
+  fab: {
+    position: "sticky",
+    bottom: theme.spacing(5),
+    margin: theme.spacing(5),
+    display: "flex",
+    justifyContent: "flex-end",
+  },
 }));
 
 function FingerprintsView(props) {
@@ -74,6 +88,8 @@ function FingerprintsView(props) {
   const files = useSelector(selectFiles);
   const counts = useSelector(selectCounts);
   const dispatch = useDispatch();
+  const [top, setTop] = useState(true);
+  const actionsRef = useRef(null);
 
   useEffect(() => {
     dispatch(updateFilters({ query: "" }));
@@ -85,20 +101,25 @@ function FingerprintsView(props) {
     showFilters,
   ]);
 
+  const scrollTop = useCallback(() => scrollIntoView(actionsRef), [actionsRef]);
+
   return (
     <div className={clsx(classes.container, className)}>
       <div className={classes.content}>
         <div className={classes.header}>
-          <FingerprintViewActions
-            sort={sort}
-            onSortChange={setSort}
-            view={view}
-            onViewChange={setView}
-            onAddMedia={() => console.log("On Add Media")}
-            showFilters={!showFilters}
-            onToggleFilters={toggleFilters}
-            className={classes.actions}
-          />
+          <VisibilitySensor onChange={setTop} partialVisibility>
+            <FingerprintViewActions
+              ref={actionsRef}
+              sort={sort}
+              onSortChange={setSort}
+              view={view}
+              onViewChange={setView}
+              onAddMedia={() => console.log("On Add Media")}
+              showFilters={!showFilters}
+              onToggleFilters={toggleFilters}
+              className={classes.actions}
+            />
+          </VisibilitySensor>
         </div>
         <div className={classes.filters}>
           <SearchTextInput
@@ -121,6 +142,13 @@ function FingerprintsView(props) {
             hasMore={files.length < counts.total}
             showProgress
           />
+          <div className={classes.fab}>
+            <Zoom in={!top}>
+              <Fab color="primary" onClick={scrollTop}>
+                <ExpandLessIcon />
+              </Fab>
+            </Zoom>
+          </div>
         </FpLinearList>
       </div>
       <FilterPane
