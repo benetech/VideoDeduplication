@@ -36,9 +36,11 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     alignItems: "stretch",
     position: "sticky",
-    top: 0,
-    zIndex: 1,
-    backgroundColor: theme.palette.background.default,
+    "@media screen and (min-height: 600px)": {
+      top: 0,
+      zIndex: 1,
+      backgroundColor: theme.palette.background.default,
+    },
   },
   actionsContainer: {
     display: "flex",
