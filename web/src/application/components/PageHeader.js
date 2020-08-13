@@ -11,6 +11,8 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "space-between",
     padding: theme.dimensions.header.padding,
+    zIndex: 1,
+    backgroundColor: theme.palette.background.default,
   },
   title: {
     flexShrink: 0,

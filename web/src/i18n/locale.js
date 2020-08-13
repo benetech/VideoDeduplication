@@ -27,7 +27,7 @@ function dynamicLoad(resource) {
 /**
  * Pattern to extract language from the locale identifier.
  */
-const languagePattern = /^(?<language>[a-zA-Z]+)[\-_]?/;
+const languagePattern = /^(?<language>[a-zA-Z]+)[-_]?/;
 
 /**
  * Default locale

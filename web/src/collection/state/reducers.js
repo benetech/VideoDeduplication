@@ -13,7 +13,8 @@ export const initialState = {
   filters: {
     query: "",
   },
-  limit: 50,
+  page: 0,
+  pageSize: 20,
   counts: {
     total: 0,
     related: 0,
@@ -21,6 +22,20 @@ export const initialState = {
     unique: 0,
   },
 };
+
+function filenames(files) {
+  const result = new Set();
+  for (let file of files) {
+    result.add(file.filename);
+  }
+  return result;
+}
+
+function extendFiles(existing, loaded) {
+  const existingNames = filenames(existing);
+  const newFiles = loaded.filter((item) => !existingNames.has(item.filename));
+  return [...existing, ...newFiles];
+}
 
 export function collRootReducer(state = initialState, action) {
   switch (action.type) {
@@ -35,6 +50,7 @@ export function collRootReducer(state = initialState, action) {
       return {
         ...state,
         files: [...action.files],
+        counts: { ...action.counts },
         loading: false,
       };
     case ACTION_UPDATE_FILTERS_FAILURE:
@@ -51,8 +67,9 @@ export function collRootReducer(state = initialState, action) {
     case ACTION_FETCH_FILES_SUCCESS:
       return {
         ...state,
-        files: [...state.files, ...action.files],
+        files: extendFiles(state.files, action.files),
         counts: { ...action.counts },
+        page: state.page + 1,
         loading: false,
       };
     case ACTION_FETCH_FILES_FAILURE:

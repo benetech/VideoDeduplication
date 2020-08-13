@@ -19,12 +19,6 @@ const useStyles = makeStyles((theme) => ({
   drawer: {
     width: theme.mixins.drawer.width,
     backgroundColor: theme.palette.background.paper,
-    overflowX: "hidden",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "end",
-    borderRight: "hidden",
-    position: "relative",
   },
   drawerOpen: {
     width: theme.mixins.drawer.width,
@@ -42,6 +36,8 @@ const useStyles = makeStyles((theme) => ({
   },
   links: {
     width: theme.mixins.drawer.width,
+    position: "sticky",
+    top: 0,
   },
 }));
 

@@ -17,7 +17,7 @@ export function updateFiltersFailure(error) {
 }
 
 /**
- * Fetch next `limit` files.
+ * Fetch next files page.
  */
 export const ACTION_FETCH_FILES = "coll.FETCH_FILES";
 
