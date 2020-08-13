@@ -203,6 +203,7 @@ These scripts use the 'config.yaml' file to define where to collect data from, h
 **templates_source_path**: Directory where templates of interest are located (should be the path to a directory where each folder contains images related to the template - eg: if set for the path datadrive/templates/, this folder could contain sub-folders like plane, smoke or bomb with its respective images on each folder)
 
     
+    
 ## Running 
 
 Within the docker command line
