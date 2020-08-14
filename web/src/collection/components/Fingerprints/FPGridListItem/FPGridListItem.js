@@ -14,7 +14,6 @@ import { composition } from "../FPGridList";
 const useStyles = makeStyles((theme) => ({
   itemContainer: {},
   gridItem: {
-    width: theme.dimensions.gridItem.width,
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-around",
@@ -24,7 +23,6 @@ const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
   },
   preview: {
-    width: theme.dimensions.gridItem.width,
     height: theme.dimensions.gridItem.imageHeight,
   },
   nameContainer: {
