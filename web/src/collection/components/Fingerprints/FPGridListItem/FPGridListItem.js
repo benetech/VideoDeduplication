@@ -53,17 +53,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function FpGridListItem(props) {
-  const { file, button = false, className } = props;
+  const { file, button = false, dense = false, className } = props;
+
+  const decrease = dense ? 1 : 0;
 
   const classes = useStyles();
   return (
     <Grid
       item
-      xs={12 / composition.xs}
-      sm={12 / composition.sm}
-      md={12 / composition.md}
-      lg={12 / composition.lg}
-      xl={12 / composition.xl}
+      xs={12 / Math.max(composition.xs - decrease, 1)}
+      sm={12 / Math.max(composition.sm - decrease, 1)}
+      md={12 / Math.max(composition.md - decrease, 1)}
+      lg={12 / Math.max(composition.lg - decrease, 1)}
+      xl={12 / Math.max(composition.xl - decrease, 1)}
       className={classes.itemContainer}
     >
       <Paper
@@ -95,6 +97,7 @@ function FpGridListItem(props) {
 FpGridListItem.propTypes = {
   file: FingerprintType.isRequired,
   button: PropTypes.bool,
+  dense: PropTypes.bool,
   className: PropTypes.string,
 };
 
