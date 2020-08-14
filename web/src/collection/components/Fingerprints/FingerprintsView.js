@@ -49,10 +49,23 @@ const useStyles = makeStyles((theme) => ({
   actions: {
     flexGrow: 1,
   },
+  dataContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "stretch",
+  },
+  gridContainer: {
+    padding: theme.spacing(2),
+  },
   data: {
     marginTop: theme.spacing(1),
-    margin: theme.spacing(2),
     transform: "translate(0%, 0px)",
+  },
+  grid: {
+    overflow: "hidden",
+  },
+  list: {
+    margin: theme.spacing(2),
   },
   content: {
     flexGrow: 1,
@@ -161,16 +174,27 @@ function FingerprintsView(props) {
             />
           </div>
         </div>
-        <List className={classes.data}>
-          {files.map((file) => (
-            <ListItem file={file} button key={file.id} />
-          ))}
-          <LoadTrigger
-            loading={loading}
-            onLoad={fetchPage}
-            hasMore={files.length < counts.total}
-            showProgress
-          />
+        <div
+          className={clsx(classes.dataContainer, {
+            [classes.gridContainer]: view === View.grid,
+          })}
+        >
+          <List
+            className={clsx(classes.data, {
+              [classes.grid]: view === View.grid,
+              [classes.list]: view === View.list,
+            })}
+          >
+            {files.map((file) => (
+              <ListItem file={file} button key={file.id} />
+            ))}
+            <LoadTrigger
+              loading={loading}
+              onLoad={fetchPage}
+              hasMore={files.length < counts.total}
+              showProgress
+            />
+          </List>
           <div className={classes.fab}>
             <Zoom in={!top}>
               <Fab color="primary" onClick={scrollTop}>
@@ -178,7 +202,7 @@ function FingerprintsView(props) {
               </Fab>
             </Zoom>
           </div>
-        </List>
+        </div>
       </div>
       <FilterPane
         onClose={toggleFilters}
