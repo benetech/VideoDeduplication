@@ -29,7 +29,7 @@ function FpGridList(props) {
   const { children, className } = props;
   const classes = useStyles();
   return (
-    <Grid container spacing={1} className={clsx(classes.gridList, className)}>
+    <Grid container spacing={5} className={clsx(classes.gridList, className)}>
       {children}
     </Grid>
   );
