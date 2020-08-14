@@ -16,7 +16,7 @@ import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100vw",
+    width: `calc(100vw - ${theme.spacing(1)}px)`,
     height: "100vh",
     display: "flex",
     justifyContent: "center",
