@@ -6,9 +6,9 @@
 import { useMediaQuery } from "@material-ui/core";
 
 export const composition = {
-  xs: 1,
-  sm: 2,
-  md: 2,
+  xs: 2,
+  sm: 3,
+  md: 3,
   lg: 3,
   xl: 4,
 };

@@ -60,6 +60,13 @@ const mixins = {
     letterSpacing: 0.11,
     lineHeight: "20px",
   },
+  valueNormalSmall: {
+    fontFamily: "Lato",
+    fontSize: 12,
+    fontWeight: "bold",
+    letterSpacing: 0.08,
+    lineHeight: "15px",
+  },
   navlink: {
     fontFamily: "Roboto",
     fontSize: 17,

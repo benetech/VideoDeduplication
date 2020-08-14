@@ -40,8 +40,9 @@
     "file.attr.name": "File name",
     "file.attr.fingerprint": "Fingerprint",
     "file.attr.quality": "Quality",
-    "value.time.seconds": "seconds",
-    "value.time.minutes": "minutes",
+    "file.attr.duration": "Duration",
+    "value.time.seconds": "sec",
+    "value.time.minutes": "min",
     "value.time.hours": "hours",
     "value.bool.true": "YES",
     "value.bool.false": "NO"

@@ -10,6 +10,17 @@ import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import Grid from "@material-ui/core/Grid";
 import { composition } from "../FPGridList";
+import AttributeText from "../../../../common/components/AttributeText";
+import { useIntl } from "react-intl";
+import {
+  formatBool,
+  formatDate,
+  formatDuration,
+} from "../../../../common/helpers/format";
+import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
+import EventAvailableOutlinedIcon from "@material-ui/icons/EventAvailableOutlined";
+import ExifIcon from "../../../../common/components/icons/ExifIcon";
+import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
 
 const useStyles = makeStyles((theme) => ({
   itemContainer: {},
@@ -50,11 +61,45 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 0,
     marginRight: theme.spacing(1),
   },
+  attrRow: {
+    display: "flex",
+    alignItems: "center",
+    padding: theme.spacing(1),
+  },
+  dividerContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexGrow: 1,
+  },
+  divider: {
+    borderLeftStyle: "solid",
+    borderLeftColor: theme.palette.border.light,
+    borderLeftWidth: 1,
+    height: theme.spacing(4),
+  },
+  volume: {
+    color: theme.palette.action.textInactive,
+    fontSize: 20,
+    flexGrow: 1,
+  },
 }));
+
+function useMessages(intl) {
+  return {
+    attr: {
+      filename: intl.formatMessage({ id: "file.attr.name" }),
+      fingerprint: intl.formatMessage({ id: "file.attr.fingerprint" }),
+      quality: intl.formatMessage({ id: "file.attr.quality" }),
+      duration: intl.formatMessage({ id: "file.attr.duration" }),
+    },
+  };
+}
 
 function FpGridListItem(props) {
   const { file, button = false, dense = false, className } = props;
-
+  const intl = useIntl();
+  const messages = useMessages(intl);
   const decrease = dense ? 1 : 0;
 
   const classes = useStyles();
@@ -88,6 +133,55 @@ function FpGridListItem(props) {
           <IconButton size="small">
             <MoreHorizOutlinedIcon fontSize="small" />
           </IconButton>
+        </div>
+        <div className={classes.attrRow}>
+          <AttributeText
+            name={messages.attr.fingerprint}
+            value={file.fingerprint}
+            variant="primary"
+            size="small"
+          />
+          <div className={classes.dividerContainer}>
+            <div className={classes.divider} />
+          </div>
+          <AttributeText
+            name={messages.attr.quality}
+            value={file.metadata.quality}
+            defaultValue="Unknown"
+            variant="primary"
+            size="small"
+          />
+          <div className={classes.dividerContainer}>
+            <div className={classes.divider} />
+          </div>
+          <AttributeText
+            name={messages.attr.duration}
+            value={formatDuration(file.metadata.length, intl)}
+            variant="primary"
+            size="small"
+          />
+        </div>
+        <div className={classes.attrRow}>
+          <AttributeText
+            value={formatDate(file.metadata.uploadDate, intl)}
+            icon={EventAvailableOutlinedIcon}
+            variant="normal"
+            defaultValue="Unknown"
+            size="small"
+          />
+          <div className={classes.dividerContainer}>
+            <div className={classes.divider} />
+          </div>
+          <AttributeText
+            value={formatBool(file.metadata.hasEXIF, intl)}
+            icon={ExifIcon}
+            variant="primary"
+            size="small"
+          />
+          <div className={classes.dividerContainer}>
+            <div className={classes.divider} />
+          </div>
+          <VolumeOffOutlinedIcon className={classes.volume} />
         </div>
       </Paper>
     </Grid>
