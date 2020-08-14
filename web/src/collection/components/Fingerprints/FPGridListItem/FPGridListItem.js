@@ -9,6 +9,7 @@ import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import Grid from "@material-ui/core/Grid";
+import { composition } from "../FPGridList";
 
 const useStyles = makeStyles((theme) => ({
   itemContainer: {},
@@ -58,7 +59,15 @@ function FpGridListItem(props) {
 
   const classes = useStyles();
   return (
-    <Grid item className={classes.itemContainer}>
+    <Grid
+      item
+      xs={12 / composition.xs}
+      sm={12 / composition.sm}
+      md={12 / composition.md}
+      lg={12 / composition.lg}
+      xl={12 / composition.xl}
+      className={classes.itemContainer}
+    >
       <Paper
         className={clsx(
           classes.gridItem,
