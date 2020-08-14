@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -21,6 +21,8 @@ import Fab from "@material-ui/core/Fab";
 import Zoom from "@material-ui/core/Zoom";
 import VisibilitySensor from "react-visibility-sensor";
 import { scrollIntoView } from "../../../common/helpers/scroll";
+import FpGridList from "./FPGridList";
+import FpGridListItem from "./FPGridListItem";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -90,6 +92,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function viewComponents(view) {
+  switch (view) {
+    case View.list:
+      return [FpLinearList, FpLinearListItem];
+    case View.grid:
+      return [FpGridList, FpGridListItem];
+    default:
+      throw new Error(`Unsupported fingerprints view type: ${view}`);
+  }
+}
+
 function FingerprintsView(props) {
   const { className } = props;
   const classes = useStyles();
@@ -103,6 +116,7 @@ function FingerprintsView(props) {
   const dispatch = useDispatch();
   const [top, setTop] = useState(true);
   const topRef = useRef(null);
+  const [List, ListItem] = viewComponents(view);
 
   useEffect(() => {
     dispatch(updateFilters({ query: "" }));
@@ -147,9 +161,9 @@ function FingerprintsView(props) {
             />
           </div>
         </div>
-        <FpLinearList className={classes.data}>
+        <List className={classes.data}>
           {files.map((file) => (
-            <FpLinearListItem file={file} button key={file.id} />
+            <ListItem file={file} button key={file.id} />
           ))}
           <LoadTrigger
             loading={loading}
@@ -164,7 +178,7 @@ function FingerprintsView(props) {
               </Fab>
             </Zoom>
           </div>
-        </FpLinearList>
+        </List>
       </div>
       <FilterPane
         onClose={toggleFilters}
