@@ -14,6 +14,11 @@ const useStyles = makeStyles((theme) => ({
   hide: {
     filter: "blur(10px)",
   },
+  image: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
   previewBackdrop: {
     position: "absolute",
     top: 0,
@@ -58,7 +63,11 @@ function MediaPreview(props) {
 
   return (
     <div className={clsx(classes.previewContainer, className)}>
-      <img alt={alt} src={src} className={clsx({ [classes.hide]: !preview })} />
+      <img
+        alt={alt}
+        src={src}
+        className={clsx(classes.image, { [classes.hide]: !preview })}
+      />
       <div
         className={clsx(classes.previewBackdrop, {
           [classes.previewBackdropHide]: !preview,
