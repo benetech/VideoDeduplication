@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -25,14 +25,34 @@ function useMessages() {
 }
 
 function SearchTextInput(props) {
-  const { onSearch, className } = props;
+  const { query: queryAttr = "", onSearch, className } = props;
   const classes = useStyles();
   const inputId = useUniqueId("search-input");
   const messages = useMessages();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(queryAttr);
+  const [timeoutHandle, setTimeoutHandle] = useState(null);
 
   const handleChange = useCallback((event) => setQuery(event.target.value), []);
-  const handleSearch = useCallback(() => onSearch(query), [query, onSearch]);
+
+  const handleSearch = useCallback(() => {
+    clearTimeout(timeoutHandle);
+    if (query !== queryAttr) {
+      onSearch(query);
+    }
+  }, [query, onSearch, timeoutHandle]);
+
+  useEffect(() => {
+    clearTimeout(timeoutHandle);
+    const newHandle = setTimeout(handleSearch, 1000);
+    setTimeoutHandle(newHandle);
+    return () => clearTimeout(newHandle);
+  }, [query, onSearch]);
+
+  useEffect(() => {
+    if (query !== queryAttr) {
+      setQuery(queryAttr);
+    }
+  }, [queryAttr]);
 
   return (
     <FormControl
@@ -52,7 +72,6 @@ function SearchTextInput(props) {
             <IconButton
               aria-label="search fingerprints"
               onClick={handleSearch}
-              onMouseDown={handleSearch}
               edge="end"
             >
               <SearchOutlinedIcon />
@@ -66,6 +85,7 @@ function SearchTextInput(props) {
 }
 
 SearchTextInput.propTypes = {
+  query: PropTypes.string,
   onSearch: PropTypes.func,
   className: PropTypes.string,
 };

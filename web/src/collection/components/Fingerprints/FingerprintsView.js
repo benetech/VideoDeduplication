@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectCounts,
   selectFiles,
+  selectFilters,
   selectLoading,
 } from "../../state/selectors";
 import { fetchFiles, updateFilters } from "../../state";
@@ -125,6 +126,7 @@ function FingerprintsView(props) {
   const [category, setCategory] = useState(Category.all);
   const loading = useSelector(selectLoading);
   const files = useSelector(selectFiles);
+  const filters = useSelector(selectFilters);
   const counts = useSelector(selectCounts);
   const dispatch = useDispatch();
   const [top, setTop] = useState(true);
@@ -140,6 +142,10 @@ function FingerprintsView(props) {
   const toggleFilters = useCallback(() => setShowFilters(!showFilters), [
     showFilters,
   ]);
+
+  const handleQuery = useCallback((query) => {
+    dispatch(updateFilters({ query }));
+  }, []);
 
   const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
 
@@ -164,7 +170,8 @@ function FingerprintsView(props) {
           </div>
           <div className={classes.filters}>
             <SearchTextInput
-              onSearch={console.log}
+              query={filters.query}
+              onSearch={handleQuery}
               className={classes.textSearch}
             />
             <SearchCategorySelector
