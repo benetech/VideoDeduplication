@@ -194,7 +194,13 @@ function FingerprintsView(props) {
             dense={showFilters}
           >
             {files.map((file) => (
-              <List.Item file={file} button key={file.id} dense={showFilters} />
+              <List.Item
+                file={file}
+                button
+                key={file.id}
+                dense={showFilters}
+                highlight={filters.query}
+              />
             ))}
             <LoadTrigger
               loading={loading}
