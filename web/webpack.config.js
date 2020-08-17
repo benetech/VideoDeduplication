@@ -4,12 +4,13 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const outputDir = path.resolve(__dirname, "build");
 const template = path.resolve(__dirname, "templates/index.html");
 const apiServer = process.env.API_SERVER || `http://localhost:5000`;
+const publicPath = process.env.PUBLIC_PATH || "/";
 
 module.exports = {
   entry: "./src/index.js",
   output: {
     path: outputDir,
-    publicPath: "/static/",
+    publicPath: publicPath,
     filename: "main.bundle.js",
   },
   module: {
