@@ -10,21 +10,10 @@ import FileCopyOutlinedIcon from "@material-ui/icons/FileCopyOutlined";
 import GroupWorkOutlinedIcon from "@material-ui/icons/GroupWorkOutlined";
 import AdjustOutlinedIcon from "@material-ui/icons/AdjustOutlined";
 import { formatCount } from "../../../../common/helpers/format";
+import Grid from "@material-ui/core/Grid";
 
 const useStyles = makeStyles((theme) => ({
-  selector: {
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap",
-    marginRight: -theme.spacing(2),
-  },
-  button: {
-    flexGrow: 1,
-    marginBottom: theme.spacing(2),
-  },
-  margin: {
-    marginRight: theme.spacing(2),
-  },
+  selector: {},
 }));
 
 function useNames() {
@@ -54,12 +43,12 @@ const icons = {
 };
 
 function SearchCategorySelector(props) {
-  const { category: selected, onChange, counts, className } = props;
+  const { category: selected, onChange, counts, dense, className } = props;
   const classes = useStyles();
   const names = useNames();
 
   return (
-    <div className={clsx(classes.selector, className)}>
+    <Grid container spacing={2} className={clsx(className)}>
       {categories.map((category) => (
         <CategoryButton
           name={names[category]}
@@ -67,11 +56,11 @@ function SearchCategorySelector(props) {
           quantity={formatCount(counts[category])}
           onClick={() => onChange(category)}
           selected={category === selected}
-          className={clsx(classes.button, classes.margin)}
           key={category}
+          dense={dense}
         />
       ))}
-    </div>
+    </Grid>
   );
 }
 
@@ -88,6 +77,7 @@ SearchCategorySelector.propTypes = {
     [Category.related]: PropTypes.number.isRequired,
     [Category.unique]: PropTypes.number.isRequired,
   }).isRequired,
+  dense: PropTypes.bool,
   onChange: PropTypes.func,
   className: PropTypes.string,
 };

@@ -49,7 +49,7 @@ export function formatCount(count) {
     return count;
   }
   if (count < 1e6) {
-    return `${(count / 1e3).toFixed(1)}K+`;
+    return `${Math.round(count / 1e3)}K+`;
   }
-  return `${(count / 1e6).toFixed(1)}M+`;
+  return `${Math.round(count / 1e6)}M+`;
 }

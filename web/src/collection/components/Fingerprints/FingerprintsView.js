@@ -178,6 +178,7 @@ function FingerprintsView(props) {
               category={category}
               onChange={setCategory}
               counts={counts}
+              dense={showFilters}
               className={classes.categories}
             />
           </div>

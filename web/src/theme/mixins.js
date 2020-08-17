@@ -39,6 +39,11 @@ const mixins = {
     direction: "rtl",
     textAlign: "left",
   },
+  textEllipsis: {
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+  },
   captionText: {
     color: "#8A96A0",
     fontFamily: "Lato",
