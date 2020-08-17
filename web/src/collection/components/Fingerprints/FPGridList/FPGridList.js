@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Grid from "@material-ui/core/Grid";
 import { composition } from "./composition";
+import FpGridListItem from "../FPGridListItem";
 
 function items(breakpoint, dense) {
   const decrease = dense ? 1 : 0;
@@ -53,5 +54,8 @@ FpGridList.propTypes = {
   ]),
   className: PropTypes.string,
 };
+
+// Access item type from container type.
+FpGridList.Item = FpGridListItem;
 
 export default FpGridList;

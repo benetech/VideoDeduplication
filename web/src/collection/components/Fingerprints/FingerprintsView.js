@@ -106,12 +106,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function viewComponents(view) {
+function listComponent(view) {
   switch (view) {
     case View.list:
-      return [FpLinearList, FpLinearListItem];
+      return FpLinearList;
     case View.grid:
-      return [FpGridList, FpGridListItem];
+      return FpGridList;
     default:
       throw new Error(`Unsupported fingerprints view type: ${view}`);
   }
@@ -131,7 +131,7 @@ function FingerprintsView(props) {
   const dispatch = useDispatch();
   const [top, setTop] = useState(true);
   const topRef = useRef(null);
-  const [List, ListItem] = viewComponents(view);
+  const List = listComponent(view);
 
   useEffect(() => {
     dispatch(updateFilters({ query: "" }));
@@ -194,7 +194,7 @@ function FingerprintsView(props) {
             dense={showFilters}
           >
             {files.map((file) => (
-              <ListItem file={file} button key={file.id} dense={showFilters} />
+              <List.Item file={file} button key={file.id} dense={showFilters} />
             ))}
             <LoadTrigger
               loading={loading}
