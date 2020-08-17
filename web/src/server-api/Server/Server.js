@@ -2,6 +2,7 @@ import axios from "axios";
 import * as HttpStatus from "http-status-codes";
 import Transform from "./Transform";
 import { Response } from "../Response";
+import { filtersToQueryParams } from "./helpers";
 
 export default class Server {
   constructor({ baseURL = "/api/v1", timeout = 10 * 1000, headers = {} } = {}) {
@@ -13,12 +14,13 @@ export default class Server {
     this.transform = new Transform();
   }
 
-  async fetchFiles({ page, pageSize }) {
+  async fetchFiles({ page, pageSize, filters }) {
     try {
       const response = await this.axios.get("/videometadata/", {
         params: {
           page: page + 1,
           per_page: pageSize,
+          ...filtersToQueryParams(filters),
         },
       });
       const data = this.transform.fetchFileResults(response.data);
