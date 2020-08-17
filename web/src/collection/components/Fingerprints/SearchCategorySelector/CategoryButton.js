@@ -81,7 +81,8 @@ CategoryButton.propTypes = {
   name: PropTypes.string.isRequired,
   icon: PropTypes.elementType.isRequired,
   selected: PropTypes.bool,
-  quantity: PropTypes.string.isRequired,
+  quantity: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    .isRequired,
   className: PropTypes.string,
 };
 

@@ -43,3 +43,13 @@ export function formatBool(value, intl) {
   const messageID = value ? "value.bool.true" : "value.bool.false";
   return intl.formatMessage({ id: messageID });
 }
+
+export function formatCount(count) {
+  if (count < 1e3) {
+    return count;
+  }
+  if (count < 1e6) {
+    return `${(count / 1e3).toFixed(1)}K+`;
+  }
+  return `${(count / 1e6).toFixed(1)}M+`;
+}

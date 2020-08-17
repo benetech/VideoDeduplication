@@ -123,7 +123,7 @@ function FingerprintsView(props) {
   const [showFilters, setShowFilters] = useState(false);
   const [sort, setSort] = useState("");
   const [view, setView] = useState(View.grid);
-  const [category, setCategory] = useState(Category.all);
+  const [category, setCategory] = useState(Category.total);
   const loading = useSelector(selectLoading);
   const files = useSelector(selectFiles);
   const filters = useSelector(selectFilters);
@@ -177,6 +177,7 @@ function FingerprintsView(props) {
             <SearchCategorySelector
               category={category}
               onChange={setCategory}
+              counts={counts}
               className={classes.categories}
             />
           </div>

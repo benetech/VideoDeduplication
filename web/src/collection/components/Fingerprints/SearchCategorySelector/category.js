@@ -1,5 +1,5 @@
 export const Category = {
-  all: "all",
+  total: "total",
   duplicates: "duplicates",
   related: "related",
   unique: "unique",
