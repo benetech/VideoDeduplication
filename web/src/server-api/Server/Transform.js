@@ -1,3 +1,5 @@
+import { randomPreview } from "../MockServer/fake-data/preview";
+
 export default class Transform {
   constructor() {}
 
@@ -33,6 +35,7 @@ export default class Transform {
       hash: data.hash,
       fingerprint: data.fingerprint,
       exif: data.exif,
+      preview: randomPreview(),
     };
   }
 }

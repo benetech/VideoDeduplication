@@ -31,6 +31,17 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.valueHighlighted,
     color: theme.palette.primary.main,
   },
+  valueTitleSmall: {
+    ...theme.mixins.title4,
+    fontWeight: "bold",
+  },
+  valueNormalSmall: {
+    ...theme.mixins.valueNormalSmall,
+  },
+  valueHighlightedSmall: {
+    ...theme.mixins.valueNormalSmall,
+    color: theme.palette.primary.main,
+  },
 }));
 
 function AttributeText(props) {
@@ -40,10 +51,22 @@ function AttributeText(props) {
     value,
     defaultValue = "NONE",
     variant = "normal",
+    size = "medium",
     className,
   } = props;
 
   const classes = useStyles();
+
+  const normal =
+    size === "medium" ? classes.valueNormal : classes.valueNormalSmall;
+
+  const highlighted =
+    size === "medium"
+      ? classes.valueHighlighted
+      : classes.valueHighlightedSmall;
+
+  const title =
+    size === "medium" ? classes.valueTitle : classes.valueTitleSmall;
 
   return (
     <div className={clsx(classes.container, className)}>
@@ -52,9 +75,9 @@ function AttributeText(props) {
         {name != null && <div className={classes.attrName}>{name}</div>}
         <div
           className={clsx(classes.value, {
-            [classes.valueNormal]: variant === "normal",
-            [classes.valueTitle]: variant === "title",
-            [classes.valueHighlighted]: variant === "primary",
+            [normal]: variant === "normal",
+            [title]: variant === "title",
+            [highlighted]: variant === "primary",
           })}
         >
           {value || defaultValue}
@@ -70,6 +93,7 @@ AttributeText.propTypes = {
   value: PropTypes.string,
   defaultValue: PropTypes.string,
   variant: PropTypes.oneOf(["title", "normal", "primary"]),
+  size: PropTypes.oneOf(["small", "medium"]),
   className: PropTypes.string,
 };
 

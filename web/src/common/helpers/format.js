@@ -10,14 +10,22 @@ function pad(time) {
   return String(time).padStart(2, "0");
 }
 
-export function formatDuration(duration, intl) {
-  const dur = parseDuration(duration);
-  if (dur.hours > 0) {
-    const units = intl.formatMessage({ id: "value.time.hours" });
-    return `${pad(dur.hours)}:${pad(dur.minutes)}:${pad(dur.seconds)} ${units}`;
+export function formatDuration(duration, intl, showUnits = true) {
+  const t = parseDuration(duration);
+  if (t.hours > 0) {
+    if (showUnits) {
+      const units = intl.formatMessage({ id: "value.time.hours" });
+      return `${pad(t.hours)}:${pad(t.minutes)}:${pad(t.seconds)} ${units}`;
+    } else {
+      return `${pad(t.hours)}:${pad(t.minutes)}:${pad(t.seconds)}`;
+    }
   }
-  const units = intl.formatMessage({ id: "value.time.minutes" });
-  return `${pad(dur.minutes)}:${pad(dur.seconds)} ${units}`;
+  if (showUnits) {
+    const units = intl.formatMessage({ id: "value.time.minutes" });
+    return `${pad(t.minutes)}:${pad(t.seconds)} ${units}`;
+  } else {
+    return `${pad(t.minutes)}:${pad(t.seconds)}`;
+  }
 }
 
 export function formatDate(date, intl) {

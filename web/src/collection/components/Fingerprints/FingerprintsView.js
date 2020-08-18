@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -21,6 +21,8 @@ import Fab from "@material-ui/core/Fab";
 import Zoom from "@material-ui/core/Zoom";
 import VisibilitySensor from "react-visibility-sensor";
 import { scrollIntoView } from "../../../common/helpers/scroll";
+import FpGridList from "./FPGridList";
+import FpGridListItem from "./FPGridListItem";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -47,10 +49,23 @@ const useStyles = makeStyles((theme) => ({
   actions: {
     flexGrow: 1,
   },
+  dataContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "stretch",
+  },
+  gridContainer: {
+    padding: theme.spacing(2),
+  },
   data: {
     marginTop: theme.spacing(1),
-    margin: theme.spacing(2),
     transform: "translate(0%, 0px)",
+  },
+  grid: {
+    overflow: "hidden",
+  },
+  list: {
+    margin: theme.spacing(2),
   },
   content: {
     flexGrow: 1,
@@ -90,6 +105,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function viewComponents(view) {
+  switch (view) {
+    case View.list:
+      return [FpLinearList, FpLinearListItem];
+    case View.grid:
+      return [FpGridList, FpGridListItem];
+    default:
+      throw new Error(`Unsupported fingerprints view type: ${view}`);
+  }
+}
+
 function FingerprintsView(props) {
   const { className } = props;
   const classes = useStyles();
@@ -103,6 +129,7 @@ function FingerprintsView(props) {
   const dispatch = useDispatch();
   const [top, setTop] = useState(true);
   const topRef = useRef(null);
+  const [List, ListItem] = viewComponents(view);
 
   useEffect(() => {
     dispatch(updateFilters({ query: "" }));
@@ -147,16 +174,28 @@ function FingerprintsView(props) {
             />
           </div>
         </div>
-        <FpLinearList className={classes.data}>
-          {files.map((file) => (
-            <FpLinearListItem file={file} button key={file.id} />
-          ))}
-          <LoadTrigger
-            loading={loading}
-            onLoad={fetchPage}
-            hasMore={files.length < counts.total}
-            showProgress
-          />
+        <div
+          className={clsx(classes.dataContainer, {
+            [classes.gridContainer]: view === View.grid,
+          })}
+        >
+          <List
+            className={clsx(classes.data, {
+              [classes.grid]: view === View.grid,
+              [classes.list]: view === View.list,
+            })}
+            dense={showFilters}
+          >
+            {files.map((file) => (
+              <ListItem file={file} button key={file.id} dense={showFilters} />
+            ))}
+            <LoadTrigger
+              loading={loading}
+              onLoad={fetchPage}
+              hasMore={files.length < counts.total}
+              showProgress
+            />
+          </List>
           <div className={classes.fab}>
             <Zoom in={!top}>
               <Fab color="primary" onClick={scrollTop}>
@@ -164,7 +203,7 @@ function FingerprintsView(props) {
               </Fab>
             </Zoom>
           </div>
-        </FpLinearList>
+        </div>
       </div>
       <FilterPane
         onClose={toggleFilters}

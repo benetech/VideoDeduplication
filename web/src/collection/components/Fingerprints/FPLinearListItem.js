@@ -16,6 +16,7 @@ import {
   formatDuration,
 } from "../../../common/helpers/format";
 import { useIntl } from "react-intl";
+import ExifIcon from "../../../common/components/icons/ExifIcon";
 
 const useStyles = makeStyles((theme) => ({
   decor: {
@@ -68,15 +69,6 @@ const useStyles = makeStyles((theme) => ({
     height: theme.spacing(4),
   },
 }));
-
-function ExifIcon(props) {
-  const { className } = props;
-  return <div className={className}>[EXIF]</div>;
-}
-
-ExifIcon.propTypes = {
-  className: PropTypes.string,
-};
 
 function useMessages(intl) {
   return {

@@ -25,6 +25,20 @@ const mixins = {
     letterSpacing: 0.12,
     lineHeight: "20px",
   },
+  title5: {
+    fontFamily: "Roboto",
+    fontSize: 14,
+    letterSpacing: 0.1,
+    lineHeight: "16px",
+    fontWeight: 500,
+  },
+  textEllipsisStart: {
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    direction: "rtl",
+    textAlign: "left",
+  },
   captionText: {
     color: "#8A96A0",
     fontFamily: "Lato",
@@ -45,6 +59,13 @@ const mixins = {
     fontWeight: "bold",
     letterSpacing: 0.11,
     lineHeight: "20px",
+  },
+  valueNormalSmall: {
+    fontFamily: "Lato",
+    fontSize: 12,
+    fontWeight: "bold",
+    letterSpacing: 0.08,
+    lineHeight: "15px",
   },
   navlink: {
     fontFamily: "Roboto",

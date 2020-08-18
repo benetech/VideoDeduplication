@@ -19,6 +19,10 @@ const dimensions = {
   content: {
     padding: 20,
   },
+  gridItem: {
+    width: 272,
+    imageHeight: 117,
+  },
 };
 
 export default dimensions;
