@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -98,10 +98,19 @@ function useMessages(intl) {
 }
 
 function FpGridListItem(props) {
-  const { file, button = false, dense = false, highlight, className } = props;
+  const {
+    file,
+    button = false,
+    dense = false,
+    highlight,
+    onClick,
+    className,
+  } = props;
+
   const intl = useIntl();
   const messages = useMessages(intl);
   const decrease = dense ? 1 : 0;
+  const handleClick = useCallback(() => onClick(file), [file, onClick]);
 
   const classes = useStyles();
   return (
@@ -120,6 +129,7 @@ function FpGridListItem(props) {
           button && classes.asButton,
           className
         )}
+        onClick={handleClick}
       >
         <MediaPreview
           src={file.preview}
@@ -196,6 +206,7 @@ FpGridListItem.propTypes = {
   button: PropTypes.bool,
   dense: PropTypes.bool,
   highlight: PropTypes.string,
+  onClick: PropTypes.func,
   className: PropTypes.string,
 };
 

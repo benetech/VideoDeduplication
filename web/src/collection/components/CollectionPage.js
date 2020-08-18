@@ -8,6 +8,7 @@ import DashboardView from "./DashboardView";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { routes } from "../../routing/routes";
 import FingerprintsView from "./Fingerprints/FingerprintsView";
+import VideoDetails from "./VideoDetails/VideoDetails";
 
 const useStyles = makeStyles(() => ({
   body: {
@@ -37,8 +38,11 @@ function CollectionPage(props) {
           <Route path={routes.collection.analytics}>
             <DashboardView />
           </Route>
-          <Route path={routes.collection.fingerprints}>
+          <Route exact path={routes.collection.fingerprints}>
             <FingerprintsView />
+          </Route>
+          <Route path={routes.collection.video}>
+            <VideoDetails />
           </Route>
         </Switch>
       </div>
