@@ -5,6 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import { FingerprintType } from "../Fingerprints/type";
 import MediaPreview from "../../../common/components/MediaPreview";
 import ReactPlayer from "react-player";
+import TimeCaption from "./TimeCaption";
 
 const useStyles = makeStyles((theme) => ({
   container: {},
@@ -39,6 +40,7 @@ function VideoPlayer(props) {
           alt={file.filename}
           className={classes.preview}
           actions={previewActions}
+          caption={<TimeCaption time={file.metadata.length} />}
         />
       )}
       {watch && (

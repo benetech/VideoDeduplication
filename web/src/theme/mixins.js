@@ -78,6 +78,12 @@ const mixins = {
     letterSpacing: 0,
     lineHeight: "20px",
   },
+  textSmall: {
+    fontFamily: "Roboto",
+    fontSize: 12,
+    letterSpacing: 0,
+    lineHeight: "14px",
+  },
   /**
    * Disable text selection
    */

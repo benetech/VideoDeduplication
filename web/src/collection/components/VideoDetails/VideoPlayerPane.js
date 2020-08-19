@@ -5,6 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import Paper from "@material-ui/core/Paper";
 import { FingerprintType } from "../Fingerprints/type";
 import VideoPlayer from "./VideoPlayer";
+import SceneSelector from "./SceneSelector";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,7 +21,14 @@ const useStyles = makeStyles((theme) => ({
   },
   player: {
     height: 300,
-    padding: theme.spacing(2),
+    margin: theme.spacing(2),
+  },
+  divider: {
+    width: "100%",
+    borderTop: "1px solid #D8D8D8",
+  },
+  scenes: {
+    margin: theme.spacing(2),
   },
 }));
 
@@ -31,6 +39,12 @@ function VideoPlayerPane(props) {
     <Paper className={clsx(classes.root, className)}>
       <div className={classes.title}>Video</div>
       <VideoPlayer file={file} className={classes.player} />
+      <div className={classes.divider} />
+      <SceneSelector
+        scenes={file.scenes}
+        onSelect={console.log}
+        className={classes.scenes}
+      />
     </Paper>
   );
 }

@@ -5,6 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles((theme) => ({
   captionContainer: {
+    color: theme.palette.common.white,
     padding: theme.spacing(1),
   },
   backdrop: {

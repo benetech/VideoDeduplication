@@ -1,4 +1,5 @@
 import { randomPreview } from "./preview";
+import { randomScenes } from "./scene";
 
 function randomName() {
   return (
@@ -14,6 +15,7 @@ export function randomPlayback() {
 
 export function randomFile() {
   const name = randomName();
+  const length = (60 + Math.random() * 250) * 1000; // 5 min at max
   return {
     id: name,
     filename: name,
@@ -21,7 +23,7 @@ export function randomFile() {
       grayAverage: Math.random() * 100,
       grayMax: Math.random() * 100,
       grayStd: Math.random() * 100,
-      length: 101,
+      length: length,
       stdAverage: Math.random() * 100,
       maxDiff: Math.random() * 100,
       flagged: Math.random() > 0.5,
@@ -29,6 +31,7 @@ export function randomFile() {
     },
     preview: randomPreview(),
     playbackURL: randomPlayback(),
+    scenes: [...randomScenes(10 + Math.random() * 5, length)],
   };
 }
 

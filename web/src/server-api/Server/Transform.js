@@ -1,5 +1,6 @@
 import { randomPreview } from "../MockServer/fake-data/preview";
 import { randomPlayback } from "../MockServer/fake-data/files";
+import { randomScenes } from "../MockServer/fake-data/scene";
 
 /**
  * Data-transfer object and internal data format may evolve independently, the
@@ -42,6 +43,9 @@ export default class Transform {
       exif: data.exif,
       preview: randomPreview(),
       playbackURL: randomPlayback(),
+      scenes: [
+        ...randomScenes(1 + Math.random() * 5, data.video_length * 1000),
+      ],
     };
   }
 }

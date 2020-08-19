@@ -67,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
  * Blurred media preview.
  */
 function MediaPreview(props) {
-  const { src, alt, actions, caption, className } = props;
+  const { src, alt, actions, caption, className, ...other } = props;
   const [preview, setPreview] = useState(false);
   const classes = useStyles();
 
@@ -88,7 +88,7 @@ function MediaPreview(props) {
   }
 
   return (
-    <div className={clsx(classes.previewContainer, className)}>
+    <div className={clsx(classes.previewContainer, className)} {...other}>
       <img
         alt={alt}
         src={src}
