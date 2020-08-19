@@ -6,6 +6,7 @@ import IconButton from "@material-ui/core/IconButton";
 import VisibilityOffOutlinedIcon from "@material-ui/icons/VisibilityOffOutlined";
 import VisibilityOutlinedIcon from "@material-ui/icons/VisibilityOutlined";
 import PreviewActions from "./PreviewActions";
+import PreviewCaption from "./PreviewCaption";
 
 const useStyles = makeStyles((theme) => ({
   previewContainer: {
@@ -54,13 +55,19 @@ const useStyles = makeStyles((theme) => ({
   togglePreviewShow: {
     backgroundColor: "rgba(5,5,5,0.4)",
   },
+  caption: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    margin: theme.spacing(1),
+  },
 }));
 
 /**
  * Blurred media preview.
  */
 function MediaPreview(props) {
-  const { src, alt, actions, className } = props;
+  const { src, alt, actions, caption, className } = props;
   const [preview, setPreview] = useState(false);
   const classes = useStyles();
 
@@ -111,6 +118,9 @@ function MediaPreview(props) {
           />
         </div>
       </div>
+      <PreviewCaption className={classes.caption} backdrop={preview}>
+        {caption}
+      </PreviewCaption>
     </div>
   );
 }
@@ -125,6 +135,13 @@ MediaPreview.propTypes = {
       handler: PropTypes.func.isRequired,
     })
   ),
+  /**
+   * Caption elements at the left-bottom corner
+   */
+  caption: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]),
   alt: PropTypes.string,
   src: PropTypes.string,
   className: PropTypes.string,
