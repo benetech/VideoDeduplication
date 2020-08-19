@@ -51,7 +51,13 @@ function MediaPreview(props) {
   const [preview, setPreview] = useState(false);
   const classes = useStyles();
 
-  const togglePreview = useCallback(() => setPreview(!preview), [preview]);
+  const togglePreview = useCallback(
+    (event) => {
+      event.stopPropagation();
+      setPreview(!preview);
+    },
+    [preview]
+  );
 
   // Define preview icon
   let previewIcon;
