@@ -1,8 +1,7 @@
 import numpy as np
 import os
-
 os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
-
+import click
 from glob import glob
 from winnow.feature_extraction import IntermediateCnnExtractor,frameToVideoRepresentation,SimilarityModel
 from winnow.utils import create_directory,scan_videos,create_video_list,get_original_fn_from_artifact
@@ -11,11 +10,20 @@ from db.schema import *
 import yaml
 
 
-if __name__ == '__main__':
+@click.command()
+@click.option(
+    '--config', '-cp',
+    help='path to the project config file',
+    default=os.environ['WINNOW_CONFIG'])
+
+
+
+
+def main(config):
 
     representations = ['frame_level','video_level','video_signatures']
 
-    with open("config.yaml", 'r') as ymlfile:
+    with open(config, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
 
     DATASET_DIR = cfg['video_source_folder']
@@ -25,9 +33,6 @@ if __name__ == '__main__':
     USE_DB = cfg['use_db'] 
     CONNINFO = cfg['conninfo']
     KEEP_FILES = cfg['keep_fileoutput']
-    FRAME_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0]))
-    VIDEO_LEVEL_SAVE_FOLDER = DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1])
-    VIDEO_SIGNATURES_FILENAME = 'video_signatures'
     FRAME_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0])    
     VIDEO_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1])
     VIDEO_SIGNATURES_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[2])
@@ -105,4 +110,14 @@ if __name__ == '__main__':
         np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,'{}.npy'.format(VIDEO_SIGNATURES_FILENAME)),video_signatures)
         np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,'{}-filenames.npy'.format(VIDEO_SIGNATURES_FILENAME)),sm.original_filenames)
         print('Signatures of shape {} saved on :{}'.format(video_signatures.shape,VIDEO_SIGNATURES_SAVE_FOLDER))
+
+
+
+
+
+if __name__ == '__main__':
+
+    main()
+
+    
 

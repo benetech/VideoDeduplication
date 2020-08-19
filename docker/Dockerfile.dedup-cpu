@@ -30,4 +30,4 @@ RUN apt update
 
 RUN apt-get install -y libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx
 
-RUN /bin/bash -c "source activate winnow &&  python -m pytest tests/general_tests.py"
+RUN /bin/bash -c "source activate winnow &&  bash scripts/run-tests.sh"

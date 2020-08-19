@@ -23,7 +23,7 @@ pretrained_model_local_path:
 
 # DB Settings
 use_db:
-    true
+    False
 conninfo:
     postgres://postgres:admin@localhost:5432/test
 keep_fileoutput:
