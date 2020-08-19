@@ -40,6 +40,7 @@ function PreviewActions(props) {
     <div className={clsx(classes.actionsRoot, className)}>
       {actions.map((action) => (
         <Button
+          key={action.name}
           onClick={invoke(action)}
           className={clsx(classes.actionButton, dark && classes.dark)}
           size={size}
