@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { FingerprintType } from "../type";
 import Paper from "@material-ui/core/Paper";
-import MediaPreview from "./MediaPreview";
+import MediaPreview from "../../../../common/components/MediaPreview";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import IconButton from "@material-ui/core/IconButton";
@@ -17,7 +17,6 @@ import {
   formatDate,
   formatDuration,
 } from "../../../../common/helpers/format";
-import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
 import EventAvailableOutlinedIcon from "@material-ui/icons/EventAvailableOutlined";
 import ExifIcon from "../../../../common/components/icons/ExifIcon";
 import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";

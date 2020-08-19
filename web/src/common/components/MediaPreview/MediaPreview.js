@@ -5,6 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import IconButton from "@material-ui/core/IconButton";
 import VisibilityOffOutlinedIcon from "@material-ui/icons/VisibilityOffOutlined";
 import VisibilityOutlinedIcon from "@material-ui/icons/VisibilityOutlined";
+import PreviewActions from "./PreviewActions";
 
 const useStyles = makeStyles((theme) => ({
   previewContainer: {
@@ -35,6 +36,15 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     backgroundColor: "rgba(5,5,5,0.4)",
   },
+  actionsShow: {
+    display: "flex",
+    alignItems: "center",
+  },
+  actionsHide: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
   togglePreview: {
     color: theme.palette.common.white,
     "&:hover": {
@@ -46,8 +56,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Blurred media preview.
+ */
 function MediaPreview(props) {
-  const { src, alt, className } = props;
+  const { src, alt, actions, className } = props;
   const [preview, setPreview] = useState(false);
   const classes = useStyles();
 
@@ -80,22 +93,38 @@ function MediaPreview(props) {
           [classes.previewBackdropShow]: preview,
         })}
       >
-        <IconButton
-          className={clsx(
-            classes.togglePreview,
-            preview && classes.togglePreviewShow
-          )}
-          size={preview ? "small" : "medium"}
-          onClick={togglePreview}
-        >
-          {previewIcon}
-        </IconButton>
+        <div className={preview ? classes.actionsShow : classes.actionsHide}>
+          <IconButton
+            className={clsx(
+              classes.togglePreview,
+              preview && classes.togglePreviewShow
+            )}
+            size={preview ? "small" : "medium"}
+            onClick={togglePreview}
+          >
+            {previewIcon}
+          </IconButton>
+          <PreviewActions
+            actions={actions}
+            size={preview ? "small" : "medium"}
+            dark={preview}
+          />
+        </div>
       </div>
     </div>
   );
 }
 
 MediaPreview.propTypes = {
+  /**
+   * Optional action buttons.
+   */
+  actions: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      handler: PropTypes.func.isRequired,
+    })
+  ),
   alt: PropTypes.string,
   src: PropTypes.string,
   className: PropTypes.string,
