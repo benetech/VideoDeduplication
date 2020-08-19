@@ -8,7 +8,11 @@ function randomName() {
   );
 }
 
-function randomFile() {
+export function randomPlayback() {
+  return "https://youtu.be/u04g-pHLPnM?t=494";
+}
+
+export function randomFile() {
   const name = randomName();
   return {
     id: name,
@@ -24,6 +28,7 @@ function randomFile() {
       hasEXIF: Math.random() > 0.5,
     },
     preview: randomPreview(),
+    playbackURL: randomPlayback(),
   };
 }
 

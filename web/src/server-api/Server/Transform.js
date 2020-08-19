@@ -1,5 +1,10 @@
 import { randomPreview } from "../MockServer/fake-data/preview";
+import { randomPlayback } from "../MockServer/fake-data/files";
 
+/**
+ * Data-transfer object and internal data format may evolve independently, the
+ * Transform class decouples these two representations.
+ */
 export default class Transform {
   constructor() {}
 
@@ -17,7 +22,7 @@ export default class Transform {
 
   videoMetadata(data) {
     return {
-      id: data.original_filename,
+      id: data.original_filename.substring(0, 10),
       filename: data.original_filename,
       metadata: {
         grayAverage: data.gray_avg,
@@ -36,6 +41,7 @@ export default class Transform {
       fingerprint: data.fingerprint,
       exif: data.exif,
       preview: randomPreview(),
+      playbackURL: randomPlayback(),
     };
   }
 }

@@ -21,5 +21,7 @@ export const FingerprintType = PropTypes.shape({
   }).isRequired,
   hash: PropTypes.object,
   fingerprint: PropTypes.string,
+  preview: PropTypes.string,
+  playbackURL: PropTypes.string,
   exif: PropTypes.object,
 });

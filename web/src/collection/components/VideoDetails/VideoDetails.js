@@ -7,6 +7,9 @@ import { useIntl } from "react-intl";
 import Paper from "@material-ui/core/Paper";
 import Button from "../../../common/components/Button";
 import Grid from "@material-ui/core/Grid";
+import VideoPlayerPane from "./VideoPlayerPane";
+import VideoInformationPane from "./VideoInformationPane";
+import { randomFile } from "../../../server-api/MockServer/fake-data/files";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,8 +33,6 @@ const useStyles = makeStyles((theme) => ({
   dataContainer: {
     padding: theme.spacing(2),
   },
-  video: {},
-  info: {},
 }));
 
 /**
@@ -43,6 +44,8 @@ function useMessages() {
     compare: intl.formatMessage({ id: "actions.compare" }),
   };
 }
+
+const file = randomFile();
 
 function VideoDetails(props) {
   const { className } = props;
@@ -61,10 +64,10 @@ function VideoDetails(props) {
       <div className={classes.dataContainer}>
         <Grid container spacing={5}>
           <Grid item xs={12} lg={6}>
-            <Paper className={classes.video}>Video</Paper>
+            <VideoPlayerPane file={file} />
           </Grid>
           <Grid item xs={12} lg={6}>
-            <Paper className={classes.info}>Video Information</Paper>
+            <VideoInformationPane file={file} />
           </Grid>
         </Grid>
       </div>
