@@ -2,6 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
+import Grid from "@material-ui/core/Grid";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -25,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
   },
   name: {
     flexGrow: 1,
+    ...theme.mixins.textEllipsis,
     ...theme.mixins.title3,
     display: "inline-block",
     whiteSpace: "nowrap",
@@ -52,36 +54,65 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+// total span
+const total = 12;
+
 function CategoryButton(props) {
-  const { name, icon: Icon, quantity, selected, onClick, className } = props;
+  const {
+    name,
+    icon: Icon,
+    quantity,
+    selected,
+    onClick,
+    dense,
+    className,
+  } = props;
+
   const classes = useStyles();
+
+  // Items per row
+  const items = {
+    xl: 4,
+    md: dense ? 2 : 4,
+    xs: 2,
+  };
+
   return (
-    <div
-      className={clsx(
-        classes.button,
-        { [classes.selected]: selected },
-        className
-      )}
-      onClick={onClick}
+    <Grid
+      item
+      xl={total / items.xl}
+      md={total / items.md}
+      xs={total / items.xs}
     >
-      <Icon className={classes.icon} />
       <div
-        title={name}
-        className={clsx(classes.name, { [classes.nameSelected]: selected })}
+        onClick={onClick}
+        className={clsx(
+          classes.button,
+          { [classes.selected]: selected },
+          className
+        )}
       >
-        {name}
+        <Icon className={classes.icon} />
+        <div
+          title={name}
+          className={clsx(classes.name, { [classes.nameSelected]: selected })}
+        >
+          {name}
+        </div>
+        <div className={classes.quantity}>{quantity}</div>
       </div>
-      <div className={classes.quantity}>{quantity}</div>
-    </div>
+    </Grid>
   );
 }
 
 CategoryButton.propTypes = {
+  dense: PropTypes.bool,
   onClick: PropTypes.func,
   name: PropTypes.string.isRequired,
   icon: PropTypes.elementType.isRequired,
   selected: PropTypes.bool,
-  quantity: PropTypes.string.isRequired,
+  quantity: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    .isRequired,
   className: PropTypes.string,
 };
 

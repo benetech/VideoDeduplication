@@ -21,6 +21,7 @@ import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
 import EventAvailableOutlinedIcon from "@material-ui/icons/EventAvailableOutlined";
 import ExifIcon from "../../../../common/components/icons/ExifIcon";
 import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
+import Marked from "../../../../common/components/Marked";
 
 const useStyles = makeStyles((theme) => ({
   itemContainer: {},
@@ -97,7 +98,7 @@ function useMessages(intl) {
 }
 
 function FpGridListItem(props) {
-  const { file, button = false, dense = false, className } = props;
+  const { file, button = false, dense = false, highlight, className } = props;
   const intl = useIntl();
   const messages = useMessages(intl);
   const decrease = dense ? 1 : 0;
@@ -129,7 +130,9 @@ function FpGridListItem(props) {
           <div className={classes.iconContainer}>
             <VideocamOutlinedIcon className={classes.icon} />
           </div>
-          <div className={classes.name}>{file.filename}</div>
+          <div className={classes.name}>
+            <Marked mark={highlight}>{file.filename}</Marked>
+          </div>
           <IconButton size="small">
             <MoreHorizOutlinedIcon fontSize="small" />
           </IconButton>
@@ -192,6 +195,7 @@ FpGridListItem.propTypes = {
   file: FingerprintType.isRequired,
   button: PropTypes.bool,
   dense: PropTypes.bool,
+  highlight: PropTypes.string,
   className: PropTypes.string,
 };
 

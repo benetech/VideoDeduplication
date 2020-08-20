@@ -2,6 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
+import Marked from "./Marked";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -19,7 +20,6 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.captionText,
     marginBottom: theme.spacing(0.4),
   },
-  value: {},
   valueTitle: {
     ...theme.mixins.title4,
     fontWeight: "bold",
@@ -52,6 +52,7 @@ function AttributeText(props) {
     defaultValue = "NONE",
     variant = "normal",
     size = "medium",
+    highlighted: highlightedText,
     className,
   } = props;
 
@@ -74,13 +75,13 @@ function AttributeText(props) {
       <div className={classes.attribute}>
         {name != null && <div className={classes.attrName}>{name}</div>}
         <div
-          className={clsx(classes.value, {
+          className={clsx({
             [normal]: variant === "normal",
             [title]: variant === "title",
             [highlighted]: variant === "primary",
           })}
         >
-          {value || defaultValue}
+          <Marked mark={highlightedText}>{value || defaultValue}</Marked>
         </div>
       </div>
     </div>
@@ -94,6 +95,7 @@ AttributeText.propTypes = {
   defaultValue: PropTypes.string,
   variant: PropTypes.oneOf(["title", "normal", "primary"]),
   size: PropTypes.oneOf(["small", "medium"]),
+  highlighted: PropTypes.string,
   className: PropTypes.string,
 };
 

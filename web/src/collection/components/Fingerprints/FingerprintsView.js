@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectCounts,
   selectFiles,
+  selectFilters,
   selectLoading,
 } from "../../state/selectors";
 import { fetchFiles, updateFilters } from "../../state";
@@ -105,12 +106,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function viewComponents(view) {
+function listComponent(view) {
   switch (view) {
     case View.list:
-      return [FpLinearList, FpLinearListItem];
+      return FpLinearList;
     case View.grid:
-      return [FpGridList, FpGridListItem];
+      return FpGridList;
     default:
       throw new Error(`Unsupported fingerprints view type: ${view}`);
   }
@@ -122,14 +123,15 @@ function FingerprintsView(props) {
   const [showFilters, setShowFilters] = useState(false);
   const [sort, setSort] = useState("");
   const [view, setView] = useState(View.grid);
-  const [category, setCategory] = useState(Category.all);
+  const [category, setCategory] = useState(Category.total);
   const loading = useSelector(selectLoading);
   const files = useSelector(selectFiles);
+  const filters = useSelector(selectFilters);
   const counts = useSelector(selectCounts);
   const dispatch = useDispatch();
   const [top, setTop] = useState(true);
   const topRef = useRef(null);
-  const [List, ListItem] = viewComponents(view);
+  const List = listComponent(view);
 
   useEffect(() => {
     dispatch(updateFilters({ query: "" }));
@@ -140,6 +142,10 @@ function FingerprintsView(props) {
   const toggleFilters = useCallback(() => setShowFilters(!showFilters), [
     showFilters,
   ]);
+
+  const handleQuery = useCallback((query) => {
+    dispatch(updateFilters({ query }));
+  }, []);
 
   const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
 
@@ -164,12 +170,15 @@ function FingerprintsView(props) {
           </div>
           <div className={classes.filters}>
             <SearchTextInput
-              onSearch={console.log}
+              query={filters.query}
+              onSearch={handleQuery}
               className={classes.textSearch}
             />
             <SearchCategorySelector
               category={category}
               onChange={setCategory}
+              counts={counts}
+              dense={showFilters}
               className={classes.categories}
             />
           </div>
@@ -187,7 +196,13 @@ function FingerprintsView(props) {
             dense={showFilters}
           >
             {files.map((file) => (
-              <ListItem file={file} button key={file.id} dense={showFilters} />
+              <List.Item
+                file={file}
+                button
+                key={file.id}
+                dense={showFilters}
+                highlight={filters.query}
+              />
             ))}
             <LoadTrigger
               loading={loading}

@@ -9,27 +9,17 @@ import AllInclusiveOutlinedIcon from "@material-ui/icons/AllInclusiveOutlined";
 import FileCopyOutlinedIcon from "@material-ui/icons/FileCopyOutlined";
 import GroupWorkOutlinedIcon from "@material-ui/icons/GroupWorkOutlined";
 import AdjustOutlinedIcon from "@material-ui/icons/AdjustOutlined";
+import { formatCount } from "../../../../common/helpers/format";
+import Grid from "@material-ui/core/Grid";
 
 const useStyles = makeStyles((theme) => ({
-  selector: {
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap",
-    marginRight: -theme.spacing(2),
-  },
-  button: {
-    flexGrow: 1,
-    marginBottom: theme.spacing(2),
-  },
-  margin: {
-    marginRight: theme.spacing(2),
-  },
+  selector: {},
 }));
 
 function useNames() {
   const intl = useIntl();
   return {
-    [Category.all]: intl.formatMessage({ id: "search.category.all" }),
+    [Category.total]: intl.formatMessage({ id: "search.category.all" }),
     [Category.duplicates]: intl.formatMessage({
       id: "search.category.duplicates",
     }),
@@ -39,48 +29,55 @@ function useNames() {
 }
 
 const categories = [
-  Category.all,
+  Category.total,
   Category.duplicates,
   Category.related,
   Category.unique,
 ];
 
 const icons = {
-  [Category.all]: AllInclusiveOutlinedIcon,
+  [Category.total]: AllInclusiveOutlinedIcon,
   [Category.duplicates]: FileCopyOutlinedIcon,
   [Category.related]: GroupWorkOutlinedIcon,
   [Category.unique]: AdjustOutlinedIcon,
 };
 
 function SearchCategorySelector(props) {
-  const { category: selected, onChange, className } = props;
+  const { category: selected, onChange, counts, dense, className } = props;
   const classes = useStyles();
   const names = useNames();
 
   return (
-    <div className={clsx(classes.selector, className)}>
+    <Grid container spacing={2} className={clsx(className)}>
       {categories.map((category) => (
         <CategoryButton
           name={names[category]}
           icon={icons[category]}
-          quantity="9M+"
+          quantity={formatCount(counts[category])}
           onClick={() => onChange(category)}
           selected={category === selected}
-          className={clsx(classes.button, classes.margin)}
           key={category}
+          dense={dense}
         />
       ))}
-    </div>
+    </Grid>
   );
 }
 
 SearchCategorySelector.propTypes = {
   category: PropTypes.oneOf([
-    Category.all,
+    Category.total,
     Category.duplicates,
     Category.related,
     Category.unique,
   ]).isRequired,
+  counts: PropTypes.shape({
+    [Category.total]: PropTypes.number.isRequired,
+    [Category.duplicates]: PropTypes.number.isRequired,
+    [Category.related]: PropTypes.number.isRequired,
+    [Category.unique]: PropTypes.number.isRequired,
+  }).isRequired,
+  dense: PropTypes.bool,
   onChange: PropTypes.func,
   className: PropTypes.string,
 };

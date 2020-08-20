@@ -81,7 +81,7 @@ function useMessages(intl) {
 }
 
 function FpLinearListItem(props) {
-  const { file, button = false, className } = props;
+  const { file, button = false, highlight, className } = props;
   const intl = useIntl();
   const messages = useMessages(intl);
 
@@ -102,6 +102,7 @@ function FpLinearListItem(props) {
         name={messages.attr.filename}
         value={file.filename}
         variant="title"
+        highlighted={highlight}
         className={classes.fileName}
       />
       <AttributeText
@@ -144,6 +145,7 @@ function FpLinearListItem(props) {
 
 FpLinearListItem.propTypes = {
   file: FingerprintType.isRequired,
+  highlight: PropTypes.string,
   button: PropTypes.bool,
   className: PropTypes.string,
 };

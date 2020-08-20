@@ -4,8 +4,8 @@ RUN mkdir /web
 ADD ["web", "/web"]
 WORKDIR /web
 
+ENV PUBLIC_PATH /static/
 RUN npm install
-RUN npm run test
 RUN npm run build
 
 
