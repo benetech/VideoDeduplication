@@ -3,6 +3,8 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import ObjectType from "./ObjectType";
+import usePopup from "../../../common/hooks/usePopup";
+import ObjectGroupPopper from "./ObjectGroupPopper";
 
 const useStyles = makeStyles((theme) => ({
   objectGroup: {
@@ -38,11 +40,19 @@ function percents(value) {
 function ObjectGroup(props) {
   const { objects, fullLength, className } = props;
   const classes = useStyles();
+  const { popup, clickTrigger } = usePopup("object-group");
 
   const left = percents(relativePosition(objects, fullLength));
 
   return (
-    <div className={clsx(classes.objectGroup, className)} style={{ left }} />
+    <React.Fragment>
+      <div
+        className={clsx(classes.objectGroup, className)}
+        style={{ left }}
+        {...clickTrigger}
+      />
+      <ObjectGroupPopper objects={objects} {...popup} />
+    </React.Fragment>
   );
 }
 

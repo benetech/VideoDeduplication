@@ -48,7 +48,7 @@ function groupObjects(objects, fullLength, minDist = 0.05) {
 }
 
 /**
- * Video file timeline with points at which some objects are recognized.
+ * Video file timeline with recognized objects.
  */
 function ObjectTimeLine(props) {
   const { file, className } = props;
@@ -71,7 +71,7 @@ function ObjectTimeLine(props) {
 
 ObjectTimeLine.propTypes = {
   /**
-   * Video file
+   * Video file metadata
    */
   file: FingerprintType.isRequired,
   className: PropTypes.string,
