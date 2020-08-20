@@ -21,6 +21,9 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
     objectFit: "cover",
   },
+  clickable: {
+    cursor: "pointer",
+  },
   previewBackdrop: {
     position: "absolute",
     top: 0,
@@ -67,7 +70,16 @@ const useStyles = makeStyles((theme) => ({
  * Blurred media preview.
  */
 function MediaPreview(props) {
-  const { src, alt, actions, caption, className, ...other } = props;
+  const {
+    src,
+    alt,
+    actions,
+    caption,
+    onMediaClick,
+    className,
+    ...other
+  } = props;
+
   const [preview, setPreview] = useState(false);
   const classes = useStyles();
 
@@ -98,7 +110,9 @@ function MediaPreview(props) {
         className={clsx(classes.previewBackdrop, {
           [classes.previewBackdropHide]: !preview,
           [classes.previewBackdropShow]: preview,
+          [classes.clickable]: onMediaClick != null && preview,
         })}
+        onClick={preview ? onMediaClick : undefined}
       >
         <div className={preview ? classes.actionsShow : classes.actionsHide}>
           <IconButton
@@ -142,6 +156,10 @@ MediaPreview.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]),
+  /**
+   * Handle revealed preview click
+   */
+  onMediaClick: PropTypes.func,
   alt: PropTypes.string,
   src: PropTypes.string,
   className: PropTypes.string,

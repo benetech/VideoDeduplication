@@ -59,6 +59,7 @@ function VideoPlayer(props) {
           className={classes.preview}
           actions={previewActions}
           caption={<TimeCaption time={file.metadata.length} />}
+          onMediaClick={handleWatch}
         />
       )}
       {watch && (
