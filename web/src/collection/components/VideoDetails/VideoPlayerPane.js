@@ -60,7 +60,7 @@ function VideoPlayerPane(props) {
       <div className={classes.divider} />
       <SceneSelector
         scenes={file.scenes}
-        onSelect={console.log}
+        onSelect={handleJump}
         className={classes.scenes}
       />
     </Paper>
