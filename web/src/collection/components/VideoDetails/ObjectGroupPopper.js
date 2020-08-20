@@ -27,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   arrow: {
+    color: "#fff",
     position: "absolute",
     fontSize: 7,
     width: "3em",
