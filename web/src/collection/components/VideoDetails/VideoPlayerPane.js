@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -37,17 +37,25 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function updatePosition(setter, file) {
+  return (object) => setter(object.position / file.metadata.length);
+}
+
 function VideoPlayerPane(props) {
   const { file, className } = props;
   const classes = useStyles();
+  const [position, setPosition] = useState(null);
+
+  const handleJump = useCallback(updatePosition(setPosition, file), [file]);
+
   return (
     <Paper className={clsx(classes.root, className)}>
       <div className={classes.title}>Video</div>
-      <VideoPlayer file={file} className={classes.player} />
+      <VideoPlayer file={file} className={classes.player} seekTo={position} />
       <ObjectTimeLine
         file={file}
         className={classes.objects}
-        onJump={console.log}
+        onJump={handleJump}
       />
       <div className={classes.divider} />
       <SceneSelector
