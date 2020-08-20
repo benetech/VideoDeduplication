@@ -38,7 +38,7 @@ function percents(value) {
  * of recognized objects.
  */
 function ObjectGroup(props) {
-  const { objects, fullLength, className } = props;
+  const { objects, fullLength, onJump, className } = props;
   const classes = useStyles();
   const { popup, clickTrigger } = usePopup("object-group");
 
@@ -51,7 +51,7 @@ function ObjectGroup(props) {
         style={{ left }}
         {...clickTrigger}
       />
-      <ObjectGroupPopper objects={objects} {...popup} />
+      <ObjectGroupPopper objects={objects} onJump={onJump} {...popup} />
     </React.Fragment>
   );
 }
@@ -65,6 +65,10 @@ ObjectGroup.propTypes = {
    * Objects comprising the group.
    */
   objects: PropTypes.arrayOf(ObjectType).isRequired,
+  /**
+   * Handle jump to a particular object
+   */
+  onJump: PropTypes.func,
   className: PropTypes.string,
 };
 

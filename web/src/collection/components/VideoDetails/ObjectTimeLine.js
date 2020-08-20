@@ -51,7 +51,7 @@ function groupObjects(objects, fullLength, minDist = 0.05) {
  * Video file timeline with recognized objects.
  */
 function ObjectTimeLine(props) {
-  const { file, className } = props;
+  const { file, onJump, className } = props;
   const classes = useStyles();
 
   const groups = groupObjects(file.objects, file.metadata.length, 0.02);
@@ -63,6 +63,7 @@ function ObjectTimeLine(props) {
           key={group[0].position}
           fullLength={file.metadata.length}
           objects={group}
+          onJump={onJump}
         />
       ))}
     </div>
@@ -74,6 +75,10 @@ ObjectTimeLine.propTypes = {
    * Video file metadata
    */
   file: FingerprintType.isRequired,
+  /**
+   * Handle jump to a particular object
+   */
+  onJump: PropTypes.func,
   className: PropTypes.string,
 };
 

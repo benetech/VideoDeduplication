@@ -44,7 +44,11 @@ function VideoPlayerPane(props) {
     <Paper className={clsx(classes.root, className)}>
       <div className={classes.title}>Video</div>
       <VideoPlayer file={file} className={classes.player} />
-      <ObjectTimeLine file={file} className={classes.objects} />
+      <ObjectTimeLine
+        file={file}
+        className={classes.objects}
+        onJump={console.log}
+      />
       <div className={classes.divider} />
       <SceneSelector
         scenes={file.scenes}

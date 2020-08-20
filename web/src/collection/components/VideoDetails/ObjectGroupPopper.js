@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -6,10 +6,15 @@ import ObjectType from "./ObjectType";
 import Popper from "@material-ui/core/Popper";
 import Paper from "@material-ui/core/Paper";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
+import { useIntl } from "react-intl";
+import ObjectPreview from "./ObjectPreview";
 
 const useStyles = makeStyles((theme) => ({
   content: {
-    padding: theme.spacing(2),
+    display: "flex",
+    flexDirection: "column",
+    padding: theme.spacing(1),
+    boxShadow: "none",
   },
   popper: {
     marginTop: theme.spacing(0.5),
@@ -44,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ObjectGroupPopper(props) {
-  const { objects, onClose, className, ...other } = props;
+  const { objects, onClose, onJump, className, ...other } = props;
   const classes = useStyles();
 
   const [arrowRef, setArrowRef] = useState(null);
@@ -62,7 +67,15 @@ function ObjectGroupPopper(props) {
     >
       <span className={classes.arrow} ref={setArrowRef} />
       <ClickAwayListener onClickAway={onClose}>
-        <Paper className={clsx(classes.content, className)}>Hello</Paper>
+        <Paper className={clsx(classes.content, className)}>
+          {objects.map((object) => (
+            <ObjectPreview
+              object={object}
+              onJump={onJump}
+              key={object.position}
+            />
+          ))}
+        </Paper>
       </ClickAwayListener>
     </Popper>
   );
@@ -73,6 +86,10 @@ ObjectGroupPopper.propTypes = {
    * Objects comprising the group.
    */
   objects: PropTypes.arrayOf(ObjectType).isRequired,
+  /**
+   * Callback to handle click on object
+   */
+  onJump: PropTypes.func,
   className: PropTypes.string,
 };
 
