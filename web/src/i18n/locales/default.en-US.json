@@ -82,6 +82,11 @@
     "exif.PreviewImage": "Preview Image",
     "exif.PreviewInfo": "Preview Info",
     "exif.SubimageHdr": "SubimageHdr",
-    "exif.WordDocument": "Word Document"
+    "exif.WordDocument": "Word Document",
+    "object.description": "{type} at {time}",
+    "object.type.airplane": "Airplane",
+    "object.type.explosion": "Explosion",
+    "object.type.car": "Car",
+    "object.type.music": "Music"
   }
 }

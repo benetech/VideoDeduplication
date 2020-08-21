@@ -67,7 +67,7 @@ function VideoDetails(props) {
             <VideoPlayerPane file={file} />
           </Grid>
           <Grid item xs={12} lg={6}>
-            <VideoInformationPane file={file} />
+            <VideoInformationPane file={file} onJump={console.log} />
           </Grid>
         </Grid>
       </div>

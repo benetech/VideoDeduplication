@@ -21,10 +21,10 @@ const useStyles = makeStyles((theme) => ({
  * Represent a time position inside a video file.
  */
 function TimeCaption(props) {
-  const { time, className } = props;
+  const { time, className, ...other } = props;
   const classes = useStyles();
   return (
-    <div className={clsx(classes.position, className)}>
+    <div className={clsx(classes.position, className)} {...other}>
       <AccessTimeOutlinedIcon className={classes.icon} fontSize="inherit" />
       {formatDuration(time, null, false)}
     </div>

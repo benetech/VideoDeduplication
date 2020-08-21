@@ -8,17 +8,17 @@ import MusicIcon from "@material-ui/icons/MusicNoteOutlined";
 export const ObjectKindsList = [
   {
     id: "airplane",
-    name: "object.knife",
+    name: "object.type.airplane",
     icon: AirplaneIcon,
   },
   {
     id: "car",
-    name: "object.car",
+    name: "object.type.car",
     icon: CarIcon,
   },
   {
     id: "music",
-    name: "object.music",
+    name: "object.type.music",
     icon: MusicIcon,
   },
 ];

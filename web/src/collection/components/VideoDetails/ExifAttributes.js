@@ -162,4 +162,9 @@ export const flashPixEXIFAttributes = [
   },
 ];
 
-export const audioEXIFAttributes = [];
+export const audioEXIFAttributes = [
+  {
+    title: "exif.WordDocument",
+    value: () => "Whatever...",
+  },
+];

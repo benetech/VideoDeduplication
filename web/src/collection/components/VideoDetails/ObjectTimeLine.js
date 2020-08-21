@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { FingerprintType } from "../Fingerprints/type";
 import ObjectGroup from "./ObjectGroup";
+import { groupObjects } from "./groupObjects";
 
 const useStyles = makeStyles((theme) => ({
   timeline: {
@@ -15,46 +16,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 /**
- * Split all objects into the close groups
- */
-function groupObjects(objects, fullLength, minDist = 0.05) {
-  if (objects.length === 0) {
-    return [];
-  }
-
-  // Sort objects by position in ascending order
-  objects = [...objects];
-  objects.sort((first, second) => first.position - second.position);
-
-  // Group objects
-  let currentGroup = [objects[0]];
-  const groups = [currentGroup];
-
-  for (let i = 1; i < objects.length; i++) {
-    const currentObject = objects[i];
-    const groupStart = currentGroup[0].position / fullLength;
-    const position = currentObject.position / fullLength;
-    if (position - groupStart < minDist) {
-      // if distance is small enough add object to the current group
-      currentGroup.push(currentObject);
-    } else {
-      // otherwise create a new group and add it to the result collection
-      currentGroup = [currentObject];
-      groups.push(currentGroup);
-    }
-  }
-
-  return groups;
-}
-
-/**
  * Video file timeline with recognized objects.
  */
 function ObjectTimeLine(props) {
   const { file, onJump, className } = props;
   const classes = useStyles();
 
-  const groups = groupObjects(file.objects, file.metadata.length, 0.02);
+  const groups = groupObjects(file.objects, file.metadata.length * 0.02);
 
   return (
     <div className={clsx(classes.timeline, className)}>

@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
   divider: {
     width: "100%",
-    borderTop: "1px solid #D8D8D8",
+    borderTop: `1px solid ${theme.palette.dividerLight}`,
   },
   scenes: {
     margin: theme.spacing(2),

@@ -7,6 +7,7 @@ import Paper from "@material-ui/core/Paper";
 import SelectableTabs from "./SelectableTabs";
 import SelectableTab from "./SelectableTab";
 import ExifPanel from "./ExifPanel";
+import ObjectsPanel from "./ObjectsPanel";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -16,6 +17,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "stretch",
   },
   tabs: {
+    maxWidth: 400,
     margin: theme.spacing(3),
   },
   data: {},
@@ -38,7 +40,7 @@ function dataComponent(tab) {
     case Tab.info:
       return "div";
     case Tab.objects:
-      return "div";
+      return ObjectsPanel;
     case Tab.exif:
       return ExifPanel;
     default:
@@ -48,7 +50,7 @@ function dataComponent(tab) {
 }
 
 function VideoInformationPane(props) {
-  const { file, className } = props;
+  const { file, onJump, className } = props;
   const classes = useStyles();
   const [tab, setTab] = useState(Tab.info);
 
@@ -61,13 +63,20 @@ function VideoInformationPane(props) {
         <SelectableTab label="Objects" value={Tab.objects} />
         <SelectableTab label="EXIF Data" value={Tab.exif} />
       </SelectableTabs>
-      <DataPanel file={file} className={classes.data} />
+      <DataPanel file={file} className={classes.data} onJump={onJump} />
     </Paper>
   );
 }
 
 VideoInformationPane.propTypes = {
+  /**
+   * Video file
+   */
   file: FingerprintType.isRequired,
+  /**
+   * Jump to a particular object
+   */
+  onJump: PropTypes.func,
   className: PropTypes.string,
 };
 

@@ -15,7 +15,7 @@ export const fakeExif = {
   ExifVersion: "Exif version 2.1",
   ComponentsConfiguration: "Y Cb Cr -",
   CompressedBitsPerPixel: "4.01",
-  CompObj: "--",
+  CompObj: "",
   AudioInfo: "",
   DataObject: "",
   DocumentInfo: "",
