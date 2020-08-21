@@ -8,6 +8,7 @@ import SelectableTabs from "./SelectableTabs";
 import SelectableTab from "./SelectableTab";
 import ExifPanel from "./ExifPanel";
 import ObjectsPanel from "./ObjectsPanel";
+import FileInfoPanel from "./FileInfoPanel";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,7 +39,7 @@ const Tab = {
 function dataComponent(tab) {
   switch (tab) {
     case Tab.info:
-      return "div";
+      return FileInfoPanel;
     case Tab.objects:
       return ObjectsPanel;
     case Tab.exif:

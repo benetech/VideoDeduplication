@@ -87,6 +87,17 @@
     "object.type.airplane": "Airplane",
     "object.type.explosion": "Explosion",
     "object.type.car": "Car",
-    "object.type.music": "Music"
+    "object.type.music": "Music",
+    "file.uploadedBy": "Uploaded by",
+    "file.name": "Filename",
+    "file.type": "File type",
+    "file.length": "Length of Video",
+    "file.frames": "Frame count",
+    "file.codec": "Codec",
+    "file.avgGrey": "Average gray level",
+    "file.sha256hash": "Standard SHA-256 hash of file",
+    "file.exif": "EXIF data (if available)",
+    "file.fingerprint": "Fingerprint of video",
+    "file.hasAudio": "Has audio"
   }
 }

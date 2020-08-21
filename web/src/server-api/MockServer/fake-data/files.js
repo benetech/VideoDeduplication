@@ -30,6 +30,7 @@ export function randomFile() {
       maxDiff: Math.random() * 100,
       flagged: Math.random() > 0.5,
       hasEXIF: Math.random() > 0.5,
+      fileType: "webm",
     },
     preview: randomPreview(),
     playbackURL: randomPlayback(),
