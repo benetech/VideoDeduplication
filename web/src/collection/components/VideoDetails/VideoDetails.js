@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -10,6 +10,7 @@ import Grid from "@material-ui/core/Grid";
 import VideoPlayerPane from "./VideoPlayerPane";
 import VideoInformationPane from "./VideoInformationPane";
 import { randomFile } from "../../../server-api/MockServer/fake-data/files";
+import { seekTo } from "./seekTo";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,7 +52,10 @@ function VideoDetails(props) {
   const { className } = props;
   const messages = useMessages();
   const { id } = useParams();
+  const [player, setPlayer] = useState(null);
   const classes = useStyles();
+
+  const handleJump = useCallback(seekTo(player, file), [player, file]);
 
   return (
     <div className={clsx(classes.root, className)}>
@@ -64,10 +68,10 @@ function VideoDetails(props) {
       <div className={classes.dataContainer}>
         <Grid container spacing={5}>
           <Grid item xs={12} lg={6}>
-            <VideoPlayerPane file={file} />
+            <VideoPlayerPane file={file} onPlayerReady={setPlayer} />
           </Grid>
           <Grid item xs={12} lg={6}>
-            <VideoInformationPane file={file} onJump={console.log} />
+            <VideoInformationPane file={file} onJump={handleJump} />
           </Grid>
         </Grid>
       </div>

@@ -9,7 +9,7 @@ import ObjectGroupListItem from "./ObjectGroupListItem";
 
 const useStyles = makeStyles((theme) => ({
   objectPane: {
-    height: 500,
+    height: 572,
     overflow: "auto",
   },
 }));

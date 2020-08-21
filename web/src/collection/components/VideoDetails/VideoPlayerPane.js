@@ -7,6 +7,7 @@ import { FingerprintType } from "../Fingerprints/type";
 import VideoPlayer from "./VideoPlayer";
 import SceneSelector from "./SceneSelector";
 import ObjectTimeLine from "./ObjectTimeLine";
+import { seekTo } from "./seekTo";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,14 +38,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function seekTo(player, file) {
-  // always add 1 millisecond to workaround ReactPlayer's NPE bug
-  return (object) =>
-    player.seekTo((object.position + 1) / file.metadata.length);
+function callEach(...actions) {
+  actions = actions.filter(Boolean);
+  return (value) => actions.forEach((action) => action(value));
 }
 
 function VideoPlayerPane(props) {
-  const { file, className } = props;
+  const { file, onPlayerReady, className } = props;
   const classes = useStyles();
   const [player, setPlayer] = useState(null);
   const [progress, setProgress] = useState({ played: 0 });
@@ -57,7 +57,7 @@ function VideoPlayerPane(props) {
       <VideoPlayer
         file={file}
         className={classes.player}
-        onReady={setPlayer}
+        onReady={callEach(setPlayer, onPlayerReady)}
         onProgress={setProgress}
       />
       <ObjectTimeLine
@@ -77,7 +77,14 @@ function VideoPlayerPane(props) {
 }
 
 VideoPlayerPane.propTypes = {
+  /**
+   * Video file
+   */
   file: FingerprintType.isRequired,
+  /**
+   * Return video-player controller
+   */
+  onPlayerReady: PropTypes.func,
   className: PropTypes.string,
 };
 

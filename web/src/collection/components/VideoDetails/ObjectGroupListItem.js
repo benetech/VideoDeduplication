@@ -15,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
+    padding: theme.spacing(2),
     borderBottom: `1px solid ${theme.palette.dividerLight}`,
   },
   caption: {
