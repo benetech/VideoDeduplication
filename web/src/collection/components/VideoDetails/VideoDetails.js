@@ -11,6 +11,7 @@ import VideoPlayerPane from "./VideoPlayerPane";
 import VideoInformationPane from "./VideoInformationPane";
 import { randomFile } from "../../../server-api/MockServer/fake-data/files";
 import { seekTo } from "./seekTo";
+import VideoDetailsHeader from "./VideoDetailsHeader";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,9 +28,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
   },
   header: {
-    boxShadow: "0 12px 18px 0 rgba(0,0,0,0.08)",
     margin: theme.spacing(2),
-    padding: theme.spacing(4),
   },
   dataContainer: {
     padding: theme.spacing(2),
@@ -64,7 +63,7 @@ function VideoDetails(props) {
           {messages.compare}
         </Button>
       </div>
-      <Paper className={classes.header}>header</Paper>
+      <VideoDetailsHeader file={file} className={classes.header} />
       <div className={classes.dataContainer}>
         <Grid container spacing={5}>
           <Grid item xs={12} lg={6}>

@@ -17,7 +17,7 @@ export function randomPlayback() {
 
 export function randomFile() {
   const name = randomName();
-  const length = (60 + Math.random() * 250) * 1000; // 5 min at max
+  const length = 1319000; // (60 + Math.random() * 250) * 1000; // 5 min at max
   return {
     id: name,
     filename: name,
