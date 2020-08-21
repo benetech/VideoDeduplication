@@ -6,6 +6,7 @@ import { FingerprintType } from "../Fingerprints/type";
 import MediaPreview from "../../../common/components/MediaPreview";
 import ReactPlayer from "react-player";
 import TimeCaption from "./TimeCaption";
+import VideoController from "./VideoController";
 
 const useStyles = makeStyles((theme) => ({
   container: {},
@@ -24,31 +25,21 @@ function makePreviewActions(handleWatch) {
   return [{ name: "Watch Video", handler: handleWatch }];
 }
 
-function VideoPlayer(props) {
-  const { file, seekTo: position, className } = props;
+const VideoPlayer = function VideoPlayer(props) {
+  const { file, onReady, className } = props;
   const classes = useStyles();
   const [watch, setWatch] = useState(false);
   const [player, setPlayer] = useState(null);
 
   const handleWatch = useCallback(() => setWatch(true), []);
+  const controller = useMemo(() => new VideoController(player, setWatch), []);
   const previewActions = useMemo(() => makePreviewActions(handleWatch), []);
 
-  // Handle seek
-  useEffect(() => {
-    if (position != null) {
-      setWatch(true);
-      if (player != null) {
-        player.seekTo(position);
-      }
-    }
-  }, [position]);
+  // Provide controller to the consumer
+  useEffect(() => onReady && onReady(controller), [onReady]);
 
-  // Handle initial seek
-  useEffect(() => {
-    if (player != null && position != null) {
-      player.seekTo(position);
-    }
-  }, [player]);
+  // Update controlled player
+  useEffect(() => controller._setPlayer(player), [player]);
 
   return (
     <div className={clsx(className)}>
@@ -74,19 +65,25 @@ function VideoPlayer(props) {
       )}
     </div>
   );
-}
+};
 
 VideoPlayer.propTypes = {
   /**
    * Video file to be played
    */
   file: FingerprintType.isRequired,
+
   /**
    * Position from which to start playing.
    * When seekTo value changes the player will seek
    * to the corresponding time position.
    */
   seekTo: PropTypes.number,
+
+  /**
+   * Callback that receives imperative player API
+   */
+  onReady: PropTypes.func,
   className: PropTypes.string,
 };
 

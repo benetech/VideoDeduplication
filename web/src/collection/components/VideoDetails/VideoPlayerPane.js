@@ -37,21 +37,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function updatePosition(setter, file) {
-  return (object) => setter(object.position / file.metadata.length);
+function seekTo(player, file) {
+  return (object) => player.seekTo(object.position / file.metadata.length);
 }
 
 function VideoPlayerPane(props) {
   const { file, className } = props;
   const classes = useStyles();
-  const [position, setPosition] = useState(null);
+  const [player, setPlayer] = useState(null);
 
-  const handleJump = useCallback(updatePosition(setPosition, file), [file]);
+  const handleJump = useCallback(seekTo(player, file), [player, file]);
 
   return (
     <Paper className={clsx(classes.root, className)}>
       <div className={classes.title}>Video</div>
-      <VideoPlayer file={file} className={classes.player} seekTo={position} />
+      <VideoPlayer file={file} className={classes.player} onReady={setPlayer} />
       <ObjectTimeLine
         file={file}
         className={classes.objects}
