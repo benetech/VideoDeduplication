@@ -11,13 +11,23 @@ export default class VideoController {
     this._position = null; // position requested by seekTo method
   }
 
+  _trySeek() {
+    // Player might be unavailable at the moment
+    if (this._position != null && this._player != null) {
+      try {
+        // Rarely ReactPlayer's seekTo method
+        // produces NPE, which should be handled
+        this._player.seekTo(this._position);
+        this._position = null; // clear requested seek-to position on success
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+
   _setPlayer(player) {
     this._player = player;
-    // there might be postponed seek request
-    if (this._position != null && this._player != null) {
-      this._player.seekTo(this._position);
-      this._position = null; // clear requested seek
-    }
+    this._trySeek(); // there might be postponed seek request
   }
 
   /**
@@ -26,11 +36,6 @@ export default class VideoController {
   seekTo(position) {
     this._setWatch(true);
     this._position = position;
-
-    // Player might be unavailable when seekTo is called
-    if (this._position != null && this._player != null) {
-      this._player.seekTo(this._position);
-      this._position = null; // clear requested seek position
-    }
+    this._trySeek();
   }
 }

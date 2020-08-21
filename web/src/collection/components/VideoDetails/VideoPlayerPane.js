@@ -38,7 +38,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function seekTo(player, file) {
-  return (object) => player.seekTo(object.position / file.metadata.length);
+  // always add 1 millisecond to workaround ReactPlayer's NPE bug
+  return (object) =>
+    player.seekTo((object.position + 1) / file.metadata.length);
 }
 
 function VideoPlayerPane(props) {
