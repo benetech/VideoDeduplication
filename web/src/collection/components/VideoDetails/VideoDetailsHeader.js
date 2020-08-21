@@ -10,6 +10,15 @@ import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import AttributeText from "../../../common/components/AttributeText";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router";
+import {
+  formatBool,
+  formatDate,
+  formatDuration,
+} from "../../../common/helpers/format";
+import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
+import EventAvailableOutlinedIcon from "@material-ui/icons/EventAvailableOutlined";
+import ExifIcon from "../../../common/components/icons/ExifIcon";
+import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -26,25 +35,42 @@ const useStyles = makeStyles((theme) => ({
   },
   iconContainer: {
     backgroundColor: theme.palette.primary.main,
-    width: theme.spacing(4),
-    height: theme.spacing(4),
+    width: theme.spacing(4.5),
+    height: theme.spacing(4.5),
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: theme.spacing(0.25),
+    borderRadius: theme.spacing(0.5),
     marginLeft: theme.spacing(1.5),
     marginRight: theme.spacing(3),
   },
   icon: {
     color: theme.palette.primary.contrastText,
-    width: theme.spacing(3),
-    height: theme.spacing(3),
+    width: theme.spacing(3.5),
+    height: theme.spacing(3.5),
   },
-  attrsGroup: {},
+  attrsGroup: {
+    display: "flex",
+    alignItems: "center",
+  },
+  attr: {
+    marginLeft: theme.spacing(3),
+    marginRight: theme.spacing(3),
+  },
+  divider: {
+    borderLeftStyle: "solid",
+    borderLeftColor: theme.palette.border.light,
+    borderLeftWidth: 1,
+    height: theme.spacing(4),
+  },
+  extra: {
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
+  },
 }));
 
-function useMessages() {
-  const intl = useIntl();
+function getMessages(intl) {
   return {
     filename: intl.formatMessage({ id: "file.attr.name" }),
     fingerprint: intl.formatMessage({ id: "file.attr.fingerprint" }),
@@ -56,7 +82,8 @@ function VideoDetailsHeader(props) {
   const { file, className } = props;
   const classes = useStyles();
   const history = useHistory();
-  const messages = useMessages();
+  const intl = useIntl();
+  const messages = getMessages(intl);
 
   const back = history.length > 0;
   const handleBack = useCallback(() => history.goBack(), [history]);
@@ -76,7 +103,41 @@ function VideoDetailsHeader(props) {
           name={messages.filename}
           value={file.filename}
           variant="title"
+          ellipsis
         />
+      </div>
+      <div className={classes.attrsGroup}>
+        <AttributeText
+          name={messages.fingerprint}
+          value={file.fingerprint}
+          variant="primary"
+          className={classes.attr}
+        />
+        <div className={classes.divider} />
+        <AttributeText
+          value={formatDuration(file.metadata.length, null, false)}
+          icon={ScheduleOutlinedIcon}
+          variant="normal"
+          className={classes.attr}
+        />
+        <div className={clsx(classes.divider, classes.extra)} />
+        <AttributeText
+          value={formatDate(file.metadata.uploadDate, intl)}
+          icon={EventAvailableOutlinedIcon}
+          variant="normal"
+          defaultValue="Unknown"
+          className={clsx(classes.attr, classes.extra)}
+        />
+        <div className={clsx(classes.divider, classes.extra)} />
+        <AttributeText
+          value={formatBool(file.metadata.hasEXIF, intl)}
+          icon={ExifIcon}
+          variant="primary"
+          className={clsx(classes.attr, classes.extra)}
+        />
+        <div className={clsx(classes.divider, classes.extra)} />
+        <VolumeOffOutlinedIcon className={clsx(classes.attr, classes.extra)} />
+        <div className={clsx(classes.divider, classes.extra)} />
       </div>
     </Paper>
   );
