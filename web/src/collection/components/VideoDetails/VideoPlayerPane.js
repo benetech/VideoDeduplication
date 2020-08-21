@@ -45,13 +45,19 @@ function VideoPlayerPane(props) {
   const { file, className } = props;
   const classes = useStyles();
   const [player, setPlayer] = useState(null);
+  const [progress, setProgress] = useState({ played: 0 });
 
   const handleJump = useCallback(seekTo(player, file), [player, file]);
 
   return (
     <Paper className={clsx(classes.root, className)}>
       <div className={classes.title}>Video</div>
-      <VideoPlayer file={file} className={classes.player} onReady={setPlayer} />
+      <VideoPlayer
+        file={file}
+        className={classes.player}
+        onReady={setPlayer}
+        onProgress={setProgress}
+      />
       <ObjectTimeLine
         file={file}
         className={classes.objects}
@@ -62,6 +68,7 @@ function VideoPlayerPane(props) {
         scenes={file.scenes}
         onSelect={handleJump}
         className={classes.scenes}
+        played={progress.played * file.metadata.length}
       />
     </Paper>
   );

@@ -25,17 +25,35 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Get index of the scene being played at the moment.
+ */
+function selectedScene(scenes, played) {
+  let selected = -1;
+  for (let [index, scene] of scenes.entries()) {
+    if (scene.position <= played) {
+      selected = index;
+    } else {
+      break;
+    }
+  }
+  return selected;
+}
+
 function SceneSelector(props) {
-  const { scenes, onSelect, className } = props;
+  const { scenes, played, onSelect, className } = props;
   const classes = useStyles();
+  const selected = selectedScene(scenes, played);
+
   return (
     <div className={clsx(classes.sceneSelector, className)}>
       <div className={classes.title}>{scenes.length} Scenes</div>
       <SceneList className={classes.scenes}>
-        {scenes.map((scene) => (
+        {scenes.map((scene, index) => (
           <Scene
             scene={scene}
             onSelect={onSelect}
+            selected={index === selected}
             className={classes.scene}
             key={scene.position}
           />
@@ -46,8 +64,18 @@ function SceneSelector(props) {
 }
 
 SceneSelector.propTypes = {
+  /**
+   * Fires when user click on a particular scene
+   */
   onSelect: PropTypes.func,
+  /**
+   * Scenes in a vide
+   */
   scenes: PropTypes.arrayOf(SceneType).isRequired,
+  /**
+   * Current playback position used to determine scene being displayed
+   */
+  played: PropTypes.number,
   className: PropTypes.string,
 };
 

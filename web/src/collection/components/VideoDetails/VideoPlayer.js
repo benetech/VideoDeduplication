@@ -26,7 +26,7 @@ function makePreviewActions(handleWatch) {
 }
 
 const VideoPlayer = function VideoPlayer(props) {
-  const { file, onReady, className } = props;
+  const { file, onReady, onProgress, className } = props;
   const classes = useStyles();
   const [watch, setWatch] = useState(false);
   const [player, setPlayer] = useState(null);
@@ -61,6 +61,7 @@ const VideoPlayer = function VideoPlayer(props) {
           height="100%"
           controls
           url={file.playbackURL}
+          onProgress={onProgress}
         />
       )}
     </div>
@@ -84,6 +85,20 @@ VideoPlayer.propTypes = {
    * Callback that receives imperative player API
    */
   onReady: PropTypes.func,
+
+  /**
+   * Callback to receive playback status,
+   * e.g. {
+   *   played: 0.12,
+   *   playedSeconds: 11.3,
+   *   loaded: 0.34,
+   *   loadedSeconds: 16.7
+   * }
+   *
+   * See ReactPlayer's onProgress API for more details:
+   * https://www.npmjs.com/package/react-player#callback-props
+   */
+  onProgress: PropTypes.func,
   className: PropTypes.string,
 };
 

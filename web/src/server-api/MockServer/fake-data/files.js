@@ -11,7 +11,7 @@ function randomName() {
 }
 
 export function randomPlayback() {
-  return "https://youtu.be/u04g-pHLPnM?t=494";
+  return "https://youtu.be/u04g-pHLPnM";
 }
 
 export function randomFile() {
