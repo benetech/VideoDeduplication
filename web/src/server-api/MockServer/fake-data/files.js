@@ -35,7 +35,7 @@ export function randomFile() {
     preview: randomPreview(),
     playbackURL: randomPlayback(),
     scenes: [...randomScenes(10 + Math.random() * 5, length)],
-    objects: [...randomObjects(40, length)],
+    objects: [...randomObjects(20, length)],
     exif: fakeExif,
   };
 }

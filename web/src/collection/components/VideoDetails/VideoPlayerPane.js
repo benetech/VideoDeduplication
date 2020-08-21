@@ -8,6 +8,7 @@ import VideoPlayer from "./VideoPlayer";
 import SceneSelector from "./SceneSelector";
 import ObjectTimeLine from "./ObjectTimeLine";
 import { seekTo } from "./seekTo";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,9 +44,17 @@ function callEach(...actions) {
   return (value) => actions.forEach((action) => action(value));
 }
 
+function useMessages() {
+  const intl = useIntl();
+  return {
+    video: intl.formatMessage({ id: "file.title" }),
+  };
+}
+
 function VideoPlayerPane(props) {
   const { file, onPlayerReady, className } = props;
   const classes = useStyles();
+  const messages = useMessages();
   const [player, setPlayer] = useState(null);
   const [progress, setProgress] = useState({ played: 0 });
 
@@ -53,7 +62,7 @@ function VideoPlayerPane(props) {
 
   return (
     <Paper className={clsx(classes.root, className)}>
-      <div className={classes.title}>Video</div>
+      <div className={classes.title}>{messages.video}</div>
       <VideoPlayer
         file={file}
         className={classes.player}

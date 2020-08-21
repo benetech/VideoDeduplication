@@ -9,6 +9,7 @@ import SelectableTab from "./SelectableTab";
 import ExifPanel from "./ExifPanel";
 import ObjectsPanel from "./ObjectsPanel";
 import FileInfoPanel from "./FileInfoPanel";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,9 +51,19 @@ function dataComponent(tab) {
   }
 }
 
+function useMessages() {
+  const intl = useIntl();
+  return {
+    info: intl.formatMessage({ id: "file.tabInfo" }),
+    objects: intl.formatMessage({ id: "file.tabObjects" }),
+    exif: intl.formatMessage({ id: "file.tabExif" }),
+  };
+}
+
 function VideoInformationPane(props) {
   const { file, onJump, className } = props;
   const classes = useStyles();
+  const messages = useMessages();
   const [tab, setTab] = useState(Tab.info);
 
   const DataPanel = dataComponent(tab);
@@ -60,9 +71,9 @@ function VideoInformationPane(props) {
   return (
     <Paper className={clsx(classes.root, className)}>
       <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
-        <SelectableTab label="Video Information" value={Tab.info} />
-        <SelectableTab label="Objects" value={Tab.objects} />
-        <SelectableTab label="EXIF Data" value={Tab.exif} />
+        <SelectableTab label={messages.info} value={Tab.info} />
+        <SelectableTab label={messages.objects} value={Tab.objects} />
+        <SelectableTab label={messages.exif} value={Tab.exif} />
       </SelectableTabs>
       <DataPanel file={file} className={classes.data} onJump={onJump} />
     </Paper>

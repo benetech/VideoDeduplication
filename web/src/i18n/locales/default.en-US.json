@@ -98,6 +98,11 @@
     "file.sha256hash": "Standard SHA-256 hash of file",
     "file.exif": "EXIF data (if available)",
     "file.fingerprint": "Fingerprint of video",
-    "file.hasAudio": "Has audio"
+    "file.hasAudio": "Has audio",
+    "file.scenes": "Scenes",
+    "file.title": "Video",
+    "file.tabInfo": "Video Information",
+    "file.tabObjects": "Objects",
+    "file.tabExif": "EXIF Data"
   }
 }

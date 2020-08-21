@@ -5,6 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import SceneType from "./SceneType";
 import SceneList from "./SceneList";
 import Scene from "./Scene";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   sceneSelector: {
@@ -40,14 +41,24 @@ function selectedScene(scenes, played) {
   return selected;
 }
 
+function useMessages() {
+  const intl = useIntl();
+  return {
+    scenes: intl.formatMessage({ id: "file.scenes" }),
+  };
+}
+
 function SceneSelector(props) {
   const { scenes, played, onSelect, className } = props;
   const classes = useStyles();
   const selected = selectedScene(scenes, played);
+  const messages = useMessages();
 
   return (
     <div className={clsx(classes.sceneSelector, className)}>
-      <div className={classes.title}>{scenes.length} Scenes</div>
+      <div className={classes.title}>
+        {scenes.length} {messages.scenes}
+      </div>
       <SceneList className={classes.scenes}>
         {scenes.map((scene, index) => (
           <Scene
