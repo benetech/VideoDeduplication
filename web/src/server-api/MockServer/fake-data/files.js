@@ -1,6 +1,7 @@
 import { randomPreview } from "./preview";
 import { randomScenes } from "./scene";
 import { randomObjects } from "./objects";
+import { fakeExif } from "./exif";
 
 function randomName() {
   return (
@@ -34,6 +35,7 @@ export function randomFile() {
     playbackURL: randomPlayback(),
     scenes: [...randomScenes(10 + Math.random() * 5, length)],
     objects: [...randomObjects(10, length)],
+    exif: fakeExif,
   };
 }
 
