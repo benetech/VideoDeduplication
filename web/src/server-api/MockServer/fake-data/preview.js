@@ -1,10 +1,4 @@
-function randomIndex(length) {
-  return Math.ceil(Math.random() * length) - 1;
-}
-
-function pickRandom(list) {
-  return list[randomIndex(list.length)];
-}
+import { pickRandom } from "./helpers";
 
 const previewStubs = [
   "https://images.unsplash.com/photo-1561839561-b13bcfe95249?crop=entropy&fit=crop&h=117&w=272&q=80",

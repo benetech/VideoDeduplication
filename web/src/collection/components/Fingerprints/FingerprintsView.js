@@ -8,7 +8,6 @@ import FilterPane from "./FilterPane";
 import SearchTextInput from "./SearchTextInput";
 import SearchCategorySelector, { Category } from "./SearchCategorySelector";
 import FpLinearList from "./FPLinearList";
-import FpLinearListItem from "./FPLinearListItem";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectCounts,
@@ -23,7 +22,8 @@ import Zoom from "@material-ui/core/Zoom";
 import VisibilitySensor from "react-visibility-sensor";
 import { scrollIntoView } from "../../../common/helpers/scroll";
 import FpGridList from "./FPGridList";
-import FpGridListItem from "./FPGridListItem";
+import { useHistory } from "react-router-dom";
+import { routes } from "../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -131,21 +131,27 @@ function FingerprintsView(props) {
   const dispatch = useDispatch();
   const [top, setTop] = useState(true);
   const topRef = useRef(null);
+  const history = useHistory();
   const List = listComponent(view);
 
   useEffect(() => {
     dispatch(updateFilters({ query: "" }));
   }, []);
 
-  const fetchPage = useCallback(() => dispatch(fetchFiles()), []);
+  const handleFetchPage = useCallback(() => dispatch(fetchFiles()), []);
 
-  const toggleFilters = useCallback(() => setShowFilters(!showFilters), [
+  const handleToggleFilters = useCallback(() => setShowFilters(!showFilters), [
     showFilters,
   ]);
 
   const handleQuery = useCallback((query) => {
     dispatch(updateFilters({ query }));
   }, []);
+
+  const handleClickVideo = useCallback(
+    (file) => history.push(routes.collection.videoURL(file.id)),
+    []
+  );
 
   const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
 
@@ -164,7 +170,7 @@ function FingerprintsView(props) {
               onViewChange={setView}
               onAddMedia={() => console.log("On Add Media")}
               showFilters={!showFilters}
-              onToggleFilters={toggleFilters}
+              onToggleFilters={handleToggleFilters}
               className={classes.actions}
             />
           </div>
@@ -202,11 +208,12 @@ function FingerprintsView(props) {
                 key={file.id}
                 dense={showFilters}
                 highlight={filters.query}
+                onClick={handleClickVideo}
               />
             ))}
             <LoadTrigger
               loading={loading}
-              onLoad={fetchPage}
+              onLoad={handleFetchPage}
               hasMore={files.length < counts.total}
               showProgress
             />
@@ -221,7 +228,7 @@ function FingerprintsView(props) {
         </div>
       </div>
       <FilterPane
-        onClose={toggleFilters}
+        onClose={handleToggleFilters}
         className={clsx(classes.filterPane, { [classes.hidden]: !showFilters })}
       />
     </div>

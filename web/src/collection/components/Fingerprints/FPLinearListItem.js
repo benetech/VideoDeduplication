@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -80,10 +80,12 @@ function useMessages(intl) {
   };
 }
 
-function FpLinearListItem(props) {
-  const { file, button = false, highlight, className } = props;
+const FpLinearListItem = React.memo(function FpLinearListItem(props) {
+  const { file, button = false, highlight, onClick, className } = props;
   const intl = useIntl();
   const messages = useMessages(intl);
+
+  const handleClick = useCallback(() => onClick(file), [file, onClick]);
 
   const classes = useStyles();
   return (
@@ -94,6 +96,7 @@ function FpLinearListItem(props) {
         button && classes.buttonStyle,
         className
       )}
+      onClick={handleClick}
     >
       <div className={classes.iconContainer}>
         <VideocamOutlinedIcon className={classes.icon} />
@@ -141,12 +144,13 @@ function FpLinearListItem(props) {
       </IconButton>
     </div>
   );
-}
+});
 
 FpLinearListItem.propTypes = {
   file: FingerprintType.isRequired,
   highlight: PropTypes.string,
   button: PropTypes.bool,
+  onClick: PropTypes.func,
   className: PropTypes.string,
 };
 

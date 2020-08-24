@@ -1,0 +1,113 @@
+import React, { useState } from "react";
+import clsx from "clsx";
+import PropTypes from "prop-types";
+import { makeStyles } from "@material-ui/styles";
+import { FingerprintType } from "../Fingerprints/type";
+import SelectableTabs from "./SelectableTabs";
+import SelectableTab from "./SelectableTab";
+import ExifIcon from "../../../common/components/icons/ExifIcon";
+import {
+  audioEXIFAttributes,
+  flashPixEXIFAttributes,
+  generalEXIFAttributes,
+} from "./ExifAttributes";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableRow from "@material-ui/core/TableRow";
+import TableCell from "@material-ui/core/TableCell";
+import { useIntl } from "react-intl";
+
+const useStyles = makeStyles((theme) => ({
+  header: {
+    display: "flex",
+    alignItems: "center",
+    margin: theme.spacing(3),
+  },
+  icon: {
+    marginRight: theme.spacing(4),
+    marginBottom: theme.spacing(0.5),
+    fontSize: 16,
+    fontWeight: 500,
+  },
+  tabs: {
+    width: 200,
+  },
+  table: {
+    height: 500,
+    overflow: "auto",
+    padding: theme.spacing(3),
+  },
+  attrName: {
+    ...theme.mixins.textSmall,
+    color: theme.palette.secondary.main,
+  },
+  attrValue: {
+    ...theme.mixins.textSmall,
+  },
+}));
+
+/**
+ * Get attributes set depending on tab
+ */
+function getAttributes(tab) {
+  switch (tab) {
+    case 0:
+      return generalEXIFAttributes;
+    case 1:
+      return flashPixEXIFAttributes;
+    case 2:
+      return audioEXIFAttributes;
+    default:
+      return [];
+  }
+}
+
+function ExifPanel(props) {
+  const { file, className } = props;
+  const classes = useStyles();
+  const [tab, setTab] = useState(0);
+  const intl = useIntl();
+
+  // Get attributes
+  const attributes = getAttributes(tab).map((attr) => ({
+    title: intl.formatMessage({ id: attr.title }),
+    value: attr.value(file),
+  }));
+
+  return (
+    <div className={clsx(className)}>
+      <div className={classes.header}>
+        <ExifIcon className={classes.icon} />
+        <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
+          <SelectableTab label="General" size="small" />
+          <SelectableTab label="Flash Pix" size="small" />
+          <SelectableTab label="Audio" size="small" />
+        </SelectableTabs>
+      </div>
+      <div className={classes.table}>
+        <Table>
+          <TableBody>
+            {attributes.map((attr, index) => (
+              <TableRow>
+                <TableCell className={classes.attrName}>{attr.title}</TableCell>
+                <TableCell className={classes.attrValue}>
+                  {attr.value}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
+ExifPanel.propTypes = {
+  /**
+   * Vide file
+   */
+  file: FingerprintType.isRequired,
+  className: PropTypes.string,
+};
+
+export default ExifPanel;

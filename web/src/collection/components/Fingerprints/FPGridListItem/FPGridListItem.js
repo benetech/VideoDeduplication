@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { FingerprintType } from "../type";
 import Paper from "@material-ui/core/Paper";
-import MediaPreview from "./MediaPreview";
+import MediaPreview from "../../../../common/components/MediaPreview";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import IconButton from "@material-ui/core/IconButton";
@@ -17,7 +17,6 @@ import {
   formatDate,
   formatDuration,
 } from "../../../../common/helpers/format";
-import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
 import EventAvailableOutlinedIcon from "@material-ui/icons/EventAvailableOutlined";
 import ExifIcon from "../../../../common/components/icons/ExifIcon";
 import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
@@ -97,11 +96,20 @@ function useMessages(intl) {
   };
 }
 
-function FpGridListItem(props) {
-  const { file, button = false, dense = false, highlight, className } = props;
+const FpGridListItem = React.memo(function FpGridListItem(props) {
+  const {
+    file,
+    button = false,
+    dense = false,
+    highlight,
+    onClick,
+    className,
+  } = props;
+
   const intl = useIntl();
   const messages = useMessages(intl);
   const decrease = dense ? 1 : 0;
+  const handleClick = useCallback(() => onClick(file), [file, onClick]);
 
   const classes = useStyles();
   return (
@@ -120,6 +128,7 @@ function FpGridListItem(props) {
           button && classes.asButton,
           className
         )}
+        onClick={handleClick}
       >
         <MediaPreview
           src={file.preview}
@@ -189,13 +198,14 @@ function FpGridListItem(props) {
       </Paper>
     </Grid>
   );
-}
+});
 
 FpGridListItem.propTypes = {
   file: FingerprintType.isRequired,
   button: PropTypes.bool,
   dense: PropTypes.bool,
   highlight: PropTypes.string,
+  onClick: PropTypes.func,
   className: PropTypes.string,
 };
 

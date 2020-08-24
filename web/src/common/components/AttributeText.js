@@ -42,6 +42,10 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.valueNormalSmall,
     color: theme.palette.primary.main,
   },
+  ellipsis: {
+    ...theme.mixins.textEllipsisStart,
+    minWidth: 0,
+  },
 }));
 
 function AttributeText(props) {
@@ -53,6 +57,7 @@ function AttributeText(props) {
     variant = "normal",
     size = "medium",
     highlighted: highlightedText,
+    ellipsis = false,
     className,
   } = props;
 
@@ -79,6 +84,7 @@ function AttributeText(props) {
             [normal]: variant === "normal",
             [title]: variant === "title",
             [highlighted]: variant === "primary",
+            [classes.ellipsis]: ellipsis,
           })}
         >
           <Marked mark={highlightedText}>{value || defaultValue}</Marked>
@@ -96,6 +102,7 @@ AttributeText.propTypes = {
   variant: PropTypes.oneOf(["title", "normal", "primary"]),
   size: PropTypes.oneOf(["small", "medium"]),
   highlighted: PropTypes.string,
+  ellipsis: PropTypes.bool,
   className: PropTypes.string,
 };
 

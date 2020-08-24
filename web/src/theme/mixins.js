@@ -78,6 +78,18 @@ const mixins = {
     letterSpacing: 0,
     lineHeight: "20px",
   },
+  navlinkSmall: {
+    fontFamily: "Roboto",
+    fontSize: 14,
+    letterSpacing: 0,
+    lineHeight: "16px",
+  },
+  textSmall: {
+    fontFamily: "Roboto",
+    fontSize: 12,
+    letterSpacing: 0,
+    lineHeight: "14px",
+  },
   /**
    * Disable text selection
    */
