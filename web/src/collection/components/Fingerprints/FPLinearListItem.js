@@ -80,7 +80,7 @@ function useMessages(intl) {
   };
 }
 
-function FpLinearListItem(props) {
+const FpLinearListItem = React.memo(function FpLinearListItem(props) {
   const { file, button = false, highlight, onClick, className } = props;
   const intl = useIntl();
   const messages = useMessages(intl);
@@ -144,7 +144,7 @@ function FpLinearListItem(props) {
       </IconButton>
     </div>
   );
-}
+});
 
 FpLinearListItem.propTypes = {
   file: FingerprintType.isRequired,

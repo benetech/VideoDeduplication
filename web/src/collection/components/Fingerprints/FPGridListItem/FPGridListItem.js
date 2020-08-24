@@ -96,7 +96,7 @@ function useMessages(intl) {
   };
 }
 
-function FpGridListItem(props) {
+const FpGridListItem = React.memo(function FpGridListItem(props) {
   const {
     file,
     button = false,
@@ -198,7 +198,7 @@ function FpGridListItem(props) {
       </Paper>
     </Grid>
   );
-}
+});
 
 FpGridListItem.propTypes = {
   file: FingerprintType.isRequired,
