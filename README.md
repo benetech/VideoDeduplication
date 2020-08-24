@@ -218,3 +218,18 @@ Generate matches
 Template Object Matching
 
 `python template_matching.py`
+
+Single video processing
+
+`python process_video.py [FILE_PATH] [OUTPUT_DIR]`
+
+Arguments:
+
+    'FILE_PATH': Path to videofile
+    'OUTPUT_PATH': Path where the output of running the script will be saved [default: 'data/']
+    '--config', '-cp' : Path to the project config file [default:'config.yml']
+    '--save-frames' : Whether to save video frames [default:True]
+    '--save-features/--no-features': Whether to save features [default=True]
+    '--save-signatures/--no-signatures': Whether to save features [default = True]
+    '--save-db' : Whether to save features [default = True]
+
