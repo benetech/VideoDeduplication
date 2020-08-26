@@ -5,6 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import Grid from "@material-ui/core/Grid";
 import { composition } from "./composition";
 import FpGridListItem from "../FPGridListItem";
+import FpGridListLoadTrigger from "../FPGridListLoadTrigger";
 
 function items(breakpoint, dense) {
   const decrease = dense ? 1 : 0;
@@ -57,5 +58,8 @@ FpGridList.propTypes = {
 
 // Access item type from container type.
 FpGridList.Item = FpGridListItem;
+
+// Access loading trigger from container type
+FpGridList.LoadTrigger = FpGridListLoadTrigger;
 
 export default FpGridList;

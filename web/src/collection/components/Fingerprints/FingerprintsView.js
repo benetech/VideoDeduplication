@@ -123,7 +123,7 @@ function FingerprintsView(props) {
   const classes = useStyles();
   const [showFilters, setShowFilters] = useState(false);
   const [sort, setSort] = useState("");
-  const [view, setView] = useState(View.list);
+  const [view, setView] = useState(View.grid);
   const [category, setCategory] = useState(Category.total);
   const error = useSelector(selectError);
   const loading = useSelector(selectLoading);
@@ -217,6 +217,7 @@ function FingerprintsView(props) {
               error={error}
               loading={loading}
               onLoad={handleFetchPage}
+              dense={showFilters}
               hasMore={error || files.length < counts.total}
             />
           </List>
