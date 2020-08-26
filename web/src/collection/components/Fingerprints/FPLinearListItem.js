@@ -22,9 +22,6 @@ const useStyles = makeStyles((theme) => ({
   decor: {
     marginBottom: theme.spacing(2),
     backgroundColor: theme.palette.background.paper,
-    "&:hover": {
-      borderColor: theme.palette.primary.light,
-    },
     borderRadius: 4,
     borderStyle: "solid",
     borderWidth: 1,
@@ -37,6 +34,9 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonStyle: {
     cursor: "pointer",
+    "&:hover": {
+      borderColor: theme.palette.primary.light,
+    },
   },
   icon: {
     color: theme.palette.primary.contrastText,

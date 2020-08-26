@@ -10,6 +10,7 @@ import { useIntl } from "react-intl";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
+import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
 
 const useStyles = makeStyles(() => ({
   input: {
@@ -33,6 +34,7 @@ function SearchTextInput(props) {
   const [timeoutHandle, setTimeoutHandle] = useState(null);
 
   const handleChange = useCallback((event) => setQuery(event.target.value), []);
+  const handleClear = useCallback(() => setQuery(""), []);
 
   const handleSearch = useCallback(() => {
     clearTimeout(timeoutHandle);
@@ -40,6 +42,17 @@ function SearchTextInput(props) {
       onSearch(query);
     }
   }, [query, onSearch, timeoutHandle]);
+
+  const handleControlKeys = useCallback(
+    (event) => {
+      if (event.key === "Enter") {
+        handleSearch();
+      } else if (event.key === "Escape") {
+        handleClear();
+      }
+    },
+    [handleSearch]
+  );
 
   useEffect(() => {
     clearTimeout(timeoutHandle);
@@ -69,16 +82,20 @@ function SearchTextInput(props) {
         onChange={handleChange}
         endAdornment={
           <InputAdornment position="end">
-            <IconButton
-              aria-label="search fingerprints"
-              onClick={handleSearch}
-              edge="end"
-            >
-              <SearchOutlinedIcon />
-            </IconButton>
+            {!query && <SearchOutlinedIcon />}
+            {query && (
+              <IconButton
+                aria-label="search fingerprints"
+                onClick={handleClear}
+                edge="end"
+              >
+                <ClearOutlinedIcon />
+              </IconButton>
+            )}
           </InputAdornment>
         }
         labelWidth={145}
+        onKeyDown={handleControlKeys}
       />
     </FormControl>
   );

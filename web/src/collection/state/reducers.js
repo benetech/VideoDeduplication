@@ -8,6 +8,7 @@ import {
 } from "./actions";
 
 export const initialState = {
+  error: false,
   loading: false,
   files: [],
   filters: {
@@ -51,12 +52,14 @@ export function collRootReducer(state = initialState, action) {
         ...state,
         files: [...action.files],
         counts: { ...action.counts },
+        error: false,
         loading: false,
       };
     case ACTION_UPDATE_FILTERS_FAILURE:
       return {
         ...state,
         files: [],
+        error: true,
         loading: false,
       };
     case ACTION_FETCH_FILES:
@@ -67,6 +70,7 @@ export function collRootReducer(state = initialState, action) {
     case ACTION_FETCH_FILES_SUCCESS:
       return {
         ...state,
+        error: false,
         files: extendFiles(state.files, action.files),
         counts: { ...action.counts },
         page: state.page + 1,
@@ -75,6 +79,7 @@ export function collRootReducer(state = initialState, action) {
     case ACTION_FETCH_FILES_FAILURE:
       return {
         ...state,
+        error: true,
         loading: false,
       };
     default:
