@@ -43,6 +43,17 @@ function SearchTextInput(props) {
     }
   }, [query, onSearch, timeoutHandle]);
 
+  const handleControlKeys = useCallback(
+    (event) => {
+      if (event.key === "Enter") {
+        handleSearch();
+      } else if (event.key === "Escape") {
+        handleClear();
+      }
+    },
+    [handleSearch]
+  );
+
   useEffect(() => {
     clearTimeout(timeoutHandle);
     const newHandle = setTimeout(handleSearch, 1000);
@@ -84,6 +95,7 @@ function SearchTextInput(props) {
           </InputAdornment>
         }
         labelWidth={145}
+        onKeyDown={handleControlKeys}
       />
     </FormControl>
   );
