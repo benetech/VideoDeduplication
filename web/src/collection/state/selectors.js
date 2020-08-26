@@ -10,3 +10,5 @@ export const selectFilters = (state) => selectColl(state).filters;
 export const selectCounts = (state) => selectColl(state).counts;
 
 export const selectLoading = (state) => selectColl(state).loading;
+
+export const selectError = (state) => selectColl(state).error;

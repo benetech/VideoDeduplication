@@ -11,6 +11,7 @@ import FpLinearList from "./FPLinearList";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectCounts,
+  selectError,
   selectFiles,
   selectFilters,
   selectLoading,
@@ -122,8 +123,9 @@ function FingerprintsView(props) {
   const classes = useStyles();
   const [showFilters, setShowFilters] = useState(false);
   const [sort, setSort] = useState("");
-  const [view, setView] = useState(View.grid);
+  const [view, setView] = useState(View.list);
   const [category, setCategory] = useState(Category.total);
+  const error = useSelector(selectError);
   const loading = useSelector(selectLoading);
   const files = useSelector(selectFiles);
   const filters = useSelector(selectFilters);
@@ -211,11 +213,11 @@ function FingerprintsView(props) {
                 onClick={handleClickVideo}
               />
             ))}
-            <LoadTrigger
+            <List.LoadTrigger
+              error={error}
               loading={loading}
               onLoad={handleFetchPage}
-              hasMore={files.length < counts.total}
-              showProgress
+              hasMore={error || files.length < counts.total}
             />
           </List>
           <div className={classes.fab}>

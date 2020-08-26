@@ -3,6 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import FpLinearListItem from "./FPLinearListItem";
+import FPLinearListLoadTrigger from "./FPLinearListLoadTrigger";
 
 const useStyles = makeStyles(() => ({
   list: {
@@ -28,5 +29,8 @@ FpLinearList.propTypes = {
 
 // Access item type from the container type
 FpLinearList.Item = FpLinearListItem;
+
+// Access load trigger from the container type
+FpLinearList.LoadTrigger = FPLinearListLoadTrigger;
 
 export default FpLinearList;
