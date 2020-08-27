@@ -16,8 +16,8 @@ def get_videometadata():
 
     # apply query filters
     query = VideoMetadata.query
-    if name_query is not None:
-        query = query.filter(VideoMetadata.original_filename.like(f"%{name_query}%"))
+    if name_query is not None and len(name_query.strip()) > 0:
+        query = query.filter(VideoMetadata.original_filename.ilike(f"%{name_query.strip()}%"))
 
     # get requested page
     pagination = query.paginate(page, per_page, error_out=False)
