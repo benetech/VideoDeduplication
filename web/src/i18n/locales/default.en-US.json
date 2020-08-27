@@ -28,6 +28,7 @@
     "actions.addMedia": "Add Media",
     "actions.useListView": "List View",
     "actions.useGridView": "Grid View",
+    "actions.useGraphView": "Graph View",
     "actions.searchFingerprints": "Search Fingerprints",
     "actions.compare": "Compare",
     "actions.retry": "Retry",
@@ -105,6 +106,10 @@
     "file.tabInfo": "Video Information",
     "file.tabObjects": "Objects",
     "file.tabExif": "EXIF Data",
-    "file.load.error": "Error loading files."
+    "file.load.error": "Error loading files.",
+    "file.details": "Details",
+    "file.oneMatch": "1 File Matched",
+    "file.manyMatches": "{count} Files Matched",
+    "file.cluster": "Cluster"
   }
 }

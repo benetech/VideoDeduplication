@@ -9,6 +9,7 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import { routes } from "../../routing/routes";
 import FileBrowserPage from "./FileBrowserPage/FileBrowserPage";
 import VideoDetailsPage from "./VideoDetailsPage/VideoDetailsPage";
+import FileMatchesPage from "./FileMatchesPage/FileMatchesPage";
 
 const useStyles = makeStyles(() => ({
   body: {
@@ -41,8 +42,11 @@ function CollectionRootPage(props) {
           <Route exact path={routes.collection.fingerprints}>
             <FileBrowserPage />
           </Route>
-          <Route path={routes.collection.video}>
+          <Route exact path={routes.collection.file}>
             <VideoDetailsPage />
+          </Route>
+          <Route exact path={routes.collection.fileMatches}>
+            <FileMatchesPage />
           </Route>
         </Switch>
       </div>

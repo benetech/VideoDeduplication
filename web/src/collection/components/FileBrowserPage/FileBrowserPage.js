@@ -150,7 +150,7 @@ function FileBrowserPage(props) {
   }, []);
 
   const handleClickVideo = useCallback(
-    (file) => history.push(routes.collection.videoURL(file.id)),
+    (file) => history.push(routes.collection.fileURL(file.id)),
     []
   );
 

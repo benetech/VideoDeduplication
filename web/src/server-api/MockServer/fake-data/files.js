@@ -40,7 +40,7 @@ export function randomFile() {
   };
 }
 
-function* randomFiles(count) {
+export function* randomFiles(count) {
   for (let i = 0; i < count; i++) {
     yield randomFile();
   }
