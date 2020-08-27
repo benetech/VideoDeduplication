@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import SelectionDecorator from "../../../common/components/SelectionDecorator";
+import SelectionDecorator from "../SelectionDecorator";
 
 const useStyles = makeStyles((theme) => ({
   tab: {
@@ -12,6 +12,11 @@ const useStyles = makeStyles((theme) => ({
      * Ensure selection decorator is displayed correctly.
      */
     transform: "translate(0%, 0px)",
+  },
+  sizeLarge: {
+    ...theme.mixins.navlinkLarge,
+    fontWeight: 500,
+    marginBottom: theme.spacing(1),
   },
   sizeMedium: {
     ...theme.mixins.navlink,
@@ -35,6 +40,7 @@ function labelClass(classes, size, selected) {
   return clsx({
     [classes.sizeMedium]: size === "medium",
     [classes.sizeSmall]: size === "small",
+    [classes.sizeLarge]: size === "large",
     [classes.inactive]: !selected,
   });
 }
@@ -82,7 +88,7 @@ SelectableTab.propTypes = {
   /**
    * Size variants
    */
-  size: PropTypes.oneOf(["small", "medium"]),
+  size: PropTypes.oneOf(["small", "medium", "large"]),
   className: PropTypes.string,
 };
 
