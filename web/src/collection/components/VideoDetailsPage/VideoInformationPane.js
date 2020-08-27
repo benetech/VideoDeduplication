@@ -4,8 +4,10 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { FileType } from "../FileBrowserPage/FileType";
 import Paper from "@material-ui/core/Paper";
-import SelectableTabs from "./SelectableTabs";
-import SelectableTab from "./SelectableTab";
+import {
+  SelectableTab,
+  SelectableTabs,
+} from "../../../common/components/SelectableTabs";
 import ExifPanel from "./ExifPanel";
 import ObjectsPanel from "./ObjectsPanel";
 import FileInfoPanel from "./FileInfoPanel";

@@ -3,8 +3,10 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { FileType } from "../FileBrowserPage/FileType";
-import SelectableTabs from "./SelectableTabs";
-import SelectableTab from "./SelectableTab";
+import {
+  SelectableTab,
+  SelectableTabs,
+} from "../../../common/components/SelectableTabs";
 import ExifIcon from "../../../common/components/icons/ExifIcon";
 import {
   audioEXIFAttributes,

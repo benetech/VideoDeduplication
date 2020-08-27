@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { useParams } from "react-router-dom";
 import { useIntl } from "react-intl";
-import Paper from "@material-ui/core/Paper";
 import Button from "../../../common/components/Button";
 import Grid from "@material-ui/core/Grid";
 import VideoPlayerPane from "./VideoPlayerPane";
