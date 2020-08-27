@@ -18,3 +18,12 @@ docker-run: docker-setup
 ## Stop docker-compose application
 docker-stop:
 	sudo docker-compose stop
+
+## Build docker images for docker-compose application
+docker-build:
+	sudo docker-compose build
+
+## Rebuild docker images
+docker-rebuild:
+	sudo docker-compose rm -s -f
+	sudo docker-compose build
