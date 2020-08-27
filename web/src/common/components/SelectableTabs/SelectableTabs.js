@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
 /**
  * Set the following properties: selected, onSelect and value (if absent)
  */
-function bindProperties(currentValue, onChange) {
+function bindProps(currentValue, onChange) {
   let currentIndex = 0;
   return (tab) => {
     if (!React.isValidElement(tab)) {
@@ -41,8 +41,17 @@ function SelectableTabs(props) {
   const { children, value, onChange, className } = props;
   const classes = useStyles();
 
+  const handleChange = useCallback(
+    (newValue) => {
+      if (onChange && newValue !== value) {
+        onChange(newValue);
+      }
+    },
+    [value, onChange]
+  );
+
   // Set required child properties
-  const tabs = React.Children.map(children, bindProperties(value, onChange));
+  const tabs = React.Children.map(children, bindProps(value, handleChange));
 
   return <div className={clsx(classes.tabs, className)}>{tabs}</div>;
 }
