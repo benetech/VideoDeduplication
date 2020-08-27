@@ -9,7 +9,7 @@ import {
   Switch,
 } from "react-router-dom";
 import AppMenu from "../AppMenu";
-import CollectionPage from "../../../collection/components/CollectionPage";
+import CollectionRootPage from "../../../collection/components/CollectionRootPage";
 import { routes } from "../../../routing/routes";
 import AppPage from "../AppPage";
 import { useIntl } from "react-intl";
@@ -55,7 +55,7 @@ function ApplicationLayout(props) {
               <Redirect to={routes.collection.home} />
             </Route>
             <Route path={routes.collection.home}>
-              <CollectionPage className={classes.body} />
+              <CollectionRootPage className={classes.body} />
             </Route>
             <Route path={routes.database.home}>
               <AppPage
