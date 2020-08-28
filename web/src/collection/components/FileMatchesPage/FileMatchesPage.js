@@ -14,6 +14,9 @@ import SectionSeparator from "./SectionSeparator";
 import { useIntl } from "react-intl";
 import Grid from "@material-ui/core/Grid";
 import MatchPreview from "./MatchPreview";
+import SquaredIconButton from "../../../common/components/SquaredIconButton";
+import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
+import TuneOutlinedIcon from "@material-ui/icons/TuneOutlined";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,6 +34,9 @@ const useStyles = makeStyles((theme) => ({
   },
   matches: {
     margin: theme.spacing(2),
+  },
+  actionButton: {
+    margin: theme.spacing(1.5),
   },
 }));
 
@@ -63,10 +69,14 @@ function FileMatchesPage(props) {
         />
       </FileActionHeader>
       <FileSummaryHeader file={file} className={classes.summaryHeader} />
-      <SectionSeparator
-        title={messages.matched}
-        className={classes.separator}
-      />
+      <SectionSeparator title={messages.matched} className={classes.separator}>
+        <SquaredIconButton variant="outlined" className={classes.actionButton}>
+          <SearchOutlinedIcon color="secondary" />
+        </SquaredIconButton>
+        <SquaredIconButton variant="outlined" className={classes.actionButton}>
+          <TuneOutlinedIcon color="secondary" />
+        </SquaredIconButton>
+      </SectionSeparator>
       <div className={classes.matches}>
         <Grid container spacing={4}>
           {file.matches.map((match) => (

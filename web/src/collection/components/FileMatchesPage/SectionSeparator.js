@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     height: 0,
     marginLeft: theme.spacing(4),
-    marginRight: theme.spacing(4),
+    marginRight: theme.spacing(1.5),
     borderTop: `2px solid ${theme.palette.dividerLight}`,
   },
   actions: {
