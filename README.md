@@ -219,6 +219,10 @@ Template Object Matching
 
 `python template_matching.py`
 
+Exif Extraction
+
+`python extract_exif.py`
+
 Single video processing
 
 `python process_video.py [FILE_PATH] [OUTPUT_DIR]`

@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine,Table, Column, String, MetaData,Integer,Binary,Boolean,Float,ARRAY
 from sqlalchemy.orm import sessionmaker
 
-from .schema import Signature,Scenes,VideoMetadata,Matches
+from .schema import Signature,Scenes,VideoMetadata,Matches,Exif
 
 def create_engine_session(conn_string):
     """Creates DB engine from connection string
@@ -165,6 +165,76 @@ def load_matches(session,matches_df_path):
 
     add_matches(session,df)
 
+
+
+def add_exif(session,exif_df,json_list):
+
+
+    COLUMNS_OF_INTEREST = [
+       'General_FileName',
+       'General_FileExtension',
+       'General_Format_Commercial',
+       'General_FileSize',
+       'General_Duration',
+       'General_OverallBitRate_Mode',
+       'General_OverallBitRate',
+       'General_FrameRate',
+       'General_FrameCount',
+       'General_Encoded_Date',
+       'General_File_Modified_Date',
+       'General_File_Modified_Date_Local',
+       'General_Tagged_Date',
+       'Video_Format',
+       'Video_BitRate',
+       'Video_InternetMediaType',
+       'Video_Width',
+       'Video_Height',
+       'Video_FrameRate',
+       'Audio_Format',
+       'Audio_SamplingRate',
+       'Audio_Title',
+       'Audio_BitRate',
+       'Audio_Channels',
+       'Audio_Duration',
+       'Audio_Encoded_Date',
+       'Audio_Tagged_Date']
+
+    # Results from mediainfo might be inconsistent. So we need to add columns for every expected field (even if there is no info)
+    for col in COLUMNS_OF_INTEREST:
+        
+        if col not in exif_df.columns:
+            exif_df[col] = None
+
+    session.add_all([Exif(      original_filename = '{}.{}'.format(x['General_FileName'],x['General_FileExtension']),
+                                General_FileName = x["General_FileName"],
+                                General_FileSize = x["General_FileSize"],
+                                General_FileExtension = x["General_FileExtension"],
+                                General_Format_Commercial = x["General_Format_Commercial"],
+                                General_Duration = x["General_Duration"],
+                                General_OverallBitRate_Mode = x["General_OverallBitRate_Mode"],
+                                General_OverallBitRate = x["General_OverallBitRate"],
+                                General_FrameRate = x["General_FrameRate"],
+                                General_FrameCount = x["General_FrameCount"],
+                                General_Encoded_Date = x["General_Encoded_Date"],
+                                General_File_Modified_Date = x["General_File_Modified_Date"],
+                                General_File_Modified_Date_Local = x["General_File_Modified_Date_Local"],
+                                General_Tagged_Date = x["General_Tagged_Date"],
+                                Video_Format = x["Video_Format"],
+                                Video_BitRate = x["Video_BitRate"],
+                                Video_InternetMediaType = x["Video_InternetMediaType"],
+                                Video_Width = x["Video_Width"],
+                                Video_Height = x["Video_Height"],
+                                Video_FrameRate = x["Video_FrameRate"],
+                                Audio_Format = x["Audio_Format"],
+                                Audio_SamplingRate = x["Audio_SamplingRate"],
+                                Audio_Title = x["Audio_Title"],
+                                Audio_BitRate = x["Audio_BitRate"],
+                                Audio_Channels = x["Audio_Channels"],
+                                Audio_Duration = x["Audio_Duration"],
+                                Audio_Encoded_Date = x["Audio_Encoded_Date"],
+                                Audio_Tagged_Date = x["Audio_Tagged_Date"],
+                                Json_full_exif = json.dumps(json_list[i])
+                                ) for i,x in exif_df.iterrows()])
 
 
 
