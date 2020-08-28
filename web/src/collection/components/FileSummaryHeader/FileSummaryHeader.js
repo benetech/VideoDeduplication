@@ -78,7 +78,7 @@ function getMessages(intl) {
   };
 }
 
-function VideoDetailsHeader(props) {
+function FileSummaryHeader(props) {
   const { file, className } = props;
   const classes = useStyles();
   const history = useHistory();
@@ -143,7 +143,7 @@ function VideoDetailsHeader(props) {
   );
 }
 
-VideoDetailsHeader.propTypes = {
+FileSummaryHeader.propTypes = {
   /**
    * Video file to be played
    */
@@ -151,4 +151,4 @@ VideoDetailsHeader.propTypes = {
   className: PropTypes.string,
 };
 
-export default VideoDetailsHeader;
+export default FileSummaryHeader;

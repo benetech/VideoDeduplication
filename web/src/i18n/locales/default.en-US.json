@@ -108,8 +108,9 @@
     "file.tabExif": "EXIF Data",
     "file.load.error": "Error loading files.",
     "file.details": "Details",
-    "file.oneMatch": "1 File Matched",
+    "file.oneMatch": "01 File Matched",
     "file.manyMatches": "{count} Files Matched",
+    "file.matched": "{count} Matched Files",
     "file.cluster": "Cluster"
   }
 }

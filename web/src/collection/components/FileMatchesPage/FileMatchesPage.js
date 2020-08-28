@@ -3,17 +3,15 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import View from "./view";
-import { useIntl } from "react-intl";
 import FileMatchesActions from "./FileMatchesActions";
-import SelectableTabs from "../../../common/components/SelectableTabs/SelectableTabs";
-import SelectableTab from "../../../common/components/SelectableTabs/SelectableTab";
 import {
   randomFile,
   randomFiles,
 } from "../../../server-api/MockServer/fake-data/files";
-import { useHistory } from "react-router-dom";
-import { routes } from "../../../routing/routes";
-import FileNavigationTabs from "../FileNavigationTabs";
+import FileActionHeader from "../FileActionsHeader";
+import FileSummaryHeader from "../FileSummaryHeader";
+import SectionSeparator from "./SectionSeparator";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,55 +21,47 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.dimensions.content.padding,
     paddingTop: theme.dimensions.content.padding * 2,
   },
-  actionsHeader: {
-    display: "flex",
-    alignItems: "center",
+  summaryHeader: {
+    margin: theme.spacing(2),
   },
-  navTabs: {
-    flexGrow: 1,
-  },
-  actions: {
-    flexGrow: 2,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
+  separator: {
+    marginTop: theme.spacing(4),
   },
 }));
-
-/**
- * Get navigation handler
- */
-function useNavigation(file) {
-  const history = useHistory();
-  return (tab) => {
-    if (tab === 0) {
-      history.push(routes.collection.fileURL(file.id));
-    } else if (tab === 1) {
-      history.push(routes.collection.fileMatchesURL(file.id));
-    }
-  };
-}
 
 const file = randomFile();
 file.matches = [...randomFiles(4)];
 
+/**
+ * Get i18n text
+ */
+function useMessages(file) {
+  const intl = useIntl();
+  const matches = String(file.matches.length).padStart(2, "0");
+  return {
+    matched: intl.formatMessage({ id: "file.matched" }, { count: matches }),
+  };
+}
+
 function FileMatchesPage(props) {
   const { className } = props;
   const classes = useStyles();
-  const navigate = useNavigation(file);
+  const messages = useMessages(file);
   const [view, setView] = useState(View.grid);
   return (
     <div className={clsx(classes.root, className)}>
-      <div className={classes.actionsHeader}>
-        <FileNavigationTabs file={file} className={classes.navTabs} />
-        <div className={classes.actions}>
-          <FileMatchesActions
-            view={view}
-            onViewChange={setView}
-            onCompare={() => console.log("compare")}
-          />
-        </div>
-      </div>
+      <FileActionHeader file={file}>
+        <FileMatchesActions
+          view={view}
+          onViewChange={setView}
+          onCompare={() => console.log("compare")}
+        />
+      </FileActionHeader>
+      <FileSummaryHeader file={file} className={classes.summaryHeader} />
+      <SectionSeparator
+        title={messages.matched}
+        className={classes.separator}
+      />
     </div>
   );
 }

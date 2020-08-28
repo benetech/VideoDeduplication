@@ -43,6 +43,7 @@ function useSection() {
 function useMessages({ matches }) {
   const intl = useIntl();
   const filesMatched = matches === 1 ? "file.oneMatch" : "file.manyMatches";
+  matches = String(matches).padStart(2, "0");
   return {
     details: intl.formatMessage({ id: "file.details" }),
     matches: intl.formatMessage({ id: filesMatched }, { count: matches }),
@@ -53,13 +54,13 @@ function useMessages({ matches }) {
 /**
  * Get navigation handler
  */
-function useNavigation(file, currentSection) {
+function useNavigation(file) {
   const history = useHistory();
   return (newSection) => {
     if (newSection === Section.details) {
-      history.push(routes.collection.fileURL(file.id));
+      history.replace(routes.collection.fileURL(file.id));
     } else if (newSection === Section.matches) {
-      history.push(routes.collection.fileMatchesURL(file.id));
+      history.replace(routes.collection.fileMatchesURL(file.id));
     }
   };
 }

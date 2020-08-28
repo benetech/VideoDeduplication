@@ -2,15 +2,18 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { useParams } from "react-router-dom";
 import { useIntl } from "react-intl";
 import Button from "../../../common/components/Button";
 import Grid from "@material-ui/core/Grid";
 import VideoPlayerPane from "./VideoPlayerPane";
 import VideoInformationPane from "./VideoInformationPane";
-import { randomFile } from "../../../server-api/MockServer/fake-data/files";
+import {
+  randomFile,
+  randomFiles,
+} from "../../../server-api/MockServer/fake-data/files";
 import { seekTo } from "./seekTo";
-import VideoDetailsHeader from "./VideoDetailsHeader";
+import FileSummaryHeader from "../FileSummaryHeader";
+import FileActionHeader from "../FileActionsHeader";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,13 +23,22 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.dimensions.content.padding,
     paddingTop: theme.dimensions.content.padding * 2,
   },
-  actions: {
+  actionsHeader: {
     display: "flex",
-    justifyContent: "flex-end",
     alignItems: "center",
     padding: theme.spacing(2),
   },
-  header: {
+  navTabs: {
+    width: 450,
+  },
+  actions: {
+    marginLeft: theme.spacing(4),
+    flexGrow: 2,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+  summaryHeader: {
     margin: theme.spacing(2),
   },
   dataContainer: {
@@ -45,11 +57,11 @@ function useMessages() {
 }
 
 const file = randomFile();
+file.matches = [...randomFiles(4)];
 
 function VideoDetailsPage(props) {
   const { className } = props;
   const messages = useMessages();
-  const { id } = useParams();
   const [player, setPlayer] = useState(null);
   const classes = useStyles();
 
@@ -57,12 +69,12 @@ function VideoDetailsPage(props) {
 
   return (
     <div className={clsx(classes.root, className)}>
-      <div className={classes.actions}>
+      <FileActionHeader file={file}>
         <Button color="primary" variant="contained">
           {messages.compare}
         </Button>
-      </div>
-      <VideoDetailsHeader file={file} className={classes.header} />
+      </FileActionHeader>
+      <FileSummaryHeader file={file} className={classes.summaryHeader} />
       <div className={classes.dataContainer}>
         <Grid container spacing={5}>
           <Grid item xs={12} lg={6}>
