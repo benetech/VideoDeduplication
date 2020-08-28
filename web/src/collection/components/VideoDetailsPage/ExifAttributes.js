@@ -75,7 +75,7 @@ export const generalEXIFAttributes = [
 ];
 
 /**
- * FlashPix EXIF Attributes
+ * FlashPix EXIF FileAttributes
  *
  * See https://exiftool.org/TagNames/FlashPix.html for more details
  */

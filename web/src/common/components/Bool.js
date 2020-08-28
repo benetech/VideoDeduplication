@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
-import { formatBool } from "../../../common/helpers/format";
+import { formatBool } from "../helpers/format";
 
 const useStyles = makeStyles((theme) => ({
   bool: {

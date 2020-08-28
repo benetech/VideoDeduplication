@@ -1,5 +1,5 @@
 import React from "react";
-import Bool from "./Bool";
+import Bool from "../../../common/components/Bool";
 import FileType from "./FileType";
 import { formatDuration } from "../../../common/helpers/format";
 

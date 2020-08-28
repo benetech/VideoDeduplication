@@ -6,12 +6,14 @@ import View from "./view";
 import FileMatchesActions from "./FileMatchesActions";
 import {
   randomFile,
-  randomFiles,
+  randomMatches,
 } from "../../../server-api/MockServer/fake-data/files";
 import FileActionHeader from "../FileActionsHeader";
 import FileSummaryHeader from "../FileSummaryHeader";
 import SectionSeparator from "./SectionSeparator";
 import { useIntl } from "react-intl";
+import Grid from "@material-ui/core/Grid";
+import MatchPreview from "./MatchPreview";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,10 +29,13 @@ const useStyles = makeStyles((theme) => ({
   separator: {
     marginTop: theme.spacing(4),
   },
+  matches: {
+    margin: theme.spacing(2),
+  },
 }));
 
 const file = randomFile();
-file.matches = [...randomFiles(4)];
+file.matches = [...randomMatches(3)];
 
 /**
  * Get i18n text
@@ -62,6 +67,15 @@ function FileMatchesPage(props) {
         title={messages.matched}
         className={classes.separator}
       />
+      <div className={classes.matches}>
+        <Grid container spacing={4}>
+          {file.matches.map((match) => (
+            <Grid item xs={6} lg={3}>
+              <MatchPreview match={match} />
+            </Grid>
+          ))}
+        </Grid>
+      </div>
     </div>
   );
 }

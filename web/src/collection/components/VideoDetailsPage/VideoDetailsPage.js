@@ -9,7 +9,7 @@ import VideoPlayerPane from "./VideoPlayerPane";
 import VideoInformationPane from "./VideoInformationPane";
 import {
   randomFile,
-  randomFiles,
+  randomMatches,
 } from "../../../server-api/MockServer/fake-data/files";
 import { seekTo } from "./seekTo";
 import FileSummaryHeader from "../FileSummaryHeader";
@@ -57,7 +57,7 @@ function useMessages() {
 }
 
 const file = randomFile();
-file.matches = [...randomFiles(4)];
+file.matches = [...randomMatches(3)];
 
 function VideoDetailsPage(props) {
   const { className } = props;

@@ -90,6 +90,12 @@ const mixins = {
     letterSpacing: 0.14,
     lineHeight: "24px",
   },
+  text: {
+    fontFamily: "Roboto",
+    fontSize: 15,
+    letterSpacing: 0,
+    lineHeight: "18px",
+  },
   textSmall: {
     fontFamily: "Roboto",
     fontSize: 12,
