@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -11,12 +11,25 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     marginBottom: theme.spacing(2),
   },
+  more: {
+    ...theme.mixins.textSmall,
+    fontWeight: "bold",
+    color: theme.palette.primary.main,
+    marginTop: theme.spacing(2),
+    cursor: "pointer",
+  },
 }));
 
 function FileExtensionPicker(props) {
-  const { selected, onChange, extensions, className } = props;
-  const intl = useIntl();
+  const { selected, onChange, extensions: extAttr, className } = props;
   const classes = useStyles();
+  const [collapsed, setCollapsed] = useState(true);
+  const intl = useIntl();
+
+  const more = collapsed && extAttr.length > 6;
+  const extensions = more ? extAttr.slice(0, 6) : extAttr;
+  const handleMore = useCallback(() => setCollapsed(false), []);
+
   return (
     <div className={clsx(className)}>
       <div className={classes.title}>
@@ -27,6 +40,11 @@ function FileExtensionPicker(props) {
           <Picker.Option value={extension} title={extension} />
         ))}
       </Picker>
+      {more && (
+        <div className={classes.more} onClick={handleMore}>
+          More items
+        </div>
+      )}
     </div>
   );
 }
