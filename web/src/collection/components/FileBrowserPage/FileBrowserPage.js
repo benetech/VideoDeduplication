@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
   filterPane: {
-    minWidth: 250,
+    width: 270,
   },
   hidden: {
     display: "none",

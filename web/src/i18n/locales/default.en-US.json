@@ -117,6 +117,10 @@
     "file.manyMatches": "{count} Files Matched",
     "file.matched": "{count} Matched Files",
     "file.cluster": "Cluster",
-    "distance.score": "Distance score: {value}"
+    "distance.score": "Distance score: {value}",
+    "filter.title": "Filters",
+    "filter.content": "Content",
+    "filter.metadata": "Metadata",
+    "filter.presets": "Presets",
   }
 }
