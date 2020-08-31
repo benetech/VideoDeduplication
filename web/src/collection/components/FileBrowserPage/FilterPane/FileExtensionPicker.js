@@ -37,7 +37,7 @@ function FileExtensionPicker(props) {
       </div>
       <Picker selected={selected} onChange={onChange}>
         {extensions.map((extension) => (
-          <Picker.Option value={extension} title={extension} />
+          <Picker.Option value={extension} title={extension} key={extension} />
         ))}
       </Picker>
       {more && (
