@@ -13,6 +13,7 @@ export const initialState = {
   files: [],
   filters: {
     query: "",
+    extensions: [],
   },
   page: 0,
   pageSize: 20,

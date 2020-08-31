@@ -122,5 +122,6 @@
     "filter.content": "Content",
     "filter.metadata": "Metadata",
     "filter.presets": "Presets",
+    "filter.extensions": "File extensions"
   }
 }
