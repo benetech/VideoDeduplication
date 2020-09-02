@@ -23,7 +23,7 @@ const dimensions = {
     width: 272,
     imageHeight: 117,
   },
-  detailsPage: {
+  collectionPage: {
     width: 750,
   },
 };
