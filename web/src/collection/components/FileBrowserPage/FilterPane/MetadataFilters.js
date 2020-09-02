@@ -3,10 +3,8 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import FileExtensionPicker from "./FileExtensionPicker";
-import { useDispatch, useSelector } from "react-redux";
-import { selectFilters } from "../../../state/selectors";
-import { updateFilters } from "../../../state";
 import { useExtensions } from "./useExtensions";
+import { useFilters } from "./useFilters";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -17,12 +15,11 @@ const useStyles = makeStyles((theme) => ({
 function MetadataFilters(props) {
   const { className } = props;
   const classes = useStyles();
-  const filters = useSelector(selectFilters);
-  const dispatch = useDispatch();
+  const [filters, setFilters] = useFilters();
   const extensions = useExtensions();
 
   const handleUpdateExtensions = useCallback(
-    (extensions) => dispatch(updateFilters({ extensions })),
+    (extensions) => setFilters({ extensions }),
     []
   );
 
