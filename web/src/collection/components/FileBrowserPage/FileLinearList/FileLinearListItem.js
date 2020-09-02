@@ -69,8 +69,13 @@ const useStyles = makeStyles((theme) => ({
     borderLeftWidth: 1,
     height: theme.spacing(4),
   },
-  extra: {
+  md: {
     [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
+  },
+  sm: {
+    [theme.breakpoints.down("sm")]: {
       display: "none",
     },
   },
@@ -119,9 +124,9 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
         name={messages.attr.fingerprint}
         value={file.fingerprint}
         variant="primary"
-        className={classes.attr}
+        className={clsx(classes.attr, classes.sm)}
       />
-      <div className={classes.divider} />
+      <div className={clsx(classes.divider, classes.sm)} />
       <AttributeText
         value={formatDuration(file.metadata.length, intl)}
         icon={ScheduleOutlinedIcon}
@@ -134,20 +139,20 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
         icon={EventAvailableOutlinedIcon}
         variant="normal"
         defaultValue="Unknown"
-        className={clsx(classes.attr, classes.extra)}
+        className={clsx(classes.attr, classes.md)}
       />
-      <div className={clsx(classes.divider, classes.extra)} />
+      <div className={clsx(classes.divider, classes.md)} />
       <AttributeText
         value={formatBool(file.metadata.hasEXIF, intl)}
         icon={ExifIcon}
         variant="primary"
-        className={clsx(classes.attr, classes.extra)}
+        className={clsx(classes.attr, classes.md)}
       />
-      <div className={clsx(classes.divider, classes.extra)} />
+      <div className={clsx(classes.divider, classes.md)} />
       <VolumeOffOutlinedIcon
-        className={clsx(classes.attr, classes.volume, classes.extra)}
+        className={clsx(classes.attr, classes.volume, classes.md)}
       />
-      <div className={clsx(classes.divider, classes.extra)} />
+      <div className={clsx(classes.divider, classes.md)} />
       <IconButton>
         <MoreHorizOutlinedIcon />
       </IconButton>
