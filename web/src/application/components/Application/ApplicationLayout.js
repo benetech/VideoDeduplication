@@ -26,7 +26,6 @@ const useStyles = makeStyles((theme) => ({
     height: "min-content",
     display: "flex",
     flexGrow: 1,
-    alignItems: "stretch",
     maxWidth: theme.dimensions.application.maxWidth,
   },
   menu: {
@@ -34,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
   body: {
     flexGrow: 2,
+    minWidth: 0,
   },
 }));
 

@@ -6,7 +6,7 @@
 
 export const composition = {
   xs: 2,
-  sm: 3,
+  sm: 2,
   md: 3,
   lg: 3,
   xl: 4,

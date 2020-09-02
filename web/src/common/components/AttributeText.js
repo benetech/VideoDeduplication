@@ -15,6 +15,9 @@ const useStyles = makeStyles((theme) => ({
   attribute: {
     display: "flex",
     flexDirection: "column",
+    flexShrink: 1,
+    flexGrow: 1,
+    minWidth: 0,
   },
   attrName: {
     ...theme.mixins.captionText,

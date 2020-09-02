@@ -7,6 +7,7 @@ import IconButton from "@material-ui/core/IconButton";
 import SaveOutlinedIcon from "@material-ui/icons/SaveOutlined";
 import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import SquaredIconButton from "../../../../common/components/SquaredIconButton";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -28,6 +29,8 @@ const useStyles = makeStyles((theme) => ({
 function FilterPaneHeader(props) {
   const { onClose, onSave, className } = props;
   const classes = useStyles();
+  const intl = useIntl();
+
   return (
     <div className={clsx(classes.header, className)}>
       <SquaredIconButton
@@ -39,7 +42,9 @@ function FilterPaneHeader(props) {
         <TuneIcon />
       </SquaredIconButton>
 
-      <div className={classes.title}>Filter</div>
+      <div className={classes.title}>
+        {intl.formatMessage({ id: "filter.title" })}
+      </div>
       <IconButton onClick={onSave} size="small">
         <SaveOutlinedIcon />
       </IconButton>

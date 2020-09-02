@@ -32,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 1,
     display: "flex",
     alignItems: "center",
+    minWidth: 0,
   },
   iconContainer: {
     backgroundColor: theme.palette.primary.main,
@@ -48,6 +49,9 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.primary.contrastText,
     width: theme.spacing(3.5),
     height: theme.spacing(3.5),
+  },
+  filename: {
+    minWidth: 0,
   },
   attrsGroup: {
     display: "flex",
@@ -104,6 +108,7 @@ function FileSummaryHeader(props) {
           value={file.filename}
           variant="title"
           ellipsis
+          className={classes.filename}
         />
       </div>
       <div className={classes.attrsGroup}>

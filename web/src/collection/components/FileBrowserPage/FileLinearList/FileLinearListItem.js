@@ -53,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
   },
   fileName: {
     flexGrow: 1,
+    minWidth: 0,
     marginLeft: theme.spacing(3),
   },
   volume: {
@@ -67,6 +68,16 @@ const useStyles = makeStyles((theme) => ({
     borderLeftColor: theme.palette.border.light,
     borderLeftWidth: 1,
     height: theme.spacing(4),
+  },
+  md: {
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
+  },
+  sm: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
   },
 }));
 
@@ -106,15 +117,16 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
         value={file.filename}
         variant="title"
         highlighted={highlight}
+        ellipsis
         className={classes.fileName}
       />
       <AttributeText
         name={messages.attr.fingerprint}
         value={file.fingerprint}
         variant="primary"
-        className={classes.attr}
+        className={clsx(classes.attr, classes.sm)}
       />
-      <div className={classes.divider} />
+      <div className={clsx(classes.divider, classes.sm)} />
       <AttributeText
         value={formatDuration(file.metadata.length, intl)}
         icon={ScheduleOutlinedIcon}
@@ -127,18 +139,20 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
         icon={EventAvailableOutlinedIcon}
         variant="normal"
         defaultValue="Unknown"
-        className={classes.attr}
+        className={clsx(classes.attr, classes.md)}
       />
-      <div className={classes.divider} />
+      <div className={clsx(classes.divider, classes.md)} />
       <AttributeText
         value={formatBool(file.metadata.hasEXIF, intl)}
         icon={ExifIcon}
         variant="primary"
-        className={classes.attr}
+        className={clsx(classes.attr, classes.md)}
       />
-      <div className={classes.divider} />
-      <VolumeOffOutlinedIcon className={clsx(classes.attr, classes.volume)} />
-      <div className={classes.divider} />
+      <div className={clsx(classes.divider, classes.md)} />
+      <VolumeOffOutlinedIcon
+        className={clsx(classes.attr, classes.volume, classes.md)}
+      />
+      <div className={clsx(classes.divider, classes.md)} />
       <IconButton>
         <MoreHorizOutlinedIcon />
       </IconButton>

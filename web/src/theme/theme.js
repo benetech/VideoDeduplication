@@ -13,6 +13,14 @@ const theme = createMuiTheme({
   palette,
   mixins,
   dimensions,
+  breakpoints: {
+    values: {
+      sm: 845,
+      md: 1120,
+      lg: 1280,
+      xl: 1920,
+    },
+  },
 });
 
 export default theme;

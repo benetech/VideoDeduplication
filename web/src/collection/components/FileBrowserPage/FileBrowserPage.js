@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.dimensions.content.padding,
     display: "flex",
     alignItems: "stretch",
+    minWidth: theme.dimensions.collectionPage.width,
   },
   header: {
     display: "flex",
@@ -73,6 +74,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
+    minWidth: 400,
   },
   filters: {
     display: "flex",
@@ -88,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
   filterPane: {
-    minWidth: 250,
+    width: 270,
   },
   hidden: {
     display: "none",

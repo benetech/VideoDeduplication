@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "stretch",
     padding: theme.dimensions.content.padding,
     paddingTop: theme.dimensions.content.padding * 2,
+    minWidth: theme.dimensions.collectionPage.width,
   },
   actionsHeader: {
     display: "flex",
