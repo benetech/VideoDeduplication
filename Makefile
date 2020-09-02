@@ -21,6 +21,9 @@ stop: docker-stop
 ## Setup docker-compose application (generate .env file)
 setup: docker-setup
 
+## Rebuild docker-compose images
+rebuild: docker-rebuild
+
 
 # Define default goal
 .DEFAULT_GOAL := help
