@@ -73,7 +73,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
-    minWidth: 0,
+    minWidth: 400,
   },
   filters: {
     display: "flex",
