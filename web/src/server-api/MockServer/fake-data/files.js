@@ -3,6 +3,19 @@ import { randomScenes } from "./scene";
 import { randomObjects } from "./objects";
 import { fakeExif } from "./exif";
 
+export function randomMatch() {
+  return {
+    file: randomFile(),
+    distance: Math.random(),
+  };
+}
+
+export function* randomMatches(count) {
+  for (let i = 0; i < count; i++) {
+    yield randomMatch();
+  }
+}
+
 function randomName() {
   return (
     Math.random().toString(36).substring(2, 15) +
@@ -40,7 +53,7 @@ export function randomFile() {
   };
 }
 
-function* randomFiles(count) {
+export function* randomFiles(count) {
   for (let i = 0; i < count; i++) {
     yield randomFile();
   }

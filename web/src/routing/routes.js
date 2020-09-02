@@ -2,10 +2,22 @@ export const routes = {
   home: "/",
   collection: {
     home: "/collection",
-    analytics: "/collection/analytics",
-    fingerprints: "/collection/fingerprints",
-    video: "/collection/fingerprints/:id",
-    videoURL(id) {
+    get analytics() {
+      return `${this.home}/analytics`;
+    },
+    get fingerprints() {
+      return `${this.home}/fingerprints`;
+    },
+    get file() {
+      return `${this.fingerprints}/:id`;
+    },
+    get fileMatches() {
+      return `${this.file}/matches`;
+    },
+    fileMatchesURL(id) {
+      return `${this.fileURL(id)}/matches`;
+    },
+    fileURL(id) {
       return `${this.fingerprints}/${id}`;
     },
   },

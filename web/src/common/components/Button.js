@@ -8,6 +8,7 @@ const useStyles = makeStyles((theme) => ({
   button: {
     textTransform: "none",
     boxShadow: "none",
+    height: 40,
   },
 }));
 
