@@ -23,6 +23,9 @@ const dimensions = {
     width: 272,
     imageHeight: 117,
   },
+  detailsPage: {
+    width: 750,
+  },
 };
 
 export default dimensions;
