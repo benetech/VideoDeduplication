@@ -53,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
   },
   fileName: {
     flexGrow: 1,
+    minWidth: 0,
     marginLeft: theme.spacing(3),
   },
   volume: {
@@ -106,6 +107,7 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
         value={file.filename}
         variant="title"
         highlighted={highlight}
+        ellipsis
         className={classes.fileName}
       />
       <AttributeText
