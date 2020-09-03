@@ -61,6 +61,8 @@ def main(config):
 
     remaining_videos_path = np.array(videos)[remaining_videos]
 
+    base_to_path = dict({os.path.basename(x):os.path.relpath(x) for x in videos})
+
     print('There are {} videos left'.format(len(remaining_videos_path)))
 
     VIDEOS_LIST = create_video_list(remaining_videos_path,VIDEO_LIST_TXT)
@@ -88,22 +90,23 @@ def main(config):
 
     print('Saving Video Signatures on :{}'.format(VIDEO_SIGNATURES_SAVE_FOLDER))
 
+    # We need to be extra careful about keeping track of filenames / paths as move through the pipeline
+    
+    processed_paths = [base_to_path[x] for x in sm.original_filenames]
+
+
     if USE_DB:
         db_engine,session = create_engine_session(CONNINFO)
         create_tables(db_engine)
-        add_signatures(session,video_signatures,sm.original_filenames)
-        try:
-            session.commit()
-    
-        except Exception as e:
-            session.rollback()
-            print('DB Exception',e)
-            # raise
+        # Add files and get db records
+        file_entries = add_files(session,processed_paths)
 
-        finally:
-            # Get DB stats
-            signatures = get_all(session,Signature)
-            print(f"Signatures table rows:{len(signatures)}")
+        # Extract ids from records in order to save signatures with the proper information
+        processed_to_id = dict({x.file_path:x.id for x in file_entries})
+        file_ids = [processed_to_id[x] for x in processed_paths]
+        signatures = add_signatures(session,video_signatures,file_ids)
+
+        
 
     if KEEP_FILES or USE_DB is False:
 

@@ -7,8 +7,9 @@ import json
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine,Table, Column, String, MetaData,Integer,Binary,Boolean,Float,ARRAY
 from sqlalchemy.orm import sessionmaker
+from .schema import Files,Signature,Scenes,VideoMetadata,Matches,Exif
+from winnow.utils import get_hash
 
-from .schema import Signature,Scenes,VideoMetadata,Matches,Exif
 
 def create_engine_session(conn_string):
     """Creates DB engine from connection string
@@ -38,12 +39,14 @@ def create_tables(engine):
     Scenes.metadata.create_all(engine)
     VideoMetadata.metadata.create_all(engine)
     Matches.metadata.create_all(engine)
+    Exif.metadata.create_all(engine)
     
 def delete_tables(engine):
     Signature.metadata.drop_all(engine)
     Scenes.metadata.drop_all(engine)
     VideoMetadata.metadata.drop_all(engine)
     Matches.metadata.drop_all(engine)
+    Exif.metadata.drop_all(engine)
     
 # Bulk loading the original output into target tables
 
@@ -54,7 +57,7 @@ def add_scenes(session,scenes):
         session {DB Session} -- created by a previous instatiation of the db session
         scenes {pd.Dataframe} -- Pandas Dataframe containing scene information 
     """
-    session.add_all([Scenes(original_filename=x['video_filename'],
+    session.add_all([Scenes(file_id=x['file_id'],
                             video_duration_seconds = x['video_duration_seconds'],
                             avg_duration_seconds = x['avg_duration_seconds'],
                             scenes_timestamp = x['scenes_timestamp'],
@@ -76,15 +79,48 @@ def load_scenes(session,scenes_df_path):
 
     add_scenes(session,df)
     
-def add_signatures(session,signatures,filenames):
+def add_files(session,file_paths):
+
+    hashes = [get_hash(fp) for fp in file_paths]
+    session.add_all([Files(sha256=x[0],
+                               file_path=x[1]) for x in zip(list(hashes),list(file_paths)) ])
+
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        print('DB Exception',e)
+    finally:
+        # Get DB stats
+        files = get_all(session,Files)
+        print(f"Files table rows:{len(files)}")
+        return files
+
+
+
+
+
+def add_signatures(session,signatures,file_ids):
     """Bulk add Signatures to db
     
     Arguments:
         signatures {np.array} -- Numpy array containing signatures extracted by job
         filenames {np.array} -- Filename index
     """
-    session.add_all([Signature(original_filename=x[0],
-                               signature=x[1]) for x in zip(list(filenames),list(signatures)) ])
+    session.add_all([Signature(file_id=x[0],
+                               signature=x[1]) for x in zip(list(file_ids),list(signatures)) ])
+
+    try:
+        session.commit()
+
+    except Exception as e:
+        session.rollback()
+        print('DB Exception',e)
+    finally:
+        # Get DB stats
+        signatures = get_all(session,Signature)
+        print(f"Signatures table rows:{len(signatures)}")                               
+        return signatures
 
 
 
@@ -114,7 +150,7 @@ def add_metadata(session,metadata):
     """
 
     session.add_all([VideoMetadata(
-                                   original_filename=x['fn'],
+                                   file_id=x['file_id'],
                                    video_length = x['video_length'],
                                    avg_act = x['avg_act'],
                                    video_avg_std = x['video_avg_std'],
@@ -132,7 +168,9 @@ def add_matches(session,matches):
 
     session.add_all([Matches(
                                 query_video=x['query_video'],
+                                query_video_file_id = x['query_video_file_id'],
                                 match_video = x['match_video'],
+                                match_video_file_id = x['match_video_file_id'],
                                 distance = x['distance']
                                 ) for i,x in matches.iterrows()])
 
@@ -205,8 +243,7 @@ def add_exif(session,exif_df,json_list):
         if col not in exif_df.columns:
             exif_df[col] = None
 
-    session.add_all([Exif(      original_filename = '{}.{}'.format(x['General_FileName'],x['General_FileExtension']),
-                                General_FileName = x["General_FileName"],
+    session.add_all([Exif(      file_id = x['file_id'],
                                 General_FileSize = x["General_FileSize"],
                                 General_FileExtension = x["General_FileExtension"],
                                 General_Format_Commercial = x["General_Format_Commercial"],
@@ -235,6 +272,19 @@ def add_exif(session,exif_df,json_list):
                                 Audio_Tagged_Date = x["Audio_Tagged_Date"],
                                 Json_full_exif = json.dumps(json_list[i])
                                 ) for i,x in exif_df.iterrows()])
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        print('DB Exception',e)
+
+    finally:
+        # Get DB stats
+        exif_rows = get_all(session,Exif)
+        return exif_rows
+
+        print(f"Exif table rows:{len(exif_rows)}")
+
 
 
 

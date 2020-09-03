@@ -47,20 +47,22 @@ def main(config):
     CONNINFO = cfg['conninfo']
     KEEP_FILES = cfg['keep_fileoutput'] 
 
+    print('Extracting Video Signatures')
+    sm = SimilarityModel()
+    video_signatures = sm.predict(VIDEO_LEVEL_SAVE_FOLDER)
+    video_signatures = np.nan_to_num(video_signatures)
+    labels = np.array([x.split('_vgg')[0].split('/')[-1] for x in  sm.index])
 
     if USE_DB:
 
             db_engine,session = create_engine_session(CONNINFO)
             # Creates tables if not yet created (will only change DB if any operations are eventually performed)
             create_tables(db_engine)
-
-
-
-    print('Extracting Video Signatures')
-    sm = SimilarityModel()
-    video_signatures = sm.predict(VIDEO_LEVEL_SAVE_FOLDER)
-    video_signatures = np.nan_to_num(video_signatures)
-    labels = np.array([x.split('_vgg')[0].split('/')[-1] for x in  sm.index])
+            # Get processed files from our db
+            file_records = get_all(session,Files)
+            # Create a mapping from file path to id
+            base_to_id = dict({os.path.basename(x.file_path):x.id for x in file_records})
+            # labels = np.array([base_to_id[x] for x in labels])
 
 
 
@@ -109,12 +111,25 @@ def main(config):
 
     match_df.to_csv(REPORT_PATH)
 
+    def get_id(file_path):
+        
+        if USE_DB:
+
+            try:
+                return base_to_id[os.path.basename(file_path)]
+            except:
+                return file_path
+        else:
+
+            return None
+
     if DETECT_SCENES:
         
         frame_level_repres = glob(FRAME_LEVEL_SAVE_FOLDER + '/**_features.npy')
         filtered_videos,durations,num_scenes,avg_duration,total_video,scenes_timestamp,total_video_duration_timestamp= extract_scenes(frame_level_repres)
         scene_metadata = pd.DataFrame(dict(
                                         video_filename = [os.path.basename(x).split('_vgg')[0] for x in filtered_videos],
+                                        file_id = [get_id(os.path.basename(x).split('_vgg')[0]) for x in filtered_videos],
                                         scenes_timestamp = scenes_timestamp,
                                         scene_duration_seconds=durations,
                                         num_scenes=num_scenes,
@@ -176,6 +191,7 @@ def main(config):
                                     "gray_max":gray_max})
 
         metadata_df['fn'] = metadata_df['frame_level_fn'].apply(lambda x:x.split('/')[-1].split('_vgg_features')[0])
+        metadata_df['file_id'] = metadata_df['frame_level_fn'].apply(lambda x:get_id(x.split('/')[-1].split('_vgg_features')[0]))
 
 
         sign = pd.DataFrame(dict(features_fn=sm.index))
@@ -201,9 +217,15 @@ def main(config):
         
         filtered_match_df = match_df.loc[~discard_msk,:]
         filtered_match_df.to_csv(FILTERED_REPORT_PATH)
+
+        
+
         print('Saving filtered report to {}'.format(FILTERED_REPORT_PATH))
         
         if USE_DB:
+
+            filtered_match_df['query_video_file_id'] = filtered_match_df['query_video'].apply(lambda x : get_id(x))
+            filtered_match_df['match_video_file_id'] = filtered_match_df['match_video'].apply(lambda x : get_id(x))
 
             add_metadata(session,merged)
             add_matches(session,filtered_match_df)

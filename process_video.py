@@ -70,24 +70,14 @@ def main(path,output,config,save_frames,save_features,save_signatures,save_db):
         db_engine,session = create_engine_session(CONNINFO)
         create_tables(db_engine)
         #TODO Currently we have an automated incremental index set for the Signatures table (we might want to change it in the future so we don't add duplicated signatures)
-        add_signatures(session,video_signatures,sm.original_filenames)
+        processed_paths = [os.path.relpath(path)]
+        file_entries = add_files(session,processed_paths)
 
-        try:
-            session.commit()
-    
-        except Exception as e:
-            session.rollback()
-            print('DB Exception',e)
-
-        finally:
-            # Get DB stats
-            signatures = get_all(session,Signature)
-            print(f"Signatures table rows:{len(signatures)}")
-
-
-    
-    
-    
+        # Extract ids from records in order to save signatures with the proper information
+        processed_to_id = dict({x.file_path:x.id for x in file_entries})
+        file_ids = [processed_to_id[x] for x in processed_paths]
+        signatures = add_signatures(session,video_signatures,file_ids)
+        
     
     print(path,output,config,PRETRAINED_LOCAL_PATH)
 

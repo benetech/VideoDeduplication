@@ -44,12 +44,15 @@ def main(config):
             db_engine,session = create_engine_session(CONNINFO)
             # Creates tables if not yet created (will only change DB if any operations are eventually performed)
             create_tables(db_engine)
+            video_records = get_all(session,Files)
+            videos = [x.file_path for x in video_records]
+    else:
 
-    videos = scan_videos(DATASET_DIR,'**',extensions=['.mp4','.ogv','.webm','.avi'])
+        videos = scan_videos(DATASET_DIR,'**',extensions=['.mp4','.ogv','.webm','.avi'])
 
     assert len(videos) > 0, 'No videos found'
 
-    print('{} videos found'.format(len(videos)))
+    print(f'{len(videos)} videos found')
 
     metadata  = extract_from_list_of_videos(videos)
 
@@ -66,21 +69,16 @@ def main(config):
         EXIF_REPORT_PATH = os.path.join(DST_DIR,'exif_metadata.csv')
 
         df_parsed.to_csv(EXIF_REPORT_PATH)
-        print("Exif Metadata report exported to:{}".format(EXIF_REPORT_PATH))
+
+        print(f"Exif Metadata report exported to:{EXIF_REPORT_PATH}")
 
     if USE_DB:
-        add_exif(session,df_parsed,metadata)
-        try:
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            print('DB Exception',e)
-    
 
-        finally:
-            # Get DB stats
-            exif_rows = get_all(session,Exif)
-            print(f"Exif table rows:{len(exif_rows)}")
+        df_parsed['file_id'] = [x.id for x in video_records]
+
+        exif_rows = add_exif(session,df_parsed,metadata)
+        
+        print(f"Exif table rows:{len(exif_rows)}")
 
 
 if __name__ == '__main__':

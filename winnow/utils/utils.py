@@ -1,5 +1,6 @@
 import numpy as np
 from glob import glob
+import hashlib
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -102,3 +103,16 @@ def extract_additional_info(x):
     std_sum = np.std(intra_sum)
     
     return shape[0],mean_act,std_sum,max_dif,grays_avg,grays_std,grays_max
+
+
+def get_hash(fp,buffer_size = 65536):
+    
+    sha256 = hashlib.sha256()
+    with open(fp, 'rb') as f:
+        while True:
+            data = f.read(buffer_size)
+            if not data:
+                break
+            sha256.update(data)
+
+    return sha256.hexdigest()
