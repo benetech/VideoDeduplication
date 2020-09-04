@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import SelectionDecorator from "../../../common/components/SelectionDecorator";
 import Label from "../../../common/components/Label";
+import ButtonBase from "@material-ui/core/ButtonBase";
 
 const useStyles = makeStyles((theme) => ({
   item: {
@@ -15,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 0,
     transform: "translate(0%, 0px)",
     height: theme.dimensions.list.itemHeight,
+    justifyContent: "flex-start",
   },
   icon: {
     width: 69,
@@ -73,7 +75,12 @@ function AppMenuListItem(props) {
   }
 
   return (
-    <div className={clsx(classes.item, className)} onClick={onClick}>
+    <ButtonBase
+      className={clsx(classes.item, className)}
+      onClick={onClick}
+      focusRipple
+      disableTouchRipple
+    >
       {decorator}
       <div className={clsx(classes.icon, { [classes.inactive]: !selected })}>
         {icon}
@@ -90,7 +97,7 @@ function AppMenuListItem(props) {
       >
         {title}
       </Label>
-    </div>
+    </ButtonBase>
   );
 }
 
