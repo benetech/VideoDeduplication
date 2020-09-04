@@ -8,6 +8,7 @@ import { makeStyles } from "@material-ui/styles";
 const useStyles = makeStyles((theme) => ({
   button: {
     height: 23,
+    padding: 0,
   },
 }));
 
@@ -25,7 +26,6 @@ function GridButtonPickerOption(props) {
         variant={selected ? "contained" : "outlined"}
         color={selected ? "primary" : "secondary"}
         className={classes.button}
-        component="div"
       >
         {title}
       </Button>
