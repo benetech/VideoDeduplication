@@ -26,7 +26,7 @@ function BackdropMenu(props) {
         mouseEvent={open ? "onClick" : false}
         onClickAway={onClose}
       >
-        <div className={classes.menu} role="list">
+        <div className={classes.menu}>
           {actions.map((action) => (
             <BackdropMenuItem
               action={action}
