@@ -3,6 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Grid from "@material-ui/core/Grid";
+import ButtonBase from "@material-ui/core/ButtonBase";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -87,13 +88,15 @@ function CategoryButton(props) {
       md={total / items.md}
       xs={total / items.xs}
     >
-      <button
+      <ButtonBase
         onClick={onClick}
         className={clsx(
           classes.button,
           { [classes.selected]: selected },
           className
         )}
+        focusRipple
+        disableTouchRipple
       >
         <Icon className={classes.icon} />
         <span
@@ -103,7 +106,7 @@ function CategoryButton(props) {
           {name}
         </span>
         <span className={classes.quantity}>{quantity}</span>
-      </button>
+      </ButtonBase>
     </Grid>
   );
 }

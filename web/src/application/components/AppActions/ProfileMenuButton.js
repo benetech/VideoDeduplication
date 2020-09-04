@@ -28,7 +28,11 @@ function ProfileMenuButton(props) {
   const { className } = props;
   const classes = useStyles();
   return (
-    <ButtonBase className={clsx(classes.button, className)}>
+    <ButtonBase
+      className={clsx(classes.button, className)}
+      focusRipple
+      disableTouchRipple
+    >
       <PersonOutlinedIcon className={classes.profileIcon} />
       <ArrowDropDownIcon />
     </ButtonBase>
