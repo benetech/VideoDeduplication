@@ -15,6 +15,8 @@ const useStyles = makeStyles((theme) => ({
     border: "solid",
     borderWidth: 1,
     borderColor: "rgba(0, 0, 0, 0)",
+    width: "100%",
+    outline: "none",
   },
   icon: {
     marginRight: theme.spacing(1.5),
@@ -30,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.title3,
     display: "inline-block",
     whiteSpace: "nowrap",
+    textAlign: "start",
     /**
      * Reserve space for bolded content in ::before
      * pseudo element.
@@ -84,7 +87,7 @@ function CategoryButton(props) {
       md={total / items.md}
       xs={total / items.xs}
     >
-      <div
+      <button
         onClick={onClick}
         className={clsx(
           classes.button,
@@ -93,14 +96,14 @@ function CategoryButton(props) {
         )}
       >
         <Icon className={classes.icon} />
-        <div
+        <span
           title={name}
           className={clsx(classes.name, { [classes.nameSelected]: selected })}
         >
           {name}
-        </div>
-        <div className={classes.quantity}>{quantity}</div>
-      </div>
+        </span>
+        <span className={classes.quantity}>{quantity}</span>
+      </button>
     </Grid>
   );
 }
