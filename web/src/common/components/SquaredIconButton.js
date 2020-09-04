@@ -22,7 +22,6 @@ const SquaredIconButton = React.forwardRef(function SquaredIconButton(
   const classes = useStyles();
   return (
     <Button
-      component="div"
       className={clsx(classes.squaredIconButton, className)}
       {...other}
       ref={ref}

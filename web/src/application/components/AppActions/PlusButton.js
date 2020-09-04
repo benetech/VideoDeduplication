@@ -2,7 +2,8 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import Button from "@material-ui/core/Button";
+import SquaredIconButton from "../../../common/components/SquaredIconButton";
+import AddOutlinedIcon from "@material-ui/icons/AddOutlined";
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -17,15 +18,14 @@ function PlusButton(props) {
   const { onClick, className } = props;
   const classes = useStyles();
   return (
-    <Button
+    <SquaredIconButton
       onClick={onClick}
       color="primary"
       variant="contained"
-      component="div"
       className={clsx(classes.button, className)}
     >
-      +
-    </Button>
+      <AddOutlinedIcon />
+    </SquaredIconButton>
   );
 }
 
