@@ -6,6 +6,7 @@ import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import ExpandedLogo from "./ExpandedLogo";
 import CollapsedLogo from "./CollapsedLogo";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   headerRoot: {
@@ -46,13 +47,17 @@ const useStyles = makeStyles((theme) => ({
 function AppMenuHeader(props) {
   const { open, onToggle, className } = props;
   const classes = useStyles();
+  const intl = useIntl();
 
   if (open) {
     return (
       <div className={clsx(classes.headerRoot, className)}>
         <div className={classes.openContent}>
           <ExpandedLogo />
-          <IconButton onClick={onToggle}>
+          <IconButton
+            onClick={onToggle}
+            aria-label={intl.formatMessage({ id: "actions.toggleAppMenu" })}
+          >
             <MenuIcon
               fontSize="large"
               classes={{ fontSizeLarge: classes.menuIcon }}

@@ -43,6 +43,7 @@ function Label(props) {
     color = "black",
     bold = true,
     className,
+    ...other
   } = props;
 
   const classes = useStyles();
@@ -67,6 +68,7 @@ function Label(props) {
         },
         className
       )}
+      {...other}
     >
       {text}
     </div>

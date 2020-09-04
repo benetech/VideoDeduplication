@@ -5,6 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import PersonOutlinedIcon from "@material-ui/icons/PersonOutlined";
 import ButtonBase from "@material-ui/core/ButtonBase";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -27,11 +28,14 @@ const useStyles = makeStyles((theme) => ({
 function ProfileMenuButton(props) {
   const { className } = props;
   const classes = useStyles();
+  const intl = useIntl();
+
   return (
     <ButtonBase
       className={clsx(classes.button, className)}
       focusRipple
       disableTouchRipple
+      aria-label={intl.formatMessage({ id: "actions.showProfileMenu" })}
     >
       <PersonOutlinedIcon className={classes.profileIcon} />
       <ArrowDropDownIcon />

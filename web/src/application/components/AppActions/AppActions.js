@@ -9,6 +9,7 @@ import NotificationsNoneOutlinedIcon from "@material-ui/icons/NotificationsNoneO
 
 import PlusButton from "./PlusButton";
 import ProfileMenuButton from "./ProfileMenuButton";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -37,12 +38,17 @@ const useStyles = makeStyles((theme) => ({
 function AppActions(props) {
   const { className } = props;
   const classes = useStyles();
+  const intl = useIntl();
+
   return (
     <div className={clsx(classes.actions, className)}>
       <PlusButton />
       <ConnectionIndicator offline className={classes.indicator} />
       <Divider orientation="vertical" className={classes.divider} />
-      <IconButton className={classes.notificationButton}>
+      <IconButton
+        className={classes.notificationButton}
+        aria-label={intl.formatMessage({ id: "actions.showNotifications" })}
+      >
         <NotificationsNoneOutlinedIcon />
       </IconButton>
       <Divider orientation="vertical" className={classes.divider} />

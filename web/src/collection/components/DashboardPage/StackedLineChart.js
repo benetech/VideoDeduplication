@@ -6,6 +6,7 @@ import IconButton from "@material-ui/core/IconButton";
 import { Line } from "react-chartjs-2";
 import { useTheme } from "@material-ui/core";
 import Dashlet from "./Dashlet";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles(() => ({
   content: {
@@ -62,11 +63,16 @@ function total(datasets) {
   }, 0);
 }
 
-const Actions = () => (
-  <IconButton>
-    <AddIcon />
-  </IconButton>
-);
+const Actions = () => {
+  const intl = useIntl();
+  return (
+    <IconButton
+      aria-label={intl.formatMessage({ id: "actions.showMoreOptions" })}
+    >
+      <AddIcon />
+    </IconButton>
+  );
+};
 
 function StackedLineChart(props) {
   const { title, labels, series, className } = props;

@@ -6,6 +6,7 @@ import IconButton from "@material-ui/core/IconButton";
 import { Doughnut } from "react-chartjs-2";
 import { useTheme } from "@material-ui/core";
 import Dashlet from "./Dashlet";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles(() => ({
   content: {
@@ -56,11 +57,16 @@ const options = (theme) => ({
 const total = (categories) =>
   categories.reduce((acc, cat) => acc + cat.value, 0);
 
-const Actions = () => (
-  <IconButton>
-    <AddIcon />
-  </IconButton>
-);
+const Actions = () => {
+  const intl = useIntl();
+  return (
+    <IconButton
+      aria-label={intl.formatMessage({ id: "actions.showMoreOptions" })}
+    >
+      <AddIcon />
+    </IconButton>
+  );
+};
 
 function PieChart(props) {
   const { title, categories, className } = props;
