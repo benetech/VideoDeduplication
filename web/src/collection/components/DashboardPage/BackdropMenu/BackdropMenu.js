@@ -3,7 +3,8 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
-import Backdrop from "../../../common/components/Backdrop";
+import Backdrop from "../../../../common/components/Backdrop";
+import BackdropMenuItem from "./BackdropMenuItem";
 
 const useStyles = makeStyles((theme) => ({
   close: {
@@ -13,42 +14,25 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
   },
-  action: {
-    ...theme.mixins.title1,
-    fontWeight: "bold",
-    color: theme.palette.secondary.main,
-    "&:hover": {
-      color: theme.palette.primary.main,
-    },
-    cursor: "pointer",
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
 }));
 
-function doSeq(...actions) {
-  return () => actions.forEach((action) => action());
-}
-
 function BackdropMenu(props) {
-  const { open, onClose, actions, className } = props;
+  const { open, onClose, actions, className, ...other } = props;
   const classes = useStyles();
 
   return (
-    <Backdrop className={clsx(className, !open && classes.close)}>
+    <Backdrop className={clsx(className, !open && classes.close)} {...other}>
       <ClickAwayListener
         mouseEvent={open ? "onClick" : false}
         onClickAway={onClose}
       >
-        <div className={classes.menu}>
+        <div className={classes.menu} role="list">
           {actions.map((action) => (
-            <div
-              className={classes.action}
-              onClick={doSeq(onClose, action.handler)}
+            <BackdropMenuItem
+              action={action}
               key={action.title}
-            >
-              {action.title}
-            </div>
+              onClose={onClose}
+            />
           ))}
         </div>
       </ClickAwayListener>

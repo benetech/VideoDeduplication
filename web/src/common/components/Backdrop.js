@@ -16,9 +16,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Backdrop(props) {
-  const { children, className } = props;
+  const { children, className, ...other } = props;
   const classes = useStyles();
-  return <div className={clsx(classes.backdrop, className)}>{children}</div>;
+  return (
+    <div className={clsx(classes.backdrop, className)} {...other}>
+      {children}
+    </div>
+  );
 }
 
 Backdrop.propTypes = {
