@@ -95,8 +95,12 @@ function CategoryButton(props) {
           { [classes.selected]: selected },
           className
         )}
+        role="option"
+        aria-label={name}
+        aria-checked={selected}
         focusRipple
         disableTouchRipple
+        component="div"
       >
         <Icon className={classes.icon} />
         <span

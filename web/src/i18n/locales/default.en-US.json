@@ -25,6 +25,7 @@
     "collection.analytics.dbMatches": "Database Matches",
     "collection.analytics.advancedSearch": "Advanced Search",
     "collection.analytics.collab": "Collaborations",
+    "aria.label.categorySelector": "Search Result Category Selector",
     "aria.label.sidebar": "Application Sidebar",
     "aria.label.headerNavLinks": "Header Navigation Links",
     "aria.label.dashboard": "Dashboard",
