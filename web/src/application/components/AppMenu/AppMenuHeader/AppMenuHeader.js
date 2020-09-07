@@ -45,18 +45,25 @@ const useStyles = makeStyles((theme) => ({
  * Header of the application left-side menu.
  */
 function AppMenuHeader(props) {
-  const { open, onToggle, className } = props;
+  const {
+    open,
+    onToggle,
+    "aria-controls": ariaControls,
+    className,
+    ...other
+  } = props;
   const classes = useStyles();
   const intl = useIntl();
 
   if (open) {
     return (
-      <div className={clsx(classes.headerRoot, className)}>
+      <div className={clsx(classes.headerRoot, className)} {...other}>
         <div className={classes.openContent}>
           <ExpandedLogo />
           <IconButton
             onClick={onToggle}
-            aria-label={intl.formatMessage({ id: "actions.toggleAppMenu" })}
+            aria-label={intl.formatMessage({ id: "actions.toggleSidebar" })}
+            aria-controls={ariaControls}
           >
             <MenuIcon
               fontSize="large"
@@ -69,11 +76,15 @@ function AppMenuHeader(props) {
   }
 
   return (
-    <div className={clsx(classes.headerRoot, className)}>
+    <div className={clsx(classes.headerRoot, className)} {...other}>
       <div className={classes.closeContent}>
         <CollapsedLogo />
         <div className={classes.closedContentButton}>
-          <IconButton onClick={onToggle}>
+          <IconButton
+            onClick={onToggle}
+            aria-label={intl.formatMessage({ id: "actions.toggleSidebar" })}
+            aria-controls={ariaControls}
+          >
             <MenuIcon
               fontSize="large"
               classes={{ fontSizeLarge: classes.menuIcon }}

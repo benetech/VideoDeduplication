@@ -14,6 +14,7 @@ import AppMenuHeader from "./AppMenuHeader";
 import { useIntl } from "react-intl";
 import { routes } from "../../../routing/routes";
 import { useHistory, useLocation } from "react-router-dom";
+import useUniqueId from "../../../common/hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({
   drawer: {
@@ -79,27 +80,38 @@ function useSelectPage() {
   return (link) => history.push(link.location);
 }
 
+function getStyles(classes, open, className) {
+  return clsx(
+    classes.drawer,
+    {
+      [classes.drawerOpen]: open,
+      [classes.drawerClose]: !open,
+    },
+    className
+  );
+}
+
 function AppMenu(props) {
   const { className } = props;
   const [open, setOpen] = useState(true);
   const selected = useCurrentLink(menuItems);
   const setSelected = useSelectPage();
   const intl = useIntl();
+  const id = useUniqueId("app-sidebar");
 
   const classes = useStyles();
   return (
     <div
-      className={clsx(
-        classes.drawer,
-        {
-          [classes.drawerOpen]: open,
-          [classes.drawerClose]: !open,
-        },
-        className
-      )}
+      id={id}
+      aria-label={intl.formatMessage({ id: "aria.label.sidebar" })}
+      className={getStyles(classes, open, className)}
     >
       <AppMenuList className={classes.links}>
-        <AppMenuHeader open={open} onToggle={() => setOpen(!open)} />
+        <AppMenuHeader
+          open={open}
+          onToggle={() => setOpen(!open)}
+          aria-controls={id}
+        />
         {menuItems.map((item, index) => (
           <AppMenuListItem
             icon={item.icon}
