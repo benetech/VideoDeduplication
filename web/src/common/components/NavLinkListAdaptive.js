@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function NavLinkListAdaptive(props) {
-  const { selected, links, onSelect, className } = props;
+  const { selected, links, onSelect, className, ...other } = props;
   const classes = useStyles(props);
   return (
     <React.Fragment>
@@ -36,12 +36,14 @@ function NavLinkListAdaptive(props) {
         links={links}
         onSelect={onSelect}
         className={clsx(className, classes.expanded)}
+        {...other}
       />
       <NavLinkSelector
         onSelect={onSelect}
         selected={selected}
         links={links}
         className={clsx(className, classes.collapsed)}
+        {...other}
       />
     </React.Fragment>
   );

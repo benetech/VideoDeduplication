@@ -30,6 +30,7 @@ function NavLinkList(props) {
     variant = "horizontal",
     decorate = true,
     className,
+    ...other
   } = props;
 
   const classes = useStyles();
@@ -43,6 +44,7 @@ function NavLinkList(props) {
         },
         className
       )}
+      {...other}
     >
       {links.map((link) => (
         <NavLink
@@ -54,6 +56,7 @@ function NavLinkList(props) {
             [classes.linkHorizontal]: variant === "horizontal",
             [classes.linkVertical]: variant === "vertical",
           })}
+          role="link"
           decorated={decorate}
         />
       ))}

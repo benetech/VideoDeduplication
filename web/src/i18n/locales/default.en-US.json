@@ -26,6 +26,7 @@
     "collection.analytics.advancedSearch": "Advanced Search",
     "collection.analytics.collab": "Collaborations",
     "aria.label.sidebar": "Application Sidebar",
+    "aria.label.headerNavLinks": "Header Navigation Links",
     "actions.addMedia": "Add Media",
     "actions.useListView": "List View",
     "actions.useGridView": "Grid View",

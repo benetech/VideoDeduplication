@@ -75,6 +75,8 @@ function CollectionNavigation(props) {
         selected={selected}
         onSelect={setSelected}
         className={classes.links}
+        role="navigation"
+        aria-label={intl.formatMessage({ id: "aria.label.headerNavLinks" })}
       />
       <div className={classes.spacer} />
     </div>

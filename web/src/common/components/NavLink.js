@@ -3,6 +3,8 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import SelectionDecorator from "./SelectionDecorator";
+import { ButtonBase } from "@material-ui/core";
+import useUniqueId from "../hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -59,7 +61,14 @@ const useStyles = makeStyles((theme) => ({
  * @see NavLinkList
  */
 function NavLink(props) {
-  const { link, selected, decorated = true, onClick, className } = props;
+  const {
+    link,
+    selected,
+    decorated = true,
+    onClick,
+    className,
+    ...other
+  } = props;
   const classes = useStyles();
 
   const decorator =
@@ -71,8 +80,18 @@ function NavLink(props) {
     }
   }, [link, onClick]);
 
+  const labelId = useUniqueId("link-label");
+
   return (
-    <div className={clsx(classes.container, className)} onClick={handleClick}>
+    <ButtonBase
+      className={clsx(classes.container, className)}
+      onClick={handleClick}
+      focusRipple
+      disableTouchRipple
+      aria-labelledby={labelId}
+      component="div"
+      {...other}
+    >
       <div className={classes.link}>
         <div
           title={link.title}
@@ -80,12 +99,13 @@ function NavLink(props) {
             [classes.textSelected]: selected,
             [classes.textUnselected]: !selected,
           })}
+          id={labelId}
         >
           {link.title}
         </div>
         {decorator}
       </div>
-    </div>
+    </ButtonBase>
   );
 }
 
