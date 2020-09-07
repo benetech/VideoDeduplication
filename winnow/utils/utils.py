@@ -20,6 +20,14 @@ def create_directory(directories,root_dir,alias):
         except Exception as e:
             print(e)
 
+def filter_extensions(files,extensions):
+
+    return [x for x in files if Path(x).suffix in extensions]
+
+
+
+
+
 def scan_videos(path,wildcard,extensions = []):
     """Scans a directory for a given wildcard
 
@@ -35,9 +43,27 @@ def scan_videos(path,wildcard,extensions = []):
     files = glob(os.path.join(path,wildcard),recursive = True)
     files = [x for x in files if os.path.isfile(x)]
     if len(extensions) > 0:
-        files = [x for x in files if Path(x).suffix in extensions]
+        files = filter_extensions(files,extensions)
 
     return files
+
+def scan_videos_from_txt(fp,extensions =[]):
+
+    files = list(open(fp, encoding="utf-8").read().splitlines())
+    files = [x for x in files if os.path.isfile(x)]
+    if len(extensions) > 0:
+        files = filter_extensions(files,extensions)
+    return files
+
+
+
+    
+
+
+
+
+
+
 
 def get_original_fn_from_artifact(fp_list,sep):
     """Get original video filename using our encoding convention for generating additional training

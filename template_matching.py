@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.spatial.distance import cdist
 from glob import glob
 from winnow.feature_extraction.extraction_routine import load_featurizer
-from winnow.feature_extraction.utils import load_image,load_video,download_file
+from winnow.feature_extraction.utils import load_image,load_video,download_file,download_pretrained
 from winnow.search_engine.template_matching import SearchEngine,download_sample_templates
 from winnow.annotation.tools import Annotator
 import requests
@@ -21,8 +21,10 @@ SEARCH_SPACE = os.path.join(cfg['destination_folder'],cfg['root_folder_intermedi
 TEMPLATE_TEST_OUTPUT = os.path.join(cfg['destination_folder'],'template_test.csv')
 DISTANCE = 0.07
 
+PRETRAINED_LOCAL_PATH = download_pretrained(os.environ['WINNOW_CONFIG'])
+
 print('Loading model...')
-model = load_featurizer()
+model = load_featurizer(PRETRAINED_LOCAL_PATH)
 
 print('Initiating search engine using templates from:{} and loooking at videos located in:{}'.format(TEMPLATES_SOURCE,
                   SEARCH_SPACE))

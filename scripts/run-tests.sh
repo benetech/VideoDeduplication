@@ -16,7 +16,7 @@ python extract_exif.py --config tests/config.yaml
 
 echo "Running process_video.py on sample file"
 
-python process_video.py tests/test_data/test_videos/00c235f48ba0445aa1e526f97af33f8e.mp4
+python process_video.py tests/test_data/test_videos/00c235f48ba0445aa1e526f97af33f8e.mp4 --no-features --no-signatures
 
 echo "Cleaning up"
 

@@ -3,8 +3,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-tf.logging.set_verbosity(tf.logging.WARN)
+import warnings
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore")
+    import tensorflow as tf
+    tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 slim = tf.contrib.slim
 

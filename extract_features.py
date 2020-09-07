@@ -4,11 +4,11 @@ os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
 import click
 from glob import glob
 from winnow.feature_extraction import IntermediateCnnExtractor,frameToVideoRepresentation,SimilarityModel
-from winnow.utils import create_directory,scan_videos,create_video_list,get_original_fn_from_artifact
+from winnow.utils import create_directory,scan_videos,create_video_list,get_original_fn_from_artifact,scan_videos_from_txt
 from db import *
 from db.schema import *
 import yaml
-
+import sys
 
 @click.command()
 @click.option(
@@ -16,10 +16,13 @@ import yaml
     help='path to the project config file',
     default=os.environ['WINNOW_CONFIG'])
 
+@click.option(
+    '--list-of-files', '-lof',
+    help='path to txt with a list of files for processing - overrides source folder from the config file',
+    default="")
 
 
-
-def main(config):
+def main(config,list_of_files):
 
     representations = ['frame_level','video_level','video_signatures']
 
@@ -45,7 +48,13 @@ def main(config):
     
     print('Searching for Dataset Video Files')
 
-    videos = scan_videos(DATASET_DIR,'**',extensions=['.mp4','.ogv','.webm','.avi'])
+    if len(list_of_files) == 0:
+
+        videos = scan_videos(DATASET_DIR,'**',extensions=['.mp4','.ogv','.webm','.avi'])
+
+    else:
+
+        videos = scan_videos_from_txt(list_of_files,extensions=['.mp4','.ogv','.webm','.avi'])
 
     print('Number of files found: {}'.format(len(videos)))
 

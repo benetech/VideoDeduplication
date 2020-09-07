@@ -3,8 +3,13 @@ Tensorflow implementation of the DNN network used for Deep Metric Learning.
 """
 
 import os
-import tensorflow as tf
-tf.logging.set_verbosity(tf.logging.WARN)
+import warnings
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore")
+    import tensorflow as tf
+    tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+
+import warnings
 
 class DNN(object):
 
@@ -33,14 +38,14 @@ class DNN(object):
         self.trainable = trainable
         self.path = os.path.join(model_path, 'model')
 
-        self.input = tf.placeholder(tf.float32, shape=(None, input_dimensions), name='input')
+        self.input = tf.compat.v1.placeholder(tf.float32, shape=(None, input_dimensions), name='input')
         self.regularizer = tf.contrib.layers.l2_regularizer(scale=weight_decay) if trainable else None
         if load_model:
             self.output = self.load_model()
         else:
             self.output = self.build(hidden_layer_sizes)
 
-        self.saver = tf.train.Saver()
+        self.saver = tf.compat.v1.train.Saver()
         if trainable:
             self.global_step = 1
             with tf.name_scope('training'):
@@ -60,10 +65,10 @@ class DNN(object):
             summary = tf.summary.merge_all()
             self.test_op = [summary, cost, error]
 
-        config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True
-        init = tf.global_variables_initializer()
-        self.sess = tf.Session(config=config)
+        init = tf.compat.v1.global_variables_initializer()
+        self.sess = tf.compat.v1.Session(config=config)
         self.sess.run(init)
         if trainable:
             self.summary_writer = tf.summary.FileWriter(model_path, self.sess.graph)
@@ -88,7 +93,7 @@ class DNN(object):
                         trainable=self.trainable)
         with tf.name_scope('embeddings'):
             net = tf.nn.l2_normalize(net, 1, 1e-15)
-            tf.summary.histogram('embeddings', net)
+            tf.compat.v1.summary.histogram('embeddings', net)
         return net
 
     def load_model(self):
@@ -102,7 +107,7 @@ class DNN(object):
 
         previous_variables = [var_name for var_name, _
                               in tf.contrib.framework.list_variables(self.path)]
-        restore_map = {variable.op.name: variable for variable in tf.global_variables()
+        restore_map = {variable.op.name: variable for variable in tf.compat.v1.global_variables()
                        if variable.op.name in previous_variables}
         tf.contrib.framework.init_from_checkpoint(self.path, restore_map)
         return net

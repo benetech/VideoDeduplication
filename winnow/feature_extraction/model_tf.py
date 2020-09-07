@@ -26,8 +26,12 @@ This method is also used in:
     IEEE International Conference on Computer Vision Workshop (ICCVW), 2017.
 """
 import numpy as np
-import tensorflow as tf
-
+import warnings
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore")
+    import tensorflow as tf
+    tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+import sys
 
 class CNN_tf():
 
@@ -75,7 +79,7 @@ class CNN_tf():
         else:
             raise ValueError('Network not found. Supported networks for Tensorflow framework: vgg, resnet, inception')
 
-        self.input = tf.placeholder(tf.uint8,
+        self.input = tf.compat.v1.placeholder(tf.uint8,
                 shape=(None, self.desired_size, self.desired_size, 3), name='input')
         vid_processed = preprocess(self.input)
 
@@ -93,10 +97,10 @@ class CNN_tf():
         self.final_sz = self.output.get_shape()[1]
 
         init = self.load_model(model_ckpt)
-        config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
         config.gpu_options.per_process_gpu_memory_fraction = 0.90
         config.gpu_options.allow_growth = True
-        self.sess = tf.Session(config=config)
+        self.sess = tf.compat.v1.Session(config=config)
         self.sess.run(init)
 
     def load_model(self, model_ckpt):
@@ -111,10 +115,10 @@ class CNN_tf():
         """
         previous_variables = [var_name for var_name, _
                               in tf.contrib.framework.list_variables(model_ckpt)]
-        restore_map = {variable.op.name: variable for variable in tf.global_variables()
+        restore_map = {variable.op.name: variable for variable in tf.compat.v1.global_variables()
                        if variable.op.name in previous_variables}
         tf.contrib.framework.init_from_checkpoint(model_ckpt, restore_map)
-        tf_init = tf.global_variables_initializer()
+        tf_init = tf.compat.v1.global_variables_initializer()
         return tf_init
 
     def vgg_preprocess(self, images):
