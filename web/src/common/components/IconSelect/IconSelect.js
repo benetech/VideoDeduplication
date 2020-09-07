@@ -95,7 +95,7 @@ function IconSelect(props) {
   );
 
   return (
-    <ButtonGroup className={clsx(className)} {...other}>
+    <ButtonGroup className={clsx(className)} role="listbox" {...other}>
       {options}
     </ButtonGroup>
   );
