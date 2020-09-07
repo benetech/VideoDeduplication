@@ -26,6 +26,8 @@ function GridButtonPickerOption(props) {
         variant={selected ? "contained" : "outlined"}
         color={selected ? "primary" : "secondary"}
         className={classes.button}
+        role="option"
+        aria-checked={selected}
       >
         {title}
       </Button>
