@@ -17,13 +17,22 @@ const useStyles = makeStyles((theme) => ({
     transform: "translate(0%, 0px)",
     height: theme.dimensions.list.itemHeight,
     justifyContent: "flex-start",
+    minWidth: 0,
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
   icon: {
     width: 69,
     textAlign: "center",
+    flexShrink: 0,
   },
   decorator: {
     height: 45,
+  },
+  label: {
+    flexShrink: 0,
   },
   /**
    * Inactive text must be grey
@@ -47,6 +56,14 @@ const useStyles = makeStyles((theme) => ({
   invisible: {
     opacity: 0,
     transition: theme.transitions.create("opacity", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  collapsed: {
+    width: theme.dimensions.list.collapseWidth,
+    overflowX: "hidden",
+    transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
@@ -76,7 +93,7 @@ function AppMenuListItem(props) {
 
   return (
     <ButtonBase
-      className={clsx(classes.item, className)}
+      className={clsx(classes.item, collapsed && classes.collapsed, className)}
       onClick={onClick}
       focusRipple
       disableTouchRipple
@@ -88,7 +105,7 @@ function AppMenuListItem(props) {
       <Label
         variant="title3"
         color="inherit"
-        className={clsx({
+        className={clsx(classes.label, {
           [classes.visible]: !collapsed,
           [classes.invisible]: collapsed,
           [classes.inactive]: !selected,
