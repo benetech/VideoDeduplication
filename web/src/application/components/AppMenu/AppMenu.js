@@ -103,6 +103,7 @@ function AppMenu(props) {
   return (
     <div
       id={id}
+      role="navigation"
       aria-label={intl.formatMessage({ id: "aria.label.sidebar" })}
       className={getStyles(classes, open, className)}
     >

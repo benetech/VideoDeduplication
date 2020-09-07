@@ -5,6 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import SelectionDecorator from "../../../common/components/SelectionDecorator";
 import Label from "../../../common/components/Label";
 import ButtonBase from "@material-ui/core/ButtonBase";
+import useUniqueId from "../../../common/hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({
   item: {
@@ -18,10 +19,6 @@ const useStyles = makeStyles((theme) => ({
     height: theme.dimensions.list.itemHeight,
     justifyContent: "flex-start",
     minWidth: 0,
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
   },
   icon: {
     width: 69,
@@ -68,6 +65,13 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
+  expanded: {
+    width: theme.mixins.drawer.width,
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
 }));
 
 /**
@@ -81,8 +85,10 @@ function AppMenuListItem(props) {
     onClick,
     collapsed = false,
     className,
+    ...other
   } = props;
   const classes = useStyles();
+  const labelId = useUniqueId("link-label");
 
   let decorator = null;
   if (selected) {
@@ -93,16 +99,26 @@ function AppMenuListItem(props) {
 
   return (
     <ButtonBase
-      className={clsx(classes.item, collapsed && classes.collapsed, className)}
+      className={clsx(
+        classes.item,
+        collapsed && classes.collapsed,
+        !collapsed && classes.expanded,
+        className
+      )}
       onClick={onClick}
       focusRipple
       disableTouchRipple
+      role="link"
+      component="div"
+      aria-labelledby={labelId}
+      {...other}
     >
       {decorator}
       <div className={clsx(classes.icon, { [classes.inactive]: !selected })}>
         {icon}
       </div>
       <Label
+        id={labelId}
         variant="title3"
         color="inherit"
         className={clsx(classes.label, {
