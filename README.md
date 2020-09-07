@@ -211,6 +211,12 @@ Extract video signatures
 
 `python extract_features.py`
 
+Arguments:
+
+    '--config', '-cp' : Path to the project config file [default:'config.yml']
+    '--list-of-files', '-lof' : path to txt with a list of files for processing - overrides source folder from the config file [default:'']
+
+
 Generate matches
 
 `python generate_matches.py`

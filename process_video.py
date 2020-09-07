@@ -78,9 +78,6 @@ def main(path,output,config,save_frames,save_features,save_signatures,save_db):
         file_ids = [processed_to_id[x] for x in processed_paths]
         signatures = add_signatures(session,video_signatures,file_ids)
         
-    
-    print(path,output,config,PRETRAINED_LOCAL_PATH)
-
 
 
 
