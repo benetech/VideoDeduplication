@@ -38,7 +38,7 @@ function bindProps(currentValue, onChange) {
 }
 
 function SelectableTabs(props) {
-  const { children, value, onChange, className } = props;
+  const { children, value, onChange, className, ...other } = props;
   const classes = useStyles();
 
   const handleChange = useCallback(
@@ -53,7 +53,11 @@ function SelectableTabs(props) {
   // Set required child properties
   const tabs = React.Children.map(children, bindProps(value, handleChange));
 
-  return <div className={clsx(classes.tabs, className)}>{tabs}</div>;
+  return (
+    <div className={clsx(classes.tabs, className)} {...other} role="tablist">
+      {tabs}
+    </div>
+  );
 }
 
 SelectableTabs.propTypes = {

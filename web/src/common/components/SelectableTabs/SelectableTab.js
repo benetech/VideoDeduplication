@@ -3,6 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import SelectionDecorator from "../SelectionDecorator";
+import { ButtonBase } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   tab: {
@@ -56,15 +57,25 @@ function SelectableTab(props) {
     value,
     size = "medium",
     className,
+    ...other
   } = props;
   const classes = useStyles();
   const handleSelect = useCallback(() => onSelect(value), [onSelect, value]);
 
   return (
-    <div onClick={handleSelect} className={clsx(classes.tab, className)}>
+    <ButtonBase
+      onClick={handleSelect}
+      className={clsx(classes.tab, className)}
+      component="div"
+      focusRipple
+      disableTouchRipple
+      role="tab"
+      aria-label={label}
+      {...other}
+    >
       <div className={labelClass(classes, size, selected)}>{label}</div>
       {selected && <SelectionDecorator variant="bottom" />}
-    </div>
+    </ButtonBase>
   );
 }
 
