@@ -7,10 +7,11 @@ function IconSelectOption(props) {
   const {
     value,
     onSelect,
-    selected = false,
+    selected,
     icon: Icon,
     tooltip,
     className,
+    "aria-label": ariaLabel,
     ...other
   } = props;
 
@@ -18,13 +19,14 @@ function IconSelectOption(props) {
 
   const option = (
     <SquaredIconButton
+      {...other}
       onClick={handleSelect}
       variant={selected ? "contained" : "outlined"}
       color={selected ? "primary" : "secondary"}
       className={className}
       role="option"
       aria-checked={selected}
-      {...other}
+      aria-label={ariaLabel || tooltip}
     >
       <Icon />
     </SquaredIconButton>

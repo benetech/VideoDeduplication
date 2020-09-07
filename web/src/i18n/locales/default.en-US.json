@@ -44,6 +44,8 @@
     "actions.showNotifications": "Show Notifications",
     "actions.showProfileMenu": "Show Profile Menu",
     "actions.showMoreOptions": "Show More Options",
+    "actions.showMoreItems": "More items",
+    "actions.showLessItems": "Less items",
     "sort.duration": "Duration",
     "sort.size": "Size",
     "sort.date": "Date",
