@@ -37,6 +37,7 @@ function BackdropMenuItem(props) {
       focusRipple
       disableTouchRipple
       aria-labelledby={titleId}
+      role="menuitem"
       {...other}
     >
       <span id={titleId}>{action.title}</span>

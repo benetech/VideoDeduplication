@@ -21,12 +21,17 @@ function BackdropMenu(props) {
   const classes = useStyles();
 
   return (
-    <Backdrop className={clsx(className, !open && classes.close)} {...other}>
+    <Backdrop className={clsx(className, !open && classes.close)}>
       <ClickAwayListener
         mouseEvent={open ? "onClick" : false}
         onClickAway={onClose}
       >
-        <div className={classes.menu}>
+        <div
+          className={classes.menu}
+          role="menu"
+          aria-expanded={open}
+          {...other}
+        >
           {actions.map((action) => (
             <BackdropMenuItem
               action={action}
