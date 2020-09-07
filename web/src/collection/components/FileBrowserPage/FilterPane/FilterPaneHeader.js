@@ -27,17 +27,27 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function FilterPaneHeader(props) {
-  const { onClose, onSave, className } = props;
+  const {
+    onClose,
+    onSave,
+    "aria-controls": ariaControls,
+    className,
+    ...other
+  } = props;
+
   const classes = useStyles();
   const intl = useIntl();
 
   return (
-    <div className={clsx(classes.header, className)}>
+    <div className={clsx(classes.header, className)} {...other}>
       <SquaredIconButton
         onClick={onClose}
         variant="outlined"
         color="secondary"
         className={classes.toggleButton}
+        tabIndex={1}
+        aria-label={intl.formatMessage({ id: "actions.hideFiltersPane" })}
+        aria-controls={ariaControls}
       >
         <TuneIcon />
       </SquaredIconButton>
@@ -45,10 +55,21 @@ function FilterPaneHeader(props) {
       <div className={classes.title}>
         {intl.formatMessage({ id: "filter.title" })}
       </div>
-      <IconButton onClick={onSave} size="small">
+      <IconButton
+        onClick={onSave}
+        size="small"
+        tabIndex={1}
+        aria-label={intl.formatMessage({ id: "actions.saveFilters" })}
+      >
         <SaveOutlinedIcon />
       </IconButton>
-      <IconButton onClick={onClose} size="small">
+      <IconButton
+        onClick={onClose}
+        size="small"
+        tabIndex={1}
+        aria-label={intl.formatMessage({ id: "actions.hideFiltersPane" })}
+        aria-controls={ariaControls}
+      >
         <CloseOutlinedIcon />
       </IconButton>
     </div>
