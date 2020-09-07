@@ -24,6 +24,7 @@ import VisibilitySensor from "react-visibility-sensor";
 import { scrollIntoView } from "../../../common/helpers/scroll";
 import { useHistory } from "react-router-dom";
 import { routes } from "../../../routing/routes";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -136,6 +137,7 @@ function FileBrowserPage(props) {
   const topRef = useRef(null);
   const history = useHistory();
   const List = listComponent(view);
+  const intl = useIntl();
 
   useEffect(() => {
     dispatch(updateFilters({ query: "" }));
@@ -164,7 +166,7 @@ function FileBrowserPage(props) {
         <VisibilitySensor onChange={setTop} partialVisibility>
           <div className={classes.top} ref={topRef} />
         </VisibilitySensor>
-        <div className={classes.header}>
+        <div className={classes.header} role="search">
           <div className={classes.actionsContainer}>
             <FileBrowserActions
               sort={sort}
@@ -234,6 +236,8 @@ function FileBrowserPage(props) {
       <FilterPane
         onClose={handleToggleFilters}
         className={clsx(classes.filterPane, { [classes.hidden]: !showFilters })}
+        aria-label={intl.formatMessage({ id: "aria.label.filterPane" })}
+        role="search"
       />
     </div>
   );

@@ -31,7 +31,7 @@ function CollectionRootPage(props) {
       header={<CollectionNavigation />}
       className={className}
     >
-      <div className={classes.body}>
+      <div className={classes.body} role="main">
         <Switch>
           <Route exact path={routes.collection.home}>
             <Redirect to={routes.collection.analytics} />

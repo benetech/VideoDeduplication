@@ -131,7 +131,12 @@ function DashboardPage(props) {
       </div>
       <div className={classes.body}>
         <div className={clsx(classes.content, { [classes.blur]: showMenu })}>
-          <Grid container spacing={3}>
+          <Grid
+            container
+            spacing={3}
+            role="region"
+            aria-label={intl.formatMessage({ id: "aria.label.dashboard" })}
+          >
             <Grid item lg={6} xs={12}>
               <PieChart title="My Matches" categories={matches(theme)} />
             </Grid>
