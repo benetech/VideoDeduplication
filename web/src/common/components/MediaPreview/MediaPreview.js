@@ -7,6 +7,7 @@ import VisibilityOffOutlinedIcon from "@material-ui/icons/VisibilityOffOutlined"
 import VisibilityOutlinedIcon from "@material-ui/icons/VisibilityOutlined";
 import PreviewActions from "./PreviewActions";
 import PreviewCaption from "./PreviewCaption";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   previewContainer: {
@@ -82,6 +83,7 @@ function MediaPreview(props) {
 
   const [preview, setPreview] = useState(false);
   const classes = useStyles();
+  const intl = useIntl();
 
   const togglePreview = useCallback(
     (event) => {
@@ -122,6 +124,9 @@ function MediaPreview(props) {
             )}
             size={preview ? "small" : "medium"}
             onClick={togglePreview}
+            aria-label={intl.formatMessage({
+              id: preview ? "actions.hidePreview" : "actions.showPreview",
+            })}
           >
             {previewIcon}
           </IconButton>

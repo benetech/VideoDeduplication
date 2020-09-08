@@ -47,6 +47,8 @@
     "actions.showMoreOptions": "Show More Options",
     "actions.showMoreItems": "More items",
     "actions.showLessItems": "Less items",
+    "actions.showPreview": "Show Preview",
+    "actions.hidePreview": "Hide Preview",
     "sort.duration": "Duration",
     "sort.size": "Size",
     "sort.date": "Date",
