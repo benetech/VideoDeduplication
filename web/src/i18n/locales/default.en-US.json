@@ -49,6 +49,7 @@
     "actions.showLessItems": "Less items",
     "actions.showPreview": "Show Preview",
     "actions.hidePreview": "Hide Preview",
+    "actions.showFileDetails": "Show File Details",
     "sort.duration": "Duration",
     "sort.size": "Size",
     "sort.date": "Date",

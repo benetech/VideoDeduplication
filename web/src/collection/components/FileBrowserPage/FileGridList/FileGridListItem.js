@@ -107,6 +107,7 @@ const FileGridListItem = React.memo(function FpGridListItem(props) {
       className={clsx(button && classes.asButton, className)}
       dense={dense}
       onClick={handleClick}
+      aria-label={intl.formatMessage({ id: "actions.showFileDetails" })}
     >
       <MediaPreview
         src={file.preview}
@@ -120,7 +121,10 @@ const FileGridListItem = React.memo(function FpGridListItem(props) {
         <div className={classes.name}>
           <Marked mark={highlight}>{file.filename}</Marked>
         </div>
-        <IconButton size="small">
+        <IconButton
+          size="small"
+          aria-label={intl.formatMessage({ id: "actions.showMoreOptions" })}
+        >
           <MoreHorizOutlinedIcon fontSize="small" />
         </IconButton>
       </div>
