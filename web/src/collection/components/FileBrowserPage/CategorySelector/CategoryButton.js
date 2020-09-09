@@ -3,6 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Grid from "@material-ui/core/Grid";
+import ButtonBase from "@material-ui/core/ButtonBase";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -15,6 +16,8 @@ const useStyles = makeStyles((theme) => ({
     border: "solid",
     borderWidth: 1,
     borderColor: "rgba(0, 0, 0, 0)",
+    width: "100%",
+    outline: "none",
   },
   icon: {
     marginRight: theme.spacing(1.5),
@@ -30,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.title3,
     display: "inline-block",
     whiteSpace: "nowrap",
+    textAlign: "start",
     /**
      * Reserve space for bolded content in ::before
      * pseudo element.
@@ -84,23 +88,29 @@ function CategoryButton(props) {
       md={total / items.md}
       xs={total / items.xs}
     >
-      <div
+      <ButtonBase
         onClick={onClick}
         className={clsx(
           classes.button,
           { [classes.selected]: selected },
           className
         )}
+        role="option"
+        aria-label={name}
+        aria-checked={selected}
+        focusRipple
+        disableTouchRipple
+        component="div"
       >
         <Icon className={classes.icon} />
-        <div
+        <span
           title={name}
           className={clsx(classes.name, { [classes.nameSelected]: selected })}
         >
           {name}
-        </div>
-        <div className={classes.quantity}>{quantity}</div>
-      </div>
+        </span>
+        <span className={classes.quantity}>{quantity}</span>
+      </ButtonBase>
     </Grid>
   );
 }

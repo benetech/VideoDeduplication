@@ -108,6 +108,7 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
         className
       )}
       onClick={handleClick}
+      aria-label={intl.formatMessage({ id: "actions.showFileDetails" })}
     >
       <div className={classes.iconContainer}>
         <VideocamOutlinedIcon className={classes.icon} />
@@ -153,7 +154,9 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
         className={clsx(classes.attr, classes.volume, classes.md)}
       />
       <div className={clsx(classes.divider, classes.md)} />
-      <IconButton>
+      <IconButton
+        aria-label={intl.formatMessage({ id: "actions.showMoreOptions" })}
+      >
         <MoreHorizOutlinedIcon />
       </IconButton>
     </div>

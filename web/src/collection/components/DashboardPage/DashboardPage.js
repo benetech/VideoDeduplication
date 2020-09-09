@@ -9,6 +9,7 @@ import { useTheme } from "@material-ui/core";
 import BackdropMenu from "./BackdropMenu";
 import StackedLineChart from "./StackedLineChart";
 import Grid from "@material-ui/core/Grid";
+import useUniqueId from "../../../common/hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({
   dashboardContainer: {
@@ -116,6 +117,7 @@ function DashboardPage(props) {
   const theme = useTheme();
   const intl = useIntl();
   const [showMenu, setShowMenu] = useState(false);
+  const backdropMenuId = useUniqueId("backdrop-menu");
 
   return (
     <div className={clsx(classes.dashboardContainer, className)}>
@@ -123,11 +125,18 @@ function DashboardPage(props) {
         <DropDownButton
           title={messages.dashboard}
           onClick={() => setShowMenu(!showMenu)}
+          aria-haspopup="true"
+          aria-controls={backdropMenuId}
         />
       </div>
       <div className={classes.body}>
         <div className={clsx(classes.content, { [classes.blur]: showMenu })}>
-          <Grid container spacing={3}>
+          <Grid
+            container
+            spacing={3}
+            role="region"
+            aria-label={intl.formatMessage({ id: "aria.label.dashboard" })}
+          >
             <Grid item lg={6} xs={12}>
               <PieChart title="My Matches" categories={matches(theme)} />
             </Grid>
@@ -140,6 +149,7 @@ function DashboardPage(props) {
           </Grid>
         </div>
         <BackdropMenu
+          id={backdropMenuId}
           actions={menuActions(intl)}
           open={showMenu}
           onClose={() => setShowMenu(false)}

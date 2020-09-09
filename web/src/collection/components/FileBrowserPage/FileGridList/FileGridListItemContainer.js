@@ -12,6 +12,10 @@ const useStyles = makeStyles({
     flexDirection: "column",
     justifyContent: "space-around",
     boxShadow: "0 12px 18px 0 rgba(0,0,0,0.08)",
+    "&:focus": {
+      outline: "none",
+      boxShadow: "0 12px 18px 0 rgba(0,0,0,0.28)",
+    },
   },
 });
 

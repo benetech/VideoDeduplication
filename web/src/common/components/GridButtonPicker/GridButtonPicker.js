@@ -1,11 +1,8 @@
 import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/styles";
 import { Grid } from "@material-ui/core";
 import GridButtonPickerOption from "./GridButtonPickerOption";
-
-const useStyles = makeStyles((theme) => ({}));
 
 /**
  * Set the following properties: selected, onSelect
@@ -29,7 +26,7 @@ function bindProps(selectedValues, onSelect) {
 }
 
 function GridButtonPicker(props) {
-  const { selected, onChange, children, className } = props;
+  const { selected, onChange, children, className, ...other } = props;
 
   // Invert value presence on selection
   const handleSelect = useCallback(
@@ -50,7 +47,13 @@ function GridButtonPicker(props) {
   );
 
   return (
-    <Grid container spacing={1} className={clsx(className)}>
+    <Grid
+      container
+      spacing={1}
+      className={clsx(className)}
+      role="listbox"
+      {...other}
+    >
       {options}
     </Grid>
   );

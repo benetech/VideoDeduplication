@@ -48,6 +48,7 @@ function useMessages() {
   const intl = useIntl();
   return {
     video: intl.formatMessage({ id: "file.title" }),
+    ariaLabel: intl.formatMessage({ id: "aria.label.videoPlayerRegion" }),
   };
 }
 
@@ -61,7 +62,11 @@ function VideoPlayerPane(props) {
   const handleJump = useCallback(seekTo(player, file), [player, file]);
 
   return (
-    <Paper className={clsx(classes.root, className)}>
+    <Paper
+      className={clsx(classes.root, className)}
+      role="region"
+      aria-label={messages.ariaLabel}
+    >
       <div className={classes.title}>{messages.video}</div>
       <VideoPlayer
         file={file}

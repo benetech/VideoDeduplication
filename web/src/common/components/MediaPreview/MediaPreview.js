@@ -7,6 +7,7 @@ import VisibilityOffOutlinedIcon from "@material-ui/icons/VisibilityOffOutlined"
 import VisibilityOutlinedIcon from "@material-ui/icons/VisibilityOutlined";
 import PreviewActions from "./PreviewActions";
 import PreviewCaption from "./PreviewCaption";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   previewContainer: {
@@ -82,6 +83,7 @@ function MediaPreview(props) {
 
   const [preview, setPreview] = useState(false);
   const classes = useStyles();
+  const intl = useIntl();
 
   const togglePreview = useCallback(
     (event) => {
@@ -90,6 +92,17 @@ function MediaPreview(props) {
     },
     [preview]
   );
+
+  /**
+   * Do not allow Enter or Space key-press events to bubble
+   * because it may trigger unwanted actions in parent elements.
+   */
+  const handleKeyDown = useCallback((event) => {
+    const key = event.key;
+    if (key === " " || key === "Enter") {
+      event.stopPropagation();
+    }
+  }, []);
 
   // Define preview icon
   let previewIcon;
@@ -113,6 +126,7 @@ function MediaPreview(props) {
           [classes.clickable]: onMediaClick != null && preview,
         })}
         onClick={preview ? onMediaClick : undefined}
+        onKeyDown={handleKeyDown}
       >
         <div className={preview ? classes.actionsShow : classes.actionsHide}>
           <IconButton
@@ -122,6 +136,9 @@ function MediaPreview(props) {
             )}
             size={preview ? "small" : "medium"}
             onClick={togglePreview}
+            aria-label={intl.formatMessage({
+              id: preview ? "actions.hidePreview" : "actions.showPreview",
+            })}
           >
             {previewIcon}
           </IconButton>

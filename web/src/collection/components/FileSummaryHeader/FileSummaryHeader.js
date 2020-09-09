@@ -79,6 +79,7 @@ function getMessages(intl) {
     filename: intl.formatMessage({ id: "file.attr.name" }),
     fingerprint: intl.formatMessage({ id: "file.attr.fingerprint" }),
     quality: intl.formatMessage({ id: "file.attr.quality" }),
+    goBack: intl.formatMessage({ id: "actions.goBack" }),
   };
 }
 
@@ -96,7 +97,7 @@ function FileSummaryHeader(props) {
     <Paper className={clsx(classes.header, className)}>
       <div className={classes.titleGroup}>
         {back && (
-          <IconButton onClick={handleBack}>
+          <IconButton onClick={handleBack} aria-label={messages.goBack}>
             <ArrowBackOutlinedIcon />
           </IconButton>
         )}

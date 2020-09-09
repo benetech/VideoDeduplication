@@ -2,9 +2,11 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import SceneType from "./SceneType";
-import MediaPreview from "../../../common/components/MediaPreview";
-import TimeCaption from "./TimeCaption";
+import SceneType from "../SceneType";
+import MediaPreview from "../../../../common/components/MediaPreview";
+import TimeCaption from "../TimeCaption";
+import { useIntl } from "react-intl";
+import { formatDuration } from "../../../../common/helpers/format";
 
 const useStyles = makeStyles((theme) => ({
   scene: {
@@ -22,15 +24,40 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Get i18n text
+ */
+function useMessages(scene) {
+  const intl = useIntl();
+  const time = formatDuration(scene.position, null, false);
+  return {
+    ariaLabel: intl.formatMessage({ id: "aria.label.scene" }, { time }),
+  };
+}
+
 function Scene(props) {
   const { scene, onSelect, selected = false, className } = props;
   const classes = useStyles();
+  const messages = useMessages(scene);
 
   const handleSelect = useCallback(() => {
     if (onSelect) {
       onSelect(scene);
     }
   }, [scene, onSelect]);
+
+  /**
+   * Seek video to the given scene on keyboard actions
+   */
+  const handleKeyDown = useCallback(
+    (event) => {
+      const key = event.key;
+      if (key === " " || key === "Enter") {
+        handleSelect();
+      }
+    },
+    [handleSelect]
+  );
 
   return (
     <MediaPreview
@@ -39,6 +66,9 @@ function Scene(props) {
       alt="scene"
       caption={<TimeCaption time={scene.position} />}
       onClick={handleSelect}
+      aria-label={messages.ariaLabel}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
     />
   );
 }

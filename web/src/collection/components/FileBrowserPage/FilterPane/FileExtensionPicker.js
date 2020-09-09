@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Picker from "../../../../common/components/GridButtonPicker";
 import { useIntl } from "react-intl";
+import ButtonBase from "@material-ui/core/ButtonBase";
+import useUniqueId from "../../../../common/hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -25,25 +27,44 @@ function FileExtensionPicker(props) {
   const classes = useStyles();
   const [collapsed, setCollapsed] = useState(true);
   const intl = useIntl();
+  const pickerId = useUniqueId("button-picker");
 
   const more = collapsed && extAttr.length > 6;
   const extensions = more ? extAttr.slice(0, 6) : extAttr;
   const handleMore = useCallback(() => setCollapsed(false), []);
+  const handleLess = useCallback(() => setCollapsed(true), []);
 
   return (
     <div className={clsx(className)}>
       <div className={classes.title}>
         {intl.formatMessage({ id: "filter.extensions" })}
       </div>
-      <Picker selected={selected} onChange={onChange}>
+      <Picker selected={selected} onChange={onChange} id={pickerId}>
         {extensions.map((extension) => (
           <Picker.Option value={extension} title={extension} key={extension} />
         ))}
       </Picker>
       {more && (
-        <div className={classes.more} onClick={handleMore}>
-          More items
-        </div>
+        <ButtonBase
+          className={classes.more}
+          onClick={handleMore}
+          focusRipple
+          disableTouchRipple
+          aria-controls={pickerId}
+        >
+          {intl.formatMessage({ id: "actions.showMoreItems" })}
+        </ButtonBase>
+      )}
+      {!collapsed && (
+        <ButtonBase
+          className={classes.more}
+          onClick={handleLess}
+          focusRipple
+          disableTouchRipple
+          aria-controls={pickerId}
+        >
+          {intl.formatMessage({ id: "actions.showLessItems" })}
+        </ButtonBase>
       )}
     </div>
   );

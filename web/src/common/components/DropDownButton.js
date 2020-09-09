@@ -3,6 +3,8 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import ButtonBase from "@material-ui/core/ButtonBase";
+import useUniqueId from "../hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -23,13 +25,24 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function DropDownButton(props) {
-  const { title, onClick, className } = props;
+  const { title, onClick, className, ...other } = props;
   const classes = useStyles();
+  const titleId = useUniqueId("dropdown-button-title");
+
   return (
-    <div onClick={onClick} className={clsx(classes.button, className)}>
-      <div className={classes.title}>{title}</div>
+    <ButtonBase
+      onClick={onClick}
+      className={clsx(classes.button, className)}
+      focusRipple
+      disableTouchRipple
+      aria-labelledby={titleId}
+      {...other}
+    >
+      <span id={titleId} className={classes.title}>
+        {title}
+      </span>
       <ExpandMoreIcon className={classes.icon} />
-    </div>
+    </ButtonBase>
   );
 }
 

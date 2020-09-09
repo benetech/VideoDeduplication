@@ -9,6 +9,7 @@ import SortSelector from "./SortSelector";
 import { Sort } from "./sort";
 import { View } from "./view";
 import SquaredIconButton from "../../../../common/components/SquaredIconButton";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -34,9 +35,12 @@ const FileBrowserActions = React.forwardRef(function FingerprintViewActions(
     onSortChange,
     showFilters = true,
     onToggleFilters,
+    showFiltersControls,
+    showFiltersRef,
     className,
   } = props;
   const classes = useStyles();
+  const intl = useIntl();
 
   return (
     <div className={clsx(classes.actions, className)} ref={ref}>
@@ -60,8 +64,11 @@ const FileBrowserActions = React.forwardRef(function FingerprintViewActions(
         <SquaredIconButton
           variant="outlined"
           color="secondary"
+          ref={showFiltersRef}
           onClick={onToggleFilters}
           className={classes.action}
+          aria-controls={showFiltersControls}
+          aria-label={intl.formatMessage({ id: "actions.showFiltersPane" })}
         >
           <TuneIcon />
         </SquaredIconButton>
@@ -81,6 +88,14 @@ FileBrowserActions.propTypes = {
   onViewChange: PropTypes.func,
   showFilters: PropTypes.bool,
   onToggleFilters: PropTypes.func,
+  /**
+   * Id of the filters pane element
+   */
+  showFiltersControls: PropTypes.string,
+  /**
+   * Reference to show filter button
+   */
+  showFiltersRef: PropTypes.any,
   className: PropTypes.string,
 };
 

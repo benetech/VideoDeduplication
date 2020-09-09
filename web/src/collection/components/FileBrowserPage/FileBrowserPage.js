@@ -24,6 +24,7 @@ import VisibilitySensor from "react-visibility-sensor";
 import { scrollIntoView } from "../../../common/helpers/scroll";
 import { useHistory } from "react-router-dom";
 import { routes } from "../../../routing/routes";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -136,6 +137,8 @@ function FileBrowserPage(props) {
   const topRef = useRef(null);
   const history = useHistory();
   const List = listComponent(view);
+  const intl = useIntl();
+  const showFiltersRef = useRef();
 
   useEffect(() => {
     dispatch(updateFilters({ query: "" }));
@@ -143,9 +146,10 @@ function FileBrowserPage(props) {
 
   const handleFetchPage = useCallback(() => dispatch(fetchFiles()), []);
 
-  const handleToggleFilters = useCallback(() => setShowFilters(!showFilters), [
-    showFilters,
-  ]);
+  const handleToggleFilters = useCallback(() => {
+    setShowFilters(!showFilters);
+    setTimeout(() => showFiltersRef.current.focus());
+  }, [showFilters, showFiltersRef]);
 
   const handleQuery = useCallback((query) => {
     dispatch(updateFilters({ query }));
@@ -164,7 +168,7 @@ function FileBrowserPage(props) {
         <VisibilitySensor onChange={setTop} partialVisibility>
           <div className={classes.top} ref={topRef} />
         </VisibilitySensor>
-        <div className={classes.header}>
+        <div className={classes.header} role="search">
           <div className={classes.actionsContainer}>
             <FileBrowserActions
               sort={sort}
@@ -175,6 +179,7 @@ function FileBrowserPage(props) {
               showFilters={!showFilters}
               onToggleFilters={handleToggleFilters}
               className={classes.actions}
+              showFiltersRef={showFiltersRef}
             />
           </div>
           <div className={classes.filters}>
@@ -231,10 +236,14 @@ function FileBrowserPage(props) {
           </div>
         </div>
       </div>
-      <FilterPane
-        onClose={handleToggleFilters}
-        className={clsx(classes.filterPane, { [classes.hidden]: !showFilters })}
-      />
+      {showFilters && (
+        <FilterPane
+          onClose={handleToggleFilters}
+          className={clsx(classes.filterPane)}
+          aria-label={intl.formatMessage({ id: "aria.label.filterPane" })}
+          role="search"
+        />
+      )}
     </div>
   );
 }

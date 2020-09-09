@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import SceneType from "./SceneType";
+import SceneType from "../SceneType";
 import SceneList from "./SceneList";
 import Scene from "./Scene";
 import { useIntl } from "react-intl";

@@ -1,12 +1,11 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import ObjectType from "./ObjectType";
+import ObjectType from "../ObjectType";
 import Popper from "@material-ui/core/Popper";
 import Paper from "@material-ui/core/Paper";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
-import { useIntl } from "react-intl";
 import ObjectPreview from "./ObjectPreview";
 
 const useStyles = makeStyles((theme) => ({
@@ -49,10 +48,37 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ObjectGroupPopper(props) {
-  const { objects, onClose, onJump, className, ...other } = props;
+  const {
+    objects,
+    onClose,
+    onJump,
+    className,
+    onKeyClose,
+    autoFocusItem = true,
+    ...other
+  } = props;
   const classes = useStyles();
 
+  const [focusIndex, setFocusIndex] = useState(0);
   const [arrowRef, setArrowRef] = useState(null);
+
+  const handleKeyDown = useCallback(
+    (event) => {
+      const key = event.key;
+      if (key === "ArrowDown") {
+        event.preventDefault();
+        setFocusIndex(Math.min(focusIndex + 1, objects.length - 1));
+      } else if (key === "ArrowUp") {
+        event.preventDefault();
+        setFocusIndex(Math.max(focusIndex - 1, 0));
+      } else if (key === "Escape" || key === "Tab") {
+        event.preventDefault();
+        onKeyClose();
+        onClose();
+      }
+    },
+    [focusIndex, objects.length, onKeyClose, onClose]
+  );
 
   return (
     <Popper
@@ -67,12 +93,16 @@ function ObjectGroupPopper(props) {
     >
       <span className={classes.arrow} ref={setArrowRef} />
       <ClickAwayListener onClickAway={onClose}>
-        <Paper className={clsx(classes.content, className)}>
-          {objects.map((object) => (
+        <Paper
+          className={clsx(classes.content, className)}
+          onKeyDown={handleKeyDown}
+        >
+          {objects.map((object, index) => (
             <ObjectPreview
               object={object}
               onJump={onJump}
               key={object.position}
+              autoFocus={index === focusIndex}
             />
           ))}
         </Paper>
@@ -90,6 +120,14 @@ ObjectGroupPopper.propTypes = {
    * Callback to handle click on object
    */
   onJump: PropTypes.func,
+  /**
+   * Auto-focus on the first element when open
+   */
+  autoFocusItem: PropTypes.bool,
+  /**
+   * On close triggered by keyboard
+   */
+  onKeyClose: PropTypes.func,
   className: PropTypes.string,
 };
 

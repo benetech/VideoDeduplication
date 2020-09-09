@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const file = randomFile();
-file.matches = [...randomMatches(3)];
+file.matches = [...randomMatches(3, file)];
 
 /**
  * Get i18n text
@@ -52,6 +52,8 @@ function useMessages(file) {
   const matches = String(file.matches.length).padStart(2, "0");
   return {
     matched: intl.formatMessage({ id: "file.matched" }, { count: matches }),
+    showFilters: intl.formatMessage({ id: "actions.showFiltersPane" }),
+    searchMatches: intl.formatMessage({ id: "actions.searchMatches" }),
   };
 }
 
@@ -71,17 +73,29 @@ function FileMatchesPage(props) {
       </FileActionHeader>
       <FileSummaryHeader file={file} className={classes.summaryHeader} />
       <SectionSeparator title={messages.matched} className={classes.separator}>
-        <SquaredIconButton variant="outlined" className={classes.actionButton}>
+        <SquaredIconButton
+          variant="outlined"
+          className={classes.actionButton}
+          aria-label={messages.searchMatches}
+        >
           <SearchOutlinedIcon color="secondary" />
         </SquaredIconButton>
-        <SquaredIconButton variant="outlined" className={classes.actionButton}>
+        <SquaredIconButton
+          variant="outlined"
+          className={classes.actionButton}
+          aria-label={messages.searchMatches}
+        >
           <TuneOutlinedIcon color="secondary" />
         </SquaredIconButton>
       </SectionSeparator>
-      <div className={classes.matches}>
+      <div
+        role="region"
+        aria-label={messages.matched}
+        className={classes.matches}
+      >
         <Grid container spacing={4}>
           {file.matches.map((match) => (
-            <Grid item xs={6} lg={3}>
+            <Grid item xs={6} lg={3} key={match.file.id}>
               <MatchPreview match={match} />
             </Grid>
           ))}

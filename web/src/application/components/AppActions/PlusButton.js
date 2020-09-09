@@ -2,7 +2,9 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import Button from "@material-ui/core/Button";
+import SquaredIconButton from "../../../common/components/SquaredIconButton";
+import AddOutlinedIcon from "@material-ui/icons/AddOutlined";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles(() => ({
   button: {
@@ -16,16 +18,18 @@ const useStyles = makeStyles(() => ({
 function PlusButton(props) {
   const { onClick, className } = props;
   const classes = useStyles();
+  const intl = useIntl();
+
   return (
-    <Button
+    <SquaredIconButton
       onClick={onClick}
       color="primary"
       variant="contained"
-      component="div"
       className={clsx(classes.button, className)}
+      aria-label={intl.formatMessage({ id: "actions.addMedia" })}
     >
-      +
-    </Button>
+      <AddOutlinedIcon />
+    </SquaredIconButton>
   );
 }
 

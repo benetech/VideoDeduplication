@@ -1,7 +1,6 @@
 import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
 import { Category } from "./category";
 import CategoryButton from "./CategoryButton";
@@ -11,10 +10,6 @@ import GroupWorkOutlinedIcon from "@material-ui/icons/GroupWorkOutlined";
 import AdjustOutlinedIcon from "@material-ui/icons/AdjustOutlined";
 import { formatCount } from "../../../../common/helpers/format";
 import Grid from "@material-ui/core/Grid";
-
-const useStyles = makeStyles((theme) => ({
-  selector: {},
-}));
 
 function useNames() {
   const intl = useIntl();
@@ -44,11 +39,17 @@ const icons = {
 
 function CategorySelector(props) {
   const { category: selected, onChange, counts, dense, className } = props;
-  const classes = useStyles();
   const names = useNames();
+  const intl = useIntl();
 
   return (
-    <Grid container spacing={2} className={clsx(className)}>
+    <Grid
+      container
+      spacing={2}
+      className={clsx(className)}
+      role="listbox"
+      aria-label={intl.formatMessage({ id: "aria.label.categorySelector" })}
+    >
       {categories.map((category) => (
         <CategoryButton
           name={names[category]}

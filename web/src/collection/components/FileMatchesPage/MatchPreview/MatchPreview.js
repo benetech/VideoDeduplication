@@ -11,6 +11,7 @@ import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import FileAttributes from "./FileAttributes";
 import Distance from "./Distance";
 import { useIntl } from "react-intl";
+import ButtonBase from "@material-ui/core/ButtonBase";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,6 +19,10 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
+    "&:focus": {
+      outline: "none",
+      boxShadow: "0 12px 18px 0 rgba(0,0,0,0.28)",
+    },
   },
   nameContainer: {
     display: "flex",
@@ -79,13 +84,34 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Get i18n text
+ */
+function useMessages(file) {
+  const intl = useIntl();
+  return {
+    moreInfo: intl.formatMessage({ id: "actions.moreInfo" }),
+    ariaLabel: intl.formatMessage(
+      { id: "aria.label.matchedFile" },
+      { name: file.filename }
+    ),
+    moreOptions: intl.formatMessage({ id: "actions.showMoreOptions" }),
+  };
+}
+
 function MatchPreview(props) {
   const { match, highlight, className } = props;
   const file = match.file;
   const intl = useIntl();
   const classes = useStyles();
+  const messages = useMessages(file);
+
   return (
-    <Paper className={clsx(classes.root, className)}>
+    <Paper
+      className={clsx(classes.root, className)}
+      tabIndex={0}
+      aria-label={messages.ariaLabel}
+    >
       <div className={classes.nameContainer}>
         <div className={classes.iconContainer}>
           <VideocamOutlinedIcon className={classes.icon} />
@@ -98,7 +124,7 @@ function MatchPreview(props) {
             <Marked mark={highlight}>{file.filename}</Marked>
           </div>
         </div>
-        <IconButton size="small">
+        <IconButton size="small" aria-label={messages.moreOptions}>
           <MoreHorizOutlinedIcon fontSize="small" />
         </IconButton>
       </div>
@@ -108,9 +134,14 @@ function MatchPreview(props) {
       <Distance value={match.distance} className={classes.distance} />
       <div className={classes.divider} />
       <div className={classes.more}>
-        <div className={classes.link}>
-          {intl.formatMessage({ id: "actions.moreInfo" })}
-        </div>
+        <ButtonBase
+          className={classes.link}
+          focusRipple
+          disableTouchRipple
+          aria-label={messages.moreInfo}
+        >
+          {messages.moreInfo}
+        </ButtonBase>
       </div>
     </Paper>
   );

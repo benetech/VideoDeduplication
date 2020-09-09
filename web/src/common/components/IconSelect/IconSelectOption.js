@@ -11,6 +11,7 @@ function IconSelectOption(props) {
     icon: Icon,
     tooltip,
     className,
+    "aria-label": ariaLabel,
     ...other
   } = props;
 
@@ -23,6 +24,9 @@ function IconSelectOption(props) {
       variant={selected ? "contained" : "outlined"}
       color={selected ? "primary" : "secondary"}
       className={className}
+      role="option"
+      aria-checked={selected}
+      aria-label={ariaLabel || tooltip}
     >
       <Icon />
     </SquaredIconButton>
