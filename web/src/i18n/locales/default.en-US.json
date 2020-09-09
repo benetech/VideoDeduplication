@@ -33,6 +33,8 @@
     "aria.label.objectTimeline": "Objects on Time Line",
     "aria.label.objectGroup": "Objects recognized at {time}",
     "aria.label.scene": "Scene at {time}",
+    "aria.label.videoPlayerRegion": "Video Player Panel",
+    "aria.label.fileAttributesRegion": "File Attributes Panel",
     "actions.showFiltersPane": "Show Filters Pane",
     "actions.hideFiltersPane": "Hide Filters Pane",
     "actions.saveFilters": "Save Filters",

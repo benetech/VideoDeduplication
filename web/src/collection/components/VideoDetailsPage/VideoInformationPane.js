@@ -59,6 +59,7 @@ function useMessages() {
     info: intl.formatMessage({ id: "file.tabInfo" }),
     objects: intl.formatMessage({ id: "file.tabObjects" }),
     exif: intl.formatMessage({ id: "file.tabExif" }),
+    ariaLabel: intl.formatMessage({ id: "aria.label.fileAttributesRegion" }),
   };
 }
 
@@ -71,7 +72,11 @@ function VideoInformationPane(props) {
   const DataPanel = dataComponent(tab);
 
   return (
-    <Paper className={clsx(classes.root, className)}>
+    <Paper
+      className={clsx(classes.root, className)}
+      role="region"
+      aria-label={messages.ariaLabel}
+    >
       <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
         <SelectableTab label={messages.info} value={Tab.info} />
         <SelectableTab label={messages.objects} value={Tab.objects} />
