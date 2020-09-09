@@ -14,6 +14,7 @@ export default function usePopup(prefix = "") {
       ref,
       "aria-controls": id,
       "aria-haspopup": true,
+      "aria-expanded": open,
       onClick: handleClick,
     },
     popup: {
