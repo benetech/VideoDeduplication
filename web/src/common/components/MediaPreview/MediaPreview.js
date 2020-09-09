@@ -93,6 +93,17 @@ function MediaPreview(props) {
     [preview]
   );
 
+  /**
+   * Do not allow Enter or Space key-press events to bubble
+   * because it may trigger unwanted actions in parent elements.
+   */
+  const handleKeyDown = useCallback((event) => {
+    const key = event.key;
+    if (key === " " || key === "Enter") {
+      event.stopPropagation();
+    }
+  }, []);
+
   // Define preview icon
   let previewIcon;
   if (preview) {
@@ -115,6 +126,7 @@ function MediaPreview(props) {
           [classes.clickable]: onMediaClick != null && preview,
         })}
         onClick={preview ? onMediaClick : undefined}
+        onKeyDown={handleKeyDown}
       >
         <div className={preview ? classes.actionsShow : classes.actionsHide}>
           <IconButton
