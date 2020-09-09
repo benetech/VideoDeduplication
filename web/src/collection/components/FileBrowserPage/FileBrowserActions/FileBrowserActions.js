@@ -36,6 +36,7 @@ const FileBrowserActions = React.forwardRef(function FingerprintViewActions(
     showFilters = true,
     onToggleFilters,
     showFiltersControls,
+    showFiltersRef,
     className,
   } = props;
   const classes = useStyles();
@@ -63,6 +64,7 @@ const FileBrowserActions = React.forwardRef(function FingerprintViewActions(
         <SquaredIconButton
           variant="outlined"
           color="secondary"
+          ref={showFiltersRef}
           onClick={onToggleFilters}
           className={classes.action}
           aria-controls={showFiltersControls}
@@ -90,6 +92,10 @@ FileBrowserActions.propTypes = {
    * Id of the filters pane element
    */
   showFiltersControls: PropTypes.string,
+  /**
+   * Reference to show filter button
+   */
+  showFiltersRef: PropTypes.any,
   className: PropTypes.string,
 };
 

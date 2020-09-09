@@ -138,6 +138,7 @@ function FileBrowserPage(props) {
   const history = useHistory();
   const List = listComponent(view);
   const intl = useIntl();
+  const showFiltersRef = useRef();
 
   useEffect(() => {
     dispatch(updateFilters({ query: "" }));
@@ -145,9 +146,10 @@ function FileBrowserPage(props) {
 
   const handleFetchPage = useCallback(() => dispatch(fetchFiles()), []);
 
-  const handleToggleFilters = useCallback(() => setShowFilters(!showFilters), [
-    showFilters,
-  ]);
+  const handleToggleFilters = useCallback(() => {
+    setShowFilters(!showFilters);
+    setTimeout(() => showFiltersRef.current.focus());
+  }, [showFilters, showFiltersRef]);
 
   const handleQuery = useCallback((query) => {
     dispatch(updateFilters({ query }));
@@ -177,6 +179,7 @@ function FileBrowserPage(props) {
               showFilters={!showFilters}
               onToggleFilters={handleToggleFilters}
               className={classes.actions}
+              showFiltersRef={showFiltersRef}
             />
           </div>
           <div className={classes.filters}>
@@ -233,12 +236,14 @@ function FileBrowserPage(props) {
           </div>
         </div>
       </div>
-      <FilterPane
-        onClose={handleToggleFilters}
-        className={clsx(classes.filterPane, { [classes.hidden]: !showFilters })}
-        aria-label={intl.formatMessage({ id: "aria.label.filterPane" })}
-        role="search"
-      />
+      {showFilters && (
+        <FilterPane
+          onClose={handleToggleFilters}
+          className={clsx(classes.filterPane)}
+          aria-label={intl.formatMessage({ id: "aria.label.filterPane" })}
+          role="search"
+        />
+      )}
     </div>
   );
 }

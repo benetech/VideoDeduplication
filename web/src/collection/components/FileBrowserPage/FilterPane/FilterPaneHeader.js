@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -26,10 +26,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function FilterPaneHeader(props) {
+function FilterPaneHeader(props, ref) {
   const {
     onClose,
     onSave,
+    autoFocus = false,
     "aria-controls": ariaControls,
     className,
     ...other
@@ -37,6 +38,15 @@ function FilterPaneHeader(props) {
 
   const classes = useStyles();
   const intl = useIntl();
+  const buttonRef = useRef();
+
+  useEffect(() => {
+    if (autoFocus) {
+      console.log("Focusing", buttonRef.current);
+      buttonRef.current.focus();
+      // setTimeout(() => );
+    }
+  }, [autoFocus, buttonRef]);
 
   return (
     <div className={clsx(classes.header, className)} {...other}>
@@ -45,7 +55,7 @@ function FilterPaneHeader(props) {
         variant="outlined"
         color="secondary"
         className={classes.toggleButton}
-        tabIndex={1}
+        ref={buttonRef}
         aria-label={intl.formatMessage({ id: "actions.hideFiltersPane" })}
         aria-controls={ariaControls}
       >
@@ -58,7 +68,6 @@ function FilterPaneHeader(props) {
       <IconButton
         onClick={onSave}
         size="small"
-        tabIndex={1}
         aria-label={intl.formatMessage({ id: "actions.saveFilters" })}
       >
         <SaveOutlinedIcon />
@@ -66,7 +75,6 @@ function FilterPaneHeader(props) {
       <IconButton
         onClick={onClose}
         size="small"
-        tabIndex={1}
         aria-label={intl.formatMessage({ id: "actions.hideFiltersPane" })}
         aria-controls={ariaControls}
       >
@@ -77,6 +85,10 @@ function FilterPaneHeader(props) {
 }
 
 FilterPaneHeader.propTypes = {
+  /**
+   * Autofocus header when shown
+   */
+  autoFocus: PropTypes.bool,
   onClose: PropTypes.func,
   onSave: PropTypes.func,
   className: PropTypes.string,
