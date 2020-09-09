@@ -101,12 +101,28 @@ const FileGridListItem = React.memo(function FpGridListItem(props) {
   const messages = useMessages(intl);
   const handleClick = useCallback(() => onClick(file), [file, onClick]);
 
+  /**
+   * Support keyboard actions
+   */
+  const handleKeyDown = useCallback(
+    (event) => {
+      const key = event.key;
+      if (key === " " || key === "Enter") {
+        event.preventDefault();
+        onClick(file);
+      }
+    },
+    [onClick]
+  );
+
   const classes = useStyles();
   return (
     <FileGridListItemContainer
       className={clsx(button && classes.asButton, className)}
       dense={dense}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
       aria-label={intl.formatMessage({ id: "actions.showFileDetails" })}
     >
       <MediaPreview
