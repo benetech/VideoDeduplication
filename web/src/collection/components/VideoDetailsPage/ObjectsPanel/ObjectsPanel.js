@@ -3,9 +3,9 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { FileType } from "../../FileBrowserPage/FileType";
-import ObjectGroupList from "../ObjectGroupList";
+import ObjectGroupList from "./ObjectGroupList";
 import { groupObjects } from "../groupObjects";
-import ObjectGroupListItem from "../ObjectGroupListItem";
+import ObjectGroupListItem from "./ObjectGroupListItem";
 
 const useStyles = makeStyles((theme) => ({
   objectPane: {

@@ -9,6 +9,7 @@ import ObjectKinds from "../ObjectKinds";
 import Tooltip from "@material-ui/core/Tooltip";
 import { formatDuration } from "../../../../common/helpers/format";
 import { useIntl } from "react-intl";
+import { ButtonBase } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   groupListItem: {
@@ -75,6 +76,14 @@ function startTime(objects) {
   return Math.min(...objects.map((object) => object.position));
 }
 
+/**
+ * Get a11y label for time caption
+ */
+function captionLabel(objects, intl) {
+  const time = formatDuration(startTime(objects), null, false);
+  return intl.formatMessage({ id: "aria.label.objectGroup" }, { time });
+}
+
 function icon(object) {
   const kind = ObjectKinds[object.kind];
   const Icon = kind.icon;
@@ -94,6 +103,10 @@ function ObjectGroupListItem(props) {
         time={position}
         className={classes.caption}
         onClick={() => onJump({ position })}
+        component={ButtonBase}
+        focusRipple
+        disableTouchRipple
+        aria-label={captionLabel(objects, intl)}
       />
       <div className={classes.objects}>
         {objects.map((object) => (
@@ -106,6 +119,7 @@ function ObjectGroupListItem(props) {
               variant="text"
               className={classes.object}
               onClick={() => onJump(object)}
+              aria-label={description(object, intl)}
             >
               {icon(object)}
             </SquaredIconButton>
