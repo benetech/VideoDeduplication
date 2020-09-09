@@ -58,7 +58,7 @@ function useMessages() {
 }
 
 const file = randomFile();
-file.matches = [...randomMatches(3)];
+file.matches = [...randomMatches(3, file)];
 
 function VideoDetailsPage(props) {
   const { className } = props;

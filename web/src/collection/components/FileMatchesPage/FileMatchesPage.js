@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const file = randomFile();
-file.matches = [...randomMatches(3)];
+file.matches = [...randomMatches(3, file)];
 
 /**
  * Get i18n text

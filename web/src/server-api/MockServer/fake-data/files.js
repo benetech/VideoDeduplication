@@ -3,16 +3,17 @@ import { randomScenes } from "./scene";
 import { randomObjects } from "./objects";
 import { fakeExif } from "./exif";
 
-export function randomMatch() {
+export function randomMatch(source) {
   return {
+    source,
     file: randomFile(),
     distance: Math.random(),
   };
 }
 
-export function* randomMatches(count) {
+export function* randomMatches(count, source) {
   for (let i = 0; i < count; i++) {
-    yield randomMatch();
+    yield randomMatch(source);
   }
 }
 
@@ -48,7 +49,7 @@ export function randomFile() {
     preview: randomPreview(),
     playbackURL: randomPlayback(),
     scenes: [...randomScenes(10 + Math.random() * 5, length)],
-    objects: [...randomObjects(20, length)],
+    objects: [...randomObjects(50, length)],
     exif: fakeExif,
   };
 }
