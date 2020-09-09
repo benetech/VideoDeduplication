@@ -2,12 +2,12 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles, withStyles } from "@material-ui/styles";
-import ObjectType from "./ObjectType";
-import TimeCaption from "./TimeCaption";
-import SquaredIconButton from "../../../common/components/SquaredIconButton";
-import ObjectKinds from "./ObjectKinds";
+import ObjectType from "../ObjectType";
+import TimeCaption from "../TimeCaption";
+import SquaredIconButton from "../../../../common/components/SquaredIconButton";
+import ObjectKinds from "../ObjectKinds";
 import Tooltip from "@material-ui/core/Tooltip";
-import { formatDuration } from "../../../common/helpers/format";
+import { formatDuration } from "../../../../common/helpers/format";
 import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({

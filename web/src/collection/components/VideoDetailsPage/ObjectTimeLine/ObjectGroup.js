@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import ObjectType from "./ObjectType";
-import usePopup from "../../../common/hooks/usePopup";
+import ObjectType from "../ObjectType";
+import usePopup from "../../../../common/hooks/usePopup";
 import ObjectGroupPopper from "./ObjectGroupPopper";
+import { ButtonBase } from "@material-ui/core";
+import { useIntl } from "react-intl";
+import { objectTime } from "./helpers";
 
 const useStyles = makeStyles((theme) => ({
   objectGroup: {
@@ -41,17 +44,37 @@ function ObjectGroup(props) {
   const { objects, fullLength, onJump, className } = props;
   const classes = useStyles();
   const { popup, clickTrigger } = usePopup("object-group");
+  const intl = useIntl();
 
   const left = percents(relativePosition(objects, fullLength));
 
+  /**
+   * Move focus back to the object group when popper is closed by
+   * the keyboard action.
+   */
+  const handlePopperClose = useCallback(() => {
+    clickTrigger.ref.current.focus();
+  }, [clickTrigger.ref]);
+
   return (
     <React.Fragment>
-      <div
+      <ButtonBase
         className={clsx(classes.objectGroup, className)}
         style={{ left }}
         {...clickTrigger}
+        focusRipple
+        disableTouchRipple
+        aria-label={intl.formatMessage(
+          { id: "aria.label.objectGroup" },
+          { time: objectTime(objects[0]) }
+        )}
       />
-      <ObjectGroupPopper objects={objects} onJump={onJump} {...popup} />
+      <ObjectGroupPopper
+        objects={objects}
+        onJump={onJump}
+        onKeyClose={handlePopperClose}
+        {...popup}
+      />
     </React.Fragment>
   );
 }

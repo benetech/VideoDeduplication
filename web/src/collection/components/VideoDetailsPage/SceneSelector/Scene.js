@@ -2,9 +2,9 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import SceneType from "./SceneType";
-import MediaPreview from "../../../common/components/MediaPreview";
-import TimeCaption from "./TimeCaption";
+import SceneType from "../SceneType";
+import MediaPreview from "../../../../common/components/MediaPreview";
+import TimeCaption from "../TimeCaption";
 
 const useStyles = makeStyles((theme) => ({
   scene: {
