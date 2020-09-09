@@ -40,7 +40,7 @@ function FileAttributes(props) {
     <Table className={clsx(className)}>
       <TableBody>
         {attrs.map((attr) => (
-          <TableRow>
+          <TableRow key={attr.title}>
             <TableCell className={classes.attrName}>{attr.title}</TableCell>
             <TableCell className={classes.attrValue}>{attr.value}</TableCell>
           </TableRow>

@@ -95,7 +95,7 @@ function FileMatchesPage(props) {
       >
         <Grid container spacing={4}>
           {file.matches.map((match) => (
-            <Grid item xs={6} lg={3}>
+            <Grid item xs={6} lg={3} key={match.file.id}>
               <MatchPreview match={match} />
             </Grid>
           ))}
