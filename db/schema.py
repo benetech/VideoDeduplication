@@ -1,37 +1,37 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine,Table, Column, String, MetaData,Integer,Binary,Boolean,Float,ARRAY,JSON,ForeignKey,UniqueConstraint,DateTime
 import datetime
+
+from sqlalchemy import Column, String, Integer, Binary, Boolean, Float, ARRAY, JSON, ForeignKey, UniqueConstraint, \
+    DateTime
+from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
 
 class Files(Base):
-
     __tablename__ = 'files'
-    __table_args__ = (UniqueConstraint('file_path', 'sha256', name='_file_uc'), )
+    __table_args__ = (UniqueConstraint('file_path', 'sha256', name='_file_uc'),)
 
-    id = Column(Integer,primary_key=True)
+    id = Column(Integer, primary_key=True)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     sha256 = Column(String)
     file_path = Column(String)
 
 
 class Signature(Base):
-    
     __tablename__ = 'signatures'
-    id = Column(Integer,primary_key=True)
-    file_id = Column(Integer,ForeignKey('files.id')) 
+    id = Column(Integer, primary_key=True)
+    file_id = Column(Integer, ForeignKey('files.id'))
     signature = Column(Binary)
+
 
 # TODO:Revaluate which columns are actually essential
 # TODO: Add sha signature
 
 class VideoMetadata(Base):
-    
     __tablename__ = 'videometadata'
 
-    id = Column(Integer,primary_key = True) 
-    file_id = Column(Integer,ForeignKey('files.id')) 
+    id = Column(Integer, primary_key=True)
+    file_id = Column(Integer, ForeignKey('files.id'))
     video_length = Column(Float)
     avg_act = Column(Float)
     video_avg_std = Column(Float)
@@ -43,13 +43,12 @@ class VideoMetadata(Base):
     video_duration_flag = Column(Boolean)
     video_dark_flag = Column(Boolean)
     flagged = Column(Boolean)
-    
+
 
 class Scenes(Base):
-
     __tablename__ = 'scenes'
-    id = Column(Integer,primary_key = True)
-    file_id = Column(Integer,ForeignKey('files.id')) 
+    id = Column(Integer, primary_key=True)
+    file_id = Column(Integer, ForeignKey('files.id'))
     video_duration_seconds = Column(Float)
     avg_duration_seconds = Column(Float)
     scene_duration_seconds = Column(ARRAY(Integer))
@@ -58,22 +57,20 @@ class Scenes(Base):
 
 
 class Matches(Base):
-
     __tablename__ = 'matches'
-    id = Column(Integer, primary_key = True) 
+    id = Column(Integer, primary_key=True)
     query_video = Column(String)
-    query_video_file_id = Column(Integer,ForeignKey('files.id')) 
+    query_video_file_id = Column(Integer, ForeignKey('files.id'))
     match_video = Column(String)
-    match_video_file_id = Column(Integer,ForeignKey('files.id')) 
+    match_video_file_id = Column(Integer, ForeignKey('files.id'))
     distance = Column(Float)
 
 
 class Exif(Base):
-
     __tablename__ = 'exif'
-    
-    id = Column(Integer,primary_key = True)
-    file_id = Column(Integer,ForeignKey('files.id')) 
+
+    id = Column(Integer, primary_key=True)
+    file_id = Column(Integer, ForeignKey('files.id'))
 
     General_FileExtension = Column(String)
     General_Format_Commercial = Column(String)
@@ -102,8 +99,3 @@ class Exif(Base):
     Audio_Encoded_Date = Column(String)
     Audio_Tagged_Date = Column(String)
     Json_full_exif = Column(JSON)
-
-
-
-
-
