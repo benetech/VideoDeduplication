@@ -1,8 +1,9 @@
 import datetime
 
-from sqlalchemy import Column, String, Integer, Binary, Boolean, Float, ARRAY, JSON, ForeignKey, UniqueConstraint, \
-    DateTime
+from sqlalchemy import Column, String, Integer, Binary, Boolean, \
+    Float, ARRAY, JSON, ForeignKey, UniqueConstraint, DateTime
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -15,12 +16,18 @@ class Files(Base):
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     sha256 = Column(String)
     file_path = Column(String)
+    signature = relationship("Signature", uselist=False, back_populates="file")
+    metadata = relationship("VideoMetadata", uselist=False, back_populates="file")
+    scenes = relationship("Scenes", back_populates="file")
+    matches = relationship("Matches", back_populates="query_video_file")
+    exif = relationship("Exif", uselist=False, back_populates="file")
 
 
 class Signature(Base):
     __tablename__ = 'signatures'
     id = Column(Integer, primary_key=True)
     file_id = Column(Integer, ForeignKey('files.id'))
+    file = relationship("Files", back_populates="signature")
     signature = Column(Binary)
 
 
@@ -32,13 +39,13 @@ class VideoMetadata(Base):
 
     id = Column(Integer, primary_key=True)
     file_id = Column(Integer, ForeignKey('files.id'))
+    file = relationship("Files", back_populates="metadata")
     video_length = Column(Float)
     avg_act = Column(Float)
     video_avg_std = Column(Float)
     video_max_dif = Column(Float)
     gray_avg = Column(Float)
     gray_std = Column(Float)
-    gray_max = Column(Float)
     gray_max = Column(Float)
     video_duration_flag = Column(Boolean)
     video_dark_flag = Column(Boolean)
@@ -49,6 +56,7 @@ class Scenes(Base):
     __tablename__ = 'scenes'
     id = Column(Integer, primary_key=True)
     file_id = Column(Integer, ForeignKey('files.id'))
+    file = relationship("Files", back_populates="scenes")
     video_duration_seconds = Column(Float)
     avg_duration_seconds = Column(Float)
     scene_duration_seconds = Column(ARRAY(Integer))
@@ -61,6 +69,7 @@ class Matches(Base):
     id = Column(Integer, primary_key=True)
     query_video = Column(String)
     query_video_file_id = Column(Integer, ForeignKey('files.id'))
+    query_video_file = relationship("Files", back_populates="matches")
     match_video = Column(String)
     match_video_file_id = Column(Integer, ForeignKey('files.id'))
     distance = Column(Float)
@@ -71,6 +80,7 @@ class Exif(Base):
 
     id = Column(Integer, primary_key=True)
     file_id = Column(Integer, ForeignKey('files.id'))
+    file = relationship("Files", back_populates="exif")
 
     General_FileExtension = Column(String)
     General_Format_Commercial = Column(String)
