@@ -2,7 +2,7 @@
 # sys.path.append('..')
 
 from flask import jsonify, request, g, url_for, current_app
-from model import Signature
+from ..model import Signature
 from .blueprint import api
 
 

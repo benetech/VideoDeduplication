@@ -1,5 +1,5 @@
 from flask import jsonify, request, g, url_for, current_app
-from model import Matches
+from ..model import Matches
 from .blueprint import api
 
 

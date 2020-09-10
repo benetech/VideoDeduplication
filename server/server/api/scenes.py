@@ -2,7 +2,7 @@
 # sys.path.append('..')
 
 from flask import jsonify, request, g, url_for, current_app
-from model import Scenes
+from ..model import Scenes
 from .blueprint import api
 
 
