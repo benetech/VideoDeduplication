@@ -20,7 +20,7 @@ def test_transform_basic():
 
     sig = result["signature"]
     assert sig["id"] == file.signature.id
-    assert sig["signature"] == base64.encodebytes(file.signature.signature)
+    assert sig["signature"] == base64.b64encode(file.signature.signature).decode('UTF-8')
     assert "file" not in sig
 
 

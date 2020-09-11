@@ -23,7 +23,7 @@ def filter_values(entries):
 
 # Custom value serializers
 _SERIALIZE = {
-    bytes: base64.encodebytes,
+    bytes: lambda value: base64.b64encode(value).decode('UTF-8'),
     datetime: datetime.timestamp
 }
 

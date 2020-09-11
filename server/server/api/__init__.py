@@ -1,2 +1,2 @@
 from .blueprint import api
-from . import signatures, videometadata, scenes, matches
+from . import videometadata, scenes, matches, files
