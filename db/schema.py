@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, String, Integer, Binary, Boolean, \
+from sqlalchemy import Column, String, Integer, LargeBinary, Boolean, \
     Float, ARRAY, JSON, ForeignKey, UniqueConstraint, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -28,7 +28,7 @@ class Signature(Base):
     id = Column(Integer, primary_key=True)
     file_id = Column(Integer, ForeignKey('files.id'))
     file = relationship("Files", back_populates="signature")
-    signature = Column(Binary)
+    signature = Column(LargeBinary)
 
 
 # TODO:Revaluate which columns are actually essential
