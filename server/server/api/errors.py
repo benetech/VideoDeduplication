@@ -1,3 +1,4 @@
+import json
 from werkzeug.exceptions import HTTPException
 
 from .blueprint import api
@@ -5,7 +6,8 @@ from .blueprint import api
 
 @api.errorhandler(HTTPException)
 def error_handler(exception):
-    """Empty response for API errors"""
+    """JSON response for API errors"""
     response = exception.get_response()
-    response.data = ""
+    response.data = json.dumps({"error": exception.description, "code": exception.code})
+    response.content_type = "application/json"
     return response

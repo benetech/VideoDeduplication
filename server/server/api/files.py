@@ -37,14 +37,26 @@ class Arguments:
         include = {field: (field in fields) for field in Arguments.ADDITIONAL_FIELDS}
         return include, options
 
+    @staticmethod
+    def validate(limit, offset):
+        """Validate arguments"""
 
-@api.route('/files/')
+        if limit < 0:
+            abort(HTTPStatus.BAD_REQUEST.value, "'limit' cannot be negative")
+
+        if offset < 0:
+            abort(HTTPStatus.BAD_REQUEST.value, "'offset' cannot be negative")
+
+
+@api.route('/files/', methods=['GET'])
 def list_files():
     limit = request.args.get('limit', 20, type=int)
     offset = request.args.get('offset', 0, type=int)
     path_query = request.args.get('path', '', type=str).strip()  # TODO: update Web UI
     extensions = Arguments.extensions()
     include, include_options = Arguments.include()
+
+    Arguments.validate(limit, offset)
 
     query = database.session.query(Files).options(*include_options)
 
@@ -57,7 +69,7 @@ def list_files():
         conditions = (Files.original_filename.ilike(f"%.{ext}") for ext in extensions)
         query = query.filter(or_(*conditions))
 
-    # get requested page
+    # Get requested slice
     total = query.count()
     items = query.offset(offset).limit(limit).all()
 
@@ -67,7 +79,7 @@ def list_files():
     })
 
 
-@api.route('/files/<int:file_id>')
+@api.route('/files/<int:file_id>', methods=['GET'])
 def get_file(file_id):
     include, include_options = Arguments.include()
 
@@ -78,6 +90,6 @@ def get_file(file_id):
 
     # Handle file not found
     if file is None:
-        abort(HTTPStatus.NOT_FOUND.value)
+        abort(HTTPStatus.NOT_FOUND.value, f"File id not found: {file_id}")
 
     return jsonify(Transform.dict(file, matches=False, **include))
