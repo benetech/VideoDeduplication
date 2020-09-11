@@ -17,7 +17,7 @@ class Files(Base):
     sha256 = Column(String)
     file_path = Column(String)
     signature = relationship("Signature", uselist=False, back_populates="file")
-    metadata = relationship("VideoMetadata", uselist=False, back_populates="file")
+    meta = relationship("VideoMetadata", uselist=False, back_populates="file")
     scenes = relationship("Scenes", back_populates="file")
     matches = relationship("Matches", back_populates="query_video_file")
     exif = relationship("Exif", uselist=False, back_populates="file")
@@ -39,7 +39,7 @@ class VideoMetadata(Base):
 
     id = Column(Integer, primary_key=True)
     file_id = Column(Integer, ForeignKey('files.id'))
-    file = relationship("Files", back_populates="metadata")
+    file = relationship("Files", back_populates="meta")
     video_length = Column(Float)
     avg_act = Column(Float)
     video_avg_std = Column(Float)
