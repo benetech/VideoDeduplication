@@ -19,7 +19,7 @@ class Files(Base):
     signature = relationship("Signature", uselist=False, back_populates="file")
     meta = relationship("VideoMetadata", uselist=False, back_populates="file")
     scenes = relationship("Scenes", back_populates="file")
-    matches = relationship("Matches", back_populates="query_video_file")
+    matches = relationship("Matches", back_populates="query_video_file", foreign_keys="Matches.query_video_file_id")
     exif = relationship("Exif", uselist=False, back_populates="file")
 
 
@@ -69,7 +69,7 @@ class Matches(Base):
     id = Column(Integer, primary_key=True)
     query_video = Column(String)
     query_video_file_id = Column(Integer, ForeignKey('files.id'))
-    query_video_file = relationship("Files", back_populates="matches")
+    query_video_file = relationship("Files", back_populates="matches", foreign_keys=[query_video_file_id])
     match_video = Column(String)
     match_video_file_id = Column(Integer, ForeignKey('files.id'))
     distance = Column(Float)
