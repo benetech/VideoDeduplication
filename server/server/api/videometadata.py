@@ -2,9 +2,9 @@
 # sys.path.append('..')
 
 from flask import jsonify, request, url_for
-from ..model import VideoMetadata
 from sqlalchemy import or_
 
+from db.schema import VideoMetadata
 from .blueprint import api
 
 

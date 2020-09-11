@@ -12,11 +12,6 @@ pip install -r requirements.txt
 
 ## Running the Server
 
-Ensure `PYTHONPATH` is pointing to the repository root
-```
-export PYTHONPATH="$(realpath ../)"
-```
-
 Execute 
 ```
 python -m server.main
@@ -25,11 +20,6 @@ python -m server.main
 To get help:
 ```
 python -m server.main --help 
-```
-
-If you don't want to setup the `PYTHONPATH` variable permanently you can simply run:
-```
-PYTHONPATH="$(realpath ../)" python -m server.main
 ```
 
 ## Configuration
@@ -71,12 +61,13 @@ npm install
 npm run build
 ```
 
-Run server and point to the frontend build directory
-```
-STATIC_FOLDER="$(realpath ../web/build)" PYTHONPATH="$(realpath ../)" python -m server.main
+Run server and point to the frontend build directory with `STATIC_FOLDER` environment variable
+```bash
+export STATIC_FOLDER="../web/build" 
+python -m server.main 
 ```
 
 Or specify `--static` argument
 ```
-PYTHONPATH="$(realpath ../)" python -m server.main --static "$(realpath ../web/build)"
+python -m server.main --static ../web/build
 ```

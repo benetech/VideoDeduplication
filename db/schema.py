@@ -1,11 +1,23 @@
 import datetime
 
 from sqlalchemy import Column, String, Integer, LargeBinary, Boolean, \
-    Float, ARRAY, JSON, ForeignKey, UniqueConstraint, DateTime
+    Float, ARRAY, JSON, ForeignKey, UniqueConstraint, DateTime, inspect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-Base = declarative_base()
+
+class Model:
+    """Common methods for all model classes"""
+
+    def fields(self, **include):
+        """Iterate over persistent attributes"""
+        mapper = inspect(self).mapper
+        for attribute in mapper.attrs:
+            if include.get(attribute.key, True) is True:
+                yield attribute.key, getattr(self, attribute.key)
+
+
+Base = declarative_base(cls=Model)
 
 
 class Files(Base):

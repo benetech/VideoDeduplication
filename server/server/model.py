@@ -1,105 +1,56 @@
+import base64
 import math
+from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, String, Integer, Binary, Boolean, Float, ARRAY
+
+from db.schema import Base
 
 database = SQLAlchemy()
-Base = database.Model
 
 
-def not_finite(value):
+def finite(value):
     """Check if value is NaN or +-Infinity"""
-    return isinstance(value, float) and not math.isfinite(value)
+    return not isinstance(value, float) or math.isfinite(value)
 
 
-def filter_json(data, skip=not_finite):
-    return {key: value for (key, value) in data.items() if not skip(value)}
+def filter_values(entries):
+    """Remove unwanted values from dictionary"""
+    for key, value in entries:
+        if value is not None and finite(value):
+            yield key, value
 
 
-class Signature(Base):
-    __tablename__ = 'signatures'
-    id = Column(Integer, primary_key=True)
-    original_filename = Column(String)
-    signature = Column(Binary)
-
-    def to_json(self):
-        json_signature = {
-            'id': self.id,
-            'original_filename': self.original_filename
-        }
-        return filter_json(json_signature)
+# Custom value serializers
+_SERIALIZE = {
+    bytes: base64.encodebytes,
+    datetime: datetime.timestamp
+}
 
 
-# TODO:Revaluate which columns are actually essential
-# TODO: Add sha signature
+class Transform:
+    @staticmethod
+    def dict(entity, **include):
+        """Get JSON-serializable dict for the database entity"""
+        return dict(Transform._dict_attrs(entity, {entity}, **include))
 
-class VideoMetadata(Base):
-    __tablename__ = 'videometadata'
+    @staticmethod
+    def _dict_attrs(entity, _seen, **include):
+        """Iterate over serializable entity attributes"""
+        for key, value in filter_values(entity.fields(**include)):
+            if isinstance(value, Base) and value in _seen:
+                continue
+            yield key, Transform._value(value, _seen)
 
-    original_filename = Column(String, primary_key=True)
-    video_length = Column(Float)
-    avg_act = Column(Float)
-    video_avg_std = Column(Float)
-    video_max_dif = Column(Float)
-    gray_avg = Column(Float)
-    gray_std = Column(Float)
-    gray_max = Column(Float)
-    video_duration_flag = Column(Boolean)
-    video_dark_flag = Column(Boolean)
-    flagged = Column(Boolean)
-
-    def to_json(self):
-        json_videometadata = {
-            "original_filename": self.original_filename,
-            "video_length": self.video_length,
-            "avg_act": self.avg_act,
-            "video_avg_std": self.video_avg_std,
-            "video_max_dif": self.video_max_dif,
-            "gray_avg": self.gray_avg,
-            "gray_std": self.gray_std,
-            "gray_max": self.gray_max,
-            "video_duration_flag": self.video_duration_flag,
-            "video_dark_flag": self.video_dark_flag,
-            "flagged": self.flagged
-        }
-
-        return filter_json(json_videometadata)
-
-
-class Scenes(Base):
-    __tablename__ = 'scenes'
-    original_filename = Column(String, primary_key=True)
-    video_duration_seconds = Column(Float)
-    avg_duration_seconds = Column(Float)
-    scene_duration_seconds = Column(ARRAY(Integer))
-    scenes_timestamp = Column(ARRAY(String))
-    total_video_duration_timestamp = Column(String)
-
-    def to_json(self):
-        json_scenes = {
-            "original_filename": self.original_filename,
-            "video_duration_seconds": self.video_duration_seconds,
-            "avg_duration_seconds": self.avg_duration_seconds,
-            "scene_duration_seconds": self.scene_duration_seconds,
-            "scenes_timestamp": self.scenes_timestamp,
-            "total_video_duration_timestamp": self.total_video_duration_timestamp
-        }
-
-        return filter_json(json_scenes)
-
-
-class Matches(Base):
-    __tablename__ = 'matches'
-    id = Column(Integer, primary_key=True)
-    query_video = Column(String)
-    match_video = Column(String)
-    distance = Column(Float)
-
-    def to_json(self):
-        json_matches = {
-            "query_video": self.query_video,
-            "match_video": self.match_video,
-            "distance": self.distance
-        }
-
-        return filter_json(json_matches)
+    @staticmethod
+    def _value(value, _seen):
+        """Transform value if required"""
+        if isinstance(value, Base):
+            _seen.add(value)
+            return dict(Transform._dict_attrs(value, _seen))
+        elif isinstance(value, list):
+            return [Transform._value(item, _seen) for item in value]
+        elif type(value) in _SERIALIZE:
+            serialize = _SERIALIZE[type(value)]
+            return serialize(value)
+        return value
