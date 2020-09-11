@@ -71,3 +71,16 @@ Or specify `--static` argument
 ```
 python -m server.main --static ../web/build
 ```
+
+## Run Tests
+
+Install dev-dependencies:
+```
+pip install -r requirements-dev.txt
+```
+
+Server uses [pytest](https://docs.pytest.org/en/stable/getting-started.html) framework. 
+To run tests simply execute
+```
+pytest
+```
