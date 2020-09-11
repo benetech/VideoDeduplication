@@ -27,10 +27,12 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
         aws-region: us-east-1
     - name: Build static site
       working-directory: ${{env.working-directory}}
       run: npm install && npm run-script build
     - name: Deploy static site to S3 bucket
       working-directory: ${{env.working-directory}}
+
       run: aws s3 sync ./build/ s3://justiceai --delete
