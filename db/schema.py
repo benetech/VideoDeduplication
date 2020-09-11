@@ -84,6 +84,7 @@ class Matches(Base):
     query_video_file = relationship("Files", back_populates="matches", foreign_keys=[query_video_file_id])
     match_video = Column(String)
     match_video_file_id = Column(Integer, ForeignKey('files.id'))
+    match_video_file = relationship("Files", foreign_keys=[match_video_file_id])
     distance = Column(Float)
 
 

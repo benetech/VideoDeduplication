@@ -1,25 +1,42 @@
-from flask import jsonify, request, g, url_for, current_app
+from http import HTTPStatus
+
+from flask import jsonify, request, abort
+from sqlalchemy.orm import joinedload
+
 from db.schema import Matches
 from .blueprint import api
+from ..model import database, Transform
 
 
-@api.route('/matches/')
-def get_matches():
-    page = request.args.get('page', 1, type=int)
-    pagination = Matches.query.paginate(
-        page, per_page=10,
-        error_out=False)
-    matches = pagination.items
+class Arguments:
+    """REST API arguments preprocessing"""
 
-    prev = None
-    if pagination.has_prev:
-        prev = url_for('api.get_matches', page=page - 1)
-    next = None
-    if pagination.has_next:
-        next = url_for('api.get_matches', page=page + 1)
+    @staticmethod
+    def validate(limit, offset):
+        """Validate arguments"""
+
+        if limit < 0:
+            abort(HTTPStatus.BAD_REQUEST.value, "'limit' cannot be negative")
+
+        if offset < 0:
+            abort(HTTPStatus.BAD_REQUEST.value, "'offset' cannot be negative")
+
+
+@api.route('/files/<int:file_id>/matches', methods=['GET'])
+def list_matches(file_id):
+    limit = request.args.get('limit', 20, type=int)
+    offset = request.args.get('offset', 0, type=int)
+
+    Arguments.validate(limit, offset)
+
+    query = database.session.query(Matches).options(joinedload(Matches.match_video_file))
+    query = query.filter(Matches.query_video_file_id == file_id)
+
+    # Get requested slice
+    total = query.count()
+    items = query.offset(offset).limit(limit).all()
+
     return jsonify({
-        'posts': [match.to_json() for match in matches],
-        'prev': prev,
-        'next': next,
-        'count': pagination.total
+        'items': [Transform.dict(item, query_video_file=False) for item in items],
+        'total': total
     })
