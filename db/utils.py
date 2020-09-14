@@ -7,7 +7,7 @@ import json
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine,Table, Column, String, MetaData,Integer,Binary,Boolean,Float,ARRAY
 from sqlalchemy.orm import sessionmaker
-from .schema import Files,Signature,Scenes,VideoMetadata,Matches,Exif
+from .schema import Files,Signature,Scenes,VideoMetadata,Matches,Exif,Base
 from winnow.utils import get_hash
 
 
@@ -34,20 +34,13 @@ def create_tables(engine):
     Arguments:
         engine {SQL Alchemy DB Engine instance} -- Instance of SQL Alchemy DB session
     """
-    
-    Signature.metadata.create_all(engine)
-    Scenes.metadata.create_all(engine)
-    VideoMetadata.metadata.create_all(engine)
-    Matches.metadata.create_all(engine)
-    Exif.metadata.create_all(engine)
-    
+    Base.metadata.create_all(engine)
+
 def delete_tables(engine):
-    Signature.metadata.drop_all(engine)
-    Scenes.metadata.drop_all(engine)
-    VideoMetadata.metadata.drop_all(engine)
-    Matches.metadata.drop_all(engine)
-    Exif.metadata.drop_all(engine)
-    
+    """Drop database"""
+    Base.metadata.drop_all(engine)
+
+
 # Bulk loading the original output into target tables
 
 def add_scenes(session,scenes):
@@ -63,7 +56,7 @@ def add_scenes(session,scenes):
                             scenes_timestamp = x['scenes_timestamp'],
                             total_video_duration_timestamp = x['total_video_duration_timestamp'],
                             scene_duration_seconds = json.loads(str(x['scene_duration_seconds']))
-                            
+
     ) for i,x in scenes.iterrows()])
 
 
@@ -78,7 +71,7 @@ def load_scenes(session,scenes_df_path):
     df = pd.read_csv(scenes_df_path)
 
     add_scenes(session,df)
-    
+
 def add_files(session,file_paths):
 
     hashes = [get_hash(fp) for fp in file_paths]
@@ -119,7 +112,7 @@ def add_signatures(session,signatures,file_ids):
     finally:
         # Get DB stats
         signatures = get_all(session,Signature)
-        print(f"Signatures table rows:{len(signatures)}")                               
+        print(f"Signatures table rows:{len(signatures)}")
         return signatures
 
 
@@ -138,7 +131,7 @@ def load_signatures(session,signatures_fp,signatures_index):
 
     print(signatures.shape)
     print(filenames.shape)
-    
+
     add_signatures(session,signatures,filenames)
 
 def add_metadata(session,metadata):
@@ -161,7 +154,7 @@ def add_metadata(session,metadata):
                                    video_dark_flag = x['video_dark_flag'],
                                    video_duration_flag = x['video_duration_flag'],
                                    flagged = x['flagged']
-                                   
+
                                    ) for i,x in metadata.iterrows()])
 
 def add_matches(session,matches):
@@ -187,7 +180,7 @@ def load_metadata(session,metadata_df_path):
 
 
     df  = pd.read_csv(metadata_df_path)
-    
+
     add_metadata(session,df)
 
 # DB Queries
@@ -239,7 +232,7 @@ def add_exif(session,exif_df,json_list):
 
     # Results from mediainfo might be inconsistent. So we need to add columns for every expected field (even if there is no info)
     for col in COLUMNS_OF_INTEREST:
-        
+
         if col not in exif_df.columns:
             exif_df[col] = None
 
