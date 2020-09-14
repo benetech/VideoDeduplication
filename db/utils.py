@@ -1,14 +1,12 @@
-
-from glob import glob
-import numpy as np
-import os
-import pandas as pd
 import json
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine,Table, Column, String, MetaData,Integer,Binary,Boolean,Float,ARRAY
+
+import numpy as np
+import pandas as pd
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from .schema import Files,Signature,Scenes,VideoMetadata,Matches,Exif,Base
+
 from winnow.utils import get_hash
+from .schema import Files, Signature, Scenes, VideoMetadata, Matches, Exif, Base
 
 
 def create_engine_session(conn_string):
@@ -24,7 +22,7 @@ def create_engine_session(conn_string):
     Session = sessionmaker(bind=db_engine)
     session = Session()
 
-    return db_engine,session
+    return db_engine, session
 
 
 # Initial table creation / deletion
@@ -36,6 +34,7 @@ def create_tables(engine):
     """
     Base.metadata.create_all(engine)
 
+
 def delete_tables(engine):
     """Drop database"""
     Base.metadata.drop_all(engine)
@@ -43,7 +42,7 @@ def delete_tables(engine):
 
 # Bulk loading the original output into target tables
 
-def add_scenes(session,scenes):
+def add_scenes(session, scenes):
     """Bulk add scenes to DB
     
     Arguments:
@@ -51,16 +50,16 @@ def add_scenes(session,scenes):
         scenes {pd.Dataframe} -- Pandas Dataframe containing scene information 
     """
     session.add_all([Scenes(file_id=x['file_id'],
-                            video_duration_seconds = x['video_duration_seconds'],
-                            avg_duration_seconds = x['avg_duration_seconds'],
-                            scenes_timestamp = x['scenes_timestamp'],
-                            total_video_duration_timestamp = x['total_video_duration_timestamp'],
-                            scene_duration_seconds = json.loads(str(x['scene_duration_seconds']))
+                            video_duration_seconds=x['video_duration_seconds'],
+                            avg_duration_seconds=x['avg_duration_seconds'],
+                            scenes_timestamp=x['scenes_timestamp'],
+                            total_video_duration_timestamp=x['total_video_duration_timestamp'],
+                            scene_duration_seconds=json.loads(str(x['scene_duration_seconds']))
 
-    ) for i,x in scenes.iterrows()])
+                            ) for i, x in scenes.iterrows()])
 
 
-def load_scenes(session,scenes_df_path):
+def load_scenes(session, scenes_df_path):
     """Loads scene information into the scenes DB table
     
     Arguments:
@@ -70,30 +69,27 @@ def load_scenes(session,scenes_df_path):
 
     df = pd.read_csv(scenes_df_path)
 
-    add_scenes(session,df)
+    add_scenes(session, df)
 
-def add_files(session,file_paths):
 
+def add_files(session, file_paths):
     hashes = [get_hash(fp) for fp in file_paths]
     session.add_all([Files(sha256=x[0],
-                               file_path=x[1]) for x in zip(list(hashes),list(file_paths)) ])
+                           file_path=x[1]) for x in zip(list(hashes), list(file_paths))])
 
     try:
         session.commit()
     except Exception as e:
         session.rollback()
-        print('DB Exception',e)
+        print('DB Exception', e)
     finally:
         # Get DB stats
-        files = get_all(session,Files)
+        files = get_all(session, Files)
         print(f"Files table rows:{len(files)}")
         return files
 
 
-
-
-
-def add_signatures(session,signatures,file_ids):
+def add_signatures(session, signatures, file_ids):
     """Bulk add Signatures to db
     
     Arguments:
@@ -101,23 +97,22 @@ def add_signatures(session,signatures,file_ids):
         filenames {np.array} -- Filename index
     """
     session.add_all([Signature(file_id=x[0],
-                               signature=x[1]) for x in zip(list(file_ids),list(signatures)) ])
+                               signature=x[1]) for x in zip(list(file_ids), list(signatures))])
 
     try:
         session.commit()
 
     except Exception as e:
         session.rollback()
-        print('DB Exception',e)
+        print('DB Exception', e)
     finally:
         # Get DB stats
-        signatures = get_all(session,Signature)
+        signatures = get_all(session, Signature)
         print(f"Signatures table rows:{len(signatures)}")
         return signatures
 
 
-
-def load_signatures(session,signatures_fp,signatures_index):
+def load_signatures(session, signatures_fp, signatures_index):
     """Load signatures into DB
     
     Arguments:
@@ -132,9 +127,10 @@ def load_signatures(session,signatures_fp,signatures_index):
     print(signatures.shape)
     print(filenames.shape)
 
-    add_signatures(session,signatures,filenames)
+    add_signatures(session, signatures, filenames)
 
-def add_metadata(session,metadata):
+
+def add_metadata(session, metadata):
     """Bulk add metadata to DB
     
     Arguments:
@@ -143,34 +139,32 @@ def add_metadata(session,metadata):
     """
 
     session.add_all([VideoMetadata(
-                                   file_id=x['file_id'],
-                                   video_length = x['video_length'],
-                                   avg_act = x['avg_act'],
-                                   video_avg_std = x['video_avg_std'],
-                                   video_max_dif = x['video_max_dif'],
-                                   gray_avg= x['gray_avg'],
-                                   gray_std = x['gray_std'],
-                                   gray_max = x['gray_max'],
-                                   video_dark_flag = x['video_dark_flag'],
-                                   video_duration_flag = x['video_duration_flag'],
-                                   flagged = x['flagged']
+        file_id=x['file_id'],
+        video_length=x['video_length'],
+        avg_act=x['avg_act'],
+        video_avg_std=x['video_avg_std'],
+        video_max_dif=x['video_max_dif'],
+        gray_avg=x['gray_avg'],
+        gray_std=x['gray_std'],
+        gray_max=x['gray_max'],
+        video_dark_flag=x['video_dark_flag'],
+        video_duration_flag=x['video_duration_flag'],
+        flagged=x['flagged']
 
-                                   ) for i,x in metadata.iterrows()])
+    ) for i, x in metadata.iterrows()])
 
-def add_matches(session,matches):
 
+def add_matches(session, matches):
     session.add_all([Matches(
-                                query_video=x['query_video'],
-                                query_video_file_id = x['query_video_file_id'],
-                                match_video = x['match_video'],
-                                match_video_file_id = x['match_video_file_id'],
-                                distance = x['distance']
-                                ) for i,x in matches.iterrows()])
+        query_video=x['query_video'],
+        query_video_file_id=x['query_video_file_id'],
+        match_video=x['match_video'],
+        match_video_file_id=x['match_video_file_id'],
+        distance=x['distance']
+    ) for i, x in matches.iterrows()])
 
 
-
-
-def load_metadata(session,metadata_df_path):
+def load_metadata(session, metadata_df_path):
     """Loads video metadata into DB (video metadata table)
     
     Arguments:
@@ -178,14 +172,14 @@ def load_metadata(session,metadata_df_path):
         scenes_df_path {string} -- Path to the video metadataoutput (csv file)
     """
 
+    df = pd.read_csv(metadata_df_path)
 
-    df  = pd.read_csv(metadata_df_path)
+    add_metadata(session, df)
 
-    add_metadata(session,df)
 
 # DB Queries
 
-def load_matches(session,matches_df_path):
+def load_matches(session, matches_df_path):
     """Loads video metadata into DB (video metadata table)
     
     Arguments:
@@ -194,41 +188,38 @@ def load_matches(session,matches_df_path):
     """
     df = pd.read_csv(matches_df_path)
 
-    add_matches(session,df)
+    add_matches(session, df)
 
 
-
-def add_exif(session,exif_df,json_list):
-
-
+def add_exif(session, exif_df, json_list):
     COLUMNS_OF_INTEREST = [
-       'General_FileName',
-       'General_FileExtension',
-       'General_Format_Commercial',
-       'General_FileSize',
-       'General_Duration',
-       'General_OverallBitRate_Mode',
-       'General_OverallBitRate',
-       'General_FrameRate',
-       'General_FrameCount',
-       'General_Encoded_Date',
-       'General_File_Modified_Date',
-       'General_File_Modified_Date_Local',
-       'General_Tagged_Date',
-       'Video_Format',
-       'Video_BitRate',
-       'Video_InternetMediaType',
-       'Video_Width',
-       'Video_Height',
-       'Video_FrameRate',
-       'Audio_Format',
-       'Audio_SamplingRate',
-       'Audio_Title',
-       'Audio_BitRate',
-       'Audio_Channels',
-       'Audio_Duration',
-       'Audio_Encoded_Date',
-       'Audio_Tagged_Date']
+        'General_FileName',
+        'General_FileExtension',
+        'General_Format_Commercial',
+        'General_FileSize',
+        'General_Duration',
+        'General_OverallBitRate_Mode',
+        'General_OverallBitRate',
+        'General_FrameRate',
+        'General_FrameCount',
+        'General_Encoded_Date',
+        'General_File_Modified_Date',
+        'General_File_Modified_Date_Local',
+        'General_Tagged_Date',
+        'Video_Format',
+        'Video_BitRate',
+        'Video_InternetMediaType',
+        'Video_Width',
+        'Video_Height',
+        'Video_FrameRate',
+        'Audio_Format',
+        'Audio_SamplingRate',
+        'Audio_Title',
+        'Audio_BitRate',
+        'Audio_Channels',
+        'Audio_Duration',
+        'Audio_Encoded_Date',
+        'Audio_Tagged_Date']
 
     # Results from mediainfo might be inconsistent. So we need to add columns for every expected field (even if there is no info)
     for col in COLUMNS_OF_INTEREST:
@@ -236,52 +227,49 @@ def add_exif(session,exif_df,json_list):
         if col not in exif_df.columns:
             exif_df[col] = None
 
-    session.add_all([Exif(      file_id = x['file_id'],
-                                General_FileSize = x["General_FileSize"],
-                                General_FileExtension = x["General_FileExtension"],
-                                General_Format_Commercial = x["General_Format_Commercial"],
-                                General_Duration = x["General_Duration"],
-                                General_OverallBitRate_Mode = x["General_OverallBitRate_Mode"],
-                                General_OverallBitRate = x["General_OverallBitRate"],
-                                General_FrameRate = x["General_FrameRate"],
-                                General_FrameCount = x["General_FrameCount"],
-                                General_Encoded_Date = x["General_Encoded_Date"],
-                                General_File_Modified_Date = x["General_File_Modified_Date"],
-                                General_File_Modified_Date_Local = x["General_File_Modified_Date_Local"],
-                                General_Tagged_Date = x["General_Tagged_Date"],
-                                Video_Format = x["Video_Format"],
-                                Video_BitRate = x["Video_BitRate"],
-                                Video_InternetMediaType = x["Video_InternetMediaType"],
-                                Video_Width = x["Video_Width"],
-                                Video_Height = x["Video_Height"],
-                                Video_FrameRate = x["Video_FrameRate"],
-                                Audio_Format = x["Audio_Format"],
-                                Audio_SamplingRate = x["Audio_SamplingRate"],
-                                Audio_Title = x["Audio_Title"],
-                                Audio_BitRate = x["Audio_BitRate"],
-                                Audio_Channels = x["Audio_Channels"],
-                                Audio_Duration = x["Audio_Duration"],
-                                Audio_Encoded_Date = x["Audio_Encoded_Date"],
-                                Audio_Tagged_Date = x["Audio_Tagged_Date"],
-                                Json_full_exif = json.dumps(json_list[i])
-                                ) for i,x in exif_df.iterrows()])
+    session.add_all([Exif(file_id=x['file_id'],
+                          General_FileSize=x["General_FileSize"],
+                          General_FileExtension=x["General_FileExtension"],
+                          General_Format_Commercial=x["General_Format_Commercial"],
+                          General_Duration=x["General_Duration"],
+                          General_OverallBitRate_Mode=x["General_OverallBitRate_Mode"],
+                          General_OverallBitRate=x["General_OverallBitRate"],
+                          General_FrameRate=x["General_FrameRate"],
+                          General_FrameCount=x["General_FrameCount"],
+                          General_Encoded_Date=x["General_Encoded_Date"],
+                          General_File_Modified_Date=x["General_File_Modified_Date"],
+                          General_File_Modified_Date_Local=x["General_File_Modified_Date_Local"],
+                          General_Tagged_Date=x["General_Tagged_Date"],
+                          Video_Format=x["Video_Format"],
+                          Video_BitRate=x["Video_BitRate"],
+                          Video_InternetMediaType=x["Video_InternetMediaType"],
+                          Video_Width=x["Video_Width"],
+                          Video_Height=x["Video_Height"],
+                          Video_FrameRate=x["Video_FrameRate"],
+                          Audio_Format=x["Audio_Format"],
+                          Audio_SamplingRate=x["Audio_SamplingRate"],
+                          Audio_Title=x["Audio_Title"],
+                          Audio_BitRate=x["Audio_BitRate"],
+                          Audio_Channels=x["Audio_Channels"],
+                          Audio_Duration=x["Audio_Duration"],
+                          Audio_Encoded_Date=x["Audio_Encoded_Date"],
+                          Audio_Tagged_Date=x["Audio_Tagged_Date"],
+                          Json_full_exif=json.dumps(json_list[i])
+                          ) for i, x in exif_df.iterrows()])
     try:
         session.commit()
     except Exception as e:
         session.rollback()
-        print('DB Exception',e)
+        print('DB Exception', e)
 
     finally:
         # Get DB stats
-        exif_rows = get_all(session,Exif)
+        exif_rows = get_all(session, Exif)
         return exif_rows
 
         print(f"Exif table rows:{len(exif_rows)}")
 
 
-
-
-def get_all(session,instance):
-
+def get_all(session, instance):
     query = session.query(instance)
     return query.all()
