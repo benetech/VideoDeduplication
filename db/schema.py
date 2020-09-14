@@ -1,7 +1,7 @@
 import datetime
 
 from sqlalchemy import Column, String, Integer, LargeBinary, Boolean, \
-    Float, ARRAY, JSON, ForeignKey, UniqueConstraint, DateTime, inspect
+    Float, JSON, ForeignKey, UniqueConstraint, DateTime, inspect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -30,7 +30,7 @@ class Files(Base):
     file_path = Column(String)
     signature = relationship("Signature", uselist=False, back_populates="file")
     meta = relationship("VideoMetadata", uselist=False, back_populates="file")
-    scenes = relationship("Scenes", back_populates="file")
+    scenes = relationship("Scene", back_populates="file")
     matches = relationship("Matches", back_populates="query_video_file", foreign_keys="Matches.query_video_file_id")
     exif = relationship("Exif", uselist=False, back_populates="file")
 
@@ -62,18 +62,18 @@ class VideoMetadata(Base):
     video_duration_flag = Column(Boolean)
     video_dark_flag = Column(Boolean)
     flagged = Column(Boolean)
+    video_duration_seconds = Column(Float)
+    avg_scene_duration_seconds = Column(Float)
+    total_video_duration_timestamp = Column(String)
 
 
-class Scenes(Base):
+class Scene(Base):
     __tablename__ = 'scenes'
     id = Column(Integer, primary_key=True)
     file_id = Column(Integer, ForeignKey('files.id'))
     file = relationship("Files", back_populates="scenes")
-    video_duration_seconds = Column(Float)
-    avg_duration_seconds = Column(Float)
-    scene_duration_seconds = Column(ARRAY(Integer))
-    scenes_timestamp = Column(ARRAY(String))
-    total_video_duration_timestamp = Column(String)
+    duration = Column(Integer)
+    start_time = Column(Integer)
 
 
 class Matches(Base):

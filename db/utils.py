@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from winnow.utils import get_hash
-from .schema import Files, Signature, Scenes, VideoMetadata, Matches, Exif, Base
+from .schema import Files, Signature, Scene, VideoMetadata, Matches, Exif, Base
 
 
 def create_engine_session(conn_string):
@@ -46,17 +46,14 @@ def add_scenes(session, scenes):
     """Bulk add scenes to DB
     
     Arguments:
-        session {DB Session} -- created by a previous instatiation of the db session
+        session {DB Session} -- created by a previous instantiation of the db session
         scenes {pd.Dataframe} -- Pandas Dataframe containing scene information 
     """
-    session.add_all([Scenes(file_id=x['file_id'],
-                            video_duration_seconds=x['video_duration_seconds'],
-                            avg_duration_seconds=x['avg_duration_seconds'],
-                            scenes_timestamp=x['scenes_timestamp'],
-                            total_video_duration_timestamp=x['total_video_duration_timestamp'],
-                            scene_duration_seconds=json.loads(str(x['scene_duration_seconds']))
-
-                            ) for i, x in scenes.iterrows()])
+    for _, row in scenes.iterrows():
+        start_time = 0
+        for duration in row['scene_duration_seconds']:
+            session.add(Scene(file_id=row['file_id'], start_time=start_time * 1000, duration=duration * 1000))
+            start_time += duration
 
 
 def load_scenes(session, scenes_df_path):

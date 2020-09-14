@@ -11,7 +11,7 @@ from winnow.feature_extraction import SimilarityModel
 from winnow.utils import extract_additional_info, extract_scenes,filter_results,uniq
 import cv2
 import yaml
-from db import *
+from db.utils import *
 from db.schema import *
 
 
@@ -151,7 +151,7 @@ def main(config):
             
             finally:
                 # Get DB stats
-                scenes = get_all(session,Scenes)
+                scenes = get_all(session,Scene)
                 print(f"Scenes table rows:{len(scenes)}")
             
         if KEEP_FILES or USE_DB is False:

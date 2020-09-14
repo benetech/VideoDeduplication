@@ -5,7 +5,7 @@ import click
 from glob import glob
 from winnow.feature_extraction import IntermediateCnnExtractor,frameToVideoRepresentation,SimilarityModel
 from winnow.utils import create_directory,scan_videos,create_video_list,get_original_fn_from_artifact,scan_videos_from_txt
-from db import *
+from db.utils import *
 from db.schema import *
 import yaml
 import sys
