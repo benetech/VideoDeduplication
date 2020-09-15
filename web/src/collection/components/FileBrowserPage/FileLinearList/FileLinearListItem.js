@@ -123,7 +123,7 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
       />
       <AttributeText
         name={messages.attr.fingerprint}
-        value={file.fingerprint}
+        value={file.fingerprint && file.fingerprint.slice(0, 7)}
         variant="primary"
         className={clsx(classes.attr, classes.sm)}
       />

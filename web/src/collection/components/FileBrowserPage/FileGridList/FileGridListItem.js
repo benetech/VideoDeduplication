@@ -147,7 +147,7 @@ const FileGridListItem = React.memo(function FpGridListItem(props) {
       <div className={classes.attrRow}>
         <AttributeText
           name={messages.attr.fingerprint}
-          value={file.fingerprint}
+          value={file.fingerprint && file.fingerprint.slice(0, 7)}
           variant="primary"
           size="small"
         />
