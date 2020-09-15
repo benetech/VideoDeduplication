@@ -2,14 +2,14 @@
 # sys.path.append('..')
 
 from flask import jsonify, request, g, url_for, current_app
-from db.schema import Scenes
+from db.schema import Scene
 from .blueprint import api
 
 
 @api.route('/scenes/')
 def get_scenes():
     page = request.args.get('page', 1, type=int)
-    pagination = Scenes.query.paginate(
+    pagination = Scene.query.paginate(
         page, per_page=10,
         error_out=False)
     scenes = pagination.items

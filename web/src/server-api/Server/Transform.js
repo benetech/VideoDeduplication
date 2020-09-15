@@ -1,6 +1,5 @@
 import { randomPreview } from "../MockServer/fake-data/preview";
 import { randomPlayback } from "../MockServer/fake-data/files";
-import { randomScenes } from "../MockServer/fake-data/scene";
 import { randomObjects } from "../MockServer/fake-data/objects";
 
 /**
@@ -12,41 +11,48 @@ export default class Transform {
 
   fetchFileResults(data) {
     const counts = {
-      total: data.count,
+      total: data.total,
       duplicates: 0,
       related: 0,
-      unique: data.count,
+      unique: data.total,
     };
 
-    const files = data.posts.map((post) => this.videoMetadata(post));
+    const files = data.items.map((post) => this.videoFile(post));
     return { files, counts };
   }
 
-  videoMetadata(data) {
-    const length = data.video_length * 1000;
+  videoFile(data) {
+    const length = data.meta.video_length * 1000;
     return {
-      id: data.original_filename.substring(0, 10),
-      filename: data.original_filename,
+      id: data.id,
+      filename: data.file_path,
       metadata: {
-        grayAverage: data.gray_avg,
-        fileType: data.file_type,
-        codec: data.codec,
-        hasAudio: data.has_audio,
-        grayMax: data.gray_max,
-        grayStd: data.gray_std,
+        grayAverage: data.meta.gray_avg,
+        fileType: data.exif && data.exif.General_FileExtension,
+        hasAudio: data.exif && !!data.exif.Audio_Format,
+        grayMax: data.meta.gray_max,
+        grayStd: data.meta.gray_std,
         length: length,
-        stdAverage: data.video_avg_std,
-        maxDiff: data.video_max_dif,
-        flagged: data.flagged,
+        stdAverage: data.meta.video_avg_std,
+        maxDiff: data.meta.video_max_dif,
+        flagged: data.meta.flagged,
         hasEXIF: data.exif != null,
       },
-      hash: data.hash,
-      fingerprint: data.fingerprint,
+      hash: data.sha256,
+      fingerprint: data.signature && data.signature.signature,
       exif: data.exif,
       preview: randomPreview(),
       playbackURL: randomPlayback(),
-      scenes: [...randomScenes(1 + Math.random() * 5, length)],
+      scenes: data.scenes && data.scenes.map((scene) => this.scene(scene)),
       objects: [...randomObjects(10, length)],
+    };
+  }
+
+  scene(scene) {
+    return {
+      preview: randomPreview(),
+      position: scene.start_time,
+      duration: scene.duration,
     };
   }
 }

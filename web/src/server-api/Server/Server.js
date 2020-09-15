@@ -16,10 +16,11 @@ export default class Server {
 
   async fetchFiles({ page, pageSize, filters }) {
     try {
-      const response = await this.axios.get("/videometadata/", {
+      const response = await this.axios.get("/files/", {
         params: {
-          page: page + 1,
-          per_page: pageSize,
+          offset: page * pageSize,
+          limit: pageSize,
+          include: ["signature", "meta", "scenes"].join(","),
           ...filtersToQueryParams(filters),
         },
       });
