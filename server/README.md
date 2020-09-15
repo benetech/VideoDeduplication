@@ -36,6 +36,7 @@ Server honors the following environment variables:
  * `DATABASE_SECRET` - if specified, the server will read database password from that file
  * `DATABASE_DIALECT` - set the database dialect (default is `postgres`)
  * `DATABASE_URI` - set the database connection URI (if specified, other `DATABASE_*` variables will be ignored)
+ * `VIDEO_FOLDER` - folder with video-files to serve
  
 
 
@@ -52,6 +53,7 @@ Server accepts the following command-line arguments:
  * `--db_dialect` - set database dialect (overrides `DATABASE_DIALECT` variable)
  * `--db_uri` - set database connection URI (overrides the other `DATABASE_*` variables and `--db_*` flags)
  * `--static` - set location of directory with static resources (overrides `STATIC_FOLDER` variable)
+ * `--videos` - set location of video files (overrides `VIDEO_FOLDER` variable)
 
 ## Serving Frontend
 

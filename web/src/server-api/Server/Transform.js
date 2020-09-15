@@ -43,7 +43,7 @@ export default class Transform {
       fingerprint: data.signature && data.signature.signature,
       exif: data.exif,
       preview: randomPreview(),
-      playbackURL: randomPlayback(),
+      playbackURL: `/api/v1/files/${data.id}/watch`,
       scenes: this.fileScenes(data),
       objects: [...randomObjects(10, length)],
       matchesCount: data.matches_count,

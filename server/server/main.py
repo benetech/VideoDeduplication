@@ -23,6 +23,7 @@ def create_application(config):
 
     app.config['SQLALCHEMY_DATABASE_URI'] = config.database.uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['CONFIG'] = config
 
     app.register_blueprint(api_blueprint, url_prefix='/api/v1')
 
@@ -32,13 +33,14 @@ def create_application(config):
 
 
 def serve(host=None, port=None, db_host=None, db_port=None, db_name=None, db_user=None, db_secret=None, db_dialect=None,
-          db_uri=None, static=None):
+          db_uri=None, static=None, videos=None):
     """Start Deduplication API Server."""
 
     # Read configuration
     config = Config()
     config.port = port or config.port
     config.host = host or config.host
+    config.video_folder = videos or config.video_folder
     config.static_folder = static or config.static_folder
     config.database.port = db_port or config.database.port
     config.database.host = db_host or config.database.host

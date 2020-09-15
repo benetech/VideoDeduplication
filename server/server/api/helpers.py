@@ -1,3 +1,4 @@
+from flask import current_app
 from sqlalchemy import or_
 
 from db.schema import Matches
@@ -10,3 +11,8 @@ def file_matches(file_id):
         Matches.query_video_file_id == file_id,
         Matches.match_video_file_id == file_id
     ))
+
+
+def get_config():
+    """Get current application config."""
+    return current_app.config.get("CONFIG")

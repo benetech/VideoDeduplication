@@ -50,3 +50,4 @@ class Config:
         self.host = os.environ.get("SERVER_HOST", "0.0.0.0")
         self.port = int(os.environ.get("SERVER_PORT", 5000))
         self.static_folder = os.environ.get("STATIC_FOLDER", "static")
+        self.video_folder = os.environ.get("VIDEO_FOLDER", "/project/data")
