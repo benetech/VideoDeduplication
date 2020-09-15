@@ -44,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.spacing(0.5),
     marginLeft: theme.spacing(1.5),
     marginRight: theme.spacing(3),
+    flexShrink: 0,
   },
   icon: {
     color: theme.palette.primary.contrastText,
