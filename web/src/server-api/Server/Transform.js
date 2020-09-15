@@ -28,7 +28,7 @@ export default class Transform {
       filename: data.file_path,
       metadata: {
         grayAverage: data.meta.gray_avg,
-        fileType: data.exif && data.exif.General_FileExtension,
+        fileType: this.fileType(data),
         hasAudio: data.exif && !!data.exif.Audio_Format,
         grayMax: data.meta.gray_max,
         grayStd: data.meta.gray_std,
@@ -43,9 +43,22 @@ export default class Transform {
       exif: data.exif,
       preview: randomPreview(),
       playbackURL: randomPlayback(),
-      scenes: data.scenes && data.scenes.map((scene) => this.scene(scene)),
+      scenes: this.fileScenes(data),
       objects: [...randomObjects(10, length)],
+      matchesCount: data.matches_count,
     };
+  }
+
+  fileType(file) {
+    if (file.exif && file.exif.General_FileExtension) {
+      return file.exif.General_FileExtension;
+    }
+    const match = file.file_path.match(/\.([^\/.]+)$/);
+    if (match && match[1]) {
+      return match[1];
+    } else {
+      return undefined;
+    }
   }
 
   scene(scene) {
@@ -54,5 +67,18 @@ export default class Transform {
       position: scene.start_time,
       duration: scene.duration,
     };
+  }
+
+  fileScenes(file) {
+    const scenes = file.scenes && file.scenes.map((scene) => this.scene(scene));
+    if (!scenes || scenes.length === 0) {
+      return [
+        {
+          preview: randomPreview(),
+          position: 0,
+          duration: file.meta.video_length * 1000,
+        },
+      ];
+    }
   }
 }

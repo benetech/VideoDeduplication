@@ -31,6 +31,20 @@ export default class Server {
     }
   }
 
+  async fetchFile({ id }) {
+    try {
+      const response = await this.axios.get(`/files/${id}`, {
+        params: {
+          include: ["signature", "meta", "scenes", "exif"].join(","),
+        },
+      });
+      const data = this.transform.videoFile(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
   errorResponse(error) {
     if (error.response == null) {
       return Response.clientError(error);

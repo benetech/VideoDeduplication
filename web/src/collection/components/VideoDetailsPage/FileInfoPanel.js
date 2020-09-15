@@ -21,6 +21,8 @@ const useStyles = makeStyles((theme) => ({
   },
   attrValue: {
     ...theme.mixins.valueNormal,
+    ...theme.mixins.textEllipsis,
+    maxWidth: 300,
   },
 }));
 

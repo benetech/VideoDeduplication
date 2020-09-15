@@ -115,7 +115,7 @@ function FileSummaryHeader(props) {
       <div className={classes.attrsGroup}>
         <AttributeText
           name={messages.fingerprint}
-          value={file.fingerprint}
+          value={file.fingerprint && file.fingerprint.slice(0, 7)}
           variant="primary"
           className={classes.attr}
         />

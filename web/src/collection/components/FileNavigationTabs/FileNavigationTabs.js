@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import { useIntl } from "react-intl";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { routes } from "../../../routing/routes";
-import FileType from "../FileBrowserPage/FileType";
 import SelectableTabs, {
   SelectableTab,
 } from "../../../common/components/SelectableTabs";
@@ -54,22 +53,22 @@ function useMessages({ matches }) {
 /**
  * Get navigation handler
  */
-function useNavigation(file) {
+function useNavigation(id) {
   const history = useHistory();
   return (newSection) => {
     if (newSection === Section.details) {
-      history.replace(routes.collection.fileURL(file.id));
+      history.replace(routes.collection.fileURL(id));
     } else if (newSection === Section.matches) {
-      history.replace(routes.collection.fileMatchesURL(file.id));
+      history.replace(routes.collection.fileMatchesURL(id));
     }
   };
 }
 
 function FileNavigationTabs(props) {
-  const { file, className } = props;
+  const { id, matches = 0, className } = props;
   const section = useSection();
-  const messages = useMessages({ matches: file.matches.length });
-  const navigate = useNavigation(file);
+  const messages = useMessages({ matches });
+  const navigate = useNavigation(id);
 
   return (
     <SelectableTabs
@@ -98,9 +97,13 @@ function FileNavigationTabs(props) {
 
 FileNavigationTabs.propTypes = {
   /**
-   * Currently displayed file
+   * Currently displayed file id.
    */
-  file: FileType.isRequired,
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  /**
+   * Number of file matches.
+   */
+  matches: PropTypes.number,
   className: PropTypes.string,
 };
 

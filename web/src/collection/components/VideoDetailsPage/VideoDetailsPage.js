@@ -14,6 +14,9 @@ import {
 import { seekTo } from "./seekTo";
 import FileSummaryHeader from "../FileSummaryHeader";
 import FileActionHeader from "../FileActionsHeader";
+import { useParams } from "react-router-dom";
+import FileLoadingHeader from "../FileLoadingHeader";
+import useFile from "../../hooks/useFile";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,6 +48,12 @@ const useStyles = makeStyles((theme) => ({
   dataContainer: {
     padding: theme.spacing(2),
   },
+  loadingRoot: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "80vh",
+  },
 }));
 
 /**
@@ -57,20 +66,36 @@ function useMessages() {
   };
 }
 
-const file = randomFile();
-file.matches = [...randomMatches(3, file)];
-
 function VideoDetailsPage(props) {
   const { className } = props;
+  const { id } = useParams();
   const messages = useMessages();
+  const { file, error, loadFile } = useFile(id);
   const [player, setPlayer] = useState(null);
   const classes = useStyles();
 
   const handleJump = useCallback(seekTo(player, file), [player, file]);
 
+  if (file == null) {
+    return (
+      <div className={clsx(classes.root, className)}>
+        <FileActionHeader id={id}>
+          <Button color="primary" variant="contained" disabled>
+            {messages.compare}
+          </Button>
+        </FileActionHeader>
+        <FileLoadingHeader
+          error={error}
+          onRetry={loadFile}
+          className={classes.summaryHeader}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={clsx(classes.root, className)}>
-      <FileActionHeader file={file}>
+      <FileActionHeader id={file.id} matches={file.matchesCount}>
         <Button color="primary" variant="contained">
           {messages.compare}
         </Button>

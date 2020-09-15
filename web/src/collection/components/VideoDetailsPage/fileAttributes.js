@@ -45,7 +45,7 @@ export const fileAttributes = [
   },
   {
     title: "file.fingerprint",
-    value: () => null,
+    value: (file) => file.fingerprint,
   },
   {
     title: "file.hasAudio",

@@ -4,8 +4,9 @@ from flask import jsonify, request, abort
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
 
-from db.schema import Files
+from db.schema import Files, Scene
 from .blueprint import api
+from .helpers import file_matches
 from ..model import database, Transform
 
 
@@ -92,4 +93,6 @@ def get_file(file_id):
     if file is None:
         abort(HTTPStatus.NOT_FOUND.value, f"File id not found: {file_id}")
 
-    return jsonify(Transform.dict(file, matches=False, **include))
+    data = Transform.dict(file, matches=False, **include)
+    data["matches_count"] = file_matches(file_id).count()
+    return jsonify(data)

@@ -36,3 +36,13 @@ export const ACTION_FETCH_FILES_FAILURE = "coll.FETCH_FILES_FAILURE";
 export function fetchFilesFailure(error) {
   return { type: ACTION_FETCH_FILES_FAILURE, error };
 }
+
+/**
+ * Add file to cache.
+ */
+
+export const ACTION_CACHE_FILE = "coll.CACHE_FILE";
+
+export function cacheFile(file) {
+  return { file, type: ACTION_CACHE_FILE };
+}
