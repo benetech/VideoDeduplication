@@ -128,7 +128,7 @@ function FileSummaryHeader(props) {
         />
         <div className={clsx(classes.divider, classes.extra)} />
         <AttributeText
-          value={formatDate(file.metadata.uploadDate, intl)}
+          value={formatDate(file.metadata.created, intl)}
           icon={EventAvailableOutlinedIcon}
           variant="normal"
           defaultValue="Unknown"

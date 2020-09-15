@@ -1,13 +1,44 @@
 import { call, put, select, takeLatest } from "redux-saga/effects";
 import {
   ACTION_FETCH_FILES,
+  ACTION_UPDATE_FILE_MATCH_FILTERS,
   ACTION_UPDATE_FILTERS,
   fetchFilesFailure,
   fetchFilesSuccess,
+  updateFileMatchFiltersFailure,
+  updateFileMatchFiltersSuccess,
   updateFiltersFailure,
   updateFiltersSuccess,
 } from "./actions";
-import { selectColl } from "./selectors";
+import { selectColl, selectFileMatches } from "./selectors";
+
+function* fetchFileMatchesSaga(server, action) {
+  try {
+    // Determine current query params
+    const { limit, offset, filters } = yield select(selectFileMatches);
+
+    // Send request to the server
+    const resp = yield call([server, server.fetchFileMatches], {
+      limit,
+      offset,
+      id: action.fileId,
+    });
+
+    // Handle error
+    if (resp.failure) {
+      console.error("Fetch file matches error", resp.error);
+      yield put(updateFileMatchFiltersFailure(resp.error));
+      return;
+    }
+
+    // Update state
+    const { total, matches } = resp.data;
+    yield put(updateFileMatchFiltersSuccess(matches, total));
+  } catch (error) {
+    console.error(error);
+    yield put(updateFileMatchFiltersFailure(error));
+  }
+}
 
 function resolveReportActions(fetchAction) {
   switch (fetchAction.type) {
@@ -63,6 +94,11 @@ export default function* collRootSaga(server) {
   yield takeLatest(
     [ACTION_UPDATE_FILTERS, ACTION_FETCH_FILES],
     fetchFilesSaga,
+    server
+  );
+  yield takeLatest(
+    ACTION_UPDATE_FILE_MATCH_FILTERS,
+    fetchFileMatchesSaga,
     server
   );
 }

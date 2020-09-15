@@ -46,3 +46,28 @@ export const ACTION_CACHE_FILE = "coll.CACHE_FILE";
 export function cacheFile(file) {
   return { file, type: ACTION_CACHE_FILE };
 }
+
+/**
+ * Single file matches actions
+ */
+
+export const ACTION_UPDATE_FILE_MATCH_FILTERS =
+  "coll.UPDATE_FILE_MATCH_FILTERS";
+
+export function updateFileMatchFilters(fileId, filters) {
+  return { fileId, filters, type: ACTION_UPDATE_FILE_MATCH_FILTERS };
+}
+
+export const ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS =
+  "coll.UPDATE_FILE_MATCH_FILTERS_SUCCESS";
+
+export function updateFileMatchFiltersSuccess(matches, total) {
+  return { matches, total, type: ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS };
+}
+
+export const ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE =
+  "coll.UPDATE_FILE_MATCH_FILTERS_FAILURE";
+
+export function updateFileMatchFiltersFailure(error) {
+  return { type: ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE };
+}

@@ -1,5 +1,5 @@
 import React from "react";
-import { formatBool, formatDuration } from "../../../../common/helpers/format";
+import { formatDate, formatDuration } from "../../../../common/helpers/format";
 import Bool from "../../../../common/components/Bool";
 
 export const attributes = [
@@ -9,7 +9,7 @@ export const attributes = [
   },
   {
     title: "file.creationDate",
-    value: (file, intl) => intl.formatMessage({ id: "value.unknown" }),
+    value: (file, intl) => formatDate(file.metadata.created, intl),
   },
   {
     title: "file.hasExif",
@@ -17,7 +17,7 @@ export const attributes = [
   },
   {
     title: "file.sha256Short",
-    value: () => "#SKS329",
+    value: (file) => `#${file.hash.slice(0, 7)}`,
   },
   {
     title: "file.hasAudio",

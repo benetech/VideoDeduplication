@@ -45,6 +45,21 @@ export default class Server {
     }
   }
 
+  async fetchFileMatches({ id, limit = 20, offset = 0 }) {
+    try {
+      const response = await this.axios.get(`/files/${id}/matches`, {
+        params: {
+          limit,
+          offset,
+        },
+      });
+      const data = this.transform.fetchFileMatchesResults(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
   errorResponse(error) {
     if (error.response == null) {
       return Response.clientError(error);

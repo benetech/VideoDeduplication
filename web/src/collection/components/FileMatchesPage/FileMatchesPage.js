@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -20,6 +20,9 @@ import TuneOutlinedIcon from "@material-ui/icons/TuneOutlined";
 import { useParams } from "react-router-dom";
 import useFile from "../../hooks/useFile";
 import FileLoadingHeader from "../FileLoadingHeader";
+import { useDispatch, useSelector } from "react-redux";
+import { selectFileMatches } from "../../state/selectors";
+import { updateFileMatchFilters } from "../../state/actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,7 +70,12 @@ function FileMatchesPage(props) {
   const { file, error, loadFile } = useFile(id);
   const messages = useMessages((file && file.matchesCount) || 0);
   const [view, setView] = useState(View.grid);
-  const matches = [];
+  const matches = useSelector(selectFileMatches).matches;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(updateFileMatchFilters(id, {}));
+  }, [id]);
 
   if (file == null) {
     return (

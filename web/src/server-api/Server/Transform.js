@@ -37,6 +37,7 @@ export default class Transform {
         maxDiff: data.meta.video_max_dif,
         flagged: data.meta.flagged,
         hasEXIF: data.exif != null,
+        created: data.created_date * 1000,
       },
       hash: data.sha256,
       fingerprint: data.signature && data.signature.signature,
@@ -80,5 +81,19 @@ export default class Transform {
         },
       ];
     }
+  }
+
+  fetchFileMatchesResults(data) {
+    return {
+      total: data.total,
+      matches: data.items.map((match) => this.fileMatch(match)),
+    };
+  }
+
+  fileMatch(match) {
+    return {
+      distance: match.distance,
+      file: this.videoFile(match.file),
+    };
   }
 }

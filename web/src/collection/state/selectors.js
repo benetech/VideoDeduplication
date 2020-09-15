@@ -18,3 +18,8 @@ export const selectError = (state) => selectColl(state).error;
  */
 export const selectCachedFile = (id) => (state) =>
   selectColl(state).fileCache.files[id];
+
+/**
+ * Select file matches.
+ */
+export const selectFileMatches = (state) => selectColl(state).fileMatches;
