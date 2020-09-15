@@ -45,7 +45,7 @@ export const fileAttributes = [
   },
   {
     title: "file.fingerprint",
-    value: (file) => file.fingerprint && file.fingerprint.slice(0, 10),
+    value: (file) => file.fingerprint && `#${file.fingerprint.slice(0, 10)}`,
   },
   {
     title: "file.hasAudio",
