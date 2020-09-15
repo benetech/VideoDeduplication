@@ -66,7 +66,7 @@ def list_files():
         query = query.filter(Files.file_path.ilike(f"%{path_query}%"))
 
     if extensions:
-        conditions = (Files.original_filename.ilike(f"%.{ext}") for ext in extensions)
+        conditions = (Files.file_path.ilike(f"%.{ext}") for ext in extensions)
         query = query.filter(or_(*conditions))
 
     # Get requested slice
