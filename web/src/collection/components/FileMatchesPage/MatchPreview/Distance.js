@@ -48,7 +48,7 @@ function useMessages(distance) {
   return {
     score: intl.formatMessage(
       { id: "distance.score" },
-      { value: (1 - distance).toFixed(2) }
+      { value: (1 - distance).toFixed(3) }
     ),
   };
 }
