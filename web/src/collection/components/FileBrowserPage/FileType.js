@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 
 export const FileType = PropTypes.shape({
-  id: PropTypes.string,
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   filename: PropTypes.string.isRequired,
   metadata: PropTypes.shape({
     uploadedBy: PropTypes.string,
@@ -19,7 +19,7 @@ export const FileType = PropTypes.shape({
     quality: PropTypes.number,
     flagged: PropTypes.bool,
   }).isRequired,
-  hash: PropTypes.object,
+  hash: PropTypes.string,
   fingerprint: PropTypes.string,
   preview: PropTypes.string,
   playbackURL: PropTypes.string,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -17,6 +17,12 @@ import MatchPreview from "./MatchPreview";
 import SquaredIconButton from "../../../common/components/SquaredIconButton";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 import TuneOutlinedIcon from "@material-ui/icons/TuneOutlined";
+import { useParams } from "react-router-dom";
+import useFile from "../../hooks/useFile";
+import FileLoadingHeader from "../FileLoadingHeader";
+import { useDispatch, useSelector } from "react-redux";
+import { selectFileMatches } from "../../state/selectors";
+import { updateFileMatchFilters } from "../../state/actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,9 +53,9 @@ file.matches = [...randomMatches(3, file)];
 /**
  * Get i18n text
  */
-function useMessages(file) {
+function useMessages(matchesCount) {
   const intl = useIntl();
-  const matches = String(file.matches.length).padStart(2, "0");
+  const matches = String(matchesCount).padStart(2, "0");
   return {
     matched: intl.formatMessage({ id: "file.matched" }, { count: matches }),
     showFilters: intl.formatMessage({ id: "actions.showFiltersPane" }),
@@ -60,11 +66,35 @@ function useMessages(file) {
 function FileMatchesPage(props) {
   const { className } = props;
   const classes = useStyles();
-  const messages = useMessages(file);
+  const { id } = useParams();
+  const { file, error, loadFile } = useFile(id);
+  const messages = useMessages((file && file.matchesCount) || 0);
   const [view, setView] = useState(View.grid);
+  const matches = useSelector(selectFileMatches).matches;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(updateFileMatchFilters(id, {}));
+  }, [id]);
+
+  if (file == null) {
+    return (
+      <div className={clsx(classes.root, className)}>
+        <FileActionHeader id={id}>
+          <FileMatchesActions view={view} onViewChange={setView} disabled />
+        </FileActionHeader>
+        <FileLoadingHeader
+          error={error}
+          onRetry={loadFile}
+          className={classes.summaryHeader}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={clsx(classes.root, className)}>
-      <FileActionHeader file={file}>
+      <FileActionHeader id={id} matches={file.matchesCount}>
         <FileMatchesActions
           view={view}
           onViewChange={setView}
@@ -94,7 +124,7 @@ function FileMatchesPage(props) {
         className={classes.matches}
       >
         <Grid container spacing={4}>
-          {file.matches.map((match) => (
+          {matches.map((match) => (
             <Grid item xs={6} lg={3} key={match.file.id}>
               <MatchPreview match={match} />
             </Grid>

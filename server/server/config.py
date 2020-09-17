@@ -4,14 +4,16 @@ from functools import cached_property
 
 class DatabaseConfig:
     """Database connection configuration."""
-    port = int(os.environ.get("DATABASE_PORT", 5432))
-    host = os.environ.get("DATABASE_HOST", "localhost")
-    name = os.environ.get("DATABASE_NAME", "videodeduplicationdb")
-    user = os.environ.get("DATABASE_USER", "postgres")
-    env_password = os.environ.get("DATABASE_PASS", "admin")
-    secret = os.environ.get("DATABASE_SECRET")
-    dialect = os.environ.get("DATABASE_DIALECT", "postgres")
-    override_uri = os.environ.get("DATABASE_URI")
+
+    def __init__(self):
+        self.port = int(os.environ.get("DATABASE_PORT", 5432))
+        self.host = os.environ.get("DATABASE_HOST", "localhost")
+        self.name = os.environ.get("DATABASE_NAME", "videodeduplicationdb")
+        self.user = os.environ.get("DATABASE_USER", "postgres")
+        self.env_password = os.environ.get("DATABASE_PASS", "admin")
+        self.secret = os.environ.get("DATABASE_SECRET")
+        self.dialect = os.environ.get("DATABASE_DIALECT", "postgres")
+        self.override_uri = os.environ.get("DATABASE_URI")
 
     @cached_property
     def password(self):
@@ -42,7 +44,10 @@ class DatabaseConfig:
 
 class Config:
     """Server configuration."""
-    database = DatabaseConfig()
-    host = os.environ.get("SERVER_HOST", "0.0.0.0")
-    port = int(os.environ.get("SERVER_PORT", 5000))
-    static_folder = os.environ.get("STATIC_FOLDER", "static")
+
+    def __init__(self):
+        self.database = DatabaseConfig()
+        self.host = os.environ.get("SERVER_HOST", "0.0.0.0")
+        self.port = int(os.environ.get("SERVER_PORT", 5000))
+        self.static_folder = os.environ.get("STATIC_FOLDER", "static")
+        self.video_folder = os.environ.get("VIDEO_FOLDER", "/project/data")

@@ -2,26 +2,26 @@
 # sys.path.append('..')
 
 from flask import jsonify, request, g, url_for, current_app
-from model import Signature
+from db.schema import Scene
 from .blueprint import api
 
 
-@api.route('/signatures/')
-def get_signatures():
+@api.route('/scenes/')
+def get_scenes():
     page = request.args.get('page', 1, type=int)
-    pagination = Signature.query.paginate(
+    pagination = Scene.query.paginate(
         page, per_page=10,
         error_out=False)
-    signatures = pagination.items
+    scenes = pagination.items
 
     prev = None
     if pagination.has_prev:
-        prev = url_for('api.get_signatures', page=page - 1)
+        prev = url_for('api.get_scenes', page=page - 1)
     next = None
     if pagination.has_next:
-        next = url_for('api.get_signatures', page=page + 1)
+        next = url_for('api.get_scenes', page=page + 1)
     return jsonify({
-        'posts': [signature.to_json() for signature in signatures],
+        'posts': [scene.to_json() for scene in scenes],
         'prev': prev,
         'next': next,
         'count': pagination.total

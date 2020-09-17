@@ -14,12 +14,12 @@ pip install -r requirements.txt
 
 Execute 
 ```
-python app.py
+python -m server.main
 ```
 
 To get help:
 ```
-python app.py --help 
+python -m server.main --help 
 ```
 
 ## Configuration
@@ -36,6 +36,7 @@ Server honors the following environment variables:
  * `DATABASE_SECRET` - if specified, the server will read database password from that file
  * `DATABASE_DIALECT` - set the database dialect (default is `postgres`)
  * `DATABASE_URI` - set the database connection URI (if specified, other `DATABASE_*` variables will be ignored)
+ * `VIDEO_FOLDER` - folder with video-files to serve
  
 
 
@@ -51,6 +52,8 @@ Server accepts the following command-line arguments:
  (overrides `DATABASE_SECRET` variable)
  * `--db_dialect` - set database dialect (overrides `DATABASE_DIALECT` variable)
  * `--db_uri` - set database connection URI (overrides the other `DATABASE_*` variables and `--db_*` flags)
+ * `--static` - set location of directory with static resources (overrides `STATIC_FOLDER` variable)
+ * `--videos` - set location of video files (overrides `VIDEO_FOLDER` variable)
 
 ## Serving Frontend
 
@@ -60,7 +63,26 @@ npm install
 npm run build
 ```
 
-Run server and point to the frontend build directory
+Run server and point to the frontend build directory with `STATIC_FOLDER` environment variable
+```bash
+export STATIC_FOLDER="../web/build" 
+python -m server.main 
 ```
-STATIC_FOLDER=../web/build python app.py
+
+Or specify `--static` argument
+```
+python -m server.main --static ../web/build
+```
+
+## Run Tests
+
+Install dev-dependencies:
+```
+pip install -r requirements-dev.txt
+```
+
+Server uses [pytest](https://docs.pytest.org/en/stable/getting-started.html) framework. 
+To run tests simply execute
+```
+pytest
 ```

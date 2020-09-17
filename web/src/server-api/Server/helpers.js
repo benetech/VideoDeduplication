@@ -1,7 +1,7 @@
 export function filtersToQueryParams(filters) {
   const params = {};
   if (filters.query) {
-    params.query = filters.query;
+    params.path = filters.query;
   }
   if (filters.extensions && filters.extensions.length > 0) {
     const extensions = filters.extensions

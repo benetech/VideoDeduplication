@@ -32,13 +32,18 @@ function useMessages() {
   };
 }
 function FileMatchesActions(props) {
-  const { view, onViewChange, onCompare, className } = props;
+  const { view, onViewChange, onCompare, disabled = false, className } = props;
   const classes = useStyles();
   const messages = useMessages();
 
   return (
     <div className={clsx(classes.actions, className)}>
-      <Button variant="outlined" onClick={onCompare} className={classes.button}>
+      <Button
+        variant="outlined"
+        onClick={onCompare}
+        className={classes.button}
+        disabled={disabled}
+      >
         {messages.compare}
       </Button>
       <IconSelect value={view} onChange={onViewChange}>
@@ -46,11 +51,13 @@ function FileMatchesActions(props) {
           icon={GraphIcon}
           value={View.graph}
           tooltip={messages.useGraph}
+          disabled={disabled}
         />
         <IconSelect.Option
           icon={GridIcon}
           value={View.grid}
           tooltip={messages.useGrid}
+          disabled={disabled}
         />
       </IconSelect>
     </div>
@@ -70,6 +77,10 @@ FileMatchesActions.propTypes = {
    * Current matches view
    */
   view: PropTypes.oneOf([View.graph, View.grid]),
+  /**
+   * True iff actions are inactivated
+   */
+  disabled: PropTypes.bool,
   className: PropTypes.string,
 };
 

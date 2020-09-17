@@ -1,37 +1,57 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine,Table, Column, String, MetaData,Integer,Binary,Boolean,Float,ARRAY,JSON,ForeignKey,UniqueConstraint,DateTime
 import datetime
 
-Base = declarative_base()
+from sqlalchemy import Column, String, Integer, LargeBinary, Boolean, \
+    Float, JSON, ForeignKey, UniqueConstraint, DateTime, inspect
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+
+
+class Model:
+    """Common methods for all model classes"""
+
+    def fields(self, **include):
+        """Iterate over persistent attributes"""
+        mapper = inspect(self).mapper
+        for attribute in mapper.attrs:
+            if include.get(attribute.key, True) is True:
+                yield attribute.key, getattr(self, attribute.key)
+
+
+Base = declarative_base(cls=Model)
 
 
 class Files(Base):
-
     __tablename__ = 'files'
-    __table_args__ = (UniqueConstraint('file_path', 'sha256', name='_file_uc'), )
+    __table_args__ = (UniqueConstraint('file_path', 'sha256', name='_file_uc'),)
 
-    id = Column(Integer,primary_key=True)
+    id = Column(Integer, primary_key=True)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     sha256 = Column(String)
     file_path = Column(String)
+    signature = relationship("Signature", uselist=False, back_populates="file")
+    meta = relationship("VideoMetadata", uselist=False, back_populates="file")
+    scenes = relationship("Scene", back_populates="file")
+    matches = relationship("Matches", back_populates="query_video_file", foreign_keys="Matches.query_video_file_id")
+    exif = relationship("Exif", uselist=False, back_populates="file")
 
 
 class Signature(Base):
-    
     __tablename__ = 'signatures'
-    id = Column(Integer,primary_key=True)
-    file_id = Column(Integer,ForeignKey('files.id')) 
-    signature = Column(Binary)
+    id = Column(Integer, primary_key=True)
+    file_id = Column(Integer, ForeignKey('files.id'))
+    file = relationship("Files", back_populates="signature")
+    signature = Column(LargeBinary)
+
 
 # TODO:Revaluate which columns are actually essential
 # TODO: Add sha signature
 
 class VideoMetadata(Base):
-    
     __tablename__ = 'videometadata'
 
-    id = Column(Integer,primary_key = True) 
-    file_id = Column(Integer,ForeignKey('files.id')) 
+    id = Column(Integer, primary_key=True)
+    file_id = Column(Integer, ForeignKey('files.id'))
+    file = relationship("Files", back_populates="meta")
     video_length = Column(Float)
     avg_act = Column(Float)
     video_avg_std = Column(Float)
@@ -39,41 +59,41 @@ class VideoMetadata(Base):
     gray_avg = Column(Float)
     gray_std = Column(Float)
     gray_max = Column(Float)
-    gray_max = Column(Float)
     video_duration_flag = Column(Boolean)
     video_dark_flag = Column(Boolean)
     flagged = Column(Boolean)
-    
-
-class Scenes(Base):
-
-    __tablename__ = 'scenes'
-    id = Column(Integer,primary_key = True)
-    file_id = Column(Integer,ForeignKey('files.id')) 
     video_duration_seconds = Column(Float)
-    avg_duration_seconds = Column(Float)
-    scene_duration_seconds = Column(ARRAY(Integer))
-    scenes_timestamp = Column(ARRAY(String))
+    avg_scene_duration_seconds = Column(Float)
     total_video_duration_timestamp = Column(String)
 
 
-class Matches(Base):
+class Scene(Base):
+    __tablename__ = 'scenes'
+    id = Column(Integer, primary_key=True)
+    file_id = Column(Integer, ForeignKey('files.id'))
+    file = relationship("Files", back_populates="scenes")
+    duration = Column(Integer)
+    start_time = Column(Integer)
 
+
+class Matches(Base):
     __tablename__ = 'matches'
-    id = Column(Integer, primary_key = True) 
+    id = Column(Integer, primary_key=True)
     query_video = Column(String)
-    query_video_file_id = Column(Integer,ForeignKey('files.id')) 
+    query_video_file_id = Column(Integer, ForeignKey('files.id'))
+    query_video_file = relationship("Files", back_populates="matches", foreign_keys=[query_video_file_id])
     match_video = Column(String)
-    match_video_file_id = Column(Integer,ForeignKey('files.id')) 
+    match_video_file_id = Column(Integer, ForeignKey('files.id'))
+    match_video_file = relationship("Files", foreign_keys=[match_video_file_id])
     distance = Column(Float)
 
 
 class Exif(Base):
-
     __tablename__ = 'exif'
-    
-    id = Column(Integer,primary_key = True)
-    file_id = Column(Integer,ForeignKey('files.id')) 
+
+    id = Column(Integer, primary_key=True)
+    file_id = Column(Integer, ForeignKey('files.id'))
+    file = relationship("Files", back_populates="exif")
 
     General_FileExtension = Column(String)
     General_Format_Commercial = Column(String)
@@ -102,8 +122,3 @@ class Exif(Base):
     Audio_Encoded_Date = Column(String)
     Audio_Tagged_Date = Column(String)
     Json_full_exif = Column(JSON)
-
-
-
-
-

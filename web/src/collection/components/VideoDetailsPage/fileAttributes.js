@@ -37,7 +37,7 @@ export const fileAttributes = [
   },
   {
     title: "file.sha256hash",
-    value: () => null,
+    value: (file) => `#${file.hash.slice(0, 10)}`,
   },
   {
     title: "file.exif",
@@ -45,7 +45,7 @@ export const fileAttributes = [
   },
   {
     title: "file.fingerprint",
-    value: () => null,
+    value: (file) => file.fingerprint && `#${file.fingerprint.slice(0, 10)}`,
   },
   {
     title: "file.hasAudio",

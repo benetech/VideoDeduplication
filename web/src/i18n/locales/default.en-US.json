@@ -138,6 +138,7 @@
     "file.tabObjects": "Objects",
     "file.tabExif": "EXIF Data",
     "file.load.error": "Error loading files.",
+    "file.load.error.single": "Error loading file.",
     "file.details": "Details",
     "file.oneMatch": "01 File Matched",
     "file.manyMatches": "{count} Files Matched",

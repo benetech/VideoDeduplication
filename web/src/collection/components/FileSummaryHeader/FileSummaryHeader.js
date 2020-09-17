@@ -44,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.spacing(0.5),
     marginLeft: theme.spacing(1.5),
     marginRight: theme.spacing(3),
+    flexShrink: 0,
   },
   icon: {
     color: theme.palette.primary.contrastText,
@@ -115,7 +116,7 @@ function FileSummaryHeader(props) {
       <div className={classes.attrsGroup}>
         <AttributeText
           name={messages.fingerprint}
-          value={file.fingerprint}
+          value={file.fingerprint && file.fingerprint.slice(0, 7)}
           variant="primary"
           className={classes.attr}
         />
@@ -128,7 +129,7 @@ function FileSummaryHeader(props) {
         />
         <div className={clsx(classes.divider, classes.extra)} />
         <AttributeText
-          value={formatDate(file.metadata.uploadDate, intl)}
+          value={formatDate(file.metadata.created, intl)}
           icon={EventAvailableOutlinedIcon}
           variant="normal"
           defaultValue="Unknown"

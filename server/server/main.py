@@ -1,10 +1,11 @@
 from os import path
 
 import fire
-from api import api as api_blueprint
-from config import Config
 from flask import Flask
-from model import database
+
+from server.api import api as api_blueprint
+from server.config import Config
+from server.model import database
 
 
 def setup_frontend(app, basename=''):
@@ -18,10 +19,11 @@ def setup_frontend(app, basename=''):
 
 def create_application(config):
     """Create configured flask application."""
-    app = Flask(__name__, static_url_path="/static", static_folder=config.static_folder)
+    app = Flask(__name__, static_url_path="/static", static_folder=path.abspath(config.static_folder))
 
     app.config['SQLALCHEMY_DATABASE_URI'] = config.database.uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['CONFIG'] = config
 
     app.register_blueprint(api_blueprint, url_prefix='/api/v1')
 
@@ -31,13 +33,15 @@ def create_application(config):
 
 
 def serve(host=None, port=None, db_host=None, db_port=None, db_name=None, db_user=None, db_secret=None, db_dialect=None,
-          db_uri=None):
+          db_uri=None, static=None, videos=None):
     """Start Deduplication API Server."""
 
     # Read configuration
     config = Config()
     config.port = port or config.port
     config.host = host or config.host
+    config.video_folder = videos or config.video_folder
+    config.static_folder = static or config.static_folder
     config.database.port = db_port or config.database.port
     config.database.host = db_host or config.database.host
     config.database.name = db_name or config.database.name
