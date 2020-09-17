@@ -34,7 +34,7 @@ class PathReprStorage:
             logger.info("Creating intermediate representations directory: %s", self.directory)
             os.makedirs(self.directory)
 
-    def has(self, path, sha256):
+    def exists(self, path, sha256):
         """Check if the file has the representation."""
         return exists(self._map(path, sha256))
 

@@ -60,7 +60,7 @@ class SQLiteReprStorage:
         self.database = Database(f"sqlite:///{self.db_file}", base=Base)
         self.database.create_tables()
 
-    def has(self, path, sha256):
+    def exists(self, path, sha256):
         """Check if the file has the representation."""
         with self.database.session_scope() as session:
             return self._exists(session, path, sha256)
