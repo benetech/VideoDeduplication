@@ -38,7 +38,7 @@ class Files(Base):
 class Signature(Base):
     __tablename__ = 'signatures'
     id = Column(Integer, primary_key=True)
-    file_id = Column(Integer, ForeignKey('files.id'))
+    file_id = Column(Integer, ForeignKey('files.id'), unique=True, nullable=False)
     file = relationship("Files", back_populates="signature")
     signature = Column(LargeBinary)
 
@@ -50,7 +50,7 @@ class VideoMetadata(Base):
     __tablename__ = 'videometadata'
 
     id = Column(Integer, primary_key=True)
-    file_id = Column(Integer, ForeignKey('files.id'))
+    file_id = Column(Integer, ForeignKey('files.id'), unique=True, nullable=False)
     file = relationship("Files", back_populates="meta")
     video_length = Column(Float)
     avg_act = Column(Float)
@@ -70,7 +70,7 @@ class VideoMetadata(Base):
 class Scene(Base):
     __tablename__ = 'scenes'
     id = Column(Integer, primary_key=True)
-    file_id = Column(Integer, ForeignKey('files.id'))
+    file_id = Column(Integer, ForeignKey('files.id'), nullable=False)
     file = relationship("Files", back_populates="scenes")
     duration = Column(Integer)
     start_time = Column(Integer)
@@ -92,7 +92,7 @@ class Exif(Base):
     __tablename__ = 'exif'
 
     id = Column(Integer, primary_key=True)
-    file_id = Column(Integer, ForeignKey('files.id'))
+    file_id = Column(Integer, ForeignKey('files.id'), unique=True, nullable=False)
     file = relationship("Files", back_populates="exif")
 
     General_FileExtension = Column(String)
