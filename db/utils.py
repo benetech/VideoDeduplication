@@ -9,6 +9,9 @@ from winnow.utils import get_hash
 from .schema import Files, Signature, Scene, VideoMetadata, Matches, Exif, Base
 
 
+# TODO: Migrate to winnow.storage.db_result_storage API.
+# TODO: Move db.Database here.
+
 def create_engine_session(conn_string):
     """Creates DB engine from connection string
     

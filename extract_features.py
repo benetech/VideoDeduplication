@@ -1,5 +1,8 @@
 import numpy as np
 import os
+
+from db import Database
+
 os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
 import click
 from glob import glob
@@ -9,6 +12,21 @@ from db.utils import *
 from db.schema import *
 import yaml
 import sys
+from winnow.storage.db_result_storage import DBResultStorage
+
+
+def signature_entries(processed_paths, video_signatures, dataset_dir):
+    """Get list of (path,sha256,sig) tuples for the given processing results."""
+
+    # chop root folder path from processed path
+    relative_paths = [os.path.relpath(path, dataset_dir) for path in processed_paths]
+
+    # get (path, sha256, signature) list
+    return list(zip(
+        relative_paths,
+        map(get_hash, processed_paths),
+        video_signatures
+    ))
 
 @click.command()
 @click.option(
@@ -33,10 +51,10 @@ def main(config,list_of_files):
     DST_DIR = cfg['destination_folder']
     VIDEO_LIST_TXT = cfg['video_list_filename']
     ROOT_FOLDER_INTERMEDIATE_REPRESENTATION =cfg['root_folder_intermediate']
-    USE_DB = cfg['use_db'] 
+    USE_DB = cfg['use_db']
     CONNINFO = cfg['conninfo']
-    KEEP_FILES = cfg['keep_fileoutput']
-    FRAME_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0])    
+    USE_FILES = cfg['keep_fileoutput'] or not USE_DB
+    FRAME_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0])
     VIDEO_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1])
     VIDEO_SIGNATURES_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[2])
     VIDEO_SIGNATURES_FILENAME = 'video_signatures.npy'
@@ -105,20 +123,14 @@ def main(config,list_of_files):
 
 
     if USE_DB:
-        db_engine,session = create_engine_session(CONNINFO)
-        create_tables(db_engine)
-        # Add files and get db records
-        file_entries = add_files(session,processed_paths)
+        # get list of (path, sha256, signature) tuples
+        entries = signature_entries(processed_paths, video_signatures, DATASET_DIR)
 
-        # Extract ids from records in order to save signatures with the proper information
-        processed_to_id = dict({x.file_path:x.id for x in file_entries})
-        file_ids = [processed_to_id[x] for x in processed_paths]
-        signatures = add_signatures(session,video_signatures,file_ids)
+        # Save signatures
+        result_storage = DBResultStorage(Database(uri=CONNINFO))
+        result_storage.add_signatures(entries)
 
-        
-
-    if KEEP_FILES or USE_DB is False:
-
+    if USE_FILES:
         np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,'{}.npy'.format(VIDEO_SIGNATURES_FILENAME)),video_signatures)
         np.save(os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,'{}-filenames.npy'.format(VIDEO_SIGNATURES_FILENAME)),sm.original_filenames)
         print('Signatures of shape {} saved on :{}'.format(video_signatures.shape,VIDEO_SIGNATURES_SAVE_FOLDER))

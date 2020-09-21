@@ -11,7 +11,7 @@ from winnow.feature_extraction import SimilarityModel
 from winnow.utils import extract_additional_info, extract_scenes,filter_results,uniq,scan_videos,extract_from_list_of_videos,convert_to_df,parse_and_filter_metadata_df
 import cv2
 import yaml
-from db import *
+from db.utils import *
 from db.schema import *
 
 

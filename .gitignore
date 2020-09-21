@@ -1,5 +1,5 @@
-**/**/**.pyc
-__pycache__/
+**/*.pyc
+**/__pycache__/
 data/
 winnow/feature_extraction/pretrained_models/**
 .ipynb_checkpoints/**
