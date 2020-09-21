@@ -214,7 +214,11 @@ Extract video signatures
 Arguments:
 
     '--config', '-cp' : Path to the project config file [default:'config.yml']
-    '--list-of-files', '-lof' : path to txt with a list of files for processing - overrides source folder from the config file [default:'']
+    '--list-of-files', '-lof' : path to txt with a list of files for processing - overrides source folder from the config file 
+    [default:'']
+    '--frame-sampling', '-fs': 'Sets the sampling strategy (values from 1 to 10 - eg sample one frame every X seconds) - overrides frame sampling from the config file' [default:1]
+    --save-frames', '-sf': 'Whether to save the frames sampled from the videos - overrides save_frames on the config file'[default:False]
+    
 
 
 Generate matches
