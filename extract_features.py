@@ -39,8 +39,19 @@ def signature_entries(processed_paths, video_signatures, dataset_dir):
     help='path to txt with a list of files for processing - overrides source folder from the config file',
     default="")
 
+@click.option(
+    '--frame-sampling', '-fs',
+    help='Sets the sampling strategy (values from 1 to 10 - eg sample one frame every X seconds) - overrides frame sampling from the config file',
+    default="")
 
-def main(config,list_of_files):
+@click.option(
+    '--save-frames', '-sf',
+    help='Whether to save the frames sampled from the videos - overrides save_frames on the config file',
+    default=False,is_flag=True)
+
+
+
+def main(config,list_of_files,frame_sampling,save_frames):
 
     representations = ['frame_level','video_level','video_signatures']
 
@@ -51,6 +62,8 @@ def main(config,list_of_files):
     DST_DIR = cfg['destination_folder']
     VIDEO_LIST_TXT = cfg['video_list_filename']
     ROOT_FOLDER_INTERMEDIATE_REPRESENTATION =cfg['root_folder_intermediate']
+    FRAME_SAMPLING = int(frame_sampling or cfg['frame_sampling'])
+    SAVE_FRAMES = bool(save_frames or  cfg['save_frames'])
     USE_DB = cfg['use_db']
     CONNINFO = cfg['conninfo']
     USE_FILES = cfg['keep_fileoutput'] or not USE_DB
@@ -67,12 +80,11 @@ def main(config,list_of_files):
     print('Searching for Dataset Video Files')
 
     if len(list_of_files) == 0:
-
         videos = scan_videos(DATASET_DIR,'**',extensions=['.mp4','.ogv','.webm','.avi'])
-
     else:
-
         videos = scan_videos_from_txt(list_of_files,extensions=['.mp4','.ogv','.webm','.avi'])
+
+    
 
     print('Number of files found: {}'.format(len(videos)))
 
@@ -98,7 +110,7 @@ def main(config,list_of_files):
 
     if len(remaining_videos_path) > 0:
         # Instantiates the extractor
-        extractor = IntermediateCnnExtractor(VIDEOS_LIST,FRAME_LEVEL_SAVE_FOLDER)
+        extractor = IntermediateCnnExtractor(VIDEOS_LIST,FRAME_LEVEL_SAVE_FOLDER,frame_sampling=FRAME_SAMPLING,save_frames=SAVE_FRAMES)
         # Starts Extracting Frame Level Features
         extractor.start(batch_size=16,cores=4)
 

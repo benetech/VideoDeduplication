@@ -6,9 +6,6 @@ import os
 
 
 
-
-
-
 def download_file(local_filename,url):
     # local_filename = url.split('/')[-1]
     r = requests.get(url, stream=True)
@@ -19,7 +16,7 @@ def download_file(local_filename,url):
 
 
 
-def load_video(video, desired_size):
+def load_video(video, desired_size,frame_sampling):
     """
       Function that loads a video and converts it to the desired size.
 
@@ -45,7 +42,9 @@ cfg['pretrained_model_local_path']
             ret, frame = cap.read()
             if isinstance(frame, np.ndarray):
                 try:
-                    if int(count % round(fps)) == 0:
+                    # When frame_sampling = 1 -> We sample one 1 frame per second
+                    # When frame_sampling = 2 -> We sample one frame every 2 * frame_per_second -> 1 frame every 2 seconds 
+                    if int(count % round(fps * frame_sampling)) == 0:
                         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                         if desired_size != 0:
                             frame = pad_and_resize(frame, desired_size)
@@ -57,6 +56,7 @@ cfg['pretrained_model_local_path']
             count += 1
         cap.release()
         video_tensor = np.array(frames)
+
         return video_tensor
     except Exception as e:
         raise Exception('Can\'t load video {}\n{}'.format(video, e))

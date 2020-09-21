@@ -20,10 +20,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 PRETRAINED_LOCAL_PATH = download_pretrained(os.environ['WINNOW_CONFIG'])
 
 
-def pload_video(p,size):
-	return load_video(p,size)
+def pload_video(p,size,frame_sampling):
+	return load_video(p,size,frame_sampling)
 
-def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
+def feature_extraction_videos(model, cores, batch_sz, video_list, output_path,frame_sampling,save_frames):
     """
       Function that extracts the intermediate CNN features
       of each video in a provided video list.
@@ -53,7 +53,7 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
             
             video_name = os.path.basename(video_list[video])
             if video not in future_videos:
-                video_tensor = pload_video(video_list[video], model.desired_size)
+                video_tensor = pload_video(video_list[video], model.desired_size,frame_sampling)
             else:
                 video_tensor = future_videos[video].get()
                 del future_videos[video]
@@ -67,7 +67,7 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
                     next_video not in future_videos and \
                         os.path.exists(video_list[next_video]):
                     future_videos[next_video] = pool.apply_async(pload_video,
-                        args=[video_list[next_video], model.desired_size])
+                        args=[video_list[next_video], model.desired_size,frame_sampling])
 
             # extract features
             features = model.extract(video_tensor, batch_sz)
@@ -79,15 +79,17 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path):
 
             # save features
             np.save(path, features)
-            np.save(frame_path, video_tensor)
+            # save frames
+            if save_frames:
+                np.save(frame_path, video_tensor)
     np.savetxt('{}/video_feature_list.txt'.format(output_path), output_list, fmt='%s')
 
 
-def start_video_extraction(video_list,output_path,cores = 4,batch_sz=8):
+def start_video_extraction(video_list,output_path,cores = 4,batch_sz=8,frame_sampling=1,save_frames=False):
 
     model = CNN_tf('vgg', PRETRAINED_LOCAL_PATH)
 
-    feature_extraction_videos(model, cores, batch_sz, video_list, output_path)
+    feature_extraction_videos(model, cores, batch_sz, video_list, output_path,frame_sampling,save_frames)
 
 def load_featurizer(PRETRAINED_LOCAL_PATH):
     

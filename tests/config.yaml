@@ -6,6 +6,10 @@ root_folder_intermediate:
     representations
 match_distance:
     0.75
+frame_sampling:
+    1
+save_frames:
+    true
 video_list_filename:
     video_dataset_list.txt
 filter_dark_videos:

@@ -4,6 +4,11 @@ destination_folder:
     data/
 root_folder_intermediate:
     representations
+frame_sampling:
+    1
+save_frames:
+    true
+
 match_distance:
     0.75
 video_list_filename:
