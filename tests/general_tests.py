@@ -1,18 +1,20 @@
 import os
+import tempfile
+
+from winnow.storage.repr_storage import ReprStorage
+from winnow.storage.repr_utils import path_resolver, bulk_read
+
 os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
-from glob import glob
-import numpy as np
-from winnow.feature_extraction import IntermediateCnnExtractor,frameToVideoRepresentation,SimilarityModel
-from winnow.utils import create_directory,scan_videos,get_original_fn_from_artifact,create_video_list
-import yaml
 import pytest
-import warnings
-import shutil
+import numpy as np
+from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepresentation, SimilarityModel
+from winnow.utils import scan_videos, create_video_list, get_hash
+import yaml
 from pathlib import Path
 
 NUMBER_OF_TEST_VIDEOS = 40
 
-representations = ['frame_level','video_level','video_signatures']
+representations = ['frame_level', 'video_level', 'video_signatures']
 
 with open("tests/config.yaml", 'r') as ymlfile:
     cfg = yaml.safe_load(ymlfile)
@@ -22,175 +24,135 @@ with open("tests/config.yaml", 'r') as ymlfile:
 DATASET_DIR = cfg['video_source_folder']
 DST_DIR = cfg['destination_folder']
 VIDEO_LIST_TXT = cfg['video_list_filename']
-ROOT_FOLDER_INTERMEDIATE_REPRESENTATION =cfg['root_folder_intermediate']
-USE_DB = cfg['use_db'] 
+ROOT_FOLDER_INTERMEDIATE_REPRESENTATION = cfg['root_folder_intermediate']
+USE_DB = cfg['use_db']
 CONNINFO = cfg['conninfo']
 KEEP_FILES = cfg['keep_fileoutput']
-FRAME_LEVEL_SAVE_FOLDER = os.path.abspath(DST_DIR + '{}/{}'.format(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0]))
-VIDEO_SIGNATURES_FILENAME = 'video_signatures'
-FRAME_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0])    
-VIDEO_LEVEL_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1])
-VIDEO_SIGNATURES_SAVE_FOLDER = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[2])
-VIDEO_SIGNATURES_FILENAME = 'video_signatures.npy'
 HANDLE_DARK = str(cfg['filter_dark_videos'])
 DETECT_SCENES = str(cfg['detect_scenes'])
 MIN_VIDEO_DURATION = cfg['min_video_duration_seconds']
 DISTANCE = float(cfg['match_distance'])
-KEEP_FILES = cfg['keep_fileoutput'] 
+KEEP_FILES = cfg['keep_fileoutput']
+
+supported_video_extensions = ['.mp4', '.ogv', '.webm', '.avi']
+
+
 # Ensures that the config file follows specs
-
-# Ensure we do not have processed files from previous test runs
-try:
-
-    shutil.rmtree('tests/test_data/test_output/representations/')
-except:
-    pass
-
-
 def test_config_input():
     assert type(DATASET_DIR) == str, 'video_source_folder takes a string as a parameter'
     assert type(DST_DIR) == str, 'destination_folder takes a string as a parameter'
-    assert type(ROOT_FOLDER_INTERMEDIATE_REPRESENTATION) == str, 'root_folder_intermediate takes a string as a parameter'
+    assert type(
+        ROOT_FOLDER_INTERMEDIATE_REPRESENTATION) == str, 'root_folder_intermediate takes a string as a parameter'
     assert type(USE_DB) == bool, 'use_db takes a boolean as a parameter'
     assert type(CONNINFO) == str, 'use_db takes a boolean as a parameter'
-    
-# additional tests for the inner string structure
 
 
-# Ensures that config specifications are translated into the right file structure
+@pytest.fixture(scope="module")
+def reprs():
+    """Fixture that creates an empty representation folder in a temporary directory."""
+    with tempfile.TemporaryDirectory(prefix="representations-") as directory:
+        yield ReprStorage(directory=directory)
 
-create_directory(representations,DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION)
 
+@pytest.fixture(scope="module")
+def videos():
+    """Paths of videos in a test_data."""
+    return scan_videos(DATASET_DIR, '**', extensions=supported_video_extensions)
 
-frame_level_folder = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[0])
-video_level_folder = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[1])
-video_signatures_folder = os.path.join(DST_DIR,ROOT_FOLDER_INTERMEDIATE_REPRESENTATION,representations[2])
 
-supported_video_extensions = ['.mp4','.ogv','.webm','.avi']
+@pytest.fixture(scope="module")
+def dataset_path_hash_pairs(videos):
+    """(path_inside_storage,sha256) pairs for test dataset videos."""
+    storepath = path_resolver(source_root=DATASET_DIR)
+    return [(storepath(path), get_hash(path)) for path in videos]
 
-videos = scan_videos(DATASET_DIR,'**',extensions= supported_video_extensions)
-processed_videos = scan_videos(FRAME_LEVEL_SAVE_FOLDER,'**_vgg_features.npy')
 
-processed_filenames = get_original_fn_from_artifact(processed_videos,'_vgg_features')
-full_video_names = [os.path.basename(x) for x in videos]
-remaining_videos = [i for i,x in enumerate(full_video_names) if x not in processed_filenames]
-remaining_videos_path = np.array(videos)[remaining_videos]
- 
-VIDEOS_LIST = create_video_list(remaining_videos_path,VIDEO_LIST_TXT)
-video_files_count = len(open(VIDEOS_LIST).readlines())
+@pytest.fixture(scope="module")
+def intermediate_cnn_results(videos, reprs):
+    """Ensure processing by intermediate CNN is done.
 
+    Each test dependent on this fixture is guaranteed to be
+    executed AFTER processing by the intermediate CNN is done.
 
-extractor = IntermediateCnnExtractor(VIDEOS_LIST,FRAME_LEVEL_SAVE_FOLDER)
-extractor.start(batch_size=16, cores=4)
-processed_videos_after_extraction = scan_videos(FRAME_LEVEL_SAVE_FOLDER,'**_vgg_features.npy')
-processed_videos_features = np.array([np.load(x) for x in processed_videos_after_extraction if 'vgg_features' in x])
+    Returns:
+        ReprStorage with populated with intermediate CNN results.
+    """
+    storepath = path_resolver(source_root=DATASET_DIR)
+    videos_list = create_video_list(videos, VIDEO_LIST_TXT)
+    extractor = IntermediateCnnExtractor(videos_list, reprs, storepath)
+    extractor.start(batch_size=16, cores=4)
+    return reprs
 
 
-converter = frameToVideoRepresentation(FRAME_LEVEL_SAVE_FOLDER,VIDEO_LEVEL_SAVE_FOLDER)
-converter.start()
-processed_videos_vl = scan_videos(VIDEO_LEVEL_SAVE_FOLDER,'**_vgg_features.npy')
-processed_videos_features_vl = np.array([np.load(x) for x in processed_videos_vl if 'vgg_features' in x])
+@pytest.fixture(scope="module")
+def frame_to_video_results(intermediate_cnn_results):
+    """Ensure video-level features are extracted.
 
-sm = SimilarityModel()
-video_signatures = sm.predict(VIDEO_LEVEL_SAVE_FOLDER)
-video_signatures = np.nan_to_num(video_signatures)
+    Each test dependent on this fixture is guaranteed to be
+    executed AFTER video-level features extraction is done.
 
-SIGNATURES_FILEPATH = os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,'{}.npy'.format(VIDEO_SIGNATURES_FILENAME))
-SIGNATURES_INDEX_FILEPATH = os.path.join(VIDEO_SIGNATURES_SAVE_FOLDER,'{}-filenames.npy'.format(VIDEO_SIGNATURES_FILENAME))
-np.save(SIGNATURES_FILEPATH,video_signatures)
-np.save(SIGNATURES_INDEX_FILEPATH,sm.original_filenames)
+    Returns:
+        ReprStorage populated with video-level features.
+    """
+    reprs = intermediate_cnn_results
+    converter = FrameToVideoRepresentation(reprs)
+    converter.start()
+    return reprs
 
 
-def test_directory_structure():
-    
-    assert os.path.exists(frame_level_folder)
-    assert os.path.exists(video_level_folder)
-    assert os.path.exists(video_signatures_folder)
+@pytest.fixture(scope="module")
+def signatures(frame_to_video_results):
+    """Get calculated signatures as a dict.
 
+    Each test dependent on this fixture is guaranteed to be
+    executed AFTER signatures are calculated.
 
-def test_videos_can_be_scanned():
+    Returns:
+        Signatures dict (orig_path,hash) => signature.
+    """
+    reprs = frame_to_video_results
+    sm = SimilarityModel()
+    signatures = sm.predict(bulk_read(reprs.video_level))
+    for (path, sha256), sig_value in signatures.items():
+        reprs.signature.write(path, sha256, sig_value)
+    return signatures
 
-    assert len(videos) == NUMBER_OF_TEST_VIDEOS
-    assert len(processed_videos) == 0
 
+def test_video_extension_filter(videos):
+    not_videos = sum(Path(video).suffix not in supported_video_extensions for video in videos)
 
+    assert not_videos == 0
 
-def test_video_filenames_can_be_extracted():
 
-    assert len(full_video_names) == NUMBER_OF_TEST_VIDEOS
-    assert len(remaining_videos) == NUMBER_OF_TEST_VIDEOS
+def test_intermediate_cnn_extractor(intermediate_cnn_results, dataset_path_hash_pairs):
+    assert set(intermediate_cnn_results.frame_level.list()) == set(dataset_path_hash_pairs)
 
-def test_video_extension_filter():
+    frame_level_features = list(bulk_read(intermediate_cnn_results.frame_level).values())
 
-    not_video = [x for x in full_video_names if Path(x).suffix not in supported_video_extensions]
+    shapes_correct = sum(features.shape[1] == 4096 for features in frame_level_features)
 
-    assert len(not_video) == 0
+    assert shapes_correct == len(dataset_path_hash_pairs)
 
-def test_directory_with_multiple_levels():
 
-    nested_files = ['0f607171f4f9403ab0f800b39f86f8a6.webm','0f3404af257e4ec7a648b740a8f67755.mp4']
-    found = [x for x in nested_files if x in full_video_names]
-    assert len(found) == len(nested_files)
+def test_frame_to_video_converter(frame_to_video_results, dataset_path_hash_pairs):
+    assert set(frame_to_video_results.video_level.list()) == set(dataset_path_hash_pairs)
 
-def test_video_extension_filter_no_extensions_given():
+    video_level_features = np.array(list(bulk_read(frame_to_video_results.video_level).values()))
 
-    videos = scan_videos(DATASET_DIR,'**')
-    full_video_names = [os.path.basename(x) for x in videos]
-    not_video = [x for x in full_video_names if Path(x).suffix not in supported_video_extensions]
-    
-    assert len(not_video) > 0
+    assert video_level_features.shape == (len(dataset_path_hash_pairs), 1, 4096)
 
 
-def test_video_list_creation():
+def test_signatures_shape(signatures, dataset_path_hash_pairs):
+    assert set(signatures.keys()) == set(dataset_path_hash_pairs)
 
-    assert video_files_count == NUMBER_OF_TEST_VIDEOS
+    signatures_array = np.array(list(signatures.values()))
+    assert signatures_array.shape == (NUMBER_OF_TEST_VIDEOS, 500)
 
 
-def test_intermediate_cnn_extractor():
+@pytest.mark.usefixtures("signatures")
+def test_saved_signatures(reprs, dataset_path_hash_pairs):
+    signatures = bulk_read(reprs.signature)
+    assert set(signatures.keys()) == set(dataset_path_hash_pairs)
 
-    shapes_correct = [x.shape[1] for x in processed_videos_features if x.shape[1] == 4096]
-
-    assert len(processed_videos_after_extraction) == NUMBER_OF_TEST_VIDEOS
-    assert len(shapes_correct) == NUMBER_OF_TEST_VIDEOS
-
-
-def test_frame_to_video_converter():
-
-    assert processed_videos_features_vl.shape == (NUMBER_OF_TEST_VIDEOS,1, 4096)
-
-def test_signatures_shape():
-
-    assert video_signatures.shape == (NUMBER_OF_TEST_VIDEOS,500)
-
-def test_signatures_fp():
-
-    vs = np.load(SIGNATURES_FILEPATH)
-
-    assert vs.shape == (NUMBER_OF_TEST_VIDEOS, 500)
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
+    signatures_array = np.array(list(signatures.values()))
+    assert signatures_array.shape == (NUMBER_OF_TEST_VIDEOS, 500)
