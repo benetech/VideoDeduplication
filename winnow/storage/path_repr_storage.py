@@ -6,7 +6,7 @@ from os.path import join, relpath, abspath, exists, dirname
 import numpy as np
 
 # Logger used in representation-storage module
-logger = logging.getLogger("ReprStorage")
+logger = logging.getLogger("winnow.storage.path_repr_storage")
 
 
 class PathReprStorage:

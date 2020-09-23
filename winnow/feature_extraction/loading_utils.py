@@ -66,15 +66,14 @@ def global_vector_from_tensor(video_tensor):
       X = X.mean(axis=0, keepdims=True)
       X = normalize(X)
       return X
-  except Exception as e:
-      if video:
-          print('Cant process feature file {}\n{}'.format(video, e))
+  except Exception:
+      print('Error processing video tensor.')
       return np.array([])
 
 
 
 
-def global_vector(video):
+def global_vector(frame_feature_vector):
     """
       Function that calculate the global feature vector from the
       frame features vectors. First, all frame features vectors
@@ -83,40 +82,35 @@ def global_vector(video):
       normalized again.
 
       Args:
-        video: path to feature file of a video
+        frame_feature_vector: path to feature file of a video
       Returns:
         X: the normalized global feature vector
     """
     try:
-        X = np.load(video)
+        X = frame_feature_vector
         X = normalize(X)
         X = X.mean(axis=0, keepdims=True)
         X = normalize(X)
         return X
-    except Exception as e:
-        if video:
-            print('Cant load feature file {}\n{}'.format(video, e))
+    except Exception:
+        print('Error processing video tensor.')
         return np.array([])
 
 
+def frame_to_global(representations):
+    """
+    Calculate and save global feature vectors based on frame-level representation.
 
-def frame_to_global(src_dir,output_dir):
-
-    videos = glob(os.path.join(src_dir,'**_vgg_features.npy'))
-        
-    for vid in videos:
+    Args:
+        representations (winnow.storage.repr_storage.ReprStorage): Intermediate representations storage.
+    """
+    for path, sha256 in representations.frame_level.list():
         try:
-            dst = os.path.join(output_dir, os.path.basename(vid))
-            video_representation = global_vector(vid)
-            np.save(dst,video_representation)
+            frame_feature_vector = representations.frame_level.read(path, sha256)
+            video_representation = global_vector(frame_feature_vector)
+            representations.video_level.write(path, sha256, video_representation)
         except Exception as e:
-
             raise Exception('Cant save video to destination:{}'.format(e))
-
-
-
-
-
 
 
 def plot_pr_curve(pr_curve, title):

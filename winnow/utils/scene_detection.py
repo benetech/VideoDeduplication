@@ -1,9 +1,11 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-from glob import glob 
-from scipy.spatial.distance import cosine
 import datetime
+from typing import List, Tuple
+
+import matplotlib.pyplot as plt
+import numpy as np
+from dataclasses import dataclass
+from scipy.spatial.distance import cosine
+
 
 def cosine_series(arr):
     output = [1.0]
@@ -75,27 +77,57 @@ def seconds_to_time(list_of_durations):
     return results
 
 
-def extract_scenes(list_of_files,minimum_duration=10):
+@dataclass
+class SceneExtractionResults:
+    """Data structure to hold scene extraction results."""
+
+    # List of original file paths inside content folder
+    video_filename: List[str] = None
+
+    # List of original files sha256 hash digests
+    video_sha256: List[str] = None
+
+    # List of lists containing duration (in seconds) of each scene where List i corresponds to filtered_video[i]
+    scene_duration_seconds: List[List[int]] = None
+
+    # List of list of scene timestamps (start, end)
+    scenes_timestamp: List[List[Tuple[str, str]]] = None
+
+    # Mainly the length of the list of scene durations (Derived from Durations)
+    num_scenes: List[int] = None
+
+    # Average Scene length (Derived from Durations)
+    avg_duration_seconds: List[float] = None
+
+    # List of total video duration
+    video_duration_seconds: List[int] = None
+
+    # List of total video duration as timedelta
+    total_video_duration_timestamp: List[datetime.timedelta] = None
+
+
+def extract_scenes(frame_features_dict, minimum_duration=10):
     """Extracts scenes from a list of files
     
-    Arguments:
-        list_of_files {[List[npy files]]} -- List of filepaths for framelevel representations of videos
+    Args:
+        frame_features_dict (dict): A dictionary mapping original file (path,hash) to its frame-level features.
     
-    Keyword Arguments:
-        minimum_duration {int} -- Minimum duration of video in seconds. (default: {10})
+    Keyword Args:
+        minimum_duration (int): Minimum duration of video in seconds. (default: {10})
     
     Returns:
-        Filtered Videos [list] -- List of the videos processed (after filtering for the minimum duration threshold)
-        Durations [list[Duration]] -- List of lists containing duration (in seconds) of each scene where List i corresponds to filtered_video[i]
-        Number of Scenes [list] -- Derived from Durations -> Mainly the length of the list of scene durations
-        Average Duration [list] -- Derived from Durations -> Average Scene length
-        Total Video Duration [list] -- Total video duration
+        SceneExtractionResults: Data structure containing complete scene extraction results.
     """
+    # Filter videos by duration
+    filtered_dict = {key: feature for key, feature in frame_features_dict.items()
+                     if feature.shape[0] > minimum_duration}
 
-    filtered_videos = [x for x in list_of_files if np.load(x).shape[0] > minimum_duration]
-    raw_scenes = [visualize_features(x) for x in filtered_videos]
+    # Unpack names, hashes and features as separate lists
+    keys, features = zip(*filtered_dict.items())
+    paths, hashes = zip(*keys)
+
+    raw_scenes = [cosine_series(frame_features) for frame_features in features]
     scene_ident = [((diffs > np.quantile(diffs,.90)) & (diffs > 0.05)) for diffs in raw_scenes]
-    num_scens = [sum(sid) for sid in scene_ident]
 
     video_scenes = []
     for sid in scene_ident:
@@ -110,12 +142,14 @@ def extract_scenes(list_of_files,minimum_duration=10):
             scenes.append([start,end])
         video_scenes.append(scenes)
 
+    results = SceneExtractionResults()
+    results.video_filename = paths
+    results.video_sha256 = hashes
+    results.scene_duration_seconds = [get_duration(x) for x in video_scenes]
+    results.scenes_timestamp = [seconds_to_time(d) for d in results.scene_duration_seconds]
+    results.num_scenes = [len(x) for x in video_scenes]
+    results.avg_duration_seconds = [np.mean(x) for x in results.scene_duration_seconds]
+    results.video_duration_seconds = [sid.shape[0] for sid in scene_ident]
+    results.total_video_duration_timestamp = [datetime.timedelta(seconds=x) for x in results.video_duration_seconds]
 
-    durations = [get_duration(x) for x in video_scenes]
-    scenes_timestamp = [seconds_to_time(d) for d in durations]
-    num_scenes = [len(x) for x in video_scenes]
-    avg_duration = [np.mean(x) for x in durations]
-    total_video = [sid.shape[0] for sid in scene_ident]
-    total_video_duration_timestamp = [datetime.timedelta(seconds=x) for x in total_video]
-
-    return filtered_videos,durations,num_scenes,avg_duration,total_video,scenes_timestamp,total_video_duration_timestamp
+    return results

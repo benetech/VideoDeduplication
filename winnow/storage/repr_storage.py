@@ -13,6 +13,10 @@ class ReprStorage:
             directory (String): Directory in which all representations will be stored.
         """
         self.directory = abspath(directory)
+        self.frames = storage_factory(join(self.directory, "frames"))
         self.frame_level = storage_factory(join(self.directory, "frame_level"))
         self.video_level = storage_factory(join(self.directory, "video_level"))
         self.signature = storage_factory(join(self.directory, "video_signatures"))
+
+    def __repr__(self):
+        return f"ReprStorage('{self.directory}')"
