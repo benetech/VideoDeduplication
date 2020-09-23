@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from db import Database
 
 # Logger used in representation-storage module
-logger = logging.getLogger("ReprStorage")
+logger = logging.getLogger("winnow.storage.sqlite_repr_storage")
 
 # Base-class for database entities
 Base = declarative_base()
@@ -40,7 +40,7 @@ class SQLiteReprStorage:
     #   * For each saved representation there is database record matching source file's (path,sha256), feature-type and
     #     the name of the file containing the corresponding representation value.
 
-    def __init__(self, directory, save=np.save, load=np.load):
+    def __init__(self, directory, save=np.save, load=np.load, suffix="_vgg_features.npy"):
         """Create new storage instance.
 
         Args:
@@ -51,6 +51,7 @@ class SQLiteReprStorage:
         self.directory = os.path.abspath(directory)
         self._save = save
         self._load = load
+        self._suffix = suffix
 
         if not os.path.exists(directory):
             logger.info("Creating intermediate representation directory: %s", self.directory)
@@ -111,8 +112,7 @@ class SQLiteReprStorage:
             FeatureFile.source_sha256 == sha256,
         ).scalar() is not None
 
-    @staticmethod
-    def _get_or_create(session, path, sha256, suffix="_vgg_features.npy"):
+    def _get_or_create(self, session, path, sha256):
         """Get feature-file record, create one with unique name if not exist."""
         feature_file = SQLiteReprStorage._record(session, path, sha256).first()
         if feature_file is not None:
@@ -121,6 +121,6 @@ class SQLiteReprStorage:
         feature_file = FeatureFile(
             source_path=path,
             source_sha256=sha256,
-            feature_file_path=f"{uuid()}{suffix}")
+            feature_file_path=f"{uuid()}{self._suffix}")
         session.add(feature_file)
         return feature_file
