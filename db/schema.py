@@ -78,14 +78,16 @@ class Scene(Base):
 
 class Matches(Base):
     __tablename__ = 'matches'
+    __table_args__ = (UniqueConstraint('query_video_file_id', 'match_video_file_id', name='_matches_uc'),)
+
     id = Column(Integer, primary_key=True)
     query_video = Column(String)
-    query_video_file_id = Column(Integer, ForeignKey('files.id'))
+    query_video_file_id = Column(Integer, ForeignKey('files.id'), nullable=False)
     query_video_file = relationship("Files", back_populates="matches", foreign_keys=[query_video_file_id])
     match_video = Column(String)
-    match_video_file_id = Column(Integer, ForeignKey('files.id'))
+    match_video_file_id = Column(Integer, ForeignKey('files.id'), nullable=False)
     match_video_file = relationship("Files", foreign_keys=[match_video_file_id])
-    distance = Column(Float)
+    distance = Column(Float, nullable=False)
 
 
 class Exif(Base):
