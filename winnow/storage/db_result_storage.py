@@ -1,5 +1,10 @@
 import itertools
+from functools import wraps
 from time import time
+
+import logging
+
+logger = logging.getLogger("winnow.storage.db_result_storage")
 
 from sqlalchemy import tuple_
 from sqlalchemy.orm import joinedload, aliased
@@ -17,11 +22,12 @@ def chunks(iterable, size=100):
 
 
 def benchmark(func):
+    @wraps(func)
     def wrapped(*args, **kwargs):
         start = time()
         result = func(*args, **kwargs)
         end = time()
-        print(f"{func.__name__}(...) took {end - start:.2} seconds")
+        logger.debug(f"{func.__name__}(...) took {end - start:5.3} seconds")
         return result
 
     wrapped.__name__ = func.__name__
@@ -83,7 +89,7 @@ class DBResultStorage:
                 session.add_all(new_files)
 
     @benchmark
-    def add_file_scenes(self, path, sha256, durations, overwrite=False):
+    def add_file_scenes(self, path, sha256, durations, override=False):
         """Add scenes for a single video file."""
         with self.database.session_scope() as session:
             query = session.query(Files).options(joinedload(Files.scenes))
@@ -91,8 +97,8 @@ class DBResultStorage:
             file = file or Files(file_path=path, sha256=sha256)
 
             # Delete existing scenes if needed
-            if overwrite:
-                self._delete_file_scenes(file)
+            if override:
+                self._delete_file_scenes(session, file)
 
             # Skip write operation if scenes already exist
             if len(file.scenes) > 0:
@@ -103,13 +109,13 @@ class DBResultStorage:
             session.add_all(file.scenes)
 
     @benchmark
-    def add_scenes(self, entries, overwrite=False):
+    def add_scenes(self, entries, override=False):
         """Bulk add scenes.
 
         Args:
             entries: Iterable of (path, sha256, durations) tuples. Where
                 durations is an iterable of scene durations in seconds.
-            overwrite: Delete existing scenes if any.
+            override: Delete existing scenes if any.
         """
         # Split the work into chunks
         for chunk in chunks(entries, size=1000):
@@ -119,8 +125,8 @@ class DBResultStorage:
                 files = query.filter(self._by_path_and_hash(list(index.keys()))).all()
 
                 # Delete existing scenes if needed
-                if overwrite:
-                    self._delete_file_scenes(*files)
+                if override:
+                    self._delete_file_scenes(session, *files)
 
                 # Update existing files
                 for file in files:
@@ -239,7 +245,7 @@ class DBResultStorage:
             file = query.filter(Files.file_path == path, Files.sha256 == sha256).one_or_none()
             file = file or Files(file_path=path, sha256=sha256)
 
-            exif_entity = file.meta or Exif(file=file)
+            exif_entity = file.exif or Exif(file=file)
             self._update_exif(exif_entity, exif)
             file.exif = exif_entity
             session.add(exif_entity)
@@ -284,14 +290,14 @@ class DBResultStorage:
     @staticmethod
     def _scene_ids(*files):
         """Get all scene ids associated with the given files."""
-        scenes = itertools.chain(file.scenes or () for file in files)
+        scenes = itertools.chain(*(file.scenes or () for file in files))
         return [scene.id for scene in scenes]
 
     @staticmethod
     def _delete_file_scenes(session, *files):
         """Delete all scenes associated with the given files."""
         existing_scene_ids = DBResultStorage._scene_ids(*files)
-        session.query(Scene).filter(Scene.id.in_(existing_scene_ids)).delete()
+        session.query(Scene).filter(Scene.id.in_(existing_scene_ids)).delete(synchronize_session="fetch")
         for file in files:
             file.scenes = []
 
@@ -301,7 +307,7 @@ class DBResultStorage:
         scenes = []
         start_time = 0
         for duration in durations:
-            scenes.append(Scene(file=file, start_time=start_time * 1000, duration=duration * 1000))
+            scenes.append(Scene(file=file, start_time=int(start_time), duration=int(duration)))
             start_time += duration
         return scenes
 
@@ -383,8 +389,8 @@ class DBResultStorage:
         entity.General_FrameCount = exif.get('General_FrameCount', entity.General_FrameCount)
         entity.General_Encoded_Date = exif.get('General_Encoded_Date', entity.General_Encoded_Date)
         entity.General_File_Modified_Date = exif.get('General_File_Modified_Date', entity.General_File_Modified_Date)
-        modified_date = exif.get('General_File_Modified_Date_Local', entity.General_File_Modified_Date_Local)
-        entity.General_File_Modified_Date_Local = modified_date
+        entity.General_File_Modified_Date_Local = exif.get('General_File_Modified_Date_Local',
+                                                           entity.General_File_Modified_Date_Local)
         entity.General_Tagged_Date = exif.get('General_Tagged_Date', entity.General_Tagged_Date)
         entity.Video_Format = exif.get('Video_Format', entity.Video_Format)
         entity.Video_BitRate = exif.get('Video_BitRate', entity.Video_BitRate)
