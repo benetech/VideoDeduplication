@@ -1,42 +1,43 @@
 import os
-import argparse
-import numpy as np
 from multiprocessing import Pool
-from .utils import load_video, load_image, download_file, download_pretrained
-from .model_tf import CNN_tf
-import os
-import requests
-import shutil
-import multiprocessing
+
+import numpy as np
 from tqdm import tqdm
-import yaml
+
+from .model_tf import CNN_tf
+from .utils import load_video, download_pretrained
+from ..utils import get_hash
 
 package_directory = os.path.dirname(os.path.abspath(__file__))
 os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
-    
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 PRETRAINED_LOCAL_PATH = download_pretrained(os.environ['WINNOW_CONFIG'])
 
 
-def pload_video(p,size,frame_sampling):
-	return load_video(p,size,frame_sampling)
+def pload_video(p, size, frame_sampling):
+    return load_video(p, size, frame_sampling)
 
-def feature_extraction_videos(model, cores, batch_sz, video_list, output_path,frame_sampling,save_frames):
+
+def feature_extraction_videos(model, cores, batch_sz, video_list, reprs, storepath, frame_sampling, save_frames):
     """
-      Function that extracts the intermediate CNN features
-      of each video in a provided video list.
-      Args:
+    Function that extracts the intermediate CNN features
+    of each video in a provided video list.
+    Args:
         model: CNN network
         cores: CPU cores for the parallel video loading
         batch_sz: batch size fed to the CNN network
         video_list: list of video to extract features
-        output_path: path to store video features
+        reprs (winnow.storage.repr_storage.ReprStorage): storage of video features
+        storepath: convert paths to relative paths inside content root folder
+        frame_sampling: Minimal distance (in sec.) between frames to be saved.
+        save_frames: Save normalized video frames.
     """
     video_list = {i: video.strip() for i, video in enumerate(open(video_list, encoding="utf-8").readlines())}
     print('\nNumber of videos: ', len(video_list))
-    print('Storage directory: ', output_path)
+    print('Storage directory: ', reprs)
     print('CPU cores: ', cores)
     print('Batch size: ', batch_sz)
 
@@ -49,11 +50,12 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path,fr
 
     pbar = tqdm(range(np.max(list(video_list.keys()))+1), mininterval=1.0, unit='video')
     for video in pbar:
-        if os.path.exists(video_list[video]):
+        video_file_path = video_list[video]
+        pbar.set_postfix(video=os.path.basename(video_file_path))
+        if os.path.exists(video_file_path):
             
-            video_name = os.path.basename(video_list[video])
             if video not in future_videos:
-                video_tensor = pload_video(video_list[video], model.desired_size,frame_sampling)
+                video_tensor = pload_video(video_file_path, model.desired_size, frame_sampling)
             else:
                 video_tensor = future_videos[video].get()
                 del future_videos[video]
@@ -72,24 +74,17 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, output_path,fr
             # extract features
             features = model.extract(video_tensor, batch_sz)
 
-            path = os.path.join(output_path, '{}_{}_features'.format(video_name, model.net_name))
-            frame_path = os.path.join(output_path, '{}_{}_frames'.format(video_name, model.net_name))
-            output_list += ['{}\t{}'.format(video_name, path)]
-            pbar.set_postfix(video=video_name)
-
             # save features
-            np.save(path, features)
-            # save frames
+            storage_path, sha256 = storepath(video_file_path), get_hash(video_file_path)
+            reprs.frame_level.write(storage_path, sha256, features)
             if save_frames:
-                np.save(frame_path, video_tensor)
-    np.savetxt('{}/video_feature_list.txt'.format(output_path), output_list, fmt='%s')
+                reprs.frames.write(storage_path, sha256, video_tensor)
 
 
-def start_video_extraction(video_list,output_path,cores = 4,batch_sz=8,frame_sampling=1,save_frames=False):
-
+def start_video_extraction(video_list, reprs, storepath, cores=4, batch_sz=8, frame_sampling=1, save_frames=False):
     model = CNN_tf('vgg', PRETRAINED_LOCAL_PATH)
 
-    feature_extraction_videos(model, cores, batch_sz, video_list, output_path,frame_sampling,save_frames)
+    feature_extraction_videos(model, cores, batch_sz, video_list, reprs, storepath, frame_sampling, save_frames)
 
 def load_featurizer(PRETRAINED_LOCAL_PATH):
     

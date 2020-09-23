@@ -1,74 +1,32 @@
-from .siamese_net import DNN
-from glob import glob
 import os
+
 import numpy as np
 
-package_directory = os.path.dirname(os.path.abspath(__file__))
-similarity_model_pretrained = os.path.join(package_directory,'model')
+from .siamese_net import DNN
 
+package_directory = os.path.dirname(os.path.abspath(__file__))
+similarity_model_pretrained = os.path.join(package_directory, 'model')
 
 
 class SimilarityModel:
 
     def __init__(self):
-
-        self.src = None
         self.model = None
-        self.features = []
-        self.embeddings = None
-        self.index = []
-        self.original_filenames = []
-    
-    def predict(self,src=None):
-        self.src = src
-        if len(self.features) == 0:
 
-            self.build_features()
+    def predict(self, file_feature_dict):
+        """
+        Args:
+            file_feature_dict: A dictionary mapping from original (path,hash) to video-level feature tensor.
+        """
+        # Get array of (path,hash) and array of corresponding feature values in the same order
+        keys, features = zip(*file_feature_dict.items())
+        features = np.array([tensor[0] for tensor in features])  # TODO: Need a comment concerning magical tensor[0]?
 
+        # Create model
         if self.model is None:
-            print(np.array(self.features).shape,self.src)
-            self.model = DNN(np.array(self.features).shape[1],None,similarity_model_pretrained,load_model=True,trainable=False)
-        
-        embeddings = self.model.embeddings(np.array(self.features))
-        return embeddings
+            print(f"Creating similarity model for shape {features.shape}")
+            self.model = DNN(features.shape[1], None, similarity_model_pretrained, load_model=True, trainable=False)
 
-    def build_features_single(self,video_tensor,file_name):
-            self.features.append(video_tensor[0])
-            self.index.append(file_name)
-            self.original_filenames.append(os.path.basename(file_name).split('_vgg_')[0])
-
-
-
-    
-    def build_features(self):
-
-        video_level_paths = glob(os.path.join(self.src,'**features.npy'))
-        if len(video_level_paths) == 0:
-            raise Exception('No video features files were found on {}'.format(self.src))
-            
-        for vid in video_level_paths:
-            self.features.append(np.load(vid)[0])
-            self.index.append(vid)
-            self.original_filenames.append(os.path.basename(vid).split('_vgg_')[0])
-
-        
-    def save(dst):
-
-        if self.embeddings is not None:
-            np.save(dst,self.features)
-            
-        else:
-            print('Please use the model to extract embeddings first by using the predict method')
-
-
-
-
-
-
-        
-
-
-
-
-
-
+        embeddings = self.model.embeddings(features)
+        embeddings = np.nan_to_num(embeddings)
+        return dict(zip(keys, embeddings))

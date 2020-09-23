@@ -1,16 +1,14 @@
 from .loading_utils import frame_to_global
 
 
-class frameToVideoRepresentation:
+class FrameToVideoRepresentation:
 
-    def __init__(self,src,dst):
+    def __init__(self, reps):
+        """
+        Args:
+            reps (winnow.storage.repr_storage.ReprStorage): Intermediate representations storage.
+        """
+        self.reps = reps
 
-        self.src = src
-        self.dst = dst
     def start(self):
-        frame_to_global(self.src,self.dst)
-
-
-
-
-    
+        frame_to_global(self.reps)
