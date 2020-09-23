@@ -1,15 +1,10 @@
-import numpy as np
-from glob import glob
 import hashlib
-import matplotlib.pyplot as plt
-import numpy as np
 import os
-import pandas as pd
-from sklearn.neighbors import NearestNeighbors
-from winnow.feature_extraction import SimilarityModel
+from glob import glob
 from pathlib import Path
+
 import cv2
-import yaml
+import numpy as np
 
 
 def create_directory(directories,root_dir,alias):
@@ -56,30 +51,6 @@ def scan_videos_from_txt(fp,extensions =[]):
     return files
 
 
-
-    
-
-
-
-
-
-
-
-def get_original_fn_from_artifact(fp_list,sep):
-    """Get original video filename using our encoding convention for generating additional training
-    artifacts
-
-    Arguments:
-        fp_list {List} -- List of filepaths to training artifacts (such as [path/filename.mp4_vgg_features.npy])
-        sep {String} -- Artifact separator (eg. 'vgg_features.npy')
-
-    Returns:
-        [List] -- List of the original video filenames
-    """
-
-    return  [os.path.basename(x).split(sep)[0] for x in fp_list]
-
-
 def create_video_list(videos_to_be_processed,fp):
 
     with open(fp, 'w', encoding="utf-8") as f:
@@ -103,10 +74,17 @@ def uniq(row):
     
     return ''.join([str(x) for x in sorted([row['query'],row['match']])])
 
-def extract_additional_info(x):
-    
-    v = np.load(x)
-    frames = np.load(x.replace('_vgg_features','_vgg_frames'))
+
+def extract_additional_info(reps, path, sha256):
+    """
+    Extract file metadata.
+    Args:
+        reps (winnow.storage.repr_storage.ReprStorage): Intermediate representation storage.
+        path: Original file path inside content folder.
+        sha256: Original file sha256 hash digest.
+    """
+    v = reps.frame_level.read(path, sha256)
+    frames = reps.frames.read(path, sha256)
     grays = np.array([cv2.cvtColor(x,cv2.COLOR_BGR2GRAY) for x in frames])
     grays = np.array([np.mean(x) for x in grays])
 

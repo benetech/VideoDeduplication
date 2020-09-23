@@ -24,5 +24,7 @@ dependencies:
     - pillow
     - scenedetect
     - pyyaml
+    - cached-property
+    - dataclasses
 prefix: C:\ProgramData\Anaconda3\envs\winnow
 
