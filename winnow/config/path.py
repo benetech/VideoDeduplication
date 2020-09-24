@@ -4,7 +4,7 @@ import os
 WINNOW_CONFIG_ENV = 'WINNOW_CONFIG'
 
 # Default config path
-DEFAULT_PATH = "./config-v2.yaml"  # TODO: Change to "config.yaml" on complete migration
+DEFAULT_PATH = "./config.yaml"
 
 
 def resolve_config_path(path=None):
