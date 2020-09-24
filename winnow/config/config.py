@@ -59,6 +59,11 @@ class Config:
         """Short name for processing."""
         return self.processing
 
+    @property
+    def save_files(self):
+        """Derived option value for keeping csv files."""
+        return self.proc.keep_fileoutput or not self.database.use
+
     @staticmethod
     def fromdict(data):
         """Build config from dict."""

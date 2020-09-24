@@ -101,8 +101,7 @@ def main(config,list_of_files,frame_sampling,save_frames):
         result_storage = DBResultStorage(database)
         result_storage.add_signatures(entries)
 
-    save_files = config.proc.keep_fileoutput or not config.database.use
-    if save_files:
+    if config.save_files:
         bulk_write(reps.signature, signatures)
 
 
