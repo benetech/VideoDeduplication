@@ -1,13 +1,11 @@
-import os,sys
-import pandas as pd
-from pandas.io.json import json_normalize  
-from glob import glob
-import subprocess
+import logging
 import shlex
-import json
+import subprocess
 from collections import defaultdict
 
+from pandas.io.json import json_normalize
 
+logger = logging.getLogger(__name__)
 
 def findVideoMetada_mediainfo(pathToInputVideo):
     """Assumes the mediainfo cli is installed and runs it on the input video
@@ -56,8 +54,9 @@ def extract_from_list_of_videos(video_files):
             raw_metadata = findVideoMetada_mediainfo(file_path)
             metadata = process_media_info(raw_metadata)
             video_metadata.append(metadata)
-        except:
-            print("Problems processing file:{}".format(file_path))
+        except Exception as exc:
+            logging.error("Problems processing file '%s': %s", file_path, exc)
+            video_metadata.append({})
 
     return video_metadata
 

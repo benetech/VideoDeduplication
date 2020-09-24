@@ -2,19 +2,20 @@ import logging
 import os
 import sys
 
+import click
+
 from db import Database
+from db.utils import *
+from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepresentation, SimilarityModel, \
+    load_featurizer
+from winnow.feature_extraction.model import default_model_path
+from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import bulk_read, bulk_write, path_resolver
+from winnow.utils import scan_videos, create_video_list, scan_videos_from_txt, resolve_config
 
-os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
-import click
-from winnow.feature_extraction import IntermediateCnnExtractor,FrameToVideoRepresentation,SimilarityModel
-from winnow.utils import scan_videos, create_video_list, scan_videos_from_txt
-from db.utils import *
-import yaml
-from winnow.storage.db_result_storage import DBResultStorage
-
-logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.ERROR)
+logging.getLogger("winnow").setLevel(logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
@@ -23,7 +24,7 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 @click.option(
     '--config', '-cp',
     help='path to the project config file',
-    default=os.environ['WINNOW_CONFIG'])
+    default=os.environ.get('WINNOW_CONFIG'))
 
 @click.option(
     '--list-of-files', '-lof',
@@ -44,28 +45,16 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 def main(config,list_of_files,frame_sampling,save_frames):
 
-    with open(config, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
-
-    DATASET_DIR = cfg['video_source_folder']
-    DST_DIR = cfg['destination_folder']
-    VIDEO_LIST_TXT = cfg['video_list_filename']
-    ROOT_FOLDER_INTERMEDIATE_REPRESENTATION =cfg['root_folder_intermediate']
-    FRAME_SAMPLING = int(frame_sampling or cfg['frame_sampling'])
-    SAVE_FRAMES = bool(save_frames or cfg['save_frames'])
-    USE_DB = cfg['use_db']
-    CONNINFO = cfg['conninfo']
-    USE_FILES = cfg['keep_fileoutput'] or not USE_DB
-
-    reps = ReprStorage(os.path.join(DST_DIR, ROOT_FOLDER_INTERMEDIATE_REPRESENTATION))
-    storepath = path_resolver(source_root=DATASET_DIR)
+    config = resolve_config(config_path=config, frame_sampling=frame_sampling, save_frames=save_frames)
+    reps = ReprStorage(os.path.join(config.repr.directory))
+    storepath = path_resolver(source_root=config.sources.root)
 
     print('Searching for Dataset Video Files')
 
     if len(list_of_files) == 0:
-        videos = scan_videos(DATASET_DIR,'**',extensions=['.mp4','.ogv','.webm','.avi'])
+        videos = scan_videos(config.sources.root, '**', extensions=config.sources.extensions)
     else:
-        videos = scan_videos_from_txt(list_of_files,extensions=['.mp4','.ogv','.webm','.avi'])
+        videos = scan_videos_from_txt(list_of_files, extensions=config.sources.extensions)
 
     
 
@@ -75,13 +64,17 @@ def main(config,list_of_files,frame_sampling,save_frames):
 
     print('There are {} videos left'.format(len(remaining_videos_path)))
 
-    VIDEOS_LIST = create_video_list(remaining_videos_path,VIDEO_LIST_TXT)
+    VIDEOS_LIST = create_video_list(remaining_videos_path, config.proc.video_list_filename)
 
     print('Processed video List saved on :{}'.format(VIDEOS_LIST))
 
     if len(remaining_videos_path) > 0:
         # Instantiates the extractor
-        extractor = IntermediateCnnExtractor(VIDEOS_LIST, reps, storepath, frame_sampling=FRAME_SAMPLING, save_frames=SAVE_FRAMES)
+        model_path = default_model_path(config.proc.pretrained_model_local_path)
+        extractor = IntermediateCnnExtractor(video_src=VIDEOS_LIST, reprs=reps, storepath=storepath,
+                                             frame_sampling=config.proc.frame_sampling,
+                                             save_frames=config.proc.save_frames,
+                                             model=(load_featurizer(model_path)))
         # Starts Extracting Frame Level Features
         extractor.start(batch_size=16, cores=4)
 
@@ -98,19 +91,19 @@ def main(config,list_of_files,frame_sampling,save_frames):
 
     print('Saving Video Signatures on :{}'.format(reps.signature.directory))
 
-    if USE_DB:
+    if config.database.use:
         # Convert dict to list of (path, sha256, signature) tuples
         entries = [(path, sha256, sig) for (path, sha256), sig in signatures.items()]
 
         # Connect to database
-        database = Database(uri=CONNINFO)
+        database = Database(uri=config.database.uri)
         database.create_tables()
 
         # Save signatures
         result_storage = DBResultStorage(database)
         result_storage.add_signatures(entries)
 
-    if USE_FILES:
+    if config.save_files:
         bulk_write(reps.signature, signatures)
 
 

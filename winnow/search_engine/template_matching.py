@@ -10,20 +10,18 @@ from scipy.spatial.distance import cdist
 import shutil
 from winnow.feature_extraction.extraction_routine import load_featurizer
 from winnow.feature_extraction.utils import load_image,load_video,download_file
-
+from winnow.storage.repr_storage import ReprStorage
 
 
 class SearchEngine:
-    def __init__(self,templates_root,library_path,model):
+    def __init__(self, templates_root, reprs: ReprStorage, model):
 
-        library_glob = os.path.join(library_path,"*features.npy")
         templates_glob = os.path.join(templates_root,'*')
 
         self.templates_root = templates_glob
-        self.library_glob = library_glob
         self.model = model
         self.available_queries = self.find_available_templates()
-        self.frame_summaries = glob(library_glob)
+        self.reprs = reprs
         self.template_cache = self.load_available_templates()
         self.results_cache = {}
         
@@ -105,15 +103,14 @@ class SearchEngine:
         feats = self.template_cache[query]
         print('Loaded query embeddings',feats.shape)
         self.results_cache[query] = defaultdict()
-        for i in range(len(self.frame_summaries)):
+        for path, sha256 in self.reprs.frame_level.list():
             try:
-                video_summary = self.frame_summaries[i]
-                sample = np.load(video_summary)
-                video_frames = np.load(video_summary.replace('features','frames'))
+                sample = self.reprs.frame_level.read(path, sha256)
+                video_frames = self.reprs.frames.read(path, sha256)
                 
                 distances = np.mean(cdist(feats,sample,metric='cosine'),axis=0)
                 
-                self.results_cache[query][video_summary] = dict()
+                self.results_cache[query][(path, sha256)] = dict()
 
                 if len(distances) > 0:
                     frame_of_interest_index = np.argmin(distances)
@@ -123,8 +120,8 @@ class SearchEngine:
                     min_d = 1.0
                 
                 
-                self.results_cache[query][video_summary]['distance'] = min_d
-                self.results_cache[query][video_summary]['closest_match'] = frame_of_interest_index
+                self.results_cache[query][(path, sha256)]['distance'] = min_d
+                self.results_cache[query][(path, sha256)]['closest_match'] = frame_of_interest_index
         
                 if (min_d < threshold) and plot:
                     # print('Minimum distance:{}'.format(min_d))
@@ -135,7 +132,7 @@ class SearchEngine:
                     plt.show()
 
             except Exception as e:
-                print('Error:',e,distances,video_summary,frame_of_interest_index)
+                print('Error:',e,distances,path,sha256,frame_of_interest_index)
                 pass
 
 

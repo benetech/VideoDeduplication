@@ -1,37 +1,30 @@
 import os
-os.environ['WINNOW_CONFIG'] = os.path.abspath('../config.yaml')
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.spatial.distance import cdist
-from glob import glob
+
+from winnow.config import Config
+from winnow.config.path import resolve_config_path
+from winnow.feature_extraction import default_model_path
 from winnow.feature_extraction.extraction_routine import load_featurizer
-from winnow.feature_extraction.utils import load_image,load_video,download_file,download_pretrained
-from winnow.search_engine.template_matching import SearchEngine,download_sample_templates
-from winnow.annotation.tools import Annotator
-import requests
-import shutil
-import yaml
+from winnow.search_engine.template_matching import SearchEngine
+from winnow.storage.repr_storage import ReprStorage
 
-with open("config.yaml", 'r') as ymlfile:
-    cfg = yaml.load(ymlfile)
+config = Config.read(resolve_config_path())
 
 
-TEMPLATES_SOURCE = cfg['templates_source_path']
-SEARCH_SPACE = os.path.join(cfg['destination_folder'],cfg['root_folder_intermediate'],'frame_level')
-TEMPLATE_TEST_OUTPUT = os.path.join(cfg['destination_folder'],'template_test.csv')
+TEMPLATE_TEST_OUTPUT = os.path.join(config.repr.directory, 'template_test.csv')
 DISTANCE = 0.07
 
-PRETRAINED_LOCAL_PATH = download_pretrained(os.environ['WINNOW_CONFIG'])
 
 print('Loading model...')
-model = load_featurizer(PRETRAINED_LOCAL_PATH)
+model_path = default_model_path(config.proc.pretrained_model_local_path)
+model = load_featurizer(model_path)
 
-print('Initiating search engine using templates from:{} and loooking at videos located in:{}'.format(TEMPLATES_SOURCE,
-                  SEARCH_SPACE))
+print(f'Initiating search engine using templates from: '
+      f'{config.templates.source_path} and looking at '
+      f'videos located in: {config.repr.directory}')
 
-se = SearchEngine(TEMPLATES_SOURCE,
-                  SEARCH_SPACE,
-                  model)
+reprs = ReprStorage(config.repr.directory)
+se = SearchEngine(templates_root=config.templates.source_path,
+                  reprs=reprs, model=model)
 
 
 print('Running all potential queries and returning results that yield a distance lower than {}'.format(DISTANCE))

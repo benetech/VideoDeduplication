@@ -5,11 +5,8 @@ sources:
     - ogv
     - webm
     - avi
-
 repr:
   directory: data/representations
-
-
 processing:
   frame_sampling: 1
   save_frames: true
@@ -19,12 +16,11 @@ processing:
   filter_dark_videos_thr: 2
   min_video_duration_seconds: 3
   detect_scenes: true
-  pretrained_model_local_path: null
+  use_pretrained_model_local_path: true
+  pretrained_model_local_path: data/model/vgg_16.ckpt
   keep_fileoutput: true
-
 database:
   use: true
   uri: postgres://postgres:admin@localhost:5432/videodeduplicationdb
-
 templates:
   source_path: data/templates/test-group/CCSI Object Recognition External/

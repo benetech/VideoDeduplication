@@ -5,23 +5,18 @@ import numpy as np
 from tqdm import tqdm
 
 from .model_tf import CNN_tf
-from .utils import load_video, download_pretrained
+from .utils import load_video
 from ..utils import get_hash
 
-package_directory = os.path.dirname(os.path.abspath(__file__))
-os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
-
-PRETRAINED_LOCAL_PATH = download_pretrained(os.environ['WINNOW_CONFIG'])
 
 
 def pload_video(p, size, frame_sampling):
     return load_video(p, size, frame_sampling)
 
 
-def feature_extraction_videos(model, cores, batch_sz, video_list, reprs, storepath, frame_sampling, save_frames):
+def feature_extraction_videos(model, video_list, reprs, storepath, cores=4, batch_sz=8, frame_sampling=1,
+                              save_frames=False):
     """
     Function that extracts the intermediate CNN features
     of each video in a provided video list.
@@ -46,12 +41,11 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, reprs, storepa
         
     pool = Pool(cores)
     future_videos = dict()
-    output_list = []
 
-    pbar = tqdm(range(np.max(list(video_list.keys()))+1), mininterval=1.0, unit='video')
-    for video in pbar:
+    progress_bar = tqdm(range(np.max(list(video_list.keys()))+1), mininterval=1.0, unit='video')
+    for video in progress_bar:
         video_file_path = video_list[video]
-        pbar.set_postfix(video=os.path.basename(video_file_path))
+        progress_bar.set_postfix(video=os.path.basename(video_file_path))
         if os.path.exists(video_file_path):
             
             if video not in future_videos:
@@ -80,11 +74,6 @@ def feature_extraction_videos(model, cores, batch_sz, video_list, reprs, storepa
             if save_frames:
                 reprs.frames.write(storage_path, sha256, video_tensor)
 
-
-def start_video_extraction(video_list, reprs, storepath, cores=4, batch_sz=8, frame_sampling=1, save_frames=False):
-    model = CNN_tf('vgg', PRETRAINED_LOCAL_PATH)
-
-    feature_extraction_videos(model, cores, batch_sz, video_list, reprs, storepath, frame_sampling, save_frames)
 
 def load_featurizer(PRETRAINED_LOCAL_PATH):
     

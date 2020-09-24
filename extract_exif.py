@@ -1,60 +1,46 @@
+from os.path import join
+
 import click
-from glob import glob
-import matplotlib.pyplot as plt
-import numpy as np
-import os
-# os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
-import pandas as pd
-from sklearn.neighbors import NearestNeighbors
-from tqdm import tqdm
-from winnow.feature_extraction import SimilarityModel
-from winnow.utils import extract_additional_info, extract_scenes,filter_results,uniq,scan_videos,extract_from_list_of_videos,convert_to_df,parse_and_filter_metadata_df
-import cv2
-import yaml
+
+from db import Database
 from db.utils import *
-from db.schema import *
+from winnow.storage.db_result_storage import DBResultStorage
+from winnow.storage.repr_utils import path_resolver
+from winnow.utils import scan_videos, extract_from_list_of_videos, convert_to_df, parse_and_filter_metadata_df, \
+    resolve_config
 
 
 @click.command()
 @click.option(
     '--config', '-cp',
     help='path to the project config file',
-    default='config.yaml')
+    default=None)
 
 
 def main(config):
 
     print('Loading config file')
+    config = resolve_config(config_path=config)
+    storepath = path_resolver(config.sources.root)
 
-    with open(config, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
+    if config.database.use:
+        database = Database(uri=config.database.uri)
+        database.create_tables()
 
-
-    representations = ['frame_level','video_level','video_signatures']
-    
-    DATASET_DIR = cfg['video_source_folder']
-    DST_DIR = cfg['destination_folder']
-    USE_DB = cfg['use_db'] 
-    CONNINFO = cfg['conninfo']
-    KEEP_FILES = cfg['keep_fileoutput'] 
-
-
-    if USE_DB:
-
-            db_engine,session = create_engine_session(CONNINFO)
-            # Creates tables if not yet created (will only change DB if any operations are eventually performed)
-            create_tables(db_engine)
-            video_records = get_all(session,Files)
-            videos = [x.file_path for x in video_records]
+        with database.session_scope() as session:
+            video_records = session.query(Files).yield_per(10**4)
+            path_hash_pairs = [(join(config.sources.root, record.file_path), record.sha256) for record in video_records]
+            videos, hashes = zip(*path_hash_pairs)
     else:
 
-        videos = scan_videos(DATASET_DIR,'**',extensions=['.mp4','.ogv','.webm','.avi'])
+        videos = scan_videos(config.sources.root, '**', extensions=config.sources.extensions)
+        hashes = [get_hash(video) for video in videos]
 
     assert len(videos) > 0, 'No videos found'
 
     print(f'{len(videos)} videos found')
 
-    metadata  = extract_from_list_of_videos(videos)
+    metadata = extract_from_list_of_videos(videos)
 
     df = convert_to_df(metadata)
 
@@ -64,25 +50,20 @@ def main(config):
 
     
 
-    if KEEP_FILES:
+    if config.save_files:
 
-        EXIF_REPORT_PATH = os.path.join(DST_DIR,'exif_metadata.csv')
+        EXIF_REPORT_PATH = join(config.repr.directory, 'exif_metadata.csv')
 
         df_parsed.to_csv(EXIF_REPORT_PATH)
 
         print(f"Exif Metadata report exported to:{EXIF_REPORT_PATH}")
 
-    if USE_DB:
-
-        df_parsed['file_id'] = [x.id for x in video_records]
-
-        exif_rows = add_exif(session,df_parsed,metadata)
-        
-        print(f"Exif table rows:{len(exif_rows)}")
+    if config.database.use:
+        database = Database(uri=config.database.uri)
+        result_store = DBResultStorage(database)
+        exif_entries = zip(map(storepath, videos), hashes, df_parsed.to_dict('records'))
+        result_store.add_exifs(exif_entries)
 
 
 if __name__ == '__main__':
-
-    main()    
-
-
+    main()

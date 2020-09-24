@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from db import Database
 
 # Logger used in representation-storage module
-logger = logging.getLogger("winnow.storage.sqlite_repr_storage")
+logger = logging.getLogger(__name__)
 
 # Base-class for database entities
 Base = declarative_base()

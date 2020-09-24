@@ -6,6 +6,9 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+from winnow.config import Config
+from winnow.config.path import resolve_config_path
+
 
 def create_directory(directories,root_dir,alias):
 
@@ -16,7 +19,7 @@ def create_directory(directories,root_dir,alias):
             print(e)
 
 def filter_extensions(files,extensions):
-
+    extensions = [f".{ext}" for ext in extensions]
     return [x for x in files if Path(x).suffix in extensions]
 
 
@@ -120,3 +123,12 @@ def get_hash(fp,buffer_size = 65536):
             sha256.update(data)
 
     return sha256.hexdigest()
+
+
+def resolve_config(config_path=None, frame_sampling=None, save_frames=None):
+    """Resolve config from command-line arguments."""
+    config_path = resolve_config_path(config_path)
+    config = Config.read(config_path)
+    config.proc.frame_sampling = frame_sampling or config.proc.frame_sampling
+    config.proc.save_frames = (save_frames is None) and config.proc.save_frames or save_frames
+    return config

@@ -1,19 +1,16 @@
+import os
+import shutil
+
 import cv2
 import numpy as np
 import requests
-import shutil
-import os
 
 
-
-def download_file(local_filename,url):
-    # local_filename = url.split('/')[-1]
+def download_file(local_filename, url):
     r = requests.get(url, stream=True)
     with open(local_filename, 'wb') as f:
         shutil.copyfileobj(r.raw, f)
     return local_filename
-
-
 
 
 def load_video(video, desired_size,frame_sampling):
