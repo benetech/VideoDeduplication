@@ -1,7 +1,5 @@
-import os
-
 from .extraction_routine import feature_extraction_videos, load_featurizer
-from .utils import download_pretrained
+from .model import default_model_path
 
 
 class IntermediateCnnExtractor:
@@ -16,7 +14,7 @@ class IntermediateCnnExtractor:
 
     def start(self, batch_size=8, cores=4):
         print('Starting feature extraction process from {}'.format(self.video_src))
-        self.model = self.model or load_featurizer(download_pretrained(os.environ.get('WINNOW_CONFIG')))
+        self.model = self.model or load_featurizer(default_model_path())
         feature_extraction_videos(
             model=self.model,
             video_list=self.video_src,

@@ -7,7 +7,8 @@ import click
 from db import Database
 from db.utils import *
 from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepresentation, SimilarityModel, \
-    download_pretrained, load_featurizer
+    load_featurizer
+from winnow.feature_extraction.model import default_model_path
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import bulk_read, bulk_write, path_resolver
@@ -69,10 +70,11 @@ def main(config,list_of_files,frame_sampling,save_frames):
 
     if len(remaining_videos_path) > 0:
         # Instantiates the extractor
+        model_path = default_model_path(config.proc.pretrained_model_local_path)
         extractor = IntermediateCnnExtractor(video_src=VIDEOS_LIST, reprs=reps, storepath=storepath,
                                              frame_sampling=config.proc.frame_sampling,
                                              save_frames=config.proc.save_frames,
-                                             model=(load_featurizer(download_pretrained(config))))
+                                             model=(load_featurizer(model_path)))
         # Starts Extracting Frame Level Features
         extractor.start(batch_size=16, cores=4)
 
