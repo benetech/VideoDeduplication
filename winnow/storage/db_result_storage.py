@@ -4,7 +4,7 @@ from time import time
 
 import logging
 
-logger = logging.getLogger("winnow.storage.db_result_storage")
+logger = logging.getLogger(__name__)
 
 from sqlalchemy import tuple_
 from sqlalchemy.orm import joinedload, aliased
