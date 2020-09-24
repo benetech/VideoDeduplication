@@ -1,0 +1,26 @@
+sources:
+  root: data/test_dataset/
+  extensions:
+    - mp4
+    - ogv
+    - webm
+    - avi
+repr:
+  directory: data/representations
+processing:
+  frame_sampling: 1
+  save_frames: true
+  match_distance: 0.75
+  video_list_filename: video_dataset_list.txt
+  filter_dark_videos: true
+  filter_dark_videos_thr: 2
+  min_video_duration_seconds: 3
+  detect_scenes: true
+  use_pretrained_model_local_path: true
+  pretrained_model_local_path: data/model/vgg_16.ckpt
+  keep_fileoutput: true
+database:
+  use: true
+  uri: postgres://postgres:admin@localhost:5432/videodeduplicationdb
+templates:
+  source_path: data/templates/test-group/CCSI Object Recognition External/
