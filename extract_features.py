@@ -2,17 +2,17 @@ import logging
 import os
 import sys
 
+import click
+import yaml
+
 from db import Database
+from db.utils import *
+from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepresentation, SimilarityModel, \
+    download_pretrained, load_featurizer
+from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import bulk_read, bulk_write, path_resolver
-
-os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
-import click
-from winnow.feature_extraction import IntermediateCnnExtractor,FrameToVideoRepresentation,SimilarityModel
 from winnow.utils import scan_videos, create_video_list, scan_videos_from_txt
-from db.utils import *
-import yaml
-from winnow.storage.db_result_storage import DBResultStorage
 
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -81,7 +81,9 @@ def main(config,list_of_files,frame_sampling,save_frames):
 
     if len(remaining_videos_path) > 0:
         # Instantiates the extractor
-        extractor = IntermediateCnnExtractor(VIDEOS_LIST, reps, storepath, frame_sampling=FRAME_SAMPLING, save_frames=SAVE_FRAMES)
+        extractor = IntermediateCnnExtractor(video_src=VIDEOS_LIST, reprs=reps, storepath=storepath,
+                                             frame_sampling=FRAME_SAMPLING, save_frames=SAVE_FRAMES,
+                                             model=(load_featurizer(download_pretrained(config))))
         # Starts Extracting Frame Level Features
         extractor.start(batch_size=16, cores=4)
 
