@@ -6,7 +6,7 @@ rm -rf tests/test_data/test_output
 
 echo "Running Extract Features script on test data"
 
-python extract_features.py --config tests/config.yaml -fs
+python extract_features.py --config tests/config.yaml --save-frames
 
 echo "Running Generate Matches script on test data"
 

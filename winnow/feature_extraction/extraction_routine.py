@@ -1,12 +1,18 @@
 import os
 from multiprocessing import Pool
-
+import logging
 import numpy as np
 from tqdm import tqdm
 
 from .model_tf import CNN_tf
 from .utils import load_video
 from ..utils import get_hash
+
+logger = logging.getLogger()
+logger.setLevel(logging.ERROR)
+output_file_handler = logging.FileHandler("processing_error.log")
+logger.addHandler(output_file_handler)
+
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -44,35 +50,41 @@ def feature_extraction_videos(model, video_list, reprs, storepath, cores=4, batc
 
     progress_bar = tqdm(range(np.max(list(video_list.keys()))+1), mininterval=1.0, unit='video')
     for video in progress_bar:
-        video_file_path = video_list[video]
-        progress_bar.set_postfix(video=os.path.basename(video_file_path))
-        if os.path.exists(video_file_path):
-            
-            if video not in future_videos:
-                video_tensor = pload_video(video_file_path, model.desired_size, frame_sampling)
-            else:
-                video_tensor = future_videos[video].get()
-                del future_videos[video]
 
-            # load videos in parallel
-            for i in range(cores - len(future_videos)):
-                next_video = np.max(list(future_videos.keys())) + 1 \
-                    if len(future_videos) else video + 1
+        try:
+            video_file_path = video_list[video]
+            progress_bar.set_postfix(video=os.path.basename(video_file_path))
+            if os.path.exists(video_file_path):
+                
+                if video not in future_videos:
+                    video_tensor = pload_video(video_file_path, model.desired_size, frame_sampling)
+                else:
+                    video_tensor = future_videos[video].get()
+                    del future_videos[video]
 
-                if next_video in video_list and \
-                    next_video not in future_videos and \
-                        os.path.exists(video_list[next_video]):
-                    future_videos[next_video] = pool.apply_async(pload_video,
-                        args=[video_list[next_video], model.desired_size,frame_sampling])
+                # load videos in parallel
+                for i in range(cores - len(future_videos)):
+                    next_video = np.max(list(future_videos.keys())) + 1 \
+                        if len(future_videos) else video + 1
 
-            # extract features
-            features = model.extract(video_tensor, batch_sz)
+                    if next_video in video_list and \
+                        next_video not in future_videos and \
+                            os.path.exists(video_list[next_video]):
+                        future_videos[next_video] = pool.apply_async(pload_video,
+                            args=[video_list[next_video], model.desired_size,frame_sampling])
 
-            # save features
-            storage_path, sha256 = storepath(video_file_path), get_hash(video_file_path)
-            reprs.frame_level.write(storage_path, sha256, features)
-            if save_frames:
-                reprs.frames.write(storage_path, sha256, video_tensor)
+                # extract features
+                features = model.extract(video_tensor, batch_sz)
+                
+                # save features
+                storage_path, sha256 = storepath(video_file_path), get_hash(video_file_path)
+                reprs.frame_level.write(storage_path, sha256, features)
+                if save_frames:
+                    reprs.frames.write(storage_path, sha256, video_tensor)
+        except Exception as e:
+            logger.error(f'Error processing file:{video_list[video]}')
+            logger.error(e)
+
 
 
 def load_featurizer(PRETRAINED_LOCAL_PATH):
