@@ -21,31 +21,42 @@ export default class Transform {
   }
 
   videoFile(data) {
-    const length = data.meta.video_length * 1000;
+    const meta = this.fileMetadata(data);
     return {
       id: data.id,
       filename: data.file_path,
       metadata: {
-        grayAverage: data.meta.gray_avg,
         fileType: this.fileType(data),
         hasAudio: data.exif && !!data.exif.Audio_Format,
-        grayMax: data.meta.gray_max,
-        grayStd: data.meta.gray_std,
-        length: length,
-        stdAverage: data.meta.video_avg_std,
-        maxDiff: data.meta.video_max_dif,
-        flagged: data.meta.flagged,
         hasEXIF: data.exif != null,
         created: data.created_date * 1000,
+        ...meta,
       },
       hash: data.sha256,
-      fingerprint: data.signature && data.signature.signature,
+      fingerprint: data.signature,
       exif: data.exif,
       preview: randomPreview(),
       playbackURL: `/api/v1/files/${data.id}/watch`,
       scenes: this.fileScenes(data),
-      objects: [...randomObjects(10, length)],
+      objects: [...randomObjects(10, meta.length)],
       matchesCount: data.matches_count,
+    };
+  }
+
+  fileMetadata(data) {
+    if (!data.meta) {
+      return {
+        length: 0,
+      };
+    }
+    return {
+      grayAverage: data.meta.gray_avg,
+      grayMax: data.meta.gray_max,
+      grayStd: data.meta.gray_std,
+      stdAverage: data.meta.video_avg_std,
+      maxDiff: data.meta.video_max_dif,
+      flagged: data.meta.flagged,
+      length: data.meta.video_length * 1000,
     };
   }
 
@@ -64,8 +75,8 @@ export default class Transform {
   scene(scene) {
     return {
       preview: randomPreview(),
-      position: scene.start_time,
-      duration: scene.duration,
+      position: scene.start_time * 1000,
+      duration: scene.duration * 1000,
     };
   }
 
@@ -76,10 +87,11 @@ export default class Transform {
         {
           preview: randomPreview(),
           position: 0,
-          duration: file.meta.video_length * 1000,
+          duration: (file.meta && file.meta.video_length * 1000) || 0,
         },
       ];
     }
+    return scenes;
   }
 
   fetchFileMatchesResults(data) {

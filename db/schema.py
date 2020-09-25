@@ -6,18 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 
-class Model:
-    """Common methods for all model classes"""
-
-    def fields(self, **include):
-        """Iterate over persistent attributes"""
-        mapper = inspect(self).mapper
-        for attribute in mapper.attrs:
-            if include.get(attribute.key, True) is True:
-                yield attribute.key, getattr(self, attribute.key)
-
-
-Base = declarative_base(cls=Model)
+Base = declarative_base()
 
 
 class Files(Base):

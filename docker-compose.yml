@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres
     environment:
-      # Remember to change the config.yaml [conninfo] file if you change this
+      # Remember to change the config.yaml [database.uri] file if you change this
       POSTGRES_PASSWORD: "admin"
       POSTGRES_DB: "videodeduplicationdb"
       WINNOW_CONFIG: /config.yml
@@ -62,7 +62,7 @@ services:
       DATABASE_NAME: "videodeduplicationdb"
       DATABASE_USER: "postgres"
       DATABASE_PASS: "admin"
-      VIDEO_FOLDER: "/project"
+      VIDEO_FOLDER: "/project/data"
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed the source data

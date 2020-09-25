@@ -1,56 +1,103 @@
 import base64
 import math
 from datetime import datetime
+from functools import wraps
 
 from flask_sqlalchemy import SQLAlchemy
-
-from db.schema import Base
+from sqlalchemy import inspect
 
 database = SQLAlchemy()
-
-
-def finite(value):
-    """Check if value is NaN or +-Infinity"""
-    return not isinstance(value, float) or math.isfinite(value)
-
-
-def filter_values(entries):
-    """Remove unwanted values from dictionary"""
-    for key, value in entries:
-        if value is not None and finite(value):
-            yield key, value
-
 
 # Custom value serializers
 _SERIALIZE = {
     bytes: lambda value: base64.b64encode(value).decode('UTF-8'),
-    datetime: datetime.timestamp
+    datetime: datetime.timestamp,
+    float: lambda value: value if math.isfinite(value) else None
 }
 
 
-class Transform:
-    @staticmethod
-    def dict(entity, **include):
-        """Get JSON-serializable dict for the database entity"""
-        return dict(Transform._dict_attrs(entity, {entity}, **include))
-
-    @staticmethod
-    def _dict_attrs(entity, _seen, **include):
-        """Iterate over serializable entity attributes"""
-        for key, value in filter_values(entity.fields(**include)):
-            if isinstance(value, Base) and value in _seen:
-                continue
-            yield key, Transform._value(value, _seen)
-
-    @staticmethod
-    def _value(value, _seen):
-        """Transform value if required"""
-        if isinstance(value, Base):
-            _seen.add(value)
-            return dict(Transform._dict_attrs(value, _seen))
-        elif isinstance(value, list):
-            return [Transform._value(item, _seen) for item in value]
-        elif type(value) in _SERIALIZE:
+def prepare_serialization(data):
+    """Perform a shallow serialization of field values if needed."""
+    for key, value in data.items():
+        if type(value) in _SERIALIZE:
             serialize = _SERIALIZE[type(value)]
-            return serialize(value)
-        return value
+            data[key] = serialize(value)
+    return data
+
+
+def serializable(func):
+    """Make sure function returns serializable data structure."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        return prepare_serialization(result)
+
+    return wrapper
+
+
+def entity_fields(entity):
+    """Get entity field names."""
+    mapper = inspect(entity).mapper
+    return set(attribute.key for attribute in mapper.attrs)
+
+
+class Transform:
+    """Convert database entities to serializable data structures."""
+
+    @staticmethod
+    @serializable
+    def file_dict(file, meta=False, signature=False, scenes=False, exif=False):
+        data = {
+            "id": file.id,
+            "file_path": file.file_path,
+            "sha256": file.sha256,
+            "created_date": file.created_date,
+        }
+        if meta:
+            data["meta"] = Transform.metadata_dict(file.meta)
+        if signature:
+            data["signature"] = file.signature.signature
+        if scenes:
+            data["scenes"] = [Transform.scene_dict(scene, file=False) for scene in file.scenes]
+        if exif:
+            data["exif"] = Transform.exif_dict(file.exif)
+        return data
+
+    @staticmethod
+    @serializable
+    def metadata_dict(meta):
+        fields = entity_fields(meta)
+        fields -= {"id", "file_id", "file"}
+        return {field: getattr(meta, field) for field in fields}
+
+    @staticmethod
+    @serializable
+    def scene_dict(scene, file=False):
+        data = {
+            "id": scene.id,
+            "duration": scene.duration,
+            "start_time": scene.start_time,
+        }
+        if file:
+            data["file"] = Transform.file_dict(scene.file, scenes=False)
+        return data
+
+    @staticmethod
+    @serializable
+    def exif_dict(exif):
+        fields = entity_fields(exif)
+        fields -= {"id", "file_id", "file", "Json_full_exif"}
+        return {field: getattr(exif, field) for field in fields}
+
+    @staticmethod
+    @serializable
+    def file_match_dict(match, file_id):
+        if match.query_video_file.id != file_id:
+            matched = match.query_video_file
+        else:
+            matched = match.match_video_file
+        return {
+            "distance": match.distance,
+            "file": Transform.file_dict(matched)
+        }

@@ -23,18 +23,6 @@ class Arguments:
             abort(HTTPStatus.BAD_REQUEST.value, "'offset' cannot be negative")
 
 
-def transform(match, file_id):
-    if match.query_video_file.id != file_id:
-        matched = match.query_video_file
-    else:
-        matched = match.match_video_file
-
-    return {
-        "distance": match.distance,
-        "file": Transform.dict(matched, matches=False, scenes=False)
-    }
-
-
 @api.route('/files/<int:file_id>/matches', methods=['GET'])
 def list_file_matches(file_id):
     limit = request.args.get('limit', 20, type=int)
@@ -52,6 +40,6 @@ def list_file_matches(file_id):
     items = query.offset(offset).limit(limit).all()
 
     return jsonify({
-        'items': [transform(item, file_id) for item in items],
+        'items': [Transform.file_match_dict(item, file_id) for item in items],
         'total': total
     })

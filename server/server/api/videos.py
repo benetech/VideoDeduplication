@@ -19,5 +19,5 @@ def watch_video(file_id):
         abort(HTTPStatus.NOT_FOUND.value, f"File id not found: {file_id}")
 
     basename = os.path.basename(file.file_path)
-    directory = os.path.join(os.getcwd(), config.video_folder, os.path.dirname(file.file_path))
+    directory = os.path.join(os.path.abspath(config.video_folder), os.path.dirname(file.file_path))
     return send_from_directory(directory, basename)
