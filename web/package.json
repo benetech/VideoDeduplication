@@ -50,6 +50,7 @@
     "axios": "^0.19.2",
     "chart.js": "^2.9.3",
     "clsx": "^1.1.1",
+    "d3": "^6.2.0",
     "fontsource-roboto": "^2.1.4",
     "get-user-locale": "^1.4.0",
     "http-status-codes": "^1.4.0",
