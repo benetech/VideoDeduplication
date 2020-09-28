@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
 const makeLinks = (intl) => [
   {
     title: intl.formatMessage({ id: "nav.analytics" }),
-    location: routes.collection.analytics,
+    location: routes.analytics.home,
   },
   {
     title: intl.formatMessage({ id: "nav.fingerprints" }),

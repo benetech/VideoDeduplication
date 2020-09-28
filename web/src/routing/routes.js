@@ -1,10 +1,10 @@
 export const routes = {
   home: "/",
+  analytics: {
+    home: "/analytics",
+  },
   collection: {
     home: "/collection",
-    get analytics() {
-      return `${this.home}/analytics`;
-    },
     get fingerprints() {
       return `${this.home}/fingerprints`;
     },

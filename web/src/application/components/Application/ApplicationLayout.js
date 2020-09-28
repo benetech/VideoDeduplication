@@ -13,6 +13,7 @@ import CollectionRootPage from "../../../collection/components/CollectionRootPag
 import { routes } from "../../../routing/routes";
 import AppPage from "../AppPage";
 import { useIntl } from "react-intl";
+import DashboardPage from "../../../collection/components/DashboardPage";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,7 +53,10 @@ function ApplicationLayout(props) {
           <AppMenu className={classes.menu} />
           <Switch>
             <Route exact path={routes.home}>
-              <Redirect to={routes.collection.home} />
+              <Redirect to={routes.analytics.home} />
+            </Route>
+            <Route path={routes.analytics.home}>
+              <DashboardPage className={classes.body} />
             </Route>
             <Route path={routes.collection.home}>
               <CollectionRootPage className={classes.body} />
