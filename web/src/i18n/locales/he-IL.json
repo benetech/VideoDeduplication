@@ -5,16 +5,14 @@
     "app.title.short": "בינה",
     "app.action.offline": "לא מקוון",
     "app.action.online": "באינטרנט",
-    "app.menu.collection": "האוסף שלי",
-    "app.menu.database": "מאגר מידע",
-    "app.menu.collaborators": "משתפי פעולה",
-    "app.menu.organization": "אִרגוּן",
-    "app.menu.processing": "מעבד",
+    "nav.collection": "האוסף שלי",
+    "nav.database": "מאגר מידע",
+    "nav.collaborators": "משתפי פעולה",
+    "nav.organization": "אִרגוּן",
+    "nav.processing": "מעבד",
     "collection.title": "האוסף שלי",
-    "collection.nav.analytics": "ניתוח",
-    "collection.nav.fingerprints": "טביעות האצבעות שלי",
-    "collection.nav.collaborators": "משתפי פעולה",
-    "collection.nav.organization": "אִרגוּן",
+    "nav.analytics": "ניתוח",
+    "nav.fingerprints": "טביעות האצבעות שלי",
     "collection.dashboard.title": "לוּחַ מַחווָנִים"
   }
 }

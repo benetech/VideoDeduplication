@@ -45,27 +45,27 @@ const useStyles = makeStyles((theme) => ({
 const menuItems = [
   {
     icon: <LayersOutlinedIcon fontSize="large" />,
-    title: "app.menu.collection",
+    title: "nav.collection",
     location: routes.collection.home,
   },
   {
     icon: <GrainOutlinedIcon fontSize="large" />,
-    title: "app.menu.database",
+    title: "nav.database",
     location: routes.database.home,
   },
   {
     icon: <PersonOutlinedIcon fontSize="large" />,
-    title: "app.menu.collaborators",
+    title: "nav.collaborators",
     location: routes.collaborators.home,
   },
   {
     icon: <AccountTreeOutlinedIcon fontSize="large" />,
-    title: "app.menu.organization",
+    title: "nav.organization",
     location: routes.organization.home,
   },
   {
     icon: <CompareOutlinedIcon fontSize="large" />,
-    title: "app.menu.processing",
+    title: "nav.processing",
     location: routes.processing.home,
   },
 ];

@@ -59,25 +59,25 @@ function ApplicationLayout(props) {
             </Route>
             <Route path={routes.database.home}>
               <AppPage
-                title={intl.formatMessage({ id: "app.menu.database" })}
+                title={intl.formatMessage({ id: "nav.database" })}
                 className={classes.body}
               />
             </Route>
             <Route path={routes.organization.home}>
               <AppPage
-                title={intl.formatMessage({ id: "app.menu.organization" })}
+                title={intl.formatMessage({ id: "nav.organization" })}
                 className={classes.body}
               />
             </Route>
             <Route path={routes.collaborators.home}>
               <AppPage
-                title={intl.formatMessage({ id: "app.menu.collaborators" })}
+                title={intl.formatMessage({ id: "nav.collaborators" })}
                 className={classes.body}
               />
             </Route>
             <Route path={routes.processing.home}>
               <AppPage
-                title={intl.formatMessage({ id: "app.menu.processing" })}
+                title={intl.formatMessage({ id: "nav.processing" })}
                 className={classes.body}
               />
             </Route>

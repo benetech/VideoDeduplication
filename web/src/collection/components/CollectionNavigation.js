@@ -27,19 +27,19 @@ const useStyles = makeStyles((theme) => ({
 
 const makeLinks = (intl) => [
   {
-    title: intl.formatMessage({ id: "collection.nav.analytics" }),
+    title: intl.formatMessage({ id: "nav.analytics" }),
     location: routes.collection.analytics,
   },
   {
-    title: intl.formatMessage({ id: "collection.nav.fingerprints" }),
+    title: intl.formatMessage({ id: "nav.fingerprints" }),
     location: routes.collection.fingerprints,
   },
   {
-    title: intl.formatMessage({ id: "collection.nav.collaborators" }),
+    title: intl.formatMessage({ id: "nav.collaborators" }),
     location: routes.collaborators.home,
   },
   {
-    title: intl.formatMessage({ id: "collection.nav.organization" }),
+    title: intl.formatMessage({ id: "nav.organization" }),
     location: routes.organization.home,
   },
 ];
