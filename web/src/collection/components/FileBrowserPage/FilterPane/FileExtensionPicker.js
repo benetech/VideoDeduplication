@@ -23,6 +23,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Get i18n text
+ */
 function useMessages() {
   const intl = useIntl();
   return {
