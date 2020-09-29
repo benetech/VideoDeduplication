@@ -148,6 +148,13 @@
     "filter.content": "Content",
     "filter.metadata": "Metadata",
     "filter.presets": "Presets",
-    "filter.extensions": "File extensions"
+    "filter.extensions": "File extensions",
+    "filter.length": "Length of video (minutes)",
+    "filter.min.label": "Minimal {title}",
+    "filter.max.label": "Maximal {title}",
+    "filter.from": "From",
+    "filter.to": "To",
+    "filter.yes": "Yes",
+    "filter.no": "No"
   }
 }

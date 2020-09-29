@@ -21,6 +21,8 @@ const useStyles = makeStyles((theme) => ({
     width: "auto",
     padding: "10px 12px",
     fontFamily: "Roboto",
+    color: (props) =>
+      props.error ? theme.palette.error.main : theme.palette.common.black,
   },
 }));
 
@@ -28,15 +30,20 @@ const useStyles = makeStyles((theme) => ({
  * Styled wrapper around MUI InputBase with label on top of the input.
  */
 function TopLabelTextField(props) {
-  const { label, className, ...restProps } = props;
-  const classes = useStyles();
+  const { error, label, className, ...restProps } = props;
+  const classes = useStyles(props);
   const inputId = useUniqueId("input");
   return (
-    <FormControl className={className}>
-      <InputLabel shrink htmlFor={inputId} color={restProps.color}>
+    <FormControl error={error} className={className}>
+      <InputLabel
+        error={error}
+        shrink
+        htmlFor={inputId}
+        color={restProps.color}
+      >
         {label}
       </InputLabel>
-      <InputBase classes={classes} {...restProps} id={inputId} />
+      <InputBase classes={classes} {...restProps} id={inputId} error={error} />
     </FormControl>
   );
 }
