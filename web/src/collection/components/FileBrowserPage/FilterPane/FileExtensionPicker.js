@@ -6,6 +6,7 @@ import Picker from "../../../../common/components/GridButtonPicker";
 import { useIntl } from "react-intl";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import useUniqueId from "../../../../common/hooks/useUniqueId";
+import FilterContainer from "./FilterContainer";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -22,11 +23,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function useMessages() {
+  const intl = useIntl();
+  return {
+    title: intl.formatMessage({ id: "filter.extensions" }),
+    more: intl.formatMessage({ id: "actions.showMoreItems" }),
+    less: intl.formatMessage({ id: "actions.showLessItems" }),
+  };
+}
+
 function FileExtensionPicker(props) {
   const { selected, onChange, extensions: extAttr, className } = props;
   const classes = useStyles();
   const [collapsed, setCollapsed] = useState(true);
-  const intl = useIntl();
+  const messages = useMessages();
   const pickerId = useUniqueId("button-picker");
 
   const more = collapsed && extAttr.length > 6;
@@ -35,10 +45,7 @@ function FileExtensionPicker(props) {
   const handleLess = useCallback(() => setCollapsed(true), []);
 
   return (
-    <div className={clsx(className)}>
-      <div className={classes.title}>
-        {intl.formatMessage({ id: "filter.extensions" })}
-      </div>
+    <FilterContainer title={messages.title} className={clsx(className)}>
       <Picker selected={selected} onChange={onChange} id={pickerId}>
         {extensions.map((extension) => (
           <Picker.Option value={extension} title={extension} key={extension} />
@@ -52,7 +59,7 @@ function FileExtensionPicker(props) {
           disableTouchRipple
           aria-controls={pickerId}
         >
-          {intl.formatMessage({ id: "actions.showMoreItems" })}
+          {messages.more}
         </ButtonBase>
       )}
       {!collapsed && (
@@ -63,10 +70,10 @@ function FileExtensionPicker(props) {
           disableTouchRipple
           aria-controls={pickerId}
         >
-          {intl.formatMessage({ id: "actions.showLessItems" })}
+          {messages.less}
         </ButtonBase>
       )}
-    </div>
+    </FilterContainer>
   );
 }
 
