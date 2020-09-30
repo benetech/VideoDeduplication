@@ -12,7 +12,7 @@ function MetadataFilters(props) {
 
   const handleUpdateExtensions = useCallback(
     (extensions) => setFilters({ extensions }),
-    []
+    [setFilters]
   );
 
   return (

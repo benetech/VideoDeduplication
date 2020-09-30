@@ -18,6 +18,7 @@ export const initialState = {
   filters: {
     query: "",
     extensions: [],
+    length: { lower: undefined, upper: undefined },
   },
   page: 0,
   pageSize: 20,
