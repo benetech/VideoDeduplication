@@ -1,21 +1,23 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import InputBase from "@material-ui/core/InputBase";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import useUniqueId from "../../hooks/useUniqueId";
+import TextField from "@material-ui/core/TextField";
 
-const useStyles = makeStyles((theme) => ({
+/**
+ * Classes of underlying input element.
+ */
+const useInputStyles = makeStyles((theme) => ({
   root: {
     "label + &": {
       marginTop: theme.spacing(3),
     },
+    border: "none",
+    backgroundColor: "#EBEBEB",
+    borderRadius: 4,
   },
   input: {
     borderRadius: 4,
     position: "relative",
-    backgroundColor: "#EBEBEB",
     border: "none",
     fontSize: 16,
     width: "auto",
@@ -27,68 +29,92 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 /**
+ * Classes of underlying label element.
+ */
+const useLabelStyles = makeStyles((theme) => ({
+  root: {
+    color: (props) =>
+      props.error ? theme.palette.error.main : theme.palette.common.black,
+    "&$focused": {
+      color: (props) =>
+        props.error ? theme.palette.error.main : theme.palette.common.black,
+    },
+    "&$disabled": {
+      color: theme.palette.text.disabled,
+    },
+    "&$error": {
+      color: theme.palette.error.main,
+    },
+  },
+  focused: {
+    color: (props) =>
+      props.error ? theme.palette.error.main : theme.palette.common.black,
+  },
+}));
+
+/**
  * Styled wrapper around MUI InputBase with label on top of the input.
  */
 function TopLabelTextField(props) {
-  const { error, label, className, ...restProps } = props;
-  const classes = useStyles(props);
-  const inputId = useUniqueId("input");
+  const labelClasses = useLabelStyles(props);
+  const inputClasses = useInputStyles(props);
+  const { InputLabelProps, InputProps, ...restProps } = props;
   return (
-    <FormControl error={error} className={className}>
-      <InputLabel
-        error={error}
-        shrink
-        htmlFor={inputId}
-        color={restProps.color}
-      >
-        {label}
-      </InputLabel>
-      <InputBase classes={classes} {...restProps} id={inputId} error={error} />
-    </FormControl>
+    <TextField
+      {...restProps}
+      InputLabelProps={{
+        ...InputLabelProps,
+        shrink: true,
+        classes: labelClasses,
+      }}
+      InputProps={{
+        ...InputProps,
+        classes: inputClasses,
+        disableUnderline: true,
+      }}
+    />
   );
 }
 
 TopLabelTextField.propTypes = {
-  /**
-   * Form label.
-   */
-  label: PropTypes.string.isRequired,
   /*
    * Below is a copy-paste from MUI InputBase element.
    */
   autoComplete: PropTypes.string,
   autoFocus: PropTypes.bool,
+  children: PropTypes.node,
   classes: PropTypes.object,
   className: PropTypes.string,
   color: PropTypes.oneOf(["primary", "secondary"]),
   defaultValue: PropTypes.any,
   disabled: PropTypes.bool,
-  endAdornment: PropTypes.node,
   error: PropTypes.bool,
+  FormHelperTextProps: PropTypes.object,
   fullWidth: PropTypes.bool,
+  helperText: PropTypes.node,
+  hiddenLabel: PropTypes.bool,
   id: PropTypes.string,
-  inputComponent: PropTypes.elementType,
+  InputLabelProps: PropTypes.object,
   inputProps: PropTypes.object,
+  InputProps: PropTypes.object,
   inputRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-  margin: PropTypes.oneOf(["dense", "none"]),
+  label: PropTypes.node,
+  margin: PropTypes.oneOf(["dense", "none", "normal"]),
   multiline: PropTypes.bool,
   name: PropTypes.string,
   onBlur: PropTypes.func,
   onChange: PropTypes.func,
-  onClick: PropTypes.func,
   onFocus: PropTypes.func,
-  onKeyDown: PropTypes.func,
-  onKeyUp: PropTypes.func,
   placeholder: PropTypes.string,
-  readOnly: PropTypes.bool,
-  renderSuffix: PropTypes.func,
   required: PropTypes.bool,
   rows: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   rowsMax: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  rowsMin: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  startAdornment: PropTypes.node,
+  select: PropTypes.bool,
+  SelectProps: PropTypes.object,
+  size: PropTypes.oneOf(["medium", "small"]),
   type: PropTypes.string,
   value: PropTypes.any,
+  variant: PropTypes.oneOf(["filled", "outlined", "standard"]),
 };
 
 export default TopLabelTextField;
