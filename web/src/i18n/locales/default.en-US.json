@@ -155,6 +155,7 @@
     "filter.from": "From",
     "filter.to": "To",
     "filter.yes": "Yes",
-    "filter.no": "No"
+    "filter.no": "No",
+    "filter.hasAudio": "Contains Audio"
   }
 }

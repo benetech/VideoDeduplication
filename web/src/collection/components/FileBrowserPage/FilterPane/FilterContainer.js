@@ -4,7 +4,9 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
+  root: {
+    marginBottom: theme.spacing(4),
+  },
   title: {
     ...theme.mixins.title4,
     fontWeight: "bold",

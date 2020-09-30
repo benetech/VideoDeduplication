@@ -19,6 +19,7 @@ export const initialState = {
     query: "",
     extensions: [],
     length: { lower: undefined, upper: undefined },
+    audio: undefined,
   },
   page: 0,
   pageSize: 20,
