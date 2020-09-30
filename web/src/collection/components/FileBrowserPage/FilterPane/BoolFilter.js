@@ -12,7 +12,7 @@ function BoolFilter(props) {
   const handleChange = useCallback(
     (newValue) => {
       if (newValue === value) {
-        onChange(undefined);
+        onChange(null);
       } else {
         onChange(newValue);
       }

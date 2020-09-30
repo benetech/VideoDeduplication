@@ -65,8 +65,8 @@ function toDisplayValues(range = {}) {
  */
 function toRange(displayValues) {
   return {
-    lower: displayValues.lower !== "" ? Number(displayValues.lower) : undefined,
-    upper: displayValues.upper !== "" ? Number(displayValues.upper) : undefined,
+    lower: displayValues.lower !== "" ? Number(displayValues.lower) : null,
+    upper: displayValues.upper !== "" ? Number(displayValues.upper) : null,
   };
 }
 
