@@ -20,7 +20,6 @@ const useInputStyles = makeStyles((theme) => ({
     position: "relative",
     border: "none",
     fontSize: 16,
-    width: "auto",
     padding: "10px 12px",
     fontFamily: "Roboto",
     color: (props) =>
@@ -38,12 +37,6 @@ const useLabelStyles = makeStyles((theme) => ({
     "&$focused": {
       color: (props) =>
         props.error ? theme.palette.error.main : theme.palette.common.black,
-    },
-    "&$disabled": {
-      color: theme.palette.text.disabled,
-    },
-    "&$error": {
-      color: theme.palette.error.main,
     },
   },
   focused: {
