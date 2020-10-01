@@ -35,6 +35,8 @@
     "aria.label.videoPlayerRegion": "Video Player Panel",
     "aria.label.fileAttributesRegion": "File Attributes Panel",
     "aria.label.matchedFile": "Matched File {name}",
+    "aria.label.changeLowerDate": "Change lower date bound",
+    "aria.label.changeUpperDate": "Change upper date bound",
     "actions.showFiltersPane": "Show Filters",
     "actions.hideFiltersPane": "Hide Filters",
     "actions.saveFilters": "Save Filters",
@@ -156,6 +158,13 @@
     "filter.to": "To",
     "filter.yes": "Yes",
     "filter.no": "No",
-    "filter.hasAudio": "Contains Audio"
+    "filter.hasAudio": "Contains Audio",
+    "filter.hasExif": "Contains EXIF data",
+    "filter.maxDateError": "Date should not be after {max}",
+    "filter.minDateError": "Date should not be before {min}",
+    "filter.invalidDateError": "Invalid Date Format",
+    "filter.defaultMaxDate": "maximal date",
+    "filter.defaultMinDate": "minimal date",
+    "filter.creationDate": "Creation date (mm/dd/yyyy)"
   }
 }

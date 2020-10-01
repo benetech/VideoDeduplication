@@ -5,6 +5,7 @@ import { useFilters } from "./useFilters";
 import { useIntl } from "react-intl";
 import RangeFilter from "./RangeFilter";
 import BoolFilter from "./BoolFilter";
+import DateRangeFilter from "./DateRangeFilter";
 
 /**
  * Get i18n text
@@ -14,6 +15,7 @@ function useMessages() {
   return {
     length: intl.formatMessage({ id: "filter.length" }),
     audio: intl.formatMessage({ id: "filter.hasAudio" }),
+    date: intl.formatMessage({ id: "filter.creationDate" }),
   };
 }
 
@@ -26,21 +28,13 @@ function ContentFilters(props) {
     setFilters,
   ]);
 
-  const handleAudioChange = useCallback((audio) => setFilters({ audio }), [
-    setFilters,
-  ]);
-
   return (
     <FilterList className={className}>
       <RangeFilter
         title={messages.length}
         range={filters.length}
         onChange={handleLengthChange}
-      />
-      <BoolFilter
-        title={messages.audio}
-        value={filters.audio}
-        onChange={handleAudioChange}
+        minValue={0}
       />
     </FilterList>
   );
