@@ -2,7 +2,7 @@ import logging
 import shlex
 import subprocess
 from collections import defaultdict
-
+import pandas as pd
 from pandas.io.json import json_normalize
 
 logger = logging.getLogger(__name__)
@@ -121,7 +121,7 @@ def parse_and_filter_metadata_df(metadata_df):
     filtered = metadata_df.loc[:,GROUP_COLUMNS_OF_INTEREST]
 
     # Parsing numerical fields
-    filtered.loc[:,GROUP_NUMERICAL_COLS_OF_INTEREST] = filtered.loc[:,GROUP_NUMERICAL_COLS_OF_INTEREST].astype('float')
+    filtered.loc[:,GROUP_NUMERICAL_COLS_OF_INTEREST] = filtered.loc[:,GROUP_NUMERICAL_COLS_OF_INTEREST].apply(lambda x: pd.to_numeric(x,errors='coerce'))
 
     
     return filtered
