@@ -68,7 +68,7 @@ function format(date) {
   if (date == null) {
     return null;
   }
-  return formatDate(date, "MM/dd/yyy");
+  return formatDate(date, "MM/dd/yyyy");
 }
 
 /**
