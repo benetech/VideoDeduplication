@@ -13,6 +13,7 @@ import CollectionRootPage from "../../../collection/components/CollectionRootPag
 import { routes } from "../../../routing/routes";
 import AppPage from "../AppPage";
 import { useIntl } from "react-intl";
+import DashboardPage from "../../../collection/components/DashboardPage";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,32 +53,35 @@ function ApplicationLayout(props) {
           <AppMenu className={classes.menu} />
           <Switch>
             <Route exact path={routes.home}>
-              <Redirect to={routes.collection.home} />
+              <Redirect to={routes.analytics.home} />
+            </Route>
+            <Route path={routes.analytics.home}>
+              <DashboardPage className={classes.body} />
             </Route>
             <Route path={routes.collection.home}>
               <CollectionRootPage className={classes.body} />
             </Route>
             <Route path={routes.database.home}>
               <AppPage
-                title={intl.formatMessage({ id: "app.menu.database" })}
+                title={intl.formatMessage({ id: "nav.database" })}
                 className={classes.body}
               />
             </Route>
             <Route path={routes.organization.home}>
               <AppPage
-                title={intl.formatMessage({ id: "app.menu.organization" })}
+                title={intl.formatMessage({ id: "nav.organization" })}
                 className={classes.body}
               />
             </Route>
             <Route path={routes.collaborators.home}>
               <AppPage
-                title={intl.formatMessage({ id: "app.menu.collaborators" })}
+                title={intl.formatMessage({ id: "nav.collaborators" })}
                 className={classes.body}
               />
             </Route>
             <Route path={routes.processing.home}>
               <AppPage
-                title={intl.formatMessage({ id: "app.menu.processing" })}
+                title={intl.formatMessage({ id: "nav.processing" })}
                 className={classes.body}
               />
             </Route>

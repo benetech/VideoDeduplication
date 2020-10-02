@@ -1,10 +1,10 @@
 export const routes = {
   home: "/",
+  analytics: {
+    home: "/analytics",
+  },
   collection: {
     home: "/collection",
-    get analytics() {
-      return `${this.home}/analytics`;
-    },
     get fingerprints() {
       return `${this.home}/fingerprints`;
     },
@@ -14,11 +14,17 @@ export const routes = {
     get fileMatches() {
       return `${this.file}/matches`;
     },
-    fileMatchesURL(id) {
-      return `${this.fileURL(id)}/matches`;
+    get fileCluster() {
+      return `${this.file}/cluster`;
     },
     fileURL(id) {
       return `${this.fingerprints}/${id}`;
+    },
+    fileMatchesURL(id) {
+      return `${this.fileURL(id)}/matches`;
+    },
+    fileClusterURL(id) {
+      return `${this.fileURL(id)}/cluster`;
     },
   },
   database: {

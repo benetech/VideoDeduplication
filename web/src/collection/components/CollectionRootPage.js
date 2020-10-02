@@ -2,14 +2,13 @@ import React from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import AppPage from "../../application/components/AppPage";
-import CollectionNavigation from "./CollectionNavigation";
 import { useIntl } from "react-intl";
-import DashboardPage from "./DashboardPage";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { routes } from "../../routing/routes";
 import FileBrowserPage from "./FileBrowserPage/FileBrowserPage";
 import VideoDetailsPage from "./VideoDetailsPage/VideoDetailsPage";
 import FileMatchesPage from "./FileMatchesPage/FileMatchesPage";
+import FileClusterPage from "./FileClusterPage";
 
 const useStyles = makeStyles(() => ({
   body: {
@@ -28,16 +27,12 @@ function CollectionRootPage(props) {
   return (
     <AppPage
       title={intl.formatMessage({ id: "collection.title" })}
-      header={<CollectionNavigation />}
       className={className}
     >
       <div className={classes.body} role="main">
         <Switch>
           <Route exact path={routes.collection.home}>
-            <Redirect to={routes.collection.analytics} />
-          </Route>
-          <Route path={routes.collection.analytics}>
-            <DashboardPage />
+            <Redirect to={routes.collection.fingerprints} />
           </Route>
           <Route exact path={routes.collection.fingerprints}>
             <FileBrowserPage />
@@ -47,6 +42,9 @@ function CollectionRootPage(props) {
           </Route>
           <Route exact path={routes.collection.fileMatches}>
             <FileMatchesPage />
+          </Route>
+          <Route exact path={routes.collection.fileCluster}>
+            <FileClusterPage />
           </Route>
         </Switch>
       </div>

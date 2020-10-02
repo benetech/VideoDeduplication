@@ -5,16 +5,14 @@
     "app.title.short": "СИИ",
     "app.action.offline": "Оффлайн",
     "app.action.online": "Онлайн",
-    "app.menu.collection": "Моя Коллекция",
-    "app.menu.database": "База Данных",
-    "app.menu.collaborators": "Сотрудники",
-    "app.menu.organization": "Организация",
-    "app.menu.processing": "Обработка",
+    "nav.collection": "Моя Коллекция",
+    "nav.database": "База Данных",
+    "nav.collaborators": "Сотрудники",
+    "nav.organization": "Организация",
+    "nav.processing": "Обработка",
     "collection.title": "Моя Коллекция",
-    "collection.nav.analytics": "Анализ",
-    "collection.nav.fingerprints": "Мои Отпечатки",
-    "collection.nav.collaborators": "Сотрудники",
-    "collection.nav.organization": "Организация",
+    "nav.analytics": "Анализ",
+    "nav.fingerprints": "Мои Отпечатки",
     "collection.dashboard.title": "Управление"
   }
 }

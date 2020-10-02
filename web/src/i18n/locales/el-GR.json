@@ -5,16 +5,14 @@
     "app.title.short": "ΣΤΝ",
     "app.action.offline": "Εκτός σύνδεσης",
     "app.action.online": "Σε σύνδεση",
-    "app.menu.collection": "Η συλλογή μου",
-    "app.menu.database": "Βάση δεδομένων",
-    "app.menu.collaborators": "Συνεργάτες",
-    "app.menu.organization": "Οργάνωση",
-    "app.menu.processing": "Επεξεργασία",
+    "nav.collection": "Η συλλογή μου",
+    "nav.database": "Βάση δεδομένων",
+    "nav.collaborators": "Συνεργάτες",
+    "nav.organization": "Οργάνωση",
+    "nav.processing": "Επεξεργασία",
     "collection.title": "Η συλλογή μου",
-    "collection.nav.analytics": "Ανάλυση",
-    "collection.nav.fingerprints": "Οι εκτυπώσεις μου",
-    "collection.nav.collaborators": "Συνεργάτες",
-    "collection.nav.organization": "Οργάνωση",
+    "nav.analytics": "Ανάλυση",
+    "nav.fingerprints": "Οι εκτυπώσεις μου",
     "collection.dashboard.title": "Ταμπλό"
   }
 }

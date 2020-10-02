@@ -18,6 +18,10 @@ export const initialState = {
   filters: {
     query: "",
     extensions: [],
+    length: { lower: null, upper: null },
+    date: { lower: null, upper: null },
+    audio: null,
+    exif: null,
   },
   page: 0,
   pageSize: 20,

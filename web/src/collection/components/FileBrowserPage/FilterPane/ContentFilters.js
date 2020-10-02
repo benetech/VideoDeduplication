@@ -1,14 +1,43 @@
-import React from "react";
-import clsx from "clsx";
+import React, { useCallback } from "react";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/styles";
+import FilterList from "./FilterList";
+import { useFilters } from "./useFilters";
+import { useIntl } from "react-intl";
+import RangeFilter from "./RangeFilter";
+import BoolFilter from "./BoolFilter";
+import DateRangeFilter from "./DateRangeFilter";
 
-const useStyles = makeStyles((theme) => ({}));
+/**
+ * Get i18n text
+ */
+function useMessages() {
+  const intl = useIntl();
+  return {
+    length: intl.formatMessage({ id: "filter.length" }),
+    audio: intl.formatMessage({ id: "filter.hasAudio" }),
+    date: intl.formatMessage({ id: "filter.creationDate" }),
+  };
+}
 
 function ContentFilters(props) {
   const { className } = props;
-  const classes = useStyles();
-  return <div className={clsx(className)} />;
+  const messages = useMessages();
+  const [filters, setFilters] = useFilters();
+
+  const handleLengthChange = useCallback((length) => setFilters({ length }), [
+    setFilters,
+  ]);
+
+  return (
+    <FilterList className={className}>
+      <RangeFilter
+        title={messages.length}
+        range={filters.length}
+        onChange={handleLengthChange}
+        minValue={0}
+      />
+    </FilterList>
+  );
 }
 
 ContentFilters.propTypes = {

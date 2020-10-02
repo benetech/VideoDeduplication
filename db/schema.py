@@ -5,7 +5,6 @@ from sqlalchemy import Column, String, Integer, LargeBinary, Boolean, \
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-
 Base = declarative_base()
 
 
@@ -79,6 +78,7 @@ class Matches(Base):
     distance = Column(Float, nullable=False)
 
 
+# TODO: Change to date columns to datetime type (#137)
 class Exif(Base):
     __tablename__ = 'exif'
 

@@ -4,10 +4,6 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import View from "./view";
 import FileMatchesActions from "./FileMatchesActions";
-import {
-  randomFile,
-  randomMatches,
-} from "../../../server-api/MockServer/fake-data/files";
 import FileActionHeader from "../FileActionsHeader";
 import FileSummaryHeader from "../FileSummaryHeader";
 import SectionSeparator from "./SectionSeparator";
@@ -46,9 +42,6 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1.5),
   },
 }));
-
-const file = randomFile();
-file.matches = [...randomMatches(3, file)];
 
 /**
  * Get i18n text

@@ -10,6 +10,7 @@ import PersonOutlinedIcon from "@material-ui/icons/PersonOutlined";
 import GrainOutlinedIcon from "@material-ui/icons/GrainOutlined";
 import AccountTreeOutlinedIcon from "@material-ui/icons/AccountTreeOutlined";
 import CompareOutlinedIcon from "@material-ui/icons/CompareOutlined";
+import BarChartOutlinedIcon from "@material-ui/icons/BarChartOutlined";
 import AppMenuHeader from "./AppMenuHeader";
 import { useIntl } from "react-intl";
 import { routes } from "../../../routing/routes";
@@ -44,28 +45,28 @@ const useStyles = makeStyles((theme) => ({
 
 const menuItems = [
   {
-    icon: <LayersOutlinedIcon fontSize="large" />,
-    title: "app.menu.collection",
-    location: routes.collection.home,
+    icon: <BarChartOutlinedIcon fontSize="large" />,
+    title: "nav.dashboard",
+    location: routes.analytics.home,
   },
   {
-    icon: <GrainOutlinedIcon fontSize="large" />,
-    title: "app.menu.database",
-    location: routes.database.home,
+    icon: <LayersOutlinedIcon fontSize="large" />,
+    title: "nav.collection",
+    location: routes.collection.fingerprints,
   },
   {
     icon: <PersonOutlinedIcon fontSize="large" />,
-    title: "app.menu.collaborators",
+    title: "nav.collaborators",
     location: routes.collaborators.home,
   },
   {
     icon: <AccountTreeOutlinedIcon fontSize="large" />,
-    title: "app.menu.organization",
+    title: "nav.organization",
     location: routes.organization.home,
   },
   {
     icon: <CompareOutlinedIcon fontSize="large" />,
-    title: "app.menu.processing",
+    title: "nav.processing",
     location: routes.processing.home,
   },
 ];

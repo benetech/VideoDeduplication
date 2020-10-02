@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.primary.main,
   },
   ellipsis: {
-    ...theme.mixins.textEllipsisStart,
+    ...theme.mixins.textEllipsis,
     minWidth: 0,
   },
 }));

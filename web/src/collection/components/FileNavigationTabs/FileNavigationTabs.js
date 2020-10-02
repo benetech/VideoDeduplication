@@ -29,10 +29,16 @@ function useSection() {
     path: routes.collection.fileMatches,
     exact: true,
   });
+  const cluster = useRouteMatch({
+    path: routes.collection.fileCluster,
+    exact: true,
+  });
   if (details) {
     return Section.details;
   } else if (matches) {
     return Section.matches;
+  } else if (cluster) {
+    return Section.cluster;
   }
 }
 
@@ -60,6 +66,8 @@ function useNavigation(id) {
       history.replace(routes.collection.fileURL(id));
     } else if (newSection === Section.matches) {
       history.replace(routes.collection.fileMatchesURL(id));
+    } else if (newSection === Section.cluster) {
+      history.replace(routes.collection.fileClusterURL(id));
     }
   };
 }
