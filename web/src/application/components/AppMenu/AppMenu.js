@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
 const menuItems = [
   {
     icon: <BarChartOutlinedIcon fontSize="large" />,
-    title: "nav.analytics",
+    title: "nav.dashboard",
     location: routes.analytics.home,
   },
   {

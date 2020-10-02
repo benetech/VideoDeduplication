@@ -21,7 +21,7 @@ function DashboardPage(props) {
 
   return (
     <AppPage
-      title={intl.formatMessage({ id: "nav.analytics" })}
+      title={intl.formatMessage({ id: "nav.dashboard" })}
       className={className}
     >
       <div className={classes.body} role="main">
