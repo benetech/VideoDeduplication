@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1),
   },
   name: {
-    ...theme.mixins.textEllipsisStart,
+    ...theme.mixins.textEllipsis,
     ...theme.mixins.title5,
     flexGrow: 1,
   },
