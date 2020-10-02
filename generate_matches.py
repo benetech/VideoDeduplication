@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
-
+import time
 import click
 from dataclasses import asdict
 from sklearn.neighbors import NearestNeighbors
@@ -13,7 +13,7 @@ from winnow.feature_extraction import SimilarityModel
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import bulk_read
-from winnow.utils import extract_additional_info, extract_scenes, filter_results, uniq, resolve_config
+from winnow.utils import extract_additional_info, extract_scenes, filter_results, uniq, resolve_config,get_brightness_estimation
 
 logging.getLogger().setLevel(logging.ERROR)
 logging.getLogger("winnow").setLevel(logging.INFO)
@@ -41,15 +41,16 @@ def main(config):
     path_hash_pairs, video_signatures = zip(*signatures_dict.items())
     paths, hashes = map(np.array, zip(*path_hash_pairs))
     video_signatures = np.array(video_signatures)
-
-
+    
+    
     print('Finding Matches...')
     # Handles small tests for which number of videos <  number of neighbors
+    t0 = time.time()
     neighbors = min(20,video_signatures.shape[0])
     nn = NearestNeighbors(n_neighbors=neighbors,metric='euclidean',algorithm='kd_tree')
     nn.fit(video_signatures)
     distances,indices =  nn.kneighbors(video_signatures)
-
+    print('{} seconds spent finding matches '.format(time.time()-t0))
     results,results_distances = filter_results(config.proc.match_distance, distances, indices)
 
     ss = sorted(zip(results,results_distances),key=lambda x:len(x[0]),reverse=True)
@@ -82,7 +83,6 @@ def main(config):
     match_df['unique_index'] = match_df.apply(uniq,axis=1)
     # Removes duplicated entries (eg if A matches B, we don't need B matches A)
     match_df = match_df.drop_duplicates(subset=['unique_index'])
-
 
     REPORT_PATH = os.path.join(config.repr.directory, f'matches_at_{config.proc.match_distance}_distance.csv')
 
@@ -121,35 +121,19 @@ def main(config):
         paths, hashes = zip(*path_hash_pairs)
 
         print('Extracting additional information from video files')
-        frame_level_data = np.array([extract_additional_info(reps, *path_hash) for path_hash in tqdm(path_hash_pairs)])
-        video_length = np.array(frame_level_data)[:,0]
-        video_avg_act = frame_level_data[:,1]
-        video_avg_mean = frame_level_data[:,2]
-        video_avg_max_dif = frame_level_data[:,3]
-        gray_avg = frame_level_data[:,4]
-        gray_std = frame_level_data[:,5]
-        gray_max = frame_level_data[:, 6]
-
+        brightness_estimation = np.array([get_brightness_estimation(reps, *path_hash) for path_hash in tqdm(path_hash_pairs)])
+        print(brightness_estimation.shape)
         metadata_df = pd.DataFrame({"fn": paths,
                                     "sha256": hashes,
-                                    "video_length":video_length,
-                                    "avg_act":video_avg_act,
-                                    "video_avg_std":video_avg_mean,
-                                    "video_max_dif":video_avg_max_dif,
-                                    "gray_avg":gray_avg,
-                                    "gray_std":gray_std,
-                                    "gray_max":gray_max})
+                                    "gray_max":brightness_estimation.reshape(brightness_estimation.shape[0])})
 
         # Flag videos to be discarded
-        metadata_df['video_duration_flag'] = metadata_df.video_length < config.proc.min_video_duration_seconds
-
-        print('Videos discarded because of duration:{}'.format(metadata_df['video_duration_flag'].sum()))
 
         metadata_df['video_dark_flag'] = metadata_df.gray_max < config.proc.filter_dark_videos_thr
 
         print('Videos discarded because of darkness:{}'.format(metadata_df['video_dark_flag'].sum()))
 
-        metadata_df['flagged'] = metadata_df['video_dark_flag'] | metadata_df['video_duration_flag']
+        metadata_df['flagged'] = metadata_df['video_dark_flag'] 
 
         # Discard videos
         discarded_videos = metadata_df.loc[metadata_df['flagged'], :][['fn', 'sha256']]
@@ -167,32 +151,33 @@ def main(config):
                                             f'matches_at_{config.proc.match_distance}_distance_filtered.csv')
         METADATA_REPORT_PATH = os.path.join(config.repr.directory, 'metadata_signatures.csv')
 
-        filtered_match_df = match_df.loc[~discard_msk,:]
-        filtered_match_df.to_csv(FILTERED_REPORT_PATH)
+        match_df = match_df.loc[~discard_msk,:]        
+        
+    if config.database.use:
+        # Connect to database and ensure schema
+        database = Database(uri=config.database.uri)
+        database.create_tables()
 
+        # Save metadata
+        result_storage = DBResultStorage(database)
+        
+        if metadata_df is not None:
 
-
-        print('Saving filtered report to {}'.format(FILTERED_REPORT_PATH))
-
-        if config.database.use:
-            # Connect to database and ensure schema
-            database = Database(uri=config.database.uri)
-            database.create_tables()
-
-            # Save metadata
-            result_storage = DBResultStorage(database)
             metadata_entries = metadata_df[['fn', 'sha256']]
             metadata_entries['metadata'] = metadata_df.drop(columns=['fn', 'sha256']).to_dict('records')
             result_storage.add_metadata(metadata_entries.to_numpy())
 
-            # Save matches
-            match_columns = ['query_video', 'query_sha256', 'match_video', 'match_sha256', 'distance']
-            result_storage.add_matches(filtered_match_df[match_columns].to_numpy())
+        # Save matches
+        match_columns = ['query_video', 'query_sha256', 'match_video', 'match_sha256', 'distance']
 
-        if config.save_files:
+        result_storage.add_matches(match_df[match_columns].to_numpy())
 
-            print('Saving metadata to {}'.format(METADATA_REPORT_PATH))
-            metadata_df.to_csv(METADATA_REPORT_PATH)
+    if config.save_files:
+
+        print('Saving metadata to {}'.format(METADATA_REPORT_PATH))
+        metadata_df.to_csv(METADATA_REPORT_PATH)
+        print('Saving Filtered Matches report to {}'.format(METADATA_REPORT_PATH))
+        match_df.to_csv(FILTERED_REPORT_PATH)
 
 
 if __name__ == '__main__':

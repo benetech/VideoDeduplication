@@ -8,7 +8,7 @@ os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
 import pytest
 import numpy as np
 from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepresentation, SimilarityModel
-from winnow.utils import scan_videos, create_video_list, get_hash
+from winnow.utils import scan_videos, create_video_list, get_hash,resolve_config
 import yaml
 from pathlib import Path
 
@@ -16,23 +16,20 @@ NUMBER_OF_TEST_VIDEOS = 40
 
 representations = ['frame_level', 'video_level', 'video_signatures']
 
-with open("tests/config.yaml", 'r') as ymlfile:
-    cfg = yaml.safe_load(ymlfile)
+cfg = resolve_config(config_path="tests/config.yaml")
 
 # Load main config variables from the TEST config file
 
-DATASET_DIR = cfg['video_source_folder']
-DST_DIR = cfg['destination_folder']
-VIDEO_LIST_TXT = cfg['video_list_filename']
-ROOT_FOLDER_INTERMEDIATE_REPRESENTATION = cfg['root_folder_intermediate']
-USE_DB = cfg['use_db']
-CONNINFO = cfg['conninfo']
-KEEP_FILES = cfg['keep_fileoutput']
-HANDLE_DARK = str(cfg['filter_dark_videos'])
-DETECT_SCENES = str(cfg['detect_scenes'])
-MIN_VIDEO_DURATION = cfg['min_video_duration_seconds']
-DISTANCE = float(cfg['match_distance'])
-KEEP_FILES = cfg['keep_fileoutput']
+DATASET_DIR = cfg.sources.root
+DST_DIR = cfg.repr.directory
+VIDEO_LIST_TXT = cfg.processing.video_list_filename
+USE_DB = cfg.database.use
+CONNINFO = cfg.database.uri
+KEEP_FILES = cfg.processing.keep_fileoutput
+HANDLE_DARK = cfg.processing.filter_dark_videos
+DETECT_SCENES = cfg.processing.detect_scenes
+MIN_VIDEO_DURATION = cfg.processing.min_video_duration_seconds
+DISTANCE = float(cfg.processing.match_distance)
 
 supported_video_extensions = ['.mp4', '.ogv', '.webm', '.avi']
 
@@ -41,8 +38,6 @@ supported_video_extensions = ['.mp4', '.ogv', '.webm', '.avi']
 def test_config_input():
     assert type(DATASET_DIR) == str, 'video_source_folder takes a string as a parameter'
     assert type(DST_DIR) == str, 'destination_folder takes a string as a parameter'
-    assert type(
-        ROOT_FOLDER_INTERMEDIATE_REPRESENTATION) == str, 'root_folder_intermediate takes a string as a parameter'
     assert type(USE_DB) == bool, 'use_db takes a boolean as a parameter'
     assert type(CONNINFO) == str, 'use_db takes a boolean as a parameter'
 
