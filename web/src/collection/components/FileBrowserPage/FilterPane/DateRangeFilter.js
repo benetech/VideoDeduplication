@@ -130,7 +130,9 @@ function DateRangeFilter(props) {
     onChange,
     minValid = new Date(1900, 0, 1),
     maxValid = new Date(2100, 0, 1),
+    tooltip,
     className,
+    ...other
   } = props;
   const classes = useStyles();
   const [values, setValues] = useState(range);
@@ -161,7 +163,12 @@ function DateRangeFilter(props) {
   ]);
 
   return (
-    <FilterContainer title={title} className={clsx(className)}>
+    <FilterContainer
+      title={title}
+      tooltip={tooltip}
+      className={clsx(className)}
+      {...other}
+    >
       <div className={classes.content}>
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
           <KeyboardDatePicker
@@ -217,6 +224,10 @@ DateRangeFilter.propTypes = {
   onChange: PropTypes.func,
   minValid: PropTypes.instanceOf(Date),
   maxValid: PropTypes.instanceOf(Date),
+  /**
+   * Optional filter tooltip
+   */
+  tooltip: PropTypes.string,
   className: PropTypes.string,
 };
 

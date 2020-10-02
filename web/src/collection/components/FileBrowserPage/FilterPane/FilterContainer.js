@@ -2,15 +2,20 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
+import InfoButton from "./InfoButton";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     marginBottom: theme.spacing(4),
   },
+  header: {
+    display: "flex",
+  },
   title: {
     ...theme.mixins.title4,
     fontWeight: "bold",
     marginBottom: theme.spacing(2),
+    flexGrow: 2,
   },
 }));
 
@@ -18,11 +23,20 @@ const useStyles = makeStyles((theme) => ({
  * Common layout for titled filters.
  */
 function FilterContainer(props) {
-  const { title, children, className } = props;
+  const { title, tooltip, children, className, ...other } = props;
   const classes = useStyles();
+
+  let info = null;
+  if (tooltip) {
+    info = <InfoButton text={tooltip} />;
+  }
+
   return (
-    <div className={clsx(classes.root, className)}>
-      <div className={classes.title}>{title}</div>
+    <div className={clsx(classes.root, className)} {...other}>
+      <div className={classes.header}>
+        <div className={classes.title}>{title}</div>
+        {info}
+      </div>
       <div>{children}</div>
     </div>
   );
@@ -33,6 +47,10 @@ FilterContainer.propTypes = {
    * FilterContainer title.
    */
   title: PropTypes.string.isRequired,
+  /**
+   * Optional filter tooltip
+   */
+  tooltip: PropTypes.string,
   /**
    * FilterContainer content.
    */

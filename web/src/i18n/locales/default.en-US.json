@@ -159,12 +159,15 @@
     "filter.yes": "Yes",
     "filter.no": "No",
     "filter.hasAudio": "Contains Audio",
+    "filter.hasAudio.help": "Filtering videos having audio stream",
     "filter.hasExif": "Contains EXIF data",
+    "filter.hasExif.help": "Filtering videos with embedded EXIF data",
     "filter.maxDateError": "Date should not be after {max}",
     "filter.minDateError": "Date should not be before {min}",
     "filter.invalidDateError": "Invalid Date Format",
     "filter.defaultMaxDate": "maximal date",
     "filter.defaultMinDate": "minimal date",
-    "filter.creationDate": "Creation date (mm/dd/yyyy)"
+    "filter.creationDate": "Creation date (mm/dd/yyyy)",
+    "filter.creationDate.help": "Based on file creation date."
   }
 }

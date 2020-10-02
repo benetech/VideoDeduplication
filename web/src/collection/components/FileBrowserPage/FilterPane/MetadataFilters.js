@@ -15,8 +15,11 @@ function useMessages() {
   const intl = useIntl();
   return {
     date: intl.formatMessage({ id: "filter.creationDate" }),
+    dateHelp: intl.formatMessage({ id: "filter.creationDate.help" }),
     audio: intl.formatMessage({ id: "filter.hasAudio" }),
+    audioHelp: intl.formatMessage({ id: "filter.hasAudio.help" }),
     exif: intl.formatMessage({ id: "filter.hasExif" }),
+    exifHelp: intl.formatMessage({ id: "filter.hasExif.help" }),
   };
 }
 
@@ -54,16 +57,19 @@ function MetadataFilters(props) {
         title={messages.date}
         range={filters.date}
         onChange={handleDateChange}
+        tooltip={messages.dateHelp}
       />
       <BoolFilter
         title={messages.audio}
         value={filters.audio}
         onChange={handleAudioChange}
+        tooltip={messages.audioHelp}
       />
       <BoolFilter
         title={messages.exif}
         value={filters.exif}
         onChange={handleExifChange}
+        tooltip={messages.exifHelp}
       />
     </FilterList>
   );

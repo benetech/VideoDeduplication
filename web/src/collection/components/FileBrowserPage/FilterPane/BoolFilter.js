@@ -6,7 +6,7 @@ import ButtonSelect from "../../../../common/components/ButtonSelect";
 import { useIntl } from "react-intl";
 
 function BoolFilter(props) {
-  const { title, value, onChange, className } = props;
+  const { title, value, onChange, tooltip, className, ...other } = props;
   const intl = useIntl();
 
   const handleChange = useCallback(
@@ -21,7 +21,12 @@ function BoolFilter(props) {
   );
 
   return (
-    <FilterContainer title={title} className={clsx(className)}>
+    <FilterContainer
+      title={title}
+      className={clsx(className)}
+      tooltip={tooltip}
+      {...other}
+    >
       <ButtonSelect value={value} onChange={handleChange}>
         <ButtonSelect.Option value={false}>
           {intl.formatMessage({ id: "filter.no" })}
@@ -47,6 +52,10 @@ BoolFilter.propTypes = {
    * Handle value change
    */
   onChange: PropTypes.func,
+  /**
+   * Optional filter tooltip
+   */
+  tooltip: PropTypes.string,
   className: PropTypes.string,
 };
 

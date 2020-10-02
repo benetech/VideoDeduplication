@@ -71,7 +71,17 @@ function toRange(displayValues) {
 }
 
 function RangeFilter(props) {
-  const { title, range, onChange, maxValue, minValue, className } = props;
+  const {
+    title,
+    range,
+    onChange,
+    maxValue,
+    minValue,
+    tooltip,
+    className,
+    ...other
+  } = props;
+
   const messages = useMessages(title);
   const classes = useStyles();
   const [values, setValues] = useState(toDisplayValues(range));
@@ -108,7 +118,12 @@ function RangeFilter(props) {
   );
 
   return (
-    <FilterContainer title={title} className={clsx(className)}>
+    <FilterContainer
+      title={title}
+      tooltip={tooltip}
+      className={clsx(className)}
+      {...other}
+    >
       <div className={classes.fields}>
         <TopLabelTextField
           error={!valid.lower}
@@ -157,6 +172,10 @@ RangeFilter.propTypes = {
    * Maximal valid value if any.
    */
   maxValue: PropTypes.number,
+  /**
+   * Optional filter tooltip
+   */
+  tooltip: PropTypes.string,
   className: PropTypes.string,
 };
 
