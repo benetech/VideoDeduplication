@@ -122,12 +122,12 @@ function Dashboard(props) {
   return (
     <div className={clsx(classes.dashboardContainer, className)}>
       <div className={classes.header}>
-        <DropDownButton
-          title={messages.dashboard}
-          onClick={() => setShowMenu(!showMenu)}
-          aria-haspopup="true"
-          aria-controls={backdropMenuId}
-        />
+        {/*<DropDownButton*/}
+        {/*  title={messages.dashboard}*/}
+        {/*  onClick={() => setShowMenu(!showMenu)}*/}
+        {/*  aria-haspopup="true"*/}
+        {/*  aria-controls={backdropMenuId}*/}
+        {/*/>*/}
       </div>
       <div className={classes.body}>
         <div className={clsx(classes.content, { [classes.blur]: showMenu })}>
@@ -148,12 +148,12 @@ function Dashboard(props) {
             </Grid>
           </Grid>
         </div>
-        <BackdropMenu
-          id={backdropMenuId}
-          actions={menuActions(intl)}
-          open={showMenu}
-          onClose={() => setShowMenu(false)}
-        />
+        {/*<BackdropMenu*/}
+        {/*  id={backdropMenuId}*/}
+        {/*  actions={menuActions(intl)}*/}
+        {/*  open={showMenu}*/}
+        {/*  onClose={() => setShowMenu(false)}*/}
+        {/*/>*/}
       </div>
     </div>
   );
