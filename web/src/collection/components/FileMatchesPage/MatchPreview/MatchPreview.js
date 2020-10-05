@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -12,6 +12,8 @@ import FileAttributes from "./FileAttributes";
 import Distance from "./Distance";
 import { useIntl } from "react-intl";
 import ButtonBase from "@material-ui/core/ButtonBase";
+import { useHistory } from "react-router-dom";
+import { routes } from "../../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -105,6 +107,12 @@ function MatchPreview(props) {
   const intl = useIntl();
   const classes = useStyles();
   const messages = useMessages(file);
+  const history = useHistory();
+
+  const handleMoreInfo = useCallback(
+    () => history.push(routes.collection.fileURL(file.id)),
+    [match]
+  );
 
   return (
     <Paper
@@ -136,6 +144,7 @@ function MatchPreview(props) {
       <div className={classes.more}>
         <ButtonBase
           className={classes.link}
+          onClick={handleMoreInfo}
           focusRipple
           disableTouchRipple
           aria-label={messages.moreInfo}
