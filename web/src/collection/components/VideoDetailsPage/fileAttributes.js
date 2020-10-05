@@ -21,7 +21,9 @@ export const fileAttributes = [
   },
   {
     title: "file.length",
-    value: (file) => formatDuration(file.metadata.length, null, false),
+    value: (file) =>
+      file.metadata.length != null &&
+      formatDuration(file.metadata.length, null, false),
   },
   {
     title: "file.frames",
@@ -33,11 +35,12 @@ export const fileAttributes = [
   },
   {
     title: "file.avgGrey",
-    value: (file) => file.metadata.grayAverage.toFixed(2),
+    value: (file) =>
+      file.metadata.grayAverage != null && file.metadata.grayAverage.toFixed(2),
   },
   {
     title: "file.sha256hash",
-    value: (file) => `#${file.hash.slice(0, 10)}`,
+    value: (file) => file.hash != null && `#${file.hash.slice(0, 10)}`,
   },
   {
     title: "file.exif",
