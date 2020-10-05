@@ -117,7 +117,7 @@ def main(config):
         print('Filtering dark and/or short videos')
 
         # Get original files for which we have both frames and frame-level features
-        path_hash_pairs = list(set(reps.frame_level.list()) & set(reps.frames.list()))
+        path_hash_pairs = list(set(reps.video_level.list()))
         paths, hashes = zip(*path_hash_pairs)
 
         print('Extracting additional information from video files')
