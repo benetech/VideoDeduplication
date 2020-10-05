@@ -10,10 +10,10 @@ export default class Transform {
 
   fetchFileResults(data) {
     const counts = {
-      total: data.total,
-      duplicates: 0,
-      related: 0,
-      unique: data.total,
+      all: data.total,
+      duplicates: data.duplicates,
+      related: data.related,
+      unique: data.unique,
     };
 
     const files = data.items.map((post) => this.videoFile(post));

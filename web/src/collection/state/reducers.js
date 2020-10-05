@@ -10,6 +10,7 @@ import {
   ACTION_UPDATE_FILTERS_FAILURE,
   ACTION_UPDATE_FILTERS_SUCCESS,
 } from "./actions";
+import { Relevance } from "./relevance";
 
 export const initialState = {
   error: false,
@@ -22,6 +23,7 @@ export const initialState = {
     date: { lower: null, upper: null },
     audio: null,
     exif: null,
+    relevance: Relevance.all,
   },
   page: 0,
   pageSize: 20,

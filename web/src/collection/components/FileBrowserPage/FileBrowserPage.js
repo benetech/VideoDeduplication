@@ -6,7 +6,7 @@ import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import FileBrowserActions, { View } from "./FileBrowserActions";
 import FilterPane from "./FilterPane";
 import SearchTextInput from "./SearchTextInput";
-import CategorySelector, { Category } from "./CategorySelector";
+import CategorySelector, { Relevance } from "./CategorySelector";
 import FileLinearList from "./FileLinearList/FileLinearList";
 import FileGridList from "./FileGridList";
 import { useDispatch, useSelector } from "react-redux";
@@ -126,7 +126,6 @@ function FileBrowserPage(props) {
   const [showFilters, setShowFilters] = useState(false);
   const [sort, setSort] = useState("");
   const [view, setView] = useState(View.grid);
-  const [category, setCategory] = useState(Category.total);
   const error = useSelector(selectError);
   const loading = useSelector(selectLoading);
   const files = useSelector(selectFiles);
@@ -160,6 +159,13 @@ function FileBrowserPage(props) {
     []
   );
 
+  const handleChangeCategory = useCallback(
+    (relevance) => {
+      dispatch(updateFilters({ ...filters, relevance }));
+    },
+    [filters]
+  );
+
   const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
 
   return (
@@ -189,8 +195,8 @@ function FileBrowserPage(props) {
               className={classes.textSearch}
             />
             <CategorySelector
-              category={category}
-              onChange={setCategory}
+              category={filters.relevance}
+              onChange={handleChangeCategory}
               counts={counts}
               dense={showFilters}
               className={classes.categories}
@@ -224,7 +230,7 @@ function FileBrowserPage(props) {
               loading={loading}
               onLoad={handleFetchPage}
               dense={showFilters}
-              hasMore={error || files.length < counts.total}
+              hasMore={error || files.length < counts[filters.relevance]}
             />
           </List>
           <div className={classes.fab}>

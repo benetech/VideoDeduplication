@@ -1,8 +1,8 @@
 /**
- * Available categories identifiers
+ * File categories by match distances.
  */
-export const Category = {
-  total: "total",
+export const Relevance = {
+  all: "all",
   duplicates: "duplicates",
   related: "related",
   unique: "unique",

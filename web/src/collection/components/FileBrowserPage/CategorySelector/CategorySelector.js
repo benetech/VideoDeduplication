@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { useIntl } from "react-intl";
-import { Category } from "./category";
+import { Relevance } from "../../../state/relevance";
 import CategoryButton from "./CategoryButton";
 import AllInclusiveOutlinedIcon from "@material-ui/icons/AllInclusiveOutlined";
 import FileCopyOutlinedIcon from "@material-ui/icons/FileCopyOutlined";
@@ -14,27 +14,27 @@ import Grid from "@material-ui/core/Grid";
 function useNames() {
   const intl = useIntl();
   return {
-    [Category.total]: intl.formatMessage({ id: "search.category.all" }),
-    [Category.duplicates]: intl.formatMessage({
+    [Relevance.all]: intl.formatMessage({ id: "search.category.all" }),
+    [Relevance.duplicates]: intl.formatMessage({
       id: "search.category.duplicates",
     }),
-    [Category.related]: intl.formatMessage({ id: "search.category.related" }),
-    [Category.unique]: intl.formatMessage({ id: "search.category.unique" }),
+    [Relevance.related]: intl.formatMessage({ id: "search.category.related" }),
+    [Relevance.unique]: intl.formatMessage({ id: "search.category.unique" }),
   };
 }
 
 const categories = [
-  Category.total,
-  Category.duplicates,
-  Category.related,
-  Category.unique,
+  Relevance.all,
+  Relevance.duplicates,
+  Relevance.related,
+  Relevance.unique,
 ];
 
 const icons = {
-  [Category.total]: AllInclusiveOutlinedIcon,
-  [Category.duplicates]: FileCopyOutlinedIcon,
-  [Category.related]: GroupWorkOutlinedIcon,
-  [Category.unique]: AdjustOutlinedIcon,
+  [Relevance.all]: AllInclusiveOutlinedIcon,
+  [Relevance.duplicates]: FileCopyOutlinedIcon,
+  [Relevance.related]: GroupWorkOutlinedIcon,
+  [Relevance.unique]: AdjustOutlinedIcon,
 };
 
 function CategorySelector(props) {
@@ -67,16 +67,16 @@ function CategorySelector(props) {
 
 CategorySelector.propTypes = {
   category: PropTypes.oneOf([
-    Category.total,
-    Category.duplicates,
-    Category.related,
-    Category.unique,
+    Relevance.all,
+    Relevance.duplicates,
+    Relevance.related,
+    Relevance.unique,
   ]).isRequired,
   counts: PropTypes.shape({
-    [Category.total]: PropTypes.number.isRequired,
-    [Category.duplicates]: PropTypes.number.isRequired,
-    [Category.related]: PropTypes.number.isRequired,
-    [Category.unique]: PropTypes.number.isRequired,
+    [Relevance.all]: PropTypes.number.isRequired,
+    [Relevance.duplicates]: PropTypes.number.isRequired,
+    [Relevance.related]: PropTypes.number.isRequired,
+    [Relevance.unique]: PropTypes.number.isRequired,
   }).isRequired,
   dense: PropTypes.bool,
   onChange: PropTypes.func,
