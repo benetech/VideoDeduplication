@@ -31,5 +31,8 @@ export function filtersToQueryParams(filters) {
       params.extensions = extensions.join(",");
     }
   }
+  if (filters.matches != null) {
+    params.matches = filters.matches;
+  }
   return params;
 }

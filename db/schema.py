@@ -1,7 +1,7 @@
 import datetime
 
 from sqlalchemy import Column, String, Integer, LargeBinary, Boolean, \
-    Float, JSON, ForeignKey, UniqueConstraint, DateTime, inspect
+    Float, JSON, ForeignKey, UniqueConstraint, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -19,8 +19,14 @@ class Files(Base):
     signature = relationship("Signature", uselist=False, back_populates="file")
     meta = relationship("VideoMetadata", uselist=False, back_populates="file")
     scenes = relationship("Scene", back_populates="file")
-    matches = relationship("Matches", back_populates="query_video_file", foreign_keys="Matches.query_video_file_id")
     exif = relationship("Exif", uselist=False, back_populates="file")
+
+    # TODO: find a way to merge these two relationships
+    #   (See https://github.com/benetech/VideoDeduplication/issues/141)
+    source_matches = relationship("Matches", back_populates="query_video_file",
+                                  foreign_keys="Matches.query_video_file_id")
+    target_matches = relationship("Matches", back_populates="match_video_file",
+                                  foreign_keys="Matches.match_video_file_id")
 
 
 class Signature(Base):
@@ -71,10 +77,10 @@ class Matches(Base):
     id = Column(Integer, primary_key=True)
     query_video = Column(String)
     query_video_file_id = Column(Integer, ForeignKey('files.id'), nullable=False)
-    query_video_file = relationship("Files", back_populates="matches", foreign_keys=[query_video_file_id])
+    query_video_file = relationship("Files", back_populates="source_matches", foreign_keys=[query_video_file_id])
     match_video = Column(String)
     match_video_file_id = Column(Integer, ForeignKey('files.id'), nullable=False)
-    match_video_file = relationship("Files", foreign_keys=[match_video_file_id])
+    match_video_file = relationship("Files", back_populates="target_matches", foreign_keys=[match_video_file_id])
     distance = Column(Float, nullable=False)
 
 

@@ -9,8 +9,36 @@ from sqlalchemy.orm import joinedload
 
 from db.schema import Files, Exif, VideoMetadata
 from .blueprint import api
-from .helpers import file_matches, parse_boolean, parse_positive_int, parse_date
+from .helpers import file_matches, parse_boolean, parse_positive_int, parse_date, parse_enum, get_config, has_matches
 from ..model import database, Transform
+
+
+class MatchCategory:
+    """Enum for match distance criteria."""
+    ALL = "all"
+    RELATED = "related"
+    DUPLICATES = "duplicates"
+    UNIQUE = "unique"
+
+    values = {ALL, RELATED, DUPLICATES, UNIQUE}
+
+
+@dataclass
+class Counts:
+    """Count of files by matches."""
+    total: int = 0
+    related: int = 0
+    duplicates: int = 0
+    unique: int = 0
+
+    @staticmethod
+    def get(query, related_distance, duplicate_distance):
+        """Count queried files by matches."""
+        total = query.count()
+        duplicates = query.filter(has_matches(duplicate_distance)).count()
+        related = query.filter(has_matches(related_distance)).count()
+        unique = total - related
+        return Counts(total=total, related=related, duplicates=duplicates, unique=unique)
 
 
 @dataclass
@@ -29,6 +57,7 @@ class Arguments:
     date_from: datetime = None
     date_to: datetime = None
     include: Dict[str, bool] = field(default_factory=dict)
+    match_category: str = MatchCategory.ALL
 
     # Query options for additional fields that could be included on demand
     _ADDITIONAL_FIELDS = {
@@ -77,35 +106,50 @@ class Arguments:
         result.extensions = Arguments.parse_extensions()
         result.date_from = parse_date(request.args, "date_from")
         result.date_to = parse_date(request.args, "date_to")
+        result.match_category = parse_enum(request.args, "matches", values=MatchCategory.values,
+                                           default=MatchCategory.ALL)
         return result
 
-    def query(self):
-        # Create query
+    def include_fields(self, query):
+        """Prefetch required fields."""
         include_options = self.include_options(self.include)
-        query = database.session.query(Files).options(*include_options)
+        return query.options(*include_options)
 
-        # Apply filtering criteria
+    def filter_path(self, query):
+        """Filter by file name."""
         if self.path_query:
-            query = query.filter(Files.file_path.ilike(f"%{self.path_query}%"))
+            return query.filter(Files.file_path.ilike(f"%{self.path_query}%"))
+        return query
 
+    def filter_extensions(self, query):
+        """Filter by file extension."""
         if self.extensions:
             conditions = (Files.file_path.ilike(f"%.{ext}") for ext in self.extensions)
-            query = query.filter(or_(*conditions))
+            return query.filter(or_(*conditions))
+        return query
 
+    def filter_exif(self, query):
+        """Filter by EXIF data presence."""
         if self.exif is not None:
             has_exif = Files.exif.has()
             if self.exif:
-                query = query.filter(has_exif)
+                return query.filter(has_exif)
             else:
-                query = query.filter(~has_exif)
+                return query.filter(~has_exif)
+        return query
 
+    def filter_audio(self, query):
+        """Filter by audio presence."""
         if self.audio is not None:
             has_audio = Files.exif.has(Exif.Audio_Duration > 0)
             if self.audio:
-                query = query.filter(has_audio)
+                return query.filter(has_audio)
             else:
-                query = query.filter(~has_audio)
+                return query.filter(~has_audio)
+        return query
 
+    def filter_date(self, query):
+        """Filter by creation date."""
         if self.date_from is not None:
             query = query.filter(
                 Files.exif.has(Exif.General_Encoded_Date >= self.date_from.strftime(self._EXIF_DATE_FORMAT)))
@@ -114,6 +158,10 @@ class Arguments:
             query = query.filter(
                 Files.exif.has(Exif.General_Encoded_Date <= self.date_to.strftime(self._EXIF_DATE_FORMAT)))
 
+        return query
+
+    def filter_length(self, query):
+        """Filter by length."""
         if self.min_length is not None or self.max_length is not None:
             query = query.join(Files.meta)
 
@@ -125,19 +173,45 @@ class Arguments:
 
         return query
 
+    def filter_matches(self, query, related_distance, duplicate_distance):
+        """Filter by match distance."""
+        if self.match_category == MatchCategory.DUPLICATES:
+            return query.filter(has_matches(duplicate_distance))
+        elif self.match_category == MatchCategory.RELATED:
+            return query.filter(has_matches(related_distance))
+        elif self.match_category == MatchCategory.UNIQUE:
+            return query.filter(~has_matches(related_distance))
+        # else Relevance.ALL
+        return query
+
 
 @api.route('/files/', methods=['GET'])
 def list_files():
     args = Arguments.parse()
-    query = args.query()
 
-    # Get requested slice
-    total = query.count()
+    # Apply filters
+    query = database.session.query(Files)
+    query = args.include_fields(query)
+    query = args.filter_path(query)
+    query = args.filter_exif(query)
+    query = args.filter_audio(query)
+    query = args.filter_date(query)
+    query = args.filter_length(query)
+
+    # Count files by matches
+    config = get_config()
+    counts = Counts.get(query, config.related_distance, config.duplicate_distance)
+
+    # Filter by matches and get items.
+    query = args.filter_matches(query, config.related_distance, config.duplicate_distance)
     items = query.offset(args.offset).limit(args.limit).all()
 
     return jsonify({
         'items': [Transform.file_dict(item, **args.include) for item in items],
-        'total': total
+        'total': counts.total,
+        'duplicates': counts.duplicates,
+        'related': counts.related,
+        'unique': counts.unique
     })
 
 

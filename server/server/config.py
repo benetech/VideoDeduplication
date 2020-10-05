@@ -51,3 +51,5 @@ class Config:
         self.port = int(os.environ.get("SERVER_PORT", 5000))
         self.static_folder = os.environ.get("STATIC_FOLDER", "static")
         self.video_folder = os.environ.get("VIDEO_FOLDER", "/project/data")
+        self.duplicate_distance = float(os.environ.get("DUPLICATE_DISTANCE", 0.7))
+        self.related_distance = float(os.environ.get("RELATED_DISTANCE", 0.73))

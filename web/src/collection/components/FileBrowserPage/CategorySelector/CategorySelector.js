@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { useIntl } from "react-intl";
-import { Category } from "./category";
+import { MatchCategory } from "../../../state/MatchCategory";
 import CategoryButton from "./CategoryButton";
 import AllInclusiveOutlinedIcon from "@material-ui/icons/AllInclusiveOutlined";
 import FileCopyOutlinedIcon from "@material-ui/icons/FileCopyOutlined";
@@ -14,27 +14,31 @@ import Grid from "@material-ui/core/Grid";
 function useNames() {
   const intl = useIntl();
   return {
-    [Category.total]: intl.formatMessage({ id: "search.category.all" }),
-    [Category.duplicates]: intl.formatMessage({
+    [MatchCategory.all]: intl.formatMessage({ id: "search.category.all" }),
+    [MatchCategory.duplicates]: intl.formatMessage({
       id: "search.category.duplicates",
     }),
-    [Category.related]: intl.formatMessage({ id: "search.category.related" }),
-    [Category.unique]: intl.formatMessage({ id: "search.category.unique" }),
+    [MatchCategory.related]: intl.formatMessage({
+      id: "search.category.related",
+    }),
+    [MatchCategory.unique]: intl.formatMessage({
+      id: "search.category.unique",
+    }),
   };
 }
 
 const categories = [
-  Category.total,
-  Category.duplicates,
-  Category.related,
-  Category.unique,
+  MatchCategory.all,
+  MatchCategory.duplicates,
+  MatchCategory.related,
+  MatchCategory.unique,
 ];
 
 const icons = {
-  [Category.total]: AllInclusiveOutlinedIcon,
-  [Category.duplicates]: FileCopyOutlinedIcon,
-  [Category.related]: GroupWorkOutlinedIcon,
-  [Category.unique]: AdjustOutlinedIcon,
+  [MatchCategory.all]: AllInclusiveOutlinedIcon,
+  [MatchCategory.duplicates]: FileCopyOutlinedIcon,
+  [MatchCategory.related]: GroupWorkOutlinedIcon,
+  [MatchCategory.unique]: AdjustOutlinedIcon,
 };
 
 function CategorySelector(props) {
@@ -67,16 +71,16 @@ function CategorySelector(props) {
 
 CategorySelector.propTypes = {
   category: PropTypes.oneOf([
-    Category.total,
-    Category.duplicates,
-    Category.related,
-    Category.unique,
+    MatchCategory.all,
+    MatchCategory.duplicates,
+    MatchCategory.related,
+    MatchCategory.unique,
   ]).isRequired,
   counts: PropTypes.shape({
-    [Category.total]: PropTypes.number.isRequired,
-    [Category.duplicates]: PropTypes.number.isRequired,
-    [Category.related]: PropTypes.number.isRequired,
-    [Category.unique]: PropTypes.number.isRequired,
+    [MatchCategory.all]: PropTypes.number.isRequired,
+    [MatchCategory.duplicates]: PropTypes.number.isRequired,
+    [MatchCategory.related]: PropTypes.number.isRequired,
+    [MatchCategory.unique]: PropTypes.number.isRequired,
   }).isRequired,
   dense: PropTypes.bool,
   onChange: PropTypes.func,

@@ -10,6 +10,7 @@ import {
   ACTION_UPDATE_FILTERS_FAILURE,
   ACTION_UPDATE_FILTERS_SUCCESS,
 } from "./actions";
+import { MatchCategory } from "./MatchCategory";
 
 export const initialState = {
   error: false,
@@ -22,6 +23,7 @@ export const initialState = {
     date: { lower: null, upper: null },
     audio: null,
     exif: null,
+    matches: MatchCategory.all,
   },
   page: 0,
   pageSize: 20,

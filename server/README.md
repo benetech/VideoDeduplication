@@ -37,6 +37,8 @@ Server honors the following environment variables:
  * `DATABASE_DIALECT` - set the database dialect (default is `postgres`)
  * `DATABASE_URI` - set the database connection URI (if specified, other `DATABASE_*` variables will be ignored)
  * `VIDEO_FOLDER` - folder with video-files to serve
+ * `DUPLICATE_DISTANCE` - maximal distance between duplicate videos (default is `0.1`)
+ * `RELATED_DISTANCE` - maximal distance between related videos (default is `0.4`) 
  
 
 
