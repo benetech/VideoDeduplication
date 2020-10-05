@@ -6,7 +6,7 @@ import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import FileBrowserActions, { View } from "./FileBrowserActions";
 import FilterPane from "./FilterPane";
 import SearchTextInput from "./SearchTextInput";
-import CategorySelector, { Relevance } from "./CategorySelector";
+import CategorySelector, { MatchCategory } from "./CategorySelector";
 import FileLinearList from "./FileLinearList/FileLinearList";
 import FileGridList from "./FileGridList";
 import { useDispatch, useSelector } from "react-redux";
@@ -160,8 +160,8 @@ function FileBrowserPage(props) {
   );
 
   const handleChangeCategory = useCallback(
-    (relevance) => {
-      dispatch(updateFilters({ ...filters, relevance }));
+    (matches) => {
+      dispatch(updateFilters({ ...filters, matches }));
     },
     [filters]
   );
@@ -195,7 +195,7 @@ function FileBrowserPage(props) {
               className={classes.textSearch}
             />
             <CategorySelector
-              category={filters.relevance}
+              category={filters.matches}
               onChange={handleChangeCategory}
               counts={counts}
               dense={showFilters}
@@ -230,7 +230,7 @@ function FileBrowserPage(props) {
               loading={loading}
               onLoad={handleFetchPage}
               dense={showFilters}
-              hasMore={error || files.length < counts[filters.relevance]}
+              hasMore={error || files.length < counts[filters.matches]}
             />
           </List>
           <div className={classes.fab}>

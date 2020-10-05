@@ -1,2 +1,2 @@
 export { default } from "./CategorySelector";
-export { Relevance } from "../../../state/relevance";
+export { MatchCategory } from "../../../state/MatchCategory";

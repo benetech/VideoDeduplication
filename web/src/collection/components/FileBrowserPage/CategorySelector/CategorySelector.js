@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { useIntl } from "react-intl";
-import { Relevance } from "../../../state/relevance";
+import { MatchCategory } from "../../../state/MatchCategory";
 import CategoryButton from "./CategoryButton";
 import AllInclusiveOutlinedIcon from "@material-ui/icons/AllInclusiveOutlined";
 import FileCopyOutlinedIcon from "@material-ui/icons/FileCopyOutlined";
@@ -14,27 +14,31 @@ import Grid from "@material-ui/core/Grid";
 function useNames() {
   const intl = useIntl();
   return {
-    [Relevance.all]: intl.formatMessage({ id: "search.category.all" }),
-    [Relevance.duplicates]: intl.formatMessage({
+    [MatchCategory.all]: intl.formatMessage({ id: "search.category.all" }),
+    [MatchCategory.duplicates]: intl.formatMessage({
       id: "search.category.duplicates",
     }),
-    [Relevance.related]: intl.formatMessage({ id: "search.category.related" }),
-    [Relevance.unique]: intl.formatMessage({ id: "search.category.unique" }),
+    [MatchCategory.related]: intl.formatMessage({
+      id: "search.category.related",
+    }),
+    [MatchCategory.unique]: intl.formatMessage({
+      id: "search.category.unique",
+    }),
   };
 }
 
 const categories = [
-  Relevance.all,
-  Relevance.duplicates,
-  Relevance.related,
-  Relevance.unique,
+  MatchCategory.all,
+  MatchCategory.duplicates,
+  MatchCategory.related,
+  MatchCategory.unique,
 ];
 
 const icons = {
-  [Relevance.all]: AllInclusiveOutlinedIcon,
-  [Relevance.duplicates]: FileCopyOutlinedIcon,
-  [Relevance.related]: GroupWorkOutlinedIcon,
-  [Relevance.unique]: AdjustOutlinedIcon,
+  [MatchCategory.all]: AllInclusiveOutlinedIcon,
+  [MatchCategory.duplicates]: FileCopyOutlinedIcon,
+  [MatchCategory.related]: GroupWorkOutlinedIcon,
+  [MatchCategory.unique]: AdjustOutlinedIcon,
 };
 
 function CategorySelector(props) {
@@ -67,16 +71,16 @@ function CategorySelector(props) {
 
 CategorySelector.propTypes = {
   category: PropTypes.oneOf([
-    Relevance.all,
-    Relevance.duplicates,
-    Relevance.related,
-    Relevance.unique,
+    MatchCategory.all,
+    MatchCategory.duplicates,
+    MatchCategory.related,
+    MatchCategory.unique,
   ]).isRequired,
   counts: PropTypes.shape({
-    [Relevance.all]: PropTypes.number.isRequired,
-    [Relevance.duplicates]: PropTypes.number.isRequired,
-    [Relevance.related]: PropTypes.number.isRequired,
-    [Relevance.unique]: PropTypes.number.isRequired,
+    [MatchCategory.all]: PropTypes.number.isRequired,
+    [MatchCategory.duplicates]: PropTypes.number.isRequired,
+    [MatchCategory.related]: PropTypes.number.isRequired,
+    [MatchCategory.unique]: PropTypes.number.isRequired,
   }).isRequired,
   dense: PropTypes.bool,
   onChange: PropTypes.func,

@@ -13,7 +13,7 @@ from .helpers import file_matches, parse_boolean, parse_positive_int, parse_date
 from ..model import database, Transform
 
 
-class Relevance:
+class MatchCategory:
     """Enum for match distance criteria."""
     ALL = "all"
     RELATED = "related"
@@ -57,7 +57,7 @@ class Arguments:
     date_from: datetime = None
     date_to: datetime = None
     include: Dict[str, bool] = field(default_factory=dict)
-    relevance: str = Relevance.ALL
+    match_category: str = MatchCategory.ALL
 
     # Query options for additional fields that could be included on demand
     _ADDITIONAL_FIELDS = {
@@ -106,7 +106,8 @@ class Arguments:
         result.extensions = Arguments.parse_extensions()
         result.date_from = parse_date(request.args, "date_from")
         result.date_to = parse_date(request.args, "date_to")
-        result.relevance = parse_enum(request.args, "relevance", values=Relevance.values, default=Relevance.ALL)
+        result.match_category = parse_enum(request.args, "matches", values=MatchCategory.values,
+                                           default=MatchCategory.ALL)
         return result
 
     def include_fields(self, query):
@@ -174,11 +175,11 @@ class Arguments:
 
     def filter_matches(self, query, related_distance, duplicate_distance):
         """Filter by match distance."""
-        if self.relevance == Relevance.DUPLICATES:
+        if self.match_category == MatchCategory.DUPLICATES:
             return query.filter(has_matches(duplicate_distance))
-        elif self.relevance == Relevance.RELATED:
+        elif self.match_category == MatchCategory.RELATED:
             return query.filter(has_matches(related_distance))
-        elif self.relevance == Relevance.UNIQUE:
+        elif self.match_category == MatchCategory.UNIQUE:
             return query.filter(~has_matches(related_distance))
         # else Relevance.ALL
         return query
