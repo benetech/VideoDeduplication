@@ -1,22 +1,19 @@
 import os
 import tempfile
+from pathlib import Path
 
+import numpy as np
+import pytest
+
+from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepresentation, SimilarityModel
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import path_resolver, bulk_read
-
-os.environ['WINNOW_CONFIG'] = os.path.abspath('config.yaml')
-import pytest
-import numpy as np
-from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepresentation, SimilarityModel
-from winnow.utils import scan_videos, create_video_list, get_hash,resolve_config
-import yaml
-from pathlib import Path
+from winnow.utils import scan_videos, create_video_list, get_hash, resolve_config
 
 NUMBER_OF_TEST_VIDEOS = 40
 
-representations = ['frame_level', 'video_level', 'video_signatures']
-
-cfg = resolve_config(config_path="tests/config.yaml")
+test_folder = os.path.dirname(__file__)
+cfg = resolve_config(config_path=os.path.join(test_folder, 'config.yaml'))
 
 # Load main config variables from the TEST config file
 
@@ -30,8 +27,6 @@ HANDLE_DARK = cfg.processing.filter_dark_videos
 DETECT_SCENES = cfg.processing.detect_scenes
 MIN_VIDEO_DURATION = cfg.processing.min_video_duration_seconds
 DISTANCE = float(cfg.processing.match_distance)
-
-supported_video_extensions = ['.mp4', '.ogv', '.webm', '.avi']
 
 
 # Ensures that the config file follows specs
@@ -52,7 +47,7 @@ def reprs():
 @pytest.fixture(scope="module")
 def videos():
     """Paths of videos in a test_data."""
-    return scan_videos(DATASET_DIR, '**', extensions=supported_video_extensions)
+    return scan_videos(DATASET_DIR, '**', extensions=cfg.sources.extensions)
 
 
 @pytest.fixture(scope="module")
@@ -114,7 +109,9 @@ def signatures(frame_to_video_results):
 
 
 def test_video_extension_filter(videos):
-    not_videos = sum(Path(video).suffix not in supported_video_extensions for video in videos)
+    # Path(..).suffix returns values with leading dot (e.g. '.mp4').
+    # Thus we need to chop the first character.
+    not_videos = sum(Path(video).suffix[1:] not in cfg.sources.extensions for video in videos)
 
     assert not_videos == 0
 
