@@ -43,7 +43,9 @@ const VideoPlayer = function VideoPlayer(props) {
 
   // Enable support for flv files.
   // See https://github.com/CookPete/react-player#config-prop
-  const forceFLV = file?.filename?.endsWith("flv");
+  const exifType = file?.exif?.General_FileExtension?.trim();
+  const forceFLV =
+    exifType != null ? exifType === "flv" : file?.filename?.endsWith(".flv");
 
   return (
     <div className={clsx(className)}>
