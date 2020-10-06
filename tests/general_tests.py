@@ -110,7 +110,7 @@ def signatures(frame_to_video_results):
 
 def test_video_extension_filter(videos):
     # Path(..).suffix returns values with leading dot (e.g. '.mp4').
-    # Thus wee need to chop the first character.
+    # Thus we need to chop the first character.
     not_videos = sum(Path(video).suffix[1:] not in cfg.sources.extensions for video in videos)
 
     assert not_videos == 0

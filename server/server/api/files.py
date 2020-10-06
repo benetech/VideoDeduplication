@@ -193,6 +193,7 @@ def list_files():
     query = database.session.query(Files)
     query = args.include_fields(query)
     query = args.filter_path(query)
+    query = args.filter_extensions(query)
     query = args.filter_exif(query)
     query = args.filter_audio(query)
     query = args.filter_date(query)
