@@ -11,6 +11,7 @@ import {
   ACTION_UPDATE_FILTERS_SUCCESS,
 } from "./actions";
 import { MatchCategory } from "./MatchCategory";
+import { FileSort } from "./FileSort";
 
 export const initialState = {
   error: false,
@@ -24,6 +25,7 @@ export const initialState = {
     audio: null,
     exif: null,
     matches: MatchCategory.all,
+    sort: FileSort.date,
   },
   page: 0,
   pageSize: 20,

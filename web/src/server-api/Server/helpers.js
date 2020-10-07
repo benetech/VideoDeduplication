@@ -34,5 +34,8 @@ export function filtersToQueryParams(filters) {
   if (filters.matches != null) {
     params.matches = filters.matches;
   }
+  if (filters.sort) {
+    params.sort = filters.sort;
+  }
   return params;
 }

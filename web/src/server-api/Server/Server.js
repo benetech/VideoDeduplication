@@ -20,7 +20,7 @@ export default class Server {
         params: {
           offset: page * pageSize,
           limit: pageSize,
-          include: ["signature", "meta", "scenes"].join(","),
+          include: ["signature", "meta"].join(","),
           ...filtersToQueryParams(filters),
         },
       });
