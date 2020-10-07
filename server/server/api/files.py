@@ -4,10 +4,10 @@ from typing import List, Dict
 
 from dataclasses import dataclass, field
 from flask import jsonify, request, abort
-from sqlalchemy import or_
-from sqlalchemy.orm import joinedload
+from sqlalchemy import or_, func, literal_column
+from sqlalchemy.orm import joinedload, aliased
 
-from db.schema import Files, Exif, VideoMetadata
+from db.schema import Files, Exif, VideoMetadata, Matches
 from .blueprint import api
 from .helpers import file_matches, parse_boolean, parse_positive_int, parse_date, parse_enum, get_config, has_matches
 from ..model import database, Transform
@@ -21,6 +21,16 @@ class MatchCategory:
     UNIQUE = "unique"
 
     values = {ALL, RELATED, DUPLICATES, UNIQUE}
+
+
+class Sort:
+    """Enum for result ordering."""
+    DATE = "date"
+    LENGTH = "length"
+    RELATED = "related"
+    DUPLICATES = "duplicates"
+
+    values = {DATE, LENGTH, RELATED, DUPLICATES}
 
 
 @dataclass
@@ -58,6 +68,7 @@ class Arguments:
     date_to: datetime = None
     include: Dict[str, bool] = field(default_factory=dict)
     match_category: str = MatchCategory.ALL
+    sort: str = None
 
     # Query options for additional fields that could be included on demand
     _ADDITIONAL_FIELDS = {
@@ -69,6 +80,10 @@ class Arguments:
 
     # Format in which Dates are currently stored in exif table.
     _EXIF_DATE_FORMAT = " UTC %Y-%m-%d 00"
+
+    # Label for related entities count (matches, scenes, etc.)
+    _LABEL_COUNT = "hit_count"
+    _countable_match = aliased(Matches)
 
     @staticmethod
     def parse_extensions():
@@ -87,9 +102,10 @@ class Arguments:
         return include
 
     @staticmethod
-    def include_options(include):
+    def include_options(fields):
         """Query options to retrieve included fields."""
-        return [Arguments._ADDITIONAL_FIELDS[field] for field in include if field in Arguments._ADDITIONAL_FIELDS]
+        return [Arguments._ADDITIONAL_FIELDS[field] for (field, include) in fields.items() if
+                include and field in Arguments._ADDITIONAL_FIELDS]
 
     @staticmethod
     def parse():
@@ -106,9 +122,36 @@ class Arguments:
         result.extensions = Arguments.parse_extensions()
         result.date_from = parse_date(request.args, "date_from")
         result.date_to = parse_date(request.args, "date_to")
-        result.match_category = parse_enum(request.args, "matches", values=MatchCategory.values,
+        result.match_category = parse_enum(request.args, "matches",
+                                           values=MatchCategory.values,
                                            default=MatchCategory.ALL)
+        result.sort = parse_enum(request.args, "sort", values=Sort.values, default=None)
         return result
+
+    def sortable_attributes(self):
+        """Get additional sortable attributes."""
+        values = []
+        if self.sort == Sort.RELATED or self.sort == Sort.DUPLICATES:
+            match_count = func.count(self._countable_match.id).label(self._LABEL_COUNT)
+            values.append(match_count)
+        return values
+
+    def sort_items(self, query, related_distance, duplicate_distance):
+        """Apply ordering."""
+        if self.sort == Sort.RELATED or self.sort == Sort.DUPLICATES:
+            match = self._countable_match
+            threshold = related_distance if self.sort == Sort.RELATED else duplicate_distance
+            query = query.outerjoin(self._countable_match,
+                                    (match.query_video_file_id == Files.id or
+                                     match.match_video_file_id == Files.id) and match.distance < threshold)
+            return query.group_by(Files.id).order_by(literal_column(self._LABEL_COUNT).desc())
+        elif self.sort == Sort.LENGTH:
+            meta = aliased(VideoMetadata)
+            return query.outerjoin(meta).order_by(meta.video_length.desc())
+        elif self.sort == Sort.DATE:
+            exif = aliased(Exif)
+            return query.outerjoin(exif).order_by(exif.General_Encoded_Date.desc())
+        return query
 
     def include_fields(self, query):
         """Prefetch required fields."""
@@ -173,15 +216,25 @@ class Arguments:
 
         return query
 
-    def filter_matches(self, query, related_distance, duplicate_distance):
-        """Filter by match distance."""
+    def filter_by_matches(self, query, related_distance, duplicate_distance):
+        """Filter by presence of similar files."""
         if self.match_category == MatchCategory.DUPLICATES:
             return query.filter(has_matches(duplicate_distance))
         elif self.match_category == MatchCategory.RELATED:
             return query.filter(has_matches(related_distance))
         elif self.match_category == MatchCategory.UNIQUE:
             return query.filter(~has_matches(related_distance))
-        # else Relevance.ALL
+        # else MatchCategory.ALL
+        return query
+
+    def filter_by_file_attributes(self, query):
+        """Apply filters related to the properties of video file itself."""
+        query = self.filter_path(query)
+        query = self.filter_extensions(query)
+        query = self.filter_exif(query)
+        query = self.filter_audio(query)
+        query = self.filter_date(query)
+        query = self.filter_length(query)
         return query
 
 
@@ -189,23 +242,24 @@ class Arguments:
 def list_files():
     args = Arguments.parse()
 
-    # Apply filters
-    query = database.session.query(Files)
-    query = args.include_fields(query)
-    query = args.filter_path(query)
-    query = args.filter_extensions(query)
-    query = args.filter_exif(query)
-    query = args.filter_audio(query)
-    query = args.filter_date(query)
-    query = args.filter_length(query)
-
-    # Count files by matches
+    # Count files
     config = get_config()
+    query = database.session.query(Files)
+    query = args.filter_by_file_attributes(query)
     counts = Counts.get(query, config.related_distance, config.duplicate_distance)
 
-    # Filter by matches and get items.
-    query = args.filter_matches(query, config.related_distance, config.duplicate_distance)
+    # Select files
+    sortable_attributes = args.sortable_attributes()
+    query = database.session.query(Files, *sortable_attributes)
+    query = args.include_fields(query)
+    query = args.filter_by_file_attributes(query)
+    query = args.filter_by_matches(query, config.related_distance, config.duplicate_distance)
+    query = args.sort_items(query, config.related_distance, config.duplicate_distance)
+
+    # Retrieve slice
     items = query.offset(args.offset).limit(args.limit).all()
+    if len(sortable_attributes) > 0:
+        items = [item[0] for item in items]
 
     return jsonify({
         'items': [Transform.file_dict(item, **args.include) for item in items],
