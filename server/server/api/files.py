@@ -5,9 +5,9 @@ from typing import List, Dict
 from dataclasses import dataclass, field
 from flask import jsonify, request, abort
 from sqlalchemy import or_, func, literal_column
-from sqlalchemy.orm import joinedload, aliased
+from sqlalchemy.orm import aliased, contains_eager
 
-from db.schema import Files, Exif, VideoMetadata, Matches
+from db.schema import Files, Exif, VideoMetadata, Matches, Signature, Scene
 from .blueprint import api
 from .helpers import file_matches, parse_boolean, parse_positive_int, parse_date, parse_enum, get_config, has_matches
 from ..model import database, Transform
@@ -72,10 +72,10 @@ class Arguments:
 
     # Query options for additional fields that could be included on demand
     _ADDITIONAL_FIELDS = {
-        "meta": joinedload(Files.meta),
-        "signature": joinedload(Files.signature),
-        "exif": joinedload(Files.exif),
-        "scenes": joinedload(Files.scenes),
+        "meta": (Files.meta, VideoMetadata),
+        "signature": (Files.signature, Signature),
+        "exif": (Files.exif, Exif),
+        "scenes": (Files.scenes, Scene),
     }
 
     # Format in which Dates are currently stored in exif table.
@@ -102,10 +102,13 @@ class Arguments:
         return include
 
     @staticmethod
-    def include_options(fields):
-        """Query options to retrieve included fields."""
-        return [Arguments._ADDITIONAL_FIELDS[field] for (field, include) in fields.items() if
-                include and field in Arguments._ADDITIONAL_FIELDS]
+    def include_fields(query, fields):
+        """Prefetch required fields."""
+        for name, include in fields.items():
+            if include and name in Arguments._ADDITIONAL_FIELDS:
+                relation, entity = Arguments._ADDITIONAL_FIELDS[name]
+                query = query.outerjoin(entity, relation).options(contains_eager(relation))
+        return query
 
     @staticmethod
     def parse():
@@ -136,15 +139,25 @@ class Arguments:
             values.append(match_count)
         return values
 
+    def _joined_entities(self):
+        """Get list of left outer joined entities."""
+        entities = []
+        for name, include in self.include.items():
+            if include and name in self._ADDITIONAL_FIELDS:
+                _, entity = self._ADDITIONAL_FIELDS[name]
+                entities.append(entity)
+        return entities
+
     def sort_items(self, query, related_distance, duplicate_distance):
         """Apply ordering."""
         if self.sort == Sort.RELATED or self.sort == Sort.DUPLICATES:
             match = self._countable_match
             threshold = related_distance if self.sort == Sort.RELATED else duplicate_distance
             query = query.outerjoin(self._countable_match,
-                                    (match.query_video_file_id == Files.id or
-                                     match.match_video_file_id == Files.id) and match.distance < threshold)
-            return query.group_by(Files.id).order_by(literal_column(self._LABEL_COUNT).desc())
+                                    ((match.query_video_file_id == Files.id) |
+                                     (match.match_video_file_id == Files.id)) & (match.distance < threshold))
+            joined = (entity.id for entity in self._joined_entities())
+            return query.group_by(Files.id, *joined).order_by(literal_column(self._LABEL_COUNT).desc())
         elif self.sort == Sort.LENGTH:
             meta = aliased(VideoMetadata)
             return query.outerjoin(meta).order_by(meta.video_length.desc())
@@ -152,11 +165,6 @@ class Arguments:
             exif = aliased(Exif)
             return query.outerjoin(exif).order_by(exif.General_Encoded_Date.desc())
         return query
-
-    def include_fields(self, query):
-        """Prefetch required fields."""
-        include_options = self.include_options(self.include)
-        return query.options(*include_options)
 
     def filter_path(self, query):
         """Filter by file name."""
@@ -251,13 +259,16 @@ def list_files():
     # Select files
     sortable_attributes = args.sortable_attributes()
     query = database.session.query(Files, *sortable_attributes)
-    query = args.include_fields(query)
+    query = Arguments.include_fields(query, args.include)
     query = args.filter_by_file_attributes(query)
     query = args.filter_by_matches(query, config.related_distance, config.duplicate_distance)
     query = args.sort_items(query, config.related_distance, config.duplicate_distance)
 
     # Retrieve slice
-    items = query.offset(args.offset).limit(args.limit).all()
+    query = query.offset(args.offset).limit(args.limit)
+    items = query.all()
+
+    # Get files from result set if there are additional attributes.
     if len(sortable_attributes) > 0:
         items = [item[0] for item in items]
 
@@ -273,11 +284,10 @@ def list_files():
 @api.route('/files/<int:file_id>', methods=['GET'])
 def get_file(file_id):
     include = Arguments.parse_include()
-    include_options = Arguments.include_options(include)
 
     # Fetch file from database
     query = database.session.query(Files)
-    query = query.options(*include_options)
+    query = Arguments.include_fields(query, fields=include)
     file = query.filter(Files.id == file_id).first()
 
     # Handle file not found
