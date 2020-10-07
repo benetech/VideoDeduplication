@@ -4,7 +4,9 @@ import subprocess
 from collections import defaultdict
 import pandas as pd
 from pandas.io.json import json_normalize
-
+import cv2
+import os 
+import numpy as np
 logger = logging.getLogger(__name__)
 
 def findVideoMetada_mediainfo(pathToInputVideo):
@@ -35,10 +37,52 @@ def process_media_info(info):
             section = line
         else:
             key,val,*_ = line.split(':')
-            
+            section,key = section.strip(), key.strip()
             metadata[section][key] = val
     
-    return dict(metadata)    
+    return dict(metadata)
+
+
+def get_duration(fp):
+    
+    cap = cv2.VideoCapture(fp)
+    fps = max(0,cap.get(cv2.CAP_PROP_FPS))
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    if fps == 0:
+        fps = 25
+        
+    duration = frame_count/fps
+    
+    if duration < 0:
+        count = 0
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if isinstance(frame, np.ndarray):
+                try:
+                    if int(count % round(fps)) == 0:
+                        count += 1
+                except:
+                    pass
+            else:
+                break
+        
+        duration = count / fps
+            
+
+
+    cap.release()
+    
+    return duration * 1000
+
+def normalize_duration(metadata,file_path):
+
+    if 'Duration' not in metadata['General'] or int(metadata['General']['Duration']) < 0:
+
+        duration = get_duration(file_path)
+        metadata['General']['Duration'] = duration
+    
+    return metadata
+
 
 def extract_from_list_of_videos(video_files):
     """ Processes a list of video files and returns a list of dicts containing the mediainfo output for each file
@@ -53,10 +97,12 @@ def extract_from_list_of_videos(video_files):
         try:
             raw_metadata = findVideoMetada_mediainfo(file_path)
             metadata = process_media_info(raw_metadata)
+            metadata = normalize_duration(metadata,file_path)
             video_metadata.append(metadata)
         except Exception as exc:
+            print("Problems processing file '%s': %s", file_path, exc)
             logging.error("Problems processing file '%s': %s", file_path, exc)
-            video_metadata.append({})
+            video_metadata.append({"General":{"FileName":os.path.basename(file_path)}})
 
     return video_metadata
 
@@ -117,12 +163,13 @@ def parse_and_filter_metadata_df(metadata_df):
 
     GROUP_COLUMNS_OF_INTEREST = [x for x in COLUMNS_OF_INTEREST if x in metadata_df.columns]
     GROUP_NUMERICAL_COLS_OF_INTEREST = [x for x in NUMERICAL_COLS_OF_INTEREST if x in metadata_df.columns]
+    GROUP_STRING_COLS_OF_INTEREST = [x for x in GROUP_COLUMNS_OF_INTEREST if x not in GROUP_NUMERICAL_COLS_OF_INTEREST]
 
     filtered = metadata_df.loc[:,GROUP_COLUMNS_OF_INTEREST]
 
     # Parsing numerical fields
     filtered.loc[:,GROUP_NUMERICAL_COLS_OF_INTEREST] = filtered.loc[:,GROUP_NUMERICAL_COLS_OF_INTEREST].apply(lambda x: pd.to_numeric(x,errors='coerce'))
-
+    filtered.loc[:,GROUP_STRING_COLS_OF_INTEREST] = filtered.loc[:,GROUP_STRING_COLS_OF_INTEREST].fillna('N/A').apply(lambda x:x.str.strip())
     
     return filtered
     
