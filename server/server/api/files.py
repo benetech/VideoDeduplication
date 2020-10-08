@@ -138,13 +138,13 @@ class Arguments:
             query = query.outerjoin(self._countable_match,
                                     ((match.query_video_file_id == Files.id) |
                                      (match.match_video_file_id == Files.id)) & (match.distance < threshold))
-            return query.group_by(Files.id).order_by(literal_column(self._LABEL_COUNT).desc())
+            return query.group_by(Files.id).order_by(literal_column(self._LABEL_COUNT).desc(), Files.id.asc())
         elif self.sort == Sort.LENGTH:
             meta = aliased(VideoMetadata)
-            return query.outerjoin(meta).order_by(meta.video_length.desc())
+            return query.outerjoin(meta).order_by(meta.video_length.desc(), Files.id.asc())
         elif self.sort == Sort.DATE:
             exif = aliased(Exif)
-            return query.outerjoin(exif).order_by(exif.General_Encoded_Date.desc())
+            return query.outerjoin(exif).order_by(exif.General_Encoded_Date.desc(), Files.id.asc())
         return query
 
     def filter_path(self, query):
