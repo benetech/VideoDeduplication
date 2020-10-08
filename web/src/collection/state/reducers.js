@@ -27,8 +27,7 @@ export const initialState = {
     matches: MatchCategory.all,
     sort: FileSort.date,
   },
-  page: 0,
-  pageSize: 20,
+  limit: 20,
   counts: {
     total: 0,
     related: 0,
@@ -155,7 +154,6 @@ export function collRootReducer(state = initialState, action) {
         error: false,
         files: extendFiles(state.files, action.files),
         counts: { ...action.counts },
-        page: state.page + 1,
         loading: false,
       };
     case ACTION_FETCH_FILES_FAILURE:
