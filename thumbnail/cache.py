@@ -201,3 +201,4 @@ class ThumbnailCache:
             thumbnail=f"{uuid()}{suffix}",
         )
         session.add(entry)
+        return entry
