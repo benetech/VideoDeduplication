@@ -1,11 +1,11 @@
 from http import HTTPStatus
-import os
+from os.path import dirname, basename
 
 from flask import abort, send_from_directory
 
 from db.schema import Files
 from .blueprint import api
-from .helpers import get_config
+from .helpers import get_config, resolve_video_file_path
 from ..model import database
 
 
@@ -18,6 +18,5 @@ def watch_video(file_id):
     if file is None:
         abort(HTTPStatus.NOT_FOUND.value, f"File id not found: {file_id}")
 
-    basename = os.path.basename(file.file_path)
-    directory = os.path.join(os.path.abspath(config.video_folder), os.path.dirname(file.file_path))
-    return send_from_directory(directory, basename)
+    path = resolve_video_file_path(file.file_path)
+    return send_from_directory(dirname(path), basename(path))
