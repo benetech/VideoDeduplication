@@ -68,7 +68,7 @@ def parse_enum(args, name, values, default=None):
     if value is default:
         return value
     if value not in values:
-        abort(HTTPStatus.BAD_REQUEST.value, f"{name} must be on of {values}")
+        abort(HTTPStatus.BAD_REQUEST.value, f"{name} must be one of {values}")
     return value
 
 

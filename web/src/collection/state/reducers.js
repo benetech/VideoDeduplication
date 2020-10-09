@@ -11,6 +11,7 @@ import {
   ACTION_UPDATE_FILTERS_SUCCESS,
 } from "./actions";
 import { MatchCategory } from "./MatchCategory";
+import { FileSort } from "./FileSort";
 
 export const initialState = {
   error: false,
@@ -24,9 +25,9 @@ export const initialState = {
     audio: null,
     exif: null,
     matches: MatchCategory.all,
+    sort: FileSort.date,
   },
-  page: 0,
-  pageSize: 20,
+  limit: 20,
   counts: {
     total: 0,
     related: 0,
@@ -153,7 +154,6 @@ export function collRootReducer(state = initialState, action) {
         error: false,
         files: extendFiles(state.files, action.files),
         counts: { ...action.counts },
-        page: state.page + 1,
         loading: false,
       };
     case ACTION_FETCH_FILES_FAILURE:

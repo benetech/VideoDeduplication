@@ -6,10 +6,10 @@ import TuneIcon from "@material-ui/icons/Tune";
 import AddMediaButton from "./AddMediaButton";
 import ViewSelector from "./ViewSelector";
 import SortSelector from "./SortSelector";
-import { Sort } from "./sort";
 import { View } from "./view";
 import SquaredIconButton from "../../../../common/components/SquaredIconButton";
 import { useIntl } from "react-intl";
+import { FileSort } from "../../../state/FileSort";
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -79,7 +79,13 @@ const FileBrowserActions = React.forwardRef(function FingerprintViewActions(
 
 FileBrowserActions.propTypes = {
   onAddMedia: PropTypes.func,
-  sort: PropTypes.oneOf(["", Sort.size, Sort.date, Sort.duration]),
+  sort: PropTypes.oneOf([
+    "",
+    FileSort.date,
+    FileSort.length,
+    FileSort.related,
+    FileSort.duplicates,
+  ]),
   onSortChange: PropTypes.func,
   view: PropTypes.oneOf([View.list, View.grid]),
   /**

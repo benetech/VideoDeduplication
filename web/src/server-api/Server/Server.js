@@ -14,13 +14,13 @@ export default class Server {
     this.transform = new Transform();
   }
 
-  async fetchFiles({ page, pageSize, filters }) {
+  async fetchFiles({ limit, offset, filters }) {
     try {
       const response = await this.axios.get("/files/", {
         params: {
-          offset: page * pageSize,
-          limit: pageSize,
-          include: ["signature", "meta", "scenes"].join(","),
+          offset,
+          limit,
+          include: ["signature", "meta"].join(","),
           ...filtersToQueryParams(filters),
         },
       });

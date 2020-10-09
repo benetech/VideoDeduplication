@@ -6,7 +6,7 @@ import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import FileBrowserActions, { View } from "./FileBrowserActions";
 import FilterPane from "./FilterPane";
 import SearchTextInput from "./SearchTextInput";
-import CategorySelector, { MatchCategory } from "./CategorySelector";
+import CategorySelector from "./CategorySelector";
 import FileLinearList from "./FileLinearList/FileLinearList";
 import FileGridList from "./FileGridList";
 import { useDispatch, useSelector } from "react-redux";
@@ -124,7 +124,6 @@ function FileBrowserPage(props) {
   const { className } = props;
   const classes = useStyles();
   const [showFilters, setShowFilters] = useState(false);
-  const [sort, setSort] = useState("");
   const [view, setView] = useState(View.grid);
   const error = useSelector(selectError);
   const loading = useSelector(selectLoading);
@@ -160,13 +159,22 @@ function FileBrowserPage(props) {
   );
 
   const handleChangeCategory = useCallback(
-    (matches) => {
-      dispatch(updateFilters({ ...filters, matches }));
-    },
+    (matches) => dispatch(updateFilters({ ...filters, matches })),
+    [filters]
+  );
+
+  const handleChangeSort = useCallback(
+    (sort) => dispatch(updateFilters({ ...filters, sort })),
     [filters]
   );
 
   const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
+
+  console.log("COUNTS", {
+    current_length: files.length,
+    counts,
+    type: filters.matches,
+  });
 
   return (
     <div className={clsx(classes.container, className)}>
@@ -177,8 +185,8 @@ function FileBrowserPage(props) {
         <div className={classes.header} role="search">
           <div className={classes.actionsContainer}>
             <FileBrowserActions
-              sort={sort}
-              onSortChange={setSort}
+              sort={filters.sort}
+              onSortChange={handleChangeSort}
               view={view}
               onViewChange={setView}
               onAddMedia={() => console.log("On Add Media")}
