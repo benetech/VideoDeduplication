@@ -35,7 +35,7 @@ export default class Transform {
       hash: data.sha256,
       fingerprint: data.signature,
       exif: data.exif,
-      preview: randomPreview(),
+      preview: `/api/v1/files/${data.id}/thumbnail?time=0`,
       playbackURL: `/api/v1/files/${data.id}/watch`,
       scenes: this.fileScenes(data),
       objects: [...randomObjects(10, meta.length)],
@@ -72,16 +72,17 @@ export default class Transform {
     }
   }
 
-  scene(scene) {
+  scene(scene, file) {
     return {
-      preview: randomPreview(),
+      preview: `/api/v1/files/${file.id}/thumbnail?time=${scene.start_time}`,
       position: scene.start_time * 1000,
       duration: scene.duration * 1000,
     };
   }
 
   fileScenes(file) {
-    const scenes = file.scenes && file.scenes.map((scene) => this.scene(scene));
+    const scenes =
+      file.scenes && file.scenes.map((scene) => this.scene(scene, file));
     if (!scenes || scenes.length === 0) {
       return [
         {
