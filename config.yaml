@@ -24,7 +24,7 @@ processing:
 
 database:
   use: true
-  uri: postgres://postgres:admin@localhost:5432/videodeduplicationdb
+  uri: postgres://postgres:admin@postgres:5432/videodeduplicationdb
 
 templates:
   source_path: data/templates/test-group/CCSI Object Recognition External/
