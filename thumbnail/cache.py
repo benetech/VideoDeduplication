@@ -31,12 +31,13 @@ class CacheEntry(Base):
 class ThumbnailCache:
     """Local LRU cache of thumbnail images."""
 
-    def __init__(self, directory, capacity=1000):
+    def __init__(self, directory, capacity=1000, suffix=".jpg"):
         """Create thumbnail cache instance.
 
         Args:
-            directory (String): local directory in which thumbnails will be stored.
-            capacity (Integer): maximal thumbnail count to be stored in the cache.
+            directory (str): local directory in which thumbnails will be stored.
+            capacity (int): maximal thumbnail count to be stored in the cache.
+            suffix (str): A string to be appended to the cached file names.
         """
         self.directory = os.path.abspath(directory)
         if not os.path.exists(directory):
@@ -44,7 +45,7 @@ class ThumbnailCache:
             os.makedirs(self.directory)
 
         self.capacity = capacity
-        self.database = Database
+        self.suffix = suffix
         self.db_file = os.path.join(self.directory, "cache.sqlite")
         self.database = Database(f"sqlite:///{self.db_file}", base=Base)
         self.database.create_tables()
@@ -62,10 +63,10 @@ class ThumbnailCache:
         ThumbnailCache.delete() method should be used instead.
 
         Args:
-            path (String): Source video file path inside video files folder.
-            sha256 (String): SHA256 digest of the source video file.
-            position (Integer): Time position inside the video file for which thumbnail is generated.
-            thumbnail (String): Path to the thumbnail file to be cached.
+            path (str): Source video file path inside video files folder.
+            sha256 (str): SHA256 digest of the source video file.
+            position (int): Time position inside the video file for which thumbnail is generated.
+            thumbnail (str): Path to the thumbnail file to be cached.
 
         Returns:
             Path to the cached thumbnail file.
@@ -83,10 +84,10 @@ class ThumbnailCache:
         ThumbnailCache.delete() method should be used instead.
 
         Args:
-            path (String): Source video file path inside video files folder.
-            sha256 (String): SHA256 digest of the source video file.
-            position (Integer): Time position inside the video file for which thumbnail is generated.
-            thumbnail (String): Path to the thumbnail file to be cached.
+            path (str): Source video file path inside video files folder.
+            sha256 (str): SHA256 digest of the source video file.
+            position (int): Time position inside the video file for which thumbnail is generated.
+            thumbnail (str): Path to the thumbnail file to be cached.
 
         Returns:
             Path to the cached thumbnail file.
@@ -97,9 +98,9 @@ class ThumbnailCache:
         """Check if thumbnail is present in cache.
 
         Args:
-            path (String): Source video file path inside video files folder.
-            sha256 (String): SHA256 digest of the source video file.
-            position (Integer): Time position inside the video file for which thumbnail is generated.
+            path (str): Source video file path inside video files folder.
+            sha256 (str): SHA256 digest of the source video file.
+            position (int): Time position inside the video file for which thumbnail is generated.
 
         Returns:
             True iff thumbnail for the given file position is present in the cache.
@@ -115,9 +116,9 @@ class ThumbnailCache:
         ThumbnailCache.delete() method should be used instead.
 
         Args:
-            path (String): Source video file path inside video files folder.
-            sha256 (String): SHA256 digest of the source video file.
-            position (Integer): Time position inside the video file for which thumbnail is generated.
+            path (str): Source video file path inside video files folder.
+            sha256 (str): SHA256 digest of the source video file.
+            position (int): Time position inside the video file for which thumbnail is generated.
 
         Returns:
             Path to the cached thumbnail file or None if cache entry doesn't exist.
@@ -133,9 +134,9 @@ class ThumbnailCache:
         """Delete thumbnail from the cache.
 
         Args:
-            path (String): Source video file path inside video files folder.
-            sha256 (String): SHA256 digest of the source video file.
-            position (Integer): Time position inside the video file for which thumbnail is generated.
+            path (str): Source video file path inside video files folder.
+            sha256 (str): SHA256 digest of the source video file.
+            position (int): Time position inside the video file for which thumbnail is generated.
 
         Returns:
             True iff the thumbnail was found in and evicted from the cache.
@@ -150,7 +151,7 @@ class ThumbnailCache:
     def _write(self, path, sha256, position, thumbnail, write_file):
         """Write cache entry value."""
         with self.database.session_scope() as session:
-            entry = self._get_or_create(session, path, sha256, position)
+            entry = self._get_or_create(session, path, sha256, position, suffix=self.suffix)
             entry.last_access = datetime.utcnow()
             entry_path = os.path.join(self.directory, entry.thumbnail)
             write_file(thumbnail, entry_path)
@@ -189,7 +190,7 @@ class ThumbnailCache:
         )
 
     @staticmethod
-    def _get_or_create(session, path, sha256, position, suffix=".png"):
+    def _get_or_create(session, path, sha256, position, suffix=""):
         """Get record if exists, or create a new one otherwise."""
         entry = ThumbnailCache._record(session, path, sha256, position).first()
         if entry is not None:
