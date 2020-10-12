@@ -1,4 +1,3 @@
-import { randomPreview } from "../MockServer/fake-data/preview";
 import { randomObjects } from "../MockServer/fake-data/objects";
 
 /**
@@ -56,7 +55,7 @@ export default class Transform {
       stdAverage: data.meta.video_avg_std,
       maxDiff: data.meta.video_max_dif,
       flagged: data.meta.flagged,
-      length: data.meta.video_length * 1000,
+      length: data.meta.video_length * 1000 || data.exif?.General_Duration,
     };
   }
 
