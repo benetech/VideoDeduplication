@@ -19,7 +19,7 @@ def findVideoMetada_mediainfo(pathToInputVideo):
         [String]: Text output from runnning the mediainfo command
     """
 
-    cmd = "mediainfo -f --Language=raw {}".format(pathToInputVideo)
+    cmd = "mediainfo -f --Language=raw {}".format(shlex.quote(pathToInputVideo))
     args = shlex.split(cmd)
     mediaInfo_output = subprocess.check_output(args).decode('utf-8')
     
