@@ -86,7 +86,7 @@ export default class Transform {
     if (!scenes || scenes.length === 0) {
       return [
         {
-          preview: randomPreview(),
+          preview: `/api/v1/files/${file.id}/thumbnail?time=0`,
           position: 0,
           duration: (file.meta && file.meta.video_length * 1000) || 0,
         },
