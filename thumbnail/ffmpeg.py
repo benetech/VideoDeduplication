@@ -2,24 +2,19 @@ import datetime
 import os
 import subprocess
 import tempfile
+from os.path import getsize
 
 
-def extract_frame(source_path, position=0, destination=None, compression=2, width=320):
+def extract_frame(source_path, destination, position=0, compression=2, width=320):
     """Extract single frame from the given video file using ffmpeg utility.
 
     Args:
         source_path (str): Path to the video file from which to extract the frame.
+        destination (str): Path of the destination image file.
         position (int): Time position of the frame inside video (in seconds).
-        destination (str): Path of the destination image file. If None a file in temporary location will be created.
         compression (int): JPEG compression (normal range is 2-31 with 31 being the worst quality).
         width (int): Scaled frame width.
     """
-    # Create a temporary destination file if needed
-    if destination is None:
-        file, path = tempfile.mkstemp(suffix=".jpg")
-        os.close(file)
-        destination = path
-
     # Get frame position timestamp as hh:mm:ss
     timestamp = str(datetime.timedelta(seconds=position))
 
@@ -62,4 +57,37 @@ def extract_frame(source_path, position=0, destination=None, compression=2, widt
     ]
 
     subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    return destination
+
+
+def extract_frame_tmp(source_path, position=0, compression=2, width=320, directory=None):
+    """Extract single frame from the given video file to a temporary location.
+
+    This is a convenience shortcut for calling extract_frame(), except that it safely stores extracted
+    frame to a new tmp file with random name.
+
+    Args:
+        source_path (str): Path to the video file from which to extract the frame.
+        position (int): Time position of the frame inside video (in seconds).
+        compression (int): JPEG compression (normal range is 2-31 with 31 being the worst quality).
+        width (int): Scaled frame width.
+        directory (str): Directory in which to create an image file. If None, default platform temporary location is used.
+
+    Returns:
+        Path of the created image file. None if position exceeds video length.
+    """
+    # Reserve a temporary location
+    file, tmp_path = tempfile.mkstemp(suffix=".jpg", dir=directory)
+    os.close(file)
+
+    try:
+        extract_frame(source_path, destination=tmp_path, position=position, compression=compression, width=width)
+
+        # Check position exceeds video length
+        if getsize(tmp_path) == 0:
+            os.remove(tmp_path)
+            return None
+
+        return tmp_path
+    except Exception:
+        os.remove(tmp_path)
+        raise

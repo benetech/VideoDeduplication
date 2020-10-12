@@ -10,7 +10,7 @@ from sqlalchemy import or_, func, literal_column
 from sqlalchemy.orm import aliased
 
 from db.schema import Files, Exif, VideoMetadata, Matches, Signature, Scene
-from thumbnail.ffmpeg import extract_frame
+from thumbnail.ffmpeg import extract_frame_tmp
 from .blueprint import api
 from .helpers import file_matches, parse_boolean, parse_positive_int, parse_date, parse_enum, get_config, has_matches, \
     get_thumbnails, resolve_video_file_path
@@ -299,11 +299,9 @@ def get_thumbnail(file_id):
     thumbnail = thumbnails_cache.get(file.file_path, file.sha256, position=time)
     if thumbnail is None:
         video_path = resolve_video_file_path(file.file_path)
-        thumbnail = extract_frame(video_path, position=time)
-        if getsize(thumbnail) == 0:
-            os.remove(thumbnail)
+        thumbnail = extract_frame_tmp(video_path, position=time)
+        if thumbnail is None:
             abort(HTTPStatus.NOT_FOUND.value, f"Timestamp exceeds video length: {time}")
-        thumbnail = thumbnails_cache.move(file.file_path, file.sha256, position=time,
-                                          thumbnail=extract_frame(video_path, position=time))
+        thumbnail = thumbnails_cache.move(file.file_path, file.sha256, position=time, thumbnail=thumbnail)
 
     return send_from_directory(dirname(thumbnail), basename(thumbnail))
