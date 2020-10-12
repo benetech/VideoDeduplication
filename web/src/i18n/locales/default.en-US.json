@@ -169,6 +169,7 @@
     "filter.defaultMaxDate": "maximal date",
     "filter.defaultMinDate": "minimal date",
     "filter.creationDate": "Creation date (mm/dd/yyyy)",
-    "filter.creationDate.help": "Based on file creation date."
+    "filter.creationDate.help": "Based on file creation date.",
+    "preview.notAvailable": "Preview not available."
   }
 }
