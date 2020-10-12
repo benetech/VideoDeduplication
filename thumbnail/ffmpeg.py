@@ -35,10 +35,9 @@ def extract_frame(source_path, position=0, destination=None, compression=2, widt
         # Input file path
         "-i", source_path,
 
-        # -vframes number (output)
-        # Set the number of video frames to output. This is an obsolete alias for -frames:v,
-        # which you should use instead. See https://ffmpeg.org/ffmpeg.html#Video-Options
-        "-vframes", "1",
+        # -frames[:stream_specifier] framecount
+        # Set the number of frames to output. See https://ffmpeg.org/ffmpeg.html#Main-options
+        "-frames:v", "1",
 
         # -q[:stream_specifier] q
         # Use fixed quality scale (VBR). The meaning of q/qscale is codec-dependent. 'v' means video stream.
