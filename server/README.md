@@ -39,6 +39,8 @@ Server honors the following environment variables:
  * `VIDEO_FOLDER` - folder with video-files to serve
  * `DUPLICATE_DISTANCE` - maximal distance between duplicate videos (default is `0.1`)
  * `RELATED_DISTANCE` - maximal distance between related videos (default is `0.4`) 
+ * `THUMBNAIL_CACHE_FOLDER` - folder in which thumbnails will be stored (default is `thumbnails_cache`)
+ * `THUMBNAIL_CACHE_CAP` - maximal number of thumbnails to be cached (default is `1000`)
  
 
 

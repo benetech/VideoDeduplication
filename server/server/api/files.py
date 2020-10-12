@@ -1,7 +1,6 @@
-import os
 from datetime import datetime
 from http import HTTPStatus
-from os.path import dirname, basename, getsize
+from os.path import dirname, basename
 from typing import List, Dict
 
 from dataclasses import dataclass, field
