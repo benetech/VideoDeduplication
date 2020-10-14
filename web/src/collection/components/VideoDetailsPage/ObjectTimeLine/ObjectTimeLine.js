@@ -7,7 +7,7 @@ import ObjectGroup from "./ObjectGroup";
 import { groupObjects } from "../groupObjects";
 import { useIntl } from "react-intl";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   timeline: {
     /**
      * Required for child-elements absolute positioning

@@ -7,7 +7,7 @@ import ObjectGroupList from "./ObjectGroupList";
 import { groupObjects } from "../groupObjects";
 import ObjectGroupListItem from "./ObjectGroupListItem";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   objectPane: {
     height: 574,
     overflow: "auto",

@@ -15,7 +15,7 @@ import { selectColl, selectFileMatches } from "./selectors";
 function* fetchFileMatchesSaga(server, action) {
   try {
     // Determine current query params
-    const { limit, offset, filters } = yield select(selectFileMatches);
+    const { limit, offset } = yield select(selectFileMatches);
 
     // Send request to the server
     const resp = yield call([server, server.fetchFileMatches], {

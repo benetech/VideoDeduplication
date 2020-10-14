@@ -7,10 +7,6 @@ import Button from "../../../common/components/Button";
 import Grid from "@material-ui/core/Grid";
 import VideoPlayerPane from "./VideoPlayerPane";
 import VideoInformationPane from "./VideoInformationPane";
-import {
-  randomFile,
-  randomMatches,
-} from "../../../server-api/MockServer/fake-data/files";
 import { seekTo } from "./seekTo";
 import FileSummaryHeader from "../FileSummaryHeader";
 import FileActionHeader from "../FileActionsHeader";

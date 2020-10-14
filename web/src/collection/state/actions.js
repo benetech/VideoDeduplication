@@ -69,5 +69,5 @@ export const ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE =
   "coll.UPDATE_FILE_MATCH_FILTERS_FAILURE";
 
 export function updateFileMatchFiltersFailure(error) {
-  return { type: ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE };
+  return { type: ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE, error };
 }

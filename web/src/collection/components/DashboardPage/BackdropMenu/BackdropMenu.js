@@ -6,7 +6,7 @@ import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import Backdrop from "../../../../common/components/Backdrop";
 import BackdropMenuItem from "./BackdropMenuItem";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   close: {
     display: "none",
   },

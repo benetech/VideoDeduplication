@@ -89,8 +89,8 @@ function ExifPanel(props) {
       <div className={classes.table}>
         <Table>
           <TableBody>
-            {attributes.map((attr, index) => (
-              <TableRow>
+            {attributes.map((attr) => (
+              <TableRow key={attr.title}>
                 <TableCell className={classes.attrName}>{attr.title}</TableCell>
                 <TableCell className={classes.attrValue}>
                   {attr.value}

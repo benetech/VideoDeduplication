@@ -5,7 +5,7 @@ import ButtonGroup from "@material-ui/core/ButtonGroup";
 import { makeStyles } from "@material-ui/styles";
 import ButtonSelectOption from "./ButtonSelectOption";
 
-const useStyles = makeStyles((them) => ({
+const useStyles = makeStyles(() => ({
   option: {
     textTransform: "none",
   },

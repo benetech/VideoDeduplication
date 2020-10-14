@@ -4,8 +4,6 @@ import FilterList from "./FilterList";
 import { useFilters } from "./useFilters";
 import { useIntl } from "react-intl";
 import RangeFilter from "./RangeFilter";
-import BoolFilter from "./BoolFilter";
-import DateRangeFilter from "./DateRangeFilter";
 
 /**
  * Get i18n text

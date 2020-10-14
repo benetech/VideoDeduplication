@@ -99,6 +99,7 @@ function AppMenuHeader(props) {
 AppMenuHeader.propTypes = {
   open: PropTypes.bool.isRequired,
   onToggle: PropTypes.func,
+  "aria-controls": PropTypes.string,
   className: PropTypes.string,
 };
 

@@ -8,7 +8,7 @@ import ReactPlayer from "react-player";
 import TimeCaption from "./TimeCaption";
 import VideoController from "./VideoController";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   container: {},
   preview: {
     width: "100%",
