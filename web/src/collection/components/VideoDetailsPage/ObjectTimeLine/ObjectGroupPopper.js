@@ -48,15 +48,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ObjectGroupPopper(props) {
-  const {
-    objects,
-    onClose,
-    onJump,
-    className,
-    onKeyClose,
-    autoFocusItem = true,
-    ...other
-  } = props;
+  const { objects, onClose, onJump, className, onKeyClose, ...other } = props;
   const classes = useStyles();
 
   const [focusIndex, setFocusIndex] = useState(0);
@@ -121,13 +113,13 @@ ObjectGroupPopper.propTypes = {
    */
   onJump: PropTypes.func,
   /**
-   * Auto-focus on the first element when open
-   */
-  autoFocusItem: PropTypes.bool,
-  /**
    * On close triggered by keyboard
    */
   onKeyClose: PropTypes.func,
+  /**
+   * On popper close.
+   */
+  onClose: PropTypes.func,
   className: PropTypes.string,
 };
 

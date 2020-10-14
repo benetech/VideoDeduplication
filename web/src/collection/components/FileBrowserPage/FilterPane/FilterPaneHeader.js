@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function FilterPaneHeader(props, ref) {
+function FilterPaneHeader(props) {
   const {
     onClose,
     onSave,
@@ -92,6 +92,7 @@ FilterPaneHeader.propTypes = {
   onClose: PropTypes.func,
   onSave: PropTypes.func,
   className: PropTypes.string,
+  "aria-controls": PropTypes.string,
 };
 
 export default FilterPaneHeader;

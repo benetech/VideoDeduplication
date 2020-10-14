@@ -17,6 +17,7 @@ export const fileAttributes = [
   },
   {
     title: "file.type",
+    // eslint-disable-next-line react/display-name
     value: (file) => <FileType type={file.metadata.fileType} />,
   },
   {
@@ -44,6 +45,7 @@ export const fileAttributes = [
   },
   {
     title: "file.exif",
+    // eslint-disable-next-line react/display-name
     value: (file) => <Bool value={file.exif != null} />,
   },
   {
@@ -52,6 +54,7 @@ export const fileAttributes = [
   },
   {
     title: "file.hasAudio",
+    // eslint-disable-next-line react/display-name
     value: (file) => <Bool value={file.metadata.hasAudio} />,
   },
 ];

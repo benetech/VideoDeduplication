@@ -62,11 +62,14 @@ services:
       DATABASE_NAME: "videodeduplicationdb"
       DATABASE_USER: "postgres"
       DATABASE_PASS: "admin"
-      VIDEO_FOLDER: "/project/data"
+      VIDEO_FOLDER: "/project/data/"
+      THUMBNAIL_CACHE_FOLDER: "/project/thumbnails"
+      THUMBNAIL_CACHE_CAP: 10000
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
-      # on your host machine where you placed the source data
-      - "${BENETECH_DATA_LOCATION:?\n\nPlease set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
+      # on your host machine where you placed your video files
+      # FIXME: drop test_dataset part (#153)
+      - "${BENETECH_DATA_LOCATION:?\n\nPlease set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}/test_dataset:/project/data"
     ports:
       - "${BENETECH_SERVER_PORT:-5000}:5000"
     depends_on:

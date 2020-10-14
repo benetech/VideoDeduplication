@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import MuiButton from "@material-ui/core/Button";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   button: {
     textTransform: "none",
     boxShadow: "none",

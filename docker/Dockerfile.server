@@ -19,6 +19,11 @@ ADD ["server", "/server"]
 ADD ["db", "/server/db"]
 WORKDIR /server
 
+# Install ffmpeg
+RUN apt-get update && \
+    apt-get install ffmpeg -y
+
+# Install python dependencies
 RUN pip install -r requirements.txt
 
 COPY --from=web /web/build /server/static

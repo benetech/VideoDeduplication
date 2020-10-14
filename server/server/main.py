@@ -6,6 +6,7 @@ from flask import Flask
 from server.api import api as api_blueprint
 from server.config import Config
 from server.model import database
+from thumbnail.cache import ThumbnailCache
 
 
 def setup_frontend(app, basename=''):
@@ -24,6 +25,8 @@ def create_application(config):
     app.config['SQLALCHEMY_DATABASE_URI'] = config.database.uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['CONFIG'] = config
+    app.config['THUMBNAILS'] = ThumbnailCache(directory=config.thumbnail_cache_folder,
+                                              capacity=config.thumbnail_cache_cap)
 
     app.register_blueprint(api_blueprint, url_prefix='/api/v1')
 

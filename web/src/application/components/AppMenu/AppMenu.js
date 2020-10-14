@@ -7,7 +7,6 @@ import AppMenuListItem from "./AppMenuListItem";
 
 import LayersOutlinedIcon from "@material-ui/icons/LayersOutlined";
 import PersonOutlinedIcon from "@material-ui/icons/PersonOutlined";
-import GrainOutlinedIcon from "@material-ui/icons/GrainOutlined";
 import AccountTreeOutlinedIcon from "@material-ui/icons/AccountTreeOutlined";
 import CompareOutlinedIcon from "@material-ui/icons/CompareOutlined";
 import BarChartOutlinedIcon from "@material-ui/icons/BarChartOutlined";

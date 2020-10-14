@@ -13,6 +13,7 @@ export const attributes = [
   },
   {
     title: "file.hasExif",
+    // eslint-disable-next-line react/display-name
     value: (file) => <Bool value={file.metadata.hasEXIF} />,
   },
   {
@@ -21,6 +22,7 @@ export const attributes = [
   },
   {
     title: "file.hasAudio",
+    // eslint-disable-next-line react/display-name
     value: (file) => <Bool value={file.metadata.hasAudio} />,
   },
 ];

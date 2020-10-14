@@ -52,4 +52,6 @@ class Config:
         self.static_folder = os.environ.get("STATIC_FOLDER", "static")
         self.video_folder = os.environ.get("VIDEO_FOLDER", "/project/data")
         self.duplicate_distance = float(os.environ.get("DUPLICATE_DISTANCE", 0.1))
-        self.related_distance = float(os.environ.get("RELATED_DISTANCE", 0.4))
+        self.related_distance = float(os.environ.get("RELATED_DISTANCE", 0.73))
+        self.thumbnail_cache_folder = os.environ.get("THUMBNAIL_CACHE_FOLDER", "./thumbnails_cache")
+        self.thumbnail_cache_cap = int(os.environ.get("THUMBNAIL_CACHE_CAP", 1000))

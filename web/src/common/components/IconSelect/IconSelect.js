@@ -5,7 +5,7 @@ import ButtonGroup from "@material-ui/core/ButtonGroup";
 import IconSelectOption from "./IconSelectOption";
 import { makeStyles } from "@material-ui/styles";
 
-const useStyles = makeStyles((them) => ({
+const useStyles = makeStyles(() => ({
   beforeSelected: {
     borderRightColor: "transparent",
     "&:hover": {

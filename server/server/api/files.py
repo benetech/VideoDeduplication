@@ -1,15 +1,18 @@
 from datetime import datetime
 from http import HTTPStatus
+from os.path import dirname, basename
 from typing import List, Dict
 
 from dataclasses import dataclass, field
-from flask import jsonify, request, abort
+from flask import jsonify, request, abort, send_from_directory
 from sqlalchemy import or_, func, literal_column
 from sqlalchemy.orm import aliased
 
 from db.schema import Files, Exif, VideoMetadata, Matches, Signature, Scene
+from thumbnail.ffmpeg import extract_frame_tmp
 from .blueprint import api
-from .helpers import file_matches, parse_boolean, parse_positive_int, parse_date, parse_enum, get_config, has_matches
+from .helpers import file_matches, parse_boolean, parse_positive_int, parse_date, parse_enum, get_config, has_matches, \
+    get_thumbnails, resolve_video_file_path
 from ..model import database, Transform
 
 
@@ -276,3 +279,28 @@ def get_file(file_id):
     data = Transform.file_dict(file, **include)
     data["matches_count"] = file_matches(file_id).count()
     return jsonify(data)
+
+
+@api.route('/files/<int:file_id>/thumbnail', methods=['GET'])
+def get_thumbnail(file_id):
+    # Get time position
+    time = parse_positive_int(request.args, 'time', default=0)
+
+    # Fetch file from database
+    query = database.session.query(Files)
+    file = query.filter(Files.id == file_id).first()
+
+    # Handle file not found
+    if file is None:
+        abort(HTTPStatus.NOT_FOUND.value, f"File not found: {file_id}")
+
+    thumbnails_cache = get_thumbnails()
+    thumbnail = thumbnails_cache.get(file.file_path, file.sha256, position=time)
+    if thumbnail is None:
+        video_path = resolve_video_file_path(file.file_path)
+        thumbnail = extract_frame_tmp(video_path, position=time)
+        if thumbnail is None:
+            abort(HTTPStatus.NOT_FOUND.value, f"Timestamp exceeds video length: {time}")
+        thumbnail = thumbnails_cache.move(file.file_path, file.sha256, position=time, thumbnail=thumbnail)
+
+    return send_from_directory(dirname(thumbnail), basename(thumbnail))

@@ -20,7 +20,7 @@ export default class Server {
         params: {
           offset,
           limit,
-          include: ["signature", "meta"].join(","),
+          include: ["signature", "meta", "exif"].join(","),
           ...filtersToQueryParams(filters),
         },
       });

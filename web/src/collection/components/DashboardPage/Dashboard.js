@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
-import DropDownButton from "../../../common/components/DropDownButton";
+// import DropDownButton from "../../../common/components/DropDownButton";
 import PieChart from "./PieChart";
 import { useTheme } from "@material-ui/core";
-import BackdropMenu from "./BackdropMenu";
+// import BackdropMenu from "./BackdropMenu";
 import StackedLineChart from "./StackedLineChart";
 import Grid from "@material-ui/core/Grid";
-import useUniqueId from "../../../common/hooks/useUniqueId";
+// import useUniqueId from "../../../common/hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({
   dashboardContainer: {
@@ -37,12 +37,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function useMessages() {
-  const intl = useIntl();
-  return {
-    dashboard: intl.formatMessage({ id: "collection.dashboard.title" }),
-  };
-}
+// function useMessages() {
+//   const intl = useIntl();
+//   return {
+//     dashboard: intl.formatMessage({ id: "collection.dashboard.title" }),
+//   };
+// }
 
 // This data will be retrieved from server.
 const matches = (theme) => [
@@ -85,39 +85,42 @@ const dbMatches = (theme) => ({
   ],
 });
 
-function menuActions(intl) {
-  return [
-    {
-      title: intl.formatMessage({ id: "collection.analytics.matches" }),
-      handler: console.log,
-    },
-    {
-      title: intl.formatMessage({ id: "collection.analytics.mediaClass" }),
-      handler: console.log,
-    },
-    {
-      title: intl.formatMessage({ id: "collection.analytics.dbMatches" }),
-      handler: console.log,
-    },
-    {
-      title: intl.formatMessage({ id: "collection.analytics.advancedSearch" }),
-      handler: console.log,
-    },
-    {
-      title: intl.formatMessage({ id: "collection.analytics.collab" }),
-      handler: console.log,
-    },
-  ];
-}
+// function menuActions(intl) {
+//   return [
+//     {
+//       title: intl.formatMessage({ id: "collection.analytics.matches" }),
+//       handler: console.log,
+//     },
+//     {
+//       title: intl.formatMessage({ id: "collection.analytics.mediaClass" }),
+//       handler: console.log,
+//     },
+//     {
+//       title: intl.formatMessage({ id: "collection.analytics.dbMatches" }),
+//       handler: console.log,
+//     },
+//     {
+//       title: intl.formatMessage({ id: "collection.analytics.advancedSearch" }),
+//       handler: console.log,
+//     },
+//     {
+//       title: intl.formatMessage({ id: "collection.analytics.collab" }),
+//       handler: console.log,
+//     },
+//   ];
+// }
+
+// TODO: Uncomment code when backdrop menu is back again
 
 function Dashboard(props) {
   const { className } = props;
   const classes = useStyles();
-  const messages = useMessages();
+  // const messages = useMessages();
   const theme = useTheme();
   const intl = useIntl();
-  const [showMenu, setShowMenu] = useState(false);
-  const backdropMenuId = useUniqueId("backdrop-menu");
+  // const [showMenu, setShowMenu] = useState(false);
+  const showMenu = false;
+  // const backdropMenuId = useUniqueId("backdrop-menu");
 
   return (
     <div className={clsx(classes.dashboardContainer, className)}>

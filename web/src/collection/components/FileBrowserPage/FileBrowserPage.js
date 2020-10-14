@@ -170,12 +170,6 @@ function FileBrowserPage(props) {
 
   const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
 
-  console.log("COUNTS", {
-    current_length: files.length,
-    counts,
-    type: filters.matches,
-  });
-
   return (
     <div className={clsx(classes.container, className)}>
       <div className={classes.content}>

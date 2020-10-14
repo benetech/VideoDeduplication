@@ -1,3 +1,4 @@
+import os
 import re
 from datetime import datetime
 from http import HTTPStatus
@@ -6,6 +7,7 @@ from flask import current_app, abort
 from sqlalchemy import or_
 
 from db.schema import Matches, Files
+from thumbnail.cache import ThumbnailCache
 from ..config import Config
 from ..model import database
 
@@ -21,6 +23,17 @@ def file_matches(file_id):
 def get_config() -> Config:
     """Get current application config."""
     return current_app.config.get("CONFIG")
+
+
+def get_thumbnails() -> ThumbnailCache:
+    """Get current application thumbnail cache."""
+    return current_app.config.get("THUMBNAILS")
+
+
+def resolve_video_file_path(file_path):
+    """Get path to the video file."""
+    config = get_config()
+    return os.path.join(os.path.abspath(config.video_folder), file_path)
 
 
 _TRUTHY = {'1', 'true', ''}

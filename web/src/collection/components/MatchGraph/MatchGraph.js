@@ -6,7 +6,7 @@ import D3Graph from "./D3Graph";
 import MatchType from "../FileMatchesPage/MatchType";
 import FileType from "../FileBrowserPage/FileType";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     alignItems: "center",

@@ -1,4 +1,3 @@
-import { randomPreview } from "../MockServer/fake-data/preview";
 import { randomObjects } from "../MockServer/fake-data/objects";
 
 /**
@@ -35,7 +34,7 @@ export default class Transform {
       hash: data.sha256,
       fingerprint: data.signature,
       exif: data.exif,
-      preview: randomPreview(),
+      preview: `/api/v1/files/${data.id}/thumbnail?time=0`,
       playbackURL: `/api/v1/files/${data.id}/watch`,
       scenes: this.fileScenes(data),
       objects: [...randomObjects(10, meta.length)],
@@ -56,7 +55,7 @@ export default class Transform {
       stdAverage: data.meta.video_avg_std,
       maxDiff: data.meta.video_max_dif,
       flagged: data.meta.flagged,
-      length: data.meta.video_length * 1000,
+      length: data.meta.video_length * 1000 || data.exif?.General_Duration,
     };
   }
 
@@ -64,7 +63,7 @@ export default class Transform {
     if (file.exif && file.exif.General_FileExtension) {
       return file.exif.General_FileExtension;
     }
-    const match = file.file_path.match(/\.([^\/.]+)$/);
+    const match = file.file_path.match(/\.([^/.]+)$/);
     if (match && match[1]) {
       return match[1];
     } else {
@@ -72,20 +71,21 @@ export default class Transform {
     }
   }
 
-  scene(scene) {
+  scene(scene, file) {
     return {
-      preview: randomPreview(),
+      preview: `/api/v1/files/${file.id}/thumbnail?time=${scene.start_time}`,
       position: scene.start_time * 1000,
       duration: scene.duration * 1000,
     };
   }
 
   fileScenes(file) {
-    const scenes = file.scenes && file.scenes.map((scene) => this.scene(scene));
+    const scenes =
+      file.scenes && file.scenes.map((scene) => this.scene(scene, file));
     if (!scenes || scenes.length === 0) {
       return [
         {
-          preview: randomPreview(),
+          preview: `/api/v1/files/${file.id}/thumbnail?time=0`,
           position: 0,
           duration: (file.meta && file.meta.video_length * 1000) || 0,
         },

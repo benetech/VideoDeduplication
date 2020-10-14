@@ -8,6 +8,7 @@ import VisibilityOutlinedIcon from "@material-ui/icons/VisibilityOutlined";
 import PreviewActions from "./PreviewActions";
 import PreviewCaption from "./PreviewCaption";
 import { useIntl } from "react-intl";
+import NotAvailable from "./NotAvailable";
 
 const useStyles = makeStyles((theme) => ({
   previewContainer: {
@@ -21,6 +22,10 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "100%",
     objectFit: "cover",
+  },
+  fallback: {
+    width: "100%",
+    height: "100%",
   },
   clickable: {
     cursor: "pointer",
@@ -82,6 +87,7 @@ function MediaPreview(props) {
   } = props;
 
   const [preview, setPreview] = useState(false);
+  const [error, setError] = useState(false);
   const classes = useStyles();
   const intl = useIntl();
 
@@ -104,6 +110,11 @@ function MediaPreview(props) {
     }
   }, []);
 
+  /**
+   * Handle image loading error.
+   */
+  const handleError = useCallback(() => setError(true), []);
+
   // Define preview icon
   let previewIcon;
   if (preview) {
@@ -112,13 +123,28 @@ function MediaPreview(props) {
     previewIcon = <VisibilityOutlinedIcon />;
   }
 
-  return (
-    <div className={clsx(classes.previewContainer, className)} {...other}>
+  // Define preview image
+  let image;
+  if (error) {
+    image = (
+      <NotAvailable
+        className={clsx(classes.fallback, { [classes.hide]: !preview })}
+      />
+    );
+  } else {
+    image = (
       <img
         alt={alt}
         src={src}
+        onError={handleError}
         className={clsx(classes.image, { [classes.hide]: !preview })}
       />
+    );
+  }
+
+  return (
+    <div className={clsx(classes.previewContainer, className)} {...other}>
+      {image}
       <div
         className={clsx(classes.previewBackdrop, {
           [classes.previewBackdropHide]: !preview,
