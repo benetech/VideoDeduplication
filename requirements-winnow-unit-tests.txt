@@ -1,0 +1,9 @@
+# This is a minimal requirements for running winnow unit tests only.
+# We should try to avoid heavy dependencies here.
+pytest
+numpy
+sqlalchemy
+pyyaml
+requests
+dataclasses
+psycopg2
