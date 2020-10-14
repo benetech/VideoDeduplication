@@ -1,4 +1,4 @@
-name: Test REST Server
+name: Server Tests
 
 on:
   push:
@@ -23,6 +23,8 @@ jobs:
       - name: Install dependencies
         working-directory: ./server
         run: |
+          echo "DIRECTORY: $(pwd)"
+          ls -l
           python -m pip install --upgrade pip
           pip install flake8
           pip install -r requirements.txt
@@ -30,6 +32,8 @@ jobs:
       - name: Lint with flake8
         working-directory: ./server
         run: |
+          echo "DIRECTORY: $(pwd)"
+          ls -l
           # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
@@ -37,4 +41,6 @@ jobs:
       - name: Test with pytest
         working-directory: ./server
         run: |
+          echo "DIRECTORY: $(pwd)"
+          ls -l
           pytest
