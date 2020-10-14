@@ -1,4 +1,4 @@
-name: Server Tests
+name: Server CI
 
 on:
   push:
