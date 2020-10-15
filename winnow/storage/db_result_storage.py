@@ -1,15 +1,14 @@
 import itertools
+import logging
 from functools import wraps
 from time import time
-
-import logging
-
-logger = logging.getLogger(__name__)
 
 from sqlalchemy import tuple_
 from sqlalchemy.orm import joinedload, aliased
 
 from db.schema import Files, Signature, Scene, VideoMetadata, Matches, Exif
+
+logger = logging.getLogger(__name__)
 
 
 def chunks(iterable, size=100):
