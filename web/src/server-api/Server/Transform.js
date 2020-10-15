@@ -1,4 +1,5 @@
 import { randomObjects } from "../MockServer/fake-data/objects";
+import { parse as parseDate } from "date-fns";
 
 /**
  * Data-transfer object and internal data format may evolve independently, the
@@ -28,7 +29,7 @@ export default class Transform {
         fileType: this.fileType(data),
         hasAudio: data.exif && !!data.exif.Audio_Format,
         hasEXIF: data.exif != null,
-        created: data.created_date * 1000,
+        created: this.fileCreatedDate(data),
         ...meta,
       },
       hash: data.sha256,
@@ -40,6 +41,14 @@ export default class Transform {
       objects: [...randomObjects(10, meta.length)],
       matchesCount: data.matches_count,
     };
+  }
+
+  fileCreatedDate(data) {
+    const value = data?.exif?.General_Encoded_Date;
+    if (value == null) {
+      return null;
+    }
+    return parseDate(value, "'UTC' yyyy-MM-dd HH", new Date());
   }
 
   fileMetadata(data) {

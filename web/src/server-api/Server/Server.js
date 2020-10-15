@@ -45,12 +45,18 @@ export default class Server {
     }
   }
 
-  async fetchFileMatches({ id, limit = 20, offset = 0 }) {
+  async fetchFileMatches({
+    id,
+    limit = 20,
+    offset = 0,
+    fields = ["meta", "exif"],
+  }) {
     try {
       const response = await this.axios.get(`/files/${id}/matches`, {
         params: {
           limit,
           offset,
+          include: fields.join(","),
         },
       });
       const data = this.transform.fetchFileMatchesResults(response.data);
