@@ -1,10 +1,12 @@
 import os
 import re
 from datetime import datetime
+from functools import cached_property
 from http import HTTPStatus
 
 from flask import current_app, abort
 from sqlalchemy import or_
+from sqlalchemy.orm import joinedload
 
 from db.schema import Matches, Files
 from thumbnail.cache import ThumbnailCache
@@ -85,8 +87,47 @@ def parse_enum(args, name, values, default=None):
     return value
 
 
+def parse_enum_seq(args, name, values, default=None):
+    """Parse sequence of enum values."""
+    raw_value = args.get(name)
+    if raw_value is None:
+        return default
+    result = set()
+    for value in raw_value.split(","):
+        if value not in values:
+            abort(HTTPStatus.BAD_REQUEST.value, f"{name} must be a comma-separated sequence of values from {values}")
+        result.add(value)
+    return result
+
+
 def has_matches(threshold):
     """Create a filter criteria to check if there is a match
     with distance lesser or equal to the given threshold."""
     return or_(Files.source_matches.any(Matches.distance <= threshold),
                Files.target_matches.any(Matches.distance <= threshold))
+
+
+class Fields:
+    """Helper class to fetch entity fields."""
+
+    def __init__(self, *fields):
+        self._fields = tuple(fields)
+        self._index = {field.key: field for field in fields}
+
+    @property
+    def fields(self):
+        """List fields."""
+        return self._fields
+
+    @cached_property
+    def names(self):
+        """Set of field names."""
+        return {field.key for field in self.fields}
+
+    def preload(self, query, names, *path):
+        """Enable eager loading for enumerated fields."""
+        for name in names:
+            field = self._index[name]
+            full_path = path + (field,)
+            query = query.options(joinedload(*full_path))
+        return query
