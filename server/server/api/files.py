@@ -8,15 +8,16 @@ from db.schema import Files
 from thumbnail.ffmpeg import extract_frame_tmp
 from .blueprint import api
 from .helpers import parse_boolean, parse_positive_int, parse_date, parse_enum, get_thumbnails, \
-    resolve_video_file_path, Fields, parse_fields, parse_seq
+    resolve_video_file_path, Fields, parse_fields, parse_seq, get_config
 from ..model import database, Transform
 
 # Optional file fields to be loaded
 FILE_FIELDS = Fields(Files.exif, Files.meta, Files.signature, Files.scenes)
 
 
-def parse():
+def parse_params():
     """Parse and validate request arguments."""
+    config = get_config()
     result = ListFilesRequest()
     result.limit = parse_positive_int(request.args, 'limit', 20)
     result.offset = parse_positive_int(request.args, 'offset', 0)
@@ -29,16 +30,18 @@ def parse():
     result.extensions = parse_seq(request.args, "extensions")
     result.date_from = parse_date(request.args, "date_from")
     result.date_to = parse_date(request.args, "date_to")
-    result.match_category = parse_enum(request.args, "matches",
-                                       values=FileMatchFilter.values,
-                                       default=FileMatchFilter.ALL)
+    result.match_filter = parse_enum(request.args, "matches",
+                                     values=FileMatchFilter.values,
+                                     default=FileMatchFilter.ALL)
+    result.related_distance = config.related_distance
+    result.duplicate_distance = config.duplicate_distance
     result.sort = parse_enum(request.args, "sort", values=FileSort.values, default=None)
     return result
 
 
 @api.route('/files/', methods=['GET'])
 def list_files():
-    req = parse()
+    req = parse_params()
 
     results = FilesDAO.list_files(req, database.session)
     include_flags = {field.key: True for field in req.preload}
