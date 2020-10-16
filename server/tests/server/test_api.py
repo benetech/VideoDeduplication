@@ -8,7 +8,7 @@ from uuid import uuid4 as uuid
 
 import pytest
 
-from db.files_dao import FileMatchFilter, FileSort
+from db.access.files import FileMatchFilter, FileSort
 from db.schema import Files, Base, Exif, VideoMetadata, Scene, Matches
 from server.config import Config
 from server.main import create_application
@@ -455,7 +455,7 @@ def test_list_files_filter_matches(client, app, config):
     resp = client.get(f"/api/v1/files/?limit={len(all_files)}")
     assert_files(resp, expected=all_files, total=len(all_files), related=len(related), duplicates=len(duplicates))
 
-    # Get explicitly
+    # Get all explicitly
     resp = client.get(f"/api/v1/files/?matches={FileMatchFilter.ALL}&limit={len(all_files)}")
     assert_files(resp, expected=all_files, total=len(all_files), related=len(related), duplicates=len(duplicates))
 

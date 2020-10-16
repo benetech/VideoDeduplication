@@ -1,7 +1,7 @@
 from flask import jsonify, request
 from sqlalchemy.orm import joinedload
 
-from db.files_dao import FilesDAO
+from db.access.files import FilesDAO
 from db.schema import Matches, Files
 from .blueprint import api
 from .helpers import parse_positive_int, Fields, parse_enum_seq

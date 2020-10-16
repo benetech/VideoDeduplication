@@ -3,7 +3,7 @@ from os.path import dirname, basename
 
 from flask import jsonify, request, abort, send_from_directory
 
-from db.files_dao import ListFilesRequest, FileMatchFilter, FileSort, FilesDAO
+from db.access.files import ListFilesRequest, FileMatchFilter, FileSort, FilesDAO
 from db.schema import Files
 from thumbnail.ffmpeg import extract_frame_tmp
 from .blueprint import api
