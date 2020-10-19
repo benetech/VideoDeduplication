@@ -11,7 +11,7 @@ import shutil
 from winnow.feature_extraction.extraction_routine import load_featurizer
 from winnow.feature_extraction.utils import load_image,load_video,download_file
 from winnow.storage.repr_storage import ReprStorage
-
+import yaml
 
 class SearchEngine:
     def __init__(self, templates_root, reprs: ReprStorage, model):
@@ -48,7 +48,7 @@ class SearchEngine:
             
         return cache
         
-    def create_annotation_report(self,threshold = 0.07,fp = 'template_test.csv',queries = None):
+    def create_annotation_report(self,threshold = 0.07,fp = 'template_test.csv',queries = None,frame_sampling = 1):
 
         """Creates an annotation report suitable for annotation (using our own Annotator class)
         
@@ -70,26 +70,26 @@ class SearchEngine:
         print(self.available_queries)
 
         if self.results_cache:
-
+            
             records = pd.DataFrame.from_records(self.results_cache,index=None).reset_index()
+            
+            # Massage template matching results
+            df = pd.melt(records,id_vars=['level_0','level_1'])
+            msk = df['variable'] != 'Unnamed: 0'
+            df = df.loc[msk,:]
+            # Convert df into a more suitable format to be saved
+            df.rename(columns = {'level_0':'fn','level_1':'sha256','variable':'template_name'},inplace=True)
+            additional_info = df.loc[:,['value']].to_dict('records')
+            additional_info = [x['value'] for x in additional_info]
+            add_df = pd.DataFrame.from_records(x for x in additional_info)
+            df['distance'] = add_df['distance']
+            df['closest_match'] = add_df['closest_match']
+            # This will adjust the time sampling to the sampling rate (ideally this should be sourced from the DB and not from the config file)
+            df['closest_match_time'] = df['closest_match'].apply(lambda x: datetime.timedelta(seconds=x * frame_sampling))
+            df.drop(columns=['value'],inplace=True)
 
-            df = pd.melt(records,id_vars='index')
-            additional_columns = pd.json_normalize(df['value'])
-            df['distance'] = additional_columns['distance']
-            df['closest_match'] = additional_columns['closest_match']
-            df['closest_match_time'] = df['closest_match'].apply(lambda x: datetime.timedelta(seconds=x))
-            df.drop(labels='value',axis=1,inplace=True)
-            summaries = dict() 
-            for k,v in self.available_queries.items():        
-                n = '{}.npy'.format(k)
-                summaries[k] = n
-                np.save(n,create_template_summary(glob(v + '/**')))
-            df['match_video'] = df['index'].apply(lambda x:x.split('/')[-1].split('_vgg')[0])
-            df['query_video'] = df['variable'].apply(lambda x:summaries[x])
-            msk = df['distance'] < threshold
-            filtered = df.loc[msk,:]
-            filtered.to_csv(fp)
-            return filtered
+            return df
+            
 
         elif not self.available_queries:
             raise Exception('No templates were found. Please check if the templates are located at {}'.format(self.templates_root))
@@ -120,11 +120,10 @@ class SearchEngine:
                     min_d = 1.0
                 
                 
-                self.results_cache[query][(path, sha256)]['distance'] = min_d
-                self.results_cache[query][(path, sha256)]['closest_match'] = frame_of_interest_index
+                self.results_cache[query][(path, sha256)]["distance"] = min_d
+                self.results_cache[query][(path, sha256)]["closest_match"] = frame_of_interest_index
         
                 if (min_d < threshold) and plot:
-                    # print('Minimum distance:{}'.format(min_d))
                     
                     frame_of_interest = np.hstack(video_frames[frame_of_interest_index:][:5])
                     plt.figure(figsize=(20,10))

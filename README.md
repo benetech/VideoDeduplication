@@ -229,6 +229,13 @@ Template Object Matching
 
 `python template_matching.py`
 
+Arguments:
+
+    '--override', '-ovr' : Overrides the previous template matches saved on the DB [default:False]
+    '--template-dir', '-td' : path to a directory containing templates - overrides source folder from the config file' 
+    [default:'']
+    
+
 Exif Extraction
 
 `python extract_exif.py`

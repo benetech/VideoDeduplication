@@ -1,5 +1,6 @@
 import itertools
 from functools import wraps
+from collections import defaultdict
 from time import time
 
 import logging
@@ -9,7 +10,7 @@ logger = logging.getLogger(__name__)
 from sqlalchemy import tuple_
 from sqlalchemy.orm import joinedload, aliased
 
-from db.schema import Files, Signature, Scene, VideoMetadata, Matches, Exif
+from db.schema import Files, Signature, Scene, VideoMetadata, Matches, Exif,Templatematches
 
 
 def chunks(iterable, size=100):
@@ -107,6 +108,40 @@ class DBResultStorage:
             # Write new scenes
             file.scenes = self._create_scenes(file, durations)
             session.add_all(file.scenes)
+    
+    # @benchmark
+    def add_template_matches(self,entries,override=False):
+
+        
+        for chunk in chunks(entries, len(entries)):
+
+            with self.database.session_scope() as session:
+
+                index = {}
+                for path,sha256,template_match in chunk:
+                    
+                    if (path,sha256) in index:
+
+                        index[(path,sha256)].append(template_match)
+
+                    else:
+                        index[(path,sha256)] = [template_match]
+
+                
+                query = session.query(Files).options(joinedload(Files.templatematches))
+                files = query.filter(self._by_path_and_hash(list(index.keys()))).all()
+                print("Number of files found",len(files))
+                # Delete existing template_matches
+                if override:
+                    self._delete_file_template_matches(session, *files)
+
+                # Update existing files
+                for file in files:
+                    tm = index.pop((file.file_path, file.sha256))
+                    new_tm = self._create_template_matches(file,tm,file.templatematches)
+                    if len(new_tm) > 0:
+                        
+                        file.templatematches =  file.templatematches + new_tm
 
     @benchmark
     def add_scenes(self, entries, override=False):
@@ -197,7 +232,7 @@ class DBResultStorage:
                     new_file.meta = metadata_entity
                     new_files.append(new_file)
                 session.add_all(new_files)
-
+    
     @benchmark
     def add_matches(self, entries):
         """Add file matches.
@@ -293,6 +328,13 @@ class DBResultStorage:
         scenes = itertools.chain(*(file.scenes or () for file in files))
         return [scene.id for scene in scenes]
 
+   
+    @staticmethod
+    def _template_matches_ids(session,*files):
+        """Get all template_matches ids associated with the given files."""
+        template_matches = itertools.chain(*(file.templatematches or () for file in files))
+        return [template_match.id for template_match in template_matches]
+
     @staticmethod
     def _delete_file_scenes(session, *files):
         """Delete all scenes associated with the given files."""
@@ -302,6 +344,50 @@ class DBResultStorage:
             file.scenes = []
 
     @staticmethod
+    def _delete_file_template_matches(session, *files):
+        """Delete all scenes associated with the given files."""
+        existing_template_matches_ids = DBResultStorage._template_matches_ids(*files)
+        
+        session.query(Templatematches).filter(Templatematches.id.in_(existing_template_matches_ids)).delete(synchronize_session="fetch")
+        for file in files:
+            file.template_matches = []
+
+    @staticmethod
+    def _filter_unique_templates(old_templates,new_templates):
+
+        filtered = []
+        seen = dict({f'{element.file_id}{element.template_name}': True for element in old_templates})
+
+        for element in new_templates:
+            hsh = f'{element["file_id"]}{element["template_name"]}'  
+            if hsh not in seen:
+                filtered.append(element)
+                seen[hsh] = True
+        
+        return filtered
+    
+    @staticmethod
+    def _create_template_matches(file, tp_match,old_templates):
+        """Create Template Matches entities for the given file from the durations."""
+        seen = dict({f'{element.file_id}{element.template_name}': True for element in old_templates})
+        tm = []            
+        for match in tp_match:
+
+            hsh = f'{file.id}{match["template_name"]}'
+        
+            if hsh not in seen:
+            
+                tm.append(Templatematches(
+                    file=file,
+                    file_id = file.id,
+                    distance=match['distance'],
+                    template_name=match['template_name'],
+                    closest_match = match['closest_match'],
+                    closest_match_time=match['closest_match_time']))
+
+        
+        return tm
+        
     def _create_scenes(file, durations):
         """Create scene entities for the given file from the durations."""
         scenes = []
