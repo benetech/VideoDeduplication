@@ -1,9 +1,9 @@
 import datetime
 
 from sqlalchemy import Column, String, Integer, LargeBinary, Boolean, \
-    Float, JSON, ForeignKey, UniqueConstraint, DateTime
+    Float, JSON, ForeignKey, UniqueConstraint, DateTime,PrimaryKeyConstraint,event
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship,backref,object_session
 
 Base = declarative_base()
 
@@ -19,6 +19,7 @@ class Files(Base):
     signature = relationship("Signature", uselist=False, back_populates="file")
     meta = relationship("VideoMetadata", uselist=False, back_populates="file")
     scenes = relationship("Scene", back_populates="file")
+    templatematches = relationship("Templatematches", back_populates="file",cascade='all, delete-orphan')
     exif = relationship("Exif", uselist=False, back_populates="file")
 
     # TODO: find a way to merge these two relationships
@@ -68,6 +69,35 @@ class Scene(Base):
     file = relationship("Files", back_populates="scenes")
     duration = Column(Integer)
     start_time = Column(Integer)
+
+
+class Templatematches(Base):
+    __tablename__ = 'templatematches'
+    # __table_args__ = (UniqueConstraint('file_id', 'template_name'),)
+    id = Column(Integer,autoincrement=True,primary_key=True)
+    file_id = Column(Integer, ForeignKey('files.id'), nullable=True)
+    file = relationship("Files",back_populates='templatematches')
+    template_name = Column(String)
+    distance = Column(Float)
+    closest_match = Column(Float)
+    closest_match_time = Column(String)
+
+@event.listens_for(Files.templatematches,"remove")
+def rem(state,item,initiator):
+    sess = object_session(item)
+
+    # ensure we have a session
+    assert sess is not None
+
+    # ensure the item is marked deleted.  the cascade
+    # rule may have done so already but not always.
+    sess.delete(item)
+
+    # flush *just this one item*.  This is a special
+    # feature of flush, not for general use.
+    sess.flush([item])
+
+
 
 
 class Matches(Base):

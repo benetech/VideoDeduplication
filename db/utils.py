@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from winnow.utils import get_hash
-from .schema import Files, Signature, Scene, VideoMetadata, Matches, Exif, Base
+from .schema import Files, Signature, Scene, VideoMetadata, Matches, Exif, Base, Templatematches
 
 
 # TODO: Migrate to winnow.storage.db_result_storage API.
@@ -273,3 +273,4 @@ def add_exif(session, exif_df, json_list):
 def get_all(session, instance):
     query = session.query(instance)
     return query.all()
+
