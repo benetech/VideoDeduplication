@@ -106,3 +106,41 @@ def test_list_file_matches_multiple_paths(database: Database):
         req = FileMatchesRequest(file=source, hops=4)
         resp = MatchesDAO.list_file_matches(req, session)
         assert_file_set(resp, expected=[source, a1, a2, a3, a4, b1, b2, b3, b4])
+
+
+def test_list_file_matches_filter_distance(database: Database):
+    short, long = 0.1, 0.9
+    with database.session_scope(expunge=True) as session:
+        # Create files
+        source = make_file()
+        path_a = make_files(4)
+        path_b = make_files(4)
+        session.add(source)
+        session.add_all(path_a)
+        session.add_all(path_b)
+
+        # Link files
+        a1, a2, a3, a4 = path_a
+        b1, b2, b3, b4 = path_b
+        session.add_all([
+            link(source, a1, short), link(a2, a1, short), link(a2, a3, short), link(a4, a3, short),
+            link(b1, source, long), link(b1, b2, long), link(b2, b3, long), link(b4, b3, long),
+        ])
+
+    # Query all
+    with database.session_scope(expunge=True) as session:
+        req = FileMatchesRequest(file=source, hops=4)
+        resp = MatchesDAO.list_file_matches(req, session)
+        assert_file_set(resp, expected=[source, a1, a2, a3, a4, b1, b2, b3, b4])
+
+    # Query short
+    with database.session_scope(expunge=True) as session:
+        req = FileMatchesRequest(file=source, hops=4, max_distance=short)
+        resp = MatchesDAO.list_file_matches(req, session)
+        assert_file_set(resp, expected=[source, a1, a2, a3, a4])
+
+    # Query long
+    with database.session_scope(expunge=True) as session:
+        req = FileMatchesRequest(file=source, hops=4, min_distance=long)
+        resp = MatchesDAO.list_file_matches(req, session)
+        assert_file_set(resp, expected=[source, b1, b2, b3, b4])

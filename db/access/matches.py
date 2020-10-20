@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from sqlalchemy import Column
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, aliased, contains_eager
 
 from db.schema import Files, Matches
 
@@ -43,8 +43,6 @@ class MatchesDAO:
     def list_file_matches(req: FileMatchesRequest, session) -> FileMatchesResult:
         """List single file's matches."""
         files = []
-        matches = []
-        seen_matches = set()
         # ids of files that was loaded during previous
         # steps or will be loaded during the current step
         seen = {req.file.id}
@@ -59,9 +57,8 @@ class MatchesDAO:
 
             # Perform current step in equal-sized chunks
             for chunk in _chunks(current_step):
-                query = session.query(Files).options(
-                    joinedload(Files.source_matches),
-                    joinedload(Files.target_matches))
+                query = session.query(Files)
+                query = MatchesDAO._join_matches(query, req)
                 query = MatchesDAO._preload_file_attrs(query, req.preload)
                 items = query.filter(Files.id.in_(chunk)).all()
                 for file in items:
@@ -106,5 +103,18 @@ class MatchesDAO:
         return matches
 
     @staticmethod
-    def _apply_match_filters(query, req):
+    def _join_matches(query, req):
         """Apply filters by match attributes."""
+        outgoing = aliased(Matches)
+        incoming = aliased(Matches)
+        return query. \
+            outerjoin(outgoing,
+                      (outgoing.query_video_file_id == Files.id) &
+                      (outgoing.distance >= req.min_distance) &
+                      (outgoing.distance <= req.max_distance)). \
+            outerjoin(incoming,
+                      (incoming.match_video_file_id == Files.id) &
+                      (incoming.distance >= req.min_distance) &
+                      (incoming.distance <= req.max_distance)). \
+            options(contains_eager(Files.source_matches, alias=outgoing)). \
+            options(contains_eager(Files.target_matches, alias=incoming))
