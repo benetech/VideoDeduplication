@@ -386,7 +386,8 @@ class DBResultStorage:
 
         
         return tm
-        
+
+    @staticmethod 
     def _create_scenes(file, durations):
         """Create scene entities for the given file from the durations."""
         scenes = []
