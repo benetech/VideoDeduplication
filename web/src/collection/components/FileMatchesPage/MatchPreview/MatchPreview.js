@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(0.5),
   },
   name: {
-    ...theme.mixins.textEllipsisStart,
+    ...theme.mixins.textEllipsis,
     ...theme.mixins.title4,
     color: theme.palette.primary.main,
     fontWeight: "bold",

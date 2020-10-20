@@ -47,7 +47,7 @@ class Transform:
 
     @staticmethod
     @serializable
-    def file_dict(file, meta=False, signature=False, scenes=False, exif=False):
+    def file_dict(file, *, meta=False, signature=False, scenes=False, exif=False):
         data = {
             "id": file.id,
             "file_path": file.file_path,
@@ -92,12 +92,12 @@ class Transform:
 
     @staticmethod
     @serializable
-    def file_match_dict(match, file_id):
+    def file_match_dict(match, file_id, *, meta=False, signature=False, scenes=False, exif=False):
         if match.query_video_file.id != file_id:
             matched = match.query_video_file
         else:
             matched = match.match_video_file
         return {
             "distance": match.distance,
-            "file": Transform.file_dict(matched)
+            "file": Transform.file_dict(matched, meta=meta, signature=signature, scenes=scenes, exif=exif)
         }

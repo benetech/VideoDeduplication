@@ -14,6 +14,7 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     ...theme.mixins.text,
+    marginLeft: theme.spacing(1),
   },
   valueContainer: {
     display: "flex",
@@ -68,13 +69,11 @@ function Distance(props) {
     <div className={clsx(classes.root, className)}>
       <div className={classes.title}>{messages.score}</div>
       <div className={classes.valueContainer}>
-        <div>1.0</div>
         <DistanceIndicator
           className={classes.indicator}
           value={score(value)}
           variant="determinate"
         />
-        <div>0.0</div>
       </div>
     </div>
   );
