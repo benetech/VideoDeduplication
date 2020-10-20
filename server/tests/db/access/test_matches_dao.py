@@ -57,11 +57,11 @@ def chunks(iterable, size=100):
         chunk = list(itertools.islice(iterator, size))
 
 
-def assert_file_set(resp: FileMatchesResult, expected):
-    """Check result file set."""
-    expected = {file.id for file in expected}
-    actual = {file.id for file in resp.files}
-    assert actual == expected
+def assert_same(actual, expected):
+    """Check result id set."""
+    expected_ids = {entity.id for entity in expected}
+    actual_ids = {entity.id for entity in actual}
+    assert actual_ids == expected_ids
 
 
 def test_list_file_matches_hops(database: Database):
@@ -85,27 +85,27 @@ def test_list_file_matches_hops(database: Database):
     with database.session_scope() as session:
         req = FileMatchesRequest(file=source, hops=0)
         resp = MatchesDAO.list_file_matches(req, session)
-        assert_file_set(resp, expected=[source])
+        assert_same(resp.files, expected=[source])
 
     with database.session_scope() as session:
         req = FileMatchesRequest(file=source, hops=1)
         resp = MatchesDAO.list_file_matches(req, session)
-        assert_file_set(resp, expected=[source, a1, b1])
+        assert_same(resp.files, expected=[source, a1, b1])
 
     with database.session_scope() as session:
         req = FileMatchesRequest(file=source, hops=2)
         resp = MatchesDAO.list_file_matches(req, session)
-        assert_file_set(resp, expected=[source, a1, a2, b1, b2])
+        assert_same(resp.files, expected=[source, a1, a2, b1, b2])
 
     with database.session_scope() as session:
         req = FileMatchesRequest(file=source, hops=3)
         resp = MatchesDAO.list_file_matches(req, session)
-        assert_file_set(resp, expected=[source, a1, a2, a3, b1, b2, b3])
+        assert_same(resp.files, expected=[source, a1, a2, a3, b1, b2, b3])
 
     with database.session_scope(expunge=True) as session:
         req = FileMatchesRequest(file=source, hops=4)
         resp = MatchesDAO.list_file_matches(req, session)
-        assert_file_set(resp, expected=[source, a1, a2, a3, a4, b1, b2, b3, b4])
+        assert_same(resp.files, expected=[source, a1, a2, a3, a4, b1, b2, b3, b4])
 
 
 def test_list_file_matches_filter_distance(database: Database):
@@ -131,19 +131,19 @@ def test_list_file_matches_filter_distance(database: Database):
     with database.session_scope(expunge=True) as session:
         req = FileMatchesRequest(file=source, hops=4)
         resp = MatchesDAO.list_file_matches(req, session)
-        assert_file_set(resp, expected=[source, a1, a2, a3, a4, b1, b2, b3, b4])
+        assert_same(resp.files, expected=[source, a1, a2, a3, a4, b1, b2, b3, b4])
 
     # Query short
     with database.session_scope(expunge=True) as session:
         req = FileMatchesRequest(file=source, hops=4, max_distance=short)
         resp = MatchesDAO.list_file_matches(req, session)
-        assert_file_set(resp, expected=[source, a1, a2, a3, a4])
+        assert_same(resp.files, expected=[source, a1, a2, a3, a4])
 
     # Query long
     with database.session_scope(expunge=True) as session:
         req = FileMatchesRequest(file=source, hops=4, min_distance=long)
         resp = MatchesDAO.list_file_matches(req, session)
-        assert_file_set(resp, expected=[source, b1, b2, b3, b4])
+        assert_same(resp.files, expected=[source, b1, b2, b3, b4])
 
 
 def test_list_file_matches_filter_cycles(database: Database):
@@ -167,16 +167,16 @@ def test_list_file_matches_filter_cycles(database: Database):
     with database.session_scope(expunge=True) as session:
         req = FileMatchesRequest(file=source, hops=hops)
         resp = MatchesDAO.list_file_matches(req, session)
-        assert_file_set(resp, expected=[source] + linked)
+        assert_same(resp.files, expected=[source] + linked)
 
     # Query half
     with database.session_scope(expunge=True) as session:
         half = int(hops / 2)
         req = FileMatchesRequest(file=source, hops=half)
         resp = MatchesDAO.list_file_matches(req, session)
-        assert_file_set(resp, expected=[source] + linked[:2 * half])
+        assert_same(resp.files, expected=[source] + linked[:2 * half])
 
-    # Short cut the most distant items
+    # Create a short cut from the source to the most distant items
     with database.session_scope(expunge=True) as session:
         session.add_all([link(source, cur1), link(source, cur2)])
 
@@ -185,4 +185,27 @@ def test_list_file_matches_filter_cycles(database: Database):
         half = int(hops / 2)
         req = FileMatchesRequest(file=source, hops=half)
         resp = MatchesDAO.list_file_matches(req, session)
-        assert_file_set(resp, expected=[source] + linked)
+        assert_same(resp.files, expected=[source] + linked)
+
+
+def test_list_file_matches_links(database: Database):
+    with database.session_scope(expunge=True) as session:
+        source = make_file()
+        a, b, c = make_files(3)
+        close_links = [link(source, a), link(source, b), link(a, b)]
+        far_links = [link(a, c), link(b, c)]
+        session.add_all(close_links + far_links)
+
+    # Query close links
+    with database.session_scope(expunge=True) as session:
+        req = FileMatchesRequest(file=source, hops=1)
+        resp = MatchesDAO.list_file_matches(req, session)
+        assert_same(resp.files, expected=[source, a, b])
+        assert_same(resp.matches, expected=close_links)
+
+    # Query all links
+    with database.session_scope(expunge=True) as session:
+        req = FileMatchesRequest(file=source, hops=2)
+        resp = MatchesDAO.list_file_matches(req, session)
+        assert_same(resp.files, expected=[source, a, b, c])
+        assert_same(resp.matches, expected=close_links + far_links)
