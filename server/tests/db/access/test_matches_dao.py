@@ -64,7 +64,7 @@ def assert_file_set(resp: FileMatchesResult, expected):
     assert actual == expected
 
 
-def test_list_file_matches_multiple_paths(database: Database):
+def test_list_file_matches_hops(database: Database):
     with database.session_scope(expunge=True) as session:
         # Create files
         source = make_file()
@@ -144,3 +144,45 @@ def test_list_file_matches_filter_distance(database: Database):
         req = FileMatchesRequest(file=source, hops=4, min_distance=long)
         resp = MatchesDAO.list_file_matches(req, session)
         assert_file_set(resp, expected=[source, b1, b2, b3, b4])
+
+
+def test_list_file_matches_filter_cycles(database: Database):
+    hops = 100
+    with database.session_scope(expunge=True) as session:
+        source = make_file()
+        linked = make_files(2)
+        prev1, prev2 = linked
+        session.add_all([source, link(source, prev1), link(source, prev2)])
+
+        for _ in range(hops - 1):
+            cur1, cur2 = make_files(2)
+            session.add_all([
+                link(prev1, cur1), link(prev1, cur2),
+                link(cur2, prev2), link(cur1, prev2)])
+            linked.append(cur1)
+            linked.append(cur2)
+            prev1, prev2 = cur1, cur2
+
+    # Query all
+    with database.session_scope(expunge=True) as session:
+        req = FileMatchesRequest(file=source, hops=hops)
+        resp = MatchesDAO.list_file_matches(req, session)
+        assert_file_set(resp, expected=[source] + linked)
+
+    # Query half
+    with database.session_scope(expunge=True) as session:
+        half = int(hops / 2)
+        req = FileMatchesRequest(file=source, hops=half)
+        resp = MatchesDAO.list_file_matches(req, session)
+        assert_file_set(resp, expected=[source] + linked[:2 * half])
+
+    # Short cut the most distant items
+    with database.session_scope(expunge=True) as session:
+        session.add_all([link(source, cur1), link(source, cur2)])
+
+    # Query half hops must return all files now
+    with database.session_scope(expunge=True) as session:
+        half = int(hops / 2)
+        req = FileMatchesRequest(file=source, hops=half)
+        resp = MatchesDAO.list_file_matches(req, session)
+        assert_file_set(resp, expected=[source] + linked)
