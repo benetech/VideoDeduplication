@@ -34,6 +34,7 @@ class FileMatchesResult:
     """List single file's matches results."""
     files: List[Files]
     matches: List[Matches]
+    total: int
 
 
 class MatchesDAO:
@@ -68,7 +69,10 @@ class MatchesDAO:
             seen.update(next_step)
             current_step = next_step
         matches = MatchesDAO._extract_matches(files, file_ids=seen)
-        return FileMatchesResult(files=files, matches=matches)
+
+        # Slice result set
+        matches, files, total = MatchesDAO._slice_results(req.file, matches, offset=req.offset, limit=req.limit)
+        return FileMatchesResult(files=files, matches=matches, total=total)
 
     @staticmethod
     def _populate_next_step(file, seen, next_step):
@@ -92,14 +96,16 @@ class MatchesDAO:
     @staticmethod
     def _extract_matches(files, file_ids):
         """Build matches list."""
-        matches = []
+        matches = set()
         for file in files:
             for match in file.target_matches:
                 if match.match_video_file_id in file_ids and match.query_video_file_id in file_ids:
-                    matches.append(match)
+                    matches.add(match)
             for match in file.source_matches:
                 if match.match_video_file_id in file_ids and match.query_video_file_id in file_ids:
-                    matches.append(match)
+                    matches.add(match)
+        matches = list(matches)
+        matches.sort(key=lambda item: item.id)
         return matches
 
     @staticmethod
@@ -118,3 +124,19 @@ class MatchesDAO:
                       (incoming.distance <= req.max_distance)). \
             options(contains_eager(Files.source_matches, alias=outgoing)). \
             options(contains_eager(Files.target_matches, alias=incoming))
+
+    @staticmethod
+    def _slice_results(start_file, matches, offset, limit):
+        """Extract requested slice from matches."""
+        # Slice matches
+        total = len(matches)
+        matches = sorted(matches, key=lambda item: item.id)
+        matches = matches[offset:offset + limit]
+
+        # Get the corresponding files
+        files = {start_file}
+        for match in matches:
+            files.add(match.match_video_file)
+            files.add(match.query_video_file)
+        files = sorted(list(files), key=lambda item: item.id)
+        return matches, files, total
