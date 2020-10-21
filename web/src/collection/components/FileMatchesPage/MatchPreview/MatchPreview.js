@@ -14,6 +14,7 @@ import { useIntl } from "react-intl";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import { useHistory } from "react-router-dom";
 import { routes } from "../../../../routing/routes";
+import FileType from "../../FileBrowserPage/FileType";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -102,8 +103,7 @@ function useMessages(file) {
 }
 
 function MatchPreview(props) {
-  const { match, highlight, className } = props;
-  const file = match.file;
+  const { file, distance, highlight, className } = props;
   const intl = useIntl();
   const classes = useStyles();
   const messages = useMessages(file);
@@ -111,7 +111,7 @@ function MatchPreview(props) {
 
   const handleMoreInfo = useCallback(
     () => history.push(routes.collection.fileURL(file.id)),
-    [match]
+    [file.id]
   );
 
   return (
@@ -139,7 +139,7 @@ function MatchPreview(props) {
       <div className={classes.divider} />
       <FileAttributes file={file} className={classes.attrs} />
       <div className={classes.divider} />
-      <Distance value={match.distance} className={classes.distance} />
+      <Distance value={distance} className={classes.distance} />
       <div className={classes.divider} />
       <div className={classes.more}>
         <ButtonBase
@@ -158,9 +158,13 @@ function MatchPreview(props) {
 
 MatchPreview.propTypes = {
   /**
-   * Match between two files
+   * Matched file
    */
-  match: MatchType.isRequired,
+  file: FileType.isRequired,
+  /**
+   * Match distance
+   */
+  distance: PropTypes.number.isRequired,
   /**
    * File name substring to highlight
    */

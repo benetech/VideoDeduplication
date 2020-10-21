@@ -1,5 +1,8 @@
 import {
   ACTION_CACHE_FILE,
+  ACTION_FETCH_FILE_MATCHES,
+  ACTION_FETCH_FILE_MATCHES_FAILURE,
+  ACTION_FETCH_FILE_MATCHES_SUCCESS,
   ACTION_FETCH_FILES,
   ACTION_FETCH_FILES_FAILURE,
   ACTION_FETCH_FILES_SUCCESS,
@@ -38,7 +41,7 @@ export const initialState = {
    * File id=>file LRU cache
    */
   fileCache: {
-    maxSize: 100,
+    maxSize: 1000,
     files: {},
     history: [],
   },
@@ -54,21 +57,28 @@ export const initialState = {
     limit: 100,
     offset: 0,
     matches: [],
+    files: {},
   },
 };
 
-function filenames(files) {
+function ids(entities) {
   const result = new Set();
-  for (let file of files) {
-    result.add(file.filename);
+  for (let entity of entities) {
+    result.add(entity.id);
   }
   return result;
 }
 
-function extendFiles(existing, loaded) {
-  const existingNames = filenames(existing);
-  const newFiles = loaded.filter((item) => !existingNames.has(item.filename));
-  return [...existing, ...newFiles];
+function extendEntityList(existing, loaded) {
+  const existingIds = ids(existing);
+  const newEntities = loaded.filter((item) => !existingIds.has(item.id));
+  return [...existing, ...newEntities];
+}
+
+function extendEntityMap(existing, loaded) {
+  const result = { ...existing };
+  loaded.forEach((entity) => (result[entity.id] = entity));
+  return result;
 }
 
 function fileCacheReducer(state = initialState.fileCache, action) {
@@ -97,6 +107,7 @@ function fileMatchesReducer(state = initialState.fileMatches, action) {
         ...state,
         filters: { ...state.filters, ...action.filters, fileId: action.fileId },
         matches: [],
+        files: {},
         loading: true,
       };
     case ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS:
@@ -104,13 +115,34 @@ function fileMatchesReducer(state = initialState.fileMatches, action) {
         ...state,
         total: action.total,
         matches: [...action.matches],
+        files: extendEntityMap({}, action.files),
         error: false,
         loading: false,
       };
     case ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE:
       return {
         matches: [],
+        files: {},
         total: 0,
+        error: true,
+        loading: false,
+      };
+    case ACTION_FETCH_FILE_MATCHES:
+      return {
+        ...state,
+        loading: true,
+      };
+    case ACTION_FETCH_FILE_MATCHES_SUCCESS:
+      return {
+        ...state,
+        total: action.total,
+        matches: extendEntityList(state.matches, action.matches),
+        files: extendEntityMap(state.files, action.files),
+        error: false,
+        loading: false,
+      };
+    case ACTION_FETCH_FILE_MATCHES_FAILURE:
+      return {
         error: true,
         loading: false,
       };
@@ -152,7 +184,7 @@ export function collRootReducer(state = initialState, action) {
       return {
         ...state,
         error: false,
-        files: extendFiles(state.files, action.files),
+        files: extendEntityList(state.files, action.files),
         counts: { ...action.counts },
         loading: false,
       };
@@ -170,6 +202,9 @@ export function collRootReducer(state = initialState, action) {
     case ACTION_UPDATE_FILE_MATCH_FILTERS:
     case ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS:
     case ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE:
+    case ACTION_FETCH_FILE_MATCHES:
+    case ACTION_FETCH_FILE_MATCHES_SUCCESS:
+    case ACTION_FETCH_FILE_MATCHES_FAILURE:
       return {
         ...state,
         fileMatches: fileMatchesReducer(state.fileMatches, action),

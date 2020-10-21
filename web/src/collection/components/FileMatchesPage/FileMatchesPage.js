@@ -56,18 +56,37 @@ function useMessages(matchesCount) {
   };
 }
 
+function isIncident(id) {
+  return (match) => match.source === id || match.target === id;
+}
+
+function getMatchedFile(match, files, id) {
+  if (match.source === id) {
+    return files[match.target];
+  } else if (match.target === id) {
+    return files[match.source];
+  } else {
+    throw Error(
+      `Match ${JSON.stringify(match)} is not incident to file id ${id}`
+    );
+  }
+}
+
 function FileMatchesPage(props) {
   const { className } = props;
   const classes = useStyles();
-  const { id } = useParams();
+  const { id: rawId } = useParams();
+  const id = Number(rawId);
   const { file, error, loadFile } = useFile(id);
   const messages = useMessages((file && file.matchesCount) || 0);
   const [view, setView] = useState(View.grid);
-  const matches = useSelector(selectFileMatches).matches;
+  const matchesState = useSelector(selectFileMatches);
+  const matches = matchesState.matches.filter(isIncident(id));
+  const files = matchesState.files;
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(updateFileMatchFilters(id, {}));
+    dispatch(updateFileMatchFilters(id, { hops: 1 }));
   }, [id]);
 
   if (file == null) {
@@ -118,8 +137,11 @@ function FileMatchesPage(props) {
       >
         <Grid container spacing={4}>
           {matches.map((match) => (
-            <Grid item xs={6} lg={3} key={match.file.id}>
-              <MatchPreview match={match} />
+            <Grid item xs={6} lg={3} key={match.id}>
+              <MatchPreview
+                distance={match.distance}
+                file={getMatchedFile(match, files, id)}
+              />
             </Grid>
           ))}
         </Grid>

@@ -32,8 +32,8 @@ function* fetchFileMatchesSaga(server, action) {
     }
 
     // Update state
-    const { total, matches } = resp.data;
-    yield put(updateFileMatchFiltersSuccess(matches, total));
+    const { total, matches, files } = resp.data;
+    yield put(updateFileMatchFiltersSuccess(matches, files, total));
   } catch (error) {
     console.error(error);
     yield put(updateFileMatchFiltersFailure(error));

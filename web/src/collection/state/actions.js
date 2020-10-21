@@ -61,8 +61,13 @@ export function updateFileMatchFilters(fileId, filters) {
 export const ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS =
   "coll.UPDATE_FILE_MATCH_FILTERS_SUCCESS";
 
-export function updateFileMatchFiltersSuccess(matches, total) {
-  return { matches, total, type: ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS };
+export function updateFileMatchFiltersSuccess(matches, files, total) {
+  return {
+    matches,
+    files,
+    total,
+    type: ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS,
+  };
 }
 
 export const ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE =
@@ -70,4 +75,28 @@ export const ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE =
 
 export function updateFileMatchFiltersFailure(error) {
   return { type: ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE, error };
+}
+
+/**
+ * Fetch next matches page
+ */
+
+export const ACTION_FETCH_FILE_MATCHES = "coll.FETCH_FILE_MATCHES";
+
+export function fetchFileMatches() {
+  return { type: ACTION_FETCH_FILE_MATCHES };
+}
+
+export const ACTION_FETCH_FILE_MATCHES_SUCCESS =
+  "coll.FETCH_FILE_MATCHES_SUCCESS";
+
+export function fetchFileMatchesSuccess(matches, files, total) {
+  return { matches, files, total, type: ACTION_FETCH_FILE_MATCHES_SUCCESS };
+}
+
+export const ACTION_FETCH_FILE_MATCHES_FAILURE =
+  "coll.FETCH_FILE_MATCHES_FAILURE";
+
+export function fetchFileMatchesFailure(error) {
+  return { error, type: ACTION_FETCH_FILE_MATCHES_FAILURE };
 }
