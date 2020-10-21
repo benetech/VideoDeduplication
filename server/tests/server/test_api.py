@@ -88,6 +88,30 @@ def assert_files(resp, expected, total=None, related=None, duplicates=None, uniq
     assert_json_response(resp, expected_shape)
 
 
+def matched_files(matches):
+    """Get files of the given matches."""
+    files = set()
+    for match in matches:
+        files.add(match.query_video_file)
+        files.add(match.match_video_file)
+    return files
+
+
+def refresh(session, *entities):
+    """Refresh entities from the current session."""
+    if not entities:
+        return []
+    return [session.query(entity.__class__).get(entity.id) for entity in entities]
+
+
+def assert_same(actual, expected):
+    """Assert actual payload items refers to expected entities."""
+    actual_ids = {item["id"] for item in actual}
+    expected_ids = {entity.id for entity in expected}
+    assert actual_ids == expected_ids
+    assert len(actual) == len(expected)
+
+
 def make_file(prefix="", length=42, ext="flv", audio=True, date=datetime.date(2000, 1, 1),
               scenes=((0, 1), (1, 2))):
     """Create unique file."""
@@ -659,11 +683,7 @@ def test_list_file_matches_basic(client, app):
         ],
     })
     payload = json_payload(resp)
-    expected_file_ids = {match.query_video_file_id for match in matches[offset:offset + limit]}
-    expected_file_ids |= {match.match_video_file_id for match in matches[offset:offset + limit]}
-    actual_file_ids = {file["id"] for file in payload["files"]}
-    assert actual_file_ids == expected_file_ids
-    assert len(payload["files"])
+    assert_same(payload["files"], matched_files(matches[offset:offset + limit]))
 
 
 def test_list_file_matches_include(client, app):
@@ -701,3 +721,48 @@ def test_list_file_matches_include(client, app):
     assert all(
         "scenes" not in file.keys() for file in json_payload(resp)["files"]
     )
+
+
+def test_list_file_matches_hops(client, app):
+    hops = 100
+    with session_scope(app) as session:
+        source = make_file()
+        linked = make_files(2)
+        prev1, prev2 = linked
+        matches = [link(source, prev1), link(source, prev2)]
+
+        for _ in range(hops - 1):
+            cur1, cur2 = make_files(2)
+            matches.extend([
+                link(prev1, cur1), link(prev1, cur2),
+                link(cur2, prev2), link(cur1, prev2)])
+            linked.append(cur1)
+            linked.append(cur2)
+            prev1, prev2 = cur1, cur2
+        session.add_all(matches)
+
+    matches.sort(key=attr("id"))
+
+    # Query all
+    resp = client.get(f"/api/v1/files/{source.id}/matches?hops={hops}&limit={len(matches)}")
+    payload = json_payload(resp)
+    assert_same(payload["matches"], matches)
+    assert_same(payload["files"], [source] + linked)
+
+    # Query half
+    half = int(hops / 2)
+    resp = client.get(f"/api/v1/files/{source.id}/matches?hops={half}&limit={len(matches)}")
+    assert_same(json_payload(resp)["files"], [source] + linked[:2 * half])
+
+    # Create a short cut from the source to the most distant items
+    with session_scope(app) as session:
+        source, cur1, cur2 = refresh(session, source, cur1, cur2)
+        short_cut = [link(source, cur1), link(source, cur2)]
+        session.add_all(short_cut)
+        matches.extend(short_cut)
+
+    # Query half hops must return all files now
+    resp = client.get(f"/api/v1/files/{source.id}/matches?hops={half}&limit={len(matches) + 2}")
+    payload = json_payload(resp)
+    assert_same(payload["matches"], matches)
+    assert_same(payload["files"], [source] + linked)

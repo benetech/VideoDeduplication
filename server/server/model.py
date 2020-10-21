@@ -112,6 +112,7 @@ class Transform:
     def match_dict(match):
         """Get plain data representation for Match."""
         return {
+            "id": match.id,
             "distance": match.distance,
             "source": match.query_video_file_id,
             "target": match.match_video_file_id
