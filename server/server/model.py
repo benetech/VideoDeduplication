@@ -48,6 +48,7 @@ class Transform:
     @staticmethod
     @serializable
     def file_dict(file, *, meta=False, signature=False, scenes=False, exif=False):
+        """Get plain data representation for single file."""
         data = {
             "id": file.id,
             "file_path": file.file_path,
@@ -67,6 +68,7 @@ class Transform:
     @staticmethod
     @serializable
     def metadata_dict(meta):
+        """Get plain data representation for VideoMetadata."""
         fields = entity_fields(meta)
         fields -= {"id", "file_id", "file"}
         return {field: getattr(meta, field) for field in fields}
@@ -74,6 +76,7 @@ class Transform:
     @staticmethod
     @serializable
     def scene_dict(scene, file=False):
+        """Get plain data representation for single Scene."""
         data = {
             "id": scene.id,
             "duration": scene.duration,
@@ -86,6 +89,7 @@ class Transform:
     @staticmethod
     @serializable
     def exif_dict(exif):
+        """Get plain data representation for Exif."""
         fields = entity_fields(exif)
         fields -= {"id", "file_id", "file", "Json_full_exif"}
         return {field: getattr(exif, field) for field in fields}
@@ -93,6 +97,7 @@ class Transform:
     @staticmethod
     @serializable
     def file_match_dict(match, file_id, *, meta=False, signature=False, scenes=False, exif=False):
+        """Get plain data representation for single file match."""
         if match.query_video_file.id != file_id:
             matched = match.query_video_file
         else:
@@ -100,4 +105,14 @@ class Transform:
         return {
             "distance": match.distance,
             "file": Transform.file_dict(matched, meta=meta, signature=signature, scenes=scenes, exif=exif)
+        }
+
+    @staticmethod
+    @serializable
+    def match_dict(match):
+        """Get plain data representation for Match."""
+        return {
+            "distance": match.distance,
+            "source": match.query_video_file_id,
+            "target": match.match_video_file_id
         }

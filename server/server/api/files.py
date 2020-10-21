@@ -62,7 +62,7 @@ def get_file(file_id):
     # Fetch file from database
     query = database.session.query(Files)
     query = FILE_FIELDS.preload(query, extra_fields)
-    file = query.filter(Files.id == file_id).first()
+    file = query.get(file_id)
 
     # Handle file not found
     if file is None:

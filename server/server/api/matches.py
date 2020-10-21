@@ -1,39 +1,44 @@
-from flask import jsonify, request
-from sqlalchemy.orm import joinedload
+from http import HTTPStatus
 
-from db.access.files import FilesDAO
-from db.schema import Matches, Files
+from flask import jsonify, request, abort
+
+from db.access.matches import FileMatchesRequest, MatchesDAO
+from db.schema import Files
 from .blueprint import api
-from .helpers import parse_positive_int, Fields, parse_enum_seq
+from .helpers import parse_positive_int, Fields, parse_positive_float, parse_fields
 from ..model import Transform, database
 
 # Optional file fields
 FILE_FIELDS = Fields(Files.exif, Files.signature, Files.meta, Files.scenes)
 
 
+def parse_params(file):
+    """Parse request parameters."""
+    req = FileMatchesRequest(file=file)
+    req.limit = parse_positive_int(request.args, 'limit', 20)
+    req.offset = parse_positive_int(request.args, 'offset', 0)
+    req.hops = parse_positive_int(request.args, 'hops', 1)
+    req.min_distance = parse_positive_float(request.args, 'min_distance', 0.0)
+    req.max_distance = parse_positive_float(request.args, 'max_distance', 1.0)
+    req.preload = parse_fields(request.args, 'include', FILE_FIELDS)
+    return req
+
+
 @api.route('/files/<int:file_id>/matches', methods=['GET'])
 def list_file_matches(file_id):
-    limit = parse_positive_int(request.args, 'limit', 20)
-    offset = parse_positive_int(request.args, 'offset', 0)
-    # hops = parse_positive_int(request.args, "hops", 1)
-    # min_distance = parse_positive_float(request.args, '')
-    include_fields = parse_enum_seq(request.args, 'include', values=FILE_FIELDS.names, default=())
+    file = database.session.query(Files).get(file_id)
 
-    query = FilesDAO.file_matches(file_id, database.session).options(
-        joinedload(Matches.match_video_file),
-        joinedload(Matches.query_video_file)
-    )
+    # Handle file not found
+    if file is None:
+        abort(HTTPStatus.NOT_FOUND.value, f"File id not found: {file_id}")
 
-    # Preload file fields
-    query = FILE_FIELDS.preload(query, include_fields, Matches.match_video_file)
-    query = FILE_FIELDS.preload(query, include_fields, Matches.query_video_file)
+    req = parse_params(file)
+    resp = MatchesDAO.list_file_matches(req, database.session)
 
-    # Get requested slice
-    total = query.count()
-    items = query.offset(offset).limit(limit).all()
-
-    include_flags = {field: True for field in include_fields}
+    include_flags = {field.key: True for field in req.preload}
     return jsonify({
-        'items': [Transform.file_match_dict(item, file_id, **include_flags) for item in items],
-        'total': total
+        'files': [Transform.file_dict(file, **include_flags) for file in resp.files],
+        'matches': [Transform.match_dict(match) for match in resp.matches],
+        'total': resp.total,
+        'hops': req.hops,
     })
