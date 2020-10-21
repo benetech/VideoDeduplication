@@ -627,15 +627,21 @@ def test_list_file_matches_basic(client, app):
         ]
         session.add_all(matches)
 
+    all_files = sorted(all_files, key=attr("id"))
     matches = sorted(matches, key=attr("id"))
 
     # Get all matches
     resp = client.get(f"/api/v1/files/{source.id}/matches")
     assert_json_response(resp, {
         "total": len(matches),
-        "items": [
-            {"distance": match.distance, "file": {"id": match.match_video_file_id}} for match in matches
-        ]
+        "matches": [
+            {
+                "distance": match.distance,
+                "source": match.query_video_file_id,
+                "target": match.match_video_file_id
+            } for match in matches
+        ],
+        "files": [{"file_path": file.file_path, "sha256": file.sha256} for file in all_files]
     })
 
     # Get slice
@@ -644,13 +650,20 @@ def test_list_file_matches_basic(client, app):
     resp = client.get(f"/api/v1/files/{source.id}/matches?offset={offset}&limit={limit}")
     assert_json_response(resp, {
         "total": len(matches),
-        "items": [
+        "matches": [
             {
                 "distance": match.distance,
-                "file": {"id": match.match_video_file_id}
+                "source": match.query_video_file_id,
+                "target": match.match_video_file_id
             } for match in matches[offset:offset + limit]
-        ]
+        ],
     })
+    payload = json_payload(resp)
+    expected_file_ids = {match.query_video_file_id for match in matches[offset:offset + limit]}
+    expected_file_ids |= {match.match_video_file_id for match in matches[offset:offset + limit]}
+    actual_file_ids = {file["id"] for file in payload["files"]}
+    assert actual_file_ids == expected_file_ids
+    assert len(payload["files"])
 
 
 def test_list_file_matches_include(client, app):
@@ -664,27 +677,27 @@ def test_list_file_matches_include(client, app):
         ]
         session.add_all(matches)
 
+    files = sorted([source, a, b], key=attr("id"))
     matches = sorted(matches, key=attr("id"))
 
     # Don't include additional fields
     resp = client.get(f"/api/v1/files/{source.id}/matches")
     assert all(
-        {"exif", "meta", "scenes"}.isdisjoint(match["file"].keys()) for match in items(resp)
+        {"exif", "meta", "scenes"}.isdisjoint(file.keys()) for file in json_payload(resp)["files"]
     )
 
     # Include meta and exif
     resp = client.get(f"/api/v1/files/{source.id}/matches?include=meta,exif")
     assert_json_response(resp, {
         "total": len(matches),
-        "items": [
+        "files": [
             {
-                "file": {
-                    "meta": {"video_length": match.match_video_file.meta.video_length},
-                    "exif": {"General_FileExtension": match.match_video_file.exif.General_FileExtension}
-                }
-            } for match in matches
+                "meta": {"video_length": file.meta.video_length},
+                "exif": {"General_FileExtension": file.exif.General_FileExtension}
+
+            } for file in files
         ]
     })
     assert all(
-        "scenes" not in match["file"].keys() for match in items(resp)
+        "scenes" not in file.keys() for file in json_payload(resp)["files"]
     )
