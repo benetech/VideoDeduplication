@@ -4,7 +4,7 @@ from uuid import uuid4 as uuid
 import pytest
 
 from db import Database
-from db.access.matches import MatchesDAO, FileMatchesRequest, FileMatchesResult
+from db.access.matches import MatchesDAO, FileMatchesRequest
 from db.schema import Files, Exif, VideoMetadata, Scene, Matches
 
 
@@ -77,33 +77,34 @@ def test_list_file_matches_hops(database: Database):
         # Link files
         a1, a2, a3, a4 = path_a
         b1, b2, b3, b4 = path_b
-        session.add_all([
+        all_links = [
             link(source, a1), link(a2, a1), link(a2, a3), link(a4, a3),
             link(b1, source), link(b1, b2), link(b2, b3), link(b4, b3),
-        ])
+        ]
+        session.add_all(all_links)
 
     with database.session_scope() as session:
-        req = FileMatchesRequest(file=source, hops=0)
+        req = FileMatchesRequest(file=source, hops=0, limit=len(all_links))
         resp = MatchesDAO.list_file_matches(req, session)
         assert_same(resp.files, expected=[source])
 
     with database.session_scope() as session:
-        req = FileMatchesRequest(file=source, hops=1)
+        req = FileMatchesRequest(file=source, hops=1, limit=len(all_links))
         resp = MatchesDAO.list_file_matches(req, session)
         assert_same(resp.files, expected=[source, a1, b1])
 
     with database.session_scope() as session:
-        req = FileMatchesRequest(file=source, hops=2)
+        req = FileMatchesRequest(file=source, hops=2, limit=len(all_links))
         resp = MatchesDAO.list_file_matches(req, session)
         assert_same(resp.files, expected=[source, a1, a2, b1, b2])
 
     with database.session_scope() as session:
-        req = FileMatchesRequest(file=source, hops=3)
+        req = FileMatchesRequest(file=source, hops=3, limit=len(all_links))
         resp = MatchesDAO.list_file_matches(req, session)
         assert_same(resp.files, expected=[source, a1, a2, a3, b1, b2, b3])
 
     with database.session_scope(expunge=True) as session:
-        req = FileMatchesRequest(file=source, hops=4)
+        req = FileMatchesRequest(file=source, hops=4, limit=len(all_links))
         resp = MatchesDAO.list_file_matches(req, session)
         assert_same(resp.files, expected=[source, a1, a2, a3, a4, b1, b2, b3, b4])
 
@@ -152,27 +153,28 @@ def test_list_file_matches_filter_cycles(database: Database):
         source = make_file()
         linked = make_files(2)
         prev1, prev2 = linked
-        session.add_all([source, link(source, prev1), link(source, prev2)])
+        links = [link(source, prev1), link(source, prev2)]
 
         for _ in range(hops - 1):
             cur1, cur2 = make_files(2)
-            session.add_all([
+            links.extend([
                 link(prev1, cur1), link(prev1, cur2),
                 link(cur2, prev2), link(cur1, prev2)])
             linked.append(cur1)
             linked.append(cur2)
             prev1, prev2 = cur1, cur2
+        session.add_all(links)
 
     # Query all
     with database.session_scope(expunge=True) as session:
-        req = FileMatchesRequest(file=source, hops=hops)
+        req = FileMatchesRequest(file=source, hops=hops, limit=len(links))
         resp = MatchesDAO.list_file_matches(req, session)
         assert_same(resp.files, expected=[source] + linked)
 
     # Query half
     with database.session_scope(expunge=True) as session:
         half = int(hops / 2)
-        req = FileMatchesRequest(file=source, hops=half)
+        req = FileMatchesRequest(file=source, hops=half, limit=len(links))
         resp = MatchesDAO.list_file_matches(req, session)
         assert_same(resp.files, expected=[source] + linked[:2 * half])
 
@@ -183,7 +185,7 @@ def test_list_file_matches_filter_cycles(database: Database):
     # Query half hops must return all files now
     with database.session_scope(expunge=True) as session:
         half = int(hops / 2)
-        req = FileMatchesRequest(file=source, hops=half)
+        req = FileMatchesRequest(file=source, hops=half, limit=len(links))
         resp = MatchesDAO.list_file_matches(req, session)
         assert_same(resp.files, expected=[source] + linked)
 
@@ -195,17 +197,18 @@ def test_list_file_matches_links(database: Database):
         close_links = [link(source, a), link(source, b), link(a, b)]
         far_links = [link(a, c), link(b, c)]
         session.add_all(close_links + far_links)
+        total_links = len(far_links) + len(close_links)
 
     # Query close links
     with database.session_scope(expunge=True) as session:
-        req = FileMatchesRequest(file=source, hops=1)
+        req = FileMatchesRequest(file=source, hops=1, limit=total_links)
         resp = MatchesDAO.list_file_matches(req, session)
         assert_same(resp.files, expected=[source, a, b])
         assert_same(resp.matches, expected=close_links)
 
     # Query all links
     with database.session_scope(expunge=True) as session:
-        req = FileMatchesRequest(file=source, hops=2)
+        req = FileMatchesRequest(file=source, hops=2, limit=total_links)
         resp = MatchesDAO.list_file_matches(req, session)
         assert_same(resp.files, expected=[source, a, b, c])
         assert_same(resp.matches, expected=close_links + far_links)
