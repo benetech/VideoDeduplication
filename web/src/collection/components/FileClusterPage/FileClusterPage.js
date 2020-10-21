@@ -34,11 +34,13 @@ function FileClusterPage(props) {
   const classes = useStyles();
   const { id } = useParams();
   const { file, error, loadFile } = useFile(id);
-  const matches = useSelector(selectFileMatches).matches;
+  const matchesState = useSelector(selectFileMatches);
+  const matches = matchesState.matches;
+  const files = matchesState.files;
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(updateFileMatchFilters(id, {}));
+    dispatch(updateFileMatchFilters(id, { hops: 2 }));
   }, [id]);
 
   if (file == null) {
@@ -58,7 +60,12 @@ function FileClusterPage(props) {
     <div className={clsx(classes.root, className)}>
       <FileActionHeader id={id} matches={file.matchesCount} />
       <FileSummaryHeader file={file} className={classes.summaryHeader} />
-      <MatchGraph source={file} matches={matches} className={classes.graph} />
+      <MatchGraph
+        source={file}
+        matches={matches}
+        files={files}
+        className={classes.graph}
+      />
     </div>
   );
 }

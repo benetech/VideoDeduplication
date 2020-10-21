@@ -5,7 +5,9 @@ import FileType from "../FileBrowserPage/FileType";
  * Prop-type for a match between two files.
  */
 export const MatchType = PropTypes.shape({
-  file: FileType.isRequired,
+  id: PropTypes.number.isRequired,
+  source: PropTypes.number.isRequired,
+  target: PropTypes.number.isRequired,
   distance: PropTypes.number.isRequired,
 });
 
