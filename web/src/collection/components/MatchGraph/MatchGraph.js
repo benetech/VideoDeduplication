@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -43,16 +43,21 @@ function MatchGraph(props) {
   const { source, matches, files, className } = props;
   const classes = useStyles();
   const ref = useRef(null);
+  const [graph, setGraph] = useState(null);
 
   useEffect(() => {
     if (ref.current != null) {
-      const graph = new D3Graph({
+      if (graph != null) {
+        graph.cleanup();
+      }
+      const newGraph = new D3Graph({
         links: getLinks(source, matches),
         nodes: getNodes(source, files),
         container: ref.current,
         classes: { content: classes.content },
       });
-      graph.display();
+      newGraph.display();
+      setGraph(newGraph);
     }
   }, [ref.current, source, matches]);
 

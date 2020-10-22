@@ -17,6 +17,8 @@ export default class D3Graph {
     this.height = container?.clientHeight;
     this.container = container;
     this.classes = classes;
+    this.updateSize = null;
+    this.simulation = null;
   }
 
   /**
@@ -26,13 +28,13 @@ export default class D3Graph {
     const scale = d3.scaleOrdinal(d3.schemeCategory10);
     const color = (d) => scale(d.group);
 
-    const simulation = this._createForceSimulation();
+    this.simulation = this._createForceSimulation();
 
     removeChildren(this.container);
 
     let svg = d3
       .select(this.container)
-      .attr("preserveAspectRatio", "xMaxYMid meet")
+      .attr("preserveAspectRatio", "xMidYMid meet")
       .attr("viewBox", [0, 0, this.width, this.height])
       .classed(this.classes.content, true);
 
@@ -54,11 +56,11 @@ export default class D3Graph {
       .join("circle")
       .attr("r", 15)
       .attr("fill", color)
-      .call(this._createDrag(simulation));
+      .call(this._createDrag(this.simulation));
 
     node.append("title").text((d) => d.id);
 
-    simulation.on("tick", () => {
+    this.simulation.on("tick", () => {
       link
         .attr("x1", (d) => d.source.x)
         .attr("y1", (d) => d.source.y)
@@ -67,6 +69,22 @@ export default class D3Graph {
 
       node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
     });
+
+    this.updateSize = () => {
+      this.width = this.container?.clientWidth;
+      this.height = this.container?.clientHeight;
+      svg
+        .attr("width", this.width)
+        .attr("height", this.height)
+        .attr("viewBox", [0, 0, this.width, this.height])
+        .classed(this.classes.content, true);
+      this.simulation.force(
+        "center",
+        d3.forceCenter(this.width / 2, this.height / 2)
+      );
+      this.simulation.restart();
+    };
+    window.addEventListener("resize", this.updateSize);
   }
 
   /**
@@ -117,5 +135,20 @@ export default class D3Graph {
       )
       .force("charge", d3.forceManyBody())
       .force("center", d3.forceCenter(this.width / 2, this.height / 2));
+  }
+
+  /**
+   * Remove graph elements, remove all listeners, clear container.
+   */
+  cleanup() {
+    removeChildren(this.container);
+    if (this.updateSize != null) {
+      window.removeEventListener("resize", this.updateSize);
+      this.updateSize = null;
+    }
+    if (this.simulation != null) {
+      this.simulation.stop();
+      this.simulation = null;
+    }
   }
 }
