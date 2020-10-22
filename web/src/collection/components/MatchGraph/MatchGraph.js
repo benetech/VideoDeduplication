@@ -6,14 +6,13 @@ import D3Graph from "./D3Graph";
 import MatchType from "../FileMatchesPage/MatchType";
 import FileType from "../FileBrowserPage/FileType";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    margin: theme.spacing(2),
   },
   content: {
-    height: 500,
+    width: "100%",
+    minHeight: 500,
   },
 }));
 

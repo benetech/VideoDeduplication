@@ -10,18 +10,11 @@ function removeChildren(element) {
 }
 
 export default class D3Graph {
-  constructor({
-    links,
-    nodes,
-    container,
-    width = 500,
-    height = 500,
-    classes = {},
-  }) {
+  constructor({ links, nodes, container, classes = {} }) {
     this.links = links.map(Object.create);
     this.nodes = nodes.map(Object.create);
-    this.width = width;
-    this.height = height;
+    this.width = container?.clientWidth;
+    this.height = container?.clientHeight;
     this.container = container;
     this.classes = classes;
   }
@@ -59,7 +52,7 @@ export default class D3Graph {
       .selectAll("circle")
       .data(this.nodes)
       .join("circle")
-      .attr("r", 5)
+      .attr("r", 15)
       .attr("fill", color)
       .call(this._createDrag(simulation));
 
