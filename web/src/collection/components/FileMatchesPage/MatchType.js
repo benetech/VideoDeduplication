@@ -1,5 +1,4 @@
 import PropTypes from "prop-types";
-import FileType from "../FileBrowserPage/FileType";
 
 /**
  * Prop-type for a match between two files.

@@ -3,7 +3,6 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Paper from "@material-ui/core/Paper";
-import MatchType from "../MatchType";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import Marked from "../../../../common/components/Marked";
 import IconButton from "@material-ui/core/IconButton";
