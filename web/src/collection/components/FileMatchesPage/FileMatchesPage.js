@@ -90,13 +90,13 @@ function FileMatchesPage(props) {
   const files = matchesState.files;
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(updateFileMatchFilters(id, { hops: 1 }));
-  }, [id]);
-
   const handleLoad = useCallback(() => {
-    dispatch(fetchFileMatches());
-  }, [matchesState]);
+    if (matchesState.total == null) {
+      dispatch(updateFileMatchFilters(id, { hops: 1 }));
+    } else {
+      dispatch(fetchFileMatches());
+    }
+  }, [id, matchesState]);
 
   if (file == null) {
     return (
