@@ -129,7 +129,7 @@ function fileMatchesReducer(state = initialState.fileMatches, action) {
         ...state,
         matches: [],
         files: {},
-        total: 0,
+        total: undefined,
         error: true,
         loading: false,
       };
@@ -149,6 +149,7 @@ function fileMatchesReducer(state = initialState.fileMatches, action) {
       };
     case ACTION_FETCH_FILE_MATCHES_FAILURE:
       return {
+        ...state,
         error: true,
         loading: false,
       };
