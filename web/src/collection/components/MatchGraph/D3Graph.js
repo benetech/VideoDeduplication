@@ -36,7 +36,13 @@ export default class D3Graph {
       .select(this.container)
       .attr("preserveAspectRatio", "xMidYMid meet")
       .attr("viewBox", [0, 0, this.width, this.height])
-      .classed(this.classes.content, true);
+      .classed(this.classes.content, true)
+      .call(
+        d3.zoom().on("zoom", function (event) {
+          svg.attr("transform", event.transform);
+        })
+      )
+      .append("g");
 
     const link = svg
       .append("g")
