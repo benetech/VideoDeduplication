@@ -50,12 +50,15 @@ export const initialState = {
    */
   fileMatches: {
     fileId: undefined,
-    filters: {},
-    total: 0,
+    filters: {
+      hops: 1,
+      minDistance: 0.0,
+      maxDistance: 1.0,
+    },
+    total: undefined,
     error: false,
     loading: false,
     limit: 100,
-    offset: 0,
     matches: [],
     files: {},
   },
@@ -105,10 +108,12 @@ function fileMatchesReducer(state = initialState.fileMatches, action) {
     case ACTION_UPDATE_FILE_MATCH_FILTERS:
       return {
         ...state,
+        fileId: action.fileId,
         filters: { ...state.filters, ...action.filters, fileId: action.fileId },
         matches: [],
         files: {},
         loading: true,
+        total: undefined,
       };
     case ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS:
       return {
@@ -121,6 +126,7 @@ function fileMatchesReducer(state = initialState.fileMatches, action) {
       };
     case ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE:
       return {
+        ...state,
         matches: [],
         files: {},
         total: 0,

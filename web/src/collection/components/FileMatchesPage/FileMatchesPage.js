@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -18,7 +18,8 @@ import useFile from "../../hooks/useFile";
 import FileLoadingHeader from "../FileLoadingHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileMatches } from "../../state/selectors";
-import { updateFileMatchFilters } from "../../state/actions";
+import { fetchFileMatches, updateFileMatchFilters } from "../../state/actions";
+import LoadTrigger from "../../../common/components/LoadingTrigger/LoadTrigger";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,6 +42,9 @@ const useStyles = makeStyles((theme) => ({
   actionButton: {
     margin: theme.spacing(1.5),
   },
+  trigger: {
+    minHeight: 250,
+  },
 }));
 
 /**
@@ -53,6 +57,7 @@ function useMessages(matchesCount) {
     matched: intl.formatMessage({ id: "file.matched" }, { count: matches }),
     showFilters: intl.formatMessage({ id: "actions.showFiltersPane" }),
     searchMatches: intl.formatMessage({ id: "actions.searchMatches" }),
+    loadError: intl.formatMessage({ id: "match.load.error" }),
   };
 }
 
@@ -88,6 +93,10 @@ function FileMatchesPage(props) {
   useEffect(() => {
     dispatch(updateFileMatchFilters(id, { hops: 1 }));
   }, [id]);
+
+  const handleLoad = useCallback(() => {
+    dispatch(fetchFileMatches());
+  }, [matchesState]);
 
   if (file == null) {
     return (
@@ -144,6 +153,20 @@ function FileMatchesPage(props) {
               />
             </Grid>
           ))}
+          <Grid item xs={6} lg={3}>
+            <LoadTrigger
+              error={matchesState.error}
+              loading={matchesState.loading}
+              onLoad={handleLoad}
+              hasMore={
+                matchesState.total === undefined ||
+                matchesState.matches.length < matchesState.total
+              }
+              container={MatchPreview.Container}
+              errorMessage={messages.loadError}
+              className={classes.trigger}
+            />
+          </Grid>
         </Grid>
       </div>
     </div>

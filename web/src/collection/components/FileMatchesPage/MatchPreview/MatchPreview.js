@@ -2,7 +2,6 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import Paper from "@material-ui/core/Paper";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import Marked from "../../../../common/components/Marked";
 import IconButton from "@material-ui/core/IconButton";
@@ -14,17 +13,13 @@ import ButtonBase from "@material-ui/core/ButtonBase";
 import { useHistory } from "react-router-dom";
 import { routes } from "../../../../routing/routes";
 import FileType from "../../FileBrowserPage/FileType";
+import Container from "./Container";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    boxShadow: "0 12px 18px 0 rgba(0,0,0,0.08)",
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
-    "&:focus": {
-      outline: "none",
-      boxShadow: "0 12px 18px 0 rgba(0,0,0,0.28)",
-    },
   },
   nameContainer: {
     display: "flex",
@@ -114,7 +109,7 @@ function MatchPreview(props) {
   );
 
   return (
-    <Paper
+    <Container
       className={clsx(classes.root, className)}
       tabIndex={0}
       aria-label={messages.ariaLabel}
@@ -151,7 +146,7 @@ function MatchPreview(props) {
           {messages.moreInfo}
         </ButtonBase>
       </div>
-    </Paper>
+    </Container>
   );
 }
 
@@ -170,5 +165,10 @@ MatchPreview.propTypes = {
   highlight: PropTypes.string,
   className: PropTypes.string,
 };
+
+/**
+ * Preview container component
+ */
+MatchPreview.Container = Container;
 
 export default MatchPreview;
