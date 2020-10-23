@@ -1,8 +1,11 @@
 import { call, put, select, takeLatest } from "redux-saga/effects";
 import {
+  ACTION_FETCH_FILE_MATCHES,
   ACTION_FETCH_FILES,
   ACTION_UPDATE_FILE_MATCH_FILTERS,
   ACTION_UPDATE_FILTERS,
+  fetchFileMatchesFailure,
+  fetchFileMatchesSuccess,
   fetchFilesFailure,
   fetchFilesSuccess,
   updateFileMatchFiltersFailure,
@@ -12,31 +15,52 @@ import {
 } from "./actions";
 import { selectColl, selectFileMatches } from "./selectors";
 
-function* fetchFileMatchesSaga(server, action) {
+function* updateFileMatchFiltersSaga(server, action) {
+  yield* fetchFileMatchesSaga(
+    server,
+    action,
+    updateFileMatchFiltersSuccess,
+    updateFileMatchFiltersFailure
+  );
+}
+
+function* fetchFileMatchesPageSaga(server, action) {
+  yield* fetchFileMatchesSaga(
+    server,
+    action,
+    fetchFileMatchesSuccess,
+    fetchFileMatchesFailure
+  );
+}
+
+function* fetchFileMatchesSaga(server, action, success, failure) {
   try {
     // Determine current query params
-    const { limit, offset } = yield select(selectFileMatches);
+    const { limit, filters, fileId, matches: current } = yield select(
+      selectFileMatches
+    );
 
     // Send request to the server
     const resp = yield call([server, server.fetchFileMatches], {
       limit,
-      offset,
-      id: action.fileId,
+      offset: current.length,
+      id: fileId,
+      filters,
     });
 
     // Handle error
     if (resp.failure) {
       console.error("Fetch file matches error", resp.error);
-      yield put(updateFileMatchFiltersFailure(resp.error));
+      yield put(failure(resp.error));
       return;
     }
 
     // Update state
-    const { total, matches } = resp.data;
-    yield put(updateFileMatchFiltersSuccess(matches, total));
+    const { total, matches, files } = resp.data;
+    yield put(success(matches, files, total));
   } catch (error) {
     console.error(error);
-    yield put(updateFileMatchFiltersFailure(error));
+    yield put(failure(error));
   }
 }
 
@@ -98,7 +122,8 @@ export default function* collRootSaga(server) {
   );
   yield takeLatest(
     ACTION_UPDATE_FILE_MATCH_FILTERS,
-    fetchFileMatchesSaga,
+    updateFileMatchFiltersSaga,
     server
   );
+  yield takeLatest(ACTION_FETCH_FILE_MATCHES, fetchFileMatchesPageSaga, server);
 }

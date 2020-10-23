@@ -5,21 +5,10 @@ from functools import cached_property
 from http import HTTPStatus
 
 from flask import current_app, abort
-from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
 
-from db.schema import Matches, Files
 from thumbnail.cache import ThumbnailCache
 from ..config import Config
-from ..model import database
-
-
-def file_matches(file_id):
-    """Query for all file matches."""
-    return database.session.query(Matches).filter(or_(
-        Matches.query_video_file_id == file_id,
-        Matches.match_video_file_id == file_id
-    ))
 
 
 def get_config() -> Config:
@@ -55,9 +44,25 @@ def parse_boolean(args, name):
         abort(HTTPStatus.BAD_REQUEST.value, f"{name} has invalid format (expected {_TRUTHY} or {_FALSY})")
 
 
+def parse_seq(args, name):
+    """Parse sequence of comma-separated values."""
+    seq = args.get(name, '', type=str)
+    items = [item.strip() for item in seq.split(',')]
+    items = [item for item in items if len(item) > 0]
+    return items
+
+
 def parse_positive_int(args, name, default=None):
     """Parse positive integer parameter."""
     value = args.get(name, default=default, type=int)
+    if value is not default and value < 0:
+        abort(HTTPStatus.BAD_REQUEST.value, f"{name} cannot be negative")
+    return value
+
+
+def parse_positive_float(args, name, default=None):
+    """Parse positive float parameter."""
+    value = args.get(name, default=default, type=float)
     if value is not default and value < 0:
         abort(HTTPStatus.BAD_REQUEST.value, f"{name} cannot be negative")
     return value
@@ -100,11 +105,10 @@ def parse_enum_seq(args, name, values, default=None):
     return result
 
 
-def has_matches(threshold):
-    """Create a filter criteria to check if there is a match
-    with distance lesser or equal to the given threshold."""
-    return or_(Files.source_matches.any(Matches.distance <= threshold),
-               Files.target_matches.any(Matches.distance <= threshold))
+def parse_fields(args, name, fields):
+    """Parse requested fields list."""
+    field_names = parse_enum_seq(args, name, values=fields.names, default=())
+    return {fields.get(name) for name in field_names}
 
 
 class Fields:
@@ -124,10 +128,14 @@ class Fields:
         """Set of field names."""
         return {field.key for field in self.fields}
 
-    def preload(self, query, names, *path):
+    def get(self, name):
+        """Get field by name."""
+        return self._index[name]
+
+    @staticmethod
+    def preload(query, fields, *path):
         """Enable eager loading for enumerated fields."""
-        for name in names:
-            field = self._index[name]
+        for field in fields:
             full_path = path + (field,)
             query = query.options(joinedload(*full_path))
         return query

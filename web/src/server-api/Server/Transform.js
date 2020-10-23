@@ -106,14 +106,12 @@ export default class Transform {
   fetchFileMatchesResults(data) {
     return {
       total: data.total,
-      matches: data.items.map((match) => this.fileMatch(match)),
+      matches: data.matches.map((match) => this.fileMatch(match)),
+      files: data.files.map((file) => this.videoFile(file)),
     };
   }
 
   fileMatch(match) {
-    return {
-      distance: match.distance,
-      file: this.videoFile(match.file),
-    };
+    return { ...match }; // No difference at the moment
   }
 }

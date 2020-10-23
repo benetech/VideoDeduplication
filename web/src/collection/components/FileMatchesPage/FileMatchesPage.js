@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -18,7 +18,8 @@ import useFile from "../../hooks/useFile";
 import FileLoadingHeader from "../FileLoadingHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileMatches } from "../../state/selectors";
-import { updateFileMatchFilters } from "../../state/actions";
+import { fetchFileMatches, updateFileMatchFilters } from "../../state/actions";
+import LoadTrigger from "../../../common/components/LoadingTrigger/LoadTrigger";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,6 +42,9 @@ const useStyles = makeStyles((theme) => ({
   actionButton: {
     margin: theme.spacing(1.5),
   },
+  trigger: {
+    minHeight: 250,
+  },
 }));
 
 /**
@@ -53,22 +57,46 @@ function useMessages(matchesCount) {
     matched: intl.formatMessage({ id: "file.matched" }, { count: matches }),
     showFilters: intl.formatMessage({ id: "actions.showFiltersPane" }),
     searchMatches: intl.formatMessage({ id: "actions.searchMatches" }),
+    loadError: intl.formatMessage({ id: "match.load.error" }),
   };
+}
+
+function isIncident(id) {
+  return (match) => match.source === id || match.target === id;
+}
+
+function getMatchedFile(match, files, id) {
+  if (match.source === id) {
+    return files[match.target];
+  } else if (match.target === id) {
+    return files[match.source];
+  } else {
+    throw Error(
+      `Match ${JSON.stringify(match)} is not incident to file id ${id}`
+    );
+  }
 }
 
 function FileMatchesPage(props) {
   const { className } = props;
   const classes = useStyles();
-  const { id } = useParams();
+  const { id: rawId } = useParams();
+  const id = Number(rawId);
   const { file, error, loadFile } = useFile(id);
   const messages = useMessages((file && file.matchesCount) || 0);
   const [view, setView] = useState(View.grid);
-  const matches = useSelector(selectFileMatches).matches;
+  const matchesState = useSelector(selectFileMatches);
+  const matches = matchesState.matches.filter(isIncident(id));
+  const files = matchesState.files;
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(updateFileMatchFilters(id, {}));
-  }, [id]);
+  const handleLoad = useCallback(() => {
+    if (matchesState.total == null) {
+      dispatch(updateFileMatchFilters(id, { hops: 1 }));
+    } else {
+      dispatch(fetchFileMatches());
+    }
+  }, [id, matchesState]);
 
   if (file == null) {
     return (
@@ -118,10 +146,27 @@ function FileMatchesPage(props) {
       >
         <Grid container spacing={4}>
           {matches.map((match) => (
-            <Grid item xs={6} lg={3} key={match.file.id}>
-              <MatchPreview match={match} />
+            <Grid item xs={6} lg={3} key={match.id}>
+              <MatchPreview
+                distance={match.distance}
+                file={getMatchedFile(match, files, id)}
+              />
             </Grid>
           ))}
+          <Grid item xs={6} lg={3}>
+            <LoadTrigger
+              error={matchesState.error}
+              loading={matchesState.loading}
+              onLoad={handleLoad}
+              hasMore={
+                matchesState.total === undefined ||
+                matchesState.matches.length < matchesState.total
+              }
+              container={MatchPreview.Container}
+              errorMessage={messages.loadError}
+              className={classes.trigger}
+            />
+          </Grid>
         </Grid>
       </div>
     </div>

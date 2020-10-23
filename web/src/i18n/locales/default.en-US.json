@@ -170,6 +170,7 @@
     "filter.defaultMinDate": "minimal date",
     "filter.creationDate": "Creation date (mm/dd/yyyy)",
     "filter.creationDate.help": "Based on file creation date.",
-    "preview.notAvailable": "Preview not available."
+    "preview.notAvailable": "Preview not available.",
+    "match.load.error": "Error loading matches."
   }
 }
