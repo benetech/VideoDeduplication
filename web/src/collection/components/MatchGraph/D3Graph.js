@@ -145,10 +145,10 @@ export default class D3Graph {
     const link = svg
       .append("g")
       .attr("stroke", "#999")
-      .attr("stroke-opacity", 0.6)
       .selectAll("line")
       .data(this.links)
       .join("line")
+      .attr("stroke-opacity", (d) => 1 - d.distance)
       .attr("stroke-width", (d) => edgeWidth(d))
       .on("mouseover", function (event, edge) {
         d3.select(this).attr("stroke-width", (d) => 1.5 * edgeWidth(d));
