@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import D3Graph from "./D3Graph";
 import MatchType from "../FileMatchesPage/MatchType";
 import FileType from "../FileBrowserPage/FileType";
+import { useHistory } from "react-router-dom";
+import { routes } from "../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,6 +48,13 @@ function MatchGraph(props) {
   const ref = useRef(null);
   const [graph, setGraph] = useState(null);
 
+  const history = useHistory();
+
+  const handleClickFile = useCallback(
+    (node) => history.push(routes.collection.fileURL(node.file.id)),
+    []
+  );
+
   useEffect(() => {
     if (ref.current != null) {
       if (graph != null) {
@@ -56,6 +65,7 @@ function MatchGraph(props) {
         nodes: getNodes(source, files),
         container: ref.current,
         classes: { content: classes.content },
+        onClick: handleClickFile,
       });
       newGraph.display();
       setGraph(newGraph);
