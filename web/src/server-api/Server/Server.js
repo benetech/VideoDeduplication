@@ -2,7 +2,7 @@ import axios from "axios";
 import * as HttpStatus from "http-status-codes";
 import Transform from "./Transform";
 import { Response } from "../Response";
-import { filtersToQueryParams } from "./helpers";
+import { fileFiltersToQueryParams, matchFiltersToQueryParams } from "./helpers";
 
 export default class Server {
   constructor({ baseURL = "/api/v1", timeout = 10 * 1000, headers = {} } = {}) {
@@ -21,7 +21,7 @@ export default class Server {
           offset,
           limit,
           include: ["signature", "meta", "exif"].join(","),
-          ...filtersToQueryParams(filters),
+          ...fileFiltersToQueryParams(filters),
         },
       });
       const data = this.transform.fetchFileResults(response.data);
@@ -50,6 +50,7 @@ export default class Server {
     limit = 20,
     offset = 0,
     fields = ["meta", "exif"],
+    filters,
   }) {
     try {
       const response = await this.axios.get(`/files/${id}/matches`, {
@@ -57,6 +58,7 @@ export default class Server {
           limit,
           offset,
           include: fields.join(","),
+          ...matchFiltersToQueryParams(filters),
         },
       });
       const data = this.transform.fetchFileMatchesResults(response.data);
