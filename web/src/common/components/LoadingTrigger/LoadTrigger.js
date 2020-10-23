@@ -41,7 +41,7 @@ function useMessages() {
 }
 
 /**
- * Match loading trigger
+ * Loading trigger
  */
 function LoadTrigger(props) {
   const {
@@ -96,15 +96,15 @@ LoadTrigger.propTypes = {
    */
   error: PropTypes.bool,
   /**
-   * File loading is in progress
+   * Loading is in progress
    */
   loading: PropTypes.bool.isRequired,
   /**
-   * Trigger loading of the next portion of files
+   * Trigger loading of the next portion of items
    */
   onLoad: PropTypes.func.isRequired,
   /**
-   * Whether more files could be loaded
+   * Whether more items could be loaded
    */
   hasMore: PropTypes.bool.isRequired,
   /**
