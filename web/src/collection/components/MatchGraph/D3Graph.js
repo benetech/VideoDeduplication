@@ -45,7 +45,7 @@ export default class D3Graph {
       .selectAll("line")
       .data(this.links)
       .join("line")
-      .attr("stroke-width", (d) => Math.sqrt(d.value));
+      .attr("stroke-width", (d) => Math.sqrt(100 * (1 - d.distance)));
 
     const node = svg
       .append("g")
@@ -131,9 +131,12 @@ export default class D3Graph {
       .forceSimulation(this.nodes)
       .force(
         "link",
-        d3.forceLink(this.links).id((d) => d.id)
+        d3
+          .forceLink(this.links)
+          .id((d) => d.id)
+          .strength((d) => 0.1 * (1 - d.distance))
       )
-      .force("charge", d3.forceManyBody())
+      .force("charge", d3.forceManyBody().strength(-400))
       .force("center", d3.forceCenter(this.width / 2, this.height / 2));
   }
 

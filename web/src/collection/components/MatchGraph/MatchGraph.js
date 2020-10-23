@@ -23,7 +23,7 @@ function getLinks(source, matches) {
   return matches.map((match) => ({
     source: match.source,
     target: match.target,
-    value: 10 * (1 - match.distance),
+    distance: match.distance,
   }));
 }
 
@@ -35,6 +35,7 @@ function getNodes(source, files) {
     ...Object.values(files).map((file) => ({
       id: file.id,
       group: file.id === source.id ? 2 : 1,
+      file: file,
     })),
   ];
 }
