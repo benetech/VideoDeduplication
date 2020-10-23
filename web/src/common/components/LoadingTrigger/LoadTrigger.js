@@ -79,8 +79,8 @@ function LoadTrigger(props) {
       )}
       {loading && <CircularProgress size={30} color="primary" />}
       {!loading && error && (
-        <div className={errorMessage}>
-          {messages.error}
+        <div className={classes.errorMessage}>
+          {errorMessage}
           <div className={classes.retryLink} onClick={onLoad}>
             {messages.retry}
           </div>
