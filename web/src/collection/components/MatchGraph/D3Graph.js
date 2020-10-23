@@ -32,21 +32,6 @@ class NodeTracker {
 }
 
 /**
- *  Class to calculate position relative to edge.
- */
-class EdgeTracker {
-  constructor(edge, indent) {
-    this.edge = edge;
-    this.indent = { x: 0, y: 0, ...indent };
-  }
-  track() {
-    const x = 0.5 * (this.edge.source.x + this.edge.target.x) + this.indent.x;
-    const y = 0.5 * (this.edge.source.y + this.edge.target.y) + this.indent.y;
-    return [x, y];
-  }
-}
-
-/**
  * Class to calculate position relative to mouse pointer.
  */
 class MouseTracker {
@@ -63,9 +48,8 @@ class MouseTracker {
 }
 
 class Tooltip {
-  constructor({ text, container, tracker, className }) {
+  constructor({ text, container, tracker }) {
     this.tracker = tracker;
-
     this.text = container.append("text").text(text);
   }
 
@@ -90,6 +74,12 @@ function fileTooltip(file) {
   const duration = formatDuration(file.metadata.length, null, false);
   return `${filename} - ${duration}`;
 }
+
+const colorScheme = {
+  1: "#2ca02c",
+  2: "#1f77b4",
+  3: "#ff7f0e",
+};
 
 export default class D3Graph {
   constructor({
@@ -121,7 +111,7 @@ export default class D3Graph {
    */
   display() {
     const scale = d3.scaleOrdinal(d3.schemeCategory10);
-    const color = (d) => scale(d.group);
+    const color = (d) => colorScheme[d.group] || scale(d.group);
 
     this.simulation = this._createForceSimulation();
 
@@ -189,7 +179,6 @@ export default class D3Graph {
             x: self.options.nodeRadius * 2,
             y: self.options.nodeRadius * 0.25,
           }),
-          className: self.classes.tooltip,
         });
         self.tooltip.move(event);
       })

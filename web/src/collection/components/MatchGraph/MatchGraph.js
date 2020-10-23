@@ -40,11 +40,27 @@ function getLinks(source, matches) {
 /**
  * Get collection of nodes compatible with D3Graph
  */
-function getNodes(source, files) {
+function getNodes(source, files, matches) {
+  const children = new Set();
+  for (const match of matches) {
+    if (match.source === source.id) {
+      children.add(match.target);
+    } else if (match.target === source.id) {
+      children.add(match.source);
+    }
+  }
+  const group = (file) => {
+    if (file.id === source.id) {
+      return 1;
+    } else if (children.has(file.id)) {
+      return 2;
+    }
+    return 3;
+  };
   return [
     ...Object.values(files).map((file) => ({
       id: file.id,
-      group: file.id === source.id ? 2 : 1,
+      group: group(file),
       file: file,
     })),
   ];
@@ -70,7 +86,7 @@ function MatchGraph(props) {
       }
       const newGraph = new D3Graph({
         links: getLinks(source, matches),
-        nodes: getNodes(source, files),
+        nodes: getNodes(source, files, matches),
         container: ref.current,
         classes: { content: classes.content, tooltip: classes.tooltip },
         onClick: handleClickFile,
