@@ -16,6 +16,14 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     minHeight: 500,
   },
+  tooltip: {
+    position: "absolute",
+    textAlign: "center",
+    padding: theme.spacing(2),
+    backgroundColor: theme.palette.common.white,
+    borderRadius: theme.spacing(2),
+    boxShadow: "0 12px 18px 0 rgba(0,0,0,0.08)",
+  },
 }));
 
 /**
@@ -64,7 +72,7 @@ function MatchGraph(props) {
         links: getLinks(source, matches),
         nodes: getNodes(source, files),
         container: ref.current,
-        classes: { content: classes.content },
+        classes: { content: classes.content, tooltip: classes.tooltip },
         onClick: handleClickFile,
       });
       newGraph.display();
