@@ -5,12 +5,32 @@ import { makeStyles } from "@material-ui/styles";
 import { FileType } from "../FileBrowserPage/FileType";
 import MediaPreview from "../../../common/components/MediaPreview";
 import ReactPlayer from "react-player";
+import { FLV_GLOBAL } from "react-player/lib/players/FilePlayer";
+import flvjs from "flv.js";
 import TimeCaption from "./TimeCaption";
 import VideoController from "./VideoController";
 import { useServer } from "../../../server-api/context";
 import { Status } from "../../../server-api/Response";
 import { useIntl } from "react-intl";
 import WarningOutlinedIcon from "@material-ui/icons/WarningOutlined";
+
+/**
+ * Setup bundled flv.js.
+ *
+ * By default react-player tries to lazy-load playback SDK from CDN.
+ * But the application must be able play video files when Internet
+ * connection is not available. To solve that we bundle flv.js and
+ * initialize global variable consumed by react-player's FilePlayer.
+ *
+ * See https://www.npmjs.com/package/react-player#sdk-overrides
+ * See https://github.com/CookPete/react-player/issues/605#issuecomment-492561909
+ */
+function setupBundledFlvJs() {
+  const FLV_VAR = FLV_GLOBAL || "flvjs";
+  if (window[FLV_VAR] == null) {
+    window[FLV_VAR] = flvjs;
+  }
+}
 
 const useStyles = makeStyles((theme) => ({
   container: {},
@@ -67,6 +87,9 @@ const VideoPlayer = function VideoPlayer(props) {
   const handleWatch = useCallback(() => setWatch(true), []);
   const controller = useMemo(() => new VideoController(player, setWatch), []);
   const previewActions = useMemo(() => makePreviewActions(handleWatch), []);
+
+  // Make sure flv.js is available
+  useEffect(setupBundledFlvJs, []);
 
   // Provide controller to the consumer
   useEffect(() => onReady && onReady(controller), [onReady]);

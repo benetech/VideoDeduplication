@@ -54,6 +54,7 @@
     "clsx": "^1.1.1",
     "d3": "^6.2.0",
     "date-fns": "^2.16.1",
+    "flv.js": "^1.5.0",
     "fontsource-roboto": "^2.1.4",
     "get-user-locale": "^1.4.0",
     "http-status-codes": "^1.4.0",
