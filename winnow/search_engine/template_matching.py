@@ -152,29 +152,3 @@ def download_sample_templates(TEMPLATES_PATH,DOWNLOAD_URL="https://s3.amazonaws.
         shutil.unpack_archive(DST,format='gztar')
         # Delete tar
         os.unlink(DST)
-
-
-
-
-def search_from_features(feats,threshold=0.07):
-    for i in range(len(frame_summaries)):
-    
-        try:
-            video_summary = frame_summaries[i]
-            sample = np.load(video_summary)
-            video_frames = np.load(video_summary.replace('features','frames'))
-
-            distances = np.mean(cdist(feats,sample,metric='cosine'),axis=0)
-            min_d = min(distances)
-
-            
-            if min_d < threshold:
-                print('Minimum distance:{}'.format(min_d))
-                frame_of_interest = np.hstack(video_frames[np.argmin(distances):][:5])
-
-                plt.figure(figsize=(20,10))
-                plt.imshow(frame_of_interest)
-                plt.show()
-        except Exception as e:
-            print(e)
-            

@@ -16,16 +16,23 @@ class SimilarityModel:
     def predict(self, file_feature_dict):
         """
         Args:
-            file_feature_dict: A dictionary mapping from original (path,hash) to video-level feature tensor.
+            file_feature_dict: A dictionary mapping from original (path,hash)
+            to video-level feature tensor.
         """
-        # Get array of (path,hash) and array of corresponding feature values in the same order
+        # Get array of (path,hash) and array of corresponding feature
+        # values in the same order
         keys, features = zip(*file_feature_dict.items())
-        features = np.array([tensor[0] for tensor in features])  # TODO: Need a comment concerning magical tensor[0]?
+        features = np.array([tensor[0] for tensor in features])
 
         # Create model
         if self.model is None:
             print(f"Creating similarity model for shape {features.shape}")
-            self.model = DNN(features.shape[1], None, similarity_model_pretrained, load_model=True, trainable=False)
+            self.model = DNN(
+                            features.shape[1],
+                            None,
+                            similarity_model_pretrained,
+                            load_model=True,
+                            trainable=False)
 
         embeddings = self.model.embeddings(features)
         embeddings = np.nan_to_num(embeddings)

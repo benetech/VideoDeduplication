@@ -31,7 +31,8 @@ def feature_extraction_videos(model, video_list, reprs, storepath, cores=4, batc
         cores: CPU cores for the parallel video loading
         batch_sz: batch size fed to the CNN network
         video_list: list of video to extract features
-        reprs (winnow.storage.repr_storage.ReprStorage): storage of video features
+        reprs (winnow.storage.repr_storage.ReprStorage): storage of video
+        features
         storepath: convert paths to relative paths inside content root folder
         frame_sampling: Minimal distance (in sec.) between frames to be saved.
         save_frames: Save normalized video frames.

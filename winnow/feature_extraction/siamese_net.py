@@ -11,6 +11,7 @@ with warnings.catch_warnings():
 
 import warnings
 
+
 class DNN(object):
 
     def __init__(self,
@@ -33,13 +34,19 @@ class DNN(object):
             trainable: indicator of whether it is training or evaluation phase
             learning_rate: learning rate that weights are updated
             weight_decay: regularization parameter for weight decay
-            gamma: margin parameter between positive-query and negative-query distance
+            gamma: margin parameter between positive-query and
+            negative-query distance
         """
         self.trainable = trainable
         self.path = os.path.join(model_path, 'model')
 
-        self.input = tf.compat.v1.placeholder(tf.float32, shape=(None, input_dimensions), name='input')
-        self.regularizer = tf.contrib.layers.l2_regularizer(scale=weight_decay) if trainable else None
+        self.input = tf.compat.v1.placeholder(tf.float32,
+                                              shape=(None, input_dimensions),
+                                              name='input')
+
+        reg = tf.contrib.layers.l2_regularizer(scale=weight_decay)
+
+        self.regularizer = reg if trainable else None
         if load_model:
             self.output = self.load_model()
         else:
@@ -49,12 +56,23 @@ class DNN(object):
         if trainable:
             self.global_step = 1
             with tf.name_scope('training'):
-                anchor, positive, negative = \
-                    tf.unstack(tf.reshape(self.output, [-1, 3, self.output.get_shape().as_list()[1]]), 3, 1)
-                loss, error = self.triplet_loss(anchor, positive, negative, gamma)
+                anchor, positive, negative = tf.unstack(
+                      tf.reshape(
+                          self.output,
+                          [-1, 3, self.output.get_shape().as_list()[1]]), 3, 1)
+                loss, error = self.triplet_loss(
+                                                anchor,
+                                                positive,
+                                                negative,
+                                                gamma)
 
-                reg_variables = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
-                reg_term = tf.contrib.layers.apply_regularization(self.regularizer, reg_variables)
+                reg_variables = tf.get_collection(
+                                 tf.GraphKeys.REGULARIZATION_LOSSES)
+
+                reg_term = tf.contrib.layers.apply_regularization(
+                                                      self.regularizer,
+                                                      reg_variables
+                                                      )
                 with tf.name_scope('cost'):
                     cost = loss + reg_term
                     tf.summary.scalar('cost', cost)
@@ -71,7 +89,10 @@ class DNN(object):
         self.sess = tf.compat.v1.Session(config=config)
         self.sess.run(init)
         if trainable:
-            self.summary_writer = tf.summary.FileWriter(model_path, self.sess.graph)
+            self.summary_writer = tf.summary.FileWriter(
+                                                        model_path,
+                                                        self.sess.graph
+                                                        )
 
     def build(self, hidden_layer_sizes):
         """
@@ -86,11 +107,14 @@ class DNN(object):
         """
         net = self.input
         for M in hidden_layer_sizes:
-            net = tf.contrib.layers.fully_connected(net, M,
+            net = tf.contrib.layers.fully_connected(
+                        net,
+                        M,
                         activation_fn=tf.nn.tanh,
                         weights_regularizer=self.regularizer,
                         biases_regularizer=self.regularizer,
                         trainable=self.trainable)
+
         with tf.name_scope('embeddings'):
             net = tf.nn.l2_normalize(net, 1, 1e-15)
             tf.compat.v1.summary.histogram('embeddings', net)
@@ -106,15 +130,18 @@ class DNN(object):
         net = self.build(previous_sizes)
 
         previous_variables = [var_name for var_name, _
-                              in tf.contrib.framework.list_variables(self.path)]
-        restore_map = {variable.op.name: variable for variable in tf.compat.v1.global_variables()
+                              in tf.contrib.framework.list_variables(self.path)
+                              ]
+        restore_map = {variable.op.name: variable
+                       for variable in tf.compat.v1.global_variables()
                        if variable.op.name in previous_variables}
         tf.contrib.framework.init_from_checkpoint(self.path, restore_map)
         return net
 
     def euclidean_distance(self, x, y):
         """
-          Euclidean distance calculation between each sample N of two matrices (NxM).
+          Euclidean distance calculation between each sample N of two matrices
+          (NxM).
 
           Args:
             x: first feature matrix (NxM)
@@ -129,7 +156,7 @@ class DNN(object):
     def triplet_loss(self, anchor, positive, negative, gamma):
         """
           Triplet loss calculation.
-          
+
 
           Args:
             anchor: anchor feature matrix (NxM)
@@ -145,8 +172,12 @@ class DNN(object):
             pos_dist = self.euclidean_distance(anchor, positive)
             neg_dist = self.euclidean_distance(anchor, negative)
             loss = tf.maximum(0., pos_dist - neg_dist + gamma)
-            error = tf.count_nonzero(loss, dtype=tf.float32) / \
-                    tf.cast(tf.shape(anchor)[0], tf.float32) * tf.constant(100.0)
+
+            e1 = tf.count_nonzero(loss, dtype=tf.float32)
+            e2 = tf.cast(tf.shape(anchor)[0], tf.float32)
+            e3 = tf.constant(100.0)
+
+            error = e1 / e2 * e3
             loss = tf.reduce_mean(loss)
             tf.summary.scalar('loss', loss)
             tf.summary.scalar('error', error)
@@ -186,7 +217,9 @@ class DNN(object):
             cost: total cost
             error: number of triplets with positive loss
         """
-        summary, cost, error = self.sess.run(self.test_op, feed_dict={self.input: X})
+        summary, cost, error = self.sess.run(
+                                            self.test_op,
+                                            feed_dict={self.input: X})
         self.summary_writer.add_summary(summary, self.global_step)
         self.global_step += 1
         return cost, error

@@ -3,9 +3,8 @@
 import numpy as np
 import pickle as pk
 import matplotlib.pylab as plt
-from glob import glob
 from sklearn.metrics import precision_recall_curve
-import os
+
 
 def load_dataset(dataset):
     """
@@ -31,18 +30,15 @@ def load_feature_files(feature_files):
         file is not in the right format
     """
     try:
-        return {l.split('\t')[0]: l.split('\t')[1].strip() for l in open(feature_files, 'rb').readlines()}
-    except:
-        raise Exception('''--feature_files provided is in wrong format. Each line of the 
-        file have to contain the video id (name of the video file) 
+        return {
+                 line.split('\t')[0]: line.split('\t')[1].strip()
+                 for line in open(feature_files, 'rb').readlines()
+                }
+    except Exception:
+        raise Exception('''--feature_files provided is in wrong format. Each line of the
+        file have to contain the video id (name of the video file)
         and the full path to the corresponding .npy file, separated
-        by a tab character (\\t). Example:
-                        
-            23254771545e5d278548ba02d25d32add952b2a4	features/23254771545e5d278548ba02d25d32add952b2a4.npy
-            468410600142c136d707b4cbc3ff0703c112575d	features/468410600142c136d707b4cbc3ff0703c112575d.npy
-            67f1feff7f624cf0b9ac2ebaf49f547a922b4971	features/67f1feff7f624cf0b9ac2ebaf49f547a922b4971.npy
-            7deff9e47e47c98bb341c4355dfff9a82bfba221	features/7deff9e47e47c98bb341c4355dfff9a82bfba221.npy
-                                                      ...''')
+        by a tab character (\\t). Example:[VIDEO_ID]	features/[VIDEOID].npy''')
 
 
 def normalize(X):
@@ -60,17 +56,15 @@ def normalize(X):
 
 
 def global_vector_from_tensor(video_tensor):
-  try:
-      X = video_tensor
-      X = normalize(X)
-      X = X.mean(axis=0, keepdims=True)
-      X = normalize(X)
-      return X
-  except Exception:
-      print('Error processing video tensor.')
-      return np.array([])
-
-
+    try:
+        X = video_tensor
+        X = normalize(X)
+        X = X.mean(axis=0, keepdims=True)
+        X = normalize(X)
+        return X
+    except Exception:
+        print('Error processing video tensor.')
+        return np.array([])
 
 
 def global_vector(frame_feature_vector):
@@ -99,16 +93,24 @@ def global_vector(frame_feature_vector):
 
 def frame_to_global(representations):
     """
-    Calculate and save global feature vectors based on frame-level representation.
+    Calculate and save global feature vectors based on frame-level
+    representation.
 
     Args:
-        representations (winnow.storage.repr_storage.ReprStorage): Intermediate representations storage.
+        representations (winnow.storage.repr_storage.ReprStorage):
+        Intermediate representations storage.
     """
     for path, sha256 in representations.frame_level.list():
         try:
-            frame_feature_vector = representations.frame_level.read(path, sha256)
+
+            frame_feature_vector = \
+                representations.frame_level.read(path, sha256)
+
             video_representation = global_vector(frame_feature_vector)
-            representations.video_level.write(path, sha256, video_representation)
+            representations.video_level.write(
+                                              path,
+                                              sha256,
+                                              video_representation)
         except Exception as e:
             raise Exception('Cant save video to destination:{}'.format(e))
 
@@ -136,16 +138,20 @@ def plot_pr_curve(pr_curve, title):
     plt.show()
 
 
-def evaluate(ground_truth, similarities, positive_labels='ESLMV', all_videos=False):
+def evaluate(ground_truth,
+             similarities,
+             positive_labels='ESLMV',
+             all_videos=False):
     """
       Function that plots the PR-curve.
 
       Args:
         ground_truth: the ground truth labels for each query
-        similarities: the similarities of each query with the videos in the dataset
+        similarities: the similarities of each query with the videos in the
+        dataset
         positive_labels: labels that are considered positives
-        all_videos: indicator of whether all videos are considered for the evaluation
-        or only the videos in the query subset
+        all_videos: indicator of whether all videos are considered for the
+        evaluation or only the videos in the query subset
       Returns:
         mAP: the mean Average Precision
         ps_curve: the values of the PR-curve
@@ -166,9 +172,12 @@ def evaluate(ground_truth, similarities, positive_labels='ESLMV', all_videos=Fal
                     s += i / ri
                     y_target[-1] = 1.0
 
-        mAP += s / np.sum([1.0 for label in labels.values() if label in positive_labels])
+        mAP += s / np.sum([1.0 for label in labels.values()
+                           if label in positive_labels])
 
-        precision, recall, thresholds = precision_recall_curve(y_target, y_score)
+        precision, recall, thresholds = precision_recall_curve(
+                                                            y_target,
+                                                            y_score)
         p = []
         for i in range(20, 0, -1):
             idx = np.where((recall >= i*0.05))[0]
