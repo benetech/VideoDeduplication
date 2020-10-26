@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectCachedFile } from "../state/selectors";
 import { useServer } from "../../server-api/context";
 import { cacheFile } from "../state/actions";
+import { Status } from "../../server-api/Response";
 
 /**
  * Fetch file by id.
@@ -10,26 +11,26 @@ import { cacheFile } from "../state/actions";
  */
 export function useFile(id) {
   const file = useSelector(selectCachedFile(id));
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(null);
   const server = useServer();
   const dispatch = useDispatch();
 
   const loadFile = useCallback(() => {
     const doLoad = async () => {
-      setError(false);
+      setError(null);
       const response = await server.fetchFile({ id });
       if (response.success) {
         const file = response.data;
         dispatch(cacheFile(file));
       } else {
         console.error(response.error);
-        setError(true);
+        setError({ status: response.status });
       }
     };
 
     doLoad().catch((error) => {
       console.error(error);
-      setError(true);
+      setError({ status: Status.CLIENT_ERROR });
     });
   }, [id]);
 

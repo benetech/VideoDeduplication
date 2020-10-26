@@ -1,3 +1,4 @@
+import os
 from http import HTTPStatus
 from os.path import dirname, basename
 
@@ -91,6 +92,8 @@ def get_thumbnail(file_id):
     thumbnail = thumbnails_cache.get(file.file_path, file.sha256, position=time)
     if thumbnail is None:
         video_path = resolve_video_file_path(file.file_path)
+        if not os.path.isfile(video_path):
+            abort(HTTPStatus.NOT_FOUND.value, f"Video file is missing: {file.file_path}")
         thumbnail = extract_frame_tmp(video_path, position=time)
         if thumbnail is None:
             abort(HTTPStatus.NOT_FOUND.value, f"Timestamp exceeds video length: {time}")

@@ -141,6 +141,7 @@
     "file.tabExif": "EXIF Data",
     "file.load.error": "Error loading files.",
     "file.load.error.single": "Error loading file.",
+    "file.load.error.notFound": "File not found.",
     "file.details": "Details",
     "file.oneMatch": "01 File Matched",
     "file.manyMatches": "{count} Files Matched",
@@ -171,6 +172,9 @@
     "filter.creationDate": "Creation date (mm/dd/yyyy)",
     "filter.creationDate.help": "Based on file creation date.",
     "preview.notAvailable": "Preview not available.",
-    "match.load.error": "Error loading matches."
+    "match.load.error": "Error loading matches.",
+    "video.error.missing": "File Missing",
+    "video.error.load": "Loading Error",
+    "video.error.playback": "Playback Error"
   }
 }

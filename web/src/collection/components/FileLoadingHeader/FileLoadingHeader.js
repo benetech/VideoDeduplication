@@ -8,6 +8,7 @@ import IconButton from "@material-ui/core/IconButton";
 import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
 import { useHistory } from "react-router";
 import { ButtonBase } from "@material-ui/core";
+import { Status } from "../../../server-api/Response";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -51,6 +52,7 @@ function useMessages() {
   return {
     retry: intl.formatMessage({ id: "actions.retry" }),
     error: intl.formatMessage({ id: "file.load.error.single" }),
+    notFound: intl.formatMessage({ id: "file.load.error.notFound" }),
     goBack: intl.formatMessage({ id: "actions.goBack" }),
   };
 }
@@ -80,13 +82,11 @@ function FileLoadingHeader(props) {
     );
   }
 
-  return (
-    <div className={clsx(classes.header, className)}>
-      {back && (
-        <IconButton onClick={handleBack} aria-label={messages.goBack}>
-          <ArrowBackOutlinedIcon />
-        </IconButton>
-      )}
+  let content;
+  if (error.status === Status.NOT_FOUND) {
+    content = <div className={classes.errorMessage}>{messages.notFound}</div>;
+  } else {
+    content = (
       <div className={classes.errorMessage}>
         {messages.error}
         <ButtonBase
@@ -98,6 +98,17 @@ function FileLoadingHeader(props) {
           {messages.retry}
         </ButtonBase>
       </div>
+    );
+  }
+
+  return (
+    <div className={clsx(classes.header, className)}>
+      {back && (
+        <IconButton onClick={handleBack} aria-label={messages.goBack}>
+          <ArrowBackOutlinedIcon />
+        </IconButton>
+      )}
+      {content}
     </div>
   );
 }
@@ -107,7 +118,9 @@ FileLoadingHeader.propTypes = {
    * True iff file is not loading and previous
    * attempt resulted in failure.
    */
-  error: PropTypes.bool.isRequired,
+  error: PropTypes.shape({
+    status: PropTypes.any,
+  }),
   /**
    * Fires on retry.
    */
