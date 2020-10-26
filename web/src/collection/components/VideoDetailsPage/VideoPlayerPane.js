@@ -73,6 +73,7 @@ function VideoPlayerPane(props) {
         className={classes.player}
         onReady={callEach(setPlayer, onPlayerReady)}
         onProgress={setProgress}
+        suppressErrors
       />
       <ObjectTimeLine
         file={file}

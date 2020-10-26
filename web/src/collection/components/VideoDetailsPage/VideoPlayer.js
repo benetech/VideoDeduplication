@@ -25,10 +25,23 @@ import WarningOutlinedIcon from "@material-ui/icons/WarningOutlined";
  * See https://www.npmjs.com/package/react-player#sdk-overrides
  * See https://github.com/CookPete/react-player/issues/605#issuecomment-492561909
  */
-function setupBundledFlvJs() {
+function setupBundledFlvJs(options = { suppressLogs: false }) {
   const FLV_VAR = FLV_GLOBAL || "flvjs";
   if (window[FLV_VAR] == null) {
     window[FLV_VAR] = flvjs;
+  }
+
+  // Disable flv.js error messages and info messages (#149)
+  if (options.suppressLogs) {
+    flvjs.LoggingControl.enableError = false;
+    flvjs.LoggingControl.enableVerbose = false;
+
+    const doCreatePlayer = flvjs.createPlayer;
+    flvjs.createPlayer = (mediaDataSource, optionalConfig) => {
+      const player = doCreatePlayer(mediaDataSource, optionalConfig);
+      player.on("error", () => {});
+      return player;
+    };
   }
 }
 
@@ -76,7 +89,13 @@ function useMessages() {
 }
 
 const VideoPlayer = function VideoPlayer(props) {
-  const { file, onReady, onProgress, className } = props;
+  const {
+    file,
+    onReady,
+    onProgress,
+    suppressErrors = false,
+    className,
+  } = props;
   const classes = useStyles();
   const server = useServer();
   const messages = useMessages();
@@ -89,7 +108,7 @@ const VideoPlayer = function VideoPlayer(props) {
   const previewActions = useMemo(() => makePreviewActions(handleWatch), []);
 
   // Make sure flv.js is available
-  useEffect(setupBundledFlvJs, []);
+  useEffect(() => setupBundledFlvJs({ suppressLogs: suppressErrors }), []);
 
   // Provide controller to the consumer
   useEffect(() => onReady && onReady(controller), [onReady]);
@@ -184,6 +203,11 @@ VideoPlayer.propTypes = {
    * https://www.npmjs.com/package/react-player#callback-props
    */
   onProgress: PropTypes.func,
+
+  /**
+   * Suppress error logs.
+   */
+  suppressErrors: PropTypes.bool,
   className: PropTypes.string,
 };
 
