@@ -1,3 +1,4 @@
+import os
 from http import HTTPStatus
 from os.path import dirname, basename
 
@@ -18,4 +19,7 @@ def watch_video(file_id):
         abort(HTTPStatus.NOT_FOUND.value, f"File id not found: {file_id}")
 
     path = resolve_video_file_path(file.file_path)
+    if not os.path.isfile(path):
+        abort(HTTPStatus.NOT_FOUND.value, f"Video file is missing: {file.file_path}")
+
     return send_from_directory(dirname(path), basename(path))
