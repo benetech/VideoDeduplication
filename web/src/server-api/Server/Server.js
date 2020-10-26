@@ -68,6 +68,15 @@ export default class Server {
     }
   }
 
+  async probeVideoFile({ id }) {
+    try {
+      await this.axios.head(`/files/${id}/watch`);
+      return Response.ok(null);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
   errorResponse(error) {
     if (error.response == null) {
       return Response.clientError(error);

@@ -171,6 +171,9 @@
     "filter.creationDate": "Creation date (mm/dd/yyyy)",
     "filter.creationDate.help": "Based on file creation date.",
     "preview.notAvailable": "Preview not available.",
-    "match.load.error": "Error loading matches."
+    "match.load.error": "Error loading matches.",
+    "video.error.missing": "File Missing",
+    "video.error.load": "Loading Error",
+    "video.error.playback": "Playback Error"
   }
 }
