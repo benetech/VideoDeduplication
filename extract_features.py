@@ -11,7 +11,7 @@ from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepr
 from winnow.feature_extraction.model import default_model_path
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
-from winnow.storage.repr_utils import bulk_read, bulk_write, path_resolver
+from winnow.storage.repr_utils import bulk_read, bulk_write, store_key_resolver
 from winnow.utils import scan_videos, create_video_list, scan_videos_from_txt, resolve_config
 
 logging.getLogger().setLevel(logging.ERROR)
@@ -43,11 +43,10 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
 
-def main(config,list_of_files,frame_sampling,save_frames):
-
+def main(config, list_of_files, frame_sampling, save_frames):
     config = resolve_config(config_path=config, frame_sampling=frame_sampling, save_frames=save_frames)
     reps = ReprStorage(os.path.join(config.repr.directory))
-    storepath = path_resolver(source_root=config.sources.root)
+    storekey = store_key_resolver(config)
 
     print('Searching for Dataset Video Files')
 
@@ -60,7 +59,7 @@ def main(config,list_of_files,frame_sampling,save_frames):
 
     print('Number of files found: {}'.format(len(videos)))
 
-    remaining_videos_path = [path for path in videos if not reps.frame_level.exists(storepath(path), get_hash(path))]
+    remaining_videos_path = [path for path in videos if not reps.frame_level.exists(*storekey(path))]
 
     print('There are {} videos left'.format(len(remaining_videos_path)))
 
@@ -71,7 +70,7 @@ def main(config,list_of_files,frame_sampling,save_frames):
     if len(remaining_videos_path) > 0:
         # Instantiates the extractor
         model_path = default_model_path(config.proc.pretrained_model_local_path)
-        extractor = IntermediateCnnExtractor(video_src=VIDEOS_LIST, reprs=reps, storepath=storepath,
+        extractor = IntermediateCnnExtractor(video_src=VIDEOS_LIST, reprs=reps, storekey=storekey,
                                              frame_sampling=config.proc.frame_sampling,
                                              save_frames=config.proc.save_frames,
                                              model=(load_featurizer(model_path)))
