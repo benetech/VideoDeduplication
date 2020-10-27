@@ -17,6 +17,7 @@ dependencies:
   - jupyter
   - jupyterlab
   - pip:
+    - lmdb
     - image
     - imageio
     - moviepy
