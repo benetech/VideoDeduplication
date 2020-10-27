@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from uuid import uuid4 as uuid
@@ -22,9 +23,9 @@ class FeatureFile(Base):
     __table_args__ = (UniqueConstraint('source_path', 'source_sha256', name='_file_uc'),)
 
     id = Column(Integer, primary_key=True)
-    source_path = Column(String)  # source video-file path
-    source_sha256 = Column(String)  # source video-file hash
+    source_path = Column(String)  # source video-file path relative to dataset root directory
     feature_file_path = Column(String)  # path to the file containing the feature
+    tags = Column(String)  # metadata tags as JSON
 
 
 class SQLiteReprStorage:
@@ -61,66 +62,135 @@ class SQLiteReprStorage:
         self.database = Database(f"sqlite:///{self.db_file}", base=Base)
         self.database.create_tables()
 
-    def exists(self, path, sha256):
-        """Check if the file has the representation."""
-        with self.database.session_scope() as session:
-            return self._exists(session, path, sha256)
+    def exists(self, path, tags=None):
+        """Check if the file has the representation.
 
-    def read(self, path, sha256):
-        """Read file's representation."""
+        If tags are None, the method will ignore any metadata tags
+        associated with the representation (if any).
+
+        If tags are not None, they will be compared to the metadata
+        tags associated with the representation. The method will
+        return True only if provided tags are equal to the stored ones.
+
+        Args:
+            path (str): Original video file path relative to dataset root folder.
+            tags (dict): Any metadata associated with the representation
+                (e.g. file hash, pipeline config attributes, etc.).
+        """
         with self.database.session_scope() as session:
-            record = self._record(session, path, sha256).one()
+            return self._exists(session, path, tags)
+
+    def read(self, path, tags=None):
+        """Read file's representation.
+
+        If tags are None, the method will ignore any metadata tags
+        associated with the representation (if any).
+
+        If tags are not None, they will be checked against the metadata
+        tags associated with the representation. The method will raise
+        KeyError if provided tags are not equal to the stored ones.
+
+        Args:
+            path (str): Original video file path relative to dataset root folder.
+            tags (dict): Any metadata associated with the representation
+                (e.g. file hash, pipeline config attributes, etc.).
+        """
+        with self.database.session_scope() as session:
+            record = self._record(session, path, tags).one_or_none()
+            if record is None:
+                raise KeyError(f"{path} with tags={tags}")
             feature_file_path = os.path.join(self.directory, record.feature_file_path)
             return self._load(feature_file_path)
 
-    def write(self, path, sha256, value):
-        """Write the representation for the given file."""
+    def tags(self, path):
+        """Read file's representation metadata tags.
+
+        Args:
+            path (str): Original video file path relative to dataset root folder.
+        """
         with self.database.session_scope() as session:
-            record = self._get_or_create(session, path, sha256)
+            record = self._record(session, path, tags=None).one_or_none()
+            if record is None:
+                raise KeyError(path)
+            return self._deserialize_tags(record.tags)
+
+    def write(self, path, value, tags=None):
+        """Write the representation for the given file.
+
+        Args:
+            path (str): Original video file path relative to dataset root folder.
+            value: Intermediate representation value to be stored.
+            tags (dict): Any metadata associated with the representation
+                (e.g. file hash, pipeline config attributes, etc.).
+        """
+        with self.database.session_scope() as session:
+            record = self._get_or_create(session, path)
+            record.tags = self._serialize_tags(tags)
             feature_file_path = os.path.join(self.directory, record.feature_file_path)
             self._save(feature_file_path, value)
 
-    def delete(self, path, sha256):
+    def delete(self, path):
         """Delete representation for the file."""
         with self.database.session_scope() as session:
-            record = self._record(session, path, sha256).one()
+            record = self._record(session, path, tags=None).one()
             feature_file_path = os.path.join(self.directory, record.feature_file_path)
             os.remove(feature_file_path)
             session.delete(record)
 
     def list(self):
-        """Iterate over all (path,sha256) pairs that already have this representation."""
+        """Iterate over all (path,tags) pairs that already have this representation."""
         with self.database.session_scope() as session:
             for record in session.query(FeatureFile):
-                yield record.source_path, record.source_sha256
+                yield record.source_path, self._deserialize_tags(record.tags)
 
     # Private methods
 
     @staticmethod
-    def _record(session, path, sha256):
+    def _record(session, path, tags):
         """Shortcut for querying record for the given feature-file."""
+        if tags is None:
+            return session.query(FeatureFile).filter(
+                FeatureFile.source_path == path,
+            )
+
+        serialized_tags = SQLiteReprStorage._serialize_tags(tags)
         return session.query(FeatureFile).filter(
             FeatureFile.source_path == path,
-            FeatureFile.source_sha256 == sha256,
+            FeatureFile.tags == serialized_tags,
         )
 
     @staticmethod
-    def _exists(session, path, sha256):
+    def _exists(session, path, tags):
         """Shortcut for checking record presence."""
+        if tags is None:
+            return session.query(FeatureFile.id).filter(
+                FeatureFile.source_path == path,
+            ).scalar() is not None
+
+        serialized_tags = SQLiteReprStorage._serialize_tags(tags)
         return session.query(FeatureFile.id).filter(
             FeatureFile.source_path == path,
-            FeatureFile.source_sha256 == sha256,
+            FeatureFile.tags == serialized_tags
         ).scalar() is not None
 
-    def _get_or_create(self, session, path, sha256):
+    def _get_or_create(self, session, path):
         """Get feature-file record, create one with unique name if not exist."""
-        feature_file = SQLiteReprStorage._record(session, path, sha256).first()
+        feature_file = SQLiteReprStorage._record(session, path, tags=None).first()
         if feature_file is not None:
             return feature_file
         # Create a missing feature-file with unique path.
         feature_file = FeatureFile(
             source_path=path,
-            source_sha256=sha256,
             feature_file_path=f"{uuid()}{self._suffix}")
         session.add(feature_file)
         return feature_file
+
+    @staticmethod
+    def _serialize_tags(tags):
+        """Serialize tags to string."""
+        return json.dumps(tags, sort_keys=True)
+
+    @staticmethod
+    def _deserialize_tags(tags):
+        """Deserialize tags from string."""
+        return json.loads(tags)
