@@ -8,14 +8,14 @@ class IntermediateCnnExtractor:
                  self,
                  video_src,
                  reprs,
-                 storekey,
+                 reprkey,
                  frame_sampling=1,
                  save_frames=False,
                  model=None):
 
         self.video_src = video_src
         self.reprs = reprs
-        self.storekey = storekey
+        self.reprkey = reprkey
         self.frame_sampling = frame_sampling
         self.save_frames = save_frames
         self.model = model
@@ -27,7 +27,7 @@ class IntermediateCnnExtractor:
             model=self.model,
             video_list=self.video_src,
             reprs=self.reprs,
-            storekey=self.storekey,
+            reprkey=self.reprkey,
             batch_sz=batch_size,
             cores=cores,
             frame_sampling=self.frame_sampling,

@@ -21,7 +21,7 @@ def pload_video(p, size, frame_sampling):
     return load_video(p, size, frame_sampling)
 
 
-def feature_extraction_videos(model, video_list, reprs, storekey, cores=4, batch_sz=8, frame_sampling=1,
+def feature_extraction_videos(model, video_list, reprs, reprkey, cores=4, batch_sz=8, frame_sampling=1,
                               save_frames=False):
     """
     Function that extracts the intermediate CNN features
@@ -32,7 +32,7 @@ def feature_extraction_videos(model, video_list, reprs, storekey, cores=4, batch
         batch_sz: batch size fed to the CNN network
         video_list: list of video to extract features
         reprs (winnow.storage.repr_storage.ReprStorage): storage of video features
-        storekey: convert video file paths to path relative to dataset root and metadata tags.
+        reprkey: function to convert video file paths to representation storage key.
         frame_sampling: Minimal distance (in sec.) between frames to be saved.
         save_frames: Save normalized video frames.
     """
@@ -77,10 +77,10 @@ def feature_extraction_videos(model, video_list, reprs, storekey, cores=4, batch
                 features = model.extract(video_tensor, batch_sz)
 
                 # save features
-                storage_path, tags = storekey(video_file_path)
-                reprs.frame_level.write(storage_path, features, tags)
+                key = reprkey(video_file_path)
+                reprs.frame_level.write(key, features)
                 if save_frames:
-                    reprs.frames.write(storage_path, video_tensor, tags)
+                    reprs.frames.write(key, video_tensor)
         except Exception as e:
             logger.error(f'Error processing file:{video_list[video]}')
             logger.error(e)

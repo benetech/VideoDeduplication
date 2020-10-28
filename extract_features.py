@@ -5,13 +5,12 @@ import sys
 import click
 
 from db import Database
-from db.utils import *
 from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepresentation, SimilarityModel, \
     load_featurizer
 from winnow.feature_extraction.model import default_model_path
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
-from winnow.storage.repr_utils import bulk_read, bulk_write, store_key_resolver
+from winnow.storage.repr_utils import bulk_read, bulk_write, reprkey_resolver
 from winnow.utils import scan_videos, create_video_list, scan_videos_from_txt, resolve_config
 
 logging.getLogger().setLevel(logging.ERROR)
@@ -46,7 +45,7 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 def main(config, list_of_files, frame_sampling, save_frames):
     config = resolve_config(config_path=config, frame_sampling=frame_sampling, save_frames=save_frames)
     reps = ReprStorage(os.path.join(config.repr.directory))
-    storekey = store_key_resolver(config)
+    reprkey = reprkey_resolver(config)
 
     print('Searching for Dataset Video Files')
 
@@ -59,7 +58,7 @@ def main(config, list_of_files, frame_sampling, save_frames):
 
     print('Number of files found: {}'.format(len(videos)))
 
-    remaining_videos_path = [path for path in videos if not reps.frame_level.exists(*storekey(path))]
+    remaining_videos_path = [path for path in videos if not reps.frame_level.exists(reprkey(path))]
 
     print('There are {} videos left'.format(len(remaining_videos_path)))
 
@@ -70,7 +69,7 @@ def main(config, list_of_files, frame_sampling, save_frames):
     if len(remaining_videos_path) > 0:
         # Instantiates the extractor
         model_path = default_model_path(config.proc.pretrained_model_local_path)
-        extractor = IntermediateCnnExtractor(video_src=VIDEOS_LIST, reprs=reps, storekey=storekey,
+        extractor = IntermediateCnnExtractor(video_src=VIDEOS_LIST, reprs=reps, reprkey=reprkey,
                                              frame_sampling=config.proc.frame_sampling,
                                              save_frames=config.proc.save_frames,
                                              model=(load_featurizer(model_path)))
@@ -86,13 +85,13 @@ def main(config, list_of_files, frame_sampling, save_frames):
     print('Extracting Signatures from Video representations')
 
     sm = SimilarityModel()
-    signatures = sm.predict(bulk_read(reps.video_level))  # Get dict (path,hash) => signature
+    signatures = sm.predict(bulk_read(reps.video_level))  # Get {ReprKey => signature} dict
 
     print('Saving Video Signatures on :{}'.format(reps.signature.directory))
 
     if config.database.use:
         # Convert dict to list of (path, sha256, signature) tuples
-        entries = [(path, sha256, sig) for (path, sha256), sig in signatures.items()]
+        entries = [(key.path, key.hash, sig) for key, sig in signatures.items()]
 
         # Connect to database
         database = Database(uri=config.database.uri)
