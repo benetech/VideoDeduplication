@@ -91,7 +91,7 @@ function FileMatchesPage(props) {
   const dispatch = useDispatch();
 
   const handleLoad = useCallback(() => {
-    if (matchesState.total == null) {
+    if (matchesState.total == null || matchesState.fileId !== id) {
       dispatch(updateFileMatchFilters(id, { hops: 1 }));
     } else {
       dispatch(fetchFileMatches());
@@ -160,7 +160,8 @@ function FileMatchesPage(props) {
               onLoad={handleLoad}
               hasMore={
                 matchesState.total === undefined ||
-                matchesState.matches.length < matchesState.total
+                matchesState.matches.length < matchesState.total ||
+                matchesState.fileId !== id
               }
               container={MatchPreview.Container}
               errorMessage={messages.loadError}
