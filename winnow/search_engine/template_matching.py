@@ -1,17 +1,17 @@
-from collections import defaultdict
 import datetime
+import os
+import shutil
+from collections import defaultdict
 from glob import glob
+
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 import pandas as pd
-import requests
 from scipy.spatial.distance import cdist
-import shutil
-from winnow.feature_extraction.extraction_routine import load_featurizer
-from winnow.feature_extraction.utils import load_image,load_video,download_file
+
+from winnow.feature_extraction.utils import load_image, download_file
 from winnow.storage.repr_storage import ReprStorage
-import yaml
+
 
 class SearchEngine:
     def __init__(self, templates_root, reprs: ReprStorage, model):
@@ -103,14 +103,14 @@ class SearchEngine:
         feats = self.template_cache[query]
         print('Loaded query embeddings',feats.shape)
         self.results_cache[query] = defaultdict()
-        for path, sha256 in self.reprs.frame_level.list():
+        for repr_key in self.reprs.frame_level.list():
             try:
-                sample = self.reprs.frame_level.read(path, sha256)
-                video_frames = self.reprs.frames.read(path, sha256)
+                sample = self.reprs.frame_level.read(repr_key)
+                video_frames = self.reprs.frames.read(repr_key)
                 
                 distances = np.mean(cdist(feats,sample,metric='cosine'),axis=0)
                 
-                self.results_cache[query][(path, sha256)] = dict()
+                self.results_cache[query][repr_key] = dict()
 
                 if len(distances) > 0:
                     frame_of_interest_index = np.argmin(distances)
@@ -120,8 +120,8 @@ class SearchEngine:
                     min_d = 1.0
                 
                 
-                self.results_cache[query][(path, sha256)]["distance"] = min_d
-                self.results_cache[query][(path, sha256)]["closest_match"] = frame_of_interest_index
+                self.results_cache[query][repr_key]["distance"] = min_d
+                self.results_cache[query][repr_key]["closest_match"] = frame_of_interest_index
         
                 if (min_d < threshold) and plot:
                     
@@ -131,7 +131,7 @@ class SearchEngine:
                     plt.show()
 
             except Exception as e:
-                print('Error:',e,distances,path,sha256,frame_of_interest_index)
+                print('Error:',e,distances,repr_key,frame_of_interest_index)
                 pass
 
 
