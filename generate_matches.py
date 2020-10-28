@@ -38,8 +38,9 @@ def main(config):
     signatures_dict = sm.predict(bulk_read(reps.video_level))
 
     # Unpack paths, hashes and signatures as separate np.arrays
-    path_hash_pairs, video_signatures = zip(*signatures_dict.items())
-    paths, hashes = map(np.array, zip(*path_hash_pairs))
+    repr_keys, video_signatures = zip(*signatures_dict.items())
+    paths = np.array([key.path for key in repr_keys])
+    hashes = np.array([key.hash for key in repr_keys])
     video_signatures = np.array(video_signatures)
     
     
@@ -117,11 +118,12 @@ def main(config):
         print('Filtering dark and/or short videos')
 
         # Get original files for which we have both frames and frame-level features
-        path_hash_pairs = list(set(reps.video_level.list()))
-        paths, hashes = zip(*path_hash_pairs)
+        repr_keys = list(set(reps.video_level.list()))
+        paths = [key.path for key in repr_keys]
+        hashes = [key.hash for key in repr_keys]
 
         print('Extracting additional information from video files')
-        brightness_estimation = np.array([get_brightness_estimation(reps, *path_hash) for path_hash in tqdm(path_hash_pairs)])
+        brightness_estimation = np.array([get_brightness_estimation(reps, key) for key in tqdm(repr_keys)])
         print(brightness_estimation.shape)
         metadata_df = pd.DataFrame({"fn": paths,
                                     "sha256": hashes,

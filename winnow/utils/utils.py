@@ -105,25 +105,25 @@ def get_gray_max(video_level_features):
     return predictions
 
 
-def get_brightness_estimation(reps, path, sha256):
+def get_brightness_estimation(reps, repr_key):
 
-    vl_features = np.nan_to_num(reps.video_level.read(path, sha256))
+    vl_features = np.nan_to_num(reps.video_level.read(repr_key))
     estimates = get_gray_max(vl_features)
 
     return estimates
 
 
-def extract_additional_info(reps, path, sha256):
+def extract_additional_info(reps, repr_key):
     """
     Extract file metadata.
     Args:
         reps (winnow.storage.repr_storage.ReprStorage): Intermediate
-        representation storage.
-        path: Original file path inside content folder.
-        sha256: Original file sha256 hash digest.
+            representation storage.
+        repr_key (winnow.storage.repr_key.ReprKey): Representation
+            storage key.
     """
-    v = reps.frame_level.read(path, sha256)
-    frames = reps.frames.read(path, sha256)
+    v = reps.frame_level.read(repr_key)
+    frames = reps.frames.read(repr_key)
     grays = np.array([cv2.cvtColor(x, cv2.COLOR_BGR2GRAY) for x in frames])
     grays = np.array([np.mean(x) for x in grays])
 

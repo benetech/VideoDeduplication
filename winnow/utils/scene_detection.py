@@ -135,7 +135,8 @@ def extract_scenes(frame_features_dict, minimum_duration=10):
 
     # Unpack names, hashes and features as separate lists
     keys, features = zip(*filtered_dict.items())
-    paths, hashes = zip(*keys)
+    paths = [key.path for key in keys]
+    hashes = [key.hash for key in keys]
 
     raw_scenes = [cosine_series(frame_features) for frame_features in features]
     scene_ident = [((diffs > np.quantile(diffs, .90)) &
