@@ -1,12 +1,12 @@
+import logging
 import os
 from multiprocessing import Pool
-import logging
+
 import numpy as np
 from tqdm import tqdm
 
 from .model_tf import CNN_tf
 from .utils import load_video
-from ..utils import get_hash
 
 logger = logging.getLogger()
 logger.setLevel(logging.ERROR)

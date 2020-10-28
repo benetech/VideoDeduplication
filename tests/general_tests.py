@@ -7,8 +7,8 @@ import pytest
 
 from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepresentation, SimilarityModel
 from winnow.storage.repr_storage import ReprStorage
-from winnow.storage.repr_utils import path_resolver, bulk_read
-from winnow.utils import scan_videos, create_video_list, get_hash, resolve_config
+from winnow.storage.repr_utils import bulk_read, reprkey_resolver
+from winnow.utils import scan_videos, create_video_list, resolve_config
 
 NUMBER_OF_TEST_VIDEOS = 40
 
@@ -51,10 +51,10 @@ def videos():
 
 
 @pytest.fixture(scope="module")
-def dataset_path_hash_pairs(videos):
+def repr_keys(videos):
     """(path_inside_storage,sha256) pairs for test dataset videos."""
-    storepath = path_resolver(source_root=DATASET_DIR)
-    return [(storepath(path), get_hash(path)) for path in videos]
+    reprkey = reprkey_resolver(cfg)
+    return [reprkey(path) for path in videos]
 
 
 @pytest.fixture(scope="module")
@@ -67,9 +67,9 @@ def intermediate_cnn_results(videos, reprs):
     Returns:
         ReprStorage with populated with intermediate CNN results.
     """
-    storepath = path_resolver(source_root=DATASET_DIR)
+    reprkey = reprkey_resolver(cfg)
     videos_list = create_video_list(videos, VIDEO_LIST_TXT)
-    extractor = IntermediateCnnExtractor(videos_list, reprs, storepath)
+    extractor = IntermediateCnnExtractor(video_src=videos_list, reprs=reprs, reprkey=reprkey)
     extractor.start(batch_size=16, cores=4)
     return reprs
 
@@ -103,8 +103,8 @@ def signatures(frame_to_video_results):
     reprs = frame_to_video_results
     sm = SimilarityModel()
     signatures = sm.predict(bulk_read(reprs.video_level))
-    for (path, sha256), sig_value in signatures.items():
-        reprs.signature.write(path, sha256, sig_value)
+    for repr_key, sig_value in signatures.items():
+        reprs.signature.write(repr_key, sig_value)
     return signatures
 
 
@@ -116,35 +116,35 @@ def test_video_extension_filter(videos):
     assert not_videos == 0
 
 
-def test_intermediate_cnn_extractor(intermediate_cnn_results, dataset_path_hash_pairs):
-    assert set(intermediate_cnn_results.frame_level.list()) == set(dataset_path_hash_pairs)
+def test_intermediate_cnn_extractor(intermediate_cnn_results, repr_keys):
+    assert set(intermediate_cnn_results.frame_level.list()) == set(repr_keys)
 
     frame_level_features = list(bulk_read(intermediate_cnn_results.frame_level).values())
 
     shapes_correct = sum(features.shape[1] == 4096 for features in frame_level_features)
 
-    assert shapes_correct == len(dataset_path_hash_pairs)
+    assert shapes_correct == len(repr_keys)
 
 
-def test_frame_to_video_converter(frame_to_video_results, dataset_path_hash_pairs):
-    assert set(frame_to_video_results.video_level.list()) == set(dataset_path_hash_pairs)
+def test_frame_to_video_converter(frame_to_video_results, repr_keys):
+    assert set(frame_to_video_results.video_level.list()) == set(repr_keys)
 
     video_level_features = np.array(list(bulk_read(frame_to_video_results.video_level).values()))
 
-    assert video_level_features.shape == (len(dataset_path_hash_pairs), 1, 4096)
+    assert video_level_features.shape == (len(repr_keys), 1, 4096)
 
 
-def test_signatures_shape(signatures, dataset_path_hash_pairs):
-    assert set(signatures.keys()) == set(dataset_path_hash_pairs)
+def test_signatures_shape(signatures, repr_keys):
+    assert set(signatures.keys()) == set(repr_keys)
 
     signatures_array = np.array(list(signatures.values()))
     assert signatures_array.shape == (NUMBER_OF_TEST_VIDEOS, 500)
 
 
 @pytest.mark.usefixtures("signatures")
-def test_saved_signatures(reprs, dataset_path_hash_pairs):
+def test_saved_signatures(reprs, repr_keys):
     signatures = bulk_read(reprs.signature)
-    assert set(signatures.keys()) == set(dataset_path_hash_pairs)
+    assert set(signatures.keys()) == set(repr_keys)
 
     signatures_array = np.array(list(signatures.values()))
     assert signatures_array.shape == (NUMBER_OF_TEST_VIDEOS, 500)
