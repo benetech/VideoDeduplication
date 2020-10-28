@@ -10,8 +10,8 @@ from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepr
 from winnow.feature_extraction.model import default_model_path
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
-from winnow.storage.repr_utils import bulk_read, bulk_write, reprkey_resolver
-from winnow.utils import scan_videos, create_video_list, scan_videos_from_txt, resolve_config
+from winnow.storage.repr_utils import bulk_read, bulk_write
+from winnow.utils import scan_videos, create_video_list, scan_videos_from_txt, resolve_config, reprkey_resolver
 
 logging.getLogger().setLevel(logging.ERROR)
 logging.getLogger("winnow").setLevel(logging.INFO)

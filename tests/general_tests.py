@@ -7,8 +7,8 @@ import pytest
 
 from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepresentation, SimilarityModel
 from winnow.storage.repr_storage import ReprStorage
-from winnow.storage.repr_utils import bulk_read, reprkey_resolver
-from winnow.utils import scan_videos, create_video_list, resolve_config
+from winnow.storage.repr_utils import bulk_read
+from winnow.utils import scan_videos, create_video_list, resolve_config, reprkey_resolver
 
 NUMBER_OF_TEST_VIDEOS = 40
 
