@@ -1,12 +1,17 @@
 import hashlib
+import json
 import os
 from glob import glob
 from pathlib import Path
+
 import cv2
 import numpy as np
+from joblib import load
+
 from winnow.config import Config
 from winnow.config.path import resolve_config_path
-from joblib import load
+from winnow.storage.repr_key import ReprKey
+from winnow.storage.repr_utils import path_resolver
 
 DEFAULT_DIRECTORY = os.path.join(os.path.dirname(__file__), "models")
 GRAY_ESTIMATION_MODEL = os.path.join(DEFAULT_DIRECTORY, "gb_gray_model.joblib")
@@ -105,25 +110,25 @@ def get_gray_max(video_level_features):
     return predictions
 
 
-def get_brightness_estimation(reps, path, sha256):
+def get_brightness_estimation(reps, repr_key):
 
-    vl_features = np.nan_to_num(reps.video_level.read(path, sha256))
+    vl_features = np.nan_to_num(reps.video_level.read(repr_key))
     estimates = get_gray_max(vl_features)
 
     return estimates
 
 
-def extract_additional_info(reps, path, sha256):
+def extract_additional_info(reps, repr_key):
     """
     Extract file metadata.
     Args:
         reps (winnow.storage.repr_storage.ReprStorage): Intermediate
-        representation storage.
-        path: Original file path inside content folder.
-        sha256: Original file sha256 hash digest.
+            representation storage.
+        repr_key (winnow.storage.repr_key.ReprKey): Representation
+            storage key.
     """
-    v = reps.frame_level.read(path, sha256)
-    frames = reps.frames.read(path, sha256)
+    v = reps.frame_level.read(repr_key)
+    frames = reps.frames.read(repr_key)
     grays = np.array([cv2.cvtColor(x, cv2.COLOR_BGR2GRAY) for x in frames])
     grays = np.array([np.mean(x) for x in grays])
 
@@ -175,3 +180,40 @@ def resolve_config(config_path=None, frame_sampling=None, save_frames=None):
     cond1 = save_frames is None and config.proc.save_frames
     config.proc.save_frames = (cond1 or save_frames)
     return config
+
+
+def get_config_tag(config):
+    """Get configuration tag.
+
+    Whenever configuration changes making the intermediate representation
+    incompatible the tag value will change as well.
+    """
+
+    # Configuration attributes that affect representation value
+    config_attributes = dict(
+        frame_sampling=config.proc.frame_sampling
+    )
+
+    sha256 = hashlib.sha256()
+    sha256.update(json.dumps(config_attributes).encode("utf-8"))
+    return sha256.hexdigest()[:40]
+
+
+def reprkey_resolver(config):
+    """Create a function to get intermediate storage key and tags by the file path.
+
+    Args:
+        config (winnow.config.Config): Pipeline configuration.
+    """
+
+    storepath = path_resolver(config.sources.root)
+    config_tag = get_config_tag(config)
+
+    def reprkey(path):
+        """Get intermediate representation storage key."""
+        return ReprKey(
+            path=storepath(path),
+            hash=get_hash(path),
+            tag=config_tag)
+
+    return reprkey

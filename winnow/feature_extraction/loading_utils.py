@@ -100,16 +100,15 @@ def frame_to_global(representations):
         representations (winnow.storage.repr_storage.ReprStorage):
         Intermediate representations storage.
     """
-    for path, sha256 in representations.frame_level.list():
+    for key in representations.frame_level.list():
         try:
 
             frame_feature_vector = \
-                representations.frame_level.read(path, sha256)
+                representations.frame_level.read(key)
 
             video_representation = global_vector(frame_feature_vector)
             representations.video_level.write(
-                                              path,
-                                              sha256,
+                                              key,
                                               video_representation)
         except Exception as e:
             raise Exception('Cant save video to destination:{}'.format(e))

@@ -1,10 +1,13 @@
 import tempfile
 from itertools import islice
+from uuid import uuid4 as uuid
 
 import numpy as np
 import pytest
+from dataclasses import asdict
 
-from winnow.storage.path_repr_storage import PathReprStorage
+from winnow.storage.lmdb_repr_storage import LMDBReprStorage
+from winnow.storage.repr_key import ReprKey
 from winnow.storage.repr_utils import bulk_read, bulk_write
 from winnow.storage.sqlite_repr_storage import SQLiteReprStorage
 
@@ -27,7 +30,24 @@ def store(request):
 
 # Shortcut for pytest parametrize decorator.
 # Decorated test will be executed for all existing representation store types.
-use_store = pytest.mark.parametrize('store', [PathReprStorage, SQLiteReprStorage], indirect=True)
+use_store = pytest.mark.parametrize('store', [LMDBReprStorage, SQLiteReprStorage], indirect=True)
+
+
+def make_key():
+    """Make some repr storage key."""
+    unique = uuid()
+    return ReprKey(path=f"some/path-{unique}", hash=f"some-hash-{unique}", tag=f"some-tag-{unique}")
+
+
+def make_entry():
+    """Make some repr storage entry."""
+    return make_key(), np.array([str(uuid())])
+
+
+def copy(key, **kwargs):
+    args = asdict(key)
+    args.update(kwargs)
+    return ReprKey(**args)
 
 
 @use_store
@@ -37,76 +57,79 @@ def test_empty(store):
 
 @use_store
 def test_exists(store):
-    path, sha256, value = "some/path", "some-hash", np.array(["some-value"])
+    key, value = make_entry()
 
     # Doesn't exist before write
-    assert not store.exists(path, sha256)
+    assert not store.exists(key)
 
     # Exists when written
-    store.write(path, sha256, value)
-    assert store.exists(path, sha256)
+    store.write(key, value)
+    assert store.exists(key)
 
     # Doesn't exist after deletion
-    store.delete(path, sha256)
-    assert not store.exists(path, sha256)
+    store.delete(key.path)
+    assert not store.exists(key)
 
 
 @use_store
 def test_read_write(store):
-    path, sha256, value, another_value = "some/path", "some-hash", np.array(["some-value"]), np.array(["another-value"])
+    key, value, another_value = make_key(), np.array(["some-value"]), np.array(["another-value"])
 
-    store.write(path, sha256, value)
-    assert store.read(path, sha256) == value
+    store.write(key, value)
+    assert store.read(key) == value
 
-    store.write(path, sha256, another_value)
-    assert store.read(path, sha256) == another_value
+    store.write(key, another_value)
+    assert store.read(key) == another_value
 
     # Repeat write
-    store.write(path, sha256, another_value)
-    assert store.read(path, sha256) == another_value
+    store.write(key, another_value)
+    assert store.read(key) == another_value
 
     # Repeat read
-    assert store.read(path, sha256) == another_value
+    assert store.read(key) == another_value
 
 
 @use_store
 def test_read_write_multiple(store):
-    path_1, sha256_1, value_1 = "some/path", "some-hash", np.array(["some-value"])
-    path_2, sha256_2, value_2 = "other/path", "other-hash", np.array(["other-value"])
+    key_1, value_1 = make_entry()
+    key_2, value_2 = make_entry()
 
-    store.write(path_1, sha256_1, value_1)
-    store.write(path_2, sha256_2, value_2)
+    store.write(key_1, value_1)
+    store.write(key_2, value_2)
 
-    assert store.exists(path_1, sha256_1)
-    assert store.exists(path_2, sha256_2)
-    assert store.read(path_1, sha256_1) == value_1
-    assert store.read(path_2, sha256_2) == value_2
+    assert store.exists(key_1)
+    assert store.exists(key_2)
+    assert store.read(key_1) == value_1
+    assert store.read(key_2) == value_2
 
     # Mix up path and hash
-    assert not store.exists(path_1, sha256_2)
-    assert not store.exists(path_2, sha256_1)
+    unknown = make_key()
+    assert not store.exists(unknown)
+    assert not store.exists(copy(key_1, hash=key_2.hash))
+    assert not store.exists(copy(key_1, tag=key_2.tag))
+    assert not store.exists(copy(key_2, hash=key_1.hash))
+    assert not store.exists(copy(key_2, tag=key_1.tag))
 
 
 @use_store
 def test_list(store):
     assert list(store.list()) == []
 
-    path_1, sha256_1 = "some/path", "some-hash"
-    path_2, sha256_2 = "other/path", "other-hash"
+    key_1, key_2 = make_key(), make_key()
 
-    store.write(path_1, sha256_1, np.array(["some-value"]))
-    assert set(store.list()) == {(path_1, sha256_1)}
+    store.write(key_1, np.array(["some-value"]))
+    assert set(store.list()) == {key_1}
 
-    store.write(path_2, sha256_2, np.array(["some-value"]))
-    assert set(store.list()) == {(path_1, sha256_1), (path_2, sha256_2)}
+    store.write(key_2, np.array(["some-value"]))
+    assert set(store.list()) == {key_1, key_2}
 
-    store.delete(path_1, sha256_1)
-    assert set(store.list()) == {(path_2, sha256_2)}
+    store.delete(key_1.path)
+    assert set(store.list()) == {key_2}
 
 
 @use_store
 def test_bulk_read_write(store):
-    data_as_dict = {(f"some/path{i}", f"some-hash{i}"): np.array([f"some-value{i}"]) for i in range(100)}
+    data_as_dict = dict(make_entry() for _ in range(100))
 
     bulk_write(store, data_as_dict)
     assert bulk_read(store) == data_as_dict
