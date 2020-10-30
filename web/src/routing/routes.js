@@ -17,6 +17,9 @@ export const routes = {
     get fileCluster() {
       return `${this.file}/cluster`;
     },
+    get fileComparison() {
+      return `${this.file}/compare`;
+    },
     fileURL(id) {
       return `${this.fingerprints}/${id}`;
     },

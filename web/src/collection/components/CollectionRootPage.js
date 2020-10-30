@@ -9,6 +9,7 @@ import FileBrowserPage from "./FileBrowserPage/FileBrowserPage";
 import VideoDetailsPage from "./VideoDetailsPage/VideoDetailsPage";
 import FileMatchesPage from "./FileMatchesPage/FileMatchesPage";
 import FileClusterPage from "./FileClusterPage";
+import FileComparisonPage from "./FileComparisonPage";
 
 const useStyles = makeStyles(() => ({
   body: {
@@ -45,6 +46,9 @@ function CollectionRootPage(props) {
           </Route>
           <Route exact path={routes.collection.fileCluster}>
             <FileClusterPage />
+          </Route>
+          <Route exact path={routes.collection.fileComparison}>
+            <FileComparisonPage />
           </Route>
         </Switch>
       </div>
