@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import { formatDuration } from "../../../common/helpers/format";
+import { basename } from "../../../common/helpers/paths";
 
 /**
  * Remove all element's children.
@@ -13,10 +14,6 @@ function removeChildren(element) {
 const defaultOptions = {
   nodeRadius: 15,
 };
-
-function basename(filename) {
-  return filename.substring(filename.lastIndexOf("/") + 1);
-}
 
 /**
  * Class to calculate position relative to node.

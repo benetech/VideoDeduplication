@@ -10,9 +10,10 @@ import VideoInformationPane from "./VideoInformationPane";
 import { seekTo } from "./seekTo";
 import FileSummaryHeader from "../FileSummaryHeader";
 import FileActionHeader from "../FileActionsHeader";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import FileLoadingHeader from "../FileLoadingHeader";
 import useFile from "../../hooks/useFile";
+import { routes } from "../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -69,6 +70,12 @@ function VideoDetailsPage(props) {
   const { file, error, loadFile } = useFile(id);
   const [player, setPlayer] = useState(null);
   const classes = useStyles();
+  const history = useHistory();
+
+  const handleCompare = useCallback(
+    () => history.push(routes.collection.fileComparisonURL(id)),
+    [id]
+  );
 
   const handleJump = useCallback(seekTo(player, file), [player, file]);
 
@@ -92,7 +99,7 @@ function VideoDetailsPage(props) {
   return (
     <div className={clsx(classes.root, className)}>
       <FileActionHeader id={file.id} matches={file.matchesCount}>
-        <Button color="primary" variant="contained">
+        <Button color="primary" variant="contained" onClick={handleCompare}>
           {messages.compare}
         </Button>
       </FileActionHeader>

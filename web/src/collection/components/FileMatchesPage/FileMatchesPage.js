@@ -13,13 +13,14 @@ import MatchPreview from "./MatchPreview";
 import SquaredIconButton from "../../../common/components/SquaredIconButton";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 import TuneOutlinedIcon from "@material-ui/icons/TuneOutlined";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import useFile from "../../hooks/useFile";
 import FileLoadingHeader from "../FileLoadingHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileMatches } from "../../state/selectors";
 import { fetchFileMatches, updateFileMatchFilters } from "../../state/actions";
 import LoadTrigger from "../../../common/components/LoadingTrigger/LoadTrigger";
+import { routes } from "../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -89,6 +90,12 @@ function FileMatchesPage(props) {
   const matches = matchesState.matches.filter(isIncident(id));
   const files = matchesState.files;
   const dispatch = useDispatch();
+  const history = useHistory();
+
+  const handleCompare = useCallback(
+    () => history.push(routes.collection.fileComparisonURL(id)),
+    [id]
+  );
 
   const handleLoad = useCallback(() => {
     if (matchesState.total == null || matchesState.fileId !== id) {
@@ -119,7 +126,7 @@ function FileMatchesPage(props) {
         <FileMatchesActions
           view={view}
           onViewChange={setView}
-          onCompare={() => console.log("compare")}
+          onCompare={handleCompare}
         />
       </FileActionHeader>
       <FileSummaryHeader file={file} className={classes.summaryHeader} />

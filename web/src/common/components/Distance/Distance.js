@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
-    padding: theme.spacing(1),
+    padding: (props) => (props.dense ? 0 : theme.spacing(1)),
   },
   title: {
     ...theme.mixins.text,
@@ -19,11 +19,11 @@ const useStyles = makeStyles((theme) => ({
   valueContainer: {
     display: "flex",
     alignItems: "center",
-    marginTop: theme.spacing(1),
+    marginTop: (props) => (props.dense ? 0 : theme.spacing(1)),
   },
   indicator: {
     flexGrow: 1,
-    margin: theme.spacing(1),
+    margin: (props) => (props.dense ? theme.spacing(0.5) : theme.spacing(1)),
   },
 }));
 
@@ -62,11 +62,11 @@ function score(value) {
 }
 
 function Distance(props) {
-  const { value, className } = props;
-  const classes = useStyles();
+  const { value, dense = false, className, ...other } = props;
+  const classes = useStyles({ dense });
   const messages = useMessages(value);
   return (
-    <div className={clsx(classes.root, className)}>
+    <div className={clsx(classes.root, className)} {...other}>
       <div className={classes.title}>{messages.score}</div>
       <div className={classes.valueContainer}>
         <DistanceIndicator
@@ -84,6 +84,10 @@ Distance.propTypes = {
    * Distance value
    */
   value: PropTypes.number.isRequired,
+  /**
+   * Dense style
+   */
+  dense: PropTypes.bool,
   className: PropTypes.string,
 };
 
