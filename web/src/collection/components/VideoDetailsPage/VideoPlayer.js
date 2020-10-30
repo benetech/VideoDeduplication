@@ -107,6 +107,14 @@ const VideoPlayer = function VideoPlayer(props) {
   const controller = useMemo(() => new VideoController(player, setWatch), []);
   const previewActions = useMemo(() => makePreviewActions(handleWatch), []);
 
+  // Reset player on file change
+  useEffect(() => {
+    setWatch(false);
+    setPlayer(null);
+    setError(null);
+    controller._setPlayer(null);
+  }, [file]);
+
   // Make sure flv.js is available
   useEffect(() => setupBundledFlvJs({ suppressLogs: suppressErrors }), []);
 
