@@ -73,14 +73,13 @@ function MatchFiles(props) {
       <div>
         <FileMatchHeader
           distance={matches[selected].distance}
-          file={file}
+          file={matches[selected].file}
           className={classes.fileHeader}
         />
         <FileDetails file={matches[selected].file} />
       </div>
     );
   } else {
-    console.log("MATCHES", matches);
     content = null;
   }
 
