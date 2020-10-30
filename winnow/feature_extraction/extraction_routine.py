@@ -21,7 +21,13 @@ def pload_video(p, size, frame_sampling):
     return load_video(p, size, frame_sampling)
 
 
-def feature_extraction_videos(model, video_list, reprs, reprkey, cores=4, batch_sz=8, frame_sampling=1,
+def feature_extraction_videos(model,
+                              video_list,
+                              reprs,
+                              reprkey,
+                              cores=4,
+                              batch_sz=8,
+                              frame_sampling=1,
                               save_frames=False):
     """
     Function that extracts the intermediate CNN features
@@ -31,12 +37,18 @@ def feature_extraction_videos(model, video_list, reprs, reprkey, cores=4, batch_
         cores: CPU cores for the parallel video loading
         batch_sz: batch size fed to the CNN network
         video_list: list of video to extract features
-        reprs (winnow.storage.repr_storage.ReprStorage): storage of video features
-        reprkey: function to convert video file paths to representation storage key.
+        reprs (winnow.storage.repr_storage.ReprStorage): storage of
+        video features
+        reprkey: function to convert video file paths to representation
+        storage key.
         frame_sampling: Minimal distance (in sec.) between frames to be saved.
         save_frames: Save normalized video frames.
     """
-    video_list = {i: video.strip() for i, video in enumerate(open(video_list, encoding="utf-8").readlines())}
+    video_list = {
+                 i: video.strip()
+                 for i, video in
+                 enumerate(open(video_list, encoding="utf-8").readlines())}
+
     print('\nNumber of videos: ', len(video_list))
     print('Storage directory: ', reprs)
     print('CPU cores: ', cores)
@@ -44,20 +56,27 @@ def feature_extraction_videos(model, video_list, reprs, reprkey, cores=4, batch_
 
     print('\nFeature Extraction Process')
     print('==========================')
-        
+
     pool = Pool(cores)
     future_videos = dict()
 
-    progress_bar = tqdm(range(np.max(list(video_list.keys()))+1), mininterval=1.0, unit='video')
+    progress_bar = tqdm(
+                        range(np.max(list(video_list.keys()))+1),
+                        mininterval=1.0,
+                        unit='video')
     for video in progress_bar:
 
         try:
             video_file_path = video_list[video]
             progress_bar.set_postfix(video=os.path.basename(video_file_path))
             if os.path.exists(video_file_path):
-                
+
                 if video not in future_videos:
-                    video_tensor = pload_video(video_file_path, model.desired_size, frame_sampling)
+                    video_tensor = pload_video(
+                                        video_file_path,
+                                        model.desired_size,
+                                        frame_sampling)
+
                 else:
                     video_tensor = future_videos[video].get()
                     del future_videos[video]
@@ -70,8 +89,11 @@ def feature_extraction_videos(model, video_list, reprs, reprkey, cores=4, batch_
                     if next_video in video_list and \
                         next_video not in future_videos and \
                             os.path.exists(video_list[next_video]):
-                        future_videos[next_video] = pool.apply_async(pload_video,
-                            args=[video_list[next_video], model.desired_size,frame_sampling])
+                        future_videos[next_video] = pool.apply_async(
+                            pload_video,
+                            args=[
+                                video_list[next_video],
+                                model.desired_size, frame_sampling])
 
                 # extract features
                 features = model.extract(video_tensor, batch_sz)
@@ -86,9 +108,8 @@ def feature_extraction_videos(model, video_list, reprs, reprkey, cores=4, batch_
             logger.error(e)
 
 
-
 def load_featurizer(PRETRAINED_LOCAL_PATH):
-    
+
     model = CNN_tf('vgg', PRETRAINED_LOCAL_PATH)
-    
-    return  model
+
+    return model
