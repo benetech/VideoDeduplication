@@ -14,6 +14,9 @@ const useStyles = makeStyles((theme) => ({
   name: {
     paddingBottom: theme.spacing(2),
   },
+  distance: {
+    minWidth: 150,
+  },
 }));
 
 function FileMatchHeader(props) {
@@ -23,7 +26,7 @@ function FileMatchHeader(props) {
     <div className={clsx(classes.header, className)} {...other}>
       <FileSummary file={file} className={classes.name}>
         <FileSummary.Name />
-        <Distance value={distance} dense />
+        <Distance value={distance} dense className={classes.distance} />
       </FileSummary>
       <FileSummary file={file} divider>
         <FileSummary.Fingerprint />
