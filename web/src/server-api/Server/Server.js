@@ -49,7 +49,7 @@ export default class Server {
     id,
     limit = 20,
     offset = 0,
-    fields = ["meta", "exif"],
+    fields = ["meta", "exif", "scenes"],
     filters,
   }) {
     try {
