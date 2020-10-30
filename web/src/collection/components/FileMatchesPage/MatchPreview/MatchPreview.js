@@ -7,13 +7,13 @@ import Marked from "../../../../common/components/Marked";
 import IconButton from "@material-ui/core/IconButton";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import FileAttributes from "./FileAttributes";
-import Distance from "./Distance";
 import { useIntl } from "react-intl";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import { useHistory } from "react-router-dom";
 import { routes } from "../../../../routing/routes";
 import FileType from "../../FileBrowserPage/FileType";
 import Container from "./Container";
+import Distance from "../../../../common/components/Distance";
 
 const useStyles = makeStyles((theme) => ({
   root: {
