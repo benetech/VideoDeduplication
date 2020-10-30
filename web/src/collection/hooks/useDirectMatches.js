@@ -14,15 +14,18 @@ export function useDirectMatches(id) {
 
   const motherFile = files[id];
 
+  const seen = new Set();
   const directMatches = [];
   for (let match of matches) {
-    if (match.source === id) {
+    if (match.source === id && !seen.has(match.target)) {
+      seen.add(match.target);
       directMatches.push({
         id: match.id,
         file: files[match.target],
         distance: match.distance,
       });
-    } else if (match.target === id) {
+    } else if (match.target === id && !seen.has(match.source)) {
+      seen.add(match.source);
       directMatches.push({
         id: match.id,
         file: files[match.source],
