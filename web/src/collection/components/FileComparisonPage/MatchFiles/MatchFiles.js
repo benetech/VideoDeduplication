@@ -49,7 +49,6 @@ function MatchFiles(props) {
   const [selected, setSelected] = useState(0);
 
   const {
-    file,
     matches,
     error: matchError,
     loadMatches,

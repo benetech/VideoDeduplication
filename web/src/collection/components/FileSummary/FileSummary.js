@@ -12,12 +12,12 @@ import CreationDate from "./CreationDate";
 import HasExif from "./HasExif";
 import HasAudio from "./HasAudio";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   summary: {
     display: "flex",
     alignItems: "center",
   },
-}));
+});
 
 /**
  * Set the following properties: selected, onSelect and value (if absent)

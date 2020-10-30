@@ -1,24 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { FileType } from "../FileBrowserPage/FileType";
 import Paper from "@material-ui/core/Paper";
-import {
-  SelectableTab,
-  SelectableTabs,
-} from "../../../common/components/SelectableTabs";
-import ExifPanel from "./ExifPanel";
-import ObjectsPanel from "./ObjectsPanel";
-import FileInfoPanel from "./FileInfoPanel";
 import { useIntl } from "react-intl";
 import VideoInformation from "./VideoInformation";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   root: {
     boxShadow: "0 12px 18px 0 rgba(0,0,0,0.08)",
   },
-}));
+});
 
 function useMessages() {
   const intl = useIntl();

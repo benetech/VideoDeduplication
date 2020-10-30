@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
 function Divider(props) {
   const { className, ...other } = props;
   const classes = useStyles();
-  return <div className={clsx(classes.divider, classes.divider)} {...other} />;
+  return <div className={clsx(classes.divider, className)} {...other} />;
 }
 
 Divider.propTypes = {

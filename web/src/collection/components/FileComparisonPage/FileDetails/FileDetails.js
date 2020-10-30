@@ -6,7 +6,6 @@ import { FileType } from "../../FileBrowserPage/FileType";
 import VideoPlayerPane from "../../VideoDetailsPage/VideoPlayerPane";
 import { seekTo } from "../../VideoDetailsPage/seekTo";
 import FileDescriptionPane from "./FileDescriptionPane";
-import FileDetailsHeader from "../MotherFile/FileDetailsHeader";
 
 const useStyles = makeStyles((theme) => ({
   root: {
