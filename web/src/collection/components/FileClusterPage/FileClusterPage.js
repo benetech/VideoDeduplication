@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -7,12 +7,10 @@ import FileSummaryHeader from "../FileSummaryHeader";
 import { useParams } from "react-router-dom";
 import useFile from "../../hooks/useFile";
 import FileLoadingHeader from "../FileLoadingHeader";
-import { useDispatch, useSelector } from "react-redux";
-import { selectFileMatches } from "../../state/selectors";
-import { fetchFileMatches, updateFileMatchFilters } from "../../state/actions";
 import MatchGraph from "../MatchGraph";
 import { useIntl } from "react-intl";
-import Loading from "./Loading";
+import Loading from "../../../common/components/Loading";
+import useMatches from "../../hooks/useMatches";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,39 +48,20 @@ function FileClusterPage(props) {
   const { id } = useParams();
   const messages = useMessages();
   const { file, error, loadFile } = useFile(id);
-  const matchesState = useSelector(selectFileMatches);
-  const matches = matchesState.matches;
-  const files = matchesState.files;
-  const dispatch = useDispatch();
-  const hasMore = !(matches.length >= matchesState.total);
 
-  useEffect(() => {
-    dispatch(updateFileMatchFilters(id, { hops: 2 }));
-  }, [id]);
-
-  useEffect(() => {
-    if (
-      matchesState.loading ||
-      matchesState.error ||
-      matches.length >= matchesState.total
-    ) {
-      return;
-    }
-    dispatch(fetchFileMatches());
-  }, [matchesState]);
-
-  const handleRetry = useCallback(() => {
-    if (matchesState.total == null) {
-      dispatch(updateFileMatchFilters(id, { hops: 2 }));
-    } else {
-      dispatch(fetchFileMatches());
-    }
-  }, [matchesState]);
+  const {
+    matches,
+    files,
+    error: matchError,
+    loadMatches,
+    hasMore,
+    total,
+  } = useMatches(id, { hops: 2 });
 
   const handleLoadFile = useCallback(() => {
     loadFile();
-    handleRetry();
-  }, [handleRetry, loadFile]);
+    loadMatches();
+  }, [loadMatches, loadFile]);
 
   if (file == null) {
     return (
@@ -99,15 +78,12 @@ function FileClusterPage(props) {
 
   let content;
   if (hasMore) {
-    const progress =
-      matchesState.total == null
-        ? undefined
-        : matches.length / matchesState.total;
+    const progress = total == null ? undefined : matches.length / total;
 
     content = (
       <Loading
-        error={matchesState.error}
-        onRetry={handleRetry}
+        error={matchError}
+        onRetry={loadMatches}
         progress={progress}
         errorMessage={messages.loadError}
         className={classes.loading}
