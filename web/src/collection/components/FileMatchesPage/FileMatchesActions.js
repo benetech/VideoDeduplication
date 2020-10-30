@@ -15,7 +15,6 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
   },
   button: {
-    color: theme.palette.action.textInactive,
     marginRight: theme.spacing(2),
   },
 }));
@@ -39,7 +38,8 @@ function FileMatchesActions(props) {
   return (
     <div className={clsx(classes.actions, className)}>
       <Button
-        variant="outlined"
+        variant="contained"
+        color="primary"
         onClick={onCompare}
         className={classes.button}
         disabled={disabled}
