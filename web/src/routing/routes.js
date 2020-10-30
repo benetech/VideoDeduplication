@@ -29,6 +29,9 @@ export const routes = {
     fileClusterURL(id) {
       return `${this.fileURL(id)}/cluster`;
     },
+    fileComparisonURL(id) {
+      return `${this.fileURL(id)}/compare`;
+    },
   },
   database: {
     home: "/database",
