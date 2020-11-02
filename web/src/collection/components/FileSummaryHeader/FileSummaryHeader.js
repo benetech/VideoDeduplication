@@ -23,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
+    minWidth: 0,
   },
 }));
 
