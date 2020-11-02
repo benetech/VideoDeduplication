@@ -64,10 +64,8 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
     className,
     ...other
   } = props;
-
   const messages = useMessages();
   const { large, medium } = useScreenSize();
-  console.log({ large, medium });
 
   const handleClick = useCallback(() => onClick(file), [file, onClick]);
 

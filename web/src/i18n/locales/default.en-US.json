@@ -177,6 +177,8 @@
     "filter.creationDate.help": "Based on file creation date.",
     "preview.notAvailable": "Preview not available.",
     "match.load.error": "Error loading matches.",
+    "match.notMatch": "Match not found.",
+    "match.noMatches": "No matches found.",
     "video.error.missing": "File Missing",
     "video.error.load": "Loading Error",
     "video.error.playback": "Playback Error"

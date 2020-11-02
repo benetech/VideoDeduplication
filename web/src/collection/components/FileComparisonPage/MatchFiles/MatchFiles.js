@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -29,6 +29,14 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 0,
     margin: theme.spacing(2),
   },
+  errorMessage: {
+    minHeight: 150,
+    ...theme.mixins.title2,
+    color: theme.palette.action.textInactive,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 }));
 
 /**
@@ -39,14 +47,21 @@ function useMessages() {
   return {
     title: intl.formatMessage({ id: "file.match" }),
     loadError: intl.formatMessage({ id: "match.load.error" }),
+    notMatch: intl.formatMessage({ id: "match.notMatch" }),
+    noMatches: intl.formatMessage({ id: "match.noMatches" }),
   };
 }
 
 function MatchFiles(props) {
-  const { motherFileId, className, ...other } = props;
+  const {
+    motherFileId,
+    matchFileId,
+    onMatchFileChange,
+    className,
+    ...other
+  } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const [selected, setSelected] = useState(0);
 
   const {
     matches,
@@ -55,6 +70,23 @@ function MatchFiles(props) {
     hasMore,
     progress,
   } = useDirectMatches(motherFileId);
+
+  // Move to the first element when matches are loaded
+  useEffect(() => {
+    if (!hasMore && matches.length > 0 && matchFileId == null) {
+      onMatchFileChange(matches[0].file.id);
+    }
+  }, [hasMore, onMatchFileChange, motherFileId]);
+
+  // Get index of the selected match file
+  const selected = matches.findIndex((match) => match.file.id === matchFileId);
+
+  const handleSelectionChange = useCallback(
+    (index) => {
+      onMatchFileChange(matches[index].file.id);
+    },
+    [hasMore, onMatchFileChange, motherFileId]
+  );
 
   let content;
   if (hasMore) {
@@ -67,7 +99,7 @@ function MatchFiles(props) {
         progress={progress}
       />
     );
-  } else if (matches.length > 0) {
+  } else if (matches.length > 0 && selected >= 0) {
     content = (
       <div>
         <FileMatchHeader
@@ -79,7 +111,9 @@ function MatchFiles(props) {
       </div>
     );
   } else {
-    content = null;
+    const errorMessage =
+      matches.length === 0 ? messages.noMatches : messages.notMatch;
+    content = <div className={classes.errorMessage}>{errorMessage}</div>;
   }
 
   return (
@@ -90,7 +124,7 @@ function MatchFiles(props) {
           <MatchSelector
             matches={matches}
             selected={selected}
-            onChange={setSelected}
+            onChange={handleSelectionChange}
           />
         )}
       </div>
@@ -104,6 +138,14 @@ MatchFiles.propTypes = {
    * Mother file id.
    */
   motherFileId: PropTypes.number.isRequired,
+  /**
+   * Match file id.
+   */
+  matchFileId: PropTypes.number,
+  /**
+   * Handle match file change.
+   */
+  onMatchFileChange: PropTypes.func.isRequired,
   className: PropTypes.string,
 };
 
