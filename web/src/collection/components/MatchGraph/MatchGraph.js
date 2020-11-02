@@ -79,6 +79,17 @@ function MatchGraph(props) {
     []
   );
 
+  const handleClickMatch = useCallback(
+    (match) => {
+      const [sourceId, targetId] =
+        match.source === source.id
+          ? [match.source, match.target]
+          : [match.target, match.source];
+      history.push(routes.collection.fileComparisonURL(sourceId, targetId));
+    },
+    [source]
+  );
+
   useEffect(() => {
     if (ref.current != null) {
       if (graph != null) {
@@ -89,7 +100,8 @@ function MatchGraph(props) {
         nodes: getNodes(source, files, matches),
         container: ref.current,
         classes: { content: classes.content, tooltip: classes.tooltip },
-        onClick: handleClickFile,
+        onClickNode: handleClickFile,
+        onClickEdge: handleClickMatch,
       });
       newGraph.display();
       setGraph(newGraph);

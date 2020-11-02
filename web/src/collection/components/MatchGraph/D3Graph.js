@@ -84,7 +84,8 @@ export default class D3Graph {
     nodes,
     container,
     classes = {},
-    onClick = () => {},
+    onClickNode = () => {},
+    onClickEdge = () => {},
     options = {},
   }) {
     this.links = links.map(Object.create);
@@ -95,7 +96,8 @@ export default class D3Graph {
     this.classes = classes;
     this.updateSize = null;
     this.simulation = null;
-    this.onClick = onClick;
+    this.onClickNode = onClickNode;
+    this.onClickEdge = onClickEdge;
     this.options = {
       ...defaultOptions,
       ...options,
@@ -150,6 +152,9 @@ export default class D3Graph {
         d3.select(this).attr("stroke-width", (d) => edgeWidth(d));
         self.tooltip = null;
       })
+      .on("click", (_, edge) => {
+        this.onClickEdge({ source: edge.source.id, target: edge.target.id });
+      })
       .style("cursor", "pointer");
 
     const node = svg
@@ -162,9 +167,8 @@ export default class D3Graph {
       .attr("r", this.options.nodeRadius)
       .attr("fill", color)
       .call(this._createDrag(this.simulation))
-      .on("click", (_, data) => {
-        const node = this.nodes[data.index];
-        this.onClick(node);
+      .on("click", (_, node) => {
+        this.onClickNode(node);
       })
       .on("mouseover", function (event, node) {
         d3.select(this).attr("r", self.options.nodeRadius * 1.5);
