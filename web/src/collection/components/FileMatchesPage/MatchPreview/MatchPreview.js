@@ -87,7 +87,7 @@ const useStyles = makeStyles((theme) => ({
 function useMessages(file) {
   const intl = useIntl();
   return {
-    moreInfo: intl.formatMessage({ id: "actions.moreInfo" }),
+    compare: intl.formatMessage({ id: "actions.compare" }),
     ariaLabel: intl.formatMessage(
       { id: "aria.label.matchedFile" },
       { name: file.filename }
@@ -97,16 +97,12 @@ function useMessages(file) {
 }
 
 function MatchPreview(props) {
-  const { file, distance, highlight, className } = props;
+  const { file, distance, highlight, onCompare, className } = props;
   const intl = useIntl();
   const classes = useStyles();
   const messages = useMessages(file);
-  const history = useHistory();
 
-  const handleMoreInfo = useCallback(
-    () => history.push(routes.collection.fileURL(file.id)),
-    [file.id]
-  );
+  const handleCompare = useCallback(() => onCompare(file), [file, onCompare]);
 
   return (
     <Container
@@ -138,12 +134,12 @@ function MatchPreview(props) {
       <div className={classes.more}>
         <ButtonBase
           className={classes.link}
-          onClick={handleMoreInfo}
+          onClick={handleCompare}
           focusRipple
           disableTouchRipple
-          aria-label={messages.moreInfo}
+          aria-label={messages.compare}
         >
-          {messages.moreInfo}
+          {messages.compare}
         </ButtonBase>
       </div>
     </Container>
@@ -155,6 +151,10 @@ MatchPreview.propTypes = {
    * Matched file
    */
   file: FileType.isRequired,
+  /**
+   * Handle compare
+   */
+  onCompare: PropTypes.func.isRequired,
   /**
    * Match distance
    */

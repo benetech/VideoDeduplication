@@ -93,7 +93,7 @@ function FileMatchesPage(props) {
   const history = useHistory();
 
   const handleCompare = useCallback(
-    () => history.push(routes.collection.fileComparisonURL(id)),
+    (file) => history.push(routes.collection.fileComparisonURL(id, file?.id)),
     [id]
   );
 
@@ -157,6 +157,7 @@ function FileMatchesPage(props) {
               <MatchPreview
                 distance={match.distance}
                 file={getMatchedFile(match, files, id)}
+                onCompare={handleCompare}
               />
             </Grid>
           ))}
