@@ -44,21 +44,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-/**
- * Get i18n messages.
- */
-function useMessages(intl) {
-  return {
-    filename: intl.formatMessage({ id: "file.attr.name" }),
-    duration: intl.formatMessage({ id: "file.attr.duration" }),
-  };
-}
-
 function NodeTooltip(props) {
   const { file, className, ...other } = props;
   const classes = useStyles();
   const intl = useIntl();
-  const messages = useMessages(intl);
 
   return (
     <Paper className={clsx(classes.root, className)} {...other}>

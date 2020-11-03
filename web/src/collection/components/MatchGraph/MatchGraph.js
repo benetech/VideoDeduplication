@@ -71,6 +71,9 @@ function MatchGraph(props) {
         onMouseOutNode: nodeTooltip.onMouseOut,
         onMouseOverLink: linkTooltip.onMouseOver,
         onMouseOutLink: linkTooltip.onMouseOut,
+        options: {
+          highlightHover: true,
+        },
       });
       newGraph.display();
       setGraph(newGraph);

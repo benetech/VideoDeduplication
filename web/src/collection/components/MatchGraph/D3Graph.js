@@ -13,6 +13,7 @@ function removeChildren(element) {
 
 const defaultOptions = {
   nodeRadius: 10,
+  highlightHover: false,
 };
 
 function edgeWidth(edge) {
@@ -162,13 +163,17 @@ export default class D3Graph {
       .on("mouseenter", function (event, edge) {
         self.tracker = self.makeLinkTracker(this, edge);
         self.tracker.track(event);
-        nodes.attr("fill", linkHoverPainter(edge, colorScheme));
-        links.attr("opacity", (ln) => (ln === edge ? 1.0 : 0.4));
+        if (self.options.highlightHover) {
+          nodes.attr("fill", linkHoverPainter(edge, colorScheme));
+          links.attr("opacity", (ln) => (ln === edge ? 1.0 : 0.4));
+        }
       })
       .on("mouseleave", function () {
         self.tracker = null;
-        nodes.attr("fill", color(colorScheme.normal));
-        links.attr("opacity", 1.0);
+        if (self.options.highlightHover) {
+          nodes.attr("fill", color(colorScheme.normal));
+          links.attr("opacity", 1.0);
+        }
       });
 
     // Define mouse hover listeners for links
@@ -176,15 +181,22 @@ export default class D3Graph {
       .on("mouseenter", function (event, node) {
         self.tracker = self.makeNodeTracker(this, node);
         self.tracker.track(event);
-        nodes.attr("fill", nodeHoverPainter(node, self.adjacency, colorScheme));
-        links.attr("opacity", (ln) =>
-          ln.source.id === node.id || ln.target.id === node.id ? 1.0 : 0.4
-        );
+        if (self.options.highlightHover) {
+          nodes.attr(
+            "fill",
+            nodeHoverPainter(node, self.adjacency, colorScheme)
+          );
+          links.attr("opacity", (ln) =>
+            ln.source.id === node.id || ln.target.id === node.id ? 1.0 : 0.4
+          );
+        }
       })
       .on("mouseleave", function (event, node) {
         self.tracker = null;
-        nodes.attr("fill", color(colorScheme.normal));
-        links.attr("opacity", 1.0);
+        if (self.options.highlightHover) {
+          nodes.attr("fill", color(colorScheme.normal));
+          links.attr("opacity", 1.0);
+        }
       });
 
     this.simulation.on("tick", () => {
