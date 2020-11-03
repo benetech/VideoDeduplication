@@ -8,6 +8,7 @@ import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import { basename } from "../../../common/helpers/paths";
 import { formatDuration } from "../../../common/helpers/format";
 import { useIntl } from "react-intl";
+import FileType from "../FileBrowserPage/FileType";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -89,6 +90,8 @@ LinkTooltip.propTypes = {
    */
   link: PropTypes.shape({
     distance: PropTypes.number.isRequired,
+    source: FileType.isRequired,
+    target: FileType.isRequired,
   }),
   className: PropTypes.string,
 };

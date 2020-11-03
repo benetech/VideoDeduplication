@@ -191,7 +191,7 @@ export default class D3Graph {
           );
         }
       })
-      .on("mouseleave", function (event, node) {
+      .on("mouseleave", function () {
         self.tracker = null;
         if (self.options.highlightHover) {
           nodes.attr("fill", color(colorScheme.normal));

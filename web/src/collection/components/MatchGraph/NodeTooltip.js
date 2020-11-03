@@ -7,7 +7,6 @@ import Paper from "@material-ui/core/Paper";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import { basename } from "../../../common/helpers/paths";
 import { formatDuration } from "../../../common/helpers/format";
-import AttributeText from "../../../common/components/AttributeText";
 import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
