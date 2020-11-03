@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-import { formatDuration } from "../../../common/helpers/format";
-import { basename } from "../../../common/helpers/paths";
+import { LinkTracker, NodeTracker } from "./tracking";
+import { getAdjacency } from "./prepareGraph";
 
 /**
  * Remove all element's children.
@@ -12,71 +12,63 @@ function removeChildren(element) {
 }
 
 const defaultOptions = {
-  nodeRadius: 15,
+  nodeRadius: 10,
+  highlightHover: false,
 };
 
-/**
- * Class to calculate position relative to node.
- */
-class NodeTracker {
-  constructor(node, indent) {
-    this.node = node;
-    this.indent = { x: 0, y: 0, ...indent };
-  }
-  track() {
-    return [this.node.x + this.indent.x, this.node.y + this.indent.y];
-  }
-}
-
-/**
- * Class to calculate position relative to mouse pointer.
- */
-class MouseTracker {
-  constructor(indent) {
-    this.indent = { x: 0, y: 0, ...indent };
-  }
-  track(event, element) {
-    if (event == null) {
-      return [undefined, undefined];
-    }
-    const [x, y] = d3.pointer(event, element);
-    return [x + this.indent.x, y + this.indent.y];
-  }
-}
-
-class Tooltip {
-  constructor({ text, container, tracker }) {
-    this.tracker = tracker;
-    this.text = container.append("text").text(text);
-  }
-
-  move(event) {
-    const [x, y] = this.tracker.track(event, this.text.node());
-    if (x != null && y != null) {
-      this.text.attr("x", x).attr("y", y);
-    }
-  }
-
-  remove() {
-    this.text.remove();
-  }
-}
-
 function edgeWidth(edge) {
-  return Math.sqrt(100 * (1 - edge.distance));
-}
-
-function fileTooltip(file) {
-  const filename = basename(file.filename);
-  const duration = formatDuration(file.metadata.length, null, false);
-  return `${filename} - ${duration}`;
+  return Math.sqrt(50 * (1 - edge.distance));
 }
 
 const colorScheme = {
-  1: "#2ca02c",
-  2: "#1f77b4",
-  3: "#ff7f0e",
+  normal: {
+    origin: "#000000",
+    child: "#F75537",
+    grandChild: "#FF846D",
+  },
+  inactive: {
+    origin: "#5F5F5F",
+    child: "#F9C8BF",
+    grandChild: "#FBD6CF",
+  },
 };
+
+function nodeHoverPainter(hovered, adjacency, scheme) {
+  const adjacentColor = color(scheme.normal);
+  const nonAdjacentColor = color(scheme.inactive);
+  return (node) => {
+    if (node.id === hovered.id || adjacency.get(hovered.id).has(node.id)) {
+      return adjacentColor(node);
+    }
+    return nonAdjacentColor(node);
+  };
+}
+
+function linkHoverPainter(hovered, scheme) {
+  const adjacentColor = color(scheme.normal);
+  const nonAdjacentColor = color(scheme.inactive);
+  return (node) => {
+    if (node.id === hovered.source.id || node.id === hovered.target.id) {
+      return adjacentColor(node);
+    }
+    return nonAdjacentColor(node);
+  };
+}
+
+function color(scheme) {
+  return (node) => {
+    switch (node.generation) {
+      case 0:
+        return scheme.origin;
+      case 1:
+        return scheme.child;
+      default:
+        return scheme.grandChild;
+    }
+  };
+}
+
+const noop = () => {};
 
 export default class D3Graph {
   constructor({
@@ -84,7 +76,12 @@ export default class D3Graph {
     nodes,
     container,
     classes = {},
-    onClick = () => {},
+    onClickNode = noop,
+    onMouseOverNode = noop,
+    onMouseOutNode = noop,
+    onMouseOverLink = noop,
+    onMouseOutLink = noop,
+    onClickEdge = noop,
     options = {},
   }) {
     this.links = links.map(Object.create);
@@ -95,21 +92,24 @@ export default class D3Graph {
     this.classes = classes;
     this.updateSize = null;
     this.simulation = null;
-    this.onClick = onClick;
+    this.onClickNode = onClickNode;
+    this.onClickEdge = onClickEdge;
+    this.onMouseOverNode = onMouseOverNode;
+    this.onMouseOutNode = onMouseOutNode;
+    this.onMouseOverLink = onMouseOverLink;
+    this.onMouseOutLink = onMouseOutLink;
     this.options = {
       ...defaultOptions,
       ...options,
     };
-    this._tooltip = null;
+    this.adjacency = getAdjacency(links, nodes);
+    this._tracker = null;
   }
 
   /**
    * Display graph.
    */
   display() {
-    const scale = d3.scaleOrdinal(d3.schemeCategory10);
-    const color = (d) => colorScheme[d.group] || scale(d.group);
-
     this.simulation = this._createForceSimulation();
 
     removeChildren(this.container);
@@ -129,30 +129,21 @@ export default class D3Graph {
     // Bind this for legacy context handling
     const self = this;
 
-    const link = svg
+    const links = svg
       .append("g")
       .attr("stroke", "#999")
       .selectAll("line")
       .data(this.links)
       .join("line")
       .attr("stroke-opacity", (d) => 1 - d.distance)
+      .attr("opacity", 1.0)
       .attr("stroke-width", (d) => edgeWidth(d))
-      .on("mouseover", function (event, edge) {
-        d3.select(this).attr("stroke-width", (d) => 1.5 * edgeWidth(d));
-        self.tooltip = new Tooltip({
-          text: edge.distance.toFixed(4),
-          container: svg,
-          tracker: new MouseTracker({ x: 15 }),
-        });
-        self.tooltip.move(event);
-      })
-      .on("mouseout", function () {
-        d3.select(this).attr("stroke-width", (d) => edgeWidth(d));
-        self.tooltip = null;
+      .on("click", (_, edge) => {
+        this.onClickEdge({ source: edge.source.id, target: edge.target.id });
       })
       .style("cursor", "pointer");
 
-    const node = svg
+    const nodes = svg
       .append("g")
       .attr("stroke", "rgba(0,0,0,0)")
       .attr("stroke-width", 1.5)
@@ -160,48 +151,63 @@ export default class D3Graph {
       .data(this.nodes)
       .join("circle")
       .attr("r", this.options.nodeRadius)
-      .attr("fill", color)
+      .attr("fill", color(colorScheme.normal))
       .call(this._createDrag(this.simulation))
-      .on("click", (_, data) => {
-        const node = this.nodes[data.index];
-        this.onClick(node);
-      })
-      .on("mouseover", function (event, node) {
-        d3.select(this).attr("r", self.options.nodeRadius * 1.5);
-
-        self.tooltip = new Tooltip({
-          text: fileTooltip(node.file),
-          container: svg,
-          tracker: new NodeTracker(node, {
-            x: self.options.nodeRadius * 2,
-            y: self.options.nodeRadius * 0.25,
-          }),
-        });
-        self.tooltip.move(event);
-      })
-      .on("mouseout", function () {
-        self.tooltip = null;
-        d3.select(this).attr("r", self.options.nodeRadius);
+      .on("click", (_, node) => {
+        this.onClickNode(node);
       })
       .style("cursor", "pointer");
 
-    // node.append("title").text((data) => {
-    //   const filename = basename(data.file.filename);
-    //   const duration = formatDuration(data.file.metadata.length, null, false);
-    //   return `${filename} ${duration}`;
-    // });
-    //
-    // link.append("title").text((data) => data.distance.toFixed(4));
+    // Define mouse hover listeners for links
+    links
+      .on("mouseenter", function (event, edge) {
+        self.tracker = self.makeLinkTracker(this, edge);
+        self.tracker.track(event);
+        if (self.options.highlightHover) {
+          nodes.attr("fill", linkHoverPainter(edge, colorScheme));
+          links.attr("opacity", (ln) => (ln === edge ? 1.0 : 0.4));
+        }
+      })
+      .on("mouseleave", function () {
+        self.tracker = null;
+        if (self.options.highlightHover) {
+          nodes.attr("fill", color(colorScheme.normal));
+          links.attr("opacity", 1.0);
+        }
+      });
+
+    // Define mouse hover listeners for links
+    nodes
+      .on("mouseenter", function (event, node) {
+        self.tracker = self.makeNodeTracker(this, node);
+        self.tracker.track(event);
+        if (self.options.highlightHover) {
+          nodes.attr(
+            "fill",
+            nodeHoverPainter(node, self.adjacency, colorScheme)
+          );
+          links.attr("opacity", (ln) =>
+            ln.source.id === node.id || ln.target.id === node.id ? 1.0 : 0.4
+          );
+        }
+      })
+      .on("mouseleave", function () {
+        self.tracker = null;
+        if (self.options.highlightHover) {
+          nodes.attr("fill", color(colorScheme.normal));
+          links.attr("opacity", 1.0);
+        }
+      });
 
     this.simulation.on("tick", () => {
-      link
+      links
         .attr("x1", (d) => d.source.x)
         .attr("y1", (d) => d.source.y)
         .attr("x2", (d) => d.target.x)
         .attr("y2", (d) => d.target.y);
 
-      node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
-      this.tooltip?.move();
+      nodes.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+      this.tracker?.track();
     });
 
     this.updateSize = () => {
@@ -233,13 +239,13 @@ export default class D3Graph {
       }
       event.subject.fx = event.subject.x;
       event.subject.fy = event.subject.y;
-      this.tooltip?.move(event);
+      this.tracker?.track();
     };
 
     const dragged = (event) => {
       event.subject.fx = event.x;
       event.subject.fy = event.y;
-      this.tooltip?.move(event);
+      this.tracker?.track();
     };
 
     const dragEnded = (event) => {
@@ -248,7 +254,7 @@ export default class D3Graph {
       }
       event.subject.fx = null;
       event.subject.fy = null;
-      this.tooltip?.move(event);
+      this.tracker?.track();
     };
 
     return d3
@@ -271,21 +277,21 @@ export default class D3Graph {
         d3
           .forceLink(this.links)
           .id((d) => d.id)
-          .strength((d) => 0.1 * (1 - d.distance))
+          .strength((d) => 1 - d.distance)
       )
       .force("charge", d3.forceManyBody().strength(-400))
       .force("center", d3.forceCenter(this.width / 2, this.height / 2));
   }
 
-  get tooltip() {
-    return this._tooltip;
+  get tracker() {
+    return this._tracker;
   }
 
-  set tooltip(tooltip) {
-    if (this._tooltip != null) {
-      this._tooltip.remove();
+  set tracker(tracker) {
+    if (this._tracker != null) {
+      this._tracker.remove();
     }
-    this._tooltip = tooltip;
+    this._tracker = tracker;
   }
 
   /**
@@ -301,5 +307,23 @@ export default class D3Graph {
       this.simulation.stop();
       this.simulation = null;
     }
+  }
+
+  makeNodeTracker(element, node) {
+    return new NodeTracker(
+      element,
+      node,
+      this.onMouseOverNode,
+      this.onMouseOutNode
+    );
+  }
+
+  makeLinkTracker(element, link) {
+    return new LinkTracker(
+      element,
+      link,
+      this.onMouseOverLink,
+      this.onMouseOutLink
+    );
   }
 }

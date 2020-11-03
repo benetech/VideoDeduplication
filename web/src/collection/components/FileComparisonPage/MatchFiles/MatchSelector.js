@@ -70,7 +70,7 @@ function MatchSelector(props) {
         <InputLabel id={labelId}>{messages.label}</InputLabel>
         <Select
           labelId={labelId}
-          value={matches.length > 0 ? selected : ""}
+          value={matches.length > 0 && selected >= 0 ? selected : ""}
           onChange={handleSelect}
           label={messages.label}
           disabled={matches.length === 0}

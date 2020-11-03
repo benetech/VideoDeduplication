@@ -7,6 +7,11 @@ import MatchType from "../FileMatchesPage/MatchType";
 import FileType from "../FileBrowserPage/FileType";
 import { useHistory } from "react-router-dom";
 import { routes } from "../../../routing/routes";
+import prepareGraph from "./prepareGraph";
+import useTooltip from "./useTooltip";
+import NodeTooltip from "./NodeTooltip";
+import LinkTooltip from "./LinkTooltip";
+import comparisonURL from "./helpers";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -24,54 +29,19 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.spacing(2),
     boxShadow: "0 12px 18px 0 rgba(0,0,0,0.08)",
   },
+  popover: {
+    position: "fixed",
+    marginLeft: theme.spacing(3),
+  },
 }));
-
-/**
- * Get collection of links compatible with D3Graph.
- */
-function getLinks(source, matches) {
-  return matches.map((match) => ({
-    source: match.source,
-    target: match.target,
-    distance: match.distance,
-  }));
-}
-
-/**
- * Get collection of nodes compatible with D3Graph
- */
-function getNodes(source, files, matches) {
-  const children = new Set();
-  for (const match of matches) {
-    if (match.source === source.id) {
-      children.add(match.target);
-    } else if (match.target === source.id) {
-      children.add(match.source);
-    }
-  }
-  const group = (file) => {
-    if (file.id === source.id) {
-      return 1;
-    } else if (children.has(file.id)) {
-      return 2;
-    }
-    return 3;
-  };
-  return [
-    ...Object.values(files).map((file) => ({
-      id: file.id,
-      group: group(file),
-      file: file,
-    })),
-  ];
-}
 
 function MatchGraph(props) {
   const { source, matches, files, className } = props;
   const classes = useStyles();
   const ref = useRef(null);
   const [graph, setGraph] = useState(null);
-
+  const nodeTooltip = useTooltip();
+  const linkTooltip = useTooltip();
   const history = useHistory();
 
   const handleClickFile = useCallback(
@@ -79,26 +49,54 @@ function MatchGraph(props) {
     []
   );
 
+  const handleClickMatch = useCallback(
+    (link) => history.push(comparisonURL(source.id, link)),
+    [source]
+  );
+
   useEffect(() => {
     if (ref.current != null) {
       if (graph != null) {
         graph.cleanup();
       }
+      const { nodes, links } = prepareGraph(source, matches, files);
       const newGraph = new D3Graph({
-        links: getLinks(source, matches),
-        nodes: getNodes(source, files, matches),
+        links,
+        nodes,
         container: ref.current,
         classes: { content: classes.content, tooltip: classes.tooltip },
-        onClick: handleClickFile,
+        onClickNode: handleClickFile,
+        onClickEdge: handleClickMatch,
+        onMouseOverNode: nodeTooltip.onMouseOver,
+        onMouseOutNode: nodeTooltip.onMouseOut,
+        onMouseOverLink: linkTooltip.onMouseOver,
+        onMouseOutLink: linkTooltip.onMouseOut,
+        options: {
+          highlightHover: true,
+        },
       });
       newGraph.display();
       setGraph(newGraph);
     }
-  }, [ref.current, source, matches]);
+  }, [ref.current, source.id]);
 
   return (
     <div className={clsx(classes.root, className)}>
       <svg ref={ref} />
+      {nodeTooltip.show && (
+        <NodeTooltip
+          file={nodeTooltip.data.file}
+          className={classes.popover}
+          style={{ ...nodeTooltip.position }}
+        />
+      )}
+      {linkTooltip.show && (
+        <LinkTooltip
+          link={linkTooltip.data}
+          className={classes.popover}
+          style={{ ...linkTooltip.position }}
+        />
+      )}
     </div>
   );
 }

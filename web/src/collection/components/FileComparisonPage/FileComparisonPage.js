@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Grid from "@material-ui/core/Grid";
 import MotherFile from "./MotherFile/MotherFile";
 import MatchFiles from "./MatchFiles/MatchFiles";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
+import { routes } from "../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -16,8 +17,15 @@ const useStyles = makeStyles((theme) => ({
 function FileComparisonPage(props) {
   const { className } = props;
   const classes = useStyles();
-  const { id: rawId } = useParams();
+  const history = useHistory();
+  const { id: rawId, matchFileId } = useParams();
   const id = Number(rawId);
+
+  const handleMatchFileChange = useCallback(
+    (newMatchFileId) =>
+      history.push(routes.collection.fileComparisonURL(id, newMatchFileId)),
+    [id]
+  );
 
   return (
     <div className={clsx(classes.root, className)}>
@@ -26,7 +34,11 @@ function FileComparisonPage(props) {
           <MotherFile motherFileId={id} />
         </Grid>
         <Grid item xs={12} lg={6}>
-          <MatchFiles motherFileId={id} />
+          <MatchFiles
+            motherFileId={id}
+            matchFileId={matchFileId != null ? Number(matchFileId) : null}
+            onMatchFileChange={handleMatchFileChange}
+          />
         </Grid>
       </Grid>
     </div>

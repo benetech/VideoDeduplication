@@ -47,7 +47,7 @@ function useMessages() {
 }
 
 function Name(props) {
-  const { file, className, ...other } = props;
+  const { file, highlight, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
 
@@ -59,6 +59,7 @@ function Name(props) {
       <AttributeText
         name={messages.filename}
         value={file.filename}
+        highlighted={highlight}
         variant="title"
         ellipsis
         className={classes.filename}
@@ -72,6 +73,10 @@ Name.propTypes = {
    * Video file to be summarized.
    */
   file: FileType,
+  /**
+   * Highlight substring.
+   */
+  highlight: PropTypes.string,
   className: PropTypes.string,
 };
 
