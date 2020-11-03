@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
   },
   popover: {
     position: "fixed",
-    marginLeft: theme.spacing(1),
+    marginLeft: theme.spacing(3),
   },
 }));
 

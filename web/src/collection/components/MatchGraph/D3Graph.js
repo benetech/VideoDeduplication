@@ -1,7 +1,6 @@
 import * as d3 from "d3";
-import { formatDuration } from "../../../common/helpers/format";
-import { basename } from "../../../common/helpers/paths";
 import { LinkTracker, NodeTracker } from "./tracking";
+import { getAdjacency } from "./prepareGraph";
 
 /**
  * Remove all element's children.
@@ -20,27 +19,52 @@ function edgeWidth(edge) {
   return Math.sqrt(50 * (1 - edge.distance));
 }
 
-function fileTooltip(file) {
-  const filename = basename(file.filename);
-  const duration = formatDuration(file.metadata.length, null, false);
-  return `${filename} - ${duration}`;
-}
-
 const colorScheme = {
-  origin: "#000000",
-  child: "#F75537",
-  grandChild: "#FF846D",
+  normal: {
+    origin: "#000000",
+    child: "#F75537",
+    grandChild: "#FF846D",
+  },
+  inactive: {
+    origin: "#5F5F5F",
+    child: "#F9C8BF",
+    grandChild: "#FBD6CF",
+  },
 };
 
-function color(node) {
-  switch (node.generation) {
-    case 0:
-      return colorScheme.origin;
-    case 1:
-      return colorScheme.child;
-    default:
-      return colorScheme.grandChild;
-  }
+function nodeHoverPainter(hovered, adjacency, scheme) {
+  const adjacentColor = color(scheme.normal);
+  const nonAdjacentColor = color(scheme.inactive);
+  return (node) => {
+    if (node.id === hovered.id || adjacency.get(hovered.id).has(node.id)) {
+      return adjacentColor(node);
+    }
+    return nonAdjacentColor(node);
+  };
+}
+
+function linkHoverPainter(hovered, scheme) {
+  const adjacentColor = color(scheme.normal);
+  const nonAdjacentColor = color(scheme.inactive);
+  return (node) => {
+    if (node.id === hovered.source.id || node.id === hovered.target.id) {
+      return adjacentColor(node);
+    }
+    return nonAdjacentColor(node);
+  };
+}
+
+function color(scheme) {
+  return (node) => {
+    switch (node.generation) {
+      case 0:
+        return scheme.origin;
+      case 1:
+        return scheme.child;
+      default:
+        return scheme.grandChild;
+    }
+  };
 }
 
 const noop = () => {};
@@ -77,6 +101,7 @@ export default class D3Graph {
       ...defaultOptions,
       ...options,
     };
+    this.adjacency = getAdjacency(links, nodes);
     this._tracker = null;
   }
 
@@ -103,27 +128,21 @@ export default class D3Graph {
     // Bind this for legacy context handling
     const self = this;
 
-    const link = svg
+    const links = svg
       .append("g")
       .attr("stroke", "#999")
       .selectAll("line")
       .data(this.links)
       .join("line")
       .attr("stroke-opacity", (d) => 1 - d.distance)
+      .attr("opacity", 1.0)
       .attr("stroke-width", (d) => edgeWidth(d))
-      .on("mouseover", function (event, edge) {
-        self.tracker = self.makeLinkTracker(this, edge);
-        self.tracker.track(event);
-      })
-      .on("mouseout", function () {
-        self.tracker = null;
-      })
       .on("click", (_, edge) => {
         this.onClickEdge({ source: edge.source.id, target: edge.target.id });
       })
       .style("cursor", "pointer");
 
-    const node = svg
+    const nodes = svg
       .append("g")
       .attr("stroke", "rgba(0,0,0,0)")
       .attr("stroke-width", 1.5)
@@ -131,28 +150,51 @@ export default class D3Graph {
       .data(this.nodes)
       .join("circle")
       .attr("r", this.options.nodeRadius)
-      .attr("fill", color)
+      .attr("fill", color(colorScheme.normal))
       .call(this._createDrag(this.simulation))
       .on("click", (_, node) => {
         this.onClickNode(node);
       })
+      .style("cursor", "pointer");
+
+    // Define mouse hover listeners for links
+    links
+      .on("mouseenter", function (event, edge) {
+        self.tracker = self.makeLinkTracker(this, edge);
+        self.tracker.track(event);
+        nodes.attr("fill", linkHoverPainter(edge, colorScheme));
+        links.attr("opacity", (ln) => (ln === edge ? 1.0 : 0.4));
+      })
+      .on("mouseleave", function () {
+        self.tracker = null;
+        nodes.attr("fill", color(colorScheme.normal));
+        links.attr("opacity", 1.0);
+      });
+
+    // Define mouse hover listeners for links
+    nodes
       .on("mouseenter", function (event, node) {
         self.tracker = self.makeNodeTracker(this, node);
         self.tracker.track(event);
+        nodes.attr("fill", nodeHoverPainter(node, self.adjacency, colorScheme));
+        links.attr("opacity", (ln) =>
+          ln.source.id === node.id || ln.target.id === node.id ? 1.0 : 0.4
+        );
       })
       .on("mouseleave", function (event, node) {
         self.tracker = null;
-      })
-      .style("cursor", "pointer");
+        nodes.attr("fill", color(colorScheme.normal));
+        links.attr("opacity", 1.0);
+      });
 
     this.simulation.on("tick", () => {
-      link
+      links
         .attr("x1", (d) => d.source.x)
         .attr("y1", (d) => d.source.y)
         .attr("x2", (d) => d.target.x)
         .attr("y2", (d) => d.target.y);
 
-      node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+      nodes.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
       this.tracker?.track();
     });
 

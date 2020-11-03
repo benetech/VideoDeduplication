@@ -3,14 +3,10 @@
  * and return nodes as an index (node.id => node).
  */
 function createNodes(files) {
-  const nodes = new Map();
-  for (let file of Object.values(files)) {
-    nodes.set(file.id, {
-      id: file.id,
-      file: file,
-    });
-  }
-  return nodes;
+  return Object.values(files).map((file) => ({
+    id: file.id,
+    file: file,
+  }));
 }
 
 /**
@@ -27,14 +23,14 @@ function createLinks(matches) {
 /**
  * Calculate adjacency table (node.id => set of adjacent node ids).
  */
-function getAdjacency(matches, files) {
+export function getAdjacency(links, nodes) {
   const adjacency = new Map();
-  for (let file of Object.values(files)) {
-    adjacency.set(file.id, new Set());
+  for (let node of nodes) {
+    adjacency.set(node.id, new Set());
   }
-  for (let match of matches) {
-    adjacency.get(match.source).add(match.target);
-    adjacency.get(match.target).add(match.source);
+  for (let link of links) {
+    adjacency.get(link.source).add(link.target);
+    adjacency.get(link.target).add(link.source);
   }
   return adjacency;
 }
@@ -81,9 +77,9 @@ function getNodeGenerations(origin, adjacency) {
  * @returns {{nodes: any[], links: any[]}}
  */
 export default function prepareGraph(originFile, matches, files) {
-  const adjacency = getAdjacency(matches, files);
   const nodes = createNodes(files);
   const links = createLinks(matches);
+  const adjacency = getAdjacency(links, nodes);
   const nodeGenerations = getNodeGenerations(originFile.id, adjacency);
 
   for (const node of nodes.values()) {
@@ -92,10 +88,10 @@ export default function prepareGraph(originFile, matches, files) {
 
   for (const link of links) {
     link.generation = Math.min(
-      nodes.get(link.source).generation,
-      nodes.get(link.target).generation
+      nodeGenerations.get(link.source),
+      nodeGenerations.get(link.target)
     );
   }
 
-  return { links, nodes: [...nodes.values()] };
+  return { links, nodes };
 }
