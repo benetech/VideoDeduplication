@@ -27,11 +27,16 @@ function FileComparisonPage(props) {
     [id]
   );
 
+  const handleBack = useCallback(
+    () => history.push(routes.collection.fileMatchesURL(id)),
+    [id]
+  );
+
   return (
     <div className={clsx(classes.root, className)}>
       <Grid container spacing={0}>
         <Grid item xs={12} lg={6}>
-          <MotherFile motherFileId={id} />
+          <MotherFile motherFileId={id} onBack={handleBack} />
         </Grid>
         <Grid item xs={12} lg={6}>
           <MatchFiles
