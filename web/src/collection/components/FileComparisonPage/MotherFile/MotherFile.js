@@ -7,6 +7,8 @@ import useFile from "../../../hooks/useFile";
 import LoadingHeader from "../LoadingHeader";
 import FileDetails from "../FileDetails";
 import FileDetailsHeader from "./FileDetailsHeader";
+import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
+import IconButton from "@material-ui/core/IconButton";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -28,6 +30,9 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 0,
     margin: theme.spacing(2),
   },
+  backButton: {
+    marginRight: theme.spacing(2),
+  },
 }));
 
 /**
@@ -42,7 +47,7 @@ function useMessages() {
 }
 
 function MotherFile(props) {
-  const { motherFileId, className, ...other } = props;
+  const { motherFileId, onBack, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
   const { file, error, loadFile } = useFile(motherFileId);
@@ -69,6 +74,11 @@ function MotherFile(props) {
   return (
     <div className={clsx(classes.root, className)} {...other}>
       <div className={classes.header}>
+        {onBack != null && (
+          <IconButton className={classes.backButton} onClick={onBack}>
+            <ArrowBackOutlinedIcon />
+          </IconButton>
+        )}
         <div className={classes.title}>{messages.title}</div>
       </div>
       {content}
@@ -81,6 +91,10 @@ MotherFile.propTypes = {
    * Mother file id.
    */
   motherFileId: PropTypes.number.isRequired,
+  /**
+   * Handle go-back button.
+   */
+  onBack: PropTypes.func,
   className: PropTypes.string,
 };
 
