@@ -17,7 +17,7 @@ import {
   selectFilters,
   selectLoading,
 } from "../../state/selectors";
-import { fetchFiles, updateFilters } from "../../state";
+import { fetchFiles, selectColl, updateFilters } from "../../state";
 import Fab from "@material-ui/core/Fab";
 import Zoom from "@material-ui/core/Zoom";
 import VisibilitySensor from "react-visibility-sensor";
@@ -126,6 +126,7 @@ function FileBrowserPage(props) {
   const classes = useStyles();
   const [showFilters, setShowFilters] = useState(false);
   const [view, setView] = useState(View.grid);
+  const collState = useSelector(selectColl);
   const error = useSelector(selectError);
   const loading = useSelector(selectLoading);
   const files = useSelector(selectFiles);
@@ -141,13 +142,11 @@ function FileBrowserPage(props) {
   const location = useLocation();
   const keepFilters = location.state?.keepFilters;
 
-  console.log("LOCATION", location);
-
   useEffect(() => {
-    if (!keepFilters) {
+    if (!keepFilters || collState.neverLoaded) {
       dispatch(updateFilters(defaultFilters));
     }
-  }, [keepFilters]);
+  }, [keepFilters, collState.neverLoaded]);
 
   const handleFetchPage = useCallback(() => dispatch(fetchFiles()), []);
 
