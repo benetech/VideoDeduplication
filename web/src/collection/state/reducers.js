@@ -32,7 +32,7 @@ export const initialState = {
   },
   limit: 20,
   counts: {
-    total: 0,
+    all: 0,
     related: 0,
     duplicates: 0,
     unique: 0,
