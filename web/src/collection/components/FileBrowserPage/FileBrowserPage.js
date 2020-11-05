@@ -22,9 +22,10 @@ import Fab from "@material-ui/core/Fab";
 import Zoom from "@material-ui/core/Zoom";
 import VisibilitySensor from "react-visibility-sensor";
 import { scrollIntoView } from "../../../common/helpers/scroll";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
+import { defaultFilters } from "../../state/reducers";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -137,16 +138,22 @@ function FileBrowserPage(props) {
   const List = listComponent(view);
   const intl = useIntl();
   const showFiltersRef = useRef();
+  const location = useLocation();
+  const keepFilters = location.state?.keepFilters;
+
+  console.log("LOCATION", location);
 
   useEffect(() => {
-    dispatch(updateFilters({ query: "" }));
-  }, []);
+    if (!keepFilters) {
+      dispatch(updateFilters(defaultFilters));
+    }
+  }, [keepFilters]);
 
   const handleFetchPage = useCallback(() => dispatch(fetchFiles()), []);
 
   const handleToggleFilters = useCallback(() => {
     setShowFilters(!showFilters);
-    setTimeout(() => showFiltersRef.current.focus());
+    setTimeout(() => showFiltersRef.current?.focus());
   }, [showFilters, showFiltersRef]);
 
   const handleQuery = useCallback((query) => {

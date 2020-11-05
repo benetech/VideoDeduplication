@@ -53,9 +53,10 @@ function FileSummaryHeader(props) {
   const small = useSmallScreen();
   const messages = getMessages(intl);
 
-  const handleBack = useCallback(() => history.push(routes.collection.home), [
-    history,
-  ]);
+  const handleBack = useCallback(
+    () => history.push(routes.collection.fingerprints, { keepFilters: true }),
+    [history]
+  );
 
   return (
     <Paper className={clsx(classes.header, className)}>

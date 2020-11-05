@@ -64,6 +64,11 @@ export const initialState = {
   },
 };
 
+/**
+ * Default collection filters.
+ */
+export const defaultFilters = initialState.filters;
+
 function ids(entities) {
   const result = new Set();
   for (let entity of entities) {
