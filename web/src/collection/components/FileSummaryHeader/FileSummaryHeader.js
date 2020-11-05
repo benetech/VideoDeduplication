@@ -11,6 +11,7 @@ import { useHistory } from "react-router";
 import FileSummary from "../FileSummary";
 import useTheme from "@material-ui/styles/useTheme";
 import { useMediaQuery } from "@material-ui/core";
+import { routes } from "../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -52,16 +53,16 @@ function FileSummaryHeader(props) {
   const small = useSmallScreen();
   const messages = getMessages(intl);
 
-  const back = history.length > 0;
-  const handleBack = useCallback(() => history.goBack(), [history]);
+  const handleBack = useCallback(
+    () => history.push(routes.collection.fingerprints, { keepFilters: true }),
+    [history]
+  );
 
   return (
     <Paper className={clsx(classes.header, className)}>
-      {back && (
-        <IconButton onClick={handleBack} aria-label={messages.goBack}>
-          <ArrowBackOutlinedIcon />
-        </IconButton>
-      )}
+      <IconButton onClick={handleBack} aria-label={messages.goBack}>
+        <ArrowBackOutlinedIcon />
+      </IconButton>
       <FileSummary file={file} divider className={classes.summary}>
         <FileSummary.Name />
         <FileSummary.Fingerprint />

@@ -31,9 +31,9 @@ function ObjectTimeLine(props) {
       className={clsx(classes.timeline, className)}
       aria-label={intl.formatMessage({ id: "aria.label.objectTimeline" })}
     >
-      {groups.map((group) => (
+      {groups.map((group, index) => (
         <ObjectGroup
-          key={group[0].position}
+          key={index}
           fullLength={file.metadata.length}
           objects={group}
           onJump={onJump}

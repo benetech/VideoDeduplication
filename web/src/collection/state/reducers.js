@@ -17,6 +17,7 @@ import { MatchCategory } from "./MatchCategory";
 import { FileSort } from "./FileSort";
 
 export const initialState = {
+  neverLoaded: true,
   error: false,
   loading: false,
   files: [],
@@ -32,7 +33,7 @@ export const initialState = {
   },
   limit: 20,
   counts: {
-    total: 0,
+    all: 0,
     related: 0,
     duplicates: 0,
     unique: 0,
@@ -63,6 +64,11 @@ export const initialState = {
     files: {},
   },
 };
+
+/**
+ * Default collection filters.
+ */
+export const defaultFilters = initialState.filters;
 
 function ids(entities) {
   const result = new Set();
@@ -168,6 +174,7 @@ export function collRootReducer(state = initialState, action) {
         filters: { ...state.filters, ...action.filters },
         files: [],
         loading: true,
+        neverLoaded: false,
       };
     case ACTION_UPDATE_FILTERS_SUCCESS:
       return {
@@ -188,6 +195,7 @@ export function collRootReducer(state = initialState, action) {
       return {
         ...state,
         loading: true,
+        neverLoaded: false,
       };
     case ACTION_FETCH_FILES_SUCCESS:
       return {

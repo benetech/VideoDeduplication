@@ -17,14 +17,15 @@ import {
   selectFilters,
   selectLoading,
 } from "../../state/selectors";
-import { fetchFiles, updateFilters } from "../../state";
+import { fetchFiles, selectColl, updateFilters } from "../../state";
 import Fab from "@material-ui/core/Fab";
 import Zoom from "@material-ui/core/Zoom";
 import VisibilitySensor from "react-visibility-sensor";
 import { scrollIntoView } from "../../../common/helpers/scroll";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
+import { defaultFilters } from "../../state/reducers";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -125,6 +126,7 @@ function FileBrowserPage(props) {
   const classes = useStyles();
   const [showFilters, setShowFilters] = useState(false);
   const [view, setView] = useState(View.grid);
+  const collState = useSelector(selectColl);
   const error = useSelector(selectError);
   const loading = useSelector(selectLoading);
   const files = useSelector(selectFiles);
@@ -137,16 +139,20 @@ function FileBrowserPage(props) {
   const List = listComponent(view);
   const intl = useIntl();
   const showFiltersRef = useRef();
+  const location = useLocation();
+  const keepFilters = location.state?.keepFilters;
 
   useEffect(() => {
-    dispatch(updateFilters({ query: "" }));
-  }, []);
+    if (!keepFilters || collState.neverLoaded) {
+      dispatch(updateFilters(defaultFilters));
+    }
+  }, [keepFilters, collState.neverLoaded]);
 
   const handleFetchPage = useCallback(() => dispatch(fetchFiles()), []);
 
   const handleToggleFilters = useCallback(() => {
     setShowFilters(!showFilters);
-    setTimeout(() => showFiltersRef.current.focus());
+    setTimeout(() => showFiltersRef.current?.focus());
   }, [showFilters, showFiltersRef]);
 
   const handleQuery = useCallback((query) => {
