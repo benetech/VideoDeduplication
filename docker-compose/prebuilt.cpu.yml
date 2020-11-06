@@ -5,5 +5,5 @@ version: '2.3'
 
 services:
   dedup-app:
-    image: johnhbenetech/videodeduplication:cpu
+    image: "johnhbenetech/videodeduplication:cpu${BENETECH_MODE}"
     runtime: runc

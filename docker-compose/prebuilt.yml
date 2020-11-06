@@ -5,4 +5,4 @@ version: '2.3'
 
 services:
   dedup-app:
-    image: johnhbenetech/videodeduplication:gpu
+    image: "johnhbenetech/videodeduplication:gpu${BENETECH_MODE}"

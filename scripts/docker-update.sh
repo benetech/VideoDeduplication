@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# This script runs the docker-compose application
-# according to the configuration saved in .env file.
+# This script updates the docker-images used by the application.
 
 if ! [ -f ".env" ]; then
   echo -e "\e[31mERROR\e[0m Environment file not found: $(pwd)/.env"
@@ -17,16 +16,21 @@ if ! [ -d "$BENETECH_DATA_LOCATION" ] || [ -z "$BENETECH_RUNTIME" ] || [ -z "$BE
   exit 1
 fi
 
+
 if [ "$BENETECH_RUNTIME" = "GPU" ] && [ "$BENETECH_PREBUILT" = "NO" ]; then
   set -x
-  sudo docker-compose up -d
+  sudo docker-compose rm -s -f
+	sudo docker-compose build
 elif [ "$BENETECH_RUNTIME" = "CPU" ] && [ "$BENETECH_PREBUILT" = "NO" ]; then
   set -x
-  sudo docker-compose -f docker-compose.yml -f docker-compose/build.cpu.yml up -d
+  sudo docker-compose rm -s -f
+  sudo docker-compose -f docker-compose.yml -f docker-compose/build.cpu.yml build
 elif [ "$BENETECH_RUNTIME" = "GPU" ] && [ "$BENETECH_PREBUILT" = "YES" ]; then
   set -x
-  sudo docker-compose -f docker-compose.yml -f docker-compose/prebuilt.yml up -d
+  sudo docker-compose rm -s -f
+  sudo docker-compose -f docker-compose.yml -f docker-compose/prebuilt.yml pull
 elif [ "$BENETECH_RUNTIME" = "CPU" ] && [ "$BENETECH_PREBUILT" = "YES" ]; then
   set -x
-  sudo docker-compose -f docker-compose.yml -f docker-compose/prebuilt.cpu.yml up -d
+  sudo docker-compose rm -s -f
+  sudo docker-compose -f docker-compose.yml -f docker-compose/prebuilt.cpu.yml pull
 fi
