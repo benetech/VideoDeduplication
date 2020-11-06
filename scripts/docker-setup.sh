@@ -58,7 +58,8 @@ fi
 # Decide whether to use prebuilt images
 if [ "$FORCE_UPDATE" = "YES" ] || [ -z "$BENETECH_PREBUILT" ]; then
   DIRTY=yes
-  confirm BENETECH_PREBUILT "Would you like to use pre-built Docker images?" NO
+  tput setaf 6; echo "Would you like to use pre-built Docker images?"; tput sgr0;
+  choose BENETECH_PREBUILT YES="Pull pre-built images from Docker Hub." NO="Build images locally."
   echo
 
   # Ask if user would like to use dev or prod images
