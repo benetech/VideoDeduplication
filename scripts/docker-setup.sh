@@ -57,6 +57,12 @@ fi
 if [ "$FORCE_UPDATE" = "YES" ] || [ -z "$BENETECH_PREBUILT" ]; then
   DIRTY=yes
   confirm BENETECH_PREBUILT "Would you like to use pre-built Docker images?" NO
+
+  # Ask if user would like to use dev or prod images
+  if [ "$BENETECH_PREBUILT" = "YES" ]; then
+    tput setaf 6; echo "Would you like to use production Docker images?"; tput sgr0;
+    choose BENETECH_MODE ''="Use production images." '-dev'="Use dev-images."
+  fi
 fi
 
 # Write data to the .env file
@@ -65,6 +71,7 @@ if [ -n "$DIRTY" ]; then
     echo "BENETECH_DATA_LOCATION=$BENETECH_DATA_LOCATION"
     echo "BENETECH_RUNTIME=$BENETECH_RUNTIME"
     echo "BENETECH_PREBUILT=$BENETECH_PREBUILT"
+    echo "BENETECH_MODE=$BENETECH_MODE"
   } > .env
   tput setaf 2; echo -n "OK"; tput sgr0;
   echo " Configuration is written to the $(pwd)/.env";
