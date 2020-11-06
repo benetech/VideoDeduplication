@@ -5,10 +5,10 @@
 docker-setup:
 	@scripts/docker-setup.sh
 
-.PHONY: docker-update-setup
+.PHONY: docker-setup-update
 
 ## Update environment variables required for docker-compose
-docker-update-setup:
+docker-setup-update:
 	@scripts/docker-setup.sh --force-update
 
 
@@ -37,3 +37,15 @@ docker-build:
 docker-rebuild:
 	sudo docker-compose rm -s -f
 	sudo docker-compose build
+
+.PHONY: docker-update
+
+## Update docker images (rebuild local or pull latest from repository depending on configuration).
+docker-update:
+	@scripts/docker-update.sh
+
+.PHONY: docker-purge
+
+## Shut-down docker-compose application and remove all its images and volumes.
+docker-purge:
+	sudo docker-compose down --rmi all -v --remove-orphans --timeout 0
