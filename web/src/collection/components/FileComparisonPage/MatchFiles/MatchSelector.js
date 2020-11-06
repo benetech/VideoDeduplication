@@ -22,9 +22,13 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl: {
     width: 300,
+    marginLeft: theme.spacing(2),
   },
   button: {
     marginLeft: theme.spacing(1),
+  },
+  index: {
+    ...theme.mixins.text,
   },
 }));
 
@@ -60,8 +64,15 @@ function MatchSelector(props) {
     selected,
   ]);
 
+  const showSelected = matches.length > 0 && selected >= 0;
+
   return (
     <div className={clsx(classes.root, className)}>
+      {showSelected && (
+        <div className={classes.index}>
+          {selected + 1} of {matches.length}
+        </div>
+      )}
       <FormControl
         variant="outlined"
         className={classes.formControl}
@@ -70,7 +81,7 @@ function MatchSelector(props) {
         <InputLabel id={labelId}>{messages.label}</InputLabel>
         <Select
           labelId={labelId}
-          value={matches.length > 0 && selected >= 0 ? selected : ""}
+          value={showSelected ? selected : ""}
           onChange={handleSelect}
           label={messages.label}
           disabled={matches.length === 0}
