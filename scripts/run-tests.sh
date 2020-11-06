@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 echo "Running unit tests"
 
 python -m pytest tests/general_tests.py
