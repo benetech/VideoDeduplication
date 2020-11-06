@@ -42,9 +42,7 @@ function FilterPaneHeader(props) {
 
   useEffect(() => {
     if (autoFocus) {
-      console.log("Focusing", buttonRef.current);
-      buttonRef.current.focus();
-      // setTimeout(() => );
+      buttonRef.current?.focus();
     }
   }, [autoFocus, buttonRef]);
 

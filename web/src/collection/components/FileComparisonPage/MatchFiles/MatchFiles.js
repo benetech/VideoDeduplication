@@ -40,6 +40,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 /**
+ * Compare two matches.
+ */
+function matchComparator(first, second) {
+  if (first.distance < second.distance) {
+    return -1;
+  } else if (first.distance > second.distance) {
+    return 1;
+  } else {
+    return String(first.file.filename).localeCompare(second.file.filename);
+  }
+}
+
+/**
  * Get i18n text.
  */
 function useMessages() {
@@ -64,12 +77,14 @@ function MatchFiles(props) {
   const messages = useMessages();
 
   const {
-    matches,
+    matches: loadedMatches,
     error: matchError,
     loadMatches,
     hasMore,
     progress,
   } = useDirectMatches(motherFileId);
+
+  const matches = loadedMatches.sort(matchComparator);
 
   // Move to the first element when matches are loaded
   useEffect(() => {
