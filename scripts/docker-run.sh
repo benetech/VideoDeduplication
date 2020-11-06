@@ -18,11 +18,15 @@ if ! [ -d "$BENETECH_DATA_LOCATION" ] || [ -z "$BENETECH_RUNTIME" ] || [ -z "$BE
 fi
 
 if [ "$BENETECH_RUNTIME" = "GPU" ] && [ "$BENETECH_PREBUILT" = "NO" ]; then
+  set -x
   sudo docker-compose up -d
 elif [ "$BENETECH_RUNTIME" = "CPU" ] && [ "$BENETECH_PREBUILT" = "NO" ]; then
+  set -x
   sudo docker-compose -f docker-compose.yml -f docker-compose/build.cpu.yml up -d
 elif [ "$BENETECH_RUNTIME" = "GPU" ] && [ "$BENETECH_PREBUILT" = "YES" ]; then
+  set -x
   sudo docker-compose -f docker-compose.yml -f docker-compose/prebuilt.yml up -d
 elif [ "$BENETECH_RUNTIME" = "CPU" ] && [ "$BENETECH_PREBUILT" = "YES" ]; then
+  set -x
   sudo docker-compose -f docker-compose.yml -f docker-compose/prebuilt.cpu.yml up -d
 fi

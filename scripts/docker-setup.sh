@@ -44,6 +44,7 @@ fi
 if [ "$FORCE_UPDATE" = "YES" ] || ! [ -d "$BENETECH_DATA_LOCATION" ]; then
   DIRTY=yes
   read-dir-path BENETECH_DATA_LOCATION "Please specify the root folder with your video files (use Tab for auto-complete)"
+  echo
 fi
 
 # Choose data analysis runtime
@@ -51,17 +52,20 @@ if [ "$FORCE_UPDATE" = "YES" ] || [ -z "$BENETECH_RUNTIME" ]; then
   DIRTY=yes
   tput setaf 6; echo "Would you like to use GPU for data processing?"; tput sgr0;
   choose BENETECH_RUNTIME GPU="Use GPU for data processing." CPU="Use CPU for data processing."
+  echo
 fi
 
 # Decide whether to use prebuilt images
 if [ "$FORCE_UPDATE" = "YES" ] || [ -z "$BENETECH_PREBUILT" ]; then
   DIRTY=yes
   confirm BENETECH_PREBUILT "Would you like to use pre-built Docker images?" NO
+  echo
 
   # Ask if user would like to use dev or prod images
   if [ "$BENETECH_PREBUILT" = "YES" ]; then
     tput setaf 6; echo "Would you like to use production Docker images?"; tput sgr0;
     choose BENETECH_MODE ''="Use production images." '-dev'="Use dev-images."
+    echo
   fi
 fi
 
