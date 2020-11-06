@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# This script runs the docker-compose application
+# according to the configuration saved in .env file.
+
 if ! [ -f ".env" ]; then
   echo -e "\e[31mERROR\e[0m Environment file not found: $(pwd)/.env"
   echo -e "\e[31mERROR\e[0m Please run script/docker-setup.sh first."
