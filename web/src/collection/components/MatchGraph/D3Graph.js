@@ -134,10 +134,7 @@ export default class D3Graph {
       .join("line")
       .attr("stroke-opacity", (d) => 1 - 0.8 * d.distance)
       .attr("opacity", 1.0)
-      .attr("stroke-width", (d) => edgeWidth(d))
-      .on("click", (_, edge) => {
-        this.onClickEdge({ source: edge.source.id, target: edge.target.id });
-      });
+      .attr("stroke-width", (d) => edgeWidth(d));
 
     const hitBoxLinks = svg
       .append("g")
@@ -247,6 +244,9 @@ export default class D3Graph {
           nodes.attr("fill", color(colorScheme.normal));
           displayLinks.attr("opacity", 1.0);
         }
+      })
+      .on("click", (_, edge) => {
+        this.onClickEdge({ source: edge.source.id, target: edge.target.id });
       });
   }
 
