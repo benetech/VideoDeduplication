@@ -1,3 +1,14 @@
+import FileListType from "./FileListType";
+
+export const ACTION_CHANGE_FILE_LIST_VIEW = "coll.CHANGE_FILE_LIST_VIEW";
+
+export function changeFileListView(view) {
+  if (FileListType.values().indexOf(view) === -1) {
+    throw new Error(`Unknown file list type: ${view}`);
+  }
+  return { type: ACTION_CHANGE_FILE_LIST_VIEW, view };
+}
+
 export const ACTION_UPDATE_FILTERS = "coll.UPDATE_FILTERS";
 
 export function updateFilters(filters) {

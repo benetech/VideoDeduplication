@@ -1,5 +1,6 @@
 import {
   ACTION_CACHE_FILE,
+  ACTION_CHANGE_FILE_LIST_VIEW,
   ACTION_FETCH_FILE_MATCHES,
   ACTION_FETCH_FILE_MATCHES_FAILURE,
   ACTION_FETCH_FILE_MATCHES_SUCCESS,
@@ -15,6 +16,7 @@ import {
 } from "./actions";
 import { MatchCategory } from "./MatchCategory";
 import { FileSort } from "./FileSort";
+import FileListType from "./FileListType";
 
 export const initialState = {
   neverLoaded: true,
@@ -31,6 +33,7 @@ export const initialState = {
     matches: MatchCategory.all,
     sort: FileSort.date,
   },
+  fileListType: FileListType.grid,
   limit: 20,
   counts: {
     all: 0,
@@ -215,6 +218,14 @@ export function collRootReducer(state = initialState, action) {
       return {
         ...state,
         fileCache: fileCacheReducer(state.fileCache, action),
+      };
+    case ACTION_CHANGE_FILE_LIST_VIEW:
+      if (FileListType.values().indexOf(action.view) === -1) {
+        throw new Error(`Unknown file list type: ${action.view}`);
+      }
+      return {
+        ...state,
+        fileListType: action.view,
       };
     case ACTION_UPDATE_FILE_MATCH_FILTERS:
     case ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS:

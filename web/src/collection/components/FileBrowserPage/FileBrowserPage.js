@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
-import FileBrowserActions, { View } from "./FileBrowserActions";
+import FileBrowserActions from "./FileBrowserActions";
 import FilterPane from "./FilterPane";
 import SearchTextInput from "./SearchTextInput";
 import CategorySelector from "./CategorySelector";
@@ -26,6 +26,8 @@ import { useHistory, useLocation } from "react-router-dom";
 import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
 import { defaultFilters } from "../../state/reducers";
+import FileListType from "../../state/FileListType";
+import { changeFileListView } from "../../state/actions";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -112,9 +114,9 @@ const useStyles = makeStyles((theme) => ({
 
 function listComponent(view) {
   switch (view) {
-    case View.list:
+    case FileListType.linear:
       return FileLinearList;
-    case View.grid:
+    case FileListType.grid:
       return FileGridList;
     default:
       throw new Error(`Unsupported fingerprints view type: ${view}`);
@@ -125,7 +127,6 @@ function FileBrowserPage(props) {
   const { className } = props;
   const classes = useStyles();
   const [showFilters, setShowFilters] = useState(false);
-  const [view, setView] = useState(View.grid);
   const collState = useSelector(selectColl);
   const error = useSelector(selectError);
   const loading = useSelector(selectLoading);
@@ -136,6 +137,7 @@ function FileBrowserPage(props) {
   const [top, setTop] = useState(true);
   const topRef = useRef(null);
   const history = useHistory();
+  const view = collState.fileListType;
   const List = listComponent(view);
   const intl = useIntl();
   const showFiltersRef = useRef();
@@ -175,6 +177,11 @@ function FileBrowserPage(props) {
     [filters]
   );
 
+  const handleChangeView = useCallback(
+    (view) => dispatch(changeFileListView(view)),
+    []
+  );
+
   const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
 
   return (
@@ -189,7 +196,7 @@ function FileBrowserPage(props) {
               sort={filters.sort}
               onSortChange={handleChangeSort}
               view={view}
-              onViewChange={setView}
+              onViewChange={handleChangeView}
               onAddMedia={() => console.log("On Add Media")}
               showFilters={!showFilters}
               onToggleFilters={handleToggleFilters}
@@ -215,13 +222,13 @@ function FileBrowserPage(props) {
         </div>
         <div
           className={clsx(classes.dataContainer, {
-            [classes.gridContainer]: view === View.grid,
+            [classes.gridContainer]: view === FileListType.grid,
           })}
         >
           <List
             className={clsx(classes.data, {
-              [classes.grid]: view === View.grid,
-              [classes.list]: view === View.list,
+              [classes.grid]: view === FileListType.grid,
+              [classes.list]: view === FileListType.linear,
             })}
             dense={showFilters}
           >

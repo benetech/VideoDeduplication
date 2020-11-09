@@ -6,11 +6,11 @@ import TuneIcon from "@material-ui/icons/Tune";
 import AddMediaButton from "./AddMediaButton";
 import ViewSelector from "./ViewSelector";
 import SortSelector from "./SortSelector";
-import { View } from "./view";
 import SquaredIconButton from "../../../../common/components/SquaredIconButton";
 import { useIntl } from "react-intl";
 import { FileSort } from "../../../state/FileSort";
 import { Badge } from "@material-ui/core";
+import FileListType from "../../../state/FileListType";
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -92,7 +92,7 @@ FileBrowserActions.propTypes = {
     FileSort.duplicates,
   ]),
   onSortChange: PropTypes.func,
-  view: PropTypes.oneOf([View.list, View.grid]),
+  view: PropTypes.oneOf([FileListType.linear, FileListType.grid]),
   /**
    * Callback for switching List or Grid view
    */
