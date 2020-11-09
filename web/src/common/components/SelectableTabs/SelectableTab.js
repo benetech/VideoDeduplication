@@ -2,35 +2,32 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import SelectionDecorator from "../SelectionDecorator";
 import { ButtonBase } from "@material-ui/core";
+import Badge from "@material-ui/core/Badge";
 
 const useStyles = makeStyles((theme) => ({
   tab: {
     cursor: "pointer",
-
-    /**
-     * Ensure selection decorator is displayed correctly.
-     */
-    transform: "translate(0%, 0px)",
+    borderBottom: `3px solid rgba(0,0,0,0)`,
+    paddingBottom: theme.spacing(0.5),
   },
   sizeLarge: {
     ...theme.mixins.navlinkLarge,
     fontWeight: 500,
-    marginBottom: theme.spacing(1),
   },
   sizeMedium: {
     ...theme.mixins.navlink,
     fontWeight: 500,
-    marginBottom: theme.spacing(1),
   },
   sizeSmall: {
     ...theme.mixins.navlinkSmall,
     fontWeight: 500,
-    marginBottom: theme.spacing(0.5),
   },
   inactive: {
     color: theme.palette.action.textInactive,
+  },
+  selected: {
+    borderBottom: `3px solid ${theme.palette.primary.main}`,
   },
 }));
 
@@ -57,6 +54,9 @@ function SelectableTab(props) {
     value,
     size = "medium",
     className,
+    badge,
+    badgeMax,
+    badgeColor = "default",
     ...other
   } = props;
   const classes = useStyles();
@@ -65,7 +65,7 @@ function SelectableTab(props) {
   return (
     <ButtonBase
       onClick={handleSelect}
-      className={clsx(classes.tab, className)}
+      className={clsx(classes.tab, selected && classes.selected, className)}
       component="div"
       focusRipple
       disableTouchRipple
@@ -73,8 +73,9 @@ function SelectableTab(props) {
       aria-label={label}
       {...other}
     >
-      <div className={labelClass(classes, size, selected)}>{label}</div>
-      {selected && <SelectionDecorator variant="bottom" />}
+      <Badge badgeContent={badge} max={badgeMax} color={badgeColor}>
+        <div className={labelClass(classes, size, selected)}>{label}</div>
+      </Badge>
     </ButtonBase>
   );
 }
@@ -100,6 +101,18 @@ SelectableTab.propTypes = {
    * Size variants
    */
   size: PropTypes.oneOf(["small", "medium", "large"]),
+  /**
+   * The value displayed with the optional badge.
+   */
+  badge: PropTypes.node,
+  /**
+   * The color of the component. It supports those theme colors that make sense for this component.
+   */
+  badgeColor: PropTypes.oneOf(["default", "error", "primary", "secondary"]),
+  /**
+   * Max count to show in badge (if the value is numeric).
+   */
+  badgeMax: PropTypes.number,
   className: PropTypes.string,
 };
 

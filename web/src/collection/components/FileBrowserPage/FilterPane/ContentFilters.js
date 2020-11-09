@@ -4,6 +4,10 @@ import FilterList from "./FilterList";
 import { useFilters } from "./useFilters";
 import { useIntl } from "react-intl";
 import RangeFilter from "./RangeFilter";
+import { useSelector } from "react-redux";
+import { selectFilters } from "../../../state/selectors";
+import objectDiff from "../../../../common/helpers/objectDiff";
+import { initialState } from "../../../state";
 
 /**
  * Get i18n text
@@ -15,6 +19,15 @@ function useMessages() {
     audio: intl.formatMessage({ id: "filter.hasAudio" }),
     date: intl.formatMessage({ id: "filter.creationDate" }),
   };
+}
+
+/**
+ * Get count of active filters.
+ */
+function useActiveFilters() {
+  const filters = useSelector(selectFilters);
+  const diff = objectDiff(filters, initialState.filters);
+  return Number(diff.length);
 }
 
 function ContentFilters(props) {
@@ -37,6 +50,11 @@ function ContentFilters(props) {
     </FilterList>
   );
 }
+
+/**
+ * Hook to get count of active filters.
+ */
+ContentFilters.useActiveFilters = useActiveFilters;
 
 ContentFilters.propTypes = {
   className: PropTypes.string,

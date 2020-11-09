@@ -7,6 +7,10 @@ import FilterList from "./FilterList";
 import DateRangeFilter from "./DateRangeFilter";
 import BoolFilter from "./BoolFilter";
 import { useIntl } from "react-intl";
+import { initialState } from "../../../state";
+import objectDiff from "../../../../common/helpers/objectDiff";
+import { useSelector } from "react-redux";
+import { selectFilters } from "../../../state/selectors";
 
 /**
  * Get i18n text.
@@ -21,6 +25,15 @@ function useMessages() {
     exif: intl.formatMessage({ id: "filter.hasExif" }),
     exifHelp: intl.formatMessage({ id: "filter.hasExif.help" }),
   };
+}
+
+/**
+ * Get count of active filters.
+ */
+function useActiveFilters() {
+  const filters = useSelector(selectFilters);
+  const diff = objectDiff(filters, initialState.filters);
+  return diff.extensions + diff.date + diff.audio + diff.exif;
 }
 
 function MetadataFilters(props) {
@@ -74,6 +87,11 @@ function MetadataFilters(props) {
     </FilterList>
   );
 }
+
+/**
+ * Hook to retrieve active filters count.
+ */
+MetadataFilters.useActiveFilters = useActiveFilters;
 
 MetadataFilters.propTypes = {
   className: PropTypes.string,

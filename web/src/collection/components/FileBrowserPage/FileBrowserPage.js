@@ -141,6 +141,7 @@ function FileBrowserPage(props) {
   const showFiltersRef = useRef();
   const location = useLocation();
   const keepFilters = location.state?.keepFilters;
+  const activeFilters = FilterPane.useActiveFilters();
 
   useEffect(() => {
     if (!keepFilters || collState.neverLoaded) {
@@ -194,6 +195,7 @@ function FileBrowserPage(props) {
               onToggleFilters={handleToggleFilters}
               className={classes.actions}
               showFiltersRef={showFiltersRef}
+              activeFilters={activeFilters}
             />
           </div>
           <div className={classes.filters}>
