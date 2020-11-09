@@ -17,7 +17,7 @@ const defaultOptions = {
 };
 
 function edgeWidth(edge) {
-  return Math.sqrt(50 * (1 - edge.distance));
+  return Math.sqrt(50 * (1 - 0.8 * edge.distance));
 }
 
 const colorScheme = {
@@ -126,21 +126,23 @@ export default class D3Graph {
       )
       .append("g");
 
-    // Bind this for legacy context handling
-    const self = this;
-
     const links = svg
       .append("g")
       .attr("stroke", "#999")
       .selectAll("line")
       .data(this.links)
       .join("line")
-      .attr("stroke-opacity", (d) => 1 - d.distance)
+      .attr("stroke-opacity", (d) => 1 - 0.8 * d.distance)
       .attr("opacity", 1.0)
-      .attr("stroke-width", (d) => edgeWidth(d))
-      .on("click", (_, edge) => {
-        this.onClickEdge({ source: edge.source.id, target: edge.target.id });
-      })
+      .attr("stroke-width", (d) => edgeWidth(d));
+
+    const hitBoxLinks = svg
+      .append("g")
+      .selectAll("line")
+      .data(this.links)
+      .join("line")
+      .attr("stroke-width", 10)
+      .attr("stroke", "rgba(0,0,0,0)")
       .style("cursor", "pointer");
 
     const nodes = svg
@@ -153,54 +155,20 @@ export default class D3Graph {
       .attr("r", this.options.nodeRadius)
       .attr("fill", color(colorScheme.normal))
       .call(this._createDrag(this.simulation))
-      .on("click", (_, node) => {
-        this.onClickNode(node);
-      })
       .style("cursor", "pointer");
 
-    // Define mouse hover listeners for links
-    links
-      .on("mouseenter", function (event, edge) {
-        self.tracker = self.makeLinkTracker(this, edge);
-        self.tracker.track(event);
-        if (self.options.highlightHover) {
-          nodes.attr("fill", linkHoverPainter(edge, colorScheme));
-          links.attr("opacity", (ln) => (ln === edge ? 1.0 : 0.4));
-        }
-      })
-      .on("mouseleave", function () {
-        self.tracker = null;
-        if (self.options.highlightHover) {
-          nodes.attr("fill", color(colorScheme.normal));
-          links.attr("opacity", 1.0);
-        }
-      });
-
-    // Define mouse hover listeners for links
-    nodes
-      .on("mouseenter", function (event, node) {
-        self.tracker = self.makeNodeTracker(this, node);
-        self.tracker.track(event);
-        if (self.options.highlightHover) {
-          nodes.attr(
-            "fill",
-            nodeHoverPainter(node, self.adjacency, colorScheme)
-          );
-          links.attr("opacity", (ln) =>
-            ln.source.id === node.id || ln.target.id === node.id ? 1.0 : 0.4
-          );
-        }
-      })
-      .on("mouseleave", function () {
-        self.tracker = null;
-        if (self.options.highlightHover) {
-          nodes.attr("fill", color(colorScheme.normal));
-          links.attr("opacity", 1.0);
-        }
-      });
+    this._hookNodeEvents(nodes, links);
+    this._hookLinksEvents(links, links, nodes);
+    this._hookLinksEvents(hitBoxLinks, links, nodes);
 
     this.simulation.on("tick", () => {
       links
+        .attr("x1", (d) => d.source.x)
+        .attr("y1", (d) => d.source.y)
+        .attr("x2", (d) => d.target.x)
+        .attr("y2", (d) => d.target.y);
+
+      hitBoxLinks
         .attr("x1", (d) => d.source.x)
         .attr("y1", (d) => d.source.y)
         .attr("x2", (d) => d.target.x)
@@ -225,6 +193,61 @@ export default class D3Graph {
       this.simulation.restart();
     };
     window.addEventListener("resize", this.updateSize);
+  }
+
+  _hookNodeEvents(nodes, links) {
+    const self = this;
+
+    // Define mouse hover listeners for nodes
+    nodes
+      .on("mouseenter", function (event, node) {
+        self.tracker = self.makeNodeTracker(this, node);
+        self.tracker.track(event);
+        if (self.options.highlightHover) {
+          nodes.attr(
+            "fill",
+            nodeHoverPainter(node, self.adjacency, colorScheme)
+          );
+          links.attr("opacity", (ln) =>
+            ln.source.id === node.id || ln.target.id === node.id ? 1.0 : 0.4
+          );
+        }
+      })
+      .on("mouseleave", function () {
+        self.tracker = null;
+        if (self.options.highlightHover) {
+          nodes.attr("fill", color(colorScheme.normal));
+          links.attr("opacity", 1.0);
+        }
+      })
+      .on("click", (_, node) => {
+        this.onClickNode(node);
+      });
+  }
+
+  _hookLinksEvents(targetLinks, displayLinks, nodes) {
+    const self = this;
+
+    // Define mouse hover listeners for links
+    targetLinks
+      .on("mouseenter", function (event, edge) {
+        self.tracker = self.makeLinkTracker(this, edge);
+        self.tracker.track(event);
+        if (self.options.highlightHover) {
+          nodes.attr("fill", linkHoverPainter(edge, colorScheme));
+          displayLinks.attr("opacity", (ln) => (ln === edge ? 1.0 : 0.4));
+        }
+      })
+      .on("mouseleave", function () {
+        self.tracker = null;
+        if (self.options.highlightHover) {
+          nodes.attr("fill", color(colorScheme.normal));
+          displayLinks.attr("opacity", 1.0);
+        }
+      })
+      .on("click", (_, edge) => {
+        this.onClickEdge({ source: edge.source.id, target: edge.target.id });
+      });
   }
 
   /**

@@ -61,6 +61,7 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
     button = false,
     highlight,
     onClick,
+    dense,
     className,
     ...other
   } = props;
@@ -81,9 +82,9 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
         <FileSummary.Name highlight={highlight} />
         {medium && <FileSummary.Fingerprint />}
         <FileSummary.Duration />
-        {large && <FileSummary.CreationDate />}
-        {large && <FileSummary.HasExif />}
-        {large && <FileSummary.HasAudio />}
+        {large && !dense && <FileSummary.CreationDate />}
+        {large && !dense && <FileSummary.HasExif />}
+        {large && !dense && <FileSummary.HasAudio />}
         <IconButton aria-label={messages.moreLabel}>
           <MoreHorizOutlinedIcon />
         </IconButton>
@@ -93,10 +94,26 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
 });
 
 FileLinearListItem.propTypes = {
+  /**
+   * File to be displayed
+   */
   file: FileType.isRequired,
+  /**
+   * File name substring that should be highlighted.
+   */
   highlight: PropTypes.string,
+  /**
+   * Handle item click action.
+   */
   button: PropTypes.bool,
+  /**
+   * Handle item click.
+   */
   onClick: PropTypes.func,
+  /**
+   * Use dense layout.
+   */
+  dense: PropTypes.bool,
   className: PropTypes.string,
 };
 
