@@ -4,6 +4,7 @@ import numpy as np
 import pickle as pk
 import matplotlib.pylab as plt
 from sklearn.metrics import precision_recall_curve
+from scipy.spatial.distance import cdist
 
 
 def load_dataset(dataset):
@@ -135,6 +136,26 @@ def plot_pr_curve(pr_curve, title):
     plt.title(title, color='k', fontsize=27)
     plt.tight_layout()
     plt.show()
+
+
+def calculate_similarities(queries, features):
+    """
+      Function that generates video triplets from CC_WEB_VIDEO.
+
+      Args:
+        queries: indexes of the query videos
+        features: global features of the videos in CC_WEB_VIDEO
+      Returns:
+        similarities: the similarities of each query with the videos in the dataset
+    """
+
+    features = features[0]
+    similarities = dict()
+    dist = np.nan_to_num(cdist(features[queries], features, metric='euclidean'))
+    for i, v in enumerate(queries):
+        sim = np.round(1 - dist[i] / dist.max(), decimals=6)
+        similarities[i + 1] = [(s, sim[s]) for s in sim.argsort()[::-1] if not np.isnan(sim[s])]
+    return similarities
 
 
 def evaluate(ground_truth,

@@ -23,6 +23,11 @@ class SimilarityModel:
         # values in the same order
         keys, features = zip(*file_feature_dict.items())
         features = np.array([tensor[0] for tensor in features])
+        embeddings = self.predict_from_features(features)
+
+        return dict(zip(keys, embeddings))
+
+    def predict_from_features(self, features):
 
         # Create model
         if self.model is None:
@@ -36,4 +41,4 @@ class SimilarityModel:
 
         embeddings = self.model.embeddings(features)
         embeddings = np.nan_to_num(embeddings)
-        return dict(zip(keys, embeddings))
+        return embeddings

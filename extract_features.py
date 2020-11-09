@@ -41,7 +41,6 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     default=False,is_flag=True)
 
 
-
 def main(config, list_of_files, frame_sampling, save_frames):
     config = resolve_config(config_path=config, frame_sampling=frame_sampling, save_frames=save_frames)
     reps = ReprStorage(os.path.join(config.repr.directory))
