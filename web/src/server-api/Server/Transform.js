@@ -103,15 +103,31 @@ export default class Transform {
     return scenes;
   }
 
-  fetchFileMatchesResults(data) {
+  fetchFileClusterResults(data) {
     return {
       total: data.total,
-      matches: data.matches.map((match) => this.fileMatch(match)),
+      matches: data.matches.map((match) => this.fileClusterMatch(match)),
       files: data.files.map((file) => this.videoFile(file)),
     };
   }
 
-  fileMatch(match) {
+  fileClusterMatch(match) {
     return { ...match }; // No difference at the moment
+  }
+
+  fetchFileMatchesResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      matches: data.items.map((match) => this.fileMatch(match)),
+    };
+  }
+
+  fileMatch(match) {
+    return {
+      id: match.id,
+      distance: match.distance,
+      file: this.videoFile(match.file),
+    };
   }
 }

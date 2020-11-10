@@ -45,7 +45,7 @@ export default class Server {
     }
   }
 
-  async fetchFileMatches({
+  async fetchFileCluster({
     id,
     limit = 20,
     offset = 0,
@@ -53,12 +53,33 @@ export default class Server {
     filters,
   }) {
     try {
-      const response = await this.axios.get(`/files/${id}/matches`, {
+      const response = await this.axios.get(`/files/${id}/cluster`, {
         params: {
           limit,
           offset,
           include: fields.join(","),
           ...matchFiltersToQueryParams(filters),
+        },
+      });
+      const data = this.transform.fetchFileClusterResults(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchFileMatches({
+    id,
+    limit = 20,
+    offset = 0,
+    fields = ["meta", "exif"],
+  }) {
+    try {
+      const response = await this.axios.get(`/files/${id}/matches`, {
+        params: {
+          limit,
+          offset,
+          include: fields.join(","),
         },
       });
       const data = this.transform.fetchFileMatchesResults(response.data);
