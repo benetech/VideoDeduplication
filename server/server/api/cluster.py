@@ -25,7 +25,7 @@ def parse_params(file):
 
 
 @api.route('/files/<int:file_id>/cluster', methods=['GET'])
-def list_file_matches(file_id):
+def fetch_file_cluster(file_id):
     file = database.session.query(Files).get(file_id)
 
     # Handle file not found

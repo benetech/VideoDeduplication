@@ -637,7 +637,7 @@ def test_list_files_mixed_example(client, app, config):
     assert_files(resp, expected, total=4)
 
 
-def test_list_file_matches_basic(client, app):
+def test_fetch_file_cluster_basic(client, app):
     with session_scope(app) as session:
         all_files = make_files(5)
         source, a, b, c, d = all_files
@@ -655,7 +655,7 @@ def test_list_file_matches_basic(client, app):
     matches = sorted(matches, key=attr("id"))
 
     # Get all matches
-    resp = client.get(f"/api/v1/files/{source.id}/matches")
+    resp = client.get(f"/api/v1/files/{source.id}/cluster")
     assert_json_response(resp, {
         "total": len(matches),
         "matches": [
@@ -671,7 +671,7 @@ def test_list_file_matches_basic(client, app):
     # Get slice
     offset = 1
     limit = 2
-    resp = client.get(f"/api/v1/files/{source.id}/matches?offset={offset}&limit={limit}")
+    resp = client.get(f"/api/v1/files/{source.id}/cluster?offset={offset}&limit={limit}")
     assert_json_response(resp, {
         "total": len(matches),
         "matches": [
@@ -686,7 +686,7 @@ def test_list_file_matches_basic(client, app):
     assert_same(payload["files"], matched_files(matches[offset:offset + limit]))
 
 
-def test_list_file_matches_include(client, app):
+def test_fetch_file_cluster_include(client, app):
     with session_scope(app) as session:
         source, a, b = make_files(3)
         session.add_all([source, a, b])
@@ -701,13 +701,13 @@ def test_list_file_matches_include(client, app):
     matches = sorted(matches, key=attr("id"))
 
     # Don't include additional fields
-    resp = client.get(f"/api/v1/files/{source.id}/matches")
+    resp = client.get(f"/api/v1/files/{source.id}/cluster")
     assert all(
         {"exif", "meta", "scenes"}.isdisjoint(file.keys()) for file in json_payload(resp)["files"]
     )
 
     # Include meta and exif
-    resp = client.get(f"/api/v1/files/{source.id}/matches?include=meta,exif")
+    resp = client.get(f"/api/v1/files/{source.id}/cluster?include=meta,exif")
     assert_json_response(resp, {
         "total": len(matches),
         "files": [
@@ -723,7 +723,7 @@ def test_list_file_matches_include(client, app):
     )
 
 
-def test_list_file_matches_hops(client, app):
+def test_fetch_file_cluster_hops(client, app):
     hops = 100
     with session_scope(app) as session:
         source = make_file()
@@ -744,14 +744,14 @@ def test_list_file_matches_hops(client, app):
     matches.sort(key=attr("id"))
 
     # Query all
-    resp = client.get(f"/api/v1/files/{source.id}/matches?hops={hops}&limit={len(matches)}")
+    resp = client.get(f"/api/v1/files/{source.id}/cluster?hops={hops}&limit={len(matches)}")
     payload = json_payload(resp)
     assert_same(payload["matches"], matches)
     assert_same(payload["files"], [source] + linked)
 
     # Query half
     half = int(hops / 2)
-    resp = client.get(f"/api/v1/files/{source.id}/matches?hops={half}&limit={len(matches)}")
+    resp = client.get(f"/api/v1/files/{source.id}/cluster?hops={half}&limit={len(matches)}")
     assert_same(json_payload(resp)["files"], [source] + linked[:2 * half])
 
     # Create a short cut from the source to the most distant items
@@ -762,7 +762,7 @@ def test_list_file_matches_hops(client, app):
         matches.extend(short_cut)
 
     # Query half hops must return all files now
-    resp = client.get(f"/api/v1/files/{source.id}/matches?hops={half}&limit={len(matches) + 2}")
+    resp = client.get(f"/api/v1/files/{source.id}/cluster?hops={half}&limit={len(matches) + 2}")
     payload = json_payload(resp)
     assert_same(payload["matches"], matches)
     assert_same(payload["files"], [source] + linked)
