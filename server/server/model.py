@@ -109,6 +109,7 @@ class Transform:
         else:
             matched = match.match_video_file
         return {
+            "id": match.id,
             "distance": match.distance,
             "file": Transform.file_dict(matched, meta=meta, signature=signature, scenes=scenes, exif=exif)
         }
