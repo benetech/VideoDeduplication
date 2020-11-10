@@ -637,6 +637,83 @@ def test_list_files_mixed_example(client, app, config):
     assert_files(resp, expected, total=4)
 
 
+def test_list_file_matches_basic(client, app):
+    with session_scope(app) as session:
+        all_files = make_files(5)
+        source, a, b, c, d = all_files
+        session.add_all(all_files)
+
+        matches = [
+            link(source, a),
+            link(source, b),
+            link(source, c),
+            link(source, d),
+        ]
+        session.add_all(matches)
+
+    matches = sorted(matches, key=attr("id"))
+
+    # Get all matches
+    resp = client.get(f"/api/v1/files/{source.id}/matches")
+    assert_json_response(resp, {
+        "total": len(matches),
+        "items": [
+            {"distance": match.distance, "file": {"id": match.match_video_file_id}} for match in matches
+        ]
+    })
+
+    # Get slice
+    offset = 1
+    limit = 2
+    resp = client.get(f"/api/v1/files/{source.id}/matches?offset={offset}&limit={limit}")
+    assert_json_response(resp, {
+        "total": len(matches),
+        "items": [
+            {
+                "distance": match.distance,
+                "file": {"id": match.match_video_file_id}
+            } for match in matches[offset:offset + limit]
+        ]
+    })
+
+
+def test_list_file_matches_include(client, app):
+    with session_scope(app) as session:
+        source, a, b = make_files(3)
+        session.add_all([source, a, b])
+
+        matches = [
+            link(source, a),
+            link(source, b),
+        ]
+        session.add_all(matches)
+
+    matches = sorted(matches, key=attr("id"))
+
+    # Don't include additional fields
+    resp = client.get(f"/api/v1/files/{source.id}/matches")
+    assert all(
+        {"exif", "meta", "scenes"}.isdisjoint(match["file"].keys()) for match in items(resp)
+    )
+
+    # Include meta and exif
+    resp = client.get(f"/api/v1/files/{source.id}/matches?include=meta,exif")
+    assert_json_response(resp, {
+        "total": len(matches),
+        "items": [
+            {
+                "file": {
+                    "meta": {"video_length": match.match_video_file.meta.video_length},
+                    "exif": {"General_FileExtension": match.match_video_file.exif.General_FileExtension}
+                }
+            } for match in matches
+        ]
+    })
+    assert all(
+        "scenes" not in match["file"].keys() for match in items(resp)
+    )
+
+
 def test_fetch_file_cluster_basic(client, app):
     with session_scope(app) as session:
         all_files = make_files(5)

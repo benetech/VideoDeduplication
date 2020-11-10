@@ -38,7 +38,7 @@ def list_file_matches(file_id):
     total = query.count()
     items = query.offset(offset).limit(limit).all()
 
-    include_flags = {field: True for field in include_fields}
+    include_flags = {field.key: True for field in include_fields}
     return jsonify({
         'items': [Transform.file_match_dict(item, file_id, **include_flags) for item in items],
         'total': total,
