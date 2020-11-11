@@ -5,9 +5,9 @@ import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
 import LoadingHeader from "../LoadingHeader";
 import FileDetails from "../FileDetails";
-import useDirectMatches from "../../../hooks/useDirectMatches";
 import FileMatchHeader from "./FileMatchHeader";
 import MatchSelector from "./MatchSelector";
+import useFileMatches from "../../../hooks/useFileMatches";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -79,10 +79,10 @@ function MatchFiles(props) {
   const {
     matches: loadedMatches,
     error: matchError,
-    loadMatches,
+    resumeLoading: loadMatches,
     hasMore,
     progress,
-  } = useDirectMatches(motherFileId);
+  } = useFileMatches({ fileId: motherFileId });
 
   const matches = loadedMatches.sort(matchComparator);
 
