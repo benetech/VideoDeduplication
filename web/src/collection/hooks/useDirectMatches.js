@@ -1,11 +1,11 @@
-import useMatches from "./useMatches";
+import useFileCluster from "./useFileCluster";
 
 /**
  * Load direct matches of the given file.
  * @param id mother file id.
  */
 export function useDirectMatches(id) {
-  const { matches, files, error, loadMatches, hasMore, total } = useMatches(
+  const { matches, files, error, loadCluster, hasMore, total } = useFileCluster(
     id,
     {
       hops: 1,
@@ -40,7 +40,7 @@ export function useDirectMatches(id) {
     file: motherFile,
     matches: directMatches,
     error,
-    loadMatches,
+    loadCluster: loadMatches,
     hasMore,
     progress,
   };

@@ -1,12 +1,18 @@
 import {
   ACTION_CACHE_FILE,
   ACTION_CHANGE_FILE_LIST_VIEW,
+  ACTION_FETCH_FILE_CLUSTER,
+  ACTION_FETCH_FILE_CLUSTER_FAILURE,
+  ACTION_FETCH_FILE_CLUSTER_SUCCESS,
   ACTION_FETCH_FILE_MATCHES,
   ACTION_FETCH_FILE_MATCHES_FAILURE,
   ACTION_FETCH_FILE_MATCHES_SUCCESS,
   ACTION_FETCH_FILES,
   ACTION_FETCH_FILES_FAILURE,
   ACTION_FETCH_FILES_SUCCESS,
+  ACTION_UPDATE_FILE_CLUSTER_FILTERS,
+  ACTION_UPDATE_FILE_CLUSTER_FILTERS_FAILURE,
+  ACTION_UPDATE_FILE_CLUSTER_FILTERS_SUCCESS,
   ACTION_UPDATE_FILE_MATCH_FILTERS,
   ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE,
   ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS,
@@ -50,12 +56,12 @@ export const initialState = {
     history: [],
   },
   /**
-   * File matches
+   * File cluster
    */
-  fileMatches: {
-    fileId: undefined,
+  fileCluster: {
     filters: {
-      hops: 1,
+      fileId: undefined,
+      hops: 2,
       minDistance: 0.0,
       maxDistance: 1.0,
     },
@@ -65,6 +71,19 @@ export const initialState = {
     limit: 100,
     matches: [],
     files: {},
+  },
+  /**
+   * Immediate file matches
+   */
+  fileMatches: {
+    fileId: undefined,
+    filters: {},
+    total: undefined,
+    error: false,
+    loading: false,
+    limit: 100,
+    offset: 0,
+    matches: [],
   },
 };
 
@@ -118,9 +137,8 @@ function fileMatchesReducer(state = initialState.fileMatches, action) {
       return {
         ...state,
         fileId: action.fileId,
-        filters: { ...state.filters, ...action.filters, fileId: action.fileId },
+        filters: { ...state.filters, ...action.filters },
         matches: [],
-        files: {},
         loading: true,
         error: false,
         total: undefined,
@@ -130,7 +148,6 @@ function fileMatchesReducer(state = initialState.fileMatches, action) {
         ...state,
         total: action.total,
         matches: [...action.matches],
-        files: extendEntityMap({}, action.files),
         error: false,
         loading: false,
       };
@@ -138,7 +155,6 @@ function fileMatchesReducer(state = initialState.fileMatches, action) {
       return {
         ...state,
         matches: [],
-        files: {},
         total: undefined,
         error: true,
         loading: false,
@@ -154,11 +170,66 @@ function fileMatchesReducer(state = initialState.fileMatches, action) {
         ...state,
         total: action.total,
         matches: extendEntityList(state.matches, action.matches),
-        files: extendEntityMap(state.files, action.files),
         error: false,
         loading: false,
       };
     case ACTION_FETCH_FILE_MATCHES_FAILURE:
+      return {
+        ...state,
+        error: true,
+        loading: false,
+      };
+    default:
+      return state;
+  }
+}
+
+function fileClusterReducer(state = initialState.fileCluster, action) {
+  switch (action.type) {
+    case ACTION_UPDATE_FILE_CLUSTER_FILTERS:
+      return {
+        ...state,
+        filters: { ...state.filters, ...action.filters },
+        matches: [],
+        files: {},
+        loading: true,
+        error: false,
+        total: undefined,
+      };
+    case ACTION_UPDATE_FILE_CLUSTER_FILTERS_SUCCESS:
+      return {
+        ...state,
+        total: action.total,
+        matches: [...action.matches],
+        files: extendEntityMap({}, action.files),
+        error: false,
+        loading: false,
+      };
+    case ACTION_UPDATE_FILE_CLUSTER_FILTERS_FAILURE:
+      return {
+        ...state,
+        matches: [],
+        files: {},
+        total: undefined,
+        error: true,
+        loading: false,
+      };
+    case ACTION_FETCH_FILE_CLUSTER:
+      return {
+        ...state,
+        error: false,
+        loading: true,
+      };
+    case ACTION_FETCH_FILE_CLUSTER_SUCCESS:
+      return {
+        ...state,
+        total: action.total,
+        matches: extendEntityList(state.matches, action.matches),
+        files: extendEntityMap(state.files, action.files),
+        error: false,
+        loading: false,
+      };
+    case ACTION_FETCH_FILE_CLUSTER_FAILURE:
       return {
         ...state,
         error: true,
@@ -236,6 +307,16 @@ export function collRootReducer(state = initialState, action) {
       return {
         ...state,
         fileMatches: fileMatchesReducer(state.fileMatches, action),
+      };
+    case ACTION_UPDATE_FILE_CLUSTER_FILTERS:
+    case ACTION_UPDATE_FILE_CLUSTER_FILTERS_SUCCESS:
+    case ACTION_UPDATE_FILE_CLUSTER_FILTERS_FAILURE:
+    case ACTION_FETCH_FILE_CLUSTER:
+    case ACTION_FETCH_FILE_CLUSTER_SUCCESS:
+    case ACTION_FETCH_FILE_CLUSTER_FAILURE:
+      return {
+        ...state,
+        fileCluster: fileClusterReducer(state.fileCluster, action),
       };
     default:
       return state;

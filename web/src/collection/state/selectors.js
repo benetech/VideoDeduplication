@@ -23,3 +23,8 @@ export const selectCachedFile = (id) => (state) =>
  * Select file matches.
  */
 export const selectFileMatches = (state) => selectColl(state).fileMatches;
+
+/**
+ * Select file cluster.
+ */
+export const selectFileCluster = (state) => selectColl(state).fileCluster;

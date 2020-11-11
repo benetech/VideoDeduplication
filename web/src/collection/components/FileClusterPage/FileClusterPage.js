@@ -10,7 +10,7 @@ import FileLoadingHeader from "../FileLoadingHeader";
 import MatchGraph from "../MatchGraph";
 import { useIntl } from "react-intl";
 import Loading from "../../../common/components/Loading";
-import useMatches from "../../hooks/useMatches";
+import useFileCluster from "../../hooks/useFileCluster";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,15 +53,15 @@ function FileClusterPage(props) {
     matches,
     files,
     error: matchError,
-    loadMatches,
+    resumeLoading: loadCluster,
     hasMore,
     total,
-  } = useMatches(id, { hops: 2 });
+  } = useFileCluster({ fileId: id, hops: 2 });
 
   const handleLoadFile = useCallback(() => {
     loadFile();
-    loadMatches();
-  }, [loadMatches, loadFile]);
+    loadCluster();
+  }, [loadCluster, loadFile]);
 
   if (file == null) {
     return (
@@ -79,11 +79,10 @@ function FileClusterPage(props) {
   let content;
   if (hasMore) {
     const progress = total == null ? undefined : matches.length / total;
-
     content = (
       <Loading
         error={matchError}
-        onRetry={loadMatches}
+        onRetry={loadCluster}
         progress={progress}
         errorMessage={messages.loadError}
         className={classes.loading}

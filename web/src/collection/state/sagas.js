@@ -1,21 +1,27 @@
 import { call, put, select, takeLatest } from "redux-saga/effects";
 import {
+  ACTION_FETCH_FILE_CLUSTER,
   ACTION_FETCH_FILE_MATCHES,
   ACTION_FETCH_FILES,
+  ACTION_UPDATE_FILE_CLUSTER_FILTERS,
   ACTION_UPDATE_FILE_MATCH_FILTERS,
   ACTION_UPDATE_FILTERS,
+  fetchFileClusterFailure,
+  fetchFileClusterSuccess,
   fetchFileMatchesFailure,
   fetchFileMatchesSuccess,
   fetchFilesFailure,
   fetchFilesSuccess,
+  updateFileClusterFiltersFailure,
+  updateFileClusterFiltersSuccess,
   updateFileMatchFiltersFailure,
   updateFileMatchFiltersSuccess,
   updateFiltersFailure,
   updateFiltersSuccess,
 } from "./actions";
-import { selectColl, selectFileMatches } from "./selectors";
+import { selectColl, selectFileCluster, selectFileMatches } from "./selectors";
 
-function* updateFileMatchFiltersSaga(server, action) {
+function* updateFileMatchesFiltersSaga(server, action) {
   yield* fetchFileMatchesSaga(
     server,
     action,
@@ -36,7 +42,7 @@ function* fetchFileMatchesPageSaga(server, action) {
 function* fetchFileMatchesSaga(server, action, success, failure) {
   try {
     // Determine current query params
-    const { limit, filters, fileId, matches: current } = yield select(
+    const { limit, filters, matches: current } = yield select(
       selectFileMatches
     );
 
@@ -44,7 +50,56 @@ function* fetchFileMatchesSaga(server, action, success, failure) {
     const resp = yield call([server, server.fetchFileMatches], {
       limit,
       offset: current.length,
-      id: fileId,
+      id: filters.fileId,
+      filters,
+    });
+
+    // Handle error
+    if (resp.failure) {
+      console.error("Fetch file matches error", resp.error);
+      yield put(failure(resp.error));
+      return;
+    }
+
+    // Update state
+    const { total, matches, files } = resp.data;
+    yield put(success(matches, files, total));
+  } catch (error) {
+    console.error(error);
+    yield put(failure(error));
+  }
+}
+
+function* updateFileClusterFiltersSaga(server, action) {
+  yield* fetchFileClusterSaga(
+    server,
+    action,
+    updateFileClusterFiltersSuccess,
+    updateFileClusterFiltersFailure
+  );
+}
+
+function* fetchFileClusterPageSaga(server, action) {
+  yield* fetchFileClusterSaga(
+    server,
+    action,
+    fetchFileClusterSuccess,
+    fetchFileClusterFailure
+  );
+}
+
+function* fetchFileClusterSaga(server, action, success, failure) {
+  try {
+    // Determine current query params
+    const { limit, filters, matches: current } = yield select(
+      selectFileCluster
+    );
+
+    // Send request to the server
+    const resp = yield call([server, server.fetchFileCluster], {
+      limit,
+      offset: current.length,
+      id: filters.fileId,
       filters,
     });
 
@@ -121,8 +176,15 @@ export default function* collRootSaga(server) {
     server
   );
   yield takeLatest(
+    ACTION_UPDATE_FILE_CLUSTER_FILTERS,
+    updateFileClusterFiltersSaga,
+    server
+  );
+  yield takeLatest(ACTION_FETCH_FILE_CLUSTER, fetchFileClusterPageSaga, server);
+
+  yield takeLatest(
     ACTION_UPDATE_FILE_MATCH_FILTERS,
-    updateFileMatchFiltersSaga,
+    updateFileMatchesFiltersSaga,
     server
   );
   yield takeLatest(ACTION_FETCH_FILE_MATCHES, fetchFileMatchesPageSaga, server);

@@ -1,15 +1,15 @@
 import lodash from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectFileMatches } from "../state/selectors";
-import { fetchFileMatches, updateFileMatchFilters } from "../state/actions";
+import { selectFileCluster, selectFileMatches } from "../state/selectors";
+import { fetchFileCluster, updateFileClusterFilters } from "../state/actions";
 
 /**
  * Fetch all file matches satisfying filter criteria.
  * @param id file id
- * @param filters match loading filters
+ * @param filters cluster loading filters
  */
-export function useMatches(id, filters = { hops: 1 }) {
+export default function useFileMatches(id, filters = {}) {
   const state = useSelector(selectFileMatches);
   const dispatch = useDispatch();
   const [mergedFilters, setMergedFilters] = useState({
@@ -17,8 +17,8 @@ export function useMatches(id, filters = { hops: 1 }) {
     ...filters,
   });
 
-  // Update merged filters.
-  // Do not update if the result is not changed.
+  // Update merged filters if and only if
+  // their actual values have changed.
   useEffect(() => {
     const newFilters = { ...state.filters, ...filters };
     if (!lodash.isEqual(mergedFilters, newFilters)) {
@@ -27,29 +27,34 @@ export function useMatches(id, filters = { hops: 1 }) {
   }, [filters, state.filters]);
 
   // Start/Resume loading handler.
-  const loadMatches = useCallback(() => {
+  const loadCluster = useCallback(() => {
     if (state.fileId !== id || !lodash.isEqual(mergedFilters, state.filters)) {
-      dispatch(updateFileMatchFilters(id, mergedFilters));
+      dispatch(updateFileClusterFilters(id, mergedFilters));
     } else {
-      dispatch(fetchFileMatches());
+      dispatch(fetchFileCluster());
     }
   }, [id, mergedFilters, state.filters]);
 
   /**
-   * Initiate fetching.
+   * Initiate fetch every time merged filters have changed.
    */
   useEffect(() => {
-    dispatch(updateFileMatchFilters(id, mergedFilters));
+    dispatch(updateFileClusterFilters(id, mergedFilters));
   }, [id, mergedFilters]);
 
   /**
    * Fetch next page if available.
    */
   useEffect(() => {
-    if (state.loading || state.error || state.matches.length >= state.total) {
+    if (
+      state.loading ||
+      state.error ||
+      state.matches.length >= state.total ||
+      state.total == null
+    ) {
       return;
     }
-    dispatch(fetchFileMatches());
+    dispatch(fetchFileCluster());
   }, [state]);
 
   const hasMore =
@@ -62,9 +67,7 @@ export function useMatches(id, filters = { hops: 1 }) {
     files: state.files,
     total: state.total,
     error: state.error,
-    loadMatches,
+    loadCluster,
     hasMore,
   };
 }
-
-export default useMatches;

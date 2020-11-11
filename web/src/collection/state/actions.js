@@ -111,3 +111,57 @@ export const ACTION_FETCH_FILE_MATCHES_FAILURE =
 export function fetchFileMatchesFailure(error) {
   return { error, type: ACTION_FETCH_FILE_MATCHES_FAILURE };
 }
+
+/**
+ * File cluster actions
+ */
+
+export const ACTION_UPDATE_FILE_CLUSTER_FILTERS =
+  "coll.UPDATE_FILE_CLUSTER_FILTERS";
+
+export function updateFileClusterFilters(filters) {
+  return { filters, type: ACTION_UPDATE_FILE_CLUSTER_FILTERS };
+}
+
+export const ACTION_UPDATE_FILE_CLUSTER_FILTERS_SUCCESS =
+  "coll.UPDATE_FILE_CLUSTER_FILTERS_SUCCESS";
+
+export function updateFileClusterFiltersSuccess(matches, files, total) {
+  return {
+    matches,
+    files,
+    total,
+    type: ACTION_UPDATE_FILE_CLUSTER_FILTERS_SUCCESS,
+  };
+}
+
+export const ACTION_UPDATE_FILE_CLUSTER_FILTERS_FAILURE =
+  "coll.UPDATE_FILE_CLUSTER_FILTERS_FAILURE";
+
+export function updateFileClusterFiltersFailure(error) {
+  return { type: ACTION_UPDATE_FILE_CLUSTER_FILTERS_FAILURE, error };
+}
+
+/**
+ * Fetch next cluster items page
+ */
+
+export const ACTION_FETCH_FILE_CLUSTER = "coll.FETCH_FILE_CLUSTER";
+
+export function fetchFileCluster() {
+  return { type: ACTION_FETCH_FILE_CLUSTER };
+}
+
+export const ACTION_FETCH_FILE_CLUSTER_SUCCESS =
+  "coll.FETCH_FILE_CLUSTER_SUCCESS";
+
+export function fetchFileClusterSuccess(matches, files, total) {
+  return { matches, files, total, type: ACTION_FETCH_FILE_CLUSTER_SUCCESS };
+}
+
+export const ACTION_FETCH_FILE_CLUSTER_FAILURE =
+  "coll.FETCH_FILE_CLUSTER_FAILURE";
+
+export function fetchFileClusterFailure(error) {
+  return { error, type: ACTION_FETCH_FILE_CLUSTER_FAILURE };
+}
