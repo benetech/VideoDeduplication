@@ -65,8 +65,8 @@ export function cacheFile(file) {
 export const ACTION_UPDATE_FILE_MATCH_FILTERS =
   "coll.UPDATE_FILE_MATCH_FILTERS";
 
-export function updateFileMatchFilters(fileId, filters) {
-  return { fileId, filters, type: ACTION_UPDATE_FILE_MATCH_FILTERS };
+export function updateFileMatchFilters(filters) {
+  return { filters, type: ACTION_UPDATE_FILE_MATCH_FILTERS };
 }
 
 export const ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS =

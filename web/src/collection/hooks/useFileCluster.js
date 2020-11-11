@@ -19,7 +19,7 @@ function mayContinue(fileClusterState, fileId) {
 }
 
 /**
- * Check if loading may be continued.
+ * Check if there are remaining cluster items.
  */
 function hasMore(fileClusterState, fileId) {
   return (

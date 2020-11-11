@@ -78,7 +78,9 @@ export const initialState = {
    */
   fileMatches: {
     fileId: undefined,
-    filters: {},
+    filters: {
+      fields: ["meta", "exif"],
+    },
     total: undefined,
     error: false,
     loading: false,

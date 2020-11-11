@@ -1,73 +1,66 @@
-import lodash from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectFileCluster, selectFileMatches } from "../state/selectors";
-import { fetchFileCluster, updateFileClusterFilters } from "../state/actions";
+import { selectFileMatches } from "../state/selectors";
+import { fetchFileMatches, updateFileMatchFilters } from "../state/actions";
+import useLoadAll from "./useLoadAll";
+import { initialState } from "../state";
 
 /**
- * Fetch all file matches satisfying filter criteria.
- * @param id file id
- * @param filters cluster loading filters
+ * Check if auto-loading may continue.
  */
-export default function useFileMatches(id, filters = {}) {
-  const state = useSelector(selectFileMatches);
+function mayContinue(fileMatchesState, fileId) {
+  return !(
+    fileMatchesState.loading ||
+    fileMatchesState.error ||
+    fileMatchesState.matches.length >= fileMatchesState.total ||
+    fileMatchesState.total == null ||
+    fileMatchesState.filters.fileId !== fileId
+  );
+}
+
+/**
+ * Check if there are remaining matches.
+ */
+function hasMore(fileMatchesState, fileId) {
+  return (
+    fileMatchesState.total == null ||
+    fileMatchesState.matches.length < fileMatchesState.total ||
+    fileMatchesState.filters.fileId !== fileId
+  );
+}
+
+/**
+ * Fetch all immediate file matches filtering criteria.
+ * @param filters match loading filters
+ */
+export default function useFileMatches(filters) {
+  if (filters.fileId == null) {
+    throw new Error("File id cannot be null.");
+  }
+
   const dispatch = useDispatch();
-  const [mergedFilters, setMergedFilters] = useState({
-    ...state.filters,
-    ...filters,
+  const fileMatches = useSelector(selectFileMatches);
+
+  const handleStart = useCallback(
+    (mergedFilters) => dispatch(updateFileMatchFilters(mergedFilters)),
+    []
+  );
+  const handleContinue = useCallback(() => dispatch(fetchFileMatches()), []);
+
+  const resumeLoading = useLoadAll({
+    requestedFilters: filters,
+    defaultFilters: initialState.fileMatches.filters,
+    savedFilters: fileMatches.filters,
+    mayContinue: mayContinue(fileMatches, filters.fileId),
+    startFetching: handleStart,
+    continueFetching: handleContinue,
   });
 
-  // Update merged filters if and only if
-  // their actual values have changed.
-  useEffect(() => {
-    const newFilters = { ...state.filters, ...filters };
-    if (!lodash.isEqual(mergedFilters, newFilters)) {
-      setMergedFilters(newFilters);
-    }
-  }, [filters, state.filters]);
-
-  // Start/Resume loading handler.
-  const loadCluster = useCallback(() => {
-    if (state.fileId !== id || !lodash.isEqual(mergedFilters, state.filters)) {
-      dispatch(updateFileClusterFilters(id, mergedFilters));
-    } else {
-      dispatch(fetchFileCluster());
-    }
-  }, [id, mergedFilters, state.filters]);
-
-  /**
-   * Initiate fetch every time merged filters have changed.
-   */
-  useEffect(() => {
-    dispatch(updateFileClusterFilters(id, mergedFilters));
-  }, [id, mergedFilters]);
-
-  /**
-   * Fetch next page if available.
-   */
-  useEffect(() => {
-    if (
-      state.loading ||
-      state.error ||
-      state.matches.length >= state.total ||
-      state.total == null
-    ) {
-      return;
-    }
-    dispatch(fetchFileCluster());
-  }, [state]);
-
-  const hasMore =
-    state.total === undefined ||
-    state.matches.length < state.total ||
-    state.fileId !== id;
-
   return {
-    matches: state.matches,
-    files: state.files,
-    total: state.total,
-    error: state.error,
-    loadCluster,
-    hasMore,
+    matches: fileMatches.matches,
+    total: fileMatches.total,
+    error: fileMatches.error,
+    resumeLoading,
+    hasMore: hasMore(fileMatches, filters.fileId),
   };
 }
