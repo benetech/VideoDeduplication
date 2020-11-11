@@ -64,6 +64,7 @@ export const initialState = {
       hops: 2,
       minDistance: 0.0,
       maxDistance: 1.0,
+      fields: ["meta", "exif"],
     },
     total: undefined,
     error: false,

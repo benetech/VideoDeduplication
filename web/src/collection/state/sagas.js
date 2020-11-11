@@ -100,6 +100,7 @@ function* fetchFileClusterSaga(server, action, success, failure) {
       limit,
       offset: current.length,
       id: filters.fileId,
+      fields: filters.fields,
       filters,
     });
 
