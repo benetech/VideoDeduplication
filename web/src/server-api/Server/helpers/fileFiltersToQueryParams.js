@@ -1,6 +1,9 @@
 import { format as formatDate } from "date-fns";
 
-export function fileFiltersToQueryParams(filters) {
+/**
+ * Convert file filters to axios request params.
+ */
+export default function fileFiltersToQueryParams(filters) {
   const params = {};
   if (filters.query) {
     params.path = filters.query;
@@ -36,20 +39,6 @@ export function fileFiltersToQueryParams(filters) {
   }
   if (filters.sort) {
     params.sort = filters.sort;
-  }
-  return params;
-}
-
-export function matchFiltersToQueryParams(filters) {
-  const params = {};
-  if (filters?.hops != null) {
-    params.hops = filters.hops;
-  }
-  if (filters?.minDistance != null) {
-    params.min_distance = filters.minDistance;
-  }
-  if (filters?.maxDistance != null) {
-    params.max_distance = filters.maxDistance;
   }
   return params;
 }
