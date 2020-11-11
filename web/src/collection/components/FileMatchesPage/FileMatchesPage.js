@@ -62,22 +62,6 @@ function useMessages(matchesCount) {
   };
 }
 
-function isIncident(id) {
-  return (match) => match.source === id || match.target === id;
-}
-
-function getMatchedFile(match, files, id) {
-  if (match.source === id) {
-    return files[match.target];
-  } else if (match.target === id) {
-    return files[match.source];
-  } else {
-    throw Error(
-      `Match ${JSON.stringify(match)} is not incident to file id ${id}`
-    );
-  }
-}
-
 function FileMatchesPage(props) {
   const { className } = props;
   const classes = useStyles();
@@ -86,9 +70,7 @@ function FileMatchesPage(props) {
   const { file, error, loadFile } = useFile(id);
   const messages = useMessages((file && file.matchesCount) || 0);
   const [view, setView] = useState(View.grid);
-  const matchesState = useSelector(selectFileMatches);
-  const matches = matchesState.matches.filter(isIncident(id));
-  const files = matchesState.files;
+  const fileMatches = useSelector(selectFileMatches);
   const dispatch = useDispatch();
   const history = useHistory();
 
@@ -98,12 +80,12 @@ function FileMatchesPage(props) {
   );
 
   const handleLoad = useCallback(() => {
-    if (matchesState.total == null || matchesState.fileId !== id) {
-      dispatch(updateFileMatchFilters(id, { hops: 1 }));
+    if (fileMatches.total == null || fileMatches.filters.fileId !== id) {
+      dispatch(updateFileMatchFilters({ fileId: id, hops: 1 }));
     } else {
       dispatch(fetchFileMatches());
     }
-  }, [id, matchesState]);
+  }, [id, fileMatches]);
 
   if (file == null) {
     return (
@@ -152,24 +134,24 @@ function FileMatchesPage(props) {
         className={classes.matches}
       >
         <Grid container spacing={4}>
-          {matches.map((match) => (
+          {fileMatches.matches.map((match) => (
             <Grid item xs={6} lg={3} key={match.id}>
               <MatchPreview
                 distance={match.distance}
-                file={getMatchedFile(match, files, id)}
+                file={match.file}
                 onCompare={handleCompare}
               />
             </Grid>
           ))}
           <Grid item xs={6} lg={3}>
             <LoadTrigger
-              error={matchesState.error}
-              loading={matchesState.loading}
+              error={fileMatches.error}
+              loading={fileMatches.loading}
               onLoad={handleLoad}
               hasMore={
-                matchesState.total === undefined ||
-                matchesState.matches.length < matchesState.total ||
-                matchesState.fileId !== id
+                fileMatches.total == null ||
+                fileMatches.matches.length < fileMatches.total ||
+                fileMatches.filters.fileId !== id
               }
               container={MatchPreview.Container}
               errorMessage={messages.loadError}
