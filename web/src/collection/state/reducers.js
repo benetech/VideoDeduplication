@@ -95,26 +95,6 @@ export const initialState = {
  */
 export const defaultFilters = initialState.filters;
 
-function ids(entities) {
-  const result = new Set();
-  for (let entity of entities) {
-    result.add(entity.id);
-  }
-  return result;
-}
-
-function extendEntityList(existing, loaded) {
-  const existingIds = ids(existing);
-  const newEntities = loaded.filter((item) => !existingIds.has(item.id));
-  return [...existing, ...newEntities];
-}
-
-function extendEntityMap(existing, loaded) {
-  const result = { ...existing };
-  loaded.forEach((entity) => (result[entity.id] = entity));
-  return result;
-}
-
 function fileCacheReducer(state = initialState.fileCache, action) {
   switch (action.type) {
     case ACTION_CACHE_FILE: {
