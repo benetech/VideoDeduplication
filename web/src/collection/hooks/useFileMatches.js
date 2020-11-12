@@ -1,7 +1,10 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileMatches } from "../state/selectors";
-import { fetchFileMatches, updateFileMatchFilters } from "../state/actions";
+import {
+  fetchFileMatches,
+  updateFileMatchFilters,
+} from "../state/fileMatches/actions";
 import useLoadAll from "./useLoadAll";
 import { initialState } from "../state";
 

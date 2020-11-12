@@ -18,7 +18,10 @@ import useFile from "../../hooks/useFile";
 import FileLoadingHeader from "../FileLoadingHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileMatches } from "../../state/selectors";
-import { fetchFileMatches, updateFileMatchFilters } from "../../state/actions";
+import {
+  fetchFileMatches,
+  updateFileMatchFilters,
+} from "../../state/fileMatches/actions";
 import LoadTrigger from "../../../common/components/LoadingTrigger/LoadTrigger";
 import { routes } from "../../../routing/routes";
 
