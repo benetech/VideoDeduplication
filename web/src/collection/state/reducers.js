@@ -1,14 +1,8 @@
 import {
   ACTION_CHANGE_FILE_LIST_VIEW,
-  ACTION_FETCH_FILE_CLUSTER,
-  ACTION_FETCH_FILE_CLUSTER_FAILURE,
-  ACTION_FETCH_FILE_CLUSTER_SUCCESS,
   ACTION_FETCH_FILES,
   ACTION_FETCH_FILES_FAILURE,
   ACTION_FETCH_FILES_SUCCESS,
-  ACTION_UPDATE_FILE_CLUSTER_FILTERS,
-  ACTION_UPDATE_FILE_CLUSTER_FILTERS_FAILURE,
-  ACTION_UPDATE_FILE_CLUSTER_FILTERS_SUCCESS,
   ACTION_UPDATE_FILTERS,
   ACTION_UPDATE_FILTERS_FAILURE,
   ACTION_UPDATE_FILTERS_SUCCESS,
@@ -17,7 +11,6 @@ import { MatchCategory } from "./MatchCategory";
 import { FileSort } from "./FileSort";
 import FileListType from "./FileListType";
 import fileCacheInitialState from "./fileCache/initialState";
-import extendEntityMap from "./helpers/extendEntityMap";
 import extendEntityList from "./helpers/extendEntityList";
 import fileCacheReducer from "./fileCache/reducer";
 import { ACTION_CACHE_FILE } from "./fileCache/actions";
@@ -31,6 +24,17 @@ import {
   ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE,
   ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS,
 } from "./fileMatches/actions";
+
+import fileClusterInitialState from "./fileCluster/initialState";
+import fileClusterReducer from "./fileCluster/reducer";
+import {
+  ACTION_FETCH_FILE_CLUSTER,
+  ACTION_FETCH_FILE_CLUSTER_FAILURE,
+  ACTION_FETCH_FILE_CLUSTER_SUCCESS,
+  ACTION_UPDATE_FILE_CLUSTER_FILTERS,
+  ACTION_UPDATE_FILE_CLUSTER_FILTERS_FAILURE,
+  ACTION_UPDATE_FILE_CLUSTER_FILTERS_SUCCESS,
+} from "./fileCluster/actions";
 
 export const initialState = {
   neverLoaded: true,
@@ -62,21 +66,7 @@ export const initialState = {
   /**
    * File cluster
    */
-  fileCluster: {
-    filters: {
-      fileId: undefined,
-      hops: 2,
-      minDistance: 0.0,
-      maxDistance: 1.0,
-      fields: ["meta", "exif"],
-    },
-    total: undefined,
-    error: false,
-    loading: false,
-    limit: 100,
-    matches: [],
-    files: {},
-  },
+  fileCluster: fileClusterInitialState,
   /**
    * Immediate file matches
    */
@@ -87,62 +77,6 @@ export const initialState = {
  * Default collection filters.
  */
 export const defaultFilters = initialState.filters;
-
-function fileClusterReducer(state = initialState.fileCluster, action) {
-  switch (action.type) {
-    case ACTION_UPDATE_FILE_CLUSTER_FILTERS:
-      return {
-        ...state,
-        filters: { ...state.filters, ...action.filters },
-        matches: [],
-        files: {},
-        loading: true,
-        error: false,
-        total: undefined,
-      };
-    case ACTION_UPDATE_FILE_CLUSTER_FILTERS_SUCCESS:
-      return {
-        ...state,
-        total: action.total,
-        matches: [...action.matches],
-        files: extendEntityMap({}, action.files),
-        error: false,
-        loading: false,
-      };
-    case ACTION_UPDATE_FILE_CLUSTER_FILTERS_FAILURE:
-      return {
-        ...state,
-        matches: [],
-        files: {},
-        total: undefined,
-        error: true,
-        loading: false,
-      };
-    case ACTION_FETCH_FILE_CLUSTER:
-      return {
-        ...state,
-        error: false,
-        loading: true,
-      };
-    case ACTION_FETCH_FILE_CLUSTER_SUCCESS:
-      return {
-        ...state,
-        total: action.total,
-        matches: extendEntityList(state.matches, action.matches),
-        files: extendEntityMap(state.files, action.files),
-        error: false,
-        loading: false,
-      };
-    case ACTION_FETCH_FILE_CLUSTER_FAILURE:
-      return {
-        ...state,
-        error: true,
-        loading: false,
-      };
-    default:
-      return state;
-  }
-}
 
 export function collRootReducer(state = initialState, action) {
   switch (action.type) {

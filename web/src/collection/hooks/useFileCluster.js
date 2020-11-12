@@ -1,7 +1,10 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileCluster } from "../state/selectors";
-import { fetchFileCluster, updateFileClusterFilters } from "../state/actions";
+import {
+  fetchFileCluster,
+  updateFileClusterFilters,
+} from "../state/fileCluster/actions";
 import useLoadAll from "./useLoadAll";
 import { initialState } from "../state";
 
