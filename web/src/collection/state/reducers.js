@@ -1,5 +1,4 @@
 import {
-  ACTION_CACHE_FILE,
   ACTION_CHANGE_FILE_LIST_VIEW,
   ACTION_FETCH_FILE_CLUSTER,
   ACTION_FETCH_FILE_CLUSTER_FAILURE,
@@ -23,6 +22,11 @@ import {
 import { MatchCategory } from "./MatchCategory";
 import { FileSort } from "./FileSort";
 import FileListType from "./FileListType";
+import fileCacheInitialState from "./fileCache/initialState";
+import extendEntityMap from "./helpers/extendEntityMap";
+import extendEntityList from "./helpers/extendEntityList";
+import fileCacheReducer from "./fileCache/reducer";
+import { ACTION_CACHE_FILE } from "./fileCache/actions";
 
 export const initialState = {
   neverLoaded: true,
@@ -50,11 +54,7 @@ export const initialState = {
   /**
    * File id=>file LRU cache
    */
-  fileCache: {
-    maxSize: 1000,
-    files: {},
-    history: [],
-  },
+  fileCache: fileCacheInitialState,
   /**
    * File cluster
    */
@@ -94,25 +94,6 @@ export const initialState = {
  * Default collection filters.
  */
 export const defaultFilters = initialState.filters;
-
-function fileCacheReducer(state = initialState.fileCache, action) {
-  switch (action.type) {
-    case ACTION_CACHE_FILE: {
-      const files = { ...state.files, [action.file.id]: action.file };
-      const history = [
-        action.file.id,
-        ...state.history.filter((id) => id !== action.file.id),
-      ];
-      if (history.length > state.maxSize) {
-        const evicted = history.pop();
-        delete files[evicted];
-      }
-      return { ...state, history, files };
-    }
-    default:
-      return state;
-  }
-}
 
 function fileMatchesReducer(state = initialState.fileMatches, action) {
   switch (action.type) {

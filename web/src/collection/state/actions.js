@@ -49,16 +49,6 @@ export function fetchFilesFailure(error) {
 }
 
 /**
- * Add file to cache.
- */
-
-export const ACTION_CACHE_FILE = "coll.CACHE_FILE";
-
-export function cacheFile(file) {
-  return { file, type: ACTION_CACHE_FILE };
-}
-
-/**
  * Single file matches actions
  */
 
