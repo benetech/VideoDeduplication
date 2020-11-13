@@ -19,6 +19,11 @@ const defaultReducer = makeEntityReducer({
 
 export default function fileClusterReducer(state = initialState, action) {
   switch (action.type) {
+    case ACTION_UPDATE_FILE_CLUSTER_PARAMS:
+      return {
+        ...defaultReducer(state, action),
+        files: {},
+      };
     case ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS:
       return {
         ...defaultReducer(state, action),
