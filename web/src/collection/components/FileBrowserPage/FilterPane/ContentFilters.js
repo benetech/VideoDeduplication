@@ -5,9 +5,9 @@ import { useFilters } from "./useFilters";
 import { useIntl } from "react-intl";
 import RangeFilter from "./RangeFilter";
 import { useSelector } from "react-redux";
-import { selectFilters } from "../../../state/selectors";
+import { selectFileFilters } from "../../../state/selectors";
 import objectDiff from "../../../../common/helpers/objectDiff";
-import { initialState } from "../../../state";
+import { defaultFilters } from "../../../state/fileList/initialState";
 
 /**
  * Get i18n text
@@ -25,8 +25,8 @@ function useMessages() {
  * Get count of active filters.
  */
 function useActiveFilters() {
-  const filters = useSelector(selectFilters);
-  const diff = objectDiff(filters, initialState.filters);
+  const filters = useSelector(selectFileFilters);
+  const diff = objectDiff(filters, defaultFilters);
   return Number(diff.length);
 }
 

@@ -6,7 +6,7 @@ import {
   updateFileMatchFilters,
 } from "../state/fileMatches/actions";
 import useLoadAll from "./useLoadAll";
-import { initialState } from "../state";
+import initialState from "../state/fileMatches/initialState";
 
 /**
  * Check if auto-loading may continue.
@@ -52,7 +52,7 @@ export default function useFileMatches(filters) {
 
   const resumeLoading = useLoadAll({
     requestedFilters: filters,
-    defaultFilters: initialState.fileMatches.filters,
+    defaultFilters: initialState.filters,
     savedFilters: fileMatches.filters,
     mayContinue: mayContinue(fileMatches, filters.fileId),
     startFetching: handleStart,

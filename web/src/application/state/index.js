@@ -1,3 +1,3 @@
-export {} from "./actions";
-export { initialState, appRootReducer } from "./reducers";
 export { appRootSaga } from "./sagas";
+export { default as appRootReducer } from "./reducers";
+export { default as initialState } from "./initialState";

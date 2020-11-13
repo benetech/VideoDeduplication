@@ -6,7 +6,7 @@ import {
   updateFileClusterFilters,
 } from "../state/fileCluster/actions";
 import useLoadAll from "./useLoadAll";
-import { initialState } from "../state";
+import initialState from "../state/fileCluster/initialState";
 
 /**
  * Check if auto-loading may continue.
@@ -52,7 +52,7 @@ export default function useFileCluster(filters) {
 
   const resumeLoading = useLoadAll({
     requestedFilters: filters,
-    defaultFilters: initialState.fileCluster.filters,
+    defaultFilters: initialState.filters,
     savedFilters: fileCluster.filters,
     mayContinue: mayContinue(fileCluster, filters.fileId),
     startFetching: handleStart,

@@ -1,13 +1,8 @@
-import {
-  collRootReducer,
-  initialState as collInitialState,
-} from "../../collection/state";
 import { combineReducers } from "redux";
+import collRootReducer from "../../collection/state/reducers";
 
-export const initialState = {
-  coll: collInitialState,
-};
-
-export const appRootReducer = combineReducers({
+const appRootReducer = combineReducers({
   coll: collRootReducer,
 });
+
+export default appRootReducer;
