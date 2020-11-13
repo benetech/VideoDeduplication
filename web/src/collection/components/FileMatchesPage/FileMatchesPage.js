@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -18,12 +18,12 @@ import useFile from "../../hooks/useFile";
 import FileLoadingHeader from "../FileLoadingHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileMatches } from "../../state/selectors";
-import {
-  fetchFileMatches,
-  updateFileMatchFilters,
-} from "../../state/fileMatches/actions";
 import LoadTrigger from "../../../common/components/LoadingTrigger/LoadTrigger";
 import { routes } from "../../../routing/routes";
+import {
+  fetchFileMatchesSlice,
+  updateFileMatchesParams,
+} from "../../state/fileMatches/actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -77,18 +77,18 @@ function FileMatchesPage(props) {
   const dispatch = useDispatch();
   const history = useHistory();
 
+  useEffect(() => {
+    if (fileMatches.params.fileId !== id) {
+      dispatch(updateFileMatchesParams({ fileId: id }));
+    }
+  }, [id, fileMatches]);
+
   const handleCompare = useCallback(
     (file) => history.push(routes.collection.fileComparisonURL(id, file?.id)),
     [id]
   );
 
-  const handleLoad = useCallback(() => {
-    if (fileMatches.total == null || fileMatches.filters.fileId !== id) {
-      dispatch(updateFileMatchFilters({ fileId: id, hops: 1 }));
-    } else {
-      dispatch(fetchFileMatches());
-    }
-  }, [id, fileMatches]);
+  const handleLoad = useCallback(() => dispatch(fetchFileMatchesSlice()), []);
 
   if (file == null) {
     return (
@@ -154,7 +154,7 @@ function FileMatchesPage(props) {
               hasMore={
                 fileMatches.total == null ||
                 fileMatches.matches.length < fileMatches.total ||
-                fileMatches.filters.fileId !== id
+                fileMatches.params.fileId !== id
               }
               container={MatchPreview.Container}
               errorMessage={messages.loadError}
