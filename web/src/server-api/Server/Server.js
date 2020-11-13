@@ -70,14 +70,14 @@ export default class Server {
   }
 
   async fetchFileMatches({
-    id,
+    fileId,
     limit = 20,
     offset = 0,
     fields = ["meta", "exif", "scenes"],
     filters = {},
   }) {
     try {
-      const response = await this.axios.get(`/files/${id}/matches`, {
+      const response = await this.axios.get(`/files/${fileId}/matches`, {
         params: {
           limit,
           offset,
