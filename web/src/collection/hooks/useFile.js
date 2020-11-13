@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectCachedFile } from "../state/selectors";
 import { useServer } from "../../server-api/context";
-import { cacheFile } from "../state/actions";
+import { cacheFile } from "../state/fileCache/actions";
 import { Status } from "../../server-api/Response";
 
 /**

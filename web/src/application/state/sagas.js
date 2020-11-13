@@ -1,5 +1,5 @@
 import { all } from "redux-saga/effects";
-import { collRootSaga } from "../../collection/state";
+import collRootSaga from "../../collection/state/sagas";
 
 /**
  * Application root saga. Initializes all other sagas.

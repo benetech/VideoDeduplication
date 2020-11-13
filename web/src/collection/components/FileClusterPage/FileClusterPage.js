@@ -56,7 +56,7 @@ function FileClusterPage(props) {
     resumeLoading: loadCluster,
     hasMore,
     total,
-  } = useFileCluster({ fileId: id, hops: 2 });
+  } = useFileCluster({ fileId: id, filters: { hops: 2 } });
 
   const handleLoadFile = useCallback(() => {
     loadFile();

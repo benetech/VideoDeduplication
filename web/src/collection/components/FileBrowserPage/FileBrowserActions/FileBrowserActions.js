@@ -8,9 +8,9 @@ import ViewSelector from "./ViewSelector";
 import SortSelector from "./SortSelector";
 import SquaredIconButton from "../../../../common/components/SquaredIconButton";
 import { useIntl } from "react-intl";
-import { FileSort } from "../../../state/FileSort";
+import { FileSort } from "../../../state/fileList/FileSort";
 import { Badge } from "@material-ui/core";
-import FileListType from "../../../state/FileListType";
+import FileListType from "../../../state/fileList/FileListType";
 
 const useStyles = makeStyles((theme) => ({
   actions: {

@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import ObjectType from "../ObjectType";
+import ObjectType from "../../../prop-types/ObjectType";
 import Popper from "@material-ui/core/Popper";
 import Paper from "@material-ui/core/Paper";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";

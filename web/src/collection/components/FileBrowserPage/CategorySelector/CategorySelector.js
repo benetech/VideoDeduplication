@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { useIntl } from "react-intl";
-import { MatchCategory } from "../../../state/MatchCategory";
+import { MatchCategory } from "../../../state/fileList/MatchCategory";
 import CategoryButton from "./CategoryButton";
 import AllInclusiveOutlinedIcon from "@material-ui/icons/AllInclusiveOutlined";
 import FileCopyOutlinedIcon from "@material-ui/icons/FileCopyOutlined";

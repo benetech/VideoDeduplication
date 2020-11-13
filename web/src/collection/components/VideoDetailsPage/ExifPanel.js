@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { FileType } from "../FileBrowserPage/FileType";
+import { FileType } from "../../prop-types/FileType";
 import {
   SelectableTab,
   SelectableTabs,

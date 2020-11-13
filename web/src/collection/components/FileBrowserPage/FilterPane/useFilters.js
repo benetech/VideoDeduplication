@@ -1,15 +1,15 @@
 import { isEqual, merge } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
-import { selectFilters } from "../../../state/selectors";
+import { selectFileFilters } from "../../../state/selectors";
 import { useCallback, useEffect, useState } from "react";
-import { updateFilters } from "../../../state";
+import { updateFilters } from "../../../state/fileList/actions";
 
 /**
  * Hook to smoothly update hooks
  */
 export function useFilters() {
   // Access current redux state
-  const filters = useSelector(selectFilters);
+  const filters = useSelector(selectFileFilters);
   const dispatch = useDispatch();
 
   const [changes, setChanges] = useState({}); // unsaved changes

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { formatDuration } from "../../../common/helpers/format";
 import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
 import AttributeText from "../../../common/components/AttributeText";
-import { FileType } from "../FileBrowserPage/FileType";
+import { FileType } from "../../prop-types/FileType";
 
 function Duration(props) {
   const { file, className, ...other } = props;

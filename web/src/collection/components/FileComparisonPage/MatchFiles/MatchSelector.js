@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import FileType from "../../FileBrowserPage/FileType";
+import FileType from "../../../prop-types/FileType";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";

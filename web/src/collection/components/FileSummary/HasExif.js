@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { formatBool } from "../../../common/helpers/format";
 import ExifIcon from "../../../common/components/icons/ExifIcon";
 import AttributeText from "../../../common/components/AttributeText";
-import { FileType } from "../FileBrowserPage/FileType";
+import { FileType } from "../../prop-types/FileType";
 import { useIntl } from "react-intl";
 
 function HasExif(props) {

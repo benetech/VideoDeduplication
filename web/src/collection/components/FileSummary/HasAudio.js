@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
-import { FileType } from "../FileBrowserPage/FileType";
+import { FileType } from "../../prop-types/FileType";
 
 function HasAudio(props) {
   const { className, ...other } = props;
