@@ -1,7 +1,7 @@
 import lodash from "lodash";
 import extendEntityList from "../helpers/extendEntityList";
 
-export default function makeReducer({
+export default function makeEntityReducer({
   updateParams,
   fetchSlice,
   fetchSliceSuccess,

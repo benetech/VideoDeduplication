@@ -1,8 +1,11 @@
 import { useSelector } from "react-redux";
-import { selectFileCluster } from "../selectors";
-import { fetchFileClusterSlice, updateFileClusterParams } from "./actions";
-import initialState from "./initialState";
-import makeFetchEntitiesHook from "../fetchEntities/makeFetchEntitiesHook";
+import { selectFileCluster } from "../state/selectors";
+import {
+  fetchFileClusterSlice,
+  updateFileClusterParams,
+} from "../state/fileCluster/actions";
+import initialState from "../state/fileCluster/initialState";
+import makeFetchEntitiesHook from "../state/fetchEntities/makeFetchEntitiesHook";
 
 const useFetchFileCluster = makeFetchEntitiesHook({
   stateSelector: selectFileCluster,
@@ -13,7 +16,7 @@ const useFetchFileCluster = makeFetchEntitiesHook({
 });
 
 /**
- * Fetch all file cluster elements satisfying the query .
+ * Fetch all file cluster elements satisfying the query params.
  * @param params - The cluster query params.
  */
 export default function useFileCluster(params) {

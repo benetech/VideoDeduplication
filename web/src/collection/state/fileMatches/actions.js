@@ -1,91 +1,57 @@
 /**
- * Action type of "Update file match filters and fetch the first slice".
+ * "Update matches params" action type.
+ * @type {string}
  */
-export const ACTION_UPDATE_FILE_MATCH_FILTERS =
-  "coll.UPDATE_FILE_MATCH_FILTERS";
+export const ACTION_UPDATE_FILE_MATCHES_PARAMS =
+  "coll.UPDATE_FILE_MATCHES_PARAMS";
 
 /**
- * Create a new instance of "Update file match filters and fetch the first
- * slice" action.
- *
- * @param {Object} filters - The new match filters that should be used.
- * @return The new action.
+ * Create new "Update matches params" action.
  */
-export function updateFileMatchFilters(filters) {
-  return { filters, type: ACTION_UPDATE_FILE_MATCH_FILTERS };
+export function updateFileMatchesParams(params) {
+  return { params, type: ACTION_UPDATE_FILE_MATCHES_PARAMS };
 }
 
 /**
- * Action type of "Success of match filter update"
+ * "Fetch the next matches slice" action type.
+ * @type {string}
  */
-export const ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS =
-  "coll.UPDATE_FILE_MATCH_FILTERS_SUCCESS";
+export const ACTION_FETCH_FILE_MATCHES_SLICE = "coll.FETCH_FILE_MATCHES_SLICE";
 
 /**
- * Create a new instance of "Success of match filter update" action.
- * @param {Array} matches - The fetched matches.
- * @param {number} total - The total number of matches that satisfy the filters.
- * @return The new action.
+ * Create new "Fetch the next matches slice" action.
+ * @return {{type: string}}
  */
-export function updateFileMatchFiltersSuccess(matches, total) {
-  return { matches, total, type: ACTION_UPDATE_FILE_MATCH_FILTERS_SUCCESS };
+export function fetchFileMatchesSlice() {
+  return { type: ACTION_FETCH_FILE_MATCHES_SLICE };
 }
 
 /**
- * Action type of "Failure of match filter update"
+ * "Success of matches slice fetching" action type.
+ * @type {string}
  */
-export const ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE =
-  "coll.UPDATE_FILE_MATCH_FILTERS_FAILURE";
+export const ACTION_FETCH_FILE_MATCHES_SLICE_SUCCESS =
+  "coll.FETCH_FILE_MATCHES_SLICE_SUCCESS";
 
 /**
- * Create a new instance of "Failure of match filter update" action.
- * @param error - The error details.
- * @return The new action.
+ * Create new "Success of matches slice fetching" action.
  */
-export function updateFileMatchFiltersFailure(error) {
-  return { type: ACTION_UPDATE_FILE_MATCH_FILTERS_FAILURE, error };
+export function fetchFileMatchesSliceSuccess({ matches, total }) {
+  return { matches, total, type: ACTION_FETCH_FILE_MATCHES_SLICE_SUCCESS };
 }
 
 /**
- * Action type of "Fetch the next slice of file matches".
+ * "Failure of matches slice fetching" action type.
+ * @type {string}
  */
-export const ACTION_FETCH_FILE_MATCHES = "coll.FETCH_FILE_MATCHES";
+export const ACTION_FETCH_FILE_MATCHES_SLICE_FAILURE =
+  "coll.FETCH_FILE_MATCHES_SLICE_FAILURE";
 
 /**
- * Create a new instance of "Fetch the next slice of file matches" action.
- * @return The new action.
+ * Create new "Failure of matches slice fetching" action.
+ * @param error
+ * @return {{error: *, type: string}}
  */
-export function fetchFileMatches() {
-  return { type: ACTION_FETCH_FILE_MATCHES };
-}
-
-/**
- * Action type of "Success of the next matches slice fetch".
- */
-export const ACTION_FETCH_FILE_MATCHES_SUCCESS =
-  "coll.FETCH_FILE_MATCHES_SUCCESS";
-
-/**
- * Create a new instance of "Success of the next slice fetch" action.
- * @param matches - The new fetched slice of matches.
- * @param total - The total number of matches that satisfy filters.
- * @return The new action.
- */
-export function fetchFileMatchesSuccess(matches, total) {
-  return { matches, total, type: ACTION_FETCH_FILE_MATCHES_SUCCESS };
-}
-
-/**
- * Action type for "Failure of the next matches slice fetch".
- */
-export const ACTION_FETCH_FILE_MATCHES_FAILURE =
-  "coll.FETCH_FILE_MATCHES_FAILURE";
-
-/**
- * Create a new instance of "Failure of the next matches slice fetch" action.
- * @param error - The error that describes failure.
- * @return The new action.
- */
-export function fetchFileMatchesFailure(error) {
-  return { error, type: ACTION_FETCH_FILE_MATCHES_FAILURE };
+export function fetchFileMatchesSliceFailure(error) {
+  return { error, type: ACTION_FETCH_FILE_MATCHES_SLICE_FAILURE };
 }

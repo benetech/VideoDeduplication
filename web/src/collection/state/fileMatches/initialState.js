@@ -3,8 +3,9 @@
  * @type {Object}
  */
 const initialState = {
-  fileId: undefined,
-  filters: {
+  params: {
+    fileId: undefined,
+    filters: {},
     fields: ["meta", "exif"],
   },
   total: undefined,

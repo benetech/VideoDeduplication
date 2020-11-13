@@ -5,7 +5,7 @@ import {
   ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS,
   ACTION_UPDATE_FILE_CLUSTER_PARAMS,
 } from "./actions";
-import makeEntityReducer from "../fetchEntities/makeReducer";
+import makeEntityReducer from "../fetchEntities/makeEntityReducer";
 import extendEntityMap from "../helpers/extendEntityMap";
 
 const defaultReducer = makeEntityReducer({
