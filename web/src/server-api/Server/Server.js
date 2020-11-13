@@ -47,9 +47,15 @@ export default class Server {
     }
   }
 
-  async fetchFileCluster({ id, limit = 20, offset = 0, fields = [], filters }) {
+  async fetchFileCluster({
+    fileId,
+    limit = 20,
+    offset = 0,
+    fields = [],
+    filters,
+  }) {
     try {
-      const response = await this.axios.get(`/files/${id}/cluster`, {
+      const response = await this.axios.get(`/files/${fileId}/cluster`, {
         params: {
           limit,
           offset,

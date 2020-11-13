@@ -1,3 +1,35 @@
+export const ACTION_UPDATE_FILE_CLUSTER_PARAMS =
+  "coll.UPDATE_FILE_CLUSTER_PARAMS";
+
+export function updateFileClusterParams(params) {
+  return { params, type: ACTION_UPDATE_FILE_CLUSTER_PARAMS };
+}
+
+export const ACTION_FETCH_FILE_CLUSTER_SLICE = "coll.FETCH_FILE_CLUSTER_SLICE";
+
+export function fetchFileClusterSlice() {
+  return { type: ACTION_FETCH_FILE_CLUSTER_SLICE };
+}
+
+export const ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS =
+  "coll.FETCH_FILE_CLUSTER_SLICE_SUCCESS";
+
+export function fetchFileClusterSliceSuccess({ matches, files, total }) {
+  return {
+    matches,
+    files,
+    total,
+    type: ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS,
+  };
+}
+
+export const ACTION_FETCH_FILE_CLUSTER_SLICE_FAILURE =
+  "coll.FETCH_FILE_CLUSTER_SLICE_FAILURE";
+
+export function fetchFileClusterSliceFailure(error) {
+  return { error, type: ACTION_FETCH_FILE_CLUSTER_SLICE_FAILURE };
+}
+
 /**
  * Action type of "Update file cluster filters and fetch the first slice".
  */

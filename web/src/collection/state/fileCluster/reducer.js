@@ -1,67 +1,30 @@
-import extendEntityMap from "../helpers/extendEntityMap";
-import extendEntityList from "../helpers/extendEntityList";
 import initialState from "./initialState";
 import {
-  ACTION_FETCH_FILE_CLUSTER,
-  ACTION_FETCH_FILE_CLUSTER_FAILURE,
-  ACTION_FETCH_FILE_CLUSTER_SUCCESS,
-  ACTION_UPDATE_FILE_CLUSTER_FILTERS,
-  ACTION_UPDATE_FILE_CLUSTER_FILTERS_FAILURE,
-  ACTION_UPDATE_FILE_CLUSTER_FILTERS_SUCCESS,
+  ACTION_FETCH_FILE_CLUSTER_SLICE,
+  ACTION_FETCH_FILE_CLUSTER_SLICE_FAILURE,
+  ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS,
+  ACTION_UPDATE_FILE_CLUSTER_PARAMS,
 } from "./actions";
+import makeEntityReducer from "../fetchEntities/makeReducer";
+import extendEntityMap from "../helpers/extendEntityMap";
+
+const defaultReducer = makeEntityReducer({
+  updateParams: ACTION_UPDATE_FILE_CLUSTER_PARAMS,
+  fetchSlice: ACTION_FETCH_FILE_CLUSTER_SLICE,
+  fetchSliceSuccess: ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS,
+  fetchSliceFailure: ACTION_FETCH_FILE_CLUSTER_SLICE_FAILURE,
+  initialState: initialState,
+  resourceName: "matches",
+});
 
 export default function fileClusterReducer(state = initialState, action) {
   switch (action.type) {
-    case ACTION_UPDATE_FILE_CLUSTER_FILTERS:
+    case ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS:
       return {
-        ...state,
-        filters: { ...state.filters, ...action.filters },
-        matches: [],
-        files: {},
-        loading: true,
-        error: false,
-        total: undefined,
-      };
-    case ACTION_UPDATE_FILE_CLUSTER_FILTERS_SUCCESS:
-      return {
-        ...state,
-        total: action.total,
-        matches: [...action.matches],
-        files: extendEntityMap({}, action.files),
-        error: false,
-        loading: false,
-      };
-    case ACTION_UPDATE_FILE_CLUSTER_FILTERS_FAILURE:
-      return {
-        ...state,
-        matches: [],
-        files: {},
-        total: undefined,
-        error: true,
-        loading: false,
-      };
-    case ACTION_FETCH_FILE_CLUSTER:
-      return {
-        ...state,
-        error: false,
-        loading: true,
-      };
-    case ACTION_FETCH_FILE_CLUSTER_SUCCESS:
-      return {
-        ...state,
-        total: action.total,
-        matches: extendEntityList(state.matches, action.matches),
+        ...defaultReducer(state, action),
         files: extendEntityMap(state.files, action.files),
-        error: false,
-        loading: false,
-      };
-    case ACTION_FETCH_FILE_CLUSTER_FAILURE:
-      return {
-        ...state,
-        error: true,
-        loading: false,
       };
     default:
-      return state;
+      return defaultReducer(state, action);
   }
 }

@@ -10,7 +10,7 @@ import FileLoadingHeader from "../FileLoadingHeader";
 import MatchGraph from "../MatchGraph";
 import { useIntl } from "react-intl";
 import Loading from "../../../common/components/Loading";
-import useFileCluster from "../../hooks/useFileCluster";
+import useFileCluster from "../../state/fileCluster/useFileCluster";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -56,7 +56,7 @@ function FileClusterPage(props) {
     resumeLoading: loadCluster,
     hasMore,
     total,
-  } = useFileCluster({ fileId: id, hops: 2 });
+  } = useFileCluster({ fileId: id, filters: { hops: 2 } });
 
   const handleLoadFile = useCallback(() => {
     loadFile();

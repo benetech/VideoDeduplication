@@ -19,7 +19,7 @@ export default function makeReducer({
           loading: false,
           error: false,
           total: undefined,
-          items: [],
+          [resourceName]: [],
         };
       }
       case fetchSlice:
@@ -44,6 +44,7 @@ export default function makeReducer({
             state[resourceName],
             action[resourceName]
           ),
+          total: action.total,
         };
       case fetchSliceFailure:
         return {

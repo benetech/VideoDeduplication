@@ -1,38 +1,38 @@
-/**
- * Generic hook to load all available entities assuming the application state
- * obeys convention of the fetchEntity framework.
- */
 import { useDispatch, useSelector } from "react-redux";
-import { useCallback } from "react";
-import useFetchAllGeneric from "./useFetchAllGeneric";
+import { useCallback, useEffect } from "react";
+import useValue from "../../hooks/useValue";
+import lodash from "lodash";
 
 /**
  * Check if auto-loading may continue.
  */
-function mayContinue(state, desiredParams, resourceName) {
+function getMayContinue(state, mergedParams, resourceName) {
   return !(
     state.loading ||
     state.error ||
     state[resourceName].length >= state.total ||
-    state.total == null ||
-    !lodash.isEqual(state.params, desiredParams)
+    !lodash.isEqual(state.params, mergedParams)
   );
 }
 
 /**
  * Check if there are remaining cluster items.
  */
-function hasMore(state, desiredParams, resourceName) {
+function hasMore(state, mergedParams, resourceName) {
   return (
     state.total == null ||
     state[resourceName].length < state.total ||
-    !lodash.isEqual(state.params, desiredParams)
+    !lodash.isEqual(state.params, mergedParams)
   );
 }
 
+/**
+ * Make a hook to load all available entities assuming the application state
+ * obeys convention of the fetchEntity framework.
+ */
 export default function makeFetchEntitiesHook({
   updateParams,
-  fetchSlice,
+  fetchNextSlice,
   stateSelector,
   defaultParams,
   resourceName,
@@ -40,29 +40,39 @@ export default function makeFetchEntitiesHook({
   return function useFetchEntities(desiredParams) {
     const dispatch = useDispatch();
     const state = useSelector(stateSelector);
-
-    const handleUpdate = useCallback(
-      (mergedParams) => dispatch(updateParams(mergedParams)),
-      [updateParams]
+    const savedParams = state.params;
+    const mergedParams = useValue(
+      lodash.merge({}, defaultParams, desiredParams)
     );
+    const mayContinue = getMayContinue(state, mergedParams, resourceName);
 
-    const handleFetch = useCallback(() => dispatch(fetchSlice()), [fetchSlice]);
+    // Update filters and fetch the first slice when filters are changed
+    useEffect(() => {
+      dispatch(updateParams(mergedParams));
+    }, [mergedParams]);
 
-    const resumeLoading = useFetchAllGeneric({
-      desiredParams: desiredParams,
-      defaultParams: defaultParams,
-      savedParams: state.params,
-      updateParams: handleUpdate,
-      fetchSlice: handleFetch,
-      mayContinue: mayContinue(state, desiredParams, resourceName),
-    });
+    // Fetch the next slice when ready.
+    useEffect(() => {
+      if (mayContinue) {
+        dispatch(fetchNextSlice());
+      }
+    }, [mayContinue, mergedParams]);
+
+    // Provide callback to resume loading on error.
+    const resumeLoading = useCallback(() => {
+      if (!lodash.isEqual(mergedParams, savedParams)) {
+        dispatch(updateParams(mergedParams));
+      } else {
+        dispatch(fetchNextSlice(mergedParams));
+      }
+    }, [mergedParams, savedParams]);
 
     return {
       [resourceName]: state[resourceName],
       total: state.total,
       error: state.error,
       resumeLoading,
-      hasMore: hasMore(state, desiredParams, resourceName),
+      hasMore: hasMore(state, mergedParams, resourceName),
     };
   };
 }

@@ -3,11 +3,13 @@
  * @type {Object}
  */
 const initialState = {
-  filters: {
+  params: {
     fileId: undefined,
-    hops: 2,
-    minDistance: 0.0,
-    maxDistance: 1.0,
+    filters: {
+      hops: 2,
+      minDistance: 0.0,
+      maxDistance: 1.0,
+    },
     fields: ["meta", "exif"],
   },
   total: undefined,
