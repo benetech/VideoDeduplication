@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { FileType } from "../FileBrowserPage/FileType";
+import { FileType } from "../../prop-types/FileType";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import AttributeText from "../../../common/components/AttributeText";
 import { useIntl } from "react-intl";

@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import FileSummary from "../../FileSummary/FileSummary";
-import { FileType } from "../../FileBrowserPage/FileType";
+import { FileType } from "../../../prop-types/FileType";
 
 const useStyles = makeStyles((theme) => ({
   header: {

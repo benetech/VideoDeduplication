@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Name from "./Name";
-import { FileType } from "../FileBrowserPage/FileType";
+import { FileType } from "../../prop-types/FileType";
 import Divider from "./Divider";
 import Spacer from "./Spacer";
 import Fingerprint from "./Fingerprint";

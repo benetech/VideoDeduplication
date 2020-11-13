@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Paper from "@material-ui/core/Paper";
-import { FileType } from "../FileBrowserPage/FileType";
+import { FileType } from "../../prop-types/FileType";
 import VideoPlayer from "./VideoPlayer";
 import SceneSelector from "./SceneSelector";
 import ObjectTimeLine from "./ObjectTimeLine";

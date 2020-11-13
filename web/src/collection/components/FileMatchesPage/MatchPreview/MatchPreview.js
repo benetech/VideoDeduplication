@@ -9,7 +9,7 @@ import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import FileAttributes from "./FileAttributes";
 import { useIntl } from "react-intl";
 import ButtonBase from "@material-ui/core/ButtonBase";
-import FileType from "../../FileBrowserPage/FileType";
+import FileType from "../../../prop-types/FileType";
 import Container from "./Container";
 import Distance from "../../../../common/components/Distance";
 

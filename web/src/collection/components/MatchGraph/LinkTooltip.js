@@ -8,7 +8,7 @@ import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import { basename } from "../../../common/helpers/paths";
 import { formatDuration } from "../../../common/helpers/format";
 import { useIntl } from "react-intl";
-import FileType from "../FileBrowserPage/FileType";
+import FileType from "../../prop-types/FileType";
 
 const useStyles = makeStyles((theme) => ({
   root: {
