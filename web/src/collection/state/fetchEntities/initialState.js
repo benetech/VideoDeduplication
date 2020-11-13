@@ -4,6 +4,7 @@
  *
  * @type {Object}
  */
+// eslint-disable-next-line
 const initialState = {
   /**
    * Request params.
