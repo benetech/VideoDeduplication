@@ -1,9 +1,0 @@
-# This is a docker-compose.yml file extension to use prebuilt docker images.
-# See https://docs.docker.com/compose/extends/ for more details on configuration file extensions.
-
-version: '2.3'
-
-services:
-  dedup-app:
-    image: "johnhbenetech/videodeduplication:cpu${BENETECH_MODE}"
-    runtime: runc

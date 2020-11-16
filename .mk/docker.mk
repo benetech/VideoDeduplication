@@ -16,7 +16,7 @@ docker-setup-update:
 
 ## Run application using docker-compose
 docker-run: docker-setup
-	@scripts/docker-run.sh
+	sudo docker-compose up -d
 
 
 .PHONY: docker-stop
@@ -29,20 +29,14 @@ docker-stop:
 
 ## Build docker images for docker-compose application
 docker-build:
-	sudo docker-compose build
+	@scripts/docker-build.sh
 
-.PHONY: docker-rebuild
 
-## Rebuild docker images
-docker-rebuild:
-	sudo docker-compose rm -s -f
-	sudo docker-compose build
-
-.PHONY: docker-update
+.PHONY: docker-pull
 
 ## Update docker images (rebuild local or pull latest from repository depending on configuration).
-docker-update:
-	@scripts/docker-update.sh
+docker-pull:
+	sudo docker-compose pull
 
 .PHONY: docker-purge
 
