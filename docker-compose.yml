@@ -35,6 +35,8 @@ services:
     build:
       context: .
       dockerfile: "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
+      args:
+        GIT_HASH: "${GIT_HASH}"
     runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
     command: bash -ic "bash serve_jupyter.sh"
     environment:
@@ -55,6 +57,8 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.server
+      args:
+        GIT_HASH: "${GIT_HASH}"
     environment:
       SERVER_HOST: "0.0.0.0"
       SERVER_PORT: "5000"
