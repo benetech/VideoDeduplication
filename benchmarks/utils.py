@@ -106,25 +106,30 @@ def get_result(df,
 
 def download_dataset(
        dst,
-       url="https://s3.amazonaws.com/winnowpretrainedmodels/augmented_dataset.tar.gz"):
+       url="https://winnowpre.s3.amazonaws.com/augmented_dataset.tar.xz"):
 
-    if os.path.exists(dst):
-        print('Templates Found', glob(dst + '/**'))
+    if not os.path.exists(dst):
 
-    else:
-        try:
-            os.makedirs(dst)
-        except Exception as e:
-            print(e)
-            pass
+        os.makedirs(dst)
+
+    number_of_files = len(glob(dst + '/**'))
+    print('Files Found',number_of_files)
+
+    if number_of_files < 2:
+
         print('Downloading sample dataset to:{}'.format(dst))
 
         fp = os.path.join(dst, 'dataset.tar.gz')
-        download_file(fp, url)
+        if not os.path.isfile(fp):
+
+            download_file(fp, url)
         # unzip files
-        shutil.unpack_archive(fp, format='gztar')
+        print('unpacking', fp)
+        shutil.unpack_archive(fp, dst)
         # Delete tar
         os.unlink(fp)
+    else:
+        print('Files have already been downloaded')
 
 
 def get_frame_sampling_permutations(frame_samplings, frame_level_files):
