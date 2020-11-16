@@ -26,16 +26,6 @@ setup: docker-setup
 ## Update docker-compose application (regenerate .env file)
 setup-update: docker-setup-update
 
-.PHONY: rebuild
-
-## Rebuild docker-compose images
-rebuild: docker-rebuild
-
-.PHONY: update
-
-## Update images of the docker-compose application
-update: docker-update
-
 .PHONY: purge
 
 ## Remove docker-compose application and all its images and volumes.
@@ -43,3 +33,13 @@ purge: docker-purge
 
 # Define default goal
 .DEFAULT_GOAL := help
+
+.PHONY: build
+
+## Build Docker images locally.
+build: docker-build
+
+.PHONY: pull
+
+## Pull images from Docker Hub
+pull: docker-pull

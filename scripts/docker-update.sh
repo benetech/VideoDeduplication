@@ -20,7 +20,7 @@ fi
 if [ "$BENETECH_RUNTIME" = "GPU" ] && [ "$BENETECH_PREBUILT" = "NO" ]; then
   set -x
   sudo docker-compose rm -s -f
-	sudo docker-compose build
+	sudo docker-compose build --parallel --no-cache
 elif [ "$BENETECH_RUNTIME" = "CPU" ] && [ "$BENETECH_PREBUILT" = "NO" ]; then
   set -x
   sudo docker-compose rm -s -f
