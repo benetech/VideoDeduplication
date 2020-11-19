@@ -35,9 +35,9 @@ def process_media_info(info):
         if ':' not in line:
             section = line
         else:
-            key, val, *_ = line.split(':')
+            key, val = line.split(':', maxsplit=1)
             section, key = section.strip(), key.strip()
-            metadata[section][key] = val
+            metadata[section][key] = val.lstrip()
     return dict(metadata)
 
 
