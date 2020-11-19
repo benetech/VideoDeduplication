@@ -68,9 +68,6 @@ class ListFilesResults:
 class FilesDAO:
     """Data-access object for files."""
 
-    # Format in which Dates are currently stored in exif table.
-    _EXIF_DATE_FORMAT = " UTC %Y-%m-%d 00"
-
     # Label for related entities count (matches, scenes, etc.)
     _LABEL_COUNT = "hit_count"
     _countable_match = aliased(Matches)
@@ -197,11 +194,11 @@ class FilesDAO:
         """Filter by creation date."""
         if req.date_from is not None:
             query = query.filter(
-                Files.exif.has(Exif.General_Encoded_Date >= req.date_from.strftime(FilesDAO._EXIF_DATE_FORMAT)))
+                Files.exif.has(Exif.General_Encoded_Date >= req.date_from))
 
         if req.date_to is not None:
             query = query.filter(
-                Files.exif.has(Exif.General_Encoded_Date <= req.date_to.strftime(FilesDAO._EXIF_DATE_FORMAT)))
+                Files.exif.has(Exif.General_Encoded_Date <= req.date_to))
 
         return query
 
