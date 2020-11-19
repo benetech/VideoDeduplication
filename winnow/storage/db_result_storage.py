@@ -37,7 +37,6 @@ def benchmark(func):
         logger.debug(f"{func.__name__}(...) took {end - start:5.3} seconds")
         return result
 
-    wrapped.__name__ = func.__name__
     return wrapped
 
 

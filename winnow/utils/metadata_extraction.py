@@ -1,12 +1,15 @@
 import logging
+import os
 import shlex
 import subprocess
 from collections import defaultdict
+from datetime import datetime, timezone
+
+import cv2
+import numpy as np
 import pandas as pd
 from pandas.io.json import json_normalize
-import cv2
-import os
-import numpy as np
+
 logger = logging.getLogger(__name__)
 
 
@@ -172,33 +175,69 @@ NCI = [
        'Audio_Channels',
        'Audio_Duration']
 
+# Date column of interest
+DCI = [
+        'General_Encoded_Date',
+        'General_File_Modified_Date',
+        'General_File_Modified_Date_Local',
+        'Audio_Encoded_Date',
+        'Audio_Tagged_Date']
+
+# Exif date format
+_EXIF_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+
+def parse_timezone(str_value):
+    if str_value.startswith("UTC"):
+        return timezone.utc, str_value[3:].lstrip()
+    return None, str_value
+
+
+def parse_date(str_value: str):
+    try:
+        time_zone, str_value = parse_timezone(str_value)
+        return datetime.strptime(str_value, _EXIF_DATE_FORMAT).replace(tzinfo=time_zone)
+    except ValueError:
+        logger.exception("Cannot parse exif date")
+
 
 def parse_and_filter_metadata_df(metadata_df):
+    all_columns = [
+        column_name for column_name in CI
+        if column_name in metadata_df.columns
+    ]
+    numeric_columns = [
+        column_name for column_name in NCI
+        if column_name in metadata_df.columns
+    ]
+    date_columns = [
+        column_name for column_name in DCI
+        if column_name in metadata_df.columns
+    ]
+    string_columns = [
+        column_name for column_name in all_columns
+        if column_name not in numeric_columns and column_name not in date_columns
+    ]
 
-    GCI = [
-                                x for x in CI
-                                if x in metadata_df.columns
-                                ]
-    GNI = [
-                                        x for x in NCI
-                                        if x in metadata_df.columns
-                                        ]
-    GSI = [
-                                x for x in GCI
-                                if x not in GNI
-                                    ]
-
-    filtered = metadata_df.loc[:, GCI]
+    filtered = metadata_df.loc[:, all_columns]
 
     # Parsing numerical fields
-    filtered.loc[:, GNI] = (filtered.loc[:, GNI]
-                            .apply(lambda x: pd.to_numeric(x, errors='coerce'))
-                            )
+    filtered.loc[:, numeric_columns] = (
+        filtered.loc[:, numeric_columns]
+            .apply(lambda x: pd.to_numeric(x, errors='coerce'))
+    )
 
-    filtered.loc[:, GSI] = (filtered
-                            .loc[:, GSI]
-                            .fillna('N/A')
-                            .apply(lambda x: x.str.strip())
-                            )
+    # Parsing date fields
+    filtered.loc[:, date_columns] = (
+        filtered.loc[:, date_columns]
+            .apply(lambda column: column.apply(parse_date))
+    )
+
+    filtered.loc[:, string_columns] = (
+        filtered
+            .loc[:, string_columns]
+            .fillna('N/A')
+            .apply(lambda x: x.str.strip())
+    )
 
     return filtered
