@@ -1,5 +1,4 @@
 import { randomObjects } from "../MockServer/fake-data/objects";
-import { parse as parseDate } from "date-fns";
 
 /**
  * Data-transfer object and internal data format may evolve independently, the
@@ -48,7 +47,7 @@ export default class Transform {
     if (value == null) {
       return null;
     }
-    return parseDate(value, "'UTC' yyyy-MM-dd HH", new Date());
+    return new Date(value * 1000);
   }
 
   fileMetadata(data) {
