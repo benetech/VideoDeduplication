@@ -119,7 +119,7 @@ def make_file(prefix="", length=42, ext="flv", audio=True, date=datetime.date(20
     sha256 = f"hash-of-{path}"
     return Files(file_path=path, sha256=sha256,
                  exif=Exif(General_FileExtension=ext, Audio_Duration=float(audio),
-                           General_Encoded_Date=backend_date(date)),
+                           General_Encoded_Date=date),
                  meta=VideoMetadata(video_length=length),
                  scenes=[Scene(start_time=start, duration=duration) for start, duration in scenes])
 
@@ -130,11 +130,6 @@ def make_files(count, prefix="", length=42, ext="flv", audio=True, date=datetime
     return [
         make_file(prefix=prefix, length=length, ext=ext, audio=audio, date=date, scenes=scenes) for _ in range(count)
     ]
-
-
-def backend_date(date):
-    """Convert date to format utilized in the backend."""
-    return date.strftime(" UTC %Y-%m-%d 00")
 
 
 def param_date(date):
