@@ -1,9 +1,9 @@
 import datetime
 
 from sqlalchemy import Column, String, Integer, LargeBinary, Boolean, \
-    Float, JSON, ForeignKey, UniqueConstraint, DateTime,PrimaryKeyConstraint,event
+    Float, JSON, ForeignKey, UniqueConstraint, DateTime, event
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship,backref,object_session
+from sqlalchemy.orm import relationship, object_session
 
 Base = declarative_base()
 
@@ -19,7 +19,7 @@ class Files(Base):
     signature = relationship("Signature", uselist=False, back_populates="file")
     meta = relationship("VideoMetadata", uselist=False, back_populates="file")
     scenes = relationship("Scene", back_populates="file")
-    templatematches = relationship("Templatematches", back_populates="file",cascade='all, delete-orphan')
+    templatematches = relationship("Templatematches", back_populates="file", cascade='all, delete-orphan')
     exif = relationship("Exif", uselist=False, back_populates="file")
 
     # TODO: find a way to merge these two relationships
@@ -74,16 +74,17 @@ class Scene(Base):
 class Templatematches(Base):
     __tablename__ = 'templatematches'
     # __table_args__ = (UniqueConstraint('file_id', 'template_name'),)
-    id = Column(Integer,autoincrement=True,primary_key=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
     file_id = Column(Integer, ForeignKey('files.id'), nullable=True)
-    file = relationship("Files",back_populates='templatematches')
+    file = relationship("Files", back_populates='templatematches')
     template_name = Column(String)
     distance = Column(Float)
     closest_match = Column(Float)
     closest_match_time = Column(String)
 
-@event.listens_for(Files.templatematches,"remove")
-def rem(state,item,initiator):
+
+@event.listens_for(Files.templatematches, "remove")
+def rem(state, item, initiator):
     sess = object_session(item)
 
     # ensure we have a session
@@ -96,8 +97,6 @@ def rem(state,item,initiator):
     # flush *just this one item*.  This is a special
     # feature of flush, not for general use.
     sess.flush([item])
-
-
 
 
 class Matches(Base):
@@ -130,9 +129,9 @@ class Exif(Base):
     General_OverallBitRate = Column(Float)
     General_FrameRate = Column(Float)
     General_FrameCount = Column(Float)
-    General_Encoded_Date = Column(String)
-    General_File_Modified_Date = Column(String)
-    General_File_Modified_Date_Local = Column(String)
+    General_Encoded_Date = Column(DateTime)
+    General_File_Modified_Date = Column(DateTime)
+    General_File_Modified_Date_Local = Column(DateTime)
     General_Tagged_Date = Column(String)
     Video_Format = Column(String)
     Video_BitRate = Column(Float)
@@ -146,6 +145,6 @@ class Exif(Base):
     Audio_BitRate = Column(Float)
     Audio_Channels = Column(Float)
     Audio_Duration = Column(Float)
-    Audio_Encoded_Date = Column(String)
-    Audio_Tagged_Date = Column(String)
+    Audio_Encoded_Date = Column(DateTime)
+    Audio_Tagged_Date = Column(DateTime)
     Json_full_exif = Column(JSON)
