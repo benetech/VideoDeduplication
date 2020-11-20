@@ -158,7 +158,6 @@ def extract_additional_info(reps, repr_key):
             grays_std,
             grays_max)
 
-
 def get_hash(fp, buffer_size=65536):
 
     sha256 = hashlib.sha256()

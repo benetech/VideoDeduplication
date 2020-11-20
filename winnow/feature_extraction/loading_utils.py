@@ -5,6 +5,12 @@ import pickle as pk
 import matplotlib.pylab as plt
 from sklearn.metrics import precision_recall_curve
 from scipy.spatial.distance import cdist
+import logging
+
+logger = logging.getLogger("winnow")
+logger.setLevel(logging.ERROR)
+output_file_handler = logging.FileHandler("processing_error.log")
+logger.addHandler(output_file_handler)
 
 
 def load_dataset(dataset):
@@ -112,7 +118,9 @@ def frame_to_global(representations):
                                               key,
                                               video_representation)
         except Exception as e:
-            raise Exception('Cant save video to destination:{}'.format(e))
+
+            logger.error(f'Error processing file:{key}')
+            logger.error(e)
 
 
 def plot_pr_curve(pr_curve, title):

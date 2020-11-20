@@ -1,5 +1,11 @@
 import os
 from pathlib import Path
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.ERROR)
+output_file_handler = logging.FileHandler("processing_error.log")
+logger.addHandler(output_file_handler)
 
 
 def path_resolver(source_root):
@@ -39,7 +45,18 @@ def bulk_read(store, select=None):
         Dictionary mapping storage keys to the loaded representation value.
     """
     keys = select or store.list()
-    return {key: store.read(key) for key in keys}
+
+    loaded_mapping = dict()
+
+    for key in keys:
+
+        try:
+            loaded_mapping[key] = store.read(key)
+        except Exception as e:
+            logger.error(f'Error processing file:{key}')
+            logger.error(e)
+
+    return loaded_mapping
 
 
 def bulk_write(store, entries):

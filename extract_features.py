@@ -38,11 +38,15 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 @click.option(
     '--save-frames', '-sf',
     help='Whether to save the frames sampled from the videos - overrides save_frames on the config file',
-    default=False,is_flag=True)
+    default=False, is_flag=True)
 
 
 def main(config, list_of_files, frame_sampling, save_frames):
-    config = resolve_config(config_path=config, frame_sampling=frame_sampling, save_frames=save_frames)
+    config = resolve_config(
+                        config_path=config,
+                        frame_sampling=frame_sampling,
+                        save_frames=save_frames)
+       
     reps = ReprStorage(os.path.join(config.repr.directory))
     reprkey = reprkey_resolver(config)
 
@@ -52,8 +56,6 @@ def main(config, list_of_files, frame_sampling, save_frames):
         videos = scan_videos(config.sources.root, '**', extensions=config.sources.extensions)
     else:
         videos = scan_videos_from_txt(list_of_files, extensions=config.sources.extensions)
-
-    
 
     print('Number of files found: {}'.format(len(videos)))
 
@@ -84,7 +86,12 @@ def main(config, list_of_files, frame_sampling, save_frames):
     print('Extracting Signatures from Video representations')
 
     sm = SimilarityModel()
-    signatures = sm.predict(bulk_read(reps.video_level))  # Get {ReprKey => signature} dict
+
+    vid_level_iterator = bulk_read(reps.video_level)
+
+    assert len(vid_level_iterator) > 0, 'No Signatures left to be processed'
+
+    signatures = sm.predict(vid_level_iterator)  # Get {ReprKey => signature} dict
 
     print('Saving Video Signatures on :{}'.format(reps.signature.directory))
 

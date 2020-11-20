@@ -12,6 +12,8 @@ from winnow.storage.repr_key import ReprKey
 
 # Logger used in representation-storage module
 logger = logging.getLogger(__name__)
+output_file_handler = logging.FileHandler("processing_error.log")
+logger.addHandler(output_file_handler)
 
 # String encoding used in tag storage
 _METADATA_ENCODING = "utf-8"
@@ -76,9 +78,15 @@ class LMDBReprStorage:
 
     def exists(self, key: ReprKey):
         """Check if the representation exists."""
-        with self._metadata_storage.begin(write=False) as txn:
-            metadata = self._read_metadata(key.path, txn)
-            return exists(self._map(key.path)) and metadata == Metadata.from_key(key)
+        try:
+            with self._metadata_storage.begin(write=False) as txn:
+                metadata = self._read_metadata(key.path, txn)
+                return exists(self._map(key.path)) and metadata == Metadata.from_key(key)
+        except Exception as e:
+
+            logger.error(f'Error processing file:{key.path}')
+            logger.error(e)
+            return False
 
     def read(self, key: ReprKey):
         """Read file's representation."""
