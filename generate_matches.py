@@ -8,7 +8,6 @@ from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
-
 from db import Database
 from db.utils import *
 from winnow.feature_extraction import SimilarityModel
@@ -159,8 +158,8 @@ def main(config):
                                             f'matches_at_{config.proc.match_distance}_distance_filtered.csv')
         METADATA_REPORT_PATH = os.path.join(config.repr.directory, 'metadata_signatures.csv')
 
-        match_df = match_df.loc[~discard_msk,:]        
-        
+        match_df = match_df.loc[~discard_msk, :]        
+
     if config.database.use:
         # Connect to database and ensure schema
         database = Database(uri=config.database.uri)
