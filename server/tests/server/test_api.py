@@ -119,8 +119,8 @@ def make_file(prefix="", length=42, ext="flv", audio=True, date=datetime.date(20
     sha256 = f"hash-of-{path}"
     return Files(file_path=path, sha256=sha256,
                  exif=Exif(General_FileExtension=ext, Audio_Duration=float(audio),
-                           General_Encoded_Date=date),
-                 meta=VideoMetadata(video_length=length),
+                           General_Encoded_Date=date, General_Duration=length),
+                 meta=VideoMetadata(),
                  scenes=[Scene(start_time=start, duration=duration) for start, duration in scenes])
 
 
@@ -226,15 +226,15 @@ def test_get_file(client, app):
     assert {"scenes", "meta", "exif"}.isdisjoint(json_payload(resp).keys())
 
     # Include some fields
-    resp = client.get(f"/api/v1/files/{file.id}?include=meta,scenes")
+    resp = client.get(f"/api/v1/files/{file.id}?include=exif,scenes")
     assert_json_response(resp, {
         "id": file.id,
         "file_path": file.file_path,
         "sha256": file.sha256,
-        "meta": {"video_length": file.meta.video_length},
+        "exif": {"General_Duration": file.exif.General_Duration},
         "scenes": [{"duration": scene.duration, "start_time": scene.start_time} for scene in file.scenes]
     })
-    assert "exif" not in json_payload(resp)
+    assert "meta" not in json_payload(resp)
 
 
 def test_list_files_basic(client, app):
@@ -305,15 +305,15 @@ def test_list_files_include(client, app):
     )
 
     # With scenes and meta included
-    resp = client.get(f"/api/v1/files/?limit={len(files)}&include=scenes,meta")
+    resp = client.get(f"/api/v1/files/?limit={len(files)}&include=scenes,exif")
     assert len(items(resp)) == len(files)
     assert all(
-        "exif" not in file for file in items(resp)
+        "meta" not in file for file in items(resp)
     )
     assert all(
         has_shape(file, {
             "scenes": [expected_scene],
-            "meta": {"video_length": expected_length}
+            "exif": {"General_Duration": expected_length}
         }) for file in items(resp)
     )
 
@@ -596,10 +596,10 @@ def test_list_files_mixed_example(client, app, config):
         ])
 
         # Long videos
-        b.meta.video_length = length_large  # duplicates: a
-        c.meta.video_length = length_large  # duplicates: a, related: d
-        e.meta.video_length = length_large  # related: d
-        f.meta.video_length = length_large  # no matches
+        b.exif.General_Duration = length_large  # duplicates: a
+        c.exif.General_Duration = length_large  # duplicates: a, related: d
+        e.exif.General_Duration = length_large  # related: d
+        f.exif.General_Duration = length_large  # no matches
 
     # Get long videos with related matches sorted by amount of duplicates
     resp = client.get(
@@ -698,8 +698,10 @@ def test_list_file_matches_include(client, app):
         "items": [
             {
                 "file": {
-                    "meta": {"video_length": match.match_video_file.meta.video_length},
-                    "exif": {"General_FileExtension": match.match_video_file.exif.General_FileExtension}
+                    "exif": {
+                        "General_FileExtension": match.match_video_file.exif.General_FileExtension,
+                        "General_Duration": match.match_video_file.exif.General_Duration
+                    }
                 }
             } for match in matches
         ]
@@ -784,8 +786,10 @@ def test_fetch_file_cluster_include(client, app):
         "total": len(matches),
         "files": [
             {
-                "meta": {"video_length": file.meta.video_length},
-                "exif": {"General_FileExtension": file.exif.General_FileExtension}
+                "exif": {
+                    "General_FileExtension": file.exif.General_FileExtension,
+                    "General_Duration": file.exif.General_Duration
+                }
 
             } for file in files
         ]

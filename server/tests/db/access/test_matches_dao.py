@@ -13,8 +13,8 @@ def make_file(prefix="", length=42, ext="flv", scenes=((0, 1), (1, 2))):
     path = f"{prefix}some/path/{uuid()}.{ext}"
     sha256 = f"hash-of-{path}"
     return Files(file_path=path, sha256=sha256,
-                 exif=Exif(General_FileExtension=ext, ),
-                 meta=VideoMetadata(video_length=length),
+                 exif=Exif(General_FileExtension=ext, General_Duration=length * 1000),
+                 meta=VideoMetadata(),
                  scenes=[Scene(start_time=start, duration=duration) for start, duration in scenes])
 
 
