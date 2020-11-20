@@ -209,6 +209,19 @@ def parse_date(raw_value):
         return None
 
 
+def parse_date_series(series):
+    # pandas.Series heuristically determines type of
+    # the underlying data and tries to represent a
+    # missing values according to that data time.
+    # In case of datetime the missing values are
+    # represented by pandas.NaT which is not compatible
+    # with SQLAlchemy framework. To fix that we
+    # have to explicitly transform NaTs to Nones.
+    # See https://pandas.pydata.org/pandas-docs/stable/user_guide/missing_data.html#datetimes
+    parsed = series.apply(parse_date)
+    return parsed.astype(object).where(pd.notnull(parsed), other=None)
+
+
 def parse_and_filter_metadata_df(metadata_df):
     all_columns = [
         column_name for column_name in CI
@@ -238,7 +251,7 @@ def parse_and_filter_metadata_df(metadata_df):
     # Parsing date fields
     filtered.loc[:, date_columns] = (
         filtered.loc[:, date_columns]
-            .apply(lambda column: column.apply(parse_date))
+            .apply(parse_date_series)
     )
 
     filtered.loc[:, string_columns] = (
