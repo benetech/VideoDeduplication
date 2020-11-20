@@ -5,7 +5,7 @@ from typing import List
 from sqlalchemy import or_, func, literal_column
 from sqlalchemy.orm import aliased
 
-from db.schema import Files, Matches, VideoMetadata, Exif
+from db.schema import Files, Matches, Exif
 
 
 class FileMatchFilter:
@@ -145,8 +145,8 @@ class FilesDAO:
                                      (match.match_video_file_id == Files.id)) & (match.distance < threshold))
             return query.group_by(Files.id).order_by(literal_column(FilesDAO._LABEL_COUNT).desc(), Files.id.asc())
         elif req.sort == FileSort.LENGTH:
-            meta = aliased(VideoMetadata)
-            return query.outerjoin(meta).order_by(meta.video_length.desc(), Files.id.asc())
+            exif = aliased(Exif)
+            return query.outerjoin(exif).order_by(exif.General_Duration.desc(), Files.id.asc())
         elif req.sort == FileSort.DATE:
             exif = aliased(Exif)
             return query.outerjoin(exif).order_by(exif.General_Encoded_Date.desc(), Files.id.asc())
@@ -206,13 +206,13 @@ class FilesDAO:
     def _filter_length(req: ListFilesRequest, query):
         """Filter by length."""
         if req.min_length is not None or req.max_length is not None:
-            query = query.join(Files.meta)
+            query = query.join(Files.exif)
 
         if req.min_length is not None:
-            query = query.filter(VideoMetadata.video_length >= req.min_length)
+            query = query.filter(Exif.General_Duration >= req.min_length)
 
         if req.max_length is not None:
-            query = query.filter(VideoMetadata.video_length <= req.max_length)
+            query = query.filter(Exif.General_Duration <= req.max_length)
 
         return query
 

@@ -473,54 +473,17 @@ class DBResultStorage:
     @staticmethod
     def _update_metadata(metadata_entity, metadata):
         """Update metadata attributes"""
-        metadata_entity.video_length = metadata.get('video_length',
-                                                    metadata_entity
-                                                    .video_length
-                                                    )
-        metadata_entity.avg_act = metadata.get(
-                                                'avg_act',
-                                                metadata_entity.avg_act
-                                              )
-        metadata_entity.video_avg_std = metadata.get(
-                                                        'video_avg_std',
-                                                        metadata_entity
-                                                        .video_avg_std
-                                                    )
-        metadata_entity.video_max_dif = metadata.get(
-                                                    'video_max_dif',
-                                                    metadata_entity
-                                                    .video_max_dif
-                                                    )
-
-        metadata_entity.gray_avg = metadata.get(
-                                                'gray_avg',
-                                                metadata_entity
-                                                .gray_avg)
-
-        metadata_entity.gray_std = metadata.get(
-                                                'gray_std',
-                                                metadata_entity
-                                                .gray_std)
-
         metadata_entity.gray_max = metadata.get(
-                                                'gray_max',
-                                                metadata_entity
-                                                .gray_max)
+            'gray_max',
+            metadata_entity.gray_max)
 
         metadata_entity.video_dark_flag = metadata.get(
-                                                        'video_dark_flag',
-                                                        metadata_entity
-                                                        .video_dark_flag)
-
-        metadata_entity.video_duration_flag = metadata.get(
-                                                        'video_duration_flag',
-                                                        metadata_entity
-                                                        .video_duration_flag)
+            'video_dark_flag',
+            metadata_entity.video_dark_flag)
 
         metadata_entity.flagged = metadata.get(
-                                                        'flagged',
-                                                        metadata_entity
-                                                        .flagged)
+            'flagged',
+            metadata_entity.flagged)
 
     @staticmethod
     def _index_matches(chunk):
