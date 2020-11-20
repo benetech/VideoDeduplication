@@ -179,6 +179,7 @@ NCI = [
 # Date column of interest
 DCI = [
         'General_Encoded_Date',
+        'General_Tagged_Date',
         'General_File_Modified_Date',
         'General_File_Modified_Date_Local',
         'Audio_Encoded_Date',
