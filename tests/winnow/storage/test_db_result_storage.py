@@ -95,14 +95,14 @@ def test_add_signatures_update(store):
 
 def test_add_file_metadata(store):
     # Check metadata write
-    orig = File("some/path", "some-hash", {"gray_avg": 42.5})
+    orig = File("some/path", "some-hash", {"gray_max": 42.5})
     store.add_file_metadata(orig.path, orig.sha256, orig.value)
-    check_files(store, [orig], lambda file: {"gray_avg": file.meta.gray_avg})
+    check_files(store, [orig], lambda file: {"gray_max": file.meta.gray_max})
 
     # Check metadata updated
-    updated = File(orig.path, orig.sha256, {"gray_avg": orig.value["gray_avg"] + 1})
+    updated = File(orig.path, orig.sha256, {"gray_max": orig.value["gray_max"] + 1})
     store.add_file_metadata(orig.path, orig.sha256, updated.value)
-    check_files(store, [updated], lambda file: {"gray_avg": file.meta.gray_avg})
+    check_files(store, [updated], lambda file: {"gray_max": file.meta.gray_max})
 
     # Check no entity duplication
     assert count(store, VideoMetadata) == 1
@@ -110,14 +110,14 @@ def test_add_file_metadata(store):
 
 def test_add_metadata(store):
     # Check bulk write
-    saved = [File(f"some/path{i}", f"some-hash{i}", {"gray_avg": float(i)}) for i in range(100)]
+    saved = [File(f"some/path{i}", f"some-hash{i}", {"gray_max": float(i)}) for i in range(100)]
     store.add_metadata(saved)
-    check_files(store, saved, lambda file: {"gray_avg": file.meta.gray_avg})
+    check_files(store, saved, lambda file: {"gray_max": file.meta.gray_max})
 
     # Check bulk update
-    updated = [File(orig.path, orig.sha256, {"gray_avg": orig.value["gray_avg"] + 1.0}) for orig in saved]
+    updated = [File(orig.path, orig.sha256, {"gray_max": orig.value["gray_max"] + 1.0}) for orig in saved]
     store.add_metadata(updated)
-    check_files(store, updated, lambda file: {"gray_avg": file.meta.gray_avg})
+    check_files(store, updated, lambda file: {"gray_max": file.meta.gray_max})
 
     # Check no entity duplication
     assert count(store, VideoMetadata) == len(updated)
