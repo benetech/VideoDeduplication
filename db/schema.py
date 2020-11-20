@@ -132,7 +132,7 @@ class Exif(Base):
     General_Encoded_Date = Column(DateTime)
     General_File_Modified_Date = Column(DateTime)
     General_File_Modified_Date_Local = Column(DateTime)
-    General_Tagged_Date = Column(String)
+    General_Tagged_Date = Column(DateTime)
     Video_Format = Column(String)
     Video_BitRate = Column(Float)
     Video_InternetMediaType = Column(String)

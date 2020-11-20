@@ -1,4 +1,5 @@
 import logging
+import math
 import os
 import shlex
 import subprocess
@@ -8,7 +9,7 @@ from datetime import datetime, timezone
 import cv2
 import numpy as np
 import pandas as pd
-from pandas.io.json import json_normalize
+from pandas import json_normalize
 
 logger = logging.getLogger(__name__)
 
@@ -178,6 +179,7 @@ NCI = [
 # Date column of interest
 DCI = [
         'General_Encoded_Date',
+        'General_Tagged_Date',
         'General_File_Modified_Date',
         'General_File_Modified_Date_Local',
         'Audio_Encoded_Date',
@@ -193,12 +195,32 @@ def parse_timezone(str_value):
     return None, str_value
 
 
-def parse_date(str_value: str):
+def parse_date(raw_value):
     try:
-        time_zone, str_value = parse_timezone(str_value)
-        return datetime.strptime(str_value, _EXIF_DATE_FORMAT).replace(tzinfo=time_zone)
+        # After being processed by pandas.json_normalize
+        # the metadata may contain NaNs in place of missing
+        # values. See examples in pandas.json_normalize:
+        # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.json_normalize.html
+        if raw_value is None or isinstance(raw_value, float) and math.isnan(raw_value):
+            return None
+        time_zone, date_time = parse_timezone(raw_value)
+        return datetime.strptime(date_time, _EXIF_DATE_FORMAT).replace(tzinfo=time_zone)
     except ValueError:
-        logger.exception("Cannot parse exif date")
+        logger.error(f"Cannot parse date: {raw_value}")
+        return None
+
+
+def parse_date_series(series):
+    # pandas.Series heuristically determines type of
+    # the underlying data and tries to represent a
+    # missing values according to that data time.
+    # In case of datetime the missing values are
+    # represented by pandas.NaT which is not compatible
+    # with SQLAlchemy framework. To fix that we
+    # have to explicitly transform NaTs to Nones.
+    # See https://pandas.pydata.org/pandas-docs/stable/user_guide/missing_data.html#datetimes
+    parsed = series.apply(parse_date)
+    return parsed.astype(object).where(pd.notnull(parsed), other=None)
 
 
 def parse_and_filter_metadata_df(metadata_df):
@@ -230,7 +252,7 @@ def parse_and_filter_metadata_df(metadata_df):
     # Parsing date fields
     filtered.loc[:, date_columns] = (
         filtered.loc[:, date_columns]
-            .apply(lambda column: column.apply(parse_date))
+            .apply(parse_date_series)
     )
 
     filtered.loc[:, string_columns] = (
