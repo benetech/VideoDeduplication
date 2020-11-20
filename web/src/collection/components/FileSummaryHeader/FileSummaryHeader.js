@@ -3,22 +3,15 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Paper from "@material-ui/core/Paper";
-import { FileType } from "../FileBrowserPage/FileType";
+import { FileType } from "../../prop-types/FileType";
 import IconButton from "@material-ui/core/IconButton";
 import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
-import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
-import AttributeText from "../../../common/components/AttributeText";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router";
-import {
-  formatBool,
-  formatDate,
-  formatDuration,
-} from "../../../common/helpers/format";
-import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
-import EventAvailableOutlinedIcon from "@material-ui/icons/EventAvailableOutlined";
-import ExifIcon from "../../../common/components/icons/ExifIcon";
-import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
+import FileSummary from "../FileSummary";
+import useTheme from "@material-ui/styles/useTheme";
+import { useMediaQuery } from "@material-ui/core";
+import { routes } from "../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -27,61 +20,29 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
   },
-  titleGroup: {
+  summary: {
     flexGrow: 1,
-    flexShrink: 1,
-    display: "flex",
-    alignItems: "center",
+    marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(2),
     minWidth: 0,
-  },
-  iconContainer: {
-    backgroundColor: theme.palette.primary.main,
-    width: theme.spacing(4.5),
-    height: theme.spacing(4.5),
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: theme.spacing(0.5),
-    marginLeft: theme.spacing(1.5),
-    marginRight: theme.spacing(3),
-    flexShrink: 0,
-  },
-  icon: {
-    color: theme.palette.primary.contrastText,
-    width: theme.spacing(3.5),
-    height: theme.spacing(3.5),
-  },
-  filename: {
-    minWidth: 0,
-  },
-  attrsGroup: {
-    display: "flex",
-    alignItems: "center",
-  },
-  attr: {
-    marginLeft: theme.spacing(3),
-    marginRight: theme.spacing(3),
-  },
-  divider: {
-    borderLeftStyle: "solid",
-    borderLeftColor: theme.palette.border.light,
-    borderLeftWidth: 1,
-    height: theme.spacing(4),
-  },
-  extra: {
-    [theme.breakpoints.down("md")]: {
-      display: "none",
-    },
   },
 }));
 
+/**
+ * Get translated text.
+ */
 function getMessages(intl) {
   return {
-    filename: intl.formatMessage({ id: "file.attr.name" }),
-    fingerprint: intl.formatMessage({ id: "file.attr.fingerprint" }),
-    quality: intl.formatMessage({ id: "file.attr.quality" }),
     goBack: intl.formatMessage({ id: "actions.goBack" }),
   };
+}
+
+/**
+ * Check if the screen is small.
+ */
+function useSmallScreen() {
+  const theme = useTheme();
+  return useMediaQuery(theme.breakpoints.down("md"));
 }
 
 function FileSummaryHeader(props) {
@@ -89,63 +50,27 @@ function FileSummaryHeader(props) {
   const classes = useStyles();
   const history = useHistory();
   const intl = useIntl();
+  const small = useSmallScreen();
   const messages = getMessages(intl);
 
-  const back = history.length > 0;
-  const handleBack = useCallback(() => history.goBack(), [history]);
+  const handleBack = useCallback(
+    () => history.push(routes.collection.fingerprints, { keepFilters: true }),
+    [history]
+  );
 
   return (
     <Paper className={clsx(classes.header, className)}>
-      <div className={classes.titleGroup}>
-        {back && (
-          <IconButton onClick={handleBack} aria-label={messages.goBack}>
-            <ArrowBackOutlinedIcon />
-          </IconButton>
-        )}
-        <div className={classes.iconContainer}>
-          <VideocamOutlinedIcon className={classes.icon} />
-        </div>
-        <AttributeText
-          name={messages.filename}
-          value={file.filename}
-          variant="title"
-          ellipsis
-          className={classes.filename}
-        />
-      </div>
-      <div className={classes.attrsGroup}>
-        <AttributeText
-          name={messages.fingerprint}
-          value={file.fingerprint && file.fingerprint.slice(0, 7)}
-          variant="primary"
-          className={classes.attr}
-        />
-        <div className={classes.divider} />
-        <AttributeText
-          value={formatDuration(file.metadata.length, null, false)}
-          icon={ScheduleOutlinedIcon}
-          variant="normal"
-          className={classes.attr}
-        />
-        <div className={clsx(classes.divider, classes.extra)} />
-        <AttributeText
-          value={formatDate(file.metadata.created, intl)}
-          icon={EventAvailableOutlinedIcon}
-          variant="normal"
-          defaultValue="Unknown"
-          className={clsx(classes.attr, classes.extra)}
-        />
-        <div className={clsx(classes.divider, classes.extra)} />
-        <AttributeText
-          value={formatBool(file.metadata.hasEXIF, intl)}
-          icon={ExifIcon}
-          variant="primary"
-          className={clsx(classes.attr, classes.extra)}
-        />
-        <div className={clsx(classes.divider, classes.extra)} />
-        <VolumeOffOutlinedIcon className={clsx(classes.attr, classes.extra)} />
-        <div className={clsx(classes.divider, classes.extra)} />
-      </div>
+      <IconButton onClick={handleBack} aria-label={messages.goBack}>
+        <ArrowBackOutlinedIcon />
+      </IconButton>
+      <FileSummary file={file} divider className={classes.summary}>
+        <FileSummary.Name />
+        <FileSummary.Fingerprint />
+        <FileSummary.Duration />
+        {!small && <FileSummary.CreationDate />}
+        {!small && <FileSummary.HasExif />}
+        {!small && <FileSummary.HasAudio />}
+      </FileSummary>
     </Paper>
   );
 }

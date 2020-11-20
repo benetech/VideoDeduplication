@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import SceneType from "../SceneType";
+import SceneType from "../../../prop-types/SceneType";
 import SceneList from "./SceneList";
 import Scene from "./Scene";
 import { useIntl } from "react-intl";
+import CollapseButton from "../../../../common/components/CollapseButton";
+import Collapse from "@material-ui/core/Collapse";
 
 const useStyles = makeStyles((theme) => ({
   sceneSelector: {
@@ -13,12 +15,20 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     alignItems: "stretch",
   },
+  header: {
+    display: "flex",
+    alignItems: "center",
+  },
   title: {
     ...theme.mixins.title3,
     fontWeight: "bold",
-    marginBottom: theme.spacing(2),
+    flexGrow: 1,
+  },
+  collapseButton: {
+    flexGrow: 0,
   },
   scenes: {
+    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(1),
   },
   scene: {
@@ -49,27 +59,43 @@ function useMessages() {
 }
 
 function SceneSelector(props) {
-  const { scenes, played, onSelect, className } = props;
+  const { scenes, played, onSelect, collapsible, className } = props;
   const classes = useStyles();
   const selected = selectedScene(scenes, played);
   const messages = useMessages();
+  const [collapsed, setCollapsed] = useState(false);
+
+  const handleCollapse = useCallback(() => setCollapsed(!collapsed), [
+    collapsed,
+  ]);
 
   return (
     <div className={clsx(classes.sceneSelector, className)}>
-      <div className={classes.title}>
-        {scenes.length} {messages.scenes}
-      </div>
-      <SceneList className={classes.scenes}>
-        {scenes.map((scene, index) => (
-          <Scene
-            scene={scene}
-            onSelect={onSelect}
-            selected={index === selected}
-            className={classes.scene}
-            key={scene.position}
+      <div className={classes.header}>
+        <div className={classes.title}>
+          {scenes.length} {messages.scenes}
+        </div>
+        {collapsible && (
+          <CollapseButton
+            collapsed={collapsed}
+            onClick={handleCollapse}
+            size="small"
           />
-        ))}
-      </SceneList>
+        )}
+      </div>
+      <Collapse in={!collapsed}>
+        <SceneList className={classes.scenes}>
+          {scenes.map((scene, index) => (
+            <Scene
+              scene={scene}
+              onSelect={onSelect}
+              selected={index === selected}
+              className={classes.scene}
+              key={scene.position}
+            />
+          ))}
+        </SceneList>
+      </Collapse>
     </div>
   );
 }
@@ -87,6 +113,10 @@ SceneSelector.propTypes = {
    * Current playback position used to determine scene being displayed
    */
   played: PropTypes.number,
+  /**
+   * Enable or disable pane collapse feature.
+   */
+  collapsible: PropTypes.bool,
   className: PropTypes.string,
 };
 

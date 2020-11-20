@@ -3,12 +3,14 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Paper from "@material-ui/core/Paper";
-import { FileType } from "../FileBrowserPage/FileType";
+import { FileType } from "../../prop-types/FileType";
 import VideoPlayer from "./VideoPlayer";
 import SceneSelector from "./SceneSelector";
 import ObjectTimeLine from "./ObjectTimeLine";
 import { seekTo } from "./seekTo";
 import { useIntl } from "react-intl";
+import CollapseButton from "../../../common/components/CollapseButton";
+import Collapse from "@material-ui/core/Collapse";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -17,14 +19,27 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     alignItems: "stretch",
   },
+  header: {
+    padding: theme.spacing(2),
+    display: "flex",
+    alignItems: "center",
+  },
   title: {
     ...theme.mixins.title3,
     fontWeight: "bold",
+    flexGrow: 1,
+  },
+  collapseButton: {
+    flexGrow: 0,
+  },
+  playerArea: {
     padding: theme.spacing(2),
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "stretch",
   },
   player: {
     height: 300,
-    margin: theme.spacing(2),
   },
   objects: {
     margin: theme.spacing(2),
@@ -53,13 +68,17 @@ function useMessages() {
 }
 
 function VideoPlayerPane(props) {
-  const { file, onPlayerReady, className } = props;
+  const { file, onPlayerReady, collapsible = false, className } = props;
   const classes = useStyles();
   const messages = useMessages();
   const [player, setPlayer] = useState(null);
   const [progress, setProgress] = useState({ played: 0 });
+  const [collapsed, setCollapsed] = useState(false);
 
   const handleJump = useCallback(seekTo(player, file), [player, file]);
+  const handleCollapse = useCallback(() => setCollapsed(!collapsed), [
+    collapsed,
+  ]);
 
   return (
     <Paper
@@ -67,24 +86,39 @@ function VideoPlayerPane(props) {
       role="region"
       aria-label={messages.ariaLabel}
     >
-      <div className={classes.title}>{messages.video}</div>
-      <VideoPlayer
-        file={file}
-        className={classes.player}
-        onReady={callEach(setPlayer, onPlayerReady)}
-        onProgress={setProgress}
-      />
-      <ObjectTimeLine
-        file={file}
-        className={classes.objects}
-        onJump={handleJump}
-      />
+      <div className={classes.header}>
+        <div className={classes.title}>{messages.video}</div>
+        {collapsible && (
+          <CollapseButton
+            collapsed={collapsed}
+            onClick={handleCollapse}
+            size="small"
+          />
+        )}
+      </div>
+      <Collapse in={!collapsed}>
+        <div className={classes.playerArea}>
+          <VideoPlayer
+            file={file}
+            className={classes.player}
+            onReady={callEach(setPlayer, onPlayerReady)}
+            onProgress={setProgress}
+            suppressErrors
+          />
+          <ObjectTimeLine
+            file={file}
+            className={classes.objects}
+            onJump={handleJump}
+          />
+        </div>
+      </Collapse>
       <div className={classes.divider} />
       <SceneSelector
         scenes={file.scenes}
         onSelect={handleJump}
         className={classes.scenes}
         played={progress.played * file.metadata.length}
+        collapsible={collapsible}
       />
     </Paper>
   );
@@ -99,6 +133,10 @@ VideoPlayerPane.propTypes = {
    * Return video-player controller
    */
   onPlayerReady: PropTypes.func,
+  /**
+   * Enable or disable pane collapse feature.
+   */
+  collapsible: PropTypes.bool,
   className: PropTypes.string,
 };
 

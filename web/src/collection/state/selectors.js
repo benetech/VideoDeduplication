@@ -3,15 +3,17 @@
  */
 export const selectColl = (state) => state.coll;
 
-export const selectFiles = (state) => selectColl(state).files;
+export const selectFileList = (state) => selectColl(state).fileList;
 
-export const selectFilters = (state) => selectColl(state).filters;
+export const selectFiles = (state) => selectFileList(state).files;
 
-export const selectCounts = (state) => selectColl(state).counts;
+export const selectFileFilters = (state) => selectFileList(state).filters;
 
-export const selectLoading = (state) => selectColl(state).loading;
+export const selectFileCounts = (state) => selectFileList(state).counts;
 
-export const selectError = (state) => selectColl(state).error;
+export const selectFileLoading = (state) => selectFileList(state).loading;
+
+export const selectFileError = (state) => selectFileList(state).error;
 
 /**
  * Select cached file by id.
@@ -23,3 +25,8 @@ export const selectCachedFile = (id) => (state) =>
  * Select file matches.
  */
 export const selectFileMatches = (state) => selectColl(state).fileMatches;
+
+/**
+ * Select file cluster.
+ */
+export const selectFileCluster = (state) => selectColl(state).fileCluster;

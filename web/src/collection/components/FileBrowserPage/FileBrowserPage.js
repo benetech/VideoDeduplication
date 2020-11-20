@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
-import FileBrowserActions, { View } from "./FileBrowserActions";
+import FileBrowserActions from "./FileBrowserActions";
 import FilterPane from "./FilterPane";
 import SearchTextInput from "./SearchTextInput";
 import CategorySelector from "./CategorySelector";
@@ -11,20 +11,27 @@ import FileLinearList from "./FileLinearList/FileLinearList";
 import FileGridList from "./FileGridList";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  selectCounts,
-  selectError,
+  selectFileList,
+  selectFileCounts,
+  selectFileError,
   selectFiles,
-  selectFilters,
-  selectLoading,
+  selectFileFilters,
+  selectFileLoading,
 } from "../../state/selectors";
-import { fetchFiles, updateFilters } from "../../state";
 import Fab from "@material-ui/core/Fab";
 import Zoom from "@material-ui/core/Zoom";
 import VisibilitySensor from "react-visibility-sensor";
 import { scrollIntoView } from "../../../common/helpers/scroll";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
+import FileListType from "../../state/fileList/FileListType";
+import {
+  changeFileListView,
+  fetchFiles,
+  updateFilters,
+} from "../../state/fileList/actions";
+import { defaultFilters } from "../../state/fileList/initialState";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -111,9 +118,9 @@ const useStyles = makeStyles((theme) => ({
 
 function listComponent(view) {
   switch (view) {
-    case View.list:
+    case FileListType.linear:
       return FileLinearList;
-    case View.grid:
+    case FileListType.grid:
       return FileGridList;
     default:
       throw new Error(`Unsupported fingerprints view type: ${view}`);
@@ -124,29 +131,35 @@ function FileBrowserPage(props) {
   const { className } = props;
   const classes = useStyles();
   const [showFilters, setShowFilters] = useState(false);
-  const [view, setView] = useState(View.grid);
-  const error = useSelector(selectError);
-  const loading = useSelector(selectLoading);
+  const fileListState = useSelector(selectFileList);
+  const error = useSelector(selectFileError);
+  const loading = useSelector(selectFileLoading);
   const files = useSelector(selectFiles);
-  const filters = useSelector(selectFilters);
-  const counts = useSelector(selectCounts);
+  const filters = useSelector(selectFileFilters);
+  const counts = useSelector(selectFileCounts);
   const dispatch = useDispatch();
   const [top, setTop] = useState(true);
   const topRef = useRef(null);
   const history = useHistory();
+  const view = fileListState.fileListType;
   const List = listComponent(view);
   const intl = useIntl();
   const showFiltersRef = useRef();
+  const location = useLocation();
+  const keepFilters = location.state?.keepFilters;
+  const activeFilters = FilterPane.useActiveFilters();
 
   useEffect(() => {
-    dispatch(updateFilters({ query: "" }));
-  }, []);
+    if (!keepFilters || fileListState.neverLoaded) {
+      dispatch(updateFilters(defaultFilters));
+    }
+  }, [keepFilters, fileListState.neverLoaded]);
 
   const handleFetchPage = useCallback(() => dispatch(fetchFiles()), []);
 
   const handleToggleFilters = useCallback(() => {
     setShowFilters(!showFilters);
-    setTimeout(() => showFiltersRef.current.focus());
+    setTimeout(() => showFiltersRef.current?.focus());
   }, [showFilters, showFiltersRef]);
 
   const handleQuery = useCallback((query) => {
@@ -168,6 +181,11 @@ function FileBrowserPage(props) {
     [filters]
   );
 
+  const handleChangeView = useCallback(
+    (view) => dispatch(changeFileListView(view)),
+    []
+  );
+
   const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
 
   return (
@@ -182,12 +200,13 @@ function FileBrowserPage(props) {
               sort={filters.sort}
               onSortChange={handleChangeSort}
               view={view}
-              onViewChange={setView}
+              onViewChange={handleChangeView}
               onAddMedia={() => console.log("On Add Media")}
               showFilters={!showFilters}
               onToggleFilters={handleToggleFilters}
               className={classes.actions}
               showFiltersRef={showFiltersRef}
+              activeFilters={activeFilters}
             />
           </div>
           <div className={classes.filters}>
@@ -207,13 +226,13 @@ function FileBrowserPage(props) {
         </div>
         <div
           className={clsx(classes.dataContainer, {
-            [classes.gridContainer]: view === View.grid,
+            [classes.gridContainer]: view === FileListType.grid,
           })}
         >
           <List
             className={clsx(classes.data, {
-              [classes.grid]: view === View.grid,
-              [classes.list]: view === View.list,
+              [classes.grid]: view === FileListType.grid,
+              [classes.list]: view === FileListType.linear,
             })}
             dense={showFilters}
           >

@@ -31,7 +31,13 @@ services:
       - postgres-compose-network
 
   dedup-app:
-    runtime: nvidia
+    image: "johnhbenetech/videodeduplication:${BENETECH_RUNTIME:-gpu}${BENETECH_MODE}"
+    build:
+      context: .
+      dockerfile: "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
+      args:
+        GIT_HASH: "${GIT_HASH}"
+    runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
     command: bash -ic "bash serve_jupyter.sh"
     environment:
       PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
@@ -46,22 +52,18 @@ services:
       - postgres
     networks:
       - postgres-compose-network
-
   server:
-    # This could be replaced by the online repository reference
-    # if you don't want to built a local docker image
+    image: "johnhbenetech/videodeduplication:server${BENETECH_MODE}"
     build:
       context: .
       dockerfile: docker/Dockerfile.server
+      args:
+        GIT_HASH: "${GIT_HASH}"
     environment:
       SERVER_HOST: "0.0.0.0"
       SERVER_PORT: "5000"
       STATIC_FOLDER: "static"
-      DATABASE_HOST: "postgres"
-      DATABASE_PORT: "5432"
-      DATABASE_NAME: "videodeduplicationdb"
-      DATABASE_USER: "postgres"
-      DATABASE_PASS: "admin"
+      DATABASE_URI: "postgres://postgres:admin@postgres:5432/videodeduplicationdb"
       VIDEO_FOLDER: "/project/data/"
       THUMBNAIL_CACHE_FOLDER: "/project/thumbnails"
       THUMBNAIL_CACHE_CAP: 10000

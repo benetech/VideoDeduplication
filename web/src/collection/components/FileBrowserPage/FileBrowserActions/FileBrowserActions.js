@@ -6,10 +6,11 @@ import TuneIcon from "@material-ui/icons/Tune";
 import AddMediaButton from "./AddMediaButton";
 import ViewSelector from "./ViewSelector";
 import SortSelector from "./SortSelector";
-import { View } from "./view";
 import SquaredIconButton from "../../../../common/components/SquaredIconButton";
 import { useIntl } from "react-intl";
-import { FileSort } from "../../../state/FileSort";
+import { FileSort } from "../../../state/fileList/FileSort";
+import { Badge } from "@material-ui/core";
+import FileListType from "../../../state/fileList/FileListType";
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -37,13 +38,15 @@ const FileBrowserActions = React.forwardRef(function FingerprintViewActions(
     onToggleFilters,
     showFiltersControls,
     showFiltersRef,
+    activeFilters,
     className,
+    ...other
   } = props;
   const classes = useStyles();
   const intl = useIntl();
 
   return (
-    <div className={clsx(classes.actions, className)} ref={ref}>
+    <div className={clsx(classes.actions, className)} ref={ref} {...other}>
       <AddMediaButton
         onClick={onAddMedia}
         variant="contained"
@@ -61,17 +64,19 @@ const FileBrowserActions = React.forwardRef(function FingerprintViewActions(
         onChange={onViewChange}
       />
       {showFilters && (
-        <SquaredIconButton
-          variant="outlined"
-          color="secondary"
-          ref={showFiltersRef}
-          onClick={onToggleFilters}
-          className={classes.action}
-          aria-controls={showFiltersControls}
-          aria-label={intl.formatMessage({ id: "actions.showFiltersPane" })}
-        >
-          <TuneIcon />
-        </SquaredIconButton>
+        <Badge badgeContent={activeFilters} color="primary">
+          <SquaredIconButton
+            variant="outlined"
+            color="secondary"
+            ref={showFiltersRef}
+            onClick={onToggleFilters}
+            className={classes.action}
+            aria-controls={showFiltersControls}
+            aria-label={intl.formatMessage({ id: "actions.showFiltersPane" })}
+          >
+            <TuneIcon />
+          </SquaredIconButton>
+        </Badge>
       )}
     </div>
   );
@@ -87,7 +92,7 @@ FileBrowserActions.propTypes = {
     FileSort.duplicates,
   ]),
   onSortChange: PropTypes.func,
-  view: PropTypes.oneOf([View.list, View.grid]),
+  view: PropTypes.oneOf([FileListType.linear, FileListType.grid]),
   /**
    * Callback for switching List or Grid view
    */
@@ -102,6 +107,10 @@ FileBrowserActions.propTypes = {
    * Reference to show filter button
    */
   showFiltersRef: PropTypes.any,
+  /**
+   * Active filters count that should be displayed.
+   */
+  activeFilters: PropTypes.number,
   className: PropTypes.string,
 };
 

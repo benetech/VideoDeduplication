@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { FileType } from "../../FileBrowserPage/FileType";
+import { FileType } from "../../../prop-types/FileType";
 import ObjectGroup from "./ObjectGroup";
 import { groupObjects } from "../groupObjects";
 import { useIntl } from "react-intl";
@@ -31,9 +31,9 @@ function ObjectTimeLine(props) {
       className={clsx(classes.timeline, className)}
       aria-label={intl.formatMessage({ id: "aria.label.objectTimeline" })}
     >
-      {groups.map((group) => (
+      {groups.map((group, index) => (
         <ObjectGroup
-          key={group[0].position}
+          key={index}
           fullLength={file.metadata.length}
           objects={group}
           onJump={onJump}

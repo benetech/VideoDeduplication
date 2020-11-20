@@ -48,8 +48,6 @@ def main(config):
 
     assert len(metadata) == len(df_parsed)
 
-    
-
     if config.save_files:
 
         EXIF_REPORT_PATH = join(config.repr.directory, 'exif_metadata.csv')

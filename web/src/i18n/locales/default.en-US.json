@@ -37,6 +37,8 @@
     "aria.label.matchedFile": "Matched File {name}",
     "aria.label.changeLowerDate": "Change lower date bound",
     "aria.label.changeUpperDate": "Change upper date bound",
+    "aria.label.nextMatch": "Next match",
+    "aria.label.prevMatch": "Previous match",
     "actions.showFiltersPane": "Show Filters",
     "actions.hideFiltersPane": "Hide Filters",
     "actions.saveFilters": "Save Filters",
@@ -141,11 +143,14 @@
     "file.tabExif": "EXIF Data",
     "file.load.error": "Error loading files.",
     "file.load.error.single": "Error loading file.",
+    "file.load.error.notFound": "File not found.",
     "file.details": "Details",
     "file.oneMatch": "01 File Matched",
     "file.manyMatches": "{count} Files Matched",
     "file.matched": "{count} Matched Files",
     "file.cluster": "Cluster",
+    "file.mother": "Mother file",
+    "file.match": "Match",
     "distance.score": "Match score: {value}",
     "filter.title": "Filters",
     "filter.content": "Content",
@@ -170,6 +175,12 @@
     "filter.defaultMinDate": "minimal date",
     "filter.creationDate": "Creation date (mm/dd/yyyy)",
     "filter.creationDate.help": "Based on file creation date.",
-    "preview.notAvailable": "Preview not available."
+    "preview.notAvailable": "Preview not available.",
+    "match.load.error": "Error loading matches.",
+    "match.notMatch": "Match not found.",
+    "match.noMatches": "No matches found.",
+    "video.error.missing": "File Missing",
+    "video.error.load": "Loading Error",
+    "video.error.playback": "Playback Error"
   }
 }

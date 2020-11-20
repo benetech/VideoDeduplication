@@ -1,5 +1,11 @@
 import os
 from pathlib import Path
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.ERROR)
+output_file_handler = logging.FileHandler("processing_error.log")
+logger.addHandler(output_file_handler)
 
 
 def path_resolver(source_root):
@@ -9,7 +15,7 @@ def path_resolver(source_root):
         source_root (String): Path to the root folder in which all source video files are located.
 
     Returns:
-         Function converting file path to paths relative to the content root. If the argument is outside
+         function: Function to relativize paths to the dataset root folder. If the argument is outside
             the content root folder, the returned function will raise ValueError.
     """
 
@@ -27,19 +33,30 @@ def path_resolver(source_root):
 
 
 def bulk_read(store, select=None):
-    """Read representations for the given original files (path,hash) pairs.
+    """Read representations for the given storage keys.
 
-    If orig_files is None, all the entries from the provided representation store are loaded.
+    If select is None, all the entries from the provided representation store are loaded.
 
     Args:
-        store: Representation store for a single representation type (e.g. PathReprStorage)
-        select: List of original file (path, hash) pairs.
+        store: Representation store for a single representation type (e.g. LMBDBReprStorage)
+        select: Iterable over storage keys.
 
     Returns:
-        Dictionary mapping (path,hash) of the original file to the loaded representation value.
+        Dictionary mapping storage keys to the loaded representation value.
     """
-    path_hash_pairs = select or store.list()
-    return {(path, sha256): store.read(path, sha256) for path, sha256 in path_hash_pairs}
+    keys = select or store.list()
+
+    loaded_mapping = dict()
+
+    for key in keys:
+
+        try:
+            loaded_mapping[key] = store.read(key)
+        except Exception as e:
+            logger.error(f'Error processing file:{key}')
+            logger.error(e)
+
+    return loaded_mapping
 
 
 def bulk_write(store, entries):
@@ -47,7 +64,7 @@ def bulk_write(store, entries):
 
     Args:
         store: Representation store for a single representation type (e.g. PathReprStorage managing frame features).
-        entries: A dictionary mapping multiple files (path, hash) => value.
+        entries: A dictionary mapping multiple ReprKey => value.
     """
-    for (path, sha256), value in entries.items():
-        store.write(path, sha256, value)
+    for key, value in entries.items():
+        store.write(key, value)

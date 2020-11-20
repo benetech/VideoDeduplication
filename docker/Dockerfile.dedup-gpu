@@ -29,3 +29,6 @@ RUN /bin/bash -c "source activate winnow && \
 RUN apt update 
 
 RUN apt-get install -y libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx mediainfo
+
+ARG GIT_HASH=unspecified
+LABEL git_hash=$GIT_HASH

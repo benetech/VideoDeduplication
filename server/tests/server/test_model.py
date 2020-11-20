@@ -64,3 +64,13 @@ def test_transform_file():
     data = Transform.file_dict(file, exif=True)
     assert data["file_path"] == file.file_path
     assert data["exif"]["General_FileSize"] == file.exif.General_FileSize
+
+
+def test_transform_partial():
+    file = Files(file_path="foo", sha256="bar", meta=None, exif=None, signature=None)
+
+    data = Transform.file_dict(file, meta=True, signature=True, exif=True)
+
+    assert data.get("meta") is None
+    assert data.get("exif") is None
+    assert data.get("signature") is None

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -13,12 +13,17 @@ import MatchPreview from "./MatchPreview";
 import SquaredIconButton from "../../../common/components/SquaredIconButton";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 import TuneOutlinedIcon from "@material-ui/icons/TuneOutlined";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import useFile from "../../hooks/useFile";
 import FileLoadingHeader from "../FileLoadingHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileMatches } from "../../state/selectors";
-import { updateFileMatchFilters } from "../../state/actions";
+import LoadTrigger from "../../../common/components/LoadingTrigger/LoadTrigger";
+import { routes } from "../../../routing/routes";
+import {
+  fetchFileMatchesSlice,
+  updateFileMatchesParams,
+} from "../../state/fileMatches/actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,6 +46,9 @@ const useStyles = makeStyles((theme) => ({
   actionButton: {
     margin: theme.spacing(1.5),
   },
+  trigger: {
+    minHeight: 250,
+  },
 }));
 
 /**
@@ -53,22 +61,34 @@ function useMessages(matchesCount) {
     matched: intl.formatMessage({ id: "file.matched" }, { count: matches }),
     showFilters: intl.formatMessage({ id: "actions.showFiltersPane" }),
     searchMatches: intl.formatMessage({ id: "actions.searchMatches" }),
+    loadError: intl.formatMessage({ id: "match.load.error" }),
   };
 }
 
 function FileMatchesPage(props) {
   const { className } = props;
   const classes = useStyles();
-  const { id } = useParams();
+  const { id: rawId } = useParams();
+  const id = Number(rawId);
   const { file, error, loadFile } = useFile(id);
   const messages = useMessages((file && file.matchesCount) || 0);
   const [view, setView] = useState(View.grid);
-  const matches = useSelector(selectFileMatches).matches;
+  const fileMatches = useSelector(selectFileMatches);
   const dispatch = useDispatch();
+  const history = useHistory();
 
   useEffect(() => {
-    dispatch(updateFileMatchFilters(id, {}));
-  }, [id]);
+    if (fileMatches.params.fileId !== id) {
+      dispatch(updateFileMatchesParams({ fileId: id }));
+    }
+  }, [id, fileMatches]);
+
+  const handleCompare = useCallback(
+    (file) => history.push(routes.collection.fileComparisonURL(id, file?.id)),
+    [id]
+  );
+
+  const handleLoad = useCallback(() => dispatch(fetchFileMatchesSlice()), []);
 
   if (file == null) {
     return (
@@ -91,7 +111,7 @@ function FileMatchesPage(props) {
         <FileMatchesActions
           view={view}
           onViewChange={setView}
-          onCompare={() => console.log("compare")}
+          onCompare={handleCompare}
         />
       </FileActionHeader>
       <FileSummaryHeader file={file} className={classes.summaryHeader} />
@@ -117,11 +137,30 @@ function FileMatchesPage(props) {
         className={classes.matches}
       >
         <Grid container spacing={4}>
-          {matches.map((match) => (
-            <Grid item xs={6} lg={3} key={match.file.id}>
-              <MatchPreview match={match} />
+          {fileMatches.matches.map((match) => (
+            <Grid item xs={6} lg={3} key={match.id}>
+              <MatchPreview
+                distance={match.distance}
+                file={match.file}
+                onCompare={handleCompare}
+              />
             </Grid>
           ))}
+          <Grid item xs={6} lg={3}>
+            <LoadTrigger
+              error={fileMatches.error}
+              loading={fileMatches.loading}
+              onLoad={handleLoad}
+              hasMore={
+                fileMatches.total == null ||
+                fileMatches.matches.length < fileMatches.total ||
+                fileMatches.params.fileId !== id
+              }
+              container={MatchPreview.Container}
+              errorMessage={messages.loadError}
+              className={classes.trigger}
+            />
+          </Grid>
         </Grid>
       </div>
     </div>

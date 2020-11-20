@@ -62,11 +62,20 @@ function getTabComponent(tab) {
   }
 }
 
+/**
+ * Get total count of active filters managed by filter pane.
+ */
+function useActiveFilters() {
+  return ContentFilters.useActiveFilters() + MetadataFilters.useActiveFilters();
+}
+
 function FilterPane(props) {
   const { onSave, onClose, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
   const [tab, setTab] = useState(Tab.content);
+  const contentFilters = ContentFilters.useActiveFilters();
+  const metadataFilters = MetadataFilters.useActiveFilters();
 
   const TabComponent = getTabComponent(tab);
 
@@ -75,8 +84,18 @@ function FilterPane(props) {
       <div className={classes.filters}>
         <FilterPaneHeader onClose={onClose} onSave={onSave} autoFocus={true} />
         <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
-          <SelectableTab label={messages.content} value={Tab.content} />
-          <SelectableTab label={messages.metadata} value={Tab.metadata} />
+          <SelectableTab
+            label={messages.content}
+            value={Tab.content}
+            badge={contentFilters}
+            badgeColor="primary"
+          />
+          <SelectableTab
+            label={messages.metadata}
+            value={Tab.metadata}
+            badge={metadataFilters}
+            badgeColor="primary"
+          />
           <SelectableTab label={messages.presets} value={Tab.presets} />
         </SelectableTabs>
         <TabComponent />
@@ -84,6 +103,11 @@ function FilterPane(props) {
     </div>
   );
 }
+
+/**
+ * Hook to get total count of active filters managed by filter pane.
+ */
+FilterPane.useActiveFilters = useActiveFilters;
 
 FilterPane.propTypes = {
   onClose: PropTypes.func,

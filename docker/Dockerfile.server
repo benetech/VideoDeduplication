@@ -28,4 +28,6 @@ RUN pip install -r requirements.txt
 
 COPY --from=web /web/build /server/static
 
+ARG GIT_HASH=unspecified
+LABEL git_hash=$GIT_HASH
 CMD python -m server.main

@@ -1,5 +1,4 @@
 import { randomObjects } from "../MockServer/fake-data/objects";
-import { parse as parseDate } from "date-fns";
 
 /**
  * Data-transfer object and internal data format may evolve independently, the
@@ -48,7 +47,7 @@ export default class Transform {
     if (value == null) {
       return null;
     }
-    return parseDate(value, "'UTC' yyyy-MM-dd HH", new Date());
+    return new Date(value * 1000);
   }
 
   fileMetadata(data) {
@@ -58,13 +57,9 @@ export default class Transform {
       };
     }
     return {
-      grayAverage: data.meta.gray_avg,
       grayMax: data.meta.gray_max,
-      grayStd: data.meta.gray_std,
-      stdAverage: data.meta.video_avg_std,
-      maxDiff: data.meta.video_max_dif,
       flagged: data.meta.flagged,
-      length: data.meta.video_length * 1000 || data.exif?.General_Duration,
+      length: data.exif?.General_Duration || 0,
     };
   }
 
@@ -103,8 +98,21 @@ export default class Transform {
     return scenes;
   }
 
+  fetchFileClusterResults(data) {
+    return {
+      total: data.total,
+      matches: data.matches.map((match) => this.fileClusterMatch(match)),
+      files: data.files.map((file) => this.videoFile(file)),
+    };
+  }
+
+  fileClusterMatch(match) {
+    return { ...match }; // No difference at the moment
+  }
+
   fetchFileMatchesResults(data) {
     return {
+      offset: data.offset,
       total: data.total,
       matches: data.items.map((match) => this.fileMatch(match)),
     };
@@ -112,6 +120,7 @@ export default class Transform {
 
   fileMatch(match) {
     return {
+      id: match.id,
       distance: match.distance,
       file: this.videoFile(match.file),
     };

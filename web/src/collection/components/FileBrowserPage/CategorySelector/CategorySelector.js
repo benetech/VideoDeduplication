@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { useIntl } from "react-intl";
-import { MatchCategory } from "../../../state/MatchCategory";
+import { MatchCategory } from "../../../state/fileList/MatchCategory";
 import CategoryButton from "./CategoryButton";
 import AllInclusiveOutlinedIcon from "@material-ui/icons/AllInclusiveOutlined";
 import FileCopyOutlinedIcon from "@material-ui/icons/FileCopyOutlined";
@@ -11,40 +11,36 @@ import AdjustOutlinedIcon from "@material-ui/icons/AdjustOutlined";
 import { formatCount } from "../../../../common/helpers/format";
 import Grid from "@material-ui/core/Grid";
 
-function useNames() {
-  const intl = useIntl();
-  return {
-    [MatchCategory.all]: intl.formatMessage({ id: "search.category.all" }),
-    [MatchCategory.duplicates]: intl.formatMessage({
-      id: "search.category.duplicates",
-    }),
-    [MatchCategory.related]: intl.formatMessage({
-      id: "search.category.related",
-    }),
-    [MatchCategory.unique]: intl.formatMessage({
-      id: "search.category.unique",
-    }),
-  };
-}
-
-const categories = [
-  MatchCategory.all,
-  MatchCategory.duplicates,
-  MatchCategory.related,
-  MatchCategory.unique,
+/**
+ * Selectable categories.
+ */
+const options = [
+  {
+    category: MatchCategory.all,
+    title: "search.category.all",
+    icon: AllInclusiveOutlinedIcon,
+  },
+  {
+    category: MatchCategory.duplicates,
+    title: "search.category.duplicates",
+    icon: FileCopyOutlinedIcon,
+  },
+  {
+    category: MatchCategory.related,
+    title: "search.category.related",
+    icon: GroupWorkOutlinedIcon,
+  },
+  {
+    category: MatchCategory.unique,
+    title: "search.category.unique",
+    icon: AdjustOutlinedIcon,
+  },
 ];
-
-const icons = {
-  [MatchCategory.all]: AllInclusiveOutlinedIcon,
-  [MatchCategory.duplicates]: FileCopyOutlinedIcon,
-  [MatchCategory.related]: GroupWorkOutlinedIcon,
-  [MatchCategory.unique]: AdjustOutlinedIcon,
-};
 
 function CategorySelector(props) {
   const { category: selected, onChange, counts, dense, className } = props;
-  const names = useNames();
   const intl = useIntl();
+  const format = (id) => intl.formatMessage({ id });
 
   return (
     <Grid
@@ -52,16 +48,16 @@ function CategorySelector(props) {
       spacing={2}
       className={clsx(className)}
       role="listbox"
-      aria-label={intl.formatMessage({ id: "aria.label.categorySelector" })}
+      aria-label={format("aria.label.categorySelector")}
     >
-      {categories.map((category) => (
+      {options.map((option) => (
         <CategoryButton
-          name={names[category]}
-          icon={icons[category]}
-          quantity={formatCount(counts[category])}
-          onClick={() => onChange(category)}
-          selected={category === selected}
-          key={category}
+          name={format(option.title)}
+          icon={option.icon}
+          quantity={formatCount(counts[option.category])}
+          onClick={() => onChange(option.category)}
+          selected={option.category === selected}
+          key={option.category}
           dense={dense}
         />
       ))}

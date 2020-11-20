@@ -42,9 +42,7 @@ function FilterPaneHeader(props) {
 
   useEffect(() => {
     if (autoFocus) {
-      console.log("Focusing", buttonRef.current);
-      buttonRef.current.focus();
-      // setTimeout(() => );
+      buttonRef.current?.focus();
     }
   }, [autoFocus, buttonRef]);
 
@@ -89,7 +87,13 @@ FilterPaneHeader.propTypes = {
    * Autofocus header when shown
    */
   autoFocus: PropTypes.bool,
+  /**
+   * Handle close button.
+   */
   onClose: PropTypes.func,
+  /**
+   * Handle save preset button.
+   */
   onSave: PropTypes.func,
   className: PropTypes.string,
   "aria-controls": PropTypes.string,

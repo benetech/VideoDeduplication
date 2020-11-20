@@ -36,13 +36,16 @@ class Database:
         self.base.metadata.drop_all(bind=self.engine)
 
     @contextmanager
-    def session_scope(self):
+    def session_scope(self, expunge=False):
         """Provide a transactional scope."""
         session = self.session()
         try:
             yield session
+            if expunge:
+                session.flush()
+                session.expunge_all()
             session.commit()
-        except:
+        except Exception:
             session.rollback()
             raise
         finally:

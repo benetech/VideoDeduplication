@@ -6,7 +6,8 @@ import click
 from dataclasses import asdict
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
-
+import pandas as pd
+import numpy as np
 from db import Database
 from db.utils import *
 from winnow.feature_extraction import SimilarityModel
@@ -25,7 +26,6 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     help='path to the project config file',
     default=None)
 
-
 def main(config):
 
     print('Loading config file')
@@ -35,11 +35,16 @@ def main(config):
     # Get mapping (path,hash) => sig.
     print('Extracting Video Signatures')
     sm = SimilarityModel()
+    vid_level_iterator = bulk_read(reps.video_level)
+
+    assert len(vid_level_iterator) > 0, 'No video_level features were found'
+
     signatures_dict = sm.predict(bulk_read(reps.video_level))
 
     # Unpack paths, hashes and signatures as separate np.arrays
-    path_hash_pairs, video_signatures = zip(*signatures_dict.items())
-    paths, hashes = map(np.array, zip(*path_hash_pairs))
+    repr_keys, video_signatures = zip(*signatures_dict.items())
+    paths = np.array([key.path for key in repr_keys])
+    hashes = np.array([key.hash for key in repr_keys])
     video_signatures = np.array(video_signatures)
     
     
@@ -78,9 +83,9 @@ def main(config):
     match_df['match_sha256'] = hashes[match_df['match']]
     match_df['self_match'] = match_df['query_video'] == match_df['match_video']
     # Remove self matches
-    match_df = match_df.loc[~match_df['self_match'],:]
+    match_df = match_df.loc[~match_df['self_match'], :]
     # Creates unique index from query, match 
-    match_df['unique_index'] = match_df.apply(uniq,axis=1)
+    match_df['unique_index'] = match_df.apply(uniq, axis=1)
     # Removes duplicated entries (eg if A matches B, we don't need B matches A)
     match_df = match_df.drop_duplicates(subset=['unique_index'])
 
@@ -93,6 +98,7 @@ def main(config):
     if config.proc.detect_scenes:
 
         frame_features_dict = bulk_read(reps.frame_level, select=None)
+        assert len(frame_features_dict) > 0, 'No Frame Level features were found.'
         scenes = extract_scenes(frame_features_dict)
         scene_metadata = pd.DataFrame(asdict(scenes))
 
@@ -117,11 +123,12 @@ def main(config):
         print('Filtering dark and/or short videos')
 
         # Get original files for which we have both frames and frame-level features
-        path_hash_pairs = list(set(reps.video_level.list()))
-        paths, hashes = zip(*path_hash_pairs)
+        repr_keys = list(set(reps.video_level.list()))
+        paths = [key.path for key in repr_keys]
+        hashes = [key.hash for key in repr_keys]
 
         print('Extracting additional information from video files')
-        brightness_estimation = np.array([get_brightness_estimation(reps, *path_hash) for path_hash in tqdm(path_hash_pairs)])
+        brightness_estimation = np.array([get_brightness_estimation(reps, key) for key in tqdm(repr_keys)])
         print(brightness_estimation.shape)
         metadata_df = pd.DataFrame({"fn": paths,
                                     "sha256": hashes,
@@ -151,8 +158,8 @@ def main(config):
                                             f'matches_at_{config.proc.match_distance}_distance_filtered.csv')
         METADATA_REPORT_PATH = os.path.join(config.repr.directory, 'metadata_signatures.csv')
 
-        match_df = match_df.loc[~discard_msk,:]        
-        
+        match_df = match_df.loc[~discard_msk, :]        
+
     if config.database.use:
         # Connect to database and ensure schema
         database = Database(uri=config.database.uri)

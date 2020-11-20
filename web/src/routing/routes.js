@@ -17,6 +17,9 @@ export const routes = {
     get fileCluster() {
       return `${this.file}/cluster`;
     },
+    get fileComparison() {
+      return `${this.file}/compare/:matchFileId?`;
+    },
     fileURL(id) {
       return `${this.fingerprints}/${id}`;
     },
@@ -25,6 +28,9 @@ export const routes = {
     },
     fileClusterURL(id) {
       return `${this.fileURL(id)}/cluster`;
+    },
+    fileComparisonURL(id, matchFileId = "") {
+      return `${this.fileURL(id)}/compare/${matchFileId}`;
     },
   },
   database: {

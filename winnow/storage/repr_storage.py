@@ -1,12 +1,12 @@
 from os.path import join, abspath
 
-from .path_repr_storage import PathReprStorage
+from .lmdb_repr_storage import LMDBReprStorage
 
 
 class ReprStorage:
     """Persistent storage of various intermediate representations."""
 
-    def __init__(self, directory, storage_factory=PathReprStorage):
+    def __init__(self, directory, storage_factory=LMDBReprStorage):
         """Create new storage instance.
 
         Args:

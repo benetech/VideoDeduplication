@@ -1,7 +1,5 @@
-# import sys
-# sys.path.append('..')
+from flask import jsonify, request, url_for
 
-from flask import jsonify, request, g, url_for, current_app
 from db.schema import Scene
 from .blueprint import api
 

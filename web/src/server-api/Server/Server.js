@@ -2,7 +2,9 @@ import axios from "axios";
 import * as HttpStatus from "http-status-codes";
 import Transform from "./Transform";
 import { Response } from "../Response";
-import { filtersToQueryParams } from "./helpers";
+import fileFiltersToQueryParams from "./helpers/fileFiltersToQueryParams";
+import clusterFiltersToQueryParams from "./helpers/clusterFiltersToQueryParams";
+import matchesFiltersToQueryParams from "./helpers/matchesFiltersToQueryParams";
 
 export default class Server {
   constructor({ baseURL = "/api/v1", timeout = 10 * 1000, headers = {} } = {}) {
@@ -21,7 +23,7 @@ export default class Server {
           offset,
           limit,
           include: ["signature", "meta", "exif"].join(","),
-          ...filtersToQueryParams(filters),
+          ...fileFiltersToQueryParams(filters),
         },
       });
       const data = this.transform.fetchFileResults(response.data);
@@ -45,22 +47,54 @@ export default class Server {
     }
   }
 
-  async fetchFileMatches({
-    id,
+  async fetchFileCluster({
+    fileId,
     limit = 20,
     offset = 0,
-    fields = ["meta", "exif"],
+    fields = [],
+    filters,
   }) {
     try {
-      const response = await this.axios.get(`/files/${id}/matches`, {
+      const response = await this.axios.get(`/files/${fileId}/cluster`, {
         params: {
           limit,
           offset,
-          include: fields.join(","),
+          ...clusterFiltersToQueryParams({ filters, fields }),
+        },
+      });
+      const data = this.transform.fetchFileClusterResults(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchFileMatches({
+    fileId,
+    limit = 20,
+    offset = 0,
+    fields = ["meta", "exif", "scenes"],
+    filters = {},
+  }) {
+    try {
+      const response = await this.axios.get(`/files/${fileId}/matches`, {
+        params: {
+          limit,
+          offset,
+          ...matchesFiltersToQueryParams({ filters, fields }),
         },
       });
       const data = this.transform.fetchFileMatchesResults(response.data);
       return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async probeVideoFile({ id }) {
+    try {
+      await this.axios.head(`/files/${id}/watch`);
+      return Response.ok(null);
     } catch (error) {
       return this.errorResponse(error);
     }

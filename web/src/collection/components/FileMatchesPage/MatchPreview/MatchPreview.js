@@ -2,29 +2,22 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import Paper from "@material-ui/core/Paper";
-import MatchType from "../MatchType";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import Marked from "../../../../common/components/Marked";
 import IconButton from "@material-ui/core/IconButton";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import FileAttributes from "./FileAttributes";
-import Distance from "./Distance";
 import { useIntl } from "react-intl";
 import ButtonBase from "@material-ui/core/ButtonBase";
-import { useHistory } from "react-router-dom";
-import { routes } from "../../../../routing/routes";
+import FileType from "../../../prop-types/FileType";
+import Container from "./Container";
+import Distance from "../../../../common/components/Distance";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    boxShadow: "0 12px 18px 0 rgba(0,0,0,0.08)",
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
-    "&:focus": {
-      outline: "none",
-      boxShadow: "0 12px 18px 0 rgba(0,0,0,0.28)",
-    },
   },
   nameContainer: {
     display: "flex",
@@ -92,7 +85,7 @@ const useStyles = makeStyles((theme) => ({
 function useMessages(file) {
   const intl = useIntl();
   return {
-    moreInfo: intl.formatMessage({ id: "actions.moreInfo" }),
+    compare: intl.formatMessage({ id: "actions.compare" }),
     ariaLabel: intl.formatMessage(
       { id: "aria.label.matchedFile" },
       { name: file.filename }
@@ -102,20 +95,15 @@ function useMessages(file) {
 }
 
 function MatchPreview(props) {
-  const { match, highlight, className } = props;
-  const file = match.file;
+  const { file, distance, highlight, onCompare, className } = props;
   const intl = useIntl();
   const classes = useStyles();
   const messages = useMessages(file);
-  const history = useHistory();
 
-  const handleMoreInfo = useCallback(
-    () => history.push(routes.collection.fileURL(file.id)),
-    [match]
-  );
+  const handleCompare = useCallback(() => onCompare(file), [file, onCompare]);
 
   return (
-    <Paper
+    <Container
       className={clsx(classes.root, className)}
       tabIndex={0}
       aria-label={messages.ariaLabel}
@@ -139,33 +127,46 @@ function MatchPreview(props) {
       <div className={classes.divider} />
       <FileAttributes file={file} className={classes.attrs} />
       <div className={classes.divider} />
-      <Distance value={match.distance} className={classes.distance} />
+      <Distance value={distance} className={classes.distance} />
       <div className={classes.divider} />
       <div className={classes.more}>
         <ButtonBase
           className={classes.link}
-          onClick={handleMoreInfo}
+          onClick={handleCompare}
           focusRipple
           disableTouchRipple
-          aria-label={messages.moreInfo}
+          aria-label={messages.compare}
         >
-          {messages.moreInfo}
+          {messages.compare}
         </ButtonBase>
       </div>
-    </Paper>
+    </Container>
   );
 }
 
 MatchPreview.propTypes = {
   /**
-   * Match between two files
+   * Matched file
    */
-  match: MatchType.isRequired,
+  file: FileType.isRequired,
+  /**
+   * Handle compare
+   */
+  onCompare: PropTypes.func.isRequired,
+  /**
+   * Match distance
+   */
+  distance: PropTypes.number.isRequired,
   /**
    * File name substring to highlight
    */
   highlight: PropTypes.string,
   className: PropTypes.string,
 };
+
+/**
+ * Preview container component
+ */
+MatchPreview.Container = Container;
 
 export default MatchPreview;
