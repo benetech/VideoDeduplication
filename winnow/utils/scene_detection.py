@@ -134,6 +134,7 @@ def extract_scenes(frame_features_dict, minimum_duration=10):
                      if feature.shape[0] > minimum_duration}
 
     # Unpack names, hashes and features as separate lists
+    assert len(filtered_dict) > 0, 'Frame level features not found.'
     keys, features = zip(*filtered_dict.items())
     paths = [key.path for key in keys]
     hashes = [key.hash for key in keys]

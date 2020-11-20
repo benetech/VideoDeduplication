@@ -6,6 +6,8 @@ import click
 from dataclasses import asdict
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
+import pandas as pd
+import numpy as np
 
 from db import Database
 from db.utils import *
@@ -24,7 +26,6 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     '--config', '-cp',
     help='path to the project config file',
     default=None)
-
 
 def main(config):
 
@@ -83,9 +84,9 @@ def main(config):
     match_df['match_sha256'] = hashes[match_df['match']]
     match_df['self_match'] = match_df['query_video'] == match_df['match_video']
     # Remove self matches
-    match_df = match_df.loc[~match_df['self_match'],:]
+    match_df = match_df.loc[~match_df['self_match'], :]
     # Creates unique index from query, match 
-    match_df['unique_index'] = match_df.apply(uniq,axis=1)
+    match_df['unique_index'] = match_df.apply(uniq, axis=1)
     # Removes duplicated entries (eg if A matches B, we don't need B matches A)
     match_df = match_df.drop_duplicates(subset=['unique_index'])
 
@@ -98,6 +99,7 @@ def main(config):
     if config.proc.detect_scenes:
 
         frame_features_dict = bulk_read(reps.frame_level, select=None)
+        assert len(frame_features_dict) > 0, 'No Frame Level features were found.'
         scenes = extract_scenes(frame_features_dict)
         scene_metadata = pd.DataFrame(asdict(scenes))
 
