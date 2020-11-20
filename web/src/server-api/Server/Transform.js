@@ -57,13 +57,9 @@ export default class Transform {
       };
     }
     return {
-      grayAverage: data.meta.gray_avg,
       grayMax: data.meta.gray_max,
-      grayStd: data.meta.gray_std,
-      stdAverage: data.meta.video_avg_std,
-      maxDiff: data.meta.video_max_dif,
       flagged: data.meta.flagged,
-      length: data.meta.video_length * 1000 || data.exif?.General_Duration || 0,
+      length: data.exif?.General_Duration || 0,
     };
   }
 
