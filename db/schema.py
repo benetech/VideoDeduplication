@@ -38,28 +38,15 @@ class Signature(Base):
     signature = Column(LargeBinary)
 
 
-# TODO:Revaluate which columns are actually essential
-# TODO: Add sha signature
-
 class VideoMetadata(Base):
     __tablename__ = 'videometadata'
 
     id = Column(Integer, primary_key=True)
     file_id = Column(Integer, ForeignKey('files.id'), unique=True, nullable=False)
     file = relationship("Files", back_populates="meta")
-    video_length = Column(Float)
-    avg_act = Column(Float)
-    video_avg_std = Column(Float)
-    video_max_dif = Column(Float)
-    gray_avg = Column(Float)
-    gray_std = Column(Float)
     gray_max = Column(Float)
-    video_duration_flag = Column(Boolean)
     video_dark_flag = Column(Boolean)
     flagged = Column(Boolean)
-    video_duration_seconds = Column(Float)
-    avg_scene_duration_seconds = Column(Float)
-    total_video_duration_timestamp = Column(String)
 
 
 class Scene(Base):
