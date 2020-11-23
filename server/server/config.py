@@ -19,7 +19,7 @@ class DatabaseConfig:
     def password(self):
         """Get database password"""
         if self.secret is not None:
-            with open(self.secret, 'r') as secret:
+            with open(self.secret, "r") as secret:
                 return secret.read()
         return self.env_password
 

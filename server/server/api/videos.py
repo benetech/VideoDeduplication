@@ -10,7 +10,7 @@ from .helpers import resolve_video_file_path
 from ..model import database
 
 
-@api.route('/files/<int:file_id>/watch')
+@api.route("/files/<int:file_id>/watch")
 def watch_video(file_id):
     file = database.session.query(Files).filter(Files.id == file_id).first()
 

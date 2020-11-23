@@ -20,40 +20,38 @@ def extract_frame(source_path, destination, position=0, compression=2, width=320
 
     command = [
         "ffmpeg",
-
         # -ss position
         # When used as an input option (before -i), seeks in this input file to position.
         # Note that in most formats it is not possible to seek exactly, so ffmpeg will seek
         # to the closest seek point before position. See https://ffmpeg.org/ffmpeg.html#Main-options
-        "-ss", timestamp,
-
+        "-ss",
+        timestamp,
         # Input file path
-        "-i", source_path,
-
+        "-i",
+        source_path,
         # -frames[:stream_specifier] framecount
         # Set the number of frames to output. See https://ffmpeg.org/ffmpeg.html#Main-options
-        "-frames:v", "1",
-
+        "-frames:v",
+        "1",
         # -q[:stream_specifier] q
         # Use fixed quality scale (VBR). The meaning of q/qscale is codec-dependent. 'v' means video stream.
         # Normal range for JPEG is 2-31 with 31 being the worst quality.
         # See https://ffmpeg.org/ffmpeg.html#Main-options
-        "-q:v", str(compression),
-
+        "-q:v",
+        str(compression),
         # Scale the image to a particular width
         # See https://ffmpeg.org/faq.html#I-have-a-stretched-video_002c-why-does-scaling-does-not-fix-it_003f
         # See https://ffmpeg.org/ffmpeg.html#Simple-filtergraphs
-        "-vf", f"scale={width}:-1",
-
+        "-vf",
+        f"scale={width}:-1",
         # Force the JPEG encoding.
         # See https://ffmpeg.org/faq.html#How-do-I-encode-movie-to-single-pictures_003f
-        "-c:v", "mjpeg",
-
+        "-c:v",
+        "mjpeg",
         # Overwrite output files without asking.
         "-y",
-
         # Destination file path
-        destination
+        destination,
     ]
 
     subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

@@ -27,8 +27,8 @@ def resolve_video_file_path(file_path):
     return os.path.join(os.path.abspath(config.video_folder), file_path)
 
 
-_TRUTHY = {'1', 'true', ''}
-_FALSY = {'0', 'false'}
+_TRUTHY = {"1", "true", ""}
+_FALSY = {"0", "false"}
 
 
 def parse_boolean(args, name):
@@ -46,8 +46,8 @@ def parse_boolean(args, name):
 
 def parse_seq(args, name):
     """Parse sequence of comma-separated values."""
-    seq = args.get(name, '', type=str)
-    items = [item.strip() for item in seq.split(',')]
+    seq = args.get(name, "", type=str)
+    items = [item.strip() for item in seq.split(",")]
     items = [item for item in items if len(item) > 0]
     return items
 
@@ -68,7 +68,7 @@ def parse_positive_float(args, name, default=None):
     return value
 
 
-DATE_PATTERN = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def parse_date(args, name, default=None):

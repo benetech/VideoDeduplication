@@ -5,11 +5,7 @@ from server.model import Transform, entity_fields
 
 
 def test_transform_nan():
-    exif = Exif(
-        General_FileSize=math.inf,
-        General_Duration=-math.inf,
-        Video_FrameRate=math.nan
-    )
+    exif = Exif(General_FileSize=math.inf, General_Duration=-math.inf, Video_FrameRate=math.nan)
 
     data = Transform.exif_dict(exif)
     assert data["General_FileSize"] is None

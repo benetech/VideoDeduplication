@@ -28,7 +28,7 @@ def file():
 def make_file(content):
     """Create a temporary file with the given content."""
     fd, path = tempfile.mkstemp()
-    os.write(fd, content.encode('utf-8'))
+    os.write(fd, content.encode("utf-8"))
     os.close(fd)
     return path
 
@@ -75,6 +75,7 @@ def test_move(cache):
 @dataclass
 class Example:
     """Example cache entry."""
+
     path: str
     hash: str
     position: int
@@ -95,11 +96,7 @@ class Example:
         unique_path = str(uuid())
         content = f"content-of-{unique_path}"
         return Example(
-            path=unique_path,
-            hash=f"hash-of-{unique_path}",
-            position=0,
-            file=make_file(content),
-            content=content
+            path=unique_path, hash=f"hash-of-{unique_path}", position=0, file=make_file(content), content=content
         )
 
 
@@ -120,12 +117,12 @@ def test_eviction(cache):
         extra_example.write(cache)
 
     # Check first half of the original files is evicted
-    for evicted in original[:len(extra)]:
+    for evicted in original[: len(extra)]:
         assert not cache.exists(*evicted.cache_key())
         assert cache.get(*evicted.cache_key()) is None
 
     # Check the second half of the original files is still cached
-    for remaining in original[len(extra):]:
+    for remaining in original[len(extra) :]:
         assert read_file(cache.get(*remaining.cache_key())) == remaining.content
 
     # Check extra example are cached
