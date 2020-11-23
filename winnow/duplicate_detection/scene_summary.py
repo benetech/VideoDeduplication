@@ -6,7 +6,8 @@ from scenedetect.detectors import ContentDetector
 from PIL import Image
 from moviepy.editor import VideoFileClip
 import numpy as np
-STATS_FILE_PATH = 'testvideo.stats.csv'
+
+STATS_FILE_PATH = "testvideo.stats.csv"
 
 
 def get_scene_list(filename):
@@ -25,8 +26,8 @@ def get_scene_list(filename):
 
     try:
 
-        start_time = base_timecode + 20     # 00:00:00.667
-        end_time = base_timecode + 20.0     # 00:00:20.000
+        start_time = base_timecode + 20  # 00:00:00.667
+        end_time = base_timecode + 20.0  # 00:00:20.000
         # Set video_manager duration to read frames from 00:00:00 to 00:00:20.
         video_manager.set_duration(start_time=start_time, end_time=end_time)
 
@@ -56,10 +57,7 @@ def get_video_summary(filename):
     clip = VideoFileClip(filename)
     scenes = get_scene_list(filename)
     frame_list = [x[0].frame_num for x in scenes]
-    frames = [
-        Image.fromarray(f).resize((120, 120))
-        for i, f in enumerate(clip.iter_frames())
-        if i in frame_list]
+    frames = [Image.fromarray(f).resize((120, 120)) for i, f in enumerate(clip.iter_frames()) if i in frame_list]
     return np.hstack(frames)
 
 
@@ -72,11 +70,7 @@ def get_video_summary_list(list_of_videos):
     summaries = []
     for vid in list_of_videos:
         clip = VideoFileClip(vid)
-        frames = [
-                    Image.fromarray(f).resize((120, 120))
-                    for i, f in enumerate(clip.iter_frames())
-                    if i in frame_list
-                    ]
+        frames = [Image.fromarray(f).resize((120, 120)) for i, f in enumerate(clip.iter_frames()) if i in frame_list]
         summaries.append(np.hstack(frames))
 
     return summaries

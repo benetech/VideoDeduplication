@@ -12,7 +12,7 @@ import requests
 # TODO: Get rid of duplicated code (#158).
 def download_file(local_filename, url):
     r = requests.get(url, stream=True)
-    with open(local_filename, 'wb') as f:
+    with open(local_filename, "wb") as f:
         shutil.copyfileobj(r.raw, f)
     return local_filename
 
@@ -91,7 +91,7 @@ class RemoteFileRepo:
 
     def list_local(self):
         """List cached file relative paths (i.e. repo keys as accepted by exists() method)."""
-        cached_paths = glob(self._resolve_path('**'), recursive=True)
+        cached_paths = glob(self._resolve_path("**"), recursive=True)
         return [os.path.relpath(path, self.directory) for path in cached_paths if isfile(path)]
 
     def clean(self):

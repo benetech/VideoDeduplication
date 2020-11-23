@@ -26,20 +26,20 @@ def findVideoMetada_mediainfo(pathToInputVideo):
     mi = "mediainfo -f --Language=raw"
     cmd = "{} {}".format(mi, shlex.quote(pathToInputVideo))
     args = shlex.split(cmd)
-    mediaInfo_output = subprocess.check_output(args).decode('utf-8')
+    mediaInfo_output = subprocess.check_output(args).decode("utf-8")
     return mediaInfo_output
 
 
 def process_media_info(info):
-    lines = info.split('\n')
+    lines = info.split("\n")
     section = None
     metadata = defaultdict(dict)
 
     for line in lines:
-        if ':' not in line:
+        if ":" not in line:
             section = line
         else:
-            key, val = line.split(':', maxsplit=1)
+            key, val = line.split(":", maxsplit=1)
             section, key = section.strip(), key.strip()
             metadata[section][key] = val.lstrip()
     return dict(metadata)
@@ -53,7 +53,7 @@ def get_duration(fp):
     if fps == 0:
         fps = 25
 
-    duration = frame_count/fps
+    duration = frame_count / fps
 
     if duration < 0:
         count = 0
@@ -78,19 +78,19 @@ def get_duration(fp):
 
 def normalize_duration(metadata, file_path):
 
-    cond1 = 'Duration' not in metadata['General']
-    cond2 = int(metadata['General']['Duration']) < 0
+    cond1 = "Duration" not in metadata["General"]
+    cond2 = int(metadata["General"]["Duration"]) < 0
 
     if (cond1) or (cond2):
 
         duration = get_duration(file_path)
-        metadata['General']['Duration'] = duration
+        metadata["General"]["Duration"] = duration
 
     return metadata
 
 
 def extract_from_list_of_videos(video_files):
-    """ Processes a list of video files and returns a list of dicts containing the mediainfo output for each file
+    """Processes a list of video files and returns a list of dicts containing the mediainfo output for each file
 
     Args:
         video_files ([List[Strings]]): List of file paths to video files
@@ -107,13 +107,7 @@ def extract_from_list_of_videos(video_files):
         except Exception as exc:
 
             logging.info("Problems processing file '%s': %s", file_path, exc)
-            video_metadata.append(
-                                {
-                                    "General": {
-                                        "FileName": os.path.basename(file_path)
-                                                }
-                                }
-                                )
+            video_metadata.append({"General": {"FileName": os.path.basename(file_path)}})
 
     return video_metadata
 
@@ -121,69 +115,68 @@ def extract_from_list_of_videos(video_files):
 def convert_to_df(video_metadata):
 
     df = json_normalize(video_metadata)
-    df.columns = [
-                    x.strip()
-                    .replace('.', '_')
-                    .replace('(s)', 's') for x in df.columns
-                ]
+    df.columns = [x.strip().replace(".", "_").replace("(s)", "s") for x in df.columns]
 
     return df
 
 
 # Columns of interest
 CI = [
-       'General_FileName',
-       'General_FileExtension',
-       'General_Format_Commercial',
-       'General_FileSize',
-       'General_Duration',
-       'General_OverallBitRate_Mode',
-       'General_OverallBitRate',
-       'General_FrameRate',
-       'General_FrameCount',
-       'General_Encoded_Date',
-       'General_File_Modified_Date',
-       'General_File_Modified_Date_Local',
-       'General_Tagged_Date',
-       'Video_Format',
-       'Video_BitRate',
-       'Video_InternetMediaType',
-       'Video_Width',
-       'Video_Height',
-       'Video_FrameRate',
-       'Audio_Format',
-       'Audio_SamplingRate',
-       'Audio_Title',
-       'Audio_BitRate',
-       'Audio_Channels',
-       'Audio_Duration',
-       'Audio_Encoded_Date',
-       'Audio_Tagged_Date']
+    "General_FileName",
+    "General_FileExtension",
+    "General_Format_Commercial",
+    "General_FileSize",
+    "General_Duration",
+    "General_OverallBitRate_Mode",
+    "General_OverallBitRate",
+    "General_FrameRate",
+    "General_FrameCount",
+    "General_Encoded_Date",
+    "General_File_Modified_Date",
+    "General_File_Modified_Date_Local",
+    "General_Tagged_Date",
+    "Video_Format",
+    "Video_BitRate",
+    "Video_InternetMediaType",
+    "Video_Width",
+    "Video_Height",
+    "Video_FrameRate",
+    "Audio_Format",
+    "Audio_SamplingRate",
+    "Audio_Title",
+    "Audio_BitRate",
+    "Audio_Channels",
+    "Audio_Duration",
+    "Audio_Encoded_Date",
+    "Audio_Tagged_Date",
+]
 
 # Numerical columns of interest
 NCI = [
-       'General_FileSize',
-       'General_Duration',
-       'General_OverallBitRate',
-       'General_FrameRate',
-       'General_FrameCount',
-       'Video_BitRate',
-       'Video_Width',
-       'Video_Height',
-       'Video_FrameRate',
-       'Audio_SamplingRate',
-       'Audio_BitRate',
-       'Audio_Channels',
-       'Audio_Duration']
+    "General_FileSize",
+    "General_Duration",
+    "General_OverallBitRate",
+    "General_FrameRate",
+    "General_FrameCount",
+    "Video_BitRate",
+    "Video_Width",
+    "Video_Height",
+    "Video_FrameRate",
+    "Audio_SamplingRate",
+    "Audio_BitRate",
+    "Audio_Channels",
+    "Audio_Duration",
+]
 
 # Date column of interest
 DCI = [
-        'General_Encoded_Date',
-        'General_Tagged_Date',
-        'General_File_Modified_Date',
-        'General_File_Modified_Date_Local',
-        'Audio_Encoded_Date',
-        'Audio_Tagged_Date']
+    "General_Encoded_Date",
+    "General_Tagged_Date",
+    "General_File_Modified_Date",
+    "General_File_Modified_Date_Local",
+    "Audio_Encoded_Date",
+    "Audio_Tagged_Date",
+]
 
 # Exif date format
 _EXIF_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -224,42 +217,25 @@ def parse_date_series(series):
 
 
 def parse_and_filter_metadata_df(metadata_df):
-    all_columns = [
-        column_name for column_name in CI
-        if column_name in metadata_df.columns
-    ]
-    numeric_columns = [
-        column_name for column_name in NCI
-        if column_name in metadata_df.columns
-    ]
-    date_columns = [
-        column_name for column_name in DCI
-        if column_name in metadata_df.columns
-    ]
+    all_columns = [column_name for column_name in CI if column_name in metadata_df.columns]
+    numeric_columns = [column_name for column_name in NCI if column_name in metadata_df.columns]
+    date_columns = [column_name for column_name in DCI if column_name in metadata_df.columns]
     string_columns = [
-        column_name for column_name in all_columns
+        column_name
+        for column_name in all_columns
         if column_name not in numeric_columns and column_name not in date_columns
     ]
 
     filtered = metadata_df.loc[:, all_columns]
 
     # Parsing numerical fields
-    filtered.loc[:, numeric_columns] = (
-        filtered.loc[:, numeric_columns]
-            .apply(lambda x: pd.to_numeric(x, errors='coerce'))
+    filtered.loc[:, numeric_columns] = filtered.loc[:, numeric_columns].apply(
+        lambda x: pd.to_numeric(x, errors="coerce")
     )
 
     # Parsing date fields
-    filtered.loc[:, date_columns] = (
-        filtered.loc[:, date_columns]
-            .apply(parse_date_series)
-    )
+    filtered.loc[:, date_columns] = filtered.loc[:, date_columns].apply(parse_date_series)
 
-    filtered.loc[:, string_columns] = (
-        filtered
-            .loc[:, string_columns]
-            .fillna('N/A')
-            .apply(lambda x: x.str.strip())
-    )
+    filtered.loc[:, string_columns] = filtered.loc[:, string_columns].fillna("N/A").apply(lambda x: x.str.strip())
 
     return filtered

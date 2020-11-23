@@ -16,7 +16,7 @@ from winnow.storage.repr_storage import ReprStorage
 class SearchEngine:
     def __init__(self, templates_root, reprs: ReprStorage, model):
 
-        templates_glob = os.path.join(templates_root, '*')
+        templates_glob = os.path.join(templates_root, "*")
 
         self.templates_root = templates_glob
         self.model = model
@@ -28,8 +28,7 @@ class SearchEngine:
     def find_available_templates(self):
 
         folders = glob(self.templates_root)
-        available = dict(
-                        zip([x.split('/')[-1] for x in folders], folders))
+        available = dict(zip([x.split("/")[-1] for x in folders], folders))
 
         return available
 
@@ -45,16 +44,11 @@ class SearchEngine:
 
         for k, v in self.available_queries.items():
 
-            cache[k] = self.load_templates(glob(v + '/**'))
+            cache[k] = self.load_templates(glob(v + "/**"))
 
         return cache
 
-    def create_annotation_report(
-                                 self,
-                                 threshold=0.07,
-                                 fp='template_test.csv',
-                                 queries=None,
-                                 frame_sampling=1):
+    def create_annotation_report(self, threshold=0.07, fp="template_test.csv", queries=None, frame_sampling=1):
 
         """Creates an annotation report suitable for annotation
         (using our own Annotator class)
@@ -79,60 +73,51 @@ class SearchEngine:
 
         if self.results_cache:
 
-            records = pd.DataFrame.from_records(
-                            self.results_cache,
-                            index=None).reset_index()
+            records = pd.DataFrame.from_records(self.results_cache, index=None).reset_index()
 
             # Massage template matching results
-            df = pd.melt(records, id_vars=['level_0', 'level_1'])
-            msk = df['variable'] != 'Unnamed: 0'
+            df = pd.melt(records, id_vars=["level_0", "level_1"])
+            msk = df["variable"] != "Unnamed: 0"
             df = df.loc[msk, :]
             # Convert df into a more suitable format to be saved
-            df.rename(
-                columns={
-                    'level_0': 'fn',
-                    'level_1': 'sha256',
-                    'variable': 'template_name'},
-                inplace=True)
+            df.rename(columns={"level_0": "fn", "level_1": "sha256", "variable": "template_name"}, inplace=True)
 
-            additional_info = df.loc[:, ['value']].to_dict('records')
-            additional_info = [x['value'] for x in additional_info]
+            additional_info = df.loc[:, ["value"]].to_dict("records")
+            additional_info = [x["value"] for x in additional_info]
             add_df = pd.DataFrame.from_records(x for x in additional_info)
-            df['distance'] = add_df['distance']
-            df['closest_match'] = add_df['closest_match']
+            df["distance"] = add_df["distance"]
+            df["closest_match"] = add_df["closest_match"]
             # This will adjust the time sampling to the sampling rate (ideally
             # this should be sourced from the DB and not from the config file)
-            df['closest_match_time'] = df['closest_match'].apply(
-                                                lambda x: datetime.timedelta(
-                                                    seconds=x * frame_sampling)
-                                                    )
-            df.drop(columns=['value'], inplace=True)
+            df["closest_match_time"] = df["closest_match"].apply(
+                lambda x: datetime.timedelta(seconds=x * frame_sampling)
+            )
+            df.drop(columns=["value"], inplace=True)
 
             return df
 
         elif not self.available_queries:
-            raise Exception('No templates were found at {}'.format(
-                                        self.templates_root))
+            raise Exception("No templates were found at {}".format(self.templates_root))
 
         else:
-            raise Exception('No matches were found at \
-                            the current distance configuration ({})'.format(
-                                threshold))
+            raise Exception(
+                "No matches were found at \
+                            the current distance configuration ({})".format(
+                    threshold
+                )
+            )
 
     def find(self, query, threshold=0.07, plot=True):
 
         feats = self.template_cache[query]
-        print('Loaded query embeddings',
-              feats.shape)
+        print("Loaded query embeddings", feats.shape)
         self.results_cache[query] = defaultdict()
         for repr_key in self.reprs.frame_level.list():
             try:
                 sample = self.reprs.frame_level.read(repr_key)
                 video_frames = self.reprs.frames.read(repr_key)
 
-                distances = np.mean(
-                                    cdist(feats, sample, metric='cosine'),
-                                    axis=0)
+                distances = np.mean(cdist(feats, sample, metric="cosine"), axis=0)
 
                 self.results_cache[query][repr_key] = dict()
 
@@ -144,34 +129,24 @@ class SearchEngine:
                     min_d = 1.0
 
                 self.results_cache[query][repr_key]["distance"] = min_d
-                self.results_cache[query][repr_key]["closest_match"] = \
-                    frame_of_interest_index
+                self.results_cache[query][repr_key]["closest_match"] = frame_of_interest_index
 
                 if (min_d < threshold) and plot:
 
-                    frame_of_interest = np.hstack(
-                                            video_frames[
-                                                frame_of_interest_index:][:5])
+                    frame_of_interest = np.hstack(video_frames[frame_of_interest_index:][:5])
                     plt.figure(figsize=(20, 10))
                     plt.imshow(frame_of_interest)
                     plt.show()
 
             except Exception as e:
-                print(
-                    'Error:',
-                    e,
-                    distances,
-                    repr_key,
-                    frame_of_interest_index)
+                print("Error:", e, distances, repr_key, frame_of_interest_index)
                 pass
 
 
-def download_sample_templates(
-       TEMPLATES_PATH,
-       URL="https://s3.amazonaws.com/winnowpretrainedmodels/templates.tar.gz"):
+def download_sample_templates(TEMPLATES_PATH, URL="https://s3.amazonaws.com/winnowpretrainedmodels/templates.tar.gz"):
 
     if os.path.exists(TEMPLATES_PATH):
-        print('Templates Found', glob(TEMPLATES_PATH + '/**'))
+        print("Templates Found", glob(TEMPLATES_PATH + "/**"))
 
     else:
         try:
@@ -179,10 +154,10 @@ def download_sample_templates(
         except Exception as e:
             print(e)
             pass
-        print('Downloading sample templates to:{}'.format(TEMPLATES_PATH))
-        DST = TEMPLATES_PATH + '/templates.tar.gz'
+        print("Downloading sample templates to:{}".format(TEMPLATES_PATH))
+        DST = TEMPLATES_PATH + "/templates.tar.gz"
         download_file(DST, URL)
         # unzip files
-        shutil.unpack_archive(DST, format='gztar')
+        shutil.unpack_archive(DST, format="gztar")
         # Delete tar
         os.unlink(DST)

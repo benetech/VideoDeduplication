@@ -22,6 +22,7 @@ _METADATA_ENCODING = "utf-8"
 @dataclass
 class Metadata:
     """Storage entry metadata."""
+
     hash: str  # data file hash
     tag: str  # pipeline configuration tag
 
@@ -84,7 +85,7 @@ class LMDBReprStorage:
                 return exists(self._map(key.path)) and metadata == Metadata.from_key(key)
         except Exception as e:
 
-            logger.error(f'Error processing file:{key.path}')
+            logger.error(f"Error processing file:{key.path}")
             logger.error(e)
             return False
 
@@ -129,7 +130,7 @@ class LMDBReprStorage:
         relative_path = relpath(abspath(mapped_path), self.directory)
         if not relative_path.endswith(self.suffix):
             raise ValueError(f"Not a reversible path: {mapped_path}")
-        return relative_path[:-len(self.suffix)]
+        return relative_path[: -len(self.suffix)]
 
     @staticmethod
     def _read_metadata(path, txn):

@@ -14,21 +14,16 @@ output_file_handler = logging.FileHandler("processing_error.log")
 logger.addHandler(output_file_handler)
 
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 def pload_video(p, size, frame_sampling):
     return load_video(p, size, frame_sampling)
 
 
-def feature_extraction_videos(model,
-                              video_list,
-                              reprs,
-                              reprkey,
-                              cores=4,
-                              batch_sz=8,
-                              frame_sampling=1,
-                              save_frames=False):
+def feature_extraction_videos(
+    model, video_list, reprs, reprkey, cores=4, batch_sz=8, frame_sampling=1, save_frames=False
+):
     """
     Function that extracts the intermediate CNN features
     of each video in a provided video list.
@@ -44,26 +39,20 @@ def feature_extraction_videos(model,
         frame_sampling: Minimal distance (in sec.) between frames to be saved.
         save_frames: Save normalized video frames.
     """
-    video_list = {
-                 i: video.strip()
-                 for i, video in
-                 enumerate(open(video_list, encoding="utf-8").readlines())}
+    video_list = {i: video.strip() for i, video in enumerate(open(video_list, encoding="utf-8").readlines())}
 
-    print('\nNumber of videos: ', len(video_list))
-    print('Storage directory: ', reprs)
-    print('CPU cores: ', cores)
-    print('Batch size: ', batch_sz)
+    print("\nNumber of videos: ", len(video_list))
+    print("Storage directory: ", reprs)
+    print("CPU cores: ", cores)
+    print("Batch size: ", batch_sz)
 
-    print('\nFeature Extraction Process')
-    print('==========================')
+    print("\nFeature Extraction Process")
+    print("==========================")
 
     pool = Pool(cores)
     future_videos = dict()
 
-    progress_bar = tqdm(
-                        range(np.max(list(video_list.keys()))+1),
-                        mininterval=1.0,
-                        unit='video')
+    progress_bar = tqdm(range(np.max(list(video_list.keys())) + 1), mininterval=1.0, unit="video")
     for video in progress_bar:
 
         try:
@@ -72,10 +61,7 @@ def feature_extraction_videos(model,
             if os.path.exists(video_file_path):
 
                 if video not in future_videos:
-                    video_tensor = pload_video(
-                                        video_file_path,
-                                        model.desired_size,
-                                        frame_sampling)
+                    video_tensor = pload_video(video_file_path, model.desired_size, frame_sampling)
 
                 else:
                     video_tensor = future_videos[video].get()
@@ -83,17 +69,16 @@ def feature_extraction_videos(model,
 
                 # load videos in parallel
                 for i in range(cores - len(future_videos)):
-                    next_video = np.max(list(future_videos.keys())) + 1 \
-                        if len(future_videos) else video + 1
+                    next_video = np.max(list(future_videos.keys())) + 1 if len(future_videos) else video + 1
 
-                    if next_video in video_list and \
-                        next_video not in future_videos and \
-                            os.path.exists(video_list[next_video]):
+                    if (
+                        next_video in video_list
+                        and next_video not in future_videos
+                        and os.path.exists(video_list[next_video])
+                    ):
                         future_videos[next_video] = pool.apply_async(
-                            pload_video,
-                            args=[
-                                video_list[next_video],
-                                model.desired_size, frame_sampling])
+                            pload_video, args=[video_list[next_video], model.desired_size, frame_sampling]
+                        )
 
                 # extract features
                 features = model.extract(video_tensor, batch_sz)
@@ -104,12 +89,12 @@ def feature_extraction_videos(model,
                 if save_frames:
                     reprs.frames.write(key, video_tensor)
         except Exception as e:
-            logger.error(f'Error processing file:{video_list[video]}')
+            logger.error(f"Error processing file:{video_list[video]}")
             logger.error(e)
 
 
 def load_featurizer(PRETRAINED_LOCAL_PATH):
 
-    model = CNN_tf('vgg', PRETRAINED_LOCAL_PATH)
+    model = CNN_tf("vgg", PRETRAINED_LOCAL_PATH)
 
     return model

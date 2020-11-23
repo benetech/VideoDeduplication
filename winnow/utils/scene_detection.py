@@ -10,9 +10,9 @@ from scipy.spatial.distance import cosine
 def cosine_series(arr):
     output = [1.0]
     for i in range(len(arr)):
-        if i < len(arr)-1:
+        if i < len(arr) - 1:
             a = arr[i]
-            b = arr[i+1]
+            b = arr[i + 1]
             dist = cosine(a, b)
             output.append(dist)
     return np.array(output)
@@ -21,7 +21,7 @@ def cosine_series(arr):
 def visualize_frames(fp, diffs=None):
     video = np.load(fp)
     if diffs is not None:
-        frames_idx = (diffs > np.quantile(diffs, .90)) & (diffs > 0.05)
+        frames_idx = (diffs > np.quantile(diffs, 0.90)) & (diffs > 0.05)
         sample_frames = video[frames_idx]
     else:
         sample_frames = video[0::1, :, :, :]
@@ -35,18 +35,18 @@ def visualize_frames(fp, diffs=None):
 
         plt.figure(figsize=(5, 5))
         plt.plot(list(range(len(diffs))), diffs)
-        plt.plot(list(range(len(diffs))), diffs*frames_idx, 'bo')
+        plt.plot(list(range(len(diffs))), diffs * frames_idx, "bo")
         plt.show()
 
 
 def naive_diff(arr):
     diffs = np.diff(arr)
-    sdiffs = np.absolute(np.sum(diffs, axis=1))**24
+    sdiffs = np.absolute(np.sum(diffs, axis=1)) ** 24
     return np.insert(sdiffs, 0, [1])
 
 
 def visualize_features(fp, diff_function=cosine_series):
-    nfp = fp.replace('frames', 'features')
+    nfp = fp.replace("frames", "features")
     feats = np.load(nfp)
     sdiffs = diff_function(feats)
 
@@ -59,7 +59,7 @@ def visualize_vid(fp):
 
 
 def get_duration(scenes):
-    return [y-x for x, y in scenes]
+    return [y - x for x, y in scenes]
 
 
 def seconds_to_time(list_of_durations):
@@ -129,19 +129,18 @@ def extract_scenes(frame_features_dict, minimum_duration=10):
         extraction results.
     """
     # Filter videos by duration
-    filtered_dict = {key: feature
-                     for key, feature in frame_features_dict.items()
-                     if feature.shape[0] > minimum_duration}
+    filtered_dict = {
+        key: feature for key, feature in frame_features_dict.items() if feature.shape[0] > minimum_duration
+    }
 
     # Unpack names, hashes and features as separate lists
-    assert len(filtered_dict) > 0, 'Frame level features not found.'
+    assert len(filtered_dict) > 0, "Frame level features not found."
     keys, features = zip(*filtered_dict.items())
     paths = [key.path for key in keys]
     hashes = [key.hash for key in keys]
 
     raw_scenes = [cosine_series(frame_features) for frame_features in features]
-    scene_ident = [((diffs > np.quantile(diffs, .90)) &
-                    (diffs > 0.05)) for diffs in raw_scenes]
+    scene_ident = [((diffs > np.quantile(diffs, 0.90)) & (diffs > 0.05)) for diffs in raw_scenes]
 
     video_scenes = []
     for sid in scene_ident:
@@ -160,14 +159,10 @@ def extract_scenes(frame_features_dict, minimum_duration=10):
     results.video_filename = paths
     results.video_sha256 = hashes
     results.scene_duration_seconds = [get_duration(x) for x in video_scenes]
-    results.scenes_timestamp = [seconds_to_time(d)
-                                for d in results.scene_duration_seconds]
+    results.scenes_timestamp = [seconds_to_time(d) for d in results.scene_duration_seconds]
     results.num_scenes = [len(x) for x in video_scenes]
-    results.avg_duration_seconds = [np.mean(x)
-                                    for x in results.scene_duration_seconds]
+    results.avg_duration_seconds = [np.mean(x) for x in results.scene_duration_seconds]
     results.video_duration_seconds = [sid.shape[0] for sid in scene_ident]
-    results.total_video_duration_timestamp = [
-                                    datetime.timedelta(seconds=x)
-                                    for x in results.video_duration_seconds]
+    results.total_video_duration_timestamp = [datetime.timedelta(seconds=x) for x in results.video_duration_seconds]
 
     return results
