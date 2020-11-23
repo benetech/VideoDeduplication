@@ -1,16 +1,18 @@
 import os
-import numpy as np
+
 import matplotlib.pyplot as plt
-from IPython.display import display
-from ipywidgets import interact, interactive, fixed, interact_manual, Button, Layout, GridspecLayout, Output
+import numpy as np
+from ipywidgets import interact, fixed, Button, Layout, GridspecLayout, Output
 
 
 def create_expanded_button(description, button_style):
     return Button(description=description, button_style=button_style, layout=Layout(height="auto", width="auto"))
 
 
-def create_interface(matches_df, save_path, annotation_label, transform_query_path=True, frames_directory=None):
-
+# TODO: Simplify function and enable linting (#202)
+def create_interface(  # noqa: C901
+    matches_df, save_path, annotation_label, transform_query_path=True, frames_directory=None
+):
     # Create Buttons
     a = create_expanded_button("Next Video", "info")
     b = create_expanded_button("Previous Video", "info")
@@ -25,7 +27,6 @@ def create_interface(matches_df, save_path, annotation_label, transform_query_pa
     output = Output()
     output_2 = Output()
     output_desc = Output()
-    output_2_desc = Output()
 
     # Create event handlers and other utility functions
 

@@ -19,9 +19,12 @@ class Annotator:
             save_path {[type]} -- Path to the output destination
 
         Keyword Arguments:
-            annotation_label {str} -- Matches report will be augmented with a column with its named defined by this variable (default: {'is_match'})
-            annotation_default_value {int} -- Default value for annotations (assume that positive matches would default to 1 and negative to 0) (default: {-1})
-            transform_query_path {bool} -- If using the annotator for template matching, this option allows the annotator to pull the file path straight from the report (if set to false) (default: {True})
+            annotation_label {str} -- Matches report will be augmented with a column with its named defined by this
+                variable (default: {'is_match'})
+            annotation_default_value {int} -- Default value for annotations (assume that positive matches would default
+                to 1 and negative to 0) (default: {-1})
+            transform_query_path {bool} -- If using the annotator for template matching, this option allows the
+                annotator to pull the file path straight from the report (if set to false) (default: {True})
             frames_directory {[type]} -- Path to the frame-level representation directory (default: {None})
         """
 

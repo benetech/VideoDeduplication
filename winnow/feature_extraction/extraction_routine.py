@@ -73,8 +73,8 @@ def feature_extraction_videos(
 
                     if (
                         next_video in video_list
-                        and next_video not in future_videos
-                        and os.path.exists(video_list[next_video])
+                        and next_video not in future_videos  # noqa: W503
+                        and os.path.exists(video_list[next_video])  # noqa: W503
                     ):
                         future_videos[next_video] = pool.apply_async(
                             pload_video, args=[video_list[next_video], model.desired_size, frame_sampling]

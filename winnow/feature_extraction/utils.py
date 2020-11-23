@@ -1,9 +1,9 @@
 import os
-import shutil
-import yaml
+
 import cv2
 import numpy as np
 import requests
+import yaml
 
 
 def download_file(local_filename, url):
@@ -127,53 +127,43 @@ def pad_and_resize(image, desired_size):
     return image_processed
 
 
-def download_pretrained(config_file):
+# TODO: Simplify function and enable linting (#202)
+def download_pretrained(config_file):  # noqa: C901
     hit_exc = False
     try:
-
-        CONFIG_FP = config_file
-        with open(CONFIG_FP, "r") as ymlfile:
+        config_fp = config_file
+        with open(config_fp, "r") as ymlfile:
             cfg = yaml.load(ymlfile)
 
-        USE_LOCAL_PRETRAINED = cfg["use_pretrained_model_local_path"]
-        PRETRAINED_LOCAL_PATH = cfg["pretrained_model_local_path"]
-        DST_DIR = cfg["destination_folder"]
-
+        use_local_pretrained = cfg["use_pretrained_model_local_path"]
+        pretrained_local_path = cfg["pretrained_model_local_path"]
+        dst_dir = cfg["destination_folder"]
     except Exception:
         hit_exc = True
         print("Make sure path to config has been added to env")
 
     finally:
-
         if hit_exc:
-
-            USE_LOCAL_PRETRAINED = False
-            DST_DIR = False
-
-    if not USE_LOCAL_PRETRAINED:
-
-        PRETRAINED_MODEL = "vgg_16.ckpt"
-
-        if DST_DIR:
-
-            PRETRAINED_LOCAL_PATH = os.path.join(DST_DIR, "pretrained_models", PRETRAINED_MODEL)
-
+            use_local_pretrained = False
+            dst_dir = False
+    if not use_local_pretrained:
+        pretrained_model = "vgg_16.ckpt"
+        if dst_dir:
+            pretrained_local_path = os.path.join(dst_dir, "pretrained_models", pretrained_model)
         else:
             package_directory = os.path.dirname(os.path.abspath(__file__))
-            PRETRAINED_LOCAL_PATH = os.path.join(package_directory, "pretrained_models", PRETRAINED_MODEL)
+            pretrained_local_path = os.path.join(package_directory, "pretrained_models", pretrained_model)
 
     # Pre-trained model file availability assessment
-
-    if os.path.exists(PRETRAINED_LOCAL_PATH):
+    if os.path.exists(pretrained_local_path):
         print("Pretrained Model Found")
     else:
-        if USE_LOCAL_PRETRAINED:
+        if use_local_pretrained:
             try:
-                print("Downloading pretrained model to:{}".format(PRETRAINED_LOCAL_PATH))
-                download_file(PRETRAINED_LOCAL_PATH, "https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
+                print("Downloading pretrained model to:{}".format(pretrained_local_path))
+                download_file(pretrained_local_path, "https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
             except Exception:
                 print("Copying from source dir")
-
                 raise
         else:
             try:
@@ -181,8 +171,6 @@ def download_pretrained(config_file):
             except Exception as e:
                 print(e)
                 pass
-            print("Downloading pretrained model to:{}".format(PRETRAINED_LOCAL_PATH))
-
-            download_file(PRETRAINED_LOCAL_PATH, "https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
-
-    return PRETRAINED_LOCAL_PATH
+            print("Downloading pretrained model to:{}".format(pretrained_local_path))
+            download_file(pretrained_local_path, "https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
+    return pretrained_local_path
