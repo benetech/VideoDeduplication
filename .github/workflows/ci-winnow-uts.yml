@@ -33,6 +33,8 @@ jobs:
           black --line-length 120 --check db
           # Check formatting of the winnow package
           black --line-length 120 --check winnow
+          # Check formatting of the winnow tests
+          black --line-length 120 --check tests
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
