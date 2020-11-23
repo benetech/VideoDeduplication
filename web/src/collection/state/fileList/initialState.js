@@ -18,6 +18,7 @@ const initialState = {
     sort: FileSort.date,
   },
   fileListType: FileListType.grid,
+  blur: true,
   limit: 20,
   counts: {
     all: 0,
