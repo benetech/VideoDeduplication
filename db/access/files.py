@@ -10,6 +10,7 @@ from db.schema import Files, Matches, Exif
 
 class FileMatchFilter:
     """Enum for file match filtering criteria."""
+
     ALL = "all"
     RELATED = "related"
     DUPLICATES = "duplicates"
@@ -20,6 +21,7 @@ class FileMatchFilter:
 
 class FileSort:
     """Enum for result ordering."""
+
     DATE = "date"
     LENGTH = "length"
     RELATED = "related"
@@ -52,6 +54,7 @@ class ListFilesRequest:
 @dataclass
 class Counts:
     """Count of files by matches."""
+
     total: int
     related: int
     duplicates: int
@@ -61,6 +64,7 @@ class Counts:
 @dataclass
 class ListFilesResults:
     """Results of list-files query."""
+
     items: List[Files]
     counts: Counts
 
@@ -104,26 +108,23 @@ class FilesDAO:
         duplicates = query.filter(FilesDAO.has_matches(duplicate_distance)).count()
         related = query.filter(FilesDAO.has_matches(related_distance)).count()
         unique = total - related
-        return Counts(
-            total=total,
-            related=related,
-            duplicates=duplicates,
-            unique=unique)
+        return Counts(total=total, related=related, duplicates=duplicates, unique=unique)
 
     @staticmethod
     def has_matches(threshold):
         """Create a filter criteria to check if there is a match
         with distance lesser or equal to the given threshold."""
-        return or_(Files.source_matches.any(Matches.distance <= threshold),
-                   Files.target_matches.any(Matches.distance <= threshold))
+        return or_(
+            Files.source_matches.any(Matches.distance <= threshold),
+            Files.target_matches.any(Matches.distance <= threshold),
+        )
 
     @staticmethod
     def file_matches(file_id, session):
         """Query for all file matches."""
-        return session.query(Matches).filter(or_(
-            Matches.query_video_file_id == file_id,
-            Matches.match_video_file_id == file_id
-        ))
+        return session.query(Matches).filter(
+            or_(Matches.query_video_file_id == file_id, Matches.match_video_file_id == file_id)
+        )
 
     @staticmethod
     def _sortable_attributes(req: ListFilesRequest):
@@ -140,9 +141,11 @@ class FilesDAO:
         if req.sort == FileSort.RELATED or req.sort == FileSort.DUPLICATES:
             match = FilesDAO._countable_match
             threshold = req.related_distance if req.sort == FileSort.RELATED else req.duplicate_distance
-            query = query.outerjoin(FilesDAO._countable_match,
-                                    ((match.query_video_file_id == Files.id) |
-                                     (match.match_video_file_id == Files.id)) & (match.distance < threshold))
+            query = query.outerjoin(
+                FilesDAO._countable_match,
+                ((match.query_video_file_id == Files.id) | (match.match_video_file_id == Files.id))
+                & (match.distance < threshold),
+            )
             return query.group_by(Files.id).order_by(literal_column(FilesDAO._LABEL_COUNT).desc(), Files.id.asc())
         elif req.sort == FileSort.LENGTH:
             exif = aliased(Exif)
@@ -193,12 +196,10 @@ class FilesDAO:
     def _filter_date(req: ListFilesRequest, query):
         """Filter by creation date."""
         if req.date_from is not None:
-            query = query.filter(
-                Files.exif.has(Exif.General_Encoded_Date >= req.date_from))
+            query = query.filter(Files.exif.has(Exif.General_Encoded_Date >= req.date_from))
 
         if req.date_to is not None:
-            query = query.filter(
-                Files.exif.has(Exif.General_Encoded_Date <= req.date_to))
+            query = query.filter(Files.exif.has(Exif.General_Encoded_Date <= req.date_to))
 
         return query
 
