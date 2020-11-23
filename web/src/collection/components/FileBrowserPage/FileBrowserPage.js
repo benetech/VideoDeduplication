@@ -148,6 +148,7 @@ function FileBrowserPage(props) {
   const location = useLocation();
   const keepFilters = location.state?.keepFilters;
   const activeFilters = FilterPane.useActiveFilters();
+  const [blur, setBlur] = useState(true);
 
   useEffect(() => {
     if (!keepFilters || fileListState.neverLoaded) {
@@ -207,6 +208,8 @@ function FileBrowserPage(props) {
               className={classes.actions}
               showFiltersRef={showFiltersRef}
               activeFilters={activeFilters}
+              blur={blur}
+              onBlurChange={setBlur}
             />
           </div>
           <div className={classes.filters}>
@@ -241,6 +244,7 @@ function FileBrowserPage(props) {
                 file={file}
                 button
                 key={file.id}
+                blur={blur}
                 dense={showFilters}
                 highlight={filters.query}
                 onClick={handleClickVideo}
