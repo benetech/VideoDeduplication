@@ -47,3 +47,9 @@ export const ACTION_FETCH_FILES_FAILURE = "coll.FETCH_FILES_FAILURE";
 export function fetchFilesFailure(error) {
   return { type: ACTION_FETCH_FILES_FAILURE, error };
 }
+
+export const ACTION_BLUR_FILES = "coll.BLUR_FILES";
+
+export function blurFiles(blur) {
+  return { blur, type: ACTION_BLUR_FILES };
+}

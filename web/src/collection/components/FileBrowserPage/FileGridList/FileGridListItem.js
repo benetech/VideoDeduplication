@@ -94,6 +94,7 @@ const FileGridListItem = React.memo(function FpGridListItem(props) {
     dense = false,
     highlight,
     onClick,
+    blur = true,
     className,
   } = props;
 
@@ -128,6 +129,7 @@ const FileGridListItem = React.memo(function FpGridListItem(props) {
       <MediaPreview
         src={file.preview}
         alt="preview"
+        blur={blur}
         className={classes.preview}
       />
       <div className={classes.nameContainer}>
@@ -198,11 +200,30 @@ const FileGridListItem = React.memo(function FpGridListItem(props) {
 });
 
 FileGridListItem.propTypes = {
+  /**
+   * File which will be displayed.
+   */
   file: FileType.isRequired,
+  /**
+   * Use cursor pointer style.
+   */
   button: PropTypes.bool,
+  /**
+   * Use more compact layout.
+   */
   dense: PropTypes.bool,
+  /**
+   * Highlight name substring.
+   */
   highlight: PropTypes.string,
+  /**
+   * Handle item click.
+   */
   onClick: PropTypes.func,
+  /**
+   * Control preview blur.
+   */
+  blur: PropTypes.bool,
   className: PropTypes.string,
 };
 

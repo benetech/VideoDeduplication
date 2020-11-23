@@ -1,4 +1,5 @@
 import {
+  ACTION_BLUR_FILES,
   ACTION_CHANGE_FILE_LIST_VIEW,
   ACTION_FETCH_FILES,
   ACTION_FETCH_FILES_FAILURE,
@@ -63,6 +64,11 @@ export default function fileListReducer(state = initialState, action) {
       return {
         ...state,
         fileListType: action.view,
+      };
+    case ACTION_BLUR_FILES:
+      return {
+        ...state,
+        blur: action.blur,
       };
     default:
       return state;

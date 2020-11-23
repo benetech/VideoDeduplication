@@ -114,6 +114,11 @@ FileLinearListItem.propTypes = {
    * Use dense layout.
    */
   dense: PropTypes.bool,
+  /**
+   * Control preview blur.
+   * Has no effect at the moment.
+   */
+  blur: PropTypes.bool,
   className: PropTypes.string,
 };
 

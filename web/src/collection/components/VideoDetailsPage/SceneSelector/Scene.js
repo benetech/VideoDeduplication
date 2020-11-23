@@ -36,7 +36,7 @@ function useMessages(scene) {
 }
 
 function Scene(props) {
-  const { scene, onSelect, selected = false, className } = props;
+  const { scene, onSelect, selected = false, blur = true, className } = props;
   const classes = useStyles();
   const messages = useMessages(scene);
 
@@ -68,15 +68,29 @@ function Scene(props) {
       onClick={handleSelect}
       aria-label={messages.ariaLabel}
       onKeyDown={handleKeyDown}
+      blur={blur}
       tabIndex={0}
     />
   );
 }
 
 Scene.propTypes = {
+  /**
+   * Handle scene selection.
+   */
   onSelect: PropTypes.func,
+  /**
+   * True iff scene is selected (e.g. when it's being played).
+   */
   selected: PropTypes.bool,
+  /**
+   * Scene to be displayed.
+   */
   scene: SceneType.isRequired,
+  /**
+   * Force blurring.
+   */
+  blur: PropTypes.bool,
   className: PropTypes.string,
 };
 

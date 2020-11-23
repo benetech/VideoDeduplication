@@ -27,6 +27,7 @@ import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
 import FileListType from "../../state/fileList/FileListType";
 import {
+  blurFiles,
   changeFileListView,
   fetchFiles,
   updateFilters,
@@ -142,6 +143,7 @@ function FileBrowserPage(props) {
   const topRef = useRef(null);
   const history = useHistory();
   const view = fileListState.fileListType;
+  const blur = fileListState.blur;
   const List = listComponent(view);
   const intl = useIntl();
   const showFiltersRef = useRef();
@@ -186,6 +188,8 @@ function FileBrowserPage(props) {
     []
   );
 
+  const handleChangeBlur = useCallback((blur) => dispatch(blurFiles(blur)), []);
+
   const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
 
   return (
@@ -207,6 +211,8 @@ function FileBrowserPage(props) {
               className={classes.actions}
               showFiltersRef={showFiltersRef}
               activeFilters={activeFilters}
+              blur={blur}
+              onBlurChange={handleChangeBlur}
             />
           </div>
           <div className={classes.filters}>
@@ -241,6 +247,7 @@ function FileBrowserPage(props) {
                 file={file}
                 button
                 key={file.id}
+                blur={blur}
                 dense={showFilters}
                 highlight={filters.query}
                 onClick={handleClickVideo}

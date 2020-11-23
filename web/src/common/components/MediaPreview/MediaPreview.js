@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -82,6 +82,7 @@ function MediaPreview(props) {
     actions,
     caption,
     onMediaClick,
+    blur = true,
     className,
     ...other
   } = props;
@@ -98,6 +99,13 @@ function MediaPreview(props) {
     },
     [preview]
   );
+
+  /**
+   * Force blur enable/disable when external attributes is changed.
+   */
+  useEffect(() => {
+    setPreview(!blur);
+  }, [blur]);
 
   /**
    * Do not allow Enter or Space key-press events to bubble
@@ -203,6 +211,10 @@ MediaPreview.propTypes = {
    * Handle revealed preview click
    */
   onMediaClick: PropTypes.func,
+  /**
+   * Force blur enable/disable.
+   */
+  blur: PropTypes.bool,
   alt: PropTypes.string,
   src: PropTypes.string,
   className: PropTypes.string,
