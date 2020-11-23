@@ -45,7 +45,7 @@ function useMessages() {
   const intl = useIntl();
   return {
     blurDescription: intl.formatMessage({ id: "aria.label.blurAll" }),
-    blurAction: intl.formatMessage({ id: "actions.blurVideo" }),
+    blurAction: intl.formatMessage({ id: "actions.blurVideos" }),
     showFiltersLabel: intl.formatMessage({ id: "actions.showFiltersPane" }),
   };
 }

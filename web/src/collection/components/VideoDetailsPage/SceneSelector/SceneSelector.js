@@ -8,6 +8,7 @@ import Scene from "./Scene";
 import { useIntl } from "react-intl";
 import CollapseButton from "../../../../common/components/CollapseButton";
 import Collapse from "@material-ui/core/Collapse";
+import BlurSwitch from "./BlurSwitch";
 
 const useStyles = makeStyles((theme) => ({
   sceneSelector: {
@@ -26,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
   },
   collapseButton: {
     flexGrow: 0,
+    marginLeft: theme.spacing(3),
   },
   scenes: {
     marginTop: theme.spacing(2),
@@ -64,6 +66,7 @@ function SceneSelector(props) {
   const selected = selectedScene(scenes, played);
   const messages = useMessages();
   const [collapsed, setCollapsed] = useState(false);
+  const [blur, setBlur] = useState(true);
 
   const handleCollapse = useCallback(() => setCollapsed(!collapsed), [
     collapsed,
@@ -75,8 +78,10 @@ function SceneSelector(props) {
         <div className={classes.title}>
           {scenes.length} {messages.scenes}
         </div>
+        <BlurSwitch blur={blur} onBlurChange={setBlur} />
         {collapsible && (
           <CollapseButton
+            className={classes.collapseButton}
             collapsed={collapsed}
             onClick={handleCollapse}
             size="small"
@@ -92,6 +97,7 @@ function SceneSelector(props) {
               selected={index === selected}
               className={classes.scene}
               key={scene.position}
+              blur={blur}
             />
           ))}
         </SceneList>
