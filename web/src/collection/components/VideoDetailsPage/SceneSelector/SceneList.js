@@ -16,7 +16,6 @@ const useStyles = makeStyles(() => ({
    */
   scenes: {
     display: "flex",
-    width: 600,
   },
   /**
    * Single scene
