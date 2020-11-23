@@ -33,8 +33,11 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.action.textInactive,
   },
   switch: {
-    flexGrow: 1,
+    flexGrow: 0,
     justifyContent: "flex-end",
+  },
+  spacer: {
+    flexGrow: 1,
   },
 }));
 
@@ -92,6 +95,7 @@ const FileBrowserActions = React.forwardRef(function FingerprintViewActions(
           label={<div className={classes.label}>{messages.blurAction}</div>}
         />
       </Tooltip>
+      <div className={classes.spacer} />
       <AddMediaButton
         onClick={onAddMedia}
         variant="contained"
