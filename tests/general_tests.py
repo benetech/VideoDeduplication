@@ -13,7 +13,7 @@ from winnow.utils import scan_videos, create_video_list, resolve_config, reprkey
 NUMBER_OF_TEST_VIDEOS = 40
 
 test_folder = os.path.dirname(__file__)
-cfg = resolve_config(config_path=os.path.join(test_folder, 'config.yaml'))
+cfg = resolve_config(config_path=os.path.join(test_folder, "config.yaml"))
 
 # Load main config variables from the TEST config file
 
@@ -31,10 +31,10 @@ DISTANCE = float(cfg.processing.match_distance)
 
 # Ensures that the config file follows specs
 def test_config_input():
-    assert type(DATASET_DIR) == str, 'video_source_folder takes a string as a parameter'
-    assert type(DST_DIR) == str, 'destination_folder takes a string as a parameter'
-    assert type(USE_DB) == bool, 'use_db takes a boolean as a parameter'
-    assert type(CONNINFO) == str, 'use_db takes a boolean as a parameter'
+    assert type(DATASET_DIR) == str, "video_source_folder takes a string as a parameter"
+    assert type(DST_DIR) == str, "destination_folder takes a string as a parameter"
+    assert type(USE_DB) == bool, "use_db takes a boolean as a parameter"
+    assert type(CONNINFO) == str, "use_db takes a boolean as a parameter"
 
 
 @pytest.fixture(scope="module")
@@ -47,7 +47,7 @@ def reprs():
 @pytest.fixture(scope="module")
 def videos():
     """Paths of videos in a test_data."""
-    return scan_videos(DATASET_DIR, '**', extensions=cfg.sources.extensions)
+    return scan_videos(DATASET_DIR, "**", extensions=cfg.sources.extensions)
 
 
 @pytest.fixture(scope="module")

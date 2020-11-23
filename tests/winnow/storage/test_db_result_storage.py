@@ -16,7 +16,7 @@ def match_tuple(match):
 def query(store, what):
     """Get all database items."""
     with store.database.session_scope() as session:
-        items = session.query(what).options(eagerload('*')).all()
+        items = session.query(what).options(eagerload("*")).all()
         session.expunge_all()
         return items
 
@@ -28,6 +28,7 @@ def count(store, what):
 @dataclass
 class File:
     """Convenience data structure for managing test data."""
+
     path: str
     sha256: str
     value: object
@@ -189,7 +190,7 @@ def test_add_matches(store):
     saved = [
         ("path_1", "hash_1", "path_2", "hash_2", 0.5),
         ("path_1", "hash_1", "path_3", "hash_3", 0.6),
-        ("path_3", "hash_3", "path_2", "hash_2", 0.7)
+        ("path_3", "hash_3", "path_2", "hash_2", 0.7),
     ]
 
     store.add_matches(saved)

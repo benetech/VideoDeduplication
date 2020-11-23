@@ -30,7 +30,7 @@ def store(request):
 
 # Shortcut for pytest parametrize decorator.
 # Decorated test will be executed for all existing representation store types.
-use_store = pytest.mark.parametrize('store', [LMDBReprStorage, SQLiteReprStorage], indirect=True)
+use_store = pytest.mark.parametrize("store", [LMDBReprStorage, SQLiteReprStorage], indirect=True)
 
 
 def make_key():
