@@ -6,20 +6,20 @@ from db import Database
 from db.utils import *
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_utils import path_resolver
-from winnow.utils import scan_videos, extract_from_list_of_videos, convert_to_df, parse_and_filter_metadata_df, \
-    resolve_config
+from winnow.utils import (
+    scan_videos,
+    extract_from_list_of_videos,
+    convert_to_df,
+    parse_and_filter_metadata_df,
+    resolve_config,
+)
 
 
 @click.command()
-@click.option(
-    '--config', '-cp',
-    help='path to the project config file',
-    default=None)
-
-
+@click.option("--config", "-cp", help="path to the project config file", default=None)
 def main(config):
 
-    print('Loading config file')
+    print("Loading config file")
     config = resolve_config(config_path=config)
     storepath = path_resolver(config.sources.root)
 
@@ -28,17 +28,17 @@ def main(config):
         database.create_tables()
 
         with database.session_scope() as session:
-            video_records = session.query(Files).yield_per(10**4)
+            video_records = session.query(Files).yield_per(10 ** 4)
             path_hash_pairs = [(join(config.sources.root, record.file_path), record.sha256) for record in video_records]
             videos, hashes = zip(*path_hash_pairs)
     else:
 
-        videos = scan_videos(config.sources.root, '**', extensions=config.sources.extensions)
+        videos = scan_videos(config.sources.root, "**", extensions=config.sources.extensions)
         hashes = [get_hash(video) for video in videos]
 
-    assert len(videos) > 0, 'No videos found'
+    assert len(videos) > 0, "No videos found"
 
-    print(f'{len(videos)} videos found')
+    print(f"{len(videos)} videos found")
 
     metadata = extract_from_list_of_videos(videos)
 
@@ -50,7 +50,7 @@ def main(config):
 
     if config.save_files:
 
-        EXIF_REPORT_PATH = join(config.repr.directory, 'exif_metadata.csv')
+        EXIF_REPORT_PATH = join(config.repr.directory, "exif_metadata.csv")
 
         df_parsed.to_csv(EXIF_REPORT_PATH)
 
@@ -59,9 +59,9 @@ def main(config):
     if config.database.use:
         database = Database(uri=config.database.uri)
         result_store = DBResultStorage(database)
-        exif_entries = zip(map(storepath, videos), hashes, df_parsed.to_dict('records'))
+        exif_entries = zip(map(storepath, videos), hashes, df_parsed.to_dict("records"))
         result_store.add_exifs(exif_entries)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
