@@ -13,11 +13,11 @@ from ..model import Transform, database
 FILE_FIELDS = Fields(Files.exif, Files.signature, Files.meta, Files.scenes)
 
 
-@api.route('/files/<int:file_id>/matches', methods=['GET'])
+@api.route("/files/<int:file_id>/matches", methods=["GET"])
 def list_file_matches(file_id):
-    limit = parse_positive_int(request.args, 'limit', 20)
-    offset = parse_positive_int(request.args, 'offset', 0)
-    include_fields = parse_fields(request.args, 'include', FILE_FIELDS)
+    limit = parse_positive_int(request.args, "limit", 20)
+    offset = parse_positive_int(request.args, "offset", 0)
+    include_fields = parse_fields(request.args, "include", FILE_FIELDS)
 
     file = database.session.query(Files).get(file_id)
 
@@ -26,8 +26,7 @@ def list_file_matches(file_id):
         abort(HTTPStatus.NOT_FOUND.value, f"File id not found: {file_id}")
 
     query = FilesDAO.file_matches(file_id, database.session).options(
-        joinedload(Matches.match_video_file),
-        joinedload(Matches.query_video_file)
+        joinedload(Matches.match_video_file), joinedload(Matches.query_video_file)
     )
 
     # Preload file fields
@@ -39,8 +38,10 @@ def list_file_matches(file_id):
     items = query.offset(offset).limit(limit).all()
 
     include_flags = {field.key: True for field in include_fields}
-    return jsonify({
-        'items': [Transform.file_match_dict(item, file_id, **include_flags) for item in items],
-        'total': total,
-        'offset': offset,
-    })
+    return jsonify(
+        {
+            "items": [Transform.file_match_dict(item, file_id, **include_flags) for item in items],
+            "total": total,
+            "offset": offset,
+        }
+    )

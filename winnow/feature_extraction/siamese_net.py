@@ -4,45 +4,46 @@ Tensorflow implementation of the DNN network used for Deep Metric Learning.
 
 import os
 import warnings
+
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore")
     import tensorflow as tf
+
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 import warnings
 
 
 class DNN(object):
-
-    def __init__(self,
-                 input_dimensions,
-                 hidden_layer_sizes,
-                 model_path,
-                 load_model=False,
-                 trainable=True,
-                 learning_rate=1e-5,
-                 weight_decay=5e-3,
-                 gamma=1.0):
+    def __init__(
+        self,
+        input_dimensions,
+        hidden_layer_sizes,
+        model_path,
+        load_model=False,
+        trainable=True,
+        learning_rate=1e-5,
+        weight_decay=5e-3,
+        gamma=1.0,
+    ):
         """
-          Class initializer.
+        Class initializer.
 
-          Args:
-            input_dimensions: dimension of the input vectors
-            hidden_layer_sizes: number of neurons of the DNN layers
-            model_path: path to store the trained model
-            load_model: load of the model weight from the model_path
-            trainable: indicator of whether it is training or evaluation phase
-            learning_rate: learning rate that weights are updated
-            weight_decay: regularization parameter for weight decay
-            gamma: margin parameter between positive-query and
-            negative-query distance
+        Args:
+          input_dimensions: dimension of the input vectors
+          hidden_layer_sizes: number of neurons of the DNN layers
+          model_path: path to store the trained model
+          load_model: load of the model weight from the model_path
+          trainable: indicator of whether it is training or evaluation phase
+          learning_rate: learning rate that weights are updated
+          weight_decay: regularization parameter for weight decay
+          gamma: margin parameter between positive-query and
+          negative-query distance
         """
         self.trainable = trainable
-        self.path = os.path.join(model_path, 'model')
+        self.path = os.path.join(model_path, "model")
 
-        self.input = tf.compat.v1.placeholder(tf.float32,
-                                              shape=(None, input_dimensions),
-                                              name='input')
+        self.input = tf.compat.v1.placeholder(tf.float32, shape=(None, input_dimensions), name="input")
 
         reg = tf.contrib.layers.l2_regularizer(scale=weight_decay)
 
@@ -55,27 +56,18 @@ class DNN(object):
         self.saver = tf.compat.v1.train.Saver()
         if trainable:
             self.global_step = 1
-            with tf.name_scope('training'):
+            with tf.name_scope("training"):
                 anchor, positive, negative = tf.unstack(
-                      tf.reshape(
-                          self.output,
-                          [-1, 3, self.output.get_shape().as_list()[1]]), 3, 1)
-                loss, error = self.triplet_loss(
-                                                anchor,
-                                                positive,
-                                                negative,
-                                                gamma)
+                    tf.reshape(self.output, [-1, 3, self.output.get_shape().as_list()[1]]), 3, 1
+                )
+                loss, error = self.triplet_loss(anchor, positive, negative, gamma)
 
-                reg_variables = tf.get_collection(
-                                 tf.GraphKeys.REGULARIZATION_LOSSES)
+                reg_variables = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
 
-                reg_term = tf.contrib.layers.apply_regularization(
-                                                      self.regularizer,
-                                                      reg_variables
-                                                      )
-                with tf.name_scope('cost'):
+                reg_term = tf.contrib.layers.apply_regularization(self.regularizer, reg_variables)
+                with tf.name_scope("cost"):
                     cost = loss + reg_term
-                    tf.summary.scalar('cost', cost)
+                    tf.summary.scalar("cost", cost)
 
                 train = tf.train.AdamOptimizer(learning_rate).minimize(cost)
                 self.train_op = [train, cost, error]
@@ -89,89 +81,89 @@ class DNN(object):
         self.sess = tf.compat.v1.Session(config=config)
         self.sess.run(init)
         if trainable:
-            self.summary_writer = tf.summary.FileWriter(
-                                                        model_path,
-                                                        self.sess.graph
-                                                        )
+            self.summary_writer = tf.summary.FileWriter(model_path, self.sess.graph)
 
     def build(self, hidden_layer_sizes):
         """
-          Function that builds the DNN model.
+        Function that builds the DNN model.
 
-          Args:
-            hidden_layer_sizes: number of neurons of the DNN layers
-            trainable: indicator of whether it is training or evaluation phase
+        Args:
+          hidden_layer_sizes: number of neurons of the DNN layers
+          trainable: indicator of whether it is training or evaluation phase
 
-          Returns:
-            net: output tensor of the constructed network
+        Returns:
+          net: output tensor of the constructed network
         """
         net = self.input
         for M in hidden_layer_sizes:
             net = tf.contrib.layers.fully_connected(
-                        net,
-                        M,
-                        activation_fn=tf.nn.tanh,
-                        weights_regularizer=self.regularizer,
-                        biases_regularizer=self.regularizer,
-                        trainable=self.trainable)
+                net,
+                M,
+                activation_fn=tf.nn.tanh,
+                weights_regularizer=self.regularizer,
+                biases_regularizer=self.regularizer,
+                trainable=self.trainable,
+            )
 
-        with tf.name_scope('embeddings'):
+        with tf.name_scope("embeddings"):
             net = tf.nn.l2_normalize(net, 1, 1e-15)
-            tf.compat.v1.summary.histogram('embeddings', net)
+            tf.compat.v1.summary.histogram("embeddings", net)
         return net
 
     def load_model(self):
         """
-          Function that loads the weight of DNN layers from the saved model.
+        Function that loads the weight of DNN layers from the saved model.
         """
-        previous_sizes = [size[1] for name, size in
-                          tf.contrib.framework.list_variables(self.path)
-                          if len(size) == 2 and 'Adam' not in name]
+        previous_sizes = [
+            size[1]
+            for name, size in tf.contrib.framework.list_variables(self.path)
+            if len(size) == 2 and "Adam" not in name
+        ]
         net = self.build(previous_sizes)
 
-        previous_variables = [var_name for var_name, _
-                              in tf.contrib.framework.list_variables(self.path)
-                              ]
-        restore_map = {variable.op.name: variable
-                       for variable in tf.compat.v1.global_variables()
-                       if variable.op.name in previous_variables}
+        previous_variables = [var_name for var_name, _ in tf.contrib.framework.list_variables(self.path)]
+        restore_map = {
+            variable.op.name: variable
+            for variable in tf.compat.v1.global_variables()
+            if variable.op.name in previous_variables
+        }
         tf.contrib.framework.init_from_checkpoint(self.path, restore_map)
         return net
 
     def euclidean_distance(self, x, y):
         """
-          Euclidean distance calculation between each sample N of two matrices
-          (NxM).
+        Euclidean distance calculation between each sample N of two matrices
+        (NxM).
 
-          Args:
-            x: first feature matrix (NxM)
-            y: second feature matrix (NxM)
+        Args:
+          x: first feature matrix (NxM)
+          y: second feature matrix (NxM)
 
-          Returns:
-            their euclidean distance in sample N dimension (axis 1)
+        Returns:
+          their euclidean distance in sample N dimension (axis 1)
         """
-        with tf.name_scope('euclidean_distance'):
+        with tf.name_scope("euclidean_distance"):
             return tf.reduce_sum(tf.square(tf.subtract(x, y)), 1)
 
     def triplet_loss(self, anchor, positive, negative, gamma):
         """
-          Triplet loss calculation.
+        Triplet loss calculation.
 
 
-          Args:
-            anchor: anchor feature matrix (NxM)
-            positive: positive feature matrix (NxM)
-            negative: negative feature matrix (NxM)
-            gamma: margin parameter
+        Args:
+          anchor: anchor feature matrix (NxM)
+          positive: positive feature matrix (NxM)
+          negative: negative feature matrix (NxM)
+          gamma: margin parameter
 
-          Returns:
-            loss: total triplet loss
-            error: number of triplets with positive loss
+        Returns:
+          loss: total triplet loss
+          error: number of triplets with positive loss
         """
-        with tf.name_scope('triplet_loss'):
+        with tf.name_scope("triplet_loss"):
             pos_dist = self.euclidean_distance(anchor, positive)
             neg_dist = self.euclidean_distance(anchor, negative)
-            loss = tf.maximum(0., pos_dist - neg_dist + gamma)
+            loss = tf.maximum(0.0, pos_dist - neg_dist + gamma)
 
             e1 = tf.count_nonzero(loss, dtype=tf.float32)
             e2 = tf.cast(tf.shape(anchor)[0], tf.float32)
@@ -179,58 +171,56 @@ class DNN(object):
 
             error = e1 / e2 * e3
             loss = tf.reduce_mean(loss)
-            tf.summary.scalar('loss', loss)
-            tf.summary.scalar('error', error)
+            tf.summary.scalar("loss", loss)
+            tf.summary.scalar("error", error)
             return loss, error
 
     def save(self):
         """
-          Function that saves the DNN model in the provided directory.
+        Function that saves the DNN model in the provided directory.
         """
-        print('save model...')
+        print("save model...")
         return self.saver.save(self.sess, self.path)
 
     def train(self, X):
         """
-          Training of the network with the provided triplets.
+        Training of the network with the provided triplets.
 
-          Args:
-            X: input feature matrix (3*NxM)
+        Args:
+          X: input feature matrix (3*NxM)
 
-          Returns:
-            train: training argument
-            loss: total triplet loss
-            cost: total cost
-            error: number of triplets with positive loss
+        Returns:
+          train: training argument
+          loss: total triplet loss
+          cost: total cost
+          error: number of triplets with positive loss
         """
         return self.sess.run(self.train_op, feed_dict={self.input: X})
 
     def test(self, X):
         """
-          Test of the network with the provided triplets.
+        Test of the network with the provided triplets.
 
-          Args:
-            X: input feature matrix (3*NxM)
+        Args:
+          X: input feature matrix (3*NxM)
 
-          Returns:
-            loss: total triplet loss
-            cost: total cost
-            error: number of triplets with positive loss
+        Returns:
+          loss: total triplet loss
+          cost: total cost
+          error: number of triplets with positive loss
         """
-        summary, cost, error = self.sess.run(
-                                            self.test_op,
-                                            feed_dict={self.input: X})
+        summary, cost, error = self.sess.run(self.test_op, feed_dict={self.input: X})
         self.summary_writer.add_summary(summary, self.global_step)
         self.global_step += 1
         return cost, error
 
     def embeddings(self, X):
         """
-          Extraction of the feature embeddings of the input vectors.
-          Args:
-            X: input feature matrix (NxM)
+        Extraction of the feature embeddings of the input vectors.
+        Args:
+          X: input feature matrix (NxM)
 
-          Returns:
-            embeddings: embedding matrix (NxM)
+        Returns:
+          embeddings: embedding matrix (NxM)
         """
         return self.sess.run(self.output, feed_dict={self.input: X})

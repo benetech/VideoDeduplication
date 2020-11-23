@@ -19,7 +19,7 @@ Base = declarative_base()
 class FeatureFile(Base):
     """A file containing some representation of source video file."""
 
-    __tablename__ = 'feature_files'
+    __tablename__ = "feature_files"
 
     id = Column(Integer, primary_key=True)
     source_path = Column(String, unique=True)  # source video-file path relative to dataset root directory
@@ -131,11 +131,16 @@ class SQLiteReprStorage:
     @staticmethod
     def _exists(session, key: ReprKey):
         """Shortcut for checking record presence."""
-        return session.query(FeatureFile.id).filter(
-            FeatureFile.source_path == key.path,
-            FeatureFile.hash == key.hash,
-            FeatureFile.tag == key.tag,
-        ).scalar() is not None
+        return (
+            session.query(FeatureFile.id)
+            .filter(
+                FeatureFile.source_path == key.path,
+                FeatureFile.hash == key.hash,
+                FeatureFile.tag == key.tag,
+            )
+            .scalar()
+            is not None
+        )
 
     def _get_or_create(self, session, path):
         """Get feature-file record, create one with unique name if not exist."""
@@ -143,8 +148,6 @@ class SQLiteReprStorage:
         if feature_file is not None:
             return feature_file
         # Create a missing feature-file with unique path.
-        feature_file = FeatureFile(
-            source_path=path,
-            feature_file_path=f"{uuid()}{self._suffix}")
+        feature_file = FeatureFile(source_path=path, feature_file_path=f"{uuid()}{self._suffix}")
         session.add(feature_file)
         return feature_file

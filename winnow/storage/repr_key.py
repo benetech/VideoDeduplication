@@ -13,6 +13,7 @@ class ReprKey:
     configuration is changed the clint code must be able to detect that
     to update the stored representation value.
     """
+
     path: str  # video file path relative to dataset root folder
     hash: str  # video file hash
     tag: str = None  # pipeline configuration tag

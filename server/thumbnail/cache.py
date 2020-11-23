@@ -18,8 +18,9 @@ Base = declarative_base()
 
 class CacheEntry(Base):
     """Single cache entry."""
-    __tablename__ = 'entry'
-    __table_args__ = (UniqueConstraint('source_path', 'source_sha256', 'position', name='_file_uc'),)
+
+    __tablename__ = "entry"
+    __table_args__ = (UniqueConstraint("source_path", "source_sha256", "position", name="_file_uc"),)
     id = Column(Integer, primary_key=True)
     source_path = Column(String)  # Source video-file path
     source_sha256 = Column(String)  # Source video-file hash
@@ -174,11 +175,16 @@ class ThumbnailCache:
     @staticmethod
     def _record_exists(session, path, sha256, position):
         """Check if database record for the given cache entry exists."""
-        return session.query(CacheEntry.id).filter(
-            CacheEntry.source_path == path,
-            CacheEntry.source_sha256 == sha256,
-            CacheEntry.position == position,
-        ).scalar() is not None
+        return (
+            session.query(CacheEntry.id)
+            .filter(
+                CacheEntry.source_path == path,
+                CacheEntry.source_sha256 == sha256,
+                CacheEntry.position == position,
+            )
+            .scalar()
+            is not None
+        )
 
     @staticmethod
     def _record(session, path, sha256, position):

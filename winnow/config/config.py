@@ -7,6 +7,7 @@ from dataclasses import dataclass, asdict, field
 @dataclass
 class SourcesConfig:
     """Configuration of source file location."""
+
     root: str = None  # Root folder of the video files
     extensions: List[str] = ("mp4", "ogv", "webm", "avi")
 
@@ -14,12 +15,14 @@ class SourcesConfig:
 @dataclass
 class RepresentationConfig:
     """Configuration of intermediate representation storage."""
+
     directory: str = None  # Root folder with intermediate representations
 
 
 @dataclass
 class DatabaseConfig:
     """Configuration for database result storage."""
+
     use: bool = True
     uri: str = "postgres://postgres:admin@postgres:5432/videodeduplicationdb"
 
@@ -27,6 +30,7 @@ class DatabaseConfig:
 @dataclass
 class ProcessingConfig:
     """Configuration for processing routine."""
+
     video_list_filename: str = None
     match_distance: float = 0.75
     filter_dark_videos: bool = True
@@ -42,12 +46,14 @@ class ProcessingConfig:
 @dataclass
 class TemplatesConfig:
     """Configuration for template matching."""
+
     source_path: str = None
 
 
 @dataclass
 class Config:
     """Root application configuration."""
+
     sources: SourcesConfig = field(default_factory=SourcesConfig)
     repr: RepresentationConfig = field(default_factory=RepresentationConfig)
     database: DatabaseConfig = field(default_factory=DatabaseConfig)
@@ -77,13 +83,13 @@ class Config:
     @staticmethod
     def read(path):
         """Read config from YAML file."""
-        with open(path, 'r') as file:
+        with open(path, "r") as file:
             data = yaml.load(file, Loader=yaml.FullLoader)
             return Config.fromdict(data)
 
     def save(self, path):
         """Save config to YAML file."""
-        with open(path, 'w+') as file:
+        with open(path, "w+") as file:
             self.dump(file)
 
     def dump(self, file):

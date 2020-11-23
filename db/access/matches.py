@@ -20,6 +20,7 @@ def _chunks(iterable, size=100):
 @dataclass
 class FileMatchesRequest:
     """List single file's matches request."""
+
     file: Files
     limit: int = 20
     offset: int = 0
@@ -32,6 +33,7 @@ class FileMatchesRequest:
 @dataclass
 class FileMatchesResult:
     """List single file's matches results."""
+
     files: List[Files]
     matches: List[Matches]
     total: int
@@ -113,17 +115,22 @@ class MatchesDAO:
         """Apply filters by match attributes."""
         outgoing = aliased(Matches)
         incoming = aliased(Matches)
-        return query. \
-            outerjoin(outgoing,
-                      (outgoing.query_video_file_id == Files.id) &
-                      (outgoing.distance >= req.min_distance) &
-                      (outgoing.distance <= req.max_distance)). \
-            outerjoin(incoming,
-                      (incoming.match_video_file_id == Files.id) &
-                      (incoming.distance >= req.min_distance) &
-                      (incoming.distance <= req.max_distance)). \
-            options(contains_eager(Files.source_matches, alias=outgoing)). \
-            options(contains_eager(Files.target_matches, alias=incoming))
+        return (
+            query.outerjoin(
+                outgoing,
+                (outgoing.query_video_file_id == Files.id)
+                & (outgoing.distance >= req.min_distance)
+                & (outgoing.distance <= req.max_distance),
+            )
+            .outerjoin(
+                incoming,
+                (incoming.match_video_file_id == Files.id)
+                & (incoming.distance >= req.min_distance)
+                & (incoming.distance <= req.max_distance),
+            )
+            .options(contains_eager(Files.source_matches, alias=outgoing))
+            .options(contains_eager(Files.target_matches, alias=incoming))
+        )
 
     @staticmethod
     def _slice_results(start_file, matches, offset, limit):
@@ -131,7 +138,7 @@ class MatchesDAO:
         # Slice matches
         total = len(matches)
         matches = sorted(matches, key=lambda item: item.id)
-        matches = matches[offset:offset + limit]
+        matches = matches[offset : offset + limit]
 
         # Get the corresponding files
         files = {start_file}

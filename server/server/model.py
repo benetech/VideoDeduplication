@@ -10,9 +10,9 @@ database = SQLAlchemy()
 
 # Custom value serializers
 _SERIALIZE = {
-    bytes: lambda value: base64.b64encode(value).decode('UTF-8'),
+    bytes: lambda value: base64.b64encode(value).decode("UTF-8"),
     datetime: datetime.timestamp,
-    float: lambda value: value if math.isfinite(value) else None
+    float: lambda value: value if math.isfinite(value) else None,
 }
 
 
@@ -111,7 +111,7 @@ class Transform:
         return {
             "id": match.id,
             "distance": match.distance,
-            "file": Transform.file_dict(matched, meta=meta, signature=signature, scenes=scenes, exif=exif)
+            "file": Transform.file_dict(matched, meta=meta, signature=signature, scenes=scenes, exif=exif),
         }
 
     @staticmethod
@@ -122,5 +122,5 @@ class Transform:
             "id": match.id,
             "distance": match.distance,
             "source": match.query_video_file_id,
-            "target": match.match_video_file_id
+            "target": match.match_video_file_id,
         }

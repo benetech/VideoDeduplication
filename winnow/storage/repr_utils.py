@@ -53,7 +53,7 @@ def bulk_read(store, select=None):
         try:
             loaded_mapping[key] = store.read(key)
         except Exception as e:
-            logger.error(f'Error processing file:{key}')
+            logger.error(f"Error processing file:{key}")
             logger.error(e)
 
     return loaded_mapping

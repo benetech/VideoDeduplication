@@ -1,7 +1,7 @@
 import os
 
 # Environment variable holding
-WINNOW_CONFIG_ENV = 'WINNOW_CONFIG'
+WINNOW_CONFIG_ENV = "WINNOW_CONFIG"
 
 # Default config path
 DEFAULT_PATH = "./config.yaml"

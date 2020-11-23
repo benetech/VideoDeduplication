@@ -5,11 +5,10 @@ import numpy as np
 from .siamese_net import DNN
 
 package_directory = os.path.dirname(os.path.abspath(__file__))
-similarity_model_pretrained = os.path.join(package_directory, 'model')
+similarity_model_pretrained = os.path.join(package_directory, "model")
 
 
 class SimilarityModel:
-
     def __init__(self):
         self.model = None
 
@@ -32,12 +31,7 @@ class SimilarityModel:
         # Create model
         if self.model is None:
             print(f"Creating similarity model for shape {features.shape}")
-            self.model = DNN(
-                            features.shape[1],
-                            None,
-                            similarity_model_pretrained,
-                            load_model=True,
-                            trainable=False)
+            self.model = DNN(features.shape[1], None, similarity_model_pretrained, load_model=True, trainable=False)
 
         embeddings = self.model.embeddings(features)
         embeddings = np.nan_to_num(embeddings)

@@ -38,13 +38,13 @@ def has_shape(data, shape):
     """Check if the data structure has the given shape."""
     # Dict pattern
     if isinstance(shape, dict):
-        return isinstance(data, dict) and all(
-            has_shape(data.get(key), value) for key, value in shape.items()
-        )
+        return isinstance(data, dict) and all(has_shape(data.get(key), value) for key, value in shape.items())
     # List with known order
     elif isinstance(shape, list):
-        return isinstance(data, list) and len(data) == len(shape) and all(
-            has_shape(data[i], value) for i, value in enumerate(shape)
+        return (
+            isinstance(data, list)
+            and len(data) == len(shape)
+            and all(has_shape(data[i], value) for i, value in enumerate(shape))
         )
     # Exact equality otherwise
     return data == shape
@@ -71,9 +71,7 @@ def assert_json_response(resp, expected):
 
 def assert_files(resp, expected, total=None, related=None, duplicates=None, unique=None):
     # set items expectations
-    expected_shape = {
-        "items": [{"file_path": file.file_path, "sha256": file.sha256} for file in expected]
-    }
+    expected_shape = {"items": [{"file_path": file.file_path, "sha256": file.sha256} for file in expected]}
     # Set count expectations
     if total is not None:
         expected_shape["total"] = total
@@ -112,20 +110,24 @@ def assert_same(actual, expected):
     assert len(actual) == len(expected)
 
 
-def make_file(prefix="", length=42, ext="flv", audio=True, date=datetime.date(2000, 1, 1),
-              scenes=((0, 1), (1, 2))):
+def make_file(prefix="", length=42, ext="flv", audio=True, date=datetime.date(2000, 1, 1), scenes=((0, 1), (1, 2))):
     """Create unique file."""
     path = f"{prefix}some/path/{uuid()}.{ext}"
     sha256 = f"hash-of-{path}"
-    return Files(file_path=path, sha256=sha256,
-                 exif=Exif(General_FileExtension=ext, Audio_Duration=float(audio),
-                           General_Encoded_Date=date, General_Duration=length),
-                 meta=VideoMetadata(),
-                 scenes=[Scene(start_time=start, duration=duration) for start, duration in scenes])
+    return Files(
+        file_path=path,
+        sha256=sha256,
+        exif=Exif(
+            General_FileExtension=ext, Audio_Duration=float(audio), General_Encoded_Date=date, General_Duration=length
+        ),
+        meta=VideoMetadata(),
+        scenes=[Scene(start_time=start, duration=duration) for start, duration in scenes],
+    )
 
 
-def make_files(count, prefix="", length=42, ext="flv", audio=True, date=datetime.date(2000, 1, 1),
-               scenes=((0, 1), (1, 2))):
+def make_files(
+    count, prefix="", length=42, ext="flv", audio=True, date=datetime.date(2000, 1, 1), scenes=((0, 1), (1, 2))
+):
     """Create a collection of unique files."""
     return [
         make_file(prefix=prefix, length=length, ext=ext, audio=audio, date=date, scenes=scenes) for _ in range(count)
@@ -157,7 +159,7 @@ def index_content():
 def static_folder(index_content):
     """Temporary static folder."""
     with tempfile.TemporaryDirectory() as static_directory:
-        with open(os.path.join(static_directory, "index.html"), 'wb') as index_file:
+        with open(os.path.join(static_directory, "index.html"), "wb") as index_file:
             index_file.write(index_content)
         yield static_directory
 
@@ -174,7 +176,7 @@ def config(static_folder, cache_folder):
     """Test configuration."""
     config = Config()
     config.video_folder = ""
-    config.database.override_uri = 'sqlite:///:memory:'
+    config.database.override_uri = "sqlite:///:memory:"
     config.thumbnail_cache_folder = cache_folder
     config.static_folder = static_folder
     yield config
@@ -218,22 +220,21 @@ def test_get_file(client, app):
 
     # No inclusion
     resp = client.get(f"/api/v1/files/{file.id}")
-    assert_json_response(resp, {
-        "id": file.id,
-        "file_path": file.file_path,
-        "sha256": file.sha256
-    })
+    assert_json_response(resp, {"id": file.id, "file_path": file.file_path, "sha256": file.sha256})
     assert {"scenes", "meta", "exif"}.isdisjoint(json_payload(resp).keys())
 
     # Include some fields
     resp = client.get(f"/api/v1/files/{file.id}?include=exif,scenes")
-    assert_json_response(resp, {
-        "id": file.id,
-        "file_path": file.file_path,
-        "sha256": file.sha256,
-        "exif": {"General_Duration": file.exif.General_Duration},
-        "scenes": [{"duration": scene.duration, "start_time": scene.start_time} for scene in file.scenes]
-    })
+    assert_json_response(
+        resp,
+        {
+            "id": file.id,
+            "file_path": file.file_path,
+            "sha256": file.sha256,
+            "exif": {"General_Duration": file.exif.General_Duration},
+            "scenes": [{"duration": scene.duration, "start_time": scene.start_time} for scene in file.scenes],
+        },
+    )
     assert "meta" not in json_payload(resp)
 
 
@@ -246,13 +247,16 @@ def test_list_files_basic(client, app):
 
     # All items
     resp = client.get(f"/api/v1/files/?offset=0&limit={len(files)}")
-    assert_json_response(resp, {
-        "total": len(files),
-        "duplicates": 0,
-        "related": 0,
-        "unique": len(files),
-        "items": [{"file_path": file.file_path, "sha256": file.sha256} for file in files]
-    })
+    assert_json_response(
+        resp,
+        {
+            "total": len(files),
+            "duplicates": 0,
+            "related": 0,
+            "unique": len(files),
+            "items": [{"file_path": file.file_path, "sha256": file.sha256} for file in files],
+        },
+    )
 
 
 def test_list_files_offset(client, app):
@@ -265,10 +269,13 @@ def test_list_files_offset(client, app):
     # Offset half
     offset = int(len(files) / 2)
     resp = client.get(f"/api/v1/files/?offset={offset}&limit={len(files)}")
-    assert_json_response(resp, {
-        "total": len(files),
-        "items": [{"file_path": file.file_path, "sha256": file.sha256} for file in files[offset:]]
-    })
+    assert_json_response(
+        resp,
+        {
+            "total": len(files),
+            "items": [{"file_path": file.file_path, "sha256": file.sha256} for file in files[offset:]],
+        },
+    )
 
 
 def test_list_files_limit(client, app):
@@ -281,18 +288,22 @@ def test_list_files_limit(client, app):
     # Limit half
     limit = int(len(files) / 2)
     resp = client.get(f"/api/v1/files/?offset=0&limit={limit}")
-    assert_json_response(resp, {
-        "total": len(files),
-        "items": [{"file_path": file.file_path, "sha256": file.sha256} for file in files[:limit]]
-    })
+    assert_json_response(
+        resp,
+        {
+            "total": len(files),
+            "items": [{"file_path": file.file_path, "sha256": file.sha256} for file in files[:limit]],
+        },
+    )
 
 
 def test_list_files_include(client, app):
     expected_length = 42
     expected_scene = {"start_time": 0, "duration": expected_length}
     with session_scope(app) as session:
-        files = make_files(10, scenes=[(expected_scene["start_time"], expected_scene["duration"])],
-                           length=expected_length)
+        files = make_files(
+            10, scenes=[(expected_scene["start_time"], expected_scene["duration"])], length=expected_length
+        )
         session.add_all(files)
 
     files = sorted(files, key=attr("id"))
@@ -300,21 +311,15 @@ def test_list_files_include(client, app):
     # No additional fields included
     resp = client.get(f"/api/v1/files/?offset=0&limit={len(files)}")
     assert len(items(resp)) == len(files)
-    assert all(
-        {"meta", "scenes", "exif"}.isdisjoint(file.keys()) for file in items(resp)
-    )
+    assert all({"meta", "scenes", "exif"}.isdisjoint(file.keys()) for file in items(resp))
 
     # With scenes and meta included
     resp = client.get(f"/api/v1/files/?limit={len(files)}&include=scenes,exif")
     assert len(items(resp)) == len(files)
+    assert all("meta" not in file for file in items(resp))
     assert all(
-        "meta" not in file for file in items(resp)
-    )
-    assert all(
-        has_shape(file, {
-            "scenes": [expected_scene],
-            "exif": {"General_Duration": expected_length}
-        }) for file in items(resp)
+        has_shape(file, {"scenes": [expected_scene], "exif": {"General_Duration": expected_length}})
+        for file in items(resp)
     )
 
 
@@ -421,7 +426,8 @@ def test_list_files_filter_date(client, app):
 
     # Get both
     resp = client.get(
-        f"/api/v1/files/?date_from={param_date(long_ago)}&date_to={param_date(recently)}&limit={len(all_files)}")
+        f"/api/v1/files/?date_from={param_date(long_ago)}&date_to={param_date(recently)}&limit={len(all_files)}"
+    )
     assert_files(resp, expected=all_files, total=len(all_files))
 
 
@@ -459,11 +465,13 @@ def test_list_files_filter_matches(client, app, config):
         all_files = make_files(10)
         a, b, c, d, e, *unique = all_files
         session.add_all(all_files)
-        session.add_all([
-            link(a, b, distance=config.duplicate_distance - 0.001),
-            link(a, c, distance=config.duplicate_distance - 0.001),
-            link(d, e, distance=config.related_distance - 0.001)
-        ])
+        session.add_all(
+            [
+                link(a, b, distance=config.duplicate_distance - 0.001),
+                link(a, c, distance=config.duplicate_distance - 0.001),
+                link(d, e, distance=config.related_distance - 0.001),
+            ]
+        )
 
     all_files = sorted(all_files, key=attr("id"))
     duplicates = sorted([a, b, c], key=attr("id"))
@@ -537,11 +545,13 @@ def test_list_files_sort_duplicates(client, app, config):
         all_files = make_files(10)
         a, b, c, d, e, *unique = all_files
         session.add_all(all_files)
-        session.add_all([
-            link(a, b, distance=config.duplicate_distance - 0.001),
-            link(a, c, distance=config.duplicate_distance - 0.001),
-            link(d, e, distance=config.related_distance - 0.001)
-        ])
+        session.add_all(
+            [
+                link(a, b, distance=config.duplicate_distance - 0.001),
+                link(a, c, distance=config.duplicate_distance - 0.001),
+                link(d, e, distance=config.related_distance - 0.001),
+            ]
+        )
 
     all_dup_sorted = [a] + sorted([b, c], key=attr("id")) + sorted([d, e] + unique, key=attr("id"))
 
@@ -553,7 +563,7 @@ def test_list_files_sort_duplicates(client, app, config):
     offset = int(len(all_dup_sorted) / 2)
     limit = int(len(all_dup_sorted) / 4)
     resp = client.get(f"/api/v1/files/?limit={limit}&offset={offset}&sort={FileSort.DUPLICATES}")
-    assert_files(resp, expected=all_dup_sorted[offset:offset + limit], total=len(all_dup_sorted))
+    assert_files(resp, expected=all_dup_sorted[offset : offset + limit], total=len(all_dup_sorted))
 
 
 def test_list_files_sort_related(client, app, config):
@@ -561,12 +571,14 @@ def test_list_files_sort_related(client, app, config):
         all_files = make_files(10)
         a, b, c, d, e, *unique = all_files
         session.add_all(all_files)
-        session.add_all([
-            link(a, b, distance=config.duplicate_distance - 0.001),
-            link(a, c, distance=config.duplicate_distance - 0.001),
-            link(d, e, distance=config.related_distance - 0.001),
-            link(d, c, distance=config.related_distance - 0.001),
-        ])
+        session.add_all(
+            [
+                link(a, b, distance=config.duplicate_distance - 0.001),
+                link(a, c, distance=config.duplicate_distance - 0.001),
+                link(d, e, distance=config.related_distance - 0.001),
+                link(d, c, distance=config.related_distance - 0.001),
+            ]
+        )
 
     all_rel_sorted = sorted([a, c, d], key=attr("id")) + sorted([b, e], key=attr("id")) + sorted(unique, key=attr("id"))
 
@@ -578,7 +590,7 @@ def test_list_files_sort_related(client, app, config):
     offset = int(len(all_rel_sorted) / 2)
     limit = int(len(all_rel_sorted) / 4)
     resp = client.get(f"/api/v1/files/?limit={limit}&offset={offset}&sort={FileSort.RELATED}")
-    assert_files(resp, expected=all_rel_sorted[offset:offset + limit], total=len(all_rel_sorted))
+    assert_files(resp, expected=all_rel_sorted[offset : offset + limit], total=len(all_rel_sorted))
 
 
 def test_list_files_mixed_example(client, app, config):
@@ -588,12 +600,14 @@ def test_list_files_mixed_example(client, app, config):
         all_files = make_files(10, length=length_small)
         a, b, c, d, e, f, *remaining = all_files
         session.add_all(all_files)
-        session.add_all([
-            link(a, b, distance=config.duplicate_distance - 0.001),
-            link(a, c, distance=config.duplicate_distance - 0.001),
-            link(d, e, distance=config.related_distance - 0.001),
-            link(d, c, distance=config.related_distance - 0.001),
-        ])
+        session.add_all(
+            [
+                link(a, b, distance=config.duplicate_distance - 0.001),
+                link(a, c, distance=config.duplicate_distance - 0.001),
+                link(d, e, distance=config.related_distance - 0.001),
+                link(d, c, distance=config.related_distance - 0.001),
+            ]
+        )
 
         # Long videos
         b.exif.General_Duration = length_large  # duplicates: a
@@ -607,7 +621,8 @@ def test_list_files_mixed_example(client, app, config):
         f"min_length={length_large}&"
         f"matches={FileMatchFilter.RELATED}&"
         f"sort={FileSort.DUPLICATES}&"
-        f"limit={len(all_files)}")
+        f"limit={len(all_files)}"
+    )
     expected = sorted([b, c], key=attr("id")) + [e]
     assert_files(resp, expected, total=4, related=len(expected))
 
@@ -617,7 +632,8 @@ def test_list_files_mixed_example(client, app, config):
         f"max_length={length_small}&"
         f"matches={FileMatchFilter.RELATED}&"
         f"sort={FileSort.DUPLICATES}&"
-        f"limit={len(all_files)}")
+        f"limit={len(all_files)}"
+    )
     expected = [a, d]
     assert_files(resp, expected, total=len(all_files) - 4, related=len(expected))
 
@@ -627,7 +643,8 @@ def test_list_files_mixed_example(client, app, config):
         f"min_length={length_large}&"
         f"matches={FileMatchFilter.UNIQUE}&"
         f"sort={FileSort.RELATED}&"
-        f"limit={len(all_files)}")
+        f"limit={len(all_files)}"
+    )
     expected = [f]
     assert_files(resp, expected, total=4)
 
@@ -650,26 +667,28 @@ def test_list_file_matches_basic(client, app):
 
     # Get all matches
     resp = client.get(f"/api/v1/files/{source.id}/matches")
-    assert_json_response(resp, {
-        "total": len(matches),
-        "items": [
-            {"distance": match.distance, "file": {"id": match.match_video_file_id}} for match in matches
-        ]
-    })
+    assert_json_response(
+        resp,
+        {
+            "total": len(matches),
+            "items": [{"distance": match.distance, "file": {"id": match.match_video_file_id}} for match in matches],
+        },
+    )
 
     # Get slice
     offset = 1
     limit = 2
     resp = client.get(f"/api/v1/files/{source.id}/matches?offset={offset}&limit={limit}")
-    assert_json_response(resp, {
-        "total": len(matches),
-        "items": [
-            {
-                "distance": match.distance,
-                "file": {"id": match.match_video_file_id}
-            } for match in matches[offset:offset + limit]
-        ]
-    })
+    assert_json_response(
+        resp,
+        {
+            "total": len(matches),
+            "items": [
+                {"distance": match.distance, "file": {"id": match.match_video_file_id}}
+                for match in matches[offset : offset + limit]
+            ],
+        },
+    )
 
 
 def test_list_file_matches_include(client, app):
@@ -687,28 +706,28 @@ def test_list_file_matches_include(client, app):
 
     # Don't include additional fields
     resp = client.get(f"/api/v1/files/{source.id}/matches")
-    assert all(
-        {"exif", "meta", "scenes"}.isdisjoint(match["file"].keys()) for match in items(resp)
-    )
+    assert all({"exif", "meta", "scenes"}.isdisjoint(match["file"].keys()) for match in items(resp))
 
     # Include meta and exif
     resp = client.get(f"/api/v1/files/{source.id}/matches?include=meta,exif")
-    assert_json_response(resp, {
-        "total": len(matches),
-        "items": [
-            {
-                "file": {
-                    "exif": {
-                        "General_FileExtension": match.match_video_file.exif.General_FileExtension,
-                        "General_Duration": match.match_video_file.exif.General_Duration
+    assert_json_response(
+        resp,
+        {
+            "total": len(matches),
+            "items": [
+                {
+                    "file": {
+                        "exif": {
+                            "General_FileExtension": match.match_video_file.exif.General_FileExtension,
+                            "General_Duration": match.match_video_file.exif.General_Duration,
+                        }
                     }
                 }
-            } for match in matches
-        ]
-    })
-    assert all(
-        "scenes" not in match["file"].keys() for match in items(resp)
+                for match in matches
+            ],
+        },
     )
+    assert all("scenes" not in match["file"].keys() for match in items(resp))
 
 
 def test_fetch_file_cluster_basic(client, app):
@@ -730,34 +749,34 @@ def test_fetch_file_cluster_basic(client, app):
 
     # Get all matches
     resp = client.get(f"/api/v1/files/{source.id}/cluster")
-    assert_json_response(resp, {
-        "total": len(matches),
-        "matches": [
-            {
-                "distance": match.distance,
-                "source": match.query_video_file_id,
-                "target": match.match_video_file_id
-            } for match in matches
-        ],
-        "files": [{"file_path": file.file_path, "sha256": file.sha256} for file in all_files]
-    })
+    assert_json_response(
+        resp,
+        {
+            "total": len(matches),
+            "matches": [
+                {"distance": match.distance, "source": match.query_video_file_id, "target": match.match_video_file_id}
+                for match in matches
+            ],
+            "files": [{"file_path": file.file_path, "sha256": file.sha256} for file in all_files],
+        },
+    )
 
     # Get slice
     offset = 1
     limit = 2
     resp = client.get(f"/api/v1/files/{source.id}/cluster?offset={offset}&limit={limit}")
-    assert_json_response(resp, {
-        "total": len(matches),
-        "matches": [
-            {
-                "distance": match.distance,
-                "source": match.query_video_file_id,
-                "target": match.match_video_file_id
-            } for match in matches[offset:offset + limit]
-        ],
-    })
+    assert_json_response(
+        resp,
+        {
+            "total": len(matches),
+            "matches": [
+                {"distance": match.distance, "source": match.query_video_file_id, "target": match.match_video_file_id}
+                for match in matches[offset : offset + limit]
+            ],
+        },
+    )
     payload = json_payload(resp)
-    assert_same(payload["files"], matched_files(matches[offset:offset + limit]))
+    assert_same(payload["files"], matched_files(matches[offset : offset + limit]))
 
 
 def test_fetch_file_cluster_include(client, app):
@@ -776,27 +795,26 @@ def test_fetch_file_cluster_include(client, app):
 
     # Don't include additional fields
     resp = client.get(f"/api/v1/files/{source.id}/cluster")
-    assert all(
-        {"exif", "meta", "scenes"}.isdisjoint(file.keys()) for file in json_payload(resp)["files"]
-    )
+    assert all({"exif", "meta", "scenes"}.isdisjoint(file.keys()) for file in json_payload(resp)["files"])
 
     # Include meta and exif
     resp = client.get(f"/api/v1/files/{source.id}/cluster?include=meta,exif")
-    assert_json_response(resp, {
-        "total": len(matches),
-        "files": [
-            {
-                "exif": {
-                    "General_FileExtension": file.exif.General_FileExtension,
-                    "General_Duration": file.exif.General_Duration
+    assert_json_response(
+        resp,
+        {
+            "total": len(matches),
+            "files": [
+                {
+                    "exif": {
+                        "General_FileExtension": file.exif.General_FileExtension,
+                        "General_Duration": file.exif.General_Duration,
+                    }
                 }
-
-            } for file in files
-        ]
-    })
-    assert all(
-        "scenes" not in file.keys() for file in json_payload(resp)["files"]
+                for file in files
+            ],
+        },
     )
+    assert all("scenes" not in file.keys() for file in json_payload(resp)["files"])
 
 
 def test_fetch_file_cluster_hops(client, app):
@@ -809,9 +827,7 @@ def test_fetch_file_cluster_hops(client, app):
 
         for _ in range(hops - 1):
             cur1, cur2 = make_files(2)
-            matches.extend([
-                link(prev1, cur1), link(prev1, cur2),
-                link(cur2, prev2), link(cur1, prev2)])
+            matches.extend([link(prev1, cur1), link(prev1, cur2), link(cur2, prev2), link(cur1, prev2)])
             linked.append(cur1)
             linked.append(cur2)
             prev1, prev2 = cur1, cur2
@@ -828,7 +844,7 @@ def test_fetch_file_cluster_hops(client, app):
     # Query half
     half = int(hops / 2)
     resp = client.get(f"/api/v1/files/{source.id}/cluster?hops={half}&limit={len(matches)}")
-    assert_same(json_payload(resp)["files"], [source] + linked[:2 * half])
+    assert_same(json_payload(resp)["files"], [source] + linked[: 2 * half])
 
     # Create a short cut from the source to the most distant items
     with session_scope(app) as session:

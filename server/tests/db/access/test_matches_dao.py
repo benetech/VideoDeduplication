@@ -12,17 +12,18 @@ def make_file(prefix="", length=42, ext="flv", scenes=((0, 1), (1, 2))):
     """Create unique file."""
     path = f"{prefix}some/path/{uuid()}.{ext}"
     sha256 = f"hash-of-{path}"
-    return Files(file_path=path, sha256=sha256,
-                 exif=Exif(General_FileExtension=ext, General_Duration=length * 1000),
-                 meta=VideoMetadata(),
-                 scenes=[Scene(start_time=start, duration=duration) for start, duration in scenes])
+    return Files(
+        file_path=path,
+        sha256=sha256,
+        exif=Exif(General_FileExtension=ext, General_Duration=length * 1000),
+        meta=VideoMetadata(),
+        scenes=[Scene(start_time=start, duration=duration) for start, duration in scenes],
+    )
 
 
 def make_files(count, prefix="", length=42, ext="flv", scenes=((0, 1), (1, 2))):
     """Create a collection of unique files."""
-    return [
-        make_file(prefix=prefix, length=length, ext=ext, scenes=scenes) for _ in range(count)
-    ]
+    return [make_file(prefix=prefix, length=length, ext=ext, scenes=scenes) for _ in range(count)]
 
 
 def link(source, target, distance=0.5):
@@ -78,8 +79,14 @@ def test_list_file_matches_hops(database: Database):
         a1, a2, a3, a4 = path_a
         b1, b2, b3, b4 = path_b
         all_links = [
-            link(source, a1), link(a2, a1), link(a2, a3), link(a4, a3),
-            link(b1, source), link(b1, b2), link(b2, b3), link(b4, b3),
+            link(source, a1),
+            link(a2, a1),
+            link(a2, a3),
+            link(a4, a3),
+            link(b1, source),
+            link(b1, b2),
+            link(b2, b3),
+            link(b4, b3),
         ]
         session.add_all(all_links)
 
@@ -123,10 +130,18 @@ def test_list_file_matches_filter_distance(database: Database):
         # Link files
         a1, a2, a3, a4 = path_a
         b1, b2, b3, b4 = path_b
-        session.add_all([
-            link(source, a1, short), link(a2, a1, short), link(a2, a3, short), link(a4, a3, short),
-            link(b1, source, long), link(b1, b2, long), link(b2, b3, long), link(b4, b3, long),
-        ])
+        session.add_all(
+            [
+                link(source, a1, short),
+                link(a2, a1, short),
+                link(a2, a3, short),
+                link(a4, a3, short),
+                link(b1, source, long),
+                link(b1, b2, long),
+                link(b2, b3, long),
+                link(b4, b3, long),
+            ]
+        )
 
     # Query all
     with database.session_scope(expunge=True) as session:
@@ -157,9 +172,7 @@ def test_list_file_matches_filter_cycles(database: Database):
 
         for _ in range(hops - 1):
             cur1, cur2 = make_files(2)
-            links.extend([
-                link(prev1, cur1), link(prev1, cur2),
-                link(cur2, prev2), link(cur1, prev2)])
+            links.extend([link(prev1, cur1), link(prev1, cur2), link(cur2, prev2), link(cur1, prev2)])
             linked.append(cur1)
             linked.append(cur2)
             prev1, prev2 = cur1, cur2
@@ -176,7 +189,7 @@ def test_list_file_matches_filter_cycles(database: Database):
         half = int(hops / 2)
         req = FileMatchesRequest(file=source, hops=half, limit=len(links))
         resp = MatchesDAO.list_file_matches(req, session)
-        assert_same(resp.files, expected=[source] + linked[:2 * half])
+        assert_same(resp.files, expected=[source] + linked[: 2 * half])
 
     # Create a short cut from the source to the most distant items
     with database.session_scope(expunge=True) as session:

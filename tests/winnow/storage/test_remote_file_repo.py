@@ -19,7 +19,7 @@ class MockStorage:
     def download(self, relpath, local_path):
         if not self.exists(relpath):
             raise FileNotFoundError(relpath)
-        with open(local_path, 'w+') as file:
+        with open(local_path, "w+") as file:
             file.write(self.expected_content)
 
 
@@ -115,5 +115,5 @@ def test_exists(repo, expected_file):
 
 def test_content(repo: RemoteFileRepo, expected_file, expected_content):
     file_path = repo.get(expected_file)
-    with open(file_path, 'r') as file:
+    with open(file_path, "r") as file:
         assert file.read() == expected_content

@@ -13,7 +13,7 @@ class Database:
     @staticmethod
     def in_memory(**options):
         """Create in-memory database."""
-        return Database('sqlite:///:memory:', **options)
+        return Database("sqlite:///:memory:", **options)
 
     def __init__(self, uri, base=Base, **options):
         """Create a new database instance.

@@ -6,7 +6,7 @@ from winnow.storage.remote_file_repo import RemoteFileRepo, BaseUrl
 DEFAULT_URL = "https://s3.amazonaws.com/winnowpretrainedmodels/"
 
 # Default pretrained model file name
-DEFAULT_MODEL = 'vgg_16.ckpt'
+DEFAULT_MODEL = "vgg_16.ckpt"
 
 # Default pretrained model directory
 DEFAULT_DIRECTORY = join(dirname(__file__), "pretrained_models")

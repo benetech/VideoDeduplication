@@ -65,7 +65,7 @@ def scan_videos_from_txt(fp, extensions=[]):
 
 def create_video_list(videos_to_be_processed, fp):
 
-    with open(fp, 'w', encoding="utf-8") as f:
+    with open(fp, "w", encoding="utf-8") as f:
         for item in videos_to_be_processed:
             f.write("%s\n" % item)
 
@@ -84,7 +84,7 @@ def filter_results(thr, distances, indices):
 
 def uniq(row):
 
-    return ''.join([str(x) for x in sorted([row['query'], row['match']])])
+    return "".join([str(x) for x in sorted([row["query"], row["match"]])])
 
 
 def load_gray_estimation_model():
@@ -150,18 +150,13 @@ def extract_additional_info(reps, repr_key):
         max_dif = 0
     std_sum = np.std(intra_sum)
 
-    return (shape[0],
-            mean_act,
-            std_sum,
-            max_dif,
-            grays_avg,
-            grays_std,
-            grays_max)
+    return (shape[0], mean_act, std_sum, max_dif, grays_avg, grays_std, grays_max)
+
 
 def get_hash(fp, buffer_size=65536):
 
     sha256 = hashlib.sha256()
-    with open(fp, 'rb') as f:
+    with open(fp, "rb") as f:
         while True:
             data = f.read(buffer_size)
             if not data:
@@ -177,7 +172,7 @@ def resolve_config(config_path=None, frame_sampling=None, save_frames=None):
     config = Config.read(config_path)
     config.proc.frame_sampling = frame_sampling or config.proc.frame_sampling
     cond1 = save_frames is None and config.proc.save_frames
-    config.proc.save_frames = (cond1 or save_frames)
+    config.proc.save_frames = cond1 or save_frames
     return config
 
 
@@ -189,9 +184,7 @@ def get_config_tag(config):
     """
 
     # Configuration attributes that affect representation value
-    config_attributes = dict(
-        frame_sampling=config.proc.frame_sampling
-    )
+    config_attributes = dict(frame_sampling=config.proc.frame_sampling)
 
     sha256 = hashlib.sha256()
     sha256.update(json.dumps(config_attributes).encode("utf-8"))
@@ -210,9 +203,6 @@ def reprkey_resolver(config):
 
     def reprkey(path):
         """Get intermediate representation storage key."""
-        return ReprKey(
-            path=storepath(path),
-            hash=get_hash(path),
-            tag=config_tag)
+        return ReprKey(path=storepath(path), hash=get_hash(path), tag=config_tag)
 
     return reprkey
