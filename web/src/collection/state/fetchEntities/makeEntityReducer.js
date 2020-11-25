@@ -12,7 +12,7 @@ export default function makeEntityReducer({
   return function fetchEntityReducer(state = initialState, action) {
     switch (action.type) {
       case updateParams: {
-        const params = lodash.merge({}, state.params, action.params);
+        const params = lodash.merge({}, initialState.params, action.params);
         return {
           ...state,
           params,
