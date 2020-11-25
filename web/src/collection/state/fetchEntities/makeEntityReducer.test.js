@@ -59,8 +59,8 @@ function fetchSuccess({ data, params = initialState.params }) {
 }
 
 const ACTION_FETCH_FAILURE = "test.FETCH_FAILURE";
-function fetchFailure(error) {
-  return { error, type: ACTION_FETCH_FAILURE };
+function fetchFailure({ error, params = initialState.params }) {
+  return { error, params, type: ACTION_FETCH_FAILURE };
 }
 
 // Create example reducer.
@@ -132,7 +132,7 @@ describe(makeEntityReducer, () => {
     });
   });
 
-  test("Update fetch results", () => {
+  test("Updates fetch results", () => {
     const initial = afterFetch({ items: rangeItems(0, 10), total: 20 });
     const action = fetchSuccess({
       data: { items: rangeItems(5, 15), total: 30 },
@@ -148,7 +148,7 @@ describe(makeEntityReducer, () => {
     });
   });
 
-  test("Ignore fetch results if not loading", () => {
+  test("Ignores fetch results if not loading", () => {
     const initial = withItems({ count: 5, loading: false });
     const action = fetchSuccess({
       data: { items: rangeItems(5, 10), total: initial.total + 1 },
@@ -157,11 +157,21 @@ describe(makeEntityReducer, () => {
     expect(result).toEqual(initial);
   });
 
-  test("Ignore fetch results if params are different", () => {
+  test("Ignores fetch results if params are different", () => {
     const initial = afterFetch({ items: rangeItems(0, 5) });
     const action = fetchSuccess({
       data: { items: rangeItems(5, 10), total: initial.total + 1 },
-      params: { someParam: `other than ${initialState.params.someParam}` },
+      params: { someParam: `Other than ${initial.params.someParam}` },
+    });
+    const result = reducer({ ...initial }, action);
+    expect(result).toEqual(initial);
+  });
+
+  test("Ignores fetch results if response origin is undefined", () => {
+    const initial = afterFetch({ items: rangeItems(0, 5) });
+    const action = fetchSuccess({
+      data: { items: rangeItems(5, 10), total: initial.total + 1 },
+      params: null,
     });
     const result = reducer({ ...initial }, action);
     expect(result).toEqual(initial);
@@ -169,12 +179,45 @@ describe(makeEntityReducer, () => {
 
   test("Honors fetch error", () => {
     const initial = afterFetch({ items: rangeItems(0, 5) });
-    const action = fetchFailure(new Error());
+    const action = fetchFailure({
+      error: "Some error",
+      params: initial.params,
+    });
     const result = reducer(initial, action);
     expect(result).toMatchObject({
       ...initial,
       loading: false,
       error: true,
     });
+  });
+
+  test("Ignores fetch error if not loading", () => {
+    const initial = withItems({ count: 5, loading: false });
+    const action = fetchFailure({
+      error: "Some error",
+      params: initial.params,
+    });
+    const result = reducer({ ...initial }, action);
+    expect(result).toEqual(initial);
+  });
+
+  test("Ignores fetch error if params are not the same", () => {
+    const initial = afterFetch({ items: rangeItems(0, 5) });
+    const action = fetchFailure({
+      error: "Some error",
+      params: { someParam: `Other than ${initial.params.someParam}` },
+    });
+    const result = reducer({ ...initial }, action);
+    expect(result).toEqual(initial);
+  });
+
+  test("Ignores fetch error if response origin is undefined", () => {
+    const initial = afterFetch({ items: rangeItems(0, 5) });
+    const action = fetchFailure({
+      error: "Some error",
+      params: null,
+    });
+    const result = reducer({ ...initial }, action);
+    expect(result).toEqual(initial);
   });
 });

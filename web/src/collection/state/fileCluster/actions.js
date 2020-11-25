@@ -56,6 +56,6 @@ export const ACTION_FETCH_FILE_CLUSTER_SLICE_FAILURE =
  * @param error
  * @return {{error: *, type: string}}
  */
-export function fetchFileClusterSliceFailure(error) {
-  return { error, type: ACTION_FETCH_FILE_CLUSTER_SLICE_FAILURE };
+export function fetchFileClusterSliceFailure({ error, params }) {
+  return { error, params, type: ACTION_FETCH_FILE_CLUSTER_SLICE_FAILURE };
 }

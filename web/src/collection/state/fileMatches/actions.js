@@ -50,8 +50,9 @@ export const ACTION_FETCH_FILE_MATCHES_SLICE_FAILURE =
 /**
  * Create new "Failure of matches slice fetching" action.
  * @param error
+ * @param params
  * @return {{error: *, type: string}}
  */
-export function fetchFileMatchesSliceFailure(error) {
-  return { error, type: ACTION_FETCH_FILE_MATCHES_SLICE_FAILURE };
+export function fetchFileMatchesSliceFailure({ error, params }) {
+  return { error, params, type: ACTION_FETCH_FILE_MATCHES_SLICE_FAILURE };
 }

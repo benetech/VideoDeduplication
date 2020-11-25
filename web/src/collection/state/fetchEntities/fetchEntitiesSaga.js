@@ -46,9 +46,11 @@ export default function* fetchEntitiesSaga({
   getParams = defaultParams,
   resourceName = "items",
 }) {
+  // Extract state
+  const state = yield select(stateSelector);
+
   try {
     // Determine current query params
-    const state = yield select(stateSelector);
     const args = getArgs(state, resourceName);
 
     // Send request to permanent storage
@@ -62,7 +64,7 @@ export default function* fetchEntitiesSaga({
         requestResource,
         error: resp.error,
       });
-      yield put(failure(resp.error));
+      yield put(failure({ error: resp.error, params: getParams(state) }));
       return;
     }
 
@@ -70,6 +72,6 @@ export default function* fetchEntitiesSaga({
     yield put(success({ data: resp.data, params: getParams(state) }));
   } catch (error) {
     console.error(error);
-    yield put(failure(error));
+    yield put(failure({ error, params: getParams(state) }));
   }
 }
