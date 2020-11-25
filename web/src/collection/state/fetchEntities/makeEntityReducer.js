@@ -13,6 +13,11 @@ export default function makeEntityReducer({
     switch (action.type) {
       case updateParams: {
         const params = lodash.merge({}, initialState.params, action.params);
+        if (lodash.isEqual(state.params, params) && action.preserveItems) {
+          // The request parameters are the same
+          // and we don't want to refresh items.
+          return state;
+        }
         return {
           ...state,
           params,

@@ -8,8 +8,8 @@ export const ACTION_UPDATE_FILE_MATCHES_PARAMS =
 /**
  * Create new "Update matches params" action.
  */
-export function updateFileMatchesParams(params) {
-  return { params, type: ACTION_UPDATE_FILE_MATCHES_PARAMS };
+export function updateFileMatchesParams(params, preserveItems = false) {
+  return { params, preserveItems, type: ACTION_UPDATE_FILE_MATCHES_PARAMS };
 }
 
 /**

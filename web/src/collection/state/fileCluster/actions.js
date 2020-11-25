@@ -8,8 +8,8 @@ export const ACTION_UPDATE_FILE_CLUSTER_PARAMS =
 /**
  * Create new update-cluster-params action.
  */
-export function updateFileClusterParams(params) {
-  return { params, type: ACTION_UPDATE_FILE_CLUSTER_PARAMS };
+export function updateFileClusterParams(params, preserveItems = false) {
+  return { params, preserveItems, type: ACTION_UPDATE_FILE_CLUSTER_PARAMS };
 }
 
 /**
