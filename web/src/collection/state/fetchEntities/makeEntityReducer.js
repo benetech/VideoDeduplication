@@ -41,15 +41,25 @@ export default function makeEntityReducer({
           console.warn(warning);
           return state;
         }
+
+        // Ignore responses unrelated to the current request params.
+        if (!lodash.isEqual(state.params, action.params)) {
+          const warning =
+            `Unexpected params when handling ${fetchSliceSuccess}. ` +
+            `state.params must be the same. Skipping...`;
+          console.warn(warning, state.params, action.params);
+          return state;
+        }
+
         return {
           ...state,
           loading: false,
           error: false,
           [resourceName]: extendEntityList(
             state[resourceName],
-            action[resourceName]
+            action.data[resourceName]
           ),
-          total: action.total,
+          total: action.data.total,
         };
       case fetchSliceFailure:
         return {

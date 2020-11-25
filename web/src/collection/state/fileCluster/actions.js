@@ -36,11 +36,10 @@ export const ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS =
 /**
  * Create new "Success of cluster slice fetching" action.
  */
-export function fetchFileClusterSliceSuccess({ matches, files, total }) {
+export function fetchFileClusterSliceSuccess({ data, params }) {
   return {
-    matches,
-    files,
-    total,
+    data,
+    params,
     type: ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS,
   };
 }

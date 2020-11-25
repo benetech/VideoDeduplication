@@ -27,7 +27,7 @@ export default function fileClusterReducer(state = initialState, action) {
     case ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS:
       return {
         ...defaultReducer(state, action),
-        files: extendEntityMap(state.files, action.files),
+        files: extendEntityMap(state.files, action.data.files),
       };
     default:
       return defaultReducer(state, action);

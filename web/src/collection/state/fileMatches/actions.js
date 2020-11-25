@@ -36,8 +36,8 @@ export const ACTION_FETCH_FILE_MATCHES_SLICE_SUCCESS =
 /**
  * Create new "Success of matches slice fetching" action.
  */
-export function fetchFileMatchesSliceSuccess({ matches, total }) {
-  return { matches, total, type: ACTION_FETCH_FILE_MATCHES_SLICE_SUCCESS };
+export function fetchFileMatchesSliceSuccess({ data, params }) {
+  return { data, params, type: ACTION_FETCH_FILE_MATCHES_SLICE_SUCCESS };
 }
 
 /**
