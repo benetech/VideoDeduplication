@@ -27,7 +27,7 @@ export default function makeEntityReducer({
           const warning =
             `Undefined params were found when handling ${action.type}. ` +
             `state.params must be the same as action.params. Skipping...`;
-          console.warn(warning, state.params, action.params);
+          console.warn(warning);
           return state;
         }
 
@@ -37,7 +37,7 @@ export default function makeEntityReducer({
           const warning =
             `Unexpected params when handling ${action.type}. ` +
             `state.params must be the same. Skipping...`;
-          console.warn(warning, state.params, action.params);
+          console.warn(warning, state.params, params);
           return state;
         }
       }
