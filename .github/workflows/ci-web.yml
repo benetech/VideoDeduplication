@@ -30,3 +30,12 @@ jobs:
       - name: Test
         run: npm test
         working-directory: ./web
+      - name: Prepare E2E Testing
+        working-directory: ./web
+        run: npm run cy:server
+      - name: E2E Testing with Cypress on Firefox
+        working-directory: ./web
+        run: npm run cy:firefox
+      - name: E2E Testing with Cypress on Chrome
+        working-directory: ./web
+        run: npm run cy:chrome

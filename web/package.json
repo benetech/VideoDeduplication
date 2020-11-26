@@ -12,7 +12,9 @@
     "lint": "eslint src",
     "jest": "jest src",
     "cy:open": "cypress open",
-    "cy:run": "cypress run"
+    "cy:server": "npm run dev & wait-on 'http://localhost:9999'",
+    "cy:firefox": "cypress run --browser firefox --headless",
+    "cy:chrome": "cypress run --browser chrome --headless"
   },
   "repository": {
     "type": "git",
@@ -45,6 +47,7 @@
     "jest": "^26.6.3",
     "prettier": "^2.0.5",
     "style-loader": "^1.2.1",
+    "wait-on": "^5.2.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
