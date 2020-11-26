@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "created_date": 1606192562.713767,
+      "exif": {
+        "General_Duration": 42.0,
+        "General_FileExtension": "flv"
+      },
+      "file_path": "f6d2b5d7-9a83-4f27-9c3f-3da9f28de5c7.flv",
+      "id": 1,
+      "meta": { "flagged": null, "gray_max": null, "video_dark_flag": null },
+      "sha256": "hash-of-f6d2b5d7-9a83-4f27-9c3f-3da9f28de5c7.flv",
+      "signature": "c29tZS1zaWduYXR1cmU="
+    },
+    {
+      "created_date": 1606192562.714385,
+      "exif": {
+        "General_Duration": 42.0,
+        "General_FileExtension": "flv"
+      },
+      "file_path": "09a397fb-78ed-425c-ae54-25dc58c600f6.flv",
+      "id": 2,
+      "meta": { "flagged": null, "gray_max": null, "video_dark_flag": null },
+      "sha256": "hash-of-09a397fb-78ed-425c-ae54-25dc58c600f6.flv",
+      "signature": "c29tZS1zaWduYXR1cmU="
+    },
+    {
+      "created_date": 1606192562.714543,
+      "exif": {
+        "General_Duration": 42.0,
+        "General_FileExtension": "flv"
+      },
+      "file_path": "3ca31adc-31dd-4e84-9c9a-420c5597fc27.flv",
+      "id": 3,
+      "meta": { "flagged": null, "gray_max": null, "video_dark_flag": null },
+      "sha256": "hash-of-3ca31adc-31dd-4e84-9c9a-420c5597fc27.flv",
+      "signature": "c29tZS1zaWduYXR1cmU="
+    },
+    {
+      "created_date": 1606192562.71467,
+      "exif": {
+        "General_Duration": 42.0,
+        "General_FileExtension": "flv"
+      },
+      "file_path": "a4a1c18a-45a0-4e31-bfaa-251a0b38a28f.flv",
+      "id": 4,
+      "meta": { "flagged": null, "gray_max": null, "video_dark_flag": null },
+      "sha256": "hash-of-a4a1c18a-45a0-4e31-bfaa-251a0b38a28f.flv",
+      "signature": "c29tZS1zaWduYXR1cmU="
+    }
+  ],
+  "duplicates": 4,
+  "related": 6,
+  "total": 8,
+  "unique": 2
+}
