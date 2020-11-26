@@ -70,6 +70,7 @@ function CategoryButton(props) {
     onClick,
     dense,
     className,
+    ...other
   } = props;
 
   const classes = useStyles();
@@ -101,6 +102,7 @@ function CategoryButton(props) {
         focusRipple
         disableTouchRipple
         component="div"
+        {...other}
       >
         <Icon className={classes.icon} />
         <span

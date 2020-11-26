@@ -24,11 +24,13 @@ function ViewSelector(props) {
         value={FileListType.linear}
         icon={ListIcon}
         tooltip={messages.useList}
+        data-selector="ToggleListView"
       />
       <IconSelect.Option
         value={FileListType.grid}
         icon={GridIcon}
         tooltip={messages.useGrid}
+        data-selector="ToggleGridView"
       />
     </IconSelect>
   );

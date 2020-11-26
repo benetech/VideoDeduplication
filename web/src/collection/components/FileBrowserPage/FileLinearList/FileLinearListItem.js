@@ -76,6 +76,8 @@ const FileLinearListItem = React.memo(function FpLinearListItem(props) {
       onClick={handleClick}
       className={clsx(classes.container, button && classes.button, className)}
       aria-label={messages.containerLabel}
+      data-selector="FileLinearListItem"
+      data-file-id={file.id}
       {...other}
     >
       <FileSummary file={file} divider className={classes.summary}>

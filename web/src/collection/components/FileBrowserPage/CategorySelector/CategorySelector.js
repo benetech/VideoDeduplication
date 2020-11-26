@@ -19,21 +19,25 @@ const options = [
     category: MatchCategory.all,
     title: "search.category.all",
     icon: AllInclusiveOutlinedIcon,
+    selector: "ShowAllButton",
   },
   {
     category: MatchCategory.duplicates,
     title: "search.category.duplicates",
     icon: FileCopyOutlinedIcon,
+    selector: "ShowDuplicatesButton",
   },
   {
     category: MatchCategory.related,
     title: "search.category.related",
     icon: GroupWorkOutlinedIcon,
+    selector: "ShowRelatedButton",
   },
   {
     category: MatchCategory.unique,
     title: "search.category.unique",
     icon: AdjustOutlinedIcon,
+    selector: "ShowUniqueButton",
   },
 ];
 
@@ -59,6 +63,7 @@ function CategorySelector(props) {
           selected={option.category === selected}
           key={option.category}
           dense={dense}
+          data-selector={option.selector}
         />
       ))}
     </Grid>
