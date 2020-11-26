@@ -10,7 +10,9 @@
     "prettier": "prettier --ignore-path .gitignore --write --list-different \"**/*.{js,ts,md,json,yml}\"",
     "prettier:check": "prettier --ignore-path .gitignore --check \"**/*.{js,ts,md,json,yml}\"",
     "lint": "eslint src",
-    "jest": "jest src"
+    "jest": "jest src",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run"
   },
   "repository": {
     "type": "git",
@@ -34,6 +36,7 @@
     "@babel/preset-react": "^7.10.4",
     "babel-loader": "^8.1.0",
     "css-loader": "^3.6.0",
+    "cypress": "^6.0.0",
     "eslint": "^7.5.0",
     "eslint-plugin-jest": "^24.1.3",
     "eslint-plugin-react": "^7.20.3",
