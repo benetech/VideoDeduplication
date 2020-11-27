@@ -80,15 +80,14 @@ function choose() {
     read -sN1 -t 0.0001 k3
     key+=${k1}${k2}${k3}
 
-    # Enter or Space was pressed
-    if [ -z "$key" ]; then
-      # shellcheck disable=SC2034
-      # Variable is passed by reference
-      _choose_result="$(choose.option-value "${entries[$cur]}")";
-      return 0;
-    fi
-
     case "$key" in
+      # Enter or Space was pressed
+      ''|$'\x20'|$'\x0A')
+        # shellcheck disable=SC2034
+        # Variable is passed by reference
+        _choose_result="$(choose.option-value "${entries[$cur]}")";
+        return 0;;
+
       # Arrow up or left: previous item:
       $'\e[A'|$'\e0A'|$'\e[D'|$'\e0D')
         ((cur > 0)) && ((cur--));;
