@@ -107,6 +107,8 @@ function MatchPreview(props) {
       className={clsx(classes.root, className)}
       tabIndex={0}
       aria-label={messages.ariaLabel}
+      data-selector="MatchPreview"
+      data-file-id={file.id}
     >
       <div className={classes.nameContainer}>
         <div className={classes.iconContainer}>
