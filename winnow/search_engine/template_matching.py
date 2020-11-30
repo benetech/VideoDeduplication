@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
 
-from winnow.feature_extraction.utils import load_image, download_file
+from winnow.feature_extraction.utils import load_image
+from winnow.utils.network import download_file
 from winnow.storage.repr_storage import ReprStorage
 
 
