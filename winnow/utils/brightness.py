@@ -37,38 +37,3 @@ def get_brightness_estimation(reps, repr_key):
     estimates = get_gray_max(vl_features)
 
     return estimates
-
-
-def extract_additional_info(reps, repr_key):
-    """
-    Extract file metadata.
-    Args:
-        reps (winnow.storage.repr_storage.ReprStorage): Intermediate
-            representation storage.
-        repr_key (winnow.storage.repr_key.ReprKey): Representation
-            storage key.
-    """
-    v = reps.frame_level.read(repr_key)
-    frames = reps.frames.read(repr_key)
-    grays = np.array([cv2.cvtColor(x, cv2.COLOR_BGR2GRAY) for x in frames])
-    grays = np.array([np.mean(x) for x in grays])
-
-    grays_avg = np.mean(grays, axis=0)
-    grays_std = np.std(grays, axis=0)
-    try:
-        grays_max = np.max(grays)
-    except Exception:
-        grays_max = 0
-
-    shape = v.shape
-    intra_sum = np.sum(v, axis=1)
-    mean_act = np.mean(intra_sum)
-    try:
-
-        max_dif = np.max(intra_sum) - np.min(intra_sum)
-
-    except Exception:
-        max_dif = 0
-    std_sum = np.std(intra_sum)
-
-    return (shape[0], mean_act, std_sum, max_dif, grays_avg, grays_std, grays_max)
