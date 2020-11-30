@@ -15,12 +15,10 @@ from winnow.feature_extraction import SimilarityModel
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import bulk_read
-from winnow.utils import (
-    extract_scenes,
-    get_brightness_estimation,
-)
+from winnow.utils.brightness import get_brightness_estimation
 from winnow.utils.config import resolve_config
 from winnow.utils.matches import filter_results
+from winnow.utils.scene_detection import extract_scenes
 
 logging.getLogger().setLevel(logging.ERROR)
 logging.getLogger("winnow").setLevel(logging.INFO)
