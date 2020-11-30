@@ -1,5 +1,5 @@
 sources:
-  root: data/test_dataset/
+  root: data/
   extensions:
     - mp4
     - ogv
