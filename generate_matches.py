@@ -2,12 +2,12 @@ import logging
 import os
 import sys
 import time
+
 import click
 from dataclasses import asdict
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
-import pandas as pd
-import numpy as np
+
 from db import Database
 from db.utils import *
 from winnow.feature_extraction import SimilarityModel
@@ -15,7 +15,6 @@ from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import bulk_read
 from winnow.utils import (
-    extract_additional_info,
     extract_scenes,
     filter_results,
     uniq,
