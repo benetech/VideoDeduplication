@@ -3,7 +3,6 @@ from os.path import join
 import click
 
 from db import Database
-from db.utils import *
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_utils import path_resolver
 from winnow.utils import (

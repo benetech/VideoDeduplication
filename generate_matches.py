@@ -4,12 +4,13 @@ import sys
 import time
 
 import click
+import numpy as np
+import pandas as pd
 from dataclasses import asdict
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
 
 from db import Database
-from db.utils import *
 from winnow.feature_extraction import SimilarityModel
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage

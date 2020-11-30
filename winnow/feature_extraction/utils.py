@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 import yaml
 
+from winnow.utils.network import download_file
+
 
 def load_video(video, desired_size, frame_sampling):
     """
