@@ -11,7 +11,7 @@ def resolve_config(config_path=None, frame_sampling=None, save_frames=None):
 
     # Read from command-line arguments
     if frame_sampling is not None:
-        config.proc.frame_sampling = frame_sampling
+        config.proc.frame_sampling = int(frame_sampling)
     if save_frames is not None:
         config.proc.save_frames = save_frames
     return config

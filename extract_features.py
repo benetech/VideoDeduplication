@@ -36,7 +36,7 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     "--frame-sampling",
     "-fs",
     help="Sets the sampling strategy (values from 1 to 10 - eg sample one frame every X seconds) - overrides frame sampling from the config file",
-    default="",
+    default=None,
 )
 @click.option(
     "--save-frames",
