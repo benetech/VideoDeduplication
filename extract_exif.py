@@ -10,8 +10,8 @@ from winnow.utils import (
     extract_from_list_of_videos,
     convert_to_df,
     parse_and_filter_metadata_df,
-    resolve_config,
 )
+from winnow.utils.config import resolve_config
 
 
 @click.command()

@@ -8,8 +8,6 @@ import cv2
 import numpy as np
 from joblib import load
 
-from winnow.config import Config
-from winnow.config.path import resolve_config_path
 from winnow.storage.repr_key import ReprKey
 from winnow.storage.repr_utils import path_resolver
 
@@ -164,16 +162,6 @@ def get_hash(fp, buffer_size=65536):
             sha256.update(data)
 
     return sha256.hexdigest()
-
-
-def resolve_config(config_path=None, frame_sampling=None, save_frames=None):
-    """Resolve config from command-line arguments."""
-    config_path = resolve_config_path(config_path)
-    config = Config.read(config_path)
-    config.proc.frame_sampling = frame_sampling or config.proc.frame_sampling
-    cond1 = save_frames is None and config.proc.save_frames
-    config.proc.save_frames = cond1 or save_frames
-    return config
 
 
 def get_config_tag(config):

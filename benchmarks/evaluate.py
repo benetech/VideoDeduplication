@@ -2,7 +2,7 @@ import pandas as pd
 from glob import glob
 from utils import get_result, download_dataset, get_frame_sampling_permutations
 import os
-from winnow.utils import resolve_config
+from winnow.utils.config import resolve_config
 import click
 from winnow.utils import scan_videos
 import subprocess

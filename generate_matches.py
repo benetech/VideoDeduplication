@@ -19,9 +19,9 @@ from winnow.utils import (
     extract_scenes,
     filter_results,
     uniq,
-    resolve_config,
     get_brightness_estimation,
 )
+from winnow.utils.config import resolve_config
 
 logging.getLogger().setLevel(logging.ERROR)
 logging.getLogger("winnow").setLevel(logging.INFO)
