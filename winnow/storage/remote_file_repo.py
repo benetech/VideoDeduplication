@@ -8,14 +8,7 @@ from urllib.parse import urljoin
 
 import requests
 
-
-# TODO: Get rid of duplicated code (#158).
-def download_file(local_filename, url):
-    r = requests.get(url, stream=True)
-    with open(local_filename, "wb") as f:
-        shutil.copyfileobj(r.raw, f)
-    return local_filename
-
+from winnow.utils.network import download_file
 
 # Default remote file repo logger.
 logger = logging.getLogger(__name__)
