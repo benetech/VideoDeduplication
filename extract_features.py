@@ -15,7 +15,9 @@ from winnow.feature_extraction.model import default_model_path
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import bulk_read, bulk_write
-from winnow.utils import scan_videos, create_video_list, scan_videos_from_txt, resolve_config, reprkey_resolver
+from winnow.utils.config import resolve_config
+from winnow.utils.files import scan_videos, scan_videos_from_txt, create_video_list
+from winnow.utils.repr import reprkey_resolver
 
 logging.getLogger().setLevel(logging.ERROR)
 logging.getLogger("winnow").setLevel(logging.INFO)
@@ -34,7 +36,7 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     "--frame-sampling",
     "-fs",
     help="Sets the sampling strategy (values from 1 to 10 - eg sample one frame every X seconds) - overrides frame sampling from the config file",
-    default="",
+    default=None,
 )
 @click.option(
     "--save-frames",

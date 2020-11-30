@@ -2,26 +2,23 @@ import logging
 import os
 import sys
 import time
+
 import click
+import numpy as np
+import pandas as pd
 from dataclasses import asdict
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
-import pandas as pd
-import numpy as np
+
 from db import Database
-from db.utils import *
 from winnow.feature_extraction import SimilarityModel
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import bulk_read
-from winnow.utils import (
-    extract_additional_info,
-    extract_scenes,
-    filter_results,
-    uniq,
-    resolve_config,
-    get_brightness_estimation,
-)
+from winnow.utils.brightness import get_brightness_estimation
+from winnow.utils.config import resolve_config
+from winnow.utils.matches import filter_results
+from winnow.utils.scene_detection import extract_scenes
 
 logging.getLogger().setLevel(logging.ERROR)
 logging.getLogger("winnow").setLevel(logging.INFO)
@@ -86,8 +83,12 @@ def main(config):
     match_df["self_match"] = match_df["query_video"] == match_df["match_video"]
     # Remove self matches
     match_df = match_df.loc[~match_df["self_match"], :]
+
     # Creates unique index from query, match
-    match_df["unique_index"] = match_df.apply(uniq, axis=1)
+    def unique(row):
+        return "".join([str(x) for x in sorted([row["query"], row["match"]])])
+
+    match_df["unique_index"] = match_df.apply(unique, axis=1)
     # Removes duplicated entries (eg if A matches B, we don't need B matches A)
     match_df = match_df.drop_duplicates(subset=["unique_index"])
 

@@ -53,7 +53,7 @@ export default class Transform {
   fileMetadata(data) {
     if (!data.meta) {
       return {
-        length: 0,
+        length: data.exif?.General_Duration || 0,
       };
     }
     return {

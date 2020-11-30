@@ -3,16 +3,12 @@ from os.path import join
 import click
 
 from db import Database
-from db.utils import *
+from db.schema import Files
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_utils import path_resolver
-from winnow.utils import (
-    scan_videos,
-    extract_from_list_of_videos,
-    convert_to_df,
-    parse_and_filter_metadata_df,
-    resolve_config,
-)
+from winnow.utils.config import resolve_config
+from winnow.utils.files import scan_videos, get_hash
+from winnow.utils.metadata_extraction import extract_from_list_of_videos, convert_to_df, parse_and_filter_metadata_df
 
 
 @click.command()

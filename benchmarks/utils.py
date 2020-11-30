@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 from winnow.feature_extraction.loading_utils import evaluate, calculate_similarities, global_vector
-from winnow.feature_extraction.utils import load_image, download_file
+from winnow.feature_extraction.utils import load_image
+from winnow.utils.network import download_file
 from winnow.feature_extraction import SimilarityModel
 from collections import defaultdict
 import os
