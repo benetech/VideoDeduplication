@@ -24,11 +24,16 @@ export default function fileClusterReducer(state = initialState, action) {
         ...defaultReducer(state, action),
         files: {},
       };
-    case ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS:
-      return {
-        ...defaultReducer(state, action),
-        files: extendEntityMap(state.files, action.files),
-      };
+    case ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS: {
+      const newState = defaultReducer(state, action);
+      if (state.loading && !newState.loading) {
+        return {
+          ...defaultReducer(state, action),
+          files: extendEntityMap(state.files, action.data.files),
+        };
+      }
+      return newState;
+    }
     default:
       return defaultReducer(state, action);
   }

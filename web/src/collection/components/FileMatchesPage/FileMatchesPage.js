@@ -149,7 +149,7 @@ function FileMatchesPage(props) {
           <Grid item xs={6} lg={3}>
             <LoadTrigger
               error={fileMatches.error}
-              loading={fileMatches.loading}
+              loading={fileMatches.loading || fileMatches.params.fileId == null}
               onLoad={handleLoad}
               hasMore={
                 fileMatches.total == null ||

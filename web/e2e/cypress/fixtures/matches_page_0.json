@@ -1,0 +1,66 @@
+{
+  "items": [
+    {
+      "distance": 0.4385941416908245,
+      "file": {
+        "created_date": 1606368488.388402,
+        "exif": {
+          "General_Duration": 42.0,
+          "General_FileExtension": "flv"
+        },
+        "file_path": "25adb26c-c4f9-403c-aaae-2aa527ab8921.flv",
+        "id": 34,
+        "meta": { "flagged": null, "gray_max": null, "video_dark_flag": null },
+        "sha256": "hash-of-25adb26c-c4f9-403c-aaae-2aa527ab8921.flv"
+      },
+      "id": 128
+    },
+    {
+      "distance": 0.49354189605822396,
+      "file": {
+        "created_date": 1606368488.386901,
+        "exif": {
+          "General_Duration": 42.0,
+          "General_FileExtension": "flv"
+        },
+        "file_path": "6012c371-a30e-43f5-a955-808f74655ae9.flv",
+        "id": 21,
+        "meta": { "flagged": null, "gray_max": null, "video_dark_flag": null },
+        "sha256": "hash-of-6012c371-a30e-43f5-a955-808f74655ae9.flv"
+      },
+      "id": 129
+    },
+    {
+      "distance": 0.35373274391597087,
+      "file": {
+        "created_date": 1606368488.387987,
+        "exif": {
+          "General_Duration": 42.0,
+          "General_FileExtension": "flv"
+        },
+        "file_path": "e217bc15-283a-44fd-93d0-f52c456bc93b.flv",
+        "id": 28,
+        "meta": { "flagged": null, "gray_max": null, "video_dark_flag": null },
+        "sha256": "hash-of-e217bc15-283a-44fd-93d0-f52c456bc93b.flv"
+      },
+      "id": 130
+    },
+    {
+      "distance": 0.6243028704449523,
+      "file": {
+        "created_date": 1606368488.387682,
+        "exif": {
+          "General_Duration": 42.0,
+          "General_FileExtension": "flv"
+        },
+        "file_path": "232a631d-ca2b-4996-94db-7e6277a0c543.flv",
+        "id": 24,
+        "meta": { "flagged": null, "gray_max": null, "video_dark_flag": null },
+        "sha256": "hash-of-232a631d-ca2b-4996-94db-7e6277a0c543.flv"
+      },
+      "id": 131
+    }
+  ],
+  "offset": 0,
+  "total": 8
+}

@@ -64,6 +64,7 @@ function AppMenuHeader(props) {
             onClick={onToggle}
             aria-label={intl.formatMessage({ id: "actions.toggleSidebar" })}
             aria-controls={ariaControls}
+            data-selector="AppMenuToggle"
           >
             <MenuIcon
               fontSize="large"
@@ -84,6 +85,7 @@ function AppMenuHeader(props) {
             onClick={onToggle}
             aria-label={intl.formatMessage({ id: "actions.toggleSidebar" })}
             aria-controls={ariaControls}
+            data-selector="AppMenuToggle"
           >
             <MenuIcon
               fontSize="large"

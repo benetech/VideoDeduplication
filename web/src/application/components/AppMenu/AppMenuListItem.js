@@ -111,6 +111,7 @@ function AppMenuListItem(props) {
       role="link"
       component="div"
       aria-labelledby={labelId}
+      data-selector="AppMenuItem"
       {...other}
     >
       {decorator}

@@ -8,8 +8,8 @@ export const ACTION_UPDATE_FILE_CLUSTER_PARAMS =
 /**
  * Create new update-cluster-params action.
  */
-export function updateFileClusterParams(params) {
-  return { params, type: ACTION_UPDATE_FILE_CLUSTER_PARAMS };
+export function updateFileClusterParams(params, preserveItems = false) {
+  return { params, preserveItems, type: ACTION_UPDATE_FILE_CLUSTER_PARAMS };
 }
 
 /**
@@ -36,11 +36,10 @@ export const ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS =
 /**
  * Create new "Success of cluster slice fetching" action.
  */
-export function fetchFileClusterSliceSuccess({ matches, files, total }) {
+export function fetchFileClusterSliceSuccess({ data, params }) {
   return {
-    matches,
-    files,
-    total,
+    data,
+    params,
     type: ACTION_FETCH_FILE_CLUSTER_SLICE_SUCCESS,
   };
 }
@@ -57,6 +56,6 @@ export const ACTION_FETCH_FILE_CLUSTER_SLICE_FAILURE =
  * @param error
  * @return {{error: *, type: string}}
  */
-export function fetchFileClusterSliceFailure(error) {
-  return { error, type: ACTION_FETCH_FILE_CLUSTER_SLICE_FAILURE };
+export function fetchFileClusterSliceFailure({ error, params }) {
+  return { error, params, type: ACTION_FETCH_FILE_CLUSTER_SLICE_FAILURE };
 }

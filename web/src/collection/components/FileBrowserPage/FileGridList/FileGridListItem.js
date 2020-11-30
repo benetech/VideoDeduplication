@@ -125,6 +125,8 @@ const FileGridListItem = React.memo(function FpGridListItem(props) {
       onKeyDown={handleKeyDown}
       tabIndex={0}
       aria-label={intl.formatMessage({ id: "actions.showFileDetails" })}
+      data-selector="FileGridListItem"
+      data-file-id={file.id}
     >
       <MediaPreview
         src={file.preview}

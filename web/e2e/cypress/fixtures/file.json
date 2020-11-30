@@ -1,0 +1,17 @@
+{
+  "created_date": 1606368488.388472,
+  "exif": {
+    "General_Duration": 42.0,
+    "General_FileExtension": "flv"
+  },
+  "file_path": "cba9fea2-6748-4119-a884-f7435e8558b0.flv",
+  "id": 1,
+  "matches_count": 14,
+  "meta": { "flagged": null, "gray_max": null, "video_dark_flag": null },
+  "scenes": [
+    { "duration": 1, "id": 69, "start_time": 0 },
+    { "duration": 2, "id": 70, "start_time": 1 }
+  ],
+  "sha256": "hash-of-cba9fea2-6748-4119-a884-f7435e8558b0.flv",
+  "signature": "c29tZS1zaWduYXR1cmU="
+}

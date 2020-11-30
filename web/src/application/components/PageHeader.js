@@ -45,7 +45,7 @@ function PageHeader(props) {
   const classes = useStyles();
 
   return (
-    <div className={clsx(classes.header, className)}>
+    <div data-selector="PageHeader" className={clsx(classes.header, className)}>
       {titleElement(title, classes)}
       <div className={classes.content}>{children}</div>
       <AppActions className={classes.actions} />

@@ -59,7 +59,10 @@ function FileSummaryHeader(props) {
   );
 
   return (
-    <Paper className={clsx(classes.header, className)}>
+    <Paper
+      className={clsx(classes.header, className)}
+      data-selector="FileSummaryHeader"
+    >
       <IconButton onClick={handleBack} aria-label={messages.goBack}>
         <ArrowBackOutlinedIcon />
       </IconButton>

@@ -106,6 +106,7 @@ function AppMenu(props) {
       role="navigation"
       aria-label={intl.formatMessage({ id: "aria.label.sidebar" })}
       className={getStyles(classes, open, className)}
+      data-selector="AppMenu"
     >
       <AppMenuList className={classes.links}>
         <AppMenuHeader
