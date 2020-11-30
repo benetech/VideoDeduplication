@@ -8,7 +8,7 @@ import pytest
 from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepresentation, SimilarityModel
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import bulk_read
-from winnow.utils import reprkey_resolver
+from winnow.utils.repr import reprkey_resolver
 from winnow.utils.files import scan_videos, create_video_list
 from winnow.utils.config import resolve_config
 

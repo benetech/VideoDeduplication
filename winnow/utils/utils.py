@@ -1,32 +1,11 @@
-import hashlib
-import json
 import os
 
 import cv2
 import numpy as np
 from joblib import load
 
-from winnow.storage.repr_key import ReprKey
-from winnow.storage.repr_utils import path_resolver
-from winnow.utils.files import get_hash
-
 DEFAULT_DIRECTORY = os.path.join(os.path.dirname(__file__), "models")
 GRAY_ESTIMATION_MODEL = os.path.join(DEFAULT_DIRECTORY, "gb_gray_model.joblib")
-
-
-def filter_results(thr, distances, indices):
-    results = []
-    results_distances = []
-    msk = distances < thr
-    for i, r in enumerate(msk):
-        results.append(indices[i, r])
-        results_distances.append(distances[i, r])
-    return results, results_distances
-
-
-def uniq(row):
-
-    return "".join([str(x) for x in sorted([row["query"], row["match"]])])
 
 
 def load_gray_estimation_model():
@@ -93,35 +72,3 @@ def extract_additional_info(reps, repr_key):
     std_sum = np.std(intra_sum)
 
     return (shape[0], mean_act, std_sum, max_dif, grays_avg, grays_std, grays_max)
-
-
-def get_config_tag(config):
-    """Get configuration tag.
-
-    Whenever configuration changes making the intermediate representation
-    incompatible the tag value will change as well.
-    """
-
-    # Configuration attributes that affect representation value
-    config_attributes = dict(frame_sampling=config.proc.frame_sampling)
-
-    sha256 = hashlib.sha256()
-    sha256.update(json.dumps(config_attributes).encode("utf-8"))
-    return sha256.hexdigest()[:40]
-
-
-def reprkey_resolver(config):
-    """Create a function to get intermediate storage key and tags by the file path.
-
-    Args:
-        config (winnow.config.Config): Pipeline configuration.
-    """
-
-    storepath = path_resolver(config.sources.root)
-    config_tag = get_config_tag(config)
-
-    def reprkey(path):
-        """Get intermediate representation storage key."""
-        return ReprKey(path=storepath(path), hash=get_hash(path), tag=config_tag)
-
-    return reprkey

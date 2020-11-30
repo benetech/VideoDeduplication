@@ -15,7 +15,7 @@ from winnow.feature_extraction.model import default_model_path
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import bulk_read, bulk_write
-from winnow.utils import reprkey_resolver
+from winnow.utils.repr import reprkey_resolver
 from winnow.utils.files import scan_videos, scan_videos_from_txt, create_video_list
 from winnow.utils.config import resolve_config
 
