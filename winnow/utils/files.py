@@ -28,7 +28,7 @@ def filter_extensions(files, extensions):
     return [x for x in files if Path(x).suffix in extensions]
 
 
-def scan_videos(path, wildcard, extensions=[]):
+def scan_videos(path, wildcard, extensions=()):
     """Scans a directory for a given wildcard
 
     Args:
@@ -56,7 +56,7 @@ def _read_lines(file_path):
         return file.read().splitlines()
 
 
-def scan_videos_from_txt(file_list_path, extensions=[]):
+def scan_videos_from_txt(file_list_path, extensions=()):
     """Get existing files from the file list .txt file."""
     files = _read_lines(file_list_path)
     files = [x for x in files if os.path.isfile(x)]
