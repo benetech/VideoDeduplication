@@ -9,7 +9,6 @@ def create_expanded_button(description, button_style):
     return Button(description=description, button_style=button_style, layout=Layout(height="auto", width="auto"))
 
 
-# TODO: Simplify function and enable linting (#202)
 def create_interface(  # noqa: C901
     matches_df, save_path, annotation_label, transform_query_path=True, frames_directory=None
 ):
