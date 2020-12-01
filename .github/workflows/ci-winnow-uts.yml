@@ -27,14 +27,8 @@ jobs:
           pip install -r requirements-winnow-unit-tests.txt
       - name: Check formatting with black
         run: |
-          # Check formatting of scripts at the root folder
-          black --line-length 120 --check *.py
-          # Check formatting of the db package
-          black --line-length 120 --check db
-          # Check formatting of the winnow package
-          black --line-length 120 --check winnow
-          # Check formatting of the winnow tests
-          black --line-length 120 --check tests
+          # Check formatting of the dedup-app python files
+          black --line-length 120 --check *.py db winnow tests
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
