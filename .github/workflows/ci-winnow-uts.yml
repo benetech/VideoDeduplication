@@ -32,9 +32,9 @@ jobs:
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
-          flake8 winnow --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 winnow db tests --count --select=E9,F63,F7,F82 --show-source --statistics
           # --ignore=E203 as it is not PEP8 and black style compliant. See: https://github.com/psf/black/issues/315
-          flake8 winnow --count --max-complexity=10 --ignore=E203 --max-line-length=120 --statistics
+          flake8 winnow db tests --count --max-complexity=10 --ignore=E203 --max-line-length=120 --statistics
       - name: Test with pytest
         run: |
           export PYTHONPATH="$(pwd)"
