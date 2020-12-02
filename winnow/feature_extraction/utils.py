@@ -1,10 +1,5 @@
-import os
-
 import cv2
 import numpy as np
-import yaml
-
-from winnow.utils.network import download_file
 
 
 def load_video(video, desired_size, frame_sampling):
@@ -110,52 +105,3 @@ def pad_and_resize(image, desired_size):
     )
 
     return image_processed
-
-
-# TODO: Simplify function and enable linting (#202)
-def download_pretrained(config_file):  # noqa: C901
-    hit_exc = False
-    try:
-        config_fp = config_file
-        with open(config_fp, "r") as ymlfile:
-            cfg = yaml.load(ymlfile)
-
-        use_local_pretrained = cfg["use_pretrained_model_local_path"]
-        pretrained_local_path = cfg["pretrained_model_local_path"]
-        dst_dir = cfg["destination_folder"]
-    except Exception:
-        hit_exc = True
-        print("Make sure path to config has been added to env")
-
-    finally:
-        if hit_exc:
-            use_local_pretrained = False
-            dst_dir = False
-    if not use_local_pretrained:
-        pretrained_model = "vgg_16.ckpt"
-        if dst_dir:
-            pretrained_local_path = os.path.join(dst_dir, "pretrained_models", pretrained_model)
-        else:
-            package_directory = os.path.dirname(os.path.abspath(__file__))
-            pretrained_local_path = os.path.join(package_directory, "pretrained_models", pretrained_model)
-
-    # Pre-trained model file availability assessment
-    if os.path.exists(pretrained_local_path):
-        print("Pretrained Model Found")
-    else:
-        if use_local_pretrained:
-            try:
-                print("Downloading pretrained model to:{}".format(pretrained_local_path))
-                download_file(pretrained_local_path, "https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
-            except Exception:
-                print("Copying from source dir")
-                raise
-        else:
-            try:
-                os.makedirs(os.path.join(package_directory, "pretrained_models"))
-            except Exception as e:
-                print(e)
-                pass
-            print("Downloading pretrained model to:{}".format(pretrained_local_path))
-            download_file(pretrained_local_path, "https://s3.amazonaws.com/winnowpretrainedmodels/vgg_16.ckpt")
-    return pretrained_local_path
