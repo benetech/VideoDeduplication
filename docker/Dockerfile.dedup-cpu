@@ -1,36 +1,34 @@
 FROM tensorflow/tensorflow:1.15.0-py3
 
-RUN apt-get update
-RUN apt-get --yes install curl
-RUN curl -LO https://repo.anaconda.com/archive/Anaconda3-2019.07-Linux-x86_64.sh 
-RUN bash Anaconda3-2019.07-Linux-x86_64.sh -p /anaconda -b
-RUN rm Anaconda3-2019.07-Linux-x86_64.sh
+# Install required os dependencies
+RUN apt-get update && apt-get install -y curl libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx mediainfo
+
+# Install Anaconda
+# See https://docs.anaconda.com/anaconda/install/linux/
 ENV PATH=/anaconda/bin:${PATH}
-RUN conda update -y conda
+RUN curl -LO https://repo.anaconda.com/archive/Anaconda3-2019.07-Linux-x86_64.sh && \
+    bash Anaconda3-2019.07-Linux-x86_64.sh -p /anaconda -b && \
+    rm Anaconda3-2019.07-Linux-x86_64.sh && \
+    conda update -y conda
 
 
+# Install dedup-app Python dependencies
 ADD environment.yaml /tmp/environment.yaml
-
-RUN conda env create -f /tmp/environment.yaml
-
-RUN echo "source activate winnow" > ~/.bashrc
+RUN conda env create -f /tmp/environment.yaml && \
+    echo "source activate winnow" > ~/.bashrc
 
 ENV PATH /opt/conda/envs/winnow/bin:$PATH
 
-RUN mkdir project
+# Add project files
+RUN mkdir /project
+ADD . /project/
+WORKDIR /project/
 
-ADD . project/
-
-WORKDIR project/
-
+# Install application
 RUN /bin/bash -c "source activate winnow && \
     pip install -e ."
 
-RUN apt update 
-
-RUN apt-get install -y libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx mediainfo
-
-RUN /bin/bash -c "source activate winnow &&  bash scripts/run-tests.sh"
-
 ARG GIT_HASH=unspecified
 LABEL git_hash=$GIT_HASH
+
+RUN /bin/bash -c "source activate winnow &&  bash scripts/run-tests.sh"
