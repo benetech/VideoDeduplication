@@ -1,1 +1,10 @@
 **/**.pyc
+.git
+
+# This is helpful for local builds only
+./.venv*
+./*/.venv*
+web/node_modules
+.idea
+data
+winnow/feature_extraction/pretrained_models/*
