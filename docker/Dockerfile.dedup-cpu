@@ -1,4 +1,7 @@
-FROM tensorflow/tensorflow:1.15.0-py3
+# Build image: sudo docker build -t <tag> . -f docker/Dockerfile.dedup-cpu --target prod
+# Run tests: sudo docker build -t <tag> . -f docker/Dockerfile.dedup-cpu --target tests
+
+FROM tensorflow/tensorflow:1.15.0-py3 AS prod
 
 # Install required os dependencies
 RUN apt-get update && apt-get install -y curl libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx mediainfo
@@ -30,5 +33,8 @@ RUN /bin/bash -c "source activate winnow && \
 
 ARG GIT_HASH=unspecified
 LABEL git_hash=$GIT_HASH
+
+# Stage for testing
+FROM prod AS tests
 
 RUN /bin/bash -c "source activate winnow &&  bash scripts/run-tests.sh"
