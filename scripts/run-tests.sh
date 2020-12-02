@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Fail on first error
+set -e
+
 echo "Running unit tests"
 
 python -m pytest tests/general_tests.py
