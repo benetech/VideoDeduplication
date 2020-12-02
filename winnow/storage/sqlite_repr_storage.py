@@ -123,7 +123,9 @@ class SQLiteReprStorage:
     def _record(session, key: ReprKey):
         """Shortcut for querying record for the given feature-file."""
         return session.query(FeatureFile).filter(
-            FeatureFile.source_path == key.path, FeatureFile.hash == key.hash, FeatureFile.tag == key.tag,
+            FeatureFile.source_path == key.path,
+            FeatureFile.hash == key.hash,
+            FeatureFile.tag == key.tag,
         )
 
     @staticmethod
@@ -131,7 +133,11 @@ class SQLiteReprStorage:
         """Shortcut for checking record presence."""
         return (
             session.query(FeatureFile.id)
-            .filter(FeatureFile.source_path == key.path, FeatureFile.hash == key.hash, FeatureFile.tag == key.tag,)
+            .filter(
+                FeatureFile.source_path == key.path,
+                FeatureFile.hash == key.hash,
+                FeatureFile.tag == key.tag,
+            )
             .scalar()
             is not None
         )

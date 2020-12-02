@@ -24,14 +24,14 @@ jobs:
         working-directory: ./server
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 black
+          pip install flake8 'black~=20.8b1'
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
       - name: Check formatting with black
         working-directory: ./server
         run: |
           # Check formatting of the server package and tests
-          black --line-length 120 --check .
+          black --line-length 120 --check server tests
       - name: Lint with flake8
         working-directory: ./server
         run: |
