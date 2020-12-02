@@ -32,6 +32,13 @@ docker-build:
 	@scripts/docker-build.sh
 
 
+.PHONY: docker-rebuild
+
+## Rebuild docker images (don't use local cache).
+docker-rebuild:
+	@scripts/docker-build.sh --no-cache
+
+
 .PHONY: docker-pull
 
 ## Update docker images (rebuild local or pull latest from repository depending on configuration).
