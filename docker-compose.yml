@@ -35,6 +35,7 @@ services:
     build:
       context: .
       dockerfile: "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
+      target: prod
       args:
         GIT_HASH: "${GIT_HASH}"
     runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
