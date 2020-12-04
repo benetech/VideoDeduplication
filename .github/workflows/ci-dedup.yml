@@ -44,7 +44,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: johnhbenetech/videodeduplication:cpu${{ github.ref == 'refs/heads/master' && '' || '-dev' }}
+          tags: johnhbenetech/videodeduplication:cpu${{ github.ref != 'refs/heads/master' && '-dev' || '' }}
           context: .
           file: ./docker/Dockerfile.dedup-cpu
           target: prod
@@ -55,7 +55,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: johnhbenetech/videodeduplication:gpu${{ github.ref == 'refs/heads/master' && '' || '-dev' }}
+          tags: johnhbenetech/videodeduplication:gpu${{ github.ref != 'refs/heads/master' && '-dev' || '' }}
           context: .
           file: ./docker/Dockerfile.dedup-gpu
           target: prod
