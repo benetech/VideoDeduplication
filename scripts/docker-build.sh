@@ -12,9 +12,9 @@ fi
 if [ "$BENETECH_MODE" = "-dev" ]; then
   set -x
   sudo docker-compose rm -s -f
-  sudo docker-compose build --build-arg GIT_HASH="$(git rev-parse --short HEAD)" --parallel --no-cache
+  sudo docker-compose build --build-arg GIT_HASH="$(git rev-parse --short HEAD)" --parallel "$@"
 else
   set -x
-  sudo docker build --build-arg GIT_HASH="$(git rev-parse --short HEAD)" --no-cache -t "johnhbenetech/videodeduplication:${BENETECH_RUNTIME:-gpu}-dev" . -f "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
-  sudo docker build --build-arg GIT_HASH="$(git rev-parse --short HEAD)" --no-cache -t "johnhbenetech/videodeduplication:server-dev" . -f "docker/Dockerfile.server"
+  sudo docker build --build-arg GIT_HASH="$(git rev-parse --short HEAD)" "$@" -t "johnhbenetech/videodeduplication:${BENETECH_RUNTIME:-gpu}-dev" . -f "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
+  sudo docker build --build-arg GIT_HASH="$(git rev-parse --short HEAD)" "$@" -t "johnhbenetech/videodeduplication:server-dev" . -f "docker/Dockerfile.server"
 fi

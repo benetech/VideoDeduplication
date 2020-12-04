@@ -39,6 +39,11 @@ purge: docker-purge
 ## Build Docker images locally.
 build: docker-build
 
+.PHONY: rebuild
+
+## Rebuild Docker images locally (no cache is used).
+rebuild: docker-rebuild
+
 .PHONY: pull
 
 ## Pull images from Docker Hub
