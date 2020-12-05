@@ -60,10 +60,10 @@ jobs:
       # This may be required to prevent hitting
       # GitHub action disk space limit (14GB)
       - name: Clean Docker Cache
-          if: github.event_name == 'push'
-          run: |
-            docker rm $(docker ps -a -q)
-            docker image prune -a
+        if: github.event_name == 'push'
+        run: |
+          docker rm $(docker ps -a -q)
+          docker image prune -a
       - name: Build and Push GPU Image
         if: github.event_name == 'push'
         uses: docker/build-push-action@v2
