@@ -7,8 +7,33 @@ describe("The File Comparison Page", () => {
   // Reusable selectors
   const motherHeader = selector("MotherFileHeader");
   const matchHeader = selector("MatchHeader");
+  const prevMatch = selector("PrevMatchButton");
+  const nextMatch = selector("NextMatchButton");
+  const menu = selector("MatchSelectorMenu");
+  const menuItem = (fileId) =>
+    `${selector("MatchSelectorMenuItem")}[data-file-id=${fileId}]`;
   const fileDetails = (fileId) =>
     `${selector("FileDetails")}[data-file-id=${fileId}]`;
+
+  // Matches must be sorted by distance (ascending) and by name.
+  const expectedMatchOrder = (first, second) => {
+    if (first.distance < second.distance) {
+      return -1;
+    } else if (first.distance > second.distance) {
+      return 1;
+    } else {
+      return String(first.file.filename).localeCompare(second.file.filename);
+    }
+  };
+
+  // Assert mother file and match are displayed on the page.
+  const checkDisplayed = (motherFile, match) => {
+    cy.url().should("include", match.file.id);
+    cy.get(motherHeader).should("contain", motherFile.file_path);
+    cy.get(fileDetails(motherFile.id)).should("be.visible");
+    cy.get(matchHeader).should("contain", match.file.file_path);
+    cy.get(fileDetails(match.file.id)).should("be.visible");
+  };
 
   // Execute test logic when all data is loaded.
   // This is a reusable pattern to make the test logic more clear.
@@ -55,9 +80,42 @@ describe("The File Comparison Page", () => {
   });
 
   it("displays mother file and all matches", () => {
-    waitDataLoaded((file, matches) => {
-      cy.get(motherHeader).should("contain", file.file_path);
-      cy.get(fileDetails(file.id)).should("be.visible");
+    waitDataLoaded((motherFile, matches) => {
+      cy.get(motherHeader).should("contain", motherFile.file_path);
+      cy.get(fileDetails(motherFile.id)).should("be.visible");
+
+      // Impose expected order on matches array.
+      matches.sort(expectedMatchOrder);
+
+      // Iterate over matches using the next-match button
+      for (const [index, match] of matches.entries()) {
+        checkDisplayed(motherFile, match);
+        if (index < matches.length - 1) {
+          cy.get(nextMatch).click();
+        } else {
+          cy.get(nextMatch).should("be.disabled");
+        }
+      }
+
+      // Iterate over matches in backward direction using prev-match button
+      const reversedMatches = [...matches.entries()].reverse();
+      for (const [index, match] of reversedMatches) {
+        checkDisplayed(motherFile, match);
+        if (index > 0) {
+          cy.get(prevMatch).click();
+        } else {
+          cy.get(prevMatch).should("be.disabled");
+        }
+      }
+
+      // Iterate over matches using drop-down menu
+      for (const match of matches) {
+        cy.get(menu).click();
+        cy.get(menuItem(match.file.id))
+          .should("contain", match.file.file_path)
+          .click();
+        checkDisplayed(motherFile, match);
+      }
     });
   });
 });

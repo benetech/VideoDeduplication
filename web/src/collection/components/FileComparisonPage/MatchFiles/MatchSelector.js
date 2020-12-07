@@ -67,7 +67,10 @@ function MatchSelector(props) {
   const showSelected = matches.length > 0 && selected >= 0;
 
   return (
-    <div className={clsx(classes.root, className)}>
+    <div
+      className={clsx(classes.root, className)}
+      data-selector="MatchSelector"
+    >
       {showSelected && (
         <div className={classes.index}>
           {selected + 1} of {matches.length}
@@ -85,9 +88,15 @@ function MatchSelector(props) {
           onChange={handleSelect}
           label={messages.label}
           disabled={matches.length === 0}
+          data-selector="MatchSelectorMenu"
         >
           {matches.map((match, index) => (
-            <MenuItem value={index} key={index}>
+            <MenuItem
+              value={index}
+              key={index}
+              data-selector="MatchSelectorMenuItem"
+              data-file-id={match?.file?.id}
+            >
               {basename(match.file.filename)}
             </MenuItem>
           ))}
@@ -100,6 +109,7 @@ function MatchSelector(props) {
           className={classes.button}
           aria-label={messages.prevLabel}
           onClick={handlePrev}
+          data-selector="PrevMatchButton"
         >
           <NavigateBeforeOutlinedIcon />
         </SquaredIconButton>
@@ -109,6 +119,7 @@ function MatchSelector(props) {
           className={classes.button}
           aria-label={messages.nextLabel}
           onClick={handleNext}
+          data-selector="NextMatchButton"
         >
           <NavigateNextOutlinedIcon />
         </SquaredIconButton>
