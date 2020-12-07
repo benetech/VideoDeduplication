@@ -24,7 +24,11 @@ function FileDetails(props) {
   const handleJump = useCallback(seekTo(player, file), [player, file]);
 
   return (
-    <div className={clsx(classes.root, className)}>
+    <div
+      className={clsx(classes.root, className)}
+      data-selector="FileDetails"
+      data-file-id={file?.id}
+    >
       <VideoPlayerPane
         collapsible
         file={file}

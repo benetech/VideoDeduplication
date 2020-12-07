@@ -121,6 +121,7 @@ function MatchFiles(props) {
           distance={matches[selected].distance}
           file={matches[selected].file}
           className={classes.fileHeader}
+          data-selector="MatchHeader"
         />
         <FileDetails file={matches[selected].file} />
       </div>
