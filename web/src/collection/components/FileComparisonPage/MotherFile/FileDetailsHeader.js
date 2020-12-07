@@ -16,10 +16,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function FileDetailsHeader(props) {
-  const { file, className } = props;
+  const { file, className, ...other } = props;
   const classes = useStyles();
   return (
-    <div className={clsx(classes.header, className)}>
+    <div className={clsx(classes.header, className)} {...other}>
       <FileSummary file={file} divider className={classes.name}>
         <FileSummary.Name />
       </FileSummary>

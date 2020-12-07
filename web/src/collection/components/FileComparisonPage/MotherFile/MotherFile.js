@@ -65,7 +65,11 @@ function MotherFile(props) {
   } else {
     content = (
       <div>
-        <FileDetailsHeader file={file} className={classes.fileHeader} />
+        <FileDetailsHeader
+          file={file}
+          className={classes.fileHeader}
+          data-selector="MotherFileHeader"
+        />
         <FileDetails file={file} />
       </div>
     );
