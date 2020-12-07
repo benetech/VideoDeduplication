@@ -44,7 +44,6 @@ jobs:
       - name: Clean Docker Cache
         if: github.event_name == 'push'
         run: |
-          docker rm $(docker ps -a -q)
           docker image prune
       - name: Build and Push CPU Image
         if: github.event_name == 'push'
@@ -62,7 +61,6 @@ jobs:
       - name: Clean Docker Cache
         if: github.event_name == 'push'
         run: |
-          docker rm $(docker ps -a -q)
           docker image prune -a
       - name: Build and Push GPU Image
         if: github.event_name == 'push'
