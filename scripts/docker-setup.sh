@@ -53,7 +53,7 @@ if [ "$FORCE_UPDATE" = "YES" ] || [ -z "$BENETECH_RUNTIME" ]; then
   DIRTY=yes
   tput setaf 6; echo "Would you like to use GPU for data processing?"; tput sgr0;
   choose BENETECH_RUNTIME gpu="Use GPU for data processing." cpu="Use CPU for data processing."
-  if [ "$BENETECH_RUNTIME" = "nvidia" ]; then
+  if [ "$BENETECH_RUNTIME" = "gpu" ]; then
     BENETECH_DOCKER_RUNTIME="nvidia"
   else
     BENETECH_DOCKER_RUNTIME="runc"
