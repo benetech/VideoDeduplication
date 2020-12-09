@@ -45,6 +45,9 @@ jobs:
         if: github.event_name == 'push'
         run: |
           docker image prune -f
+          # Workaround to increase available disk space: remove unnecessary tool chains.
+          # See https://github.com/actions/virtual-environments/issues/709#issuecomment-612569242
+          rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: Build and Push CPU Image
         if: github.event_name == 'push'
         uses: docker/build-push-action@v2
