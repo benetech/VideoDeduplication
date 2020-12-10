@@ -192,6 +192,11 @@ function FileBrowserPage(props) {
 
   const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
 
+  const handleAddMedia = useCallback(
+    () => history.push(routes.collection.processing),
+    [history]
+  );
+
   return (
     <div className={clsx(classes.container, className)}>
       <div className={classes.content}>
@@ -205,7 +210,7 @@ function FileBrowserPage(props) {
               onSortChange={handleChangeSort}
               view={view}
               onViewChange={handleChangeView}
-              onAddMedia={() => console.log("On Add Media")}
+              onAddMedia={handleAddMedia}
               showFilters={!showFilters}
               onToggleFilters={handleToggleFilters}
               className={classes.actions}

@@ -185,6 +185,8 @@
     "match.noMatches": "No matches found.",
     "video.error.missing": "File Missing",
     "video.error.load": "Loading Error",
-    "video.error.playback": "Playback Error"
+    "video.error.playback": "Playback Error",
+    "processing.title": "Process Media",
+    "processing.pageDescription": "Your media is going to be securely processed with us"
   }
 }
