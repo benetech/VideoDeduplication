@@ -5,6 +5,9 @@ export const routes = {
   },
   collection: {
     home: "/collection",
+
+    // Fingerprints Pages
+
     get fingerprints() {
       return `${this.home}/fingerprints`;
     },
@@ -31,6 +34,12 @@ export const routes = {
     },
     fileComparisonURL(id, matchFileId = "") {
       return `${this.fileURL(id)}/compare/${matchFileId}`;
+    },
+
+    // Processing Pages
+
+    get processing() {
+      return `${this.home}/processing`;
     },
   },
   database: {
