@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
   },
   menu: {
     flexShrink: 0,
+    minHeight: "100vh",
   },
   body: {
     flexGrow: 2,

@@ -51,7 +51,7 @@ const menuItems = [
   {
     icon: <LayersOutlinedIcon fontSize="large" />,
     title: "nav.collection",
-    location: routes.collection.fingerprints,
+    location: routes.collection.home,
   },
   {
     icon: <PersonOutlinedIcon fontSize="large" />,
