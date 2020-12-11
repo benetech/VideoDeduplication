@@ -50,6 +50,7 @@
     "actions.useGraphView": "Graph View",
     "actions.searchFingerprints": "Search Fingerprints",
     "actions.searchMatches": "Search Matches",
+    "actions.search": "Search",
     "actions.compare": "Compare",
     "actions.retry": "Retry",
     "actions.moreInfo": "More info",
@@ -187,6 +188,8 @@
     "video.error.load": "Loading Error",
     "video.error.playback": "Playback Error",
     "processing.title": "Process Media",
-    "processing.pageDescription": "Your media is going to be securely processed with us"
+    "processing.pageDescription": "Your media is going to be securely processed with us",
+    "tasks.one": "Task",
+    "tasks.many": "Tasks"
   }
 }
