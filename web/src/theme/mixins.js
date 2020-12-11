@@ -3,6 +3,16 @@
  */
 const mixins = {
   drawer: { width: 261 },
+  title0: {
+    height: 62,
+    width: 355,
+    color: "#040303",
+    fontFamily: "Roboto",
+    fontSize: 53,
+    fontWeight: "bold",
+    letterSpacing: 0,
+    lineHeight: "62px",
+  },
   title1: {
     fontFamily: "Roboto",
     fontSize: 43,
@@ -101,6 +111,12 @@ const mixins = {
     fontSize: 12,
     letterSpacing: 0,
     lineHeight: "14px",
+  },
+  descriptionText: {
+    fontFamily: "Roboto",
+    fontSize: 18,
+    letterSpacing: 0,
+    lineHeight: "21px",
   },
   /**
    * Disable text selection

@@ -50,6 +50,7 @@
     "actions.useGraphView": "Graph View",
     "actions.searchFingerprints": "Search Fingerprints",
     "actions.searchMatches": "Search Matches",
+    "actions.search": "Search",
     "actions.compare": "Compare",
     "actions.retry": "Retry",
     "actions.moreInfo": "More info",
@@ -155,6 +156,8 @@
     "file.cluster": "Cluster",
     "file.mother": "Mother file",
     "file.match": "Match",
+    "file.one": "File",
+    "file.many": "Files",
     "distance.score": "Match score: {value}",
     "filter.title": "Filters",
     "filter.content": "Content",
@@ -185,6 +188,20 @@
     "match.noMatches": "No matches found.",
     "video.error.missing": "File Missing",
     "video.error.load": "Loading Error",
-    "video.error.playback": "Playback Error"
+    "video.error.playback": "Playback Error",
+    "processing.title": "Process Media",
+    "processing.pageDescription": "Your media is going to be securely processed with us",
+    "tasks.one": "Task",
+    "tasks.many": "Tasks",
+    "task.type.all": "Entire Dataset",
+    "task.status.pending": "Scheduled",
+    "task.status.running": "Started",
+    "task.status.success": "OK",
+    "task.status.failure": "Failed",
+    "task.status.cancelled": "Cancelled",
+    "task.time": "{time} ago",
+    "task.list.all": "All",
+    "task.list.active": "Active",
+    "task.list.finished": "Finished"
   }
 }
