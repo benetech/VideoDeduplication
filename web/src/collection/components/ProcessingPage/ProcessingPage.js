@@ -6,8 +6,6 @@ import ProcessingPageHeader from "./ProcessingPageHeader";
 import { useHistory } from "react-router-dom";
 import { routes } from "../../../routing/routes";
 import FileSelector from "./FileSelector";
-import TaskList from "./TaskList";
-import { randomTasks } from "../../../server-api/MockServer/fake-data/tasks";
 import TaskSidebar from "./TaskSidebar";
 
 const useStyles = makeStyles((theme) => ({

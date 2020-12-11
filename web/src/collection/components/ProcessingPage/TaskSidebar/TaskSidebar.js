@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import TaskSidebarHeader from "./TaskSidebarHeader";
 import { randomTasks } from "../../../../server-api/MockServer/fake-data/tasks";
 import TaskList from "../TaskList";
-import tabs, { Tab } from "./tabs";
+import { Tab } from "./tabs";
 
 const useStyles = makeStyles((theme) => ({
   container: {

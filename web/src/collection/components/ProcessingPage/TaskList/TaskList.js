@@ -4,12 +4,12 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import TaskListItem from "./TaskListItem";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   container: {
     display: "flex",
     flexDirection: "column",
   },
-}));
+});
 
 function TaskList(props) {
   const { children, className, ...other } = props;
