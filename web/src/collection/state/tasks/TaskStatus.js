@@ -7,19 +7,6 @@ export const TaskStatus = {
   SUCCESS: "SUCCESS",
   FAILURE: "FAILURE",
   CANCELLED: "CANCELLED",
-
-  /**
-   * Get all possible values.
-   */
-  values() {
-    return [
-      this.PENDING,
-      this.RUNNING,
-      this.SUCCESS,
-      this.FAILURE,
-      this.CANCELLED,
-    ];
-  },
 };
 
 export default TaskStatus;

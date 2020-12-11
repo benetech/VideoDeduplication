@@ -17,11 +17,12 @@ export function* randomMatches(count, source) {
   }
 }
 
-function randomName() {
+export function randomName({ directory = "", extension = ".webm" } = {}) {
   return (
+    directory +
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15) +
-    ".webm"
+    extension
   );
 }
 

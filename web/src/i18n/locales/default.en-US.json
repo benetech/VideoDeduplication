@@ -156,6 +156,8 @@
     "file.cluster": "Cluster",
     "file.mother": "Mother file",
     "file.match": "Match",
+    "file.one": "File",
+    "file.many": "Files",
     "distance.score": "Match score: {value}",
     "filter.title": "Filters",
     "filter.content": "Content",
@@ -190,6 +192,12 @@
     "processing.title": "Process Media",
     "processing.pageDescription": "Your media is going to be securely processed with us",
     "tasks.one": "Task",
-    "tasks.many": "Tasks"
+    "tasks.many": "Tasks",
+    "task.type.all": "Entire Dataset",
+    "task.status.pending": "Scheduled {time} ago",
+    "task.status.running": "Started {time} ago",
+    "task.status.success": "Finished {time} ago",
+    "task.status.failure": "Failed {time} ago",
+    "task.status.cancelled": "Cancelled {time} ago"
   }
 }

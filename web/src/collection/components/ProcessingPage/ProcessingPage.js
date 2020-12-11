@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const tasks = randomTasks({
-  pending: 4,
+  pending: 2,
   running: 1,
   failure: 2,
   cancelled: 2,
