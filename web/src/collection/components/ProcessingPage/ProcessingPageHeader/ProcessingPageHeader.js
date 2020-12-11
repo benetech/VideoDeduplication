@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
-import ProcessingDescription from "./ProcessingDescription";
+import Description from "./Description";
 import { IconButton } from "@material-ui/core";
 import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 
@@ -33,7 +33,7 @@ function useMessages() {
   };
 }
 
-function ProcessingHeader(props) {
+function ProcessingPageHeader(props) {
   const { onClose, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
@@ -41,7 +41,7 @@ function ProcessingHeader(props) {
   return (
     <div className={clsx(classes.header, className)} {...other}>
       <div className={classes.title}>{messages.title}</div>
-      <ProcessingDescription className={classes.description} />
+      <Description className={classes.description} />
       <IconButton color="inherit" onClick={onClose}>
         <CloseOutlinedIcon color="inherit" fontSize="large" />
       </IconButton>
@@ -49,7 +49,7 @@ function ProcessingHeader(props) {
   );
 }
 
-ProcessingHeader.propTypes = {
+ProcessingPageHeader.propTypes = {
   /**
    * Handle close action.
    */
@@ -57,4 +57,4 @@ ProcessingHeader.propTypes = {
   className: PropTypes.string,
 };
 
-export default ProcessingHeader;
+export default ProcessingPageHeader;

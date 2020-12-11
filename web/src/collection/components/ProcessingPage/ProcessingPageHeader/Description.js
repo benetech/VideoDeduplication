@@ -28,7 +28,7 @@ function useMessages() {
   };
 }
 
-function ProcessingDescription(props) {
+function Description(props) {
   const { className } = props;
   const classes = useStyles();
   const messages = useMessages();
@@ -41,8 +41,8 @@ function ProcessingDescription(props) {
   );
 }
 
-ProcessingDescription.propTypes = {
+Description.propTypes = {
   className: PropTypes.string,
 };
 
-export default ProcessingDescription;
+export default Description;
