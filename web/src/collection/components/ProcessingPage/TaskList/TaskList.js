@@ -5,7 +5,10 @@ import { makeStyles } from "@material-ui/styles";
 import TaskListItem from "./TaskListItem";
 
 const useStyles = makeStyles((theme) => ({
-  container: {},
+  container: {
+    display: "flex",
+    flexDirection: "column",
+  },
 }));
 
 function TaskList(props) {

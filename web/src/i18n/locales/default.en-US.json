@@ -198,6 +198,9 @@
     "task.status.running": "Started {time} ago",
     "task.status.success": "Finished {time} ago",
     "task.status.failure": "Failed {time} ago",
-    "task.status.cancelled": "Cancelled {time} ago"
+    "task.status.cancelled": "Cancelled {time} ago",
+    "task.list.all": "All",
+    "task.list.active": "Active",
+    "task.list.finished": "Finished"
   }
 }

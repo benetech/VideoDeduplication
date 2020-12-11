@@ -8,7 +8,7 @@ import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
 import CheckOutlinedIcon from "@material-ui/icons/CheckOutlined";
 import BlockOutlinedIcon from "@material-ui/icons/BlockOutlined";
 import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
-import PlayArrowOutlinedIcon from "@material-ui/icons/PlayArrowOutlined";
+import PlayCircleFilledWhiteOutlinedIcon from "@material-ui/icons/PlayCircleFilledWhiteOutlined";
 import HeightOutlinedIcon from "@material-ui/icons/HeightOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import { formatDistance } from "date-fns";
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   task: {
     padding: theme.spacing(1),
     backgroundColor: theme.palette.common.white,
-    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
   attributesArea: {
     display: "flex",
@@ -60,7 +60,7 @@ function getStatusIcon(status) {
     case TaskStatus.PENDING:
       return ScheduleOutlinedIcon;
     case TaskStatus.RUNNING:
-      return PlayArrowOutlinedIcon;
+      return PlayCircleFilledWhiteOutlinedIcon;
     case TaskStatus.SUCCESS:
       return CheckOutlinedIcon;
     case TaskStatus.FAILURE:
@@ -125,7 +125,7 @@ function TaskListItem(props) {
   return (
     <div className={clsx(classes.task, className)} {...other}>
       <div className={classes.attributesArea}>
-        <Icon className={classes.icon} />
+        <Icon fontSize="small" className={classes.icon} />
         <div className={classes.attributes}>
           <div className={classes.topAttributes}>
             <div className={classes.timeCaption}>{messages.status(task)}</div>

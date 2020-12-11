@@ -1,16 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import TaskSidebarHeader from "./TaskSidebarHeader";
 import { randomTasks } from "../../../../server-api/MockServer/fake-data/tasks";
 import TaskList from "../TaskList";
+import tabs, { Tab } from "./tabs";
 
 const useStyles = makeStyles((theme) => ({
   container: {
     width: 380,
   },
   tasks: {
+    marginTop: theme.spacing(2),
+    maxHeight: 450,
     overflowY: "auto",
   },
   task: {
@@ -29,11 +32,13 @@ const tasks = randomTasks({
 function TaskSidebar(props) {
   const { className, ...other } = props;
   const classes = useStyles();
+  const [tab, setTab] = useState(Tab.ACTIVE);
+
   return (
     <div className={clsx(classes.container, className)} {...other}>
-      <TaskSidebarHeader count={325} />
+      <TaskSidebarHeader count={325} tab={tab} onTabChange={setTab} />
       <TaskList className={classes.tasks}>
-        {tasks.map((task) => (
+        {tasks.filter(tab.filter).map((task) => (
           <TaskList.Item task={task} key={task.id} />
         ))}
       </TaskList>

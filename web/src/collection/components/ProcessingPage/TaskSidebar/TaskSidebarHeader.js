@@ -9,6 +9,7 @@ import {
   SelectableTab,
   SelectableTabs,
 } from "../../../../common/components/SelectableTabs";
+import { tabs } from "./tabs";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -51,14 +52,16 @@ function useMessages(count) {
   return {
     title: `${count} ${intl.formatMessage({ id: tasks })}`,
     search: intl.formatMessage({ id: "actions.search" }),
+    format(id) {
+      return intl.formatMessage({ id });
+    },
   };
 }
 
 function TaskSidebarHeader(props) {
-  const { count, className, ...other } = props;
+  const { tab, onTabChange, count, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages(count);
-  const [value, setValue] = useState(0);
 
   return (
     <div className={clsx(classes.header, className)} {...other}>
@@ -73,19 +76,32 @@ function TaskSidebarHeader(props) {
         />
       </div>
       <SelectableTabs
-        value={value}
-        onChange={setValue}
+        value={tab}
+        onChange={onTabChange}
         className={classes.tabs}
       >
-        <SelectableTab label="Active" className={classes.tab} />
-        <SelectableTab label="Finished" className={classes.tab} />
-        <SelectableTab label="All" className={classes.tab} />
+        {tabs.map((tab) => (
+          <SelectableTab
+            key={tab.title}
+            label={messages.format(tab.title)}
+            value={tab}
+            className={classes.tab}
+          />
+        ))}
       </SelectableTabs>
     </div>
   );
 }
 
 TaskSidebarHeader.propTypes = {
+  /**
+   * Active tab.
+   */
+  tab: PropTypes.oneOf(tabs),
+  /**
+   * Handle tab change.
+   */
+  onTabChange: PropTypes.func.isRequired,
   /**
    * Count of tasks.
    */
