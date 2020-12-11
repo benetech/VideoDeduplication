@@ -17,9 +17,17 @@ const useStyles = makeStyles((theme) => ({
   title: {
     ...theme.mixins.title0,
     marginRight: theme.spacing(5),
+    flexShrink: 0,
+    [theme.breakpoints.down("md")]: {
+      flexGrow: 1,
+    },
   },
   description: {
     flexGrow: 1,
+    flexShrink: 0,
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
   },
 }));
 
