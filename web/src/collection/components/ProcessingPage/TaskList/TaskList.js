@@ -2,19 +2,10 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import TaskListHeader from "./TaskListHeader";
 import TaskListItem from "./TaskListItem";
 
 const useStyles = makeStyles((theme) => ({
-  container: {
-    width: 380,
-  },
-  tasks: {
-    overflowY: "auto",
-  },
-  task: {
-    margin: theme.spacing(1),
-  },
+  container: {},
 }));
 
 function TaskList(props) {
@@ -22,8 +13,7 @@ function TaskList(props) {
   const classes = useStyles();
   return (
     <div className={clsx(classes.container, className)} {...other}>
-      <TaskListHeader count={325} />
-      <div className={classes.tasks}>{children}</div>
+      {children}
     </div>
   );
 }

@@ -54,7 +54,7 @@ function useMessages(count) {
   };
 }
 
-function TaskListHeader(props) {
+function TaskSidebarHeader(props) {
   const { count, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages(count);
@@ -85,7 +85,7 @@ function TaskListHeader(props) {
   );
 }
 
-TaskListHeader.propTypes = {
+TaskSidebarHeader.propTypes = {
   /**
    * Count of tasks.
    */
@@ -93,4 +93,4 @@ TaskListHeader.propTypes = {
   className: PropTypes.string,
 };
 
-export default TaskListHeader;
+export default TaskSidebarHeader;

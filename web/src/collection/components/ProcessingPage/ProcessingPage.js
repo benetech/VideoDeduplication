@@ -8,6 +8,7 @@ import { routes } from "../../../routing/routes";
 import FileSelector from "./FileSelector";
 import TaskList from "./TaskList";
 import { randomTasks } from "../../../server-api/MockServer/fake-data/tasks";
+import TaskSidebar from "./TaskSidebar";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,18 +23,10 @@ const useStyles = makeStyles((theme) => ({
   selector: {
     flexGrow: 1,
   },
-  taskList: {
+  tasks: {
     marginLeft: theme.spacing(4),
   },
 }));
-
-const tasks = randomTasks({
-  pending: 2,
-  running: 1,
-  failure: 2,
-  cancelled: 2,
-  success: 2,
-});
 
 function ProcessingPage(props) {
   const { className, ...other } = props;
@@ -50,11 +43,7 @@ function ProcessingPage(props) {
       <ProcessingPageHeader onClose={handleClose} />
       <div className={classes.content}>
         <FileSelector className={classes.selector} />
-        <TaskList className={classes.taskList}>
-          {tasks.map((task) => (
-            <TaskList.Item task={task} key={task.id} />
-          ))}
-        </TaskList>
+        <TaskSidebar className={classes.tasks} />
       </div>
     </div>
   );
