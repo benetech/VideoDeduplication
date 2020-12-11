@@ -16,6 +16,9 @@ import { IconButton } from "@material-ui/core";
 import TaskRequest from "../../../state/tasks/TaskRequest";
 import { useIntl } from "react-intl";
 import TaskProgress from "./TaskProgress";
+import usePopup from "../../../../common/hooks/usePopup";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 
 const useStyles = makeStyles((theme) => ({
   task: {
@@ -45,10 +48,21 @@ const useStyles = makeStyles((theme) => ({
   expandIcon: {
     transform: "rotate(45deg)",
   },
+  descriptionContainer: {
+    display: "flex",
+    alignItems: "flex-end",
+  },
   description: {
     ...theme.mixins.title5,
     ...theme.mixins.textEllipsis,
     fontWeight: "bold",
+    flexGrow: 1,
+    flexShrink: 1,
+  },
+  status: {
+    marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(1),
+    ...theme.mixins.captionText,
   },
   progress: {
     margin: theme.spacing(1),
@@ -82,19 +96,24 @@ function useMessages() {
       });
       return `${count} ${files}`;
     },
+    time(task) {
+      return intl.formatMessage(
+        { id: "task.time" },
+        { time: formatDistance(task.statusUpdateTime, new Date()) }
+      );
+    },
     status(task) {
-      const time = formatDistance(task.statusUpdateTime, new Date());
       switch (task.status) {
         case TaskStatus.PENDING:
-          return intl.formatMessage({ id: "task.status.pending" }, { time });
+          return intl.formatMessage({ id: "task.status.pending" });
         case TaskStatus.RUNNING:
-          return intl.formatMessage({ id: "task.status.running" }, { time });
+          return intl.formatMessage({ id: "task.status.running" });
         case TaskStatus.SUCCESS:
-          return intl.formatMessage({ id: "task.status.success" }, { time });
+          return intl.formatMessage({ id: "task.status.success" });
         case TaskStatus.FAILURE:
-          return intl.formatMessage({ id: "task.status.failure" }, { time });
+          return intl.formatMessage({ id: "task.status.failure" });
         case TaskStatus.CANCELLED:
-          return intl.formatMessage({ id: "task.status.cancelled" }, { time });
+          return intl.formatMessage({ id: "task.status.cancelled" });
         default:
           throw new Error(`Unsupported task status: ${task.status}`);
       }
@@ -122,29 +141,39 @@ function TaskListItem(props) {
   const description = getTextDescription(task.request, messages);
   const Icon = getStatusIcon(task.status);
   const running = task.status === TaskStatus.RUNNING;
+  const { clickTrigger, popup } = usePopup("task-menu-");
+
   return (
     <div className={clsx(classes.task, className)} {...other}>
       <div className={classes.attributesArea}>
         <Icon fontSize="small" className={classes.icon} />
         <div className={classes.attributes}>
           <div className={classes.topAttributes}>
-            <div className={classes.timeCaption}>{messages.status(task)}</div>
+            <div className={classes.timeCaption}>{messages.time(task)}</div>
             <IconButton size="small">
               <HeightOutlinedIcon
                 className={classes.expandIcon}
                 fontSize="small"
               />
             </IconButton>
-            <IconButton size="small">
+            <IconButton size="small" {...clickTrigger}>
               <MoreHorizOutlinedIcon fontSize="small" />
             </IconButton>
           </div>
-          <div className={classes.description}>{description}</div>
+          <div className={classes.descriptionContainer}>
+            <div className={classes.description}>{description}</div>
+            <div className={classes.status}>{messages.status(task)}</div>
+          </div>
         </div>
       </div>
       {running && (
         <TaskProgress value={task.progress} className={classes.progress} />
       )}
+      <Menu {...popup}>
+        <MenuItem>Show Logs</MenuItem>
+        <MenuItem>Cancel</MenuItem>
+        <MenuItem>Delete</MenuItem>
+      </Menu>
     </div>
   );
 }
