@@ -27,5 +27,7 @@ dependencies:
     - pyyaml
     - cached-property
     - dataclasses
+    - celery
+    - redis
 prefix: C:\ProgramData\Anaconda3\envs\winnow
 
