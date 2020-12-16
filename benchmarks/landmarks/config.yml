@@ -1,5 +1,5 @@
 sources:
-  root: data/augmented_dataset
+  root: data/landmarks
   extensions:
     - mp4
     - ogv

@@ -89,7 +89,7 @@ def global_vector(frame_feature_vector):
     try:
         X = frame_feature_vector
         X = normalize(X)
-        X = X.mean(axis=0, keepdims=True)
+        X = np.mean(X, axis=0, keepdims=True)
         X = normalize(X)
         return X
     except Exception:

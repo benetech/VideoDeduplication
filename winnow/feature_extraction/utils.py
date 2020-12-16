@@ -74,7 +74,7 @@ def load_image(image, desired_size):
             img = pad_and_resize(image_tensor, desired_size)
         return img
     except Exception as e:
-        raise Exception("Can't load image {}\n{}".format(image, e.message))
+        raise Exception("Can't load image {}\n{}".format(image, e))
 
 
 def pad_and_resize(image, desired_size):
