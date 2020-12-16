@@ -8,8 +8,14 @@ logger = get_task_logger(__name__)
 
 
 @celery_application.task
-def run_pipeline():
-    """Run a video-deduplication pipeline."""
-    logger.info("Task is received!")
+def process_directory(directory):
+    logger.info(f"Task is received: {directory}")
+    time.sleep(10)
+    return 42
+
+
+@celery_application.task
+def process_file_list(files):
+    logger.info(f"Task is received: {files}")
     time.sleep(10)
     return 42
