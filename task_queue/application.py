@@ -8,6 +8,7 @@ BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
 
 # Create application
 celery_application = Celery("winnow-pipeline", broker=BROKER, backend=BACKEND, include=["task_queue.tasks"])
+celery_application.conf.update(result_extended=True)
 
 if __name__ == "__main__":
     celery_application.start()
