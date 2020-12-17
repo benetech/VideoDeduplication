@@ -3,6 +3,7 @@ import os
 import time
 from pathlib import Path
 
+from celery import states
 from celery.utils.log import get_task_logger
 
 from .application import celery_application
@@ -10,8 +11,11 @@ from .application import celery_application
 logger = get_task_logger(__name__)
 
 
-@celery_application.task
-def process_directory(directory, frame_sampling=None, save_frames=None):
+@celery_application.task(bind=True)
+def process_directory(self, directory, frame_sampling=None, save_frames=None):
+    # Mark task as started
+    self.update_state(state=states.STARTED, meta={})
+
     from winnow.utils.config import resolve_config
     from winnow.utils.files import scan_videos
     from winnow.pipeline.extract_exif import extract_exif
@@ -50,8 +54,11 @@ def process_directory(directory, frame_sampling=None, save_frames=None):
     extract_exif(config)
 
 
-@celery_application.task
-def process_file_list(files, frame_sampling=None, save_frames=None):
+@celery_application.task(bind=True)
+def process_file_list(self, files, frame_sampling=None, save_frames=None):
+    # Mark task as started
+    self.update_state(state=states.STARTED, meta={})
+
     from winnow.utils.config import resolve_config
     from winnow.pipeline.extract_exif import extract_exif
     from winnow.pipeline.extract_features import extract_features
@@ -87,8 +94,11 @@ def fibo(n):
     return fibo(n - 1) + fibo(n - 2)
 
 
-@celery_application.task
-def test_fibonacci(n, delay):
+@celery_application.task(bind=True)
+def test_fibonacci(self, n, delay):
+    # Mark task as started
+    self.update_state(state=states.STARTED, meta={})
+
     logger.info(f"Received a test task: n={n}, delay={delay}")
     time.sleep(delay)
     return fibo(n)

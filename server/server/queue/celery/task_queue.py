@@ -74,8 +74,7 @@ class CeleryTaskQueue:
             async_result.forget()
 
     def get_task(self, task_id):
-        active_task_meta = self._active_tasks_meta()
-        return self._construct_task(task_id, active_task_meta)
+        return self._construct_task(task_id, {})
 
     def _construct_task(self, task_id, active_task_meta):
         raw_meta = self._celery_backend.get_task_meta(task_id)
@@ -134,9 +133,8 @@ class CeleryTaskQueue:
         satisfies = _task_filter(status)
         result = []
         filtered_count = 0
-        active_task_meta = self._active_tasks_meta()
         for task_id in self._celery_backend.task_ids():
-            task = self._construct_task(task_id, active_task_meta)
+            task = self._construct_task(task_id, {})
             task_satisfies = satisfies(task)
             if task_satisfies and offset <= filtered_count < offset + limit:
                 result.append(task)
