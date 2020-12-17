@@ -12,6 +12,14 @@ class Request:
         return asdict(self)
 
 
+@dataclass
+class TaskError:
+    exc_type: str
+    exc_message: str
+    exc_module: str
+    traceback: str
+
+
 class TaskStatus(Enum):
     """Enum for """
 
@@ -31,6 +39,7 @@ class Task:
     status_updated: datetime
     status: TaskStatus
     request: Request
+    error: Optional[TaskError] = None
 
     def asdict(self):
         data = asdict(self)

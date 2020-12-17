@@ -1,3 +1,4 @@
+import inspect
 from datetime import datetime
 
 from celery.result import AsyncResult
@@ -5,7 +6,7 @@ from celery.utils import uuid
 
 from server.queue.celery.task_metadata import TaskMetadata
 from server.queue.celery.task_status import task_status
-from server.queue.model import Task, TaskStatus
+from server.queue.model import Task, TaskStatus, TaskError
 
 
 def _task_name(task):
@@ -88,12 +89,35 @@ class CeleryTaskQueue:
             status_updated = datetime.utcfromtimestamp(active_task_meta[task_id]["time_start"])
         if status != TaskStatus.PENDING and status != TaskStatus.RUNNING:
             status_updated = async_result.date_done
+        error = None
+        if status == TaskStatus.FAILURE:
+            error = self._construct_error(async_result)
         return Task(
             id=winnow_meta.id,
             created=winnow_meta.created,
             status_updated=status_updated,
             request=winnow_meta.request,
             status=status,
+            error=error,
+        )
+
+    def _construct_error(self, async_result):
+        exc_type_name = None
+        exc_module_name = None
+        exc_message = None
+        result = async_result.result
+        if isinstance(result, Exception):
+            exc_type = type(result)
+            exc_type_name = getattr(exc_type, "__name__", None)
+            exc_module = inspect.getmodule(exc_type)
+            if exc_module is not None:
+                exc_module_name = getattr(exc_module, "__name__", None)
+            exc_message = str(result)
+        return TaskError(
+            exc_type=exc_type_name,
+            exc_message=exc_message,
+            exc_module=exc_module_name,
+            traceback=async_result.traceback,
         )
 
     def _active_tasks_meta(self):
