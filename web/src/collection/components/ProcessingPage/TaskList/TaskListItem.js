@@ -123,10 +123,12 @@ function useMessages() {
 
 function getTextDescription(request, messages) {
   switch (request.type) {
-    case TaskRequest.ALL:
-      return messages.dataset;
     case TaskRequest.DIRECTORY:
-      return request.directoryPath;
+      if (request.directory === ".") {
+        return messages.dataset;
+      } else {
+        return request.directoryPath;
+      }
     case TaskRequest.FILE_LIST:
       return messages.files(request.files.length);
     default:

@@ -14,11 +14,8 @@ export const TaskType = PropTypes.shape({
     TaskStatus.CANCELLED,
   ]).isRequired,
   request: PropTypes.shape({
-    type: PropTypes.oneOf([
-      TaskRequest.ALL,
-      TaskRequest.DIRECTORY,
-      TaskRequest.FILE_LIST,
-    ]).isRequired,
+    type: PropTypes.oneOf([TaskRequest.DIRECTORY, TaskRequest.FILE_LIST])
+      .isRequired,
     directoryPath: PropTypes.string,
     files: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
