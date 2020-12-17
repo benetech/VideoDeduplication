@@ -1,12 +1,12 @@
 import json
 import logging
 import os
+from dataclasses import dataclass, asdict
 from glob import glob
 from os.path import join, relpath, abspath, exists, dirname
 
 import lmdb
 import numpy as np
-from dataclasses import dataclass, asdict
 
 from winnow.storage.repr_key import ReprKey
 
@@ -117,7 +117,8 @@ class LMDBReprStorage:
             for repr_file_path in glob(path_pattern, recursive=True):
                 original_path = self._reverse(repr_file_path)
                 metadata = self._read_metadata(original_path, txn)
-                yield ReprKey(path=original_path, hash=metadata.hash, tag=metadata.tag)
+                if metadata is not None:
+                    yield ReprKey(path=original_path, hash=metadata.hash, tag=metadata.tag)
 
     # Private methods
 
