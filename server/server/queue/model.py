@@ -1,7 +1,7 @@
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from server.queue.request_transformer import RequestTransformer
 
@@ -44,6 +44,8 @@ class ProcessDirectory(Request):
     """Process entire directory."""
 
     directory: str
+    frame_sampling: Optional[int] = None
+    save_frames: Optional[bool] = None
 
 
 @dataclass
@@ -51,3 +53,5 @@ class ProcessFileList(Request):
     """Process all files from the given list."""
 
     files: List[str]
+    frame_sampling: Optional[int] = None
+    save_frames: Optional[bool] = None
