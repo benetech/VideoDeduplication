@@ -34,7 +34,7 @@ def post_task():
     task_request = None
     try:
         task_request = request_transformer.fromdict(request_payload)
-    except ValueError:
+    except (ValueError, TypeError):
         abort(HTTPStatus.BAD_REQUEST.value, f"Invalid request.")
 
     task = queue.dispatch(task_request)
