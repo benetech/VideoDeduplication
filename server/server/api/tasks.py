@@ -69,4 +69,5 @@ def cancel_task(task_id):
         abort(HTTPStatus.BAD_REQUEST.value, "Invalid request.")
 
     queue.terminate(task_id)
-    return "", HTTPStatus.NO_CONTENT.value
+    task = queue.get_task(task_id)
+    return jsonify(task.asdict())

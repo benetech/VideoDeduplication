@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -20,6 +20,9 @@ import TaskProgress from "./TaskProgress";
 import usePopup from "../../../../common/hooks/usePopup";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import { useServer } from "../../../../server-api/context";
+import { useDispatch } from "react-redux";
+import { deleteTask, updateTask } from "../../../state/tasks/actions";
 
 const useStyles = makeStyles((theme) => ({
   task: {
@@ -92,6 +95,9 @@ function getStatusIcon(status) {
 function useMessages() {
   const intl = useIntl();
   return {
+    delete: intl.formatMessage({ id: "actions.delete" }),
+    cancel: intl.formatMessage({ id: "actions.cancel" }),
+    showLogs: intl.formatMessage({ id: "actions.showLogs" }),
     dataset: intl.formatMessage({ id: "task.type.all" }),
     files(count) {
       const files = intl.formatMessage({
@@ -143,12 +149,36 @@ function getTextDescription(request, messages) {
 
 function TaskListItem(props) {
   const { task, className, ...other } = props;
+  const server = useServer();
   const classes = useStyles();
   const messages = useMessages();
+  const dispatch = useDispatch();
   const description = getTextDescription(task.request, messages);
   const Icon = getStatusIcon(task.status);
   const running = task.status === TaskStatus.RUNNING;
   const { clickTrigger, popup } = usePopup("task-menu-");
+
+  const handleCancel = useCallback(() => {
+    popup.onClose();
+    server.cancelTask({ id: task.id }).then((response) => {
+      if (response.success) {
+        dispatch(updateTask(response.data));
+      } else {
+        console.error(`Error cancel task: ${task.id}`, response.error);
+      }
+    });
+  }, [task.id]);
+
+  const handleDelete = useCallback(() => {
+    popup.onClose();
+    server.deleteTask({ id: task.id }).then((response) => {
+      if (response.success) {
+        dispatch(deleteTask(task.id));
+      } else {
+        console.log(`Error delete task: ${task.id}`, response.error);
+      }
+    });
+  }, [task.id]);
 
   return (
     <div className={clsx(classes.task, className)} {...other}>
@@ -177,9 +207,9 @@ function TaskListItem(props) {
         <TaskProgress value={task.progress} className={classes.progress} />
       )}
       <Menu {...popup}>
-        <MenuItem>Show Logs</MenuItem>
-        <MenuItem>Cancel</MenuItem>
-        <MenuItem>Delete</MenuItem>
+        <MenuItem onClick={popup.onClose}>{messages.showLogs}</MenuItem>
+        <MenuItem onClick={handleCancel}>{messages.cancel}</MenuItem>
+        <MenuItem onClick={handleDelete}>{messages.delete}</MenuItem>
       </Menu>
     </div>
   );

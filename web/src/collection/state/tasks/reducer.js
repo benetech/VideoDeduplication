@@ -20,11 +20,14 @@ const defaultReducer = makeEntityReducer({
 
 function taskReducer(state = initialState, action) {
   switch (action.type) {
-    case ACTION_DELETE_TASK:
+    case ACTION_DELETE_TASK: {
+      const found = state.tasks.some((task) => task.id === action.id);
       return {
         ...state,
         tasks: state.tasks.filter((task) => task.id !== action.id),
+        total: found ? state.total - 1 : state.total,
       };
+    }
     case ACTION_UPDATE_TASK: {
       const existing = state.tasks.find((task) => task.id === action.task.id);
       const updated = { ...existing, ...action.task };
@@ -39,6 +42,7 @@ function taskReducer(state = initialState, action) {
       return {
         ...state,
         tasks: updatedTasks,
+        total: existing != null ? state.total : state.total + 1,
       };
     }
     default:

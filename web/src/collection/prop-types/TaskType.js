@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import TaskStatus from "../state/tasks/TaskStatus";
-import TaskRequest from "../state/tasks/TaskRequest";
 
 export const TaskType = PropTypes.shape({
   id: PropTypes.string.isRequired,
