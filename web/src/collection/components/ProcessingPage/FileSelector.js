@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Button from "../../../common/components/Button";
+import { useServer } from "../../../server-api/context";
 
 const useStyles = makeStyles(() => ({
   selector: {
@@ -17,9 +18,26 @@ const useStyles = makeStyles(() => ({
 function FileSelector(props) {
   const { className } = props;
   const classes = useStyles();
+  const server = useServer();
+  const [loading, setLoading] = useState(false);
+
+  const handleProcess = useCallback(() => {
+    setLoading(true);
+    server
+      .createTask({
+        request: { type: "ProcessDirectory", directory: "." },
+      })
+      .finally(() => setLoading(false));
+  });
+
   return (
     <div className={clsx(classes.selector, className)}>
-      <Button color="primary" variant="outlined">
+      <Button
+        color="primary"
+        variant="outlined"
+        onClick={handleProcess}
+        disabled={loading}
+      >
         Process Entire Dataset
       </Button>
     </div>
