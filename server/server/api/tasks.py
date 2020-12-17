@@ -36,13 +36,13 @@ def list_tasks():
 def post_task():
     request_payload = request.get_json()
     if request_payload is None:
-        abort(HTTPStatus.BAD_REQUEST.value, f"Expected valid 'application/json' payload.")
+        abort(HTTPStatus.BAD_REQUEST.value, "Expected valid 'application/json' payload.")
 
     task_request = None
     try:
         task_request = request_transformer.fromdict(request_payload)
     except (ValueError, TypeError):
-        abort(HTTPStatus.BAD_REQUEST.value, f"Invalid request.")
+        abort(HTTPStatus.BAD_REQUEST.value, "Invalid request.")
 
     task = queue.dispatch(task_request)
     return jsonify(task.asdict())
@@ -63,10 +63,10 @@ def cancel_task(task_id):
 
     request_payload = request.get_json()
     if request_payload is None:
-        abort(HTTPStatus.BAD_REQUEST.value, f"Expected valid 'application/json' payload.")
+        abort(HTTPStatus.BAD_REQUEST.value, "Expected valid 'application/json' payload.")
 
     if request_payload != {"status": TaskStatus.REVOKED.value}:
-        abort(HTTPStatus.BAD_REQUEST.value, f"Invalid request.")
+        abort(HTTPStatus.BAD_REQUEST.value, "Invalid request.")
 
     queue.terminate(task_id)
     return "", HTTPStatus.NO_CONTENT.value

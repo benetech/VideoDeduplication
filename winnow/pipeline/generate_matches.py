@@ -18,7 +18,7 @@ from winnow.utils.matches import filter_results
 from winnow.utils.scene_detection import extract_scenes
 
 
-def generate_matches(config):
+def generate_matches(config):  # noqa: C901
     """Find matches between video files."""
 
     logger = logging.getLogger(__name__)
@@ -109,7 +109,7 @@ def generate_matches(config):
 
             SCENE_METADATA_OUTPUT_PATH = os.path.join(config.repr.directory, "scene_metadata.csv")
             scene_metadata.to_csv(SCENE_METADATA_OUTPUT_PATH)
-            logger.info("Scene Metadata saved in:".format(SCENE_METADATA_OUTPUT_PATH))
+            logger.info("Scene Metadata saved in: %s", SCENE_METADATA_OUTPUT_PATH)
 
     if config.proc.filter_dark_videos:
 
