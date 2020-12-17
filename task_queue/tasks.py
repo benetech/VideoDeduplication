@@ -1,4 +1,5 @@
 import os
+import time
 from pathlib import Path
 
 from celery.utils.log import get_task_logger
@@ -69,3 +70,17 @@ def process_file_list(files, frame_sampling=None, save_frames=None):
 
     logger.info("Starting extract-exif step...")
     extract_exif(config)
+
+
+def fibo(n):
+    """A very inefficient Fibonacci numbers generator."""
+    if n <= 2:
+        return 1
+    return fibo(n - 1) + fibo(n - 2)
+
+
+@celery_application.task
+def test_fibonacci(n, delay):
+    logger.info(f"Received a test task: n={n}, delay={delay}")
+    time.sleep(delay)
+    return fibo(n)

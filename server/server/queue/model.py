@@ -55,3 +55,11 @@ class ProcessFileList(Request):
     files: List[str]
     frame_sampling: Optional[int] = None
     save_frames: Optional[bool] = None
+
+
+@dataclass
+class TestTask(Request):
+    """Example Fibonacci task for testing purpose."""
+
+    n: int
+    delay: int
