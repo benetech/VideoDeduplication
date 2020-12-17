@@ -125,4 +125,17 @@ export default class Transform {
       file: this.videoFile(match.file),
     };
   }
+
+  fetchTasksResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      tasks: data.items.map((task) => this.task(task)),
+    };
+  }
+
+  task(data) {
+    // Nothing to change yet...
+    return data;
+  }
 }

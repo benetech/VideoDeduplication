@@ -5,6 +5,7 @@ import { Response } from "../Response";
 import fileFiltersToQueryParams from "./helpers/fileFiltersToQueryParams";
 import clusterFiltersToQueryParams from "./helpers/clusterFiltersToQueryParams";
 import matchesFiltersToQueryParams from "./helpers/matchesFiltersToQueryParams";
+import taskFiltersToQueryParams from "./helpers/taskFiltersToQueryParams";
 
 export default class Server {
   constructor({ baseURL = "/api/v1", timeout = 10 * 1000, headers = {} } = {}) {
@@ -95,6 +96,77 @@ export default class Server {
     try {
       await this.axios.head(`/files/${id}/watch`);
       return Response.ok(null);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchTasks({ limit = 1000, offset = 0, filters = {} }) {
+    try {
+      const response = await this.axios.get(`/tasks/`, {
+        params: {
+          limit,
+          offset,
+          ...taskFiltersToQueryParams({ filters, fields }),
+        },
+      });
+      const data = this.transform.fetchTasksResults(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchTask({ id }) {
+    try {
+      const response = await this.axios.get(`/tasks/${id}`, {
+        params: {},
+      });
+      const data = this.transform.task(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async deleteTask({ id }) {
+    try {
+      const response = await this.axios.delete(`/tasks/${id}`);
+      return Response.ok(response.data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async cancelTask({ id }) {
+    try {
+      const response = await this.axios.patch(
+        `/tasks/${id}`,
+        JSON.stringify({ status: "REVOKED" }),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return Response.ok(response.data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async createTask({ request }) {
+    try {
+      const response = await this.axios.post(
+        `/tasks/`,
+        JSON.stringify(request),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return Response.ok(response.data);
     } catch (error) {
       return this.errorResponse(error);
     }
