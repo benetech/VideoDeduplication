@@ -53,6 +53,38 @@ services:
       - postgres
     networks:
       - postgres-compose-network
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - 6379:6379
+    networks:
+      - postgres-compose-network
+
+  celery-worker:
+    image: "johnhbenetech/videodeduplication:${BENETECH_RUNTIME:-gpu}${BENETECH_MODE}"
+    build:
+      context: .
+      dockerfile: "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
+      target: prod
+      args:
+        GIT_HASH: "${GIT_HASH}"
+    runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
+    command: bash -ic "python -m task_queue.application worker --loglevel=INFO"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+      CELERY_BROKER: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+    volumes:
+      # Set the BENETECH_DATA_LOCATION environment variable to the path
+      # on your host machine where you placed the source data
+      - "${BENETECH_DATA_LOCATION:?\n\nPlease set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
+    depends_on:
+      - postgres
+    networks:
+      - postgres-compose-network
+
   server:
     image: "johnhbenetech/videodeduplication:server${BENETECH_MODE}"
     build:
@@ -68,6 +100,8 @@ services:
       VIDEO_FOLDER: "/project/data/"
       THUMBNAIL_CACHE_FOLDER: "/project/thumbnails"
       THUMBNAIL_CACHE_CAP: 10000
+      CELERY_BROKER: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/0"
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed your video files
