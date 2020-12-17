@@ -3,8 +3,8 @@
  */
 export default function taskFiltersToQueryParams({ status }) {
   const params = {};
-  if (status != null && fields.length > 0) {
-    params.status = fields.join(",");
+  if (status != null && status.length > 0) {
+    params.status = status.join(",");
   }
   return params;
 }
