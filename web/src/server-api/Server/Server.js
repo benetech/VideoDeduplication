@@ -107,7 +107,7 @@ export default class Server {
         params: {
           limit,
           offset,
-          ...taskFiltersToQueryParams({ filters, fields }),
+          ...taskFiltersToQueryParams({ filters }),
         },
       });
       const data = this.transform.fetchTasksResults(response.data);

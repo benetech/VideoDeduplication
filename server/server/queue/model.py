@@ -1,8 +1,10 @@
-from dataclasses import dataclass, asdict
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
+from dataclasses import dataclass, asdict
+
+from server.queue import time_utils
 from server.queue.request_transformer import RequestTransformer
 
 
@@ -43,6 +45,8 @@ class Task:
 
     def asdict(self):
         data = asdict(self)
+        data["created"] = time_utils.dumps(self.created)
+        data["status_updated"] = time_utils.dumps(self.status_updated)
         data["status"] = self.status.value
         data["request"] = RequestTransformer.asdict(self.request)
         return data

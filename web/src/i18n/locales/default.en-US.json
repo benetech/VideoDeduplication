@@ -202,6 +202,7 @@
     "task.time": "{time} ago",
     "task.list.all": "All",
     "task.list.active": "Active",
-    "task.list.finished": "Finished"
+    "task.list.finished": "Finished",
+    "task.error.load": "Error loading tasks"
   }
 }

@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import TaskSidebarHeader from "./TaskSidebarHeader";
-import { randomTasks } from "../../../../server-api/MockServer/fake-data/tasks";
 import TaskList from "../TaskList";
 import { Tab } from "./tabs";
+import { useDispatch, useSelector } from "react-redux";
+import { selectTasks } from "../../../state/selectors";
+import LoadTrigger from "../../../../common/components/LoadingTrigger/LoadTrigger";
+import { fetchTaskSlice } from "../../../state/tasks/actions";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -21,26 +25,47 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const tasks = randomTasks({
-  pending: 2,
-  running: 1,
-  failure: 2,
-  cancelled: 2,
-  success: 2,
-});
+/**
+ * Get i18n text.
+ */
+function useMessages() {
+  const intl = useIntl();
+  return {
+    loadError: intl.formatMessage({ id: "task.error.load" }),
+  };
+}
 
 function TaskSidebar(props) {
   const { className, ...other } = props;
   const classes = useStyles();
   const [tab, setTab] = useState(Tab.ACTIVE);
+  const messages = useMessages();
+  const dispatch = useDispatch();
+  const taskState = useSelector(selectTasks);
+  const tasks = taskState.tasks;
+
+  // Load next slice of task collection
+  const handleLoad = useCallback(() => dispatch(fetchTaskSlice()), []);
 
   return (
     <div className={clsx(classes.container, className)} {...other}>
-      <TaskSidebarHeader count={325} tab={tab} onTabChange={setTab} />
+      <TaskSidebarHeader
+        count={taskState.total}
+        tab={tab}
+        onTabChange={setTab}
+      />
       <TaskList className={classes.tasks}>
         {tasks.filter(tab.filter).map((task) => (
           <TaskList.Item task={task} key={task.id} />
         ))}
+        <LoadTrigger
+          loading={taskState.loading}
+          onLoad={handleLoad}
+          hasMore={taskState.total == null || tasks.length < taskState.total}
+          container={TaskList.ItemContainer}
+          errorMessage={messages.loadError}
+          error={taskState.error}
+        />
       </TaskList>
     </div>
   );

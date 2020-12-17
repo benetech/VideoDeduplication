@@ -2,17 +2,16 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import TaskListItem from "./TaskListItem";
-import ItemContainer from "./ItemContainer";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   container: {
-    display: "flex",
-    flexDirection: "column",
+    padding: theme.spacing(1),
+    backgroundColor: theme.palette.common.white,
+    marginBottom: theme.spacing(1),
   },
-});
+}));
 
-function TaskList(props) {
+function ItemContainer(props) {
   const { children, className, ...other } = props;
   const classes = useStyles();
   return (
@@ -22,19 +21,9 @@ function TaskList(props) {
   );
 }
 
-/**
- * Task list item.
- */
-TaskList.Item = TaskListItem;
-
-/**
- * Task list item container.
- */
-TaskList.ItemContainer = ItemContainer;
-
-TaskList.propTypes = {
+ItemContainer.propTypes = {
   /**
-   * Task list items.
+   * Container displayed contents.
    */
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
@@ -43,4 +32,4 @@ TaskList.propTypes = {
   className: PropTypes.string,
 };
 
-export default TaskList;
+export default ItemContainer;

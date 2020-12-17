@@ -41,6 +41,9 @@ const useStyles = makeStyles((theme) => ({
   tab: {
     marginRight: theme.spacing(4),
   },
+  progress: {
+    marginRight: theme.spacing(1),
+  },
 }));
 
 /**
@@ -49,6 +52,7 @@ const useStyles = makeStyles((theme) => ({
 function useMessages(count) {
   const intl = useIntl();
   const tasks = count === 1 ? "tasks.one" : "tasks.many";
+  count = count != null ? count : "";
   return {
     title: `${count} ${intl.formatMessage({ id: tasks })}`,
     search: intl.formatMessage({ id: "actions.search" }),
@@ -105,7 +109,7 @@ TaskSidebarHeader.propTypes = {
   /**
    * Count of tasks.
    */
-  count: PropTypes.number.isRequired,
+  count: PropTypes.number,
   className: PropTypes.string,
 };
 

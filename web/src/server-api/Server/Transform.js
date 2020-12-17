@@ -1,4 +1,10 @@
 import { randomObjects } from "../MockServer/fake-data/objects";
+import PropTypes from "prop-types";
+import TaskStatus from "../../collection/state/tasks/TaskStatus";
+import TaskRequest from "../../collection/state/tasks/TaskRequest";
+import parse from "date-fns/parse";
+
+const dateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 
 /**
  * Data-transfer object and internal data format may evolve independently, the
@@ -135,7 +141,26 @@ export default class Transform {
   }
 
   task(data) {
-    // Nothing to change yet...
-    return data;
+    return {
+      id: data.id,
+      submissionTime: parse(data.created, dateFormat, new Date()),
+      statusUpdateTime: parse(data.status_updated, dateFormat, new Date()),
+      status: data.status,
+      request: data.request,
+      progress: data.progress,
+      error: this.taskError(data.error),
+    };
+  }
+
+  taskError(data) {
+    if (data == null) {
+      return undefined;
+    }
+    return {
+      type: data.exc_type,
+      message: data.exc_message,
+      module: data.exc_module,
+      traceback: data.traceback,
+    };
   }
 }

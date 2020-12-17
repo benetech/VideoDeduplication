@@ -11,6 +11,7 @@ import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import PlayCircleFilledWhiteOutlinedIcon from "@material-ui/icons/PlayCircleFilledWhiteOutlined";
 import HeightOutlinedIcon from "@material-ui/icons/HeightOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
+import HelpOutlineOutlinedIcon from "@material-ui/icons/HelpOutlineOutlined";
 import { formatDistance } from "date-fns";
 import { IconButton } from "@material-ui/core";
 import TaskRequest from "../../../state/tasks/TaskRequest";
@@ -33,6 +34,7 @@ const useStyles = makeStyles((theme) => ({
   },
   icon: {
     marginRight: theme.spacing(2),
+    fontSize: 15,
   },
   attributes: {
     flexGrow: 1,
@@ -82,7 +84,8 @@ function getStatusIcon(status) {
     case TaskStatus.CANCELLED:
       return BlockOutlinedIcon;
     default:
-      throw new Error(`Unsupported task status: ${status}`);
+      console.warn(`Unsupported task status: ${status}`);
+      return HelpOutlineOutlinedIcon;
   }
 }
 
@@ -115,7 +118,8 @@ function useMessages() {
         case TaskStatus.CANCELLED:
           return intl.formatMessage({ id: "task.status.cancelled" });
         default:
-          throw new Error(`Unsupported task status: ${task.status}`);
+          console.warn(`Unsupported task status: ${task.status}`);
+          return task.status;
       }
     },
   };
@@ -127,12 +131,13 @@ function getTextDescription(request, messages) {
       if (request.directory === ".") {
         return messages.dataset;
       } else {
-        return request.directoryPath;
+        return request.directory;
       }
     case TaskRequest.FILE_LIST:
       return messages.files(request.files.length);
     default:
-      throw new Error(`Unsupported task request type: ${request.type}`);
+      console.warn(`Unsupported task request type: ${request.type}`);
+      return request.type;
   }
 }
 

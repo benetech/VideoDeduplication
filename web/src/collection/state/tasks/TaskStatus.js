@@ -6,7 +6,7 @@ export const TaskStatus = {
   RUNNING: "RUNNING",
   SUCCESS: "SUCCESS",
   FAILURE: "FAILURE",
-  CANCELLED: "CANCELLED",
+  CANCELLED: "REVOKED",
 };
 
 export default TaskStatus;
