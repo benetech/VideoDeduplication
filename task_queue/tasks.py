@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from pathlib import Path
@@ -16,6 +17,9 @@ def process_directory(directory, frame_sampling=None, save_frames=None):
     from winnow.pipeline.extract_exif import extract_exif
     from winnow.pipeline.extract_features import extract_features
     from winnow.pipeline.generate_matches import generate_matches
+
+    # Setup winnow logging
+    logging.getLogger("winnow").setLevel(logging.INFO)
 
     logger.info(
         f"Initiating ProcessDirectory task: directory={directory}, "
@@ -52,6 +56,9 @@ def process_file_list(files, frame_sampling=None, save_frames=None):
     from winnow.pipeline.extract_exif import extract_exif
     from winnow.pipeline.extract_features import extract_features
     from winnow.pipeline.generate_matches import generate_matches
+
+    # Setup winnow logging
+    logging.getLogger("winnow").setLevel(logging.INFO)
 
     logger.info(
         f"Initiating ProcessFileList task: len(files)={len(files)}, "
