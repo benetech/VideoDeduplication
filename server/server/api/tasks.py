@@ -8,6 +8,13 @@ from .blueprint import api
 from .helpers import parse_enum_seq, parse_positive_int
 
 
+def parse_status():
+    status = parse_enum_seq(request.args, "status", {status.value for status in TaskStatus})
+    if status is not None:
+        status = set(map(TaskStatus, status))
+    return status
+
+
 @api.route("/tasks/<task_id>", methods=["GET"])
 def get_task(task_id):
     task = queue.get_task(task_id)
@@ -18,7 +25,7 @@ def get_task(task_id):
 
 @api.route("/tasks/", methods=["GET"])
 def list_tasks():
-    status = parse_enum_seq(request.args, "status", {status.value for status in TaskStatus})
+    status = parse_status()
     offset = parse_positive_int(request.args, "offset", 0)
     limit = parse_positive_int(request.args, "limit", 100)
     tasks, total = queue.list_tasks(status=status, limit=limit, offset=offset)
