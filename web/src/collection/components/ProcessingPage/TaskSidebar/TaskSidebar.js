@@ -40,7 +40,7 @@ const byDate = (first, second) => second.submissionTime - first.submissionTime;
 function TaskSidebar(props) {
   const { className, ...other } = props;
   const classes = useStyles();
-  const [tab, setTab] = useState(Tab.ACTIVE);
+  const [tab, setTab] = useState(Tab.ALL);
   const messages = useMessages();
   const dispatch = useDispatch();
   const taskState = useSelector(selectTasks);
