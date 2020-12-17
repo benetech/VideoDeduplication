@@ -46,7 +46,7 @@ def delete_task(task_id):
     if not queue.exists(task_id):
         abort(HTTPStatus.NOT_FOUND.value, f"Task id not found: {task_id}")
     queue.delete(task_id)
-    return '', HTTPStatus.NO_CONTENT.value
+    return "", HTTPStatus.NO_CONTENT.value
 
 
 @api.route("/tasks/<task_id>", methods=["PATCH"])
@@ -62,4 +62,4 @@ def cancel_task(task_id):
         abort(HTTPStatus.BAD_REQUEST.value, f"Invalid request.")
 
     queue.terminate(task_id)
-    return '', HTTPStatus.NO_CONTENT.value
+    return "", HTTPStatus.NO_CONTENT.value
