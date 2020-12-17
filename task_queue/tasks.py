@@ -28,11 +28,12 @@ def process_directory(directory, frame_sampling=None, save_frames=None):
 
     # Resolve list of video files from the directory
     logger.info(f"Resolving video list for directory {directory}")
-    absolute_path = os.path.abspath(os.path.join(config.sources.root, directory))
-    if Path(config.sources.root) not in Path(absolute_path).parents:
+    absolute_root = os.path.abspath(config.sources.root)
+    absolute_dir = os.path.abspath(os.path.join(absolute_root, directory))
+    if Path(config.sources.root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:
         raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
 
-    videos = scan_videos(config.sources.root, "**", extensions=config.sources.extensions)
+    videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
 
     # Run pipeline
     logger.info("Starting extract-features step...")
