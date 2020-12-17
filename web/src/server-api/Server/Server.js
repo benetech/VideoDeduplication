@@ -166,7 +166,7 @@ export default class Server {
           },
         }
       );
-      return Response.ok(response.data);
+      return Response.ok(this.transform.task(response.data));
     } catch (error) {
       return this.errorResponse(error);
     }

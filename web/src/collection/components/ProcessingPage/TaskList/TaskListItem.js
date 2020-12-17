@@ -102,7 +102,7 @@ function useMessages() {
     time(task) {
       return intl.formatMessage(
         { id: "task.time" },
-        { time: formatDistance(task.statusUpdateTime, new Date()) }
+        { time: formatDistance(task.submissionTime, new Date()) }
       );
     },
     status(task) {
@@ -153,7 +153,7 @@ function TaskListItem(props) {
   return (
     <div className={clsx(classes.task, className)} {...other}>
       <div className={classes.attributesArea}>
-        <Icon fontSize="small" className={classes.icon} />
+        <Icon className={classes.icon} />
         <div className={classes.attributes}>
           <div className={classes.topAttributes}>
             <div className={classes.timeCaption}>{messages.time(task)}</div>

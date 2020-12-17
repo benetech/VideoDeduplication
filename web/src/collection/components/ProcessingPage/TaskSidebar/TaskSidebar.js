@@ -35,6 +35,8 @@ function useMessages() {
   };
 }
 
+const byDate = (first, second) => second.submissionTime - first.submissionTime;
+
 function TaskSidebar(props) {
   const { className, ...other } = props;
   const classes = useStyles();
@@ -42,7 +44,7 @@ function TaskSidebar(props) {
   const messages = useMessages();
   const dispatch = useDispatch();
   const taskState = useSelector(selectTasks);
-  const tasks = taskState.tasks;
+  const tasks = [...taskState.tasks].sort(byDate);
 
   // Load next slice of task collection
   const handleLoad = useCallback(() => dispatch(fetchTaskSlice()), []);

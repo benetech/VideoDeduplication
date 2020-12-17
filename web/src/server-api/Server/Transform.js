@@ -1,17 +1,16 @@
 import { randomObjects } from "../MockServer/fake-data/objects";
-import PropTypes from "prop-types";
-import TaskStatus from "../../collection/state/tasks/TaskStatus";
-import TaskRequest from "../../collection/state/tasks/TaskRequest";
 import parse from "date-fns/parse";
 
-const dateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS";
+const defaultDateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 
 /**
  * Data-transfer object and internal data format may evolve independently, the
  * Transform class decouples these two representations.
  */
 export default class Transform {
-  constructor() {}
+  constructor(utcDateFormat = defaultDateFormat) {
+    this.utcDateFormat = utcDateFormat;
+  }
 
   fetchFileResults(data) {
     const counts = {
@@ -143,8 +142,8 @@ export default class Transform {
   task(data) {
     return {
       id: data.id,
-      submissionTime: parse(data.created, dateFormat, new Date()),
-      statusUpdateTime: parse(data.status_updated, dateFormat, new Date()),
+      submissionTime: this.utcDate(data.created),
+      statusUpdateTime: this.utcDate(data.status_updated),
       status: data.status,
       request: data.request,
       progress: data.progress,
@@ -162,5 +161,19 @@ export default class Transform {
       module: data.exc_module,
       traceback: data.traceback,
     };
+  }
+
+  utcDate(date) {
+    const utcDate = parse(date, this.utcDateFormat, new Date());
+    const timestamp = Date.UTC(
+      utcDate.getFullYear(),
+      utcDate.getMonth(),
+      utcDate.getDate(),
+      utcDate.getHours(),
+      utcDate.getMinutes(),
+      utcDate.getSeconds(),
+      utcDate.getMilliseconds()
+    );
+    return new Date(timestamp);
   }
 }
