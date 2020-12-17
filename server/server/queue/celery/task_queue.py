@@ -1,7 +1,6 @@
 import inspect
 from datetime import datetime
 
-from celery.result import AsyncResult
 from celery.utils import uuid
 
 from server.queue.celery.task_metadata import TaskMetadata
@@ -69,7 +68,10 @@ class CeleryTaskQueue:
 
     def delete(self, task_id):
         self.terminate(task_id)
-        self._celery_backend.delete_task_meta(task_id)
+        if self.exists(task_id):
+            self._celery_backend.delete_task_meta(task_id)
+            async_result = self.app.AsyncResult(task_id)
+            async_result.forget()
 
     def get_task(self, task_id):
         active_task_meta = self._active_tasks_meta()
