@@ -1,5 +1,7 @@
+import threading
 from os import path
 
+import eventlet
 import fire
 from flask import Flask
 
@@ -52,6 +54,8 @@ def serve(
     videos=None,
 ):
     """Start Deduplication API Server."""
+    eventlet.monkey_patch()
+
     from server.model import database
     from server.queue.instance import queue
     from server.socket.instance import socketio
@@ -78,7 +82,7 @@ def serve(
 
     # Initialize SocketIO
     socketio.init_app(application)
-    queue.observe(TaskObserver(socketio))
+    threading.Thread(target=queue.observe, args=(TaskObserver(socketio),), daemon=True).start()
 
     # Serve REST API
     socketio.run(application, host=config.host, port=config.port, log_output=True)

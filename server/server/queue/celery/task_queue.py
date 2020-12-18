@@ -1,11 +1,8 @@
 import inspect
-import threading
 from datetime import datetime
-from typing import Set
 
 from celery.utils import uuid
 
-from server.queue.celery.base_observer import BaseObserver
 from server.queue.celery.task_metadata import TaskMetadata
 from server.queue.celery.task_status import task_status
 from server.queue.model import Task, TaskStatus, TaskError
@@ -41,9 +38,6 @@ class CeleryTaskQueue:
         self._req_transformer = request_transformer
         for request_type, task in requests.items():
             self._celery_tasks[request_type] = task
-        self._observers: Set[BaseObserver] = set()
-        self._subscribe_for_celery_events()
-        self._event_thread = None
 
     def dispatch(self, request):
         # Resolve actual celery task to be invoked
@@ -151,70 +145,57 @@ class CeleryTaskQueue:
         return self._celery_backend.exists(task_id=task_id)
 
     def observe(self, observer):
-        self._observers.add(observer)
+        """Listen to the celery events and notify observers.
 
-    def stop_observing(self, observer):
-        self._observers.remove(observer)
+        This is a blocking method that should be executed in a background thread.
+        """
+        state = self.app.events.State()
 
-    def _subscribe_for_celery_events(self):
-        """Listen to the celery events and notify observers."""
+        def announce_task_sent(event):
+            """Sent when a task message is published."""
+            state.event(event)
+            task = self.get_task(event["uuid"])
+            if task is not None:
+                observer.on_task_sent(task)
 
-        def listen_celery_events():
-            """Do listen for celery events."""
-            state = self.app.events.State()
+        def announce_task_started(event):
+            """Sent just before the worker executes the task."""
+            state.event(event)
+            task = self.get_task(event["uuid"])
+            task.status = TaskStatus.RUNNING
+            if task is not None:
+                observer.on_task_started(task)
 
-            def announce_task_sent(event):
-                """Sent when a task message is published."""
-                state.event(event)
-                task = self.get_task(event["uuid"])
-                if task is not None:
-                    for observer in self._observers:
-                        observer.on_task_sent(task)
+        def announce_succeeded_tasks(event):
+            """Sent if the task executed successfully."""
+            state.event(event)
+            task = self.get_task(event["uuid"])
+            if task is not None:
+                observer.on_task_succeeded(task)
 
-            def announce_task_started(event):
-                """Sent just before the worker executes the task."""
-                state.event(event)
-                task = self.get_task(event["uuid"])
-                if task is not None:
-                    for observer in self._observers:
-                        observer.on_task_started(task)
+        def announce_failed_tasks(event):
+            """Sent if the execution of the task failed."""
+            state.event(event)
+            task = self.get_task(event["uuid"])
+            if task is not None:
+                observer.on_task_failed(task)
 
-            def announce_succeeded_tasks(event):
-                """Sent if the task executed successfully."""
-                state.event(event)
-                task = self.get_task(event["uuid"])
-                if task is not None:
-                    for observer in self._observers:
-                        observer.on_task_succeeded(task)
+        def announce_revoked_tasks(event):
+            """Sent if the task has been revoked."""
+            state.event(event)
+            task = self.get_task(event["uuid"])
+            if task is not None:
+                observer.on_task_revoked(task)
 
-            def announce_failed_tasks(event):
-                """Sent if the execution of the task failed."""
-                state.event(event)
-                task = self.get_task(event["uuid"])
-                if task is not None:
-                    for observer in self._observers:
-                        observer.on_task_failed(task)
-
-            def announce_revoked_tasks(event):
-                """Sent if the task has been revoked."""
-                state.event(event)
-                task = self.get_task(event["uuid"])
-                if task is not None:
-                    for observer in self._observers:
-                        observer.on_task_revoked(task)
-
-            with self.app.connection() as connection:
-                receiver = self.app.events.Receiver(
-                    connection,
-                    handlers={
-                        "task-sent": announce_task_sent,
-                        "task-started": announce_task_started,
-                        "task-succeeded": announce_succeeded_tasks,
-                        "task-failed": announce_failed_tasks,
-                        "task-revoked": announce_revoked_tasks,
-                    },
-                )
-                receiver.capture(limit=None, timeout=None, wakeup=True)
-
-        self._event_thread = threading.Thread(target=listen_celery_events, daemon=True)
-        self._event_thread.start()
+        with self.app.connection() as connection:
+            receiver = self.app.events.Receiver(
+                connection,
+                handlers={
+                    "task-sent": announce_task_sent,
+                    "task-started": announce_task_started,
+                    "task-succeeded": announce_succeeded_tasks,
+                    "task-failed": announce_failed_tasks,
+                    "task-revoked": announce_revoked_tasks,
+                },
+            )
+            receiver.capture(limit=None, timeout=None, wakeup=True)
