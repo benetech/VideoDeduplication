@@ -186,7 +186,6 @@ def run_benchmark_on_landmark(
 
     queries = get_queries(min_samples, labels, col="landmark_id")
     print(f"Using {len(queries)} queries as base")
-    queries_labels = labels.loc[labels["landmark_id"].isin(queries), :]
 
     expanded_q = expand_queries(queries, labels, samples=n_query_samples)
 
@@ -194,8 +193,6 @@ def run_benchmark_on_landmark(
     for q in queries:
 
         qs = expanded_q.loc[q]
-        # resized = np.array([load_image(x, 224) for x in qs["fp"].values])
-        # features = model.extract(resized, batch_sz=8)
         features = int_feats[qs.index]
         features = agg_func(features)
         flattened_features.append(features)
@@ -255,7 +252,6 @@ def evaluate_augmented_dataset(config, force_download, overwrite, config_path):
         if len(signatures) == 0 or overwrite:
 
             # Load signatures and labels
-            #
             command = f"python extract_features.py -cp {config_path}"
             command = shlex.split(command)
             subprocess.run(command, check=True)
@@ -289,9 +285,10 @@ def evaluate_augmented_dataset(config, force_download, overwrite, config_path):
 
             scoreboard[fs] = results_analysis
 
-        results_file = open("benchmarks/scoreboard.json", "w")
+        dst_path = os.path.join("data", "scoreboard.json")
+        results_file = open(dst_path, "w")
         json.dump(scoreboard, results_file)
-        print("Saved scoreboard on {}".format("benchmarks/scoreboard.json"))
+        print("Saved scoreboard on {}".format(dst_path))
 
 
 def evaluate_landmarks(config, force_download, overwrite, config_path):
@@ -355,4 +352,8 @@ def evaluate_landmarks(config, force_download, overwrite, config_path):
                     )
                     results.append((mAP, pr_curve, n_query, r, min_sample, agg_labels[i]))
 
-    np.save("landmarks_metrics", results)
+    dst_path = os.path.join("data", "landmarks_metrics")
+
+    np.save(dst_path, results)
+
+    print("Landmark benchmarks saved to:", dst_path)
