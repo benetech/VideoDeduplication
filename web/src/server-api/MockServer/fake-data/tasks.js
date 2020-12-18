@@ -4,11 +4,7 @@ import { randomName } from "./files";
 
 function randomRequest() {
   const request = {
-    type: pickRandom([
-      TaskRequest.ALL,
-      TaskRequest.DIRECTORY,
-      TaskRequest.FILE_LIST,
-    ]),
+    type: pickRandom([TaskRequest.DIRECTORY, TaskRequest.FILE_LIST]),
   };
 
   if (request.type === TaskRequest.DIRECTORY) {

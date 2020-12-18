@@ -30,4 +30,4 @@ export const Tab = {
   },
 };
 
-export const tabs = [Tab.ACTIVE, Tab.FINISHED, Tab.ALL];
+export const tabs = [Tab.ALL, Tab.ACTIVE, Tab.FINISHED];

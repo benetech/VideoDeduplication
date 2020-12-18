@@ -41,7 +41,7 @@ def parse_boolean(args, name):
     elif value.lower() in _FALSY:
         return False
     else:
-        abort(HTTPStatus.BAD_REQUEST.value, f"{name} has invalid format (expected {_TRUTHY} or {_FALSY})")
+        abort(HTTPStatus.BAD_REQUEST.value, f"'{name}' has invalid format (expected {_TRUTHY} or {_FALSY})")
 
 
 def parse_seq(args, name):
@@ -56,7 +56,7 @@ def parse_positive_int(args, name, default=None):
     """Parse positive integer parameter."""
     value = args.get(name, default=default, type=int)
     if value is not default and value < 0:
-        abort(HTTPStatus.BAD_REQUEST.value, f"{name} cannot be negative")
+        abort(HTTPStatus.BAD_REQUEST.value, f"'{name}' cannot be negative")
     return value
 
 
@@ -64,7 +64,7 @@ def parse_positive_float(args, name, default=None):
     """Parse positive float parameter."""
     value = args.get(name, default=default, type=float)
     if value is not default and value < 0:
-        abort(HTTPStatus.BAD_REQUEST.value, f"{name} cannot be negative")
+        abort(HTTPStatus.BAD_REQUEST.value, f"'{name}' cannot be negative")
     return value
 
 
@@ -88,7 +88,7 @@ def parse_enum(args, name, values, default=None):
     if value is default:
         return value
     if value not in values:
-        abort(HTTPStatus.BAD_REQUEST.value, f"{name} must be one of {values}")
+        abort(HTTPStatus.BAD_REQUEST.value, f"'{name}' must be one of {values}")
     return value
 
 
@@ -100,7 +100,7 @@ def parse_enum_seq(args, name, values, default=None):
     result = set()
     for value in raw_value.split(","):
         if value not in values:
-            abort(HTTPStatus.BAD_REQUEST.value, f"{name} must be a comma-separated sequence of values from {values}")
+            abort(HTTPStatus.BAD_REQUEST.value, f"'{name}' must be a comma-separated sequence of values from {values}")
         result.add(value)
     return result
 

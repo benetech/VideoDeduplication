@@ -4,3 +4,5 @@ Flask-SQLAlchemy
 PyYAML
 psycopg2
 fire
+celery
+redis

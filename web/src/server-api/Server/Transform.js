@@ -1,11 +1,16 @@
 import { randomObjects } from "../MockServer/fake-data/objects";
+import parse from "date-fns/parse";
+
+const defaultDateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 
 /**
  * Data-transfer object and internal data format may evolve independently, the
  * Transform class decouples these two representations.
  */
 export default class Transform {
-  constructor() {}
+  constructor(utcDateFormat = defaultDateFormat) {
+    this.utcDateFormat = utcDateFormat;
+  }
 
   fetchFileResults(data) {
     const counts = {
@@ -124,5 +129,51 @@ export default class Transform {
       distance: match.distance,
       file: this.videoFile(match.file),
     };
+  }
+
+  fetchTasksResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      tasks: data.items.map((task) => this.task(task)),
+    };
+  }
+
+  task(data) {
+    return {
+      id: data.id,
+      submissionTime: this.utcDate(data.created),
+      statusUpdateTime: this.utcDate(data.status_updated),
+      status: data.status,
+      request: data.request,
+      progress: data.progress,
+      error: this.taskError(data.error),
+    };
+  }
+
+  taskError(data) {
+    if (data == null) {
+      return undefined;
+    }
+    return {
+      type: data.exc_type,
+      message: data.exc_message,
+      module: data.exc_module,
+      traceback: data.traceback,
+    };
+  }
+
+  utcDate(date) {
+    const utcDate = parse(date, this.utcDateFormat, new Date());
+    const timestamp = Date.UTC(
+      utcDate.getFullYear(),
+      utcDate.getMonth(),
+      utcDate.getDate(),
+      utcDate.getHours(),
+      utcDate.getMinutes(),
+      utcDate.getSeconds(),
+      utcDate.getMilliseconds()
+    );
+    return new Date(timestamp);
   }
 }

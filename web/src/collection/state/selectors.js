@@ -30,3 +30,8 @@ export const selectFileMatches = (state) => selectColl(state).fileMatches;
  * Select file cluster.
  */
 export const selectFileCluster = (state) => selectColl(state).fileCluster;
+
+/**
+ * Select background tasks state.
+ */
+export const selectTasks = (state) => selectColl(state).tasks;

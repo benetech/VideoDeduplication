@@ -2,9 +2,8 @@
  * Enum for task request type.
  */
 export const TaskRequest = {
-  ALL: "ALL",
-  DIRECTORY: "DIRECTORY",
-  FILE_LIST: "FILE_LIST",
+  DIRECTORY: "ProcessDirectory",
+  FILE_LIST: "ProcessFileList",
 };
 
 export default TaskRequest;

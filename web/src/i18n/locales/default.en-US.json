@@ -67,6 +67,9 @@
     "actions.blurVideos": "Blur videos",
     "actions.blurScenes": "Blur scenes",
     "actions.seekToTheObject": "Seek video to the {object} at {time}",
+    "actions.delete": "Delete",
+    "actions.cancel": "Cancel",
+    "actions.showLogs": "Show Logs",
     "sort.duration": "Duration",
     "sort.date": "Date",
     "sort.related": "Count of Related",
@@ -202,6 +205,7 @@
     "task.time": "{time} ago",
     "task.list.all": "All",
     "task.list.active": "Active",
-    "task.list.finished": "Finished"
+    "task.list.finished": "Finished",
+    "task.error.load": "Error loading tasks"
   }
 }

@@ -2,6 +2,7 @@ import fileCacheInitialState from "./fileCache/initialState";
 import fileClusterInitialState from "./fileCluster/initialState";
 import fileMatchesInitialState from "./fileMatches/initialState";
 import fileListInitialState from "./fileList/initialState";
+import tasksInitialState from "./tasks/initialState";
 
 /**
  * Initial State for file collection management.
@@ -24,6 +25,10 @@ const initialState = {
    * pages).
    */
   fileMatches: fileMatchesInitialState,
+  /**
+   * Background tasks.
+   */
+  tasks: tasksInitialState,
 };
 
 export default initialState;
