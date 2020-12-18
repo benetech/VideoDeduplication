@@ -144,7 +144,7 @@ class CeleryTaskQueue:
     def exists(self, task_id):
         return self._celery_backend.exists(task_id=task_id)
 
-    def observe(self, observer):
+    def observe(self, observer):  # noqa C901
         """Listen to the celery events and notify observers.
 
         This is a blocking method that should be executed in a background thread.
