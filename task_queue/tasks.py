@@ -7,15 +7,14 @@ from celery import states
 from celery.utils.log import get_task_logger
 
 from .application import celery_application
+from .metadata import TaskRuntimeMetadata
+from .winnow_task import winnow_task
 
 logger = get_task_logger(__name__)
 
 
-@celery_application.task(bind=True)
+@winnow_task(bind=True)
 def process_directory(self, directory, frame_sampling=None, save_frames=None):
-    # Mark task as started
-    self.update_state(state=states.STARTED, meta={})
-
     from winnow.utils.config import resolve_config
     from winnow.utils.files import scan_videos
     from winnow.pipeline.extract_exif import extract_exif
@@ -43,22 +42,25 @@ def process_directory(self, directory, frame_sampling=None, save_frames=None):
 
     videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
 
+    self.update_metadata(TaskRuntimeMetadata(progress=0.1))
+
     # Run pipeline
     logger.info("Starting extract-features step...")
     extract_features(config, videos)
 
+    self.update_metadata(TaskRuntimeMetadata(progress=0.5))
+
     logger.info("Starting generate-matches step...")
     generate_matches(config)
+
+    self.update_metadata(TaskRuntimeMetadata(progress=0.9))
 
     logger.info("Starting extract-exif step...")
     extract_exif(config)
 
 
-@celery_application.task(bind=True)
+@winnow_task(bind=True)
 def process_file_list(self, files, frame_sampling=None, save_frames=None):
-    # Mark task as started
-    self.update_state(state=states.STARTED, meta={})
-
     from winnow.utils.config import resolve_config
     from winnow.pipeline.extract_exif import extract_exif
     from winnow.pipeline.extract_features import extract_features
@@ -80,8 +82,12 @@ def process_file_list(self, files, frame_sampling=None, save_frames=None):
     logger.info("Starting extract-features step...")
     extract_features(config, files)
 
+    self.update_metadata(TaskRuntimeMetadata(progress=0.45))
+
     logger.info("Starting generate-matches step...")
     generate_matches(config)
+
+    self.update_metadata(TaskRuntimeMetadata(progress=0.9))
 
     logger.info("Starting extract-exif step...")
     extract_exif(config)
