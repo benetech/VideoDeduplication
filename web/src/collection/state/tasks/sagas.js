@@ -8,30 +8,22 @@ import {
   updateTask,
 } from "./actions";
 import fetchEntitiesSaga from "../fetchEntities/fetchEntitiesSaga";
-import io from "socket.io-client";
-import { SocketEvent, SocketNamespace, socketPath } from "./socket";
-import Transform from "../../../server-api/Server/Transform";
 
-function makeTaskChannel() {
+function makeTaskChannel(server) {
   return eventChannel((emit) => {
-    const transformer = new Transform();
-    const socket = io(SocketNamespace.TASKS, {
-      path: socketPath,
-    });
-    socket.on("connect", () => console.log("Connected!"));
-    socket.on("disconnect", () => console.log("Disconnected!"));
-    socket.on(SocketEvent.TASK_UPDATED, (data) => {
-      emit(updateTask(transformer.task(data)));
-    });
-    return () => {
-      socket.close();
-    };
+    const socket = server.openMessageChannel();
+
+    // Handle task updates..
+    socket.on("task-update", (task) => emit(updateTask(task)));
+
+    // Close socket when channel is closed
+    return () => socket.close();
   });
 }
 
-function* handleTaskUpdatesSaga() {
+function* handleTaskUpdatesSaga(server) {
   try {
-    const channel = yield call(makeTaskChannel);
+    const channel = yield call(makeTaskChannel, server);
 
     while (true) {
       const action = yield take(channel);
@@ -64,7 +56,7 @@ function* fetchTaskSliceSaga(server, selectTasks, action) {
  */
 export default function* taskRootSaga(server, selectTasks) {
   // Handle task updates
-  yield fork(handleTaskUpdatesSaga);
+  yield fork(handleTaskUpdatesSaga, server);
 
   // Handle every slice fetch.
   yield takeLatest(
