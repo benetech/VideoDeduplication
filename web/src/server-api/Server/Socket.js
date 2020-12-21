@@ -15,6 +15,10 @@ export default class Socket extends EventEmitter {
 
     // Handle socket events:
 
+    // Log connect/disconnect
+    this._socket.on("connect", () => console.log("Socket Connected."));
+    this._socket.on("disconnect", () => console.log("Socket Disconnected."));
+
     // Notify listeners on "task-update"
     this._socket.on(SocketEvent.TASK_UPDATED, (data) => {
       this.emit("task-update", this._transform.task(data));
