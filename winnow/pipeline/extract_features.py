@@ -85,7 +85,4 @@ def extract_features(config: Config, videos: list, progress_monitor=ProgressMoni
         result_storage = DBResultStorage(database)
         result_storage.add_signatures(entries)
 
-    if config.save_files:
-        bulk_write(reps.signature, signatures)
-
-    progress_monitor.complete()
+    bulk_write(reps.signature, signatures)

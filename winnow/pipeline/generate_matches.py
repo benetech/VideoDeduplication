@@ -17,25 +17,36 @@ from winnow.storage.repr_utils import bulk_read
 from winnow.utils.brightness import get_brightness_estimation
 from winnow.utils.matches import filter_results
 from winnow.utils.scene_detection import extract_scenes
+from winnow.utils.repr import reprkey_resolver
 
 
-def generate_matches(config, progress_monitor=ProgressMonitor.NULL):  # noqa: C901
+def generate_matches(config, progress_monitor=ProgressMonitor.NULL, files=[]):  # noqa: C901
     """Find matches between video files."""
 
     logger = logging.getLogger(__name__)
     reps = ReprStorage(config.repr.directory)
+    reprkey = reprkey_resolver(config)
+
+    if files:
+        files_reprkey = [reprkey(s) for s in files]
 
     # Get mapping (path,hash) => sig.
     logger.info("Extracting Video Signatures")
-    sm = SimilarityModel()
-    vid_level_iterator = bulk_read(reps.video_level)
 
-    assert len(vid_level_iterator) > 0, "No video_level features were found"
+    signature_iterator = bulk_read(reps.signature)
 
-    signatures_dict = sm.predict(bulk_read(reps.video_level))
+    if len(signature_iterator) == 0:
 
-    # Unpack paths, hashes and signatures as separate np.arrays
-    repr_keys, video_signatures = zip(*signatures_dict.items())
+        vid_level_iterator = bulk_read(reps.video_level)
+        assert len(vid_level_iterator) > 0, "No video_level features were found"
+        sm = SimilarityModel()
+        signatures_dict = sm.predict(bulk_read(reps.video_level))
+        # Unpack paths, hashes and signatures as separate np.arrays
+        repr_keys, video_signatures = zip(*signatures_dict.items())
+
+    else:
+        repr_keys, video_signatures = zip(*signature_iterator.items())
+
     paths = np.array([key.path for key in repr_keys])
     hashes = np.array([key.hash for key in repr_keys])
     video_signatures = np.array(video_signatures)
@@ -46,7 +57,15 @@ def generate_matches(config, progress_monitor=ProgressMonitor.NULL):  # noqa: C9
     neighbors = min(20, video_signatures.shape[0])
     nn = NearestNeighbors(n_neighbors=neighbors, metric="euclidean", algorithm="kd_tree")
     nn.fit(video_signatures)
-    distances, indices = nn.kneighbors(video_signatures)
+    if files:
+        # limit signatures to files supplied
+        sigs_of_interest = [i for i, path in enumerate(files) if reps.signature.exists(reprkey(path))]
+        incremental_video_signatures = np.array(video_signatures)[sigs_of_interest]
+        distances, indices = nn.kneighbors(incremental_video_signatures)
+
+    else:
+        distances, indices = nn.kneighbors(video_signatures)
+
     logger.info("{} seconds spent finding matches ".format(time.time() - t0))
     results, results_distances = filter_results(config.proc.match_distance, distances, indices)
 
@@ -95,6 +114,14 @@ def generate_matches(config, progress_monitor=ProgressMonitor.NULL):  # noqa: C9
     if config.proc.detect_scenes:
 
         frame_features_dict = bulk_read(reps.frame_level, select=None)
+        if files:
+            temp = dict()
+            for k, v in frame_features_dict.items():
+
+                if k in files_reprkey:
+                    temp[k] = v
+            frame_features_dict = temp
+
         assert len(frame_features_dict) > 0, "No Frame Level features were found."
         scenes = extract_scenes(frame_features_dict)
         scene_metadata = pd.DataFrame(asdict(scenes))
@@ -120,6 +147,9 @@ def generate_matches(config, progress_monitor=ProgressMonitor.NULL):  # noqa: C9
 
         # Get original files for which we have both frames and frame-level features
         repr_keys = list(set(reps.video_level.list()))
+        if files:
+            repr_keys = [x for x in repr_keys if x in files_reprkey]
+
         paths = [key.path for key in repr_keys]
         hashes = [key.hash for key in repr_keys]
 

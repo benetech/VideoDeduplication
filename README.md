@@ -228,6 +228,11 @@ Generate matches
 
 `python generate_matches.py`
 
+Arguments:
+
+    '--config', '-cp' : Path to the project config file [default:'config.yml']
+    '--list-of-files', '-lof' : path to txt with a list of files for processing and generating matches / scene detection / metadata extraction - overrides loading all signatures available from the file system
+
 Template Object Matching
 
 `python template_matching.py`
