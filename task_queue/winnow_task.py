@@ -4,6 +4,7 @@ from celery import states
 
 from . import events
 from .application import celery_application
+from .events import RUNTIME_METADATA_ATTR
 
 
 class WinnowTask(celery_application.Task):
@@ -13,7 +14,8 @@ class WinnowTask(celery_application.Task):
             task_id = self.request.id
         if task_id is None:
             raise RuntimeError("task_id is None")
-        self.send_event(type_=events.TASK_METADATA, meta=meta.asdict())
+        fields = {RUNTIME_METADATA_ATTR: meta.asdict()}
+        self.send_event(type_=events.TASK_METADATA, **fields)
 
 
 def winnow_task(*args, base=None, **opts):
