@@ -56,3 +56,14 @@ class CeleryRedisBackend:
                 pipeline.execute()
             finally:
                 pipeline.reset()
+
+    # Py-Redis transactions only supports optimistic locking with
+    # WATCH and batching actual transaction operations into a single
+    # TCP packet. That means no read operations will be performed
+    # after a call to the Pipeline.multi() and thus no data could
+    # be read within the transaction body itself. To overcome that
+    # we need to explicitly start a "write-section". For alternative
+    # backends this operation might be noop.
+    def begin_write_section(self, transaction):
+        if transaction is not None:
+            transaction.multi()
