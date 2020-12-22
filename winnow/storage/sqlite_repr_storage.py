@@ -117,6 +117,11 @@ class SQLiteReprStorage:
             for record in session.query(FeatureFile):
                 yield record.to_key()
 
+    def __len__(self):
+        """Count of storage entries."""
+        with self.database.session_scope() as session:
+            return session.query(FeatureFile).count()
+
     # Private methods
 
     @staticmethod

@@ -6,3 +6,5 @@ psycopg2
 fire
 celery
 redis
+Flask-SocketIO
+eventlet

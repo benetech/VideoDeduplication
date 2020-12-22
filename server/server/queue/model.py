@@ -1,8 +1,7 @@
+from dataclasses import dataclass, asdict
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
-
-from dataclasses import dataclass, asdict
 
 from server.queue import time_utils
 from server.queue.request_transformer import RequestTransformer
@@ -42,6 +41,7 @@ class Task:
     status: TaskStatus
     request: Request
     error: Optional[TaskError] = None
+    progress: Optional[float] = None
 
     def asdict(self):
         data = asdict(self)

@@ -1,5 +1,6 @@
 from dataclasses import dataclass, asdict
 from datetime import datetime
+from typing import Optional
 
 from server.queue import time_utils
 from server.queue.model import Request
@@ -11,6 +12,7 @@ class TaskMetadata:
     id: str
     created: datetime
     request: Request
+    progress: Optional[float] = None
 
     def asdict(self):
         result = asdict(self)

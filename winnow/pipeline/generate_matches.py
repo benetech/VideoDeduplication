@@ -10,6 +10,7 @@ from tqdm import tqdm
 
 from db import Database
 from winnow.feature_extraction import SimilarityModel
+from winnow.pipeline.progress_monitor import ProgressMonitor
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import bulk_read
@@ -18,7 +19,7 @@ from winnow.utils.matches import filter_results
 from winnow.utils.scene_detection import extract_scenes
 
 
-def generate_matches(config):  # noqa: C901
+def generate_matches(config, progress_monitor=ProgressMonitor.NULL):  # noqa: C901
     """Find matches between video files."""
 
     logger = logging.getLogger(__name__)
@@ -48,6 +49,8 @@ def generate_matches(config):  # noqa: C901
     distances, indices = nn.kneighbors(video_signatures)
     logger.info("{} seconds spent finding matches ".format(time.time() - t0))
     results, results_distances = filter_results(config.proc.match_distance, distances, indices)
+
+    progress_monitor.increase(amount=0.5)
 
     ss = sorted(zip(results, results_distances), key=lambda x: len(x[0]), reverse=True)
     results_sorted = [x[0] for x in ss]
@@ -179,3 +182,5 @@ def generate_matches(config):  # noqa: C901
         metadata_df.to_csv(METADATA_REPORT_PATH)
         logger.info("Saving Filtered Matches report to {}".format(METADATA_REPORT_PATH))
         match_df.to_csv(FILTERED_REPORT_PATH)
+
+    progress_monitor.complete()

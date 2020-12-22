@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const outputDir = path.resolve(__dirname, "build");
 const template = path.resolve(__dirname, "templates/index.html");
-const apiServer = process.env.API_SERVER || `http://localhost:5000`;
+const apiServer = process.env.API_SERVER || `localhost:5000`;
 const publicPath = process.env.PUBLIC_PATH || "/";
 
 module.exports = {
@@ -53,8 +53,14 @@ module.exports = {
     historyApiFallback: true,
     proxy: {
       "/api/*": {
-        target: apiServer,
+        target: `http://${apiServer}`,
         secure: false,
+        logLevel: "debug",
+      },
+      "/api/v1/socket.io/*": {
+        target: `ws://${apiServer}`,
+        secure: false,
+        ws: true,
         logLevel: "debug",
       },
     },

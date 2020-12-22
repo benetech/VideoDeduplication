@@ -1,4 +1,5 @@
 from .loading_utils import frame_to_global
+from ..pipeline.progress_monitor import ProgressMonitor
 
 
 class FrameToVideoRepresentation:
@@ -10,5 +11,5 @@ class FrameToVideoRepresentation:
         """
         self.reps = reps
 
-    def start(self):
-        frame_to_global(self.reps)
+    def start(self, progress_monitor=ProgressMonitor.NULL):
+        frame_to_global(self.reps, progress_monitor=progress_monitor)

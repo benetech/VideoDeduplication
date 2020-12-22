@@ -1,15 +1,16 @@
+import threading
 from os import path
 
+import eventlet
 import fire
 from flask import Flask
 
-from server.api import api as api_blueprint
 from server.config import Config
-from server.model import database
+from server.socket.task_observer import TaskObserver
 from thumbnail.cache import ThumbnailCache
 
 
-def setup_frontend(app, basename=""):
+def _setup_frontend(app, basename=""):
     """Setup routing for single-page frontend"""
 
     @app.route(path.join(basename, "/"), defaults={"_": None})
@@ -20,8 +21,11 @@ def setup_frontend(app, basename=""):
 
 def create_application(config):
     """Create configured flask application."""
+    from server.api import api as api_blueprint
+
     app = Flask(__name__, static_url_path="/static", static_folder=path.abspath(config.static_folder))
 
+    app.debug = False
     app.config["SQLALCHEMY_DATABASE_URI"] = config.database.uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["CONFIG"] = config
@@ -31,7 +35,7 @@ def create_application(config):
 
     app.register_blueprint(api_blueprint, url_prefix="/api/v1")
 
-    setup_frontend(app)
+    _setup_frontend(app)
 
     return app
 
@@ -50,6 +54,11 @@ def serve(
     videos=None,
 ):
     """Start Deduplication API Server."""
+    eventlet.monkey_patch()
+
+    from server.model import database
+    from server.queue.instance import queue
+    from server.socket.instance import socketio
 
     # Read configuration
     config = Config()
@@ -71,8 +80,12 @@ def serve(
     # Initialize database
     database.init_app(application)
 
+    # Initialize SocketIO
+    socketio.init_app(application)
+    threading.Thread(target=queue.observe, args=(TaskObserver(socketio),), daemon=True).start()
+
     # Serve REST API
-    application.run(host=config.host, port=config.port)
+    socketio.run(application, host=config.host, port=config.port, log_output=True)
 
 
 if __name__ == "__main__":

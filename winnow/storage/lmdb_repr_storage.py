@@ -120,6 +120,11 @@ class LMDBReprStorage:
                 if metadata is not None:
                     yield ReprKey(path=original_path, hash=metadata.hash, tag=metadata.tag)
 
+    def __len__(self):
+        """Count of storage entries."""
+        with self._metadata_storage.begin(write=False) as txn:
+            return txn.stat()["entries"]
+
     # Private methods
 
     def _map(self, path):

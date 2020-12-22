@@ -1,11 +1,14 @@
 # Adapted from Deep Metric Learning Project
 
-import numpy as np
-import pickle as pk
-import matplotlib.pylab as plt
-from sklearn.metrics import precision_recall_curve
-from scipy.spatial.distance import cdist
 import logging
+import pickle as pk
+
+import matplotlib.pylab as plt
+import numpy as np
+from scipy.spatial.distance import cdist
+from sklearn.metrics import precision_recall_curve
+
+from winnow.pipeline.progress_monitor import ProgressMonitor
 
 logger = logging.getLogger("winnow")
 logger.setLevel(logging.ERROR)
@@ -97,15 +100,17 @@ def global_vector(frame_feature_vector):
         return np.array([])
 
 
-def frame_to_global(representations):
+def frame_to_global(representations, progress_monitor=ProgressMonitor.NULL):
     """
     Calculate and save global feature vectors based on frame-level
     representation.
 
     Args:
         representations (winnow.storage.repr_storage.ReprStorage):
-        Intermediate representations storage.
+            Intermediate representations storage.
+        progress_monitor (ProgressMonitor): progress monitor for the given routine.
     """
+    progress_monitor.scale(len(representations.frame_level))
     for key in representations.frame_level.list():
         try:
 
@@ -113,10 +118,11 @@ def frame_to_global(representations):
 
             video_representation = global_vector(frame_feature_vector)
             representations.video_level.write(key, video_representation)
-        except Exception as e:
-
-            logger.error(f"Error processing file:{key}")
-            logger.error(e)
+        except Exception:
+            logger.exception(f"Error processing file:{key}")
+        finally:
+            progress_monitor.increase(1)
+    progress_monitor.complete()
 
 
 def plot_pr_curve(pr_curve, title):

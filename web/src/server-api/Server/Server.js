@@ -1,11 +1,14 @@
 import axios from "axios";
 import * as HttpStatus from "http-status-codes";
+import io from "socket.io-client";
 import Transform from "./Transform";
 import { Response } from "../Response";
 import fileFiltersToQueryParams from "./helpers/fileFiltersToQueryParams";
 import clusterFiltersToQueryParams from "./helpers/clusterFiltersToQueryParams";
 import matchesFiltersToQueryParams from "./helpers/matchesFiltersToQueryParams";
 import taskFiltersToQueryParams from "./helpers/taskFiltersToQueryParams";
+import { SocketNamespace, socketPath } from "./constants";
+import Socket from "./Socket";
 
 export default class Server {
   constructor({ baseURL = "/api/v1", timeout = 10 * 1000, headers = {} } = {}) {
@@ -170,6 +173,19 @@ export default class Server {
     } catch (error) {
       return this.errorResponse(error);
     }
+  }
+
+  /**
+   * Open a new connection for dynamic messaging.
+   */
+  openMessageChannel() {
+    const socketio = io(SocketNamespace.TASKS, {
+      path: socketPath,
+    });
+    return new Socket({
+      socket: socketio,
+      transform: this.transform,
+    });
   }
 
   errorResponse(error) {

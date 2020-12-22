@@ -70,7 +70,7 @@ services:
       args:
         GIT_HASH: "${GIT_HASH}"
     runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
-    command: bash -ic "python -m task_queue.application worker --loglevel=INFO"
+    command: bash -ic "python -m task_queue.application worker --loglevel=INFO -E"
     environment:
       PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
       PGADMIN_DEFAULT_PASSWORD: "admin"

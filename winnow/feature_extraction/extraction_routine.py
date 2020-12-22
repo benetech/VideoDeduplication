@@ -1,12 +1,13 @@
 import logging
 import os
-from multiprocessing import Pool
 
 import numpy as np
 from tqdm import tqdm
 
+from winnow.utils.multiproc import multiprocessing as mp
 from .model_tf import CNN_tf
 from .utils import load_video
+from ..pipeline.progress_monitor import ProgressMonitor
 
 logger = logging.getLogger()
 logger.setLevel(logging.ERROR)
@@ -22,7 +23,15 @@ def pload_video(p, size, frame_sampling):
 
 
 def feature_extraction_videos(
-    model, video_list, reprs, reprkey, cores=4, batch_sz=8, frame_sampling=1, save_frames=False
+    model,
+    video_list,
+    reprs,
+    reprkey,
+    cores=4,
+    batch_sz=8,
+    frame_sampling=1,
+    save_frames=False,
+    progress_monitor=ProgressMonitor.NULL,
 ):
     """
     Function that extracts the intermediate CNN features
@@ -38,6 +47,7 @@ def feature_extraction_videos(
         storage key.
         frame_sampling: Minimal distance (in sec.) between frames to be saved.
         save_frames: Save normalized video frames.
+        progress_monitor (ProgressMonitor): a progress monitor for feature extraction routine.
     """
     video_list = {i: video.strip() for i, video in enumerate(open(video_list, encoding="utf-8").readlines())}
 
@@ -49,9 +59,10 @@ def feature_extraction_videos(
     print("\nFeature Extraction Process")
     print("==========================")
 
-    pool = Pool(cores)
+    pool = mp.Pool(cores)
     future_videos = dict()
 
+    progress_monitor.scale(total_work=len(video_list))
     progress_bar = tqdm(range(np.max(list(video_list.keys())) + 1), mininterval=1.0, unit="video")
     for video in progress_bar:
 
@@ -88,9 +99,11 @@ def feature_extraction_videos(
                 reprs.frame_level.write(key, features)
                 if save_frames:
                     reprs.frames.write(key, video_tensor)
-        except Exception as e:
-            logger.error(f"Error processing file:{video_list[video]}")
-            logger.error(e)
+        except Exception:
+            logger.exception(f"Error processing file:{video_list[video]}")
+        finally:
+            progress_monitor.increase(1)
+    progress_monitor.complete()
 
 
 def load_featurizer(PRETRAINED_LOCAL_PATH):
