@@ -46,6 +46,8 @@ def process_directory(self, directory, frame_sampling=None, save_frames=None):
     videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
 
     # Run pipeline
+    monitor.update(0)
+
     logger.info("Starting extract-features step...")
     extract_features(config, videos, progress_monitor=monitor.subtask(work_amount=0.7))
 
@@ -79,6 +81,8 @@ def process_file_list(self, files, frame_sampling=None, save_frames=None):
     config = resolve_config(frame_sampling=frame_sampling, save_frames=save_frames)
 
     # Run pipeline
+    monitor.update(0)
+
     logger.info("Starting extract-features step...")
     extract_features(config, files, progress_monitor=monitor.subtask(work_amount=0.7))
 
