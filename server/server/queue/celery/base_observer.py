@@ -20,3 +20,7 @@ class BaseObserver:
     def on_task_revoked(self, task):
         """Fires if the task has been revoked."""
         pass
+
+    def on_task_meta_updated(self, task):
+        """Fires when task runtime metadata is updated."""
+        pass

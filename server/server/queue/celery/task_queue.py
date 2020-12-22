@@ -1,11 +1,19 @@
 import inspect
+import logging
 from datetime import datetime
+from typing import Optional
 
 from celery.utils import uuid
 
+from server.queue.celery.base_observer import BaseObserver
 from server.queue.celery.task_metadata import TaskMetadata
 from server.queue.celery.task_status import task_status
 from server.queue.model import Task, TaskStatus, TaskError
+from task_queue.events import TASK_METADATA, RUNTIME_METADATA_ATTR
+from task_queue.metadata import TaskRuntimeMetadata
+
+# Default module logger
+logger = logging.getLogger(__name__)
 
 
 def _task_name(task):
@@ -77,10 +85,7 @@ class CeleryTaskQueue:
         return self._construct_task(task_id, {})
 
     def _construct_task(self, task_id, active_task_meta):
-        raw_meta = self._celery_backend.get_task_meta(task_id)
-        if raw_meta is None:
-            return None
-        winnow_meta = TaskMetadata.fromdict(raw_meta, self._req_transformer)
+        winnow_meta = self._get_task_meta(task_id)
         async_result = self.app.AsyncResult(task_id)
 
         status = task_status(async_result.status)
@@ -100,7 +105,14 @@ class CeleryTaskQueue:
             request=winnow_meta.request,
             status=status,
             error=error,
+            progress=winnow_meta.progress,
         )
+
+    def _get_task_meta(self, task_id, transaction=None) -> Optional[TaskMetadata]:
+        raw_meta = self._celery_backend.get_task_meta(task_id, transaction=transaction)
+        if raw_meta is None:
+            return None
+        return TaskMetadata.fromdict(raw_meta, self._req_transformer)
 
     def _construct_error(self, async_result):
         exc_type_name = None
@@ -152,13 +164,32 @@ class CeleryTaskQueue:
         def event_handler(event):
             """Receive event and pass the corresponding task to the handler."""
             state.event(event)
+            self._update_meta_from_event(event)
             task = self.get_task(event["uuid"])
             if task is not None:
                 task_handler(task)
 
         return event_handler
 
-    def observe(self, observer):
+    def _update_meta_from_event(self, event):
+        """Try to read TaskRuntimeMetadata from event and save it to the backend."""
+        if RUNTIME_METADATA_ATTR not in event:
+            return
+        task_id = event["uuid"]
+
+        try:
+            with self._celery_backend.transaction(task_id) as txn:
+                task_metadata = self._get_task_meta(task_id, transaction=txn)
+                if task_metadata is None:
+                    return
+                runtime_metadata = TaskRuntimeMetadata.fromdict(event[RUNTIME_METADATA_ATTR])
+                task_metadata.progress = runtime_metadata.progress
+                self._celery_backend.begin_write_section(transaction=txn)  # Necessary for redis transactions
+                self._celery_backend.store_task_meta(task_id, task_metadata.asdict(), transaction=txn)
+        except Exception:
+            logger.exception("Cannot update task metadata")
+
+    def observe(self, observer: BaseObserver):
         """Listen to the celery events and notify observers.
 
         This is a blocking method that should be executed in a background thread.
@@ -178,6 +209,7 @@ class CeleryTaskQueue:
         announce_succeeded_tasks = self._make_event_handler(state, observer.on_task_succeeded)
         announce_failed_tasks = self._make_event_handler(state, observer.on_task_failed)
         announce_revoked_tasks = self._make_event_handler(state, observer.on_task_revoked)
+        announce_metadata_update = self._make_event_handler(state, observer.on_task_meta_updated)
 
         with self.app.connection() as connection:
             receiver = self.app.events.Receiver(
@@ -188,6 +220,7 @@ class CeleryTaskQueue:
                     "task-succeeded": announce_succeeded_tasks,
                     "task-failed": announce_failed_tasks,
                     "task-revoked": announce_revoked_tasks,
+                    TASK_METADATA: announce_metadata_update,
                 },
             )
             receiver.capture(limit=None, timeout=None, wakeup=True)
