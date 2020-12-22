@@ -1,10 +1,10 @@
 import logging
 import os
-from multiprocessing import Pool
 
 import numpy as np
 from tqdm import tqdm
 
+from winnow.utils.multiproc import multiprocessing as mp
 from .model_tf import CNN_tf
 from .utils import load_video
 from ..pipeline.progress_monitor import ProgressMonitor
@@ -59,7 +59,7 @@ def feature_extraction_videos(
     print("\nFeature Extraction Process")
     print("==========================")
 
-    pool = Pool(cores)
+    pool = mp.Pool(cores)
     future_videos = dict()
 
     progress_monitor.scale(total_work=len(video_list))

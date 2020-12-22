@@ -29,5 +29,6 @@ dependencies:
     - dataclasses
     - celery
     - redis
+    - billiard
 prefix: C:\ProgramData\Anaconda3\envs\winnow
 
