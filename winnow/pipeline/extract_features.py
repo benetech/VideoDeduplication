@@ -10,6 +10,7 @@ from winnow.feature_extraction import (
     load_featurizer,
 )
 from winnow.feature_extraction.model import default_model_path
+from winnow.pipeline.progress_monitor import ProgressMonitor
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import bulk_read, bulk_write
@@ -17,7 +18,7 @@ from winnow.utils.files import create_video_list
 from winnow.utils.repr import reprkey_resolver
 
 
-def extract_features(config: Config, videos: list):
+def extract_features(config: Config, videos: list, progress_monitor=ProgressMonitor.NULL):
     """Extract features from the dataset videos."""
 
     logger = logging.getLogger(__name__)
@@ -43,16 +44,20 @@ def extract_features(config: Config, videos: list):
             reprkey=reprkey,
             frame_sampling=config.proc.frame_sampling,
             save_frames=config.proc.save_frames,
-            model=(load_featurizer(model_path)),
+            model=load_featurizer(model_path),
         )
         # Starts Extracting Frame Level Features
-        extractor.start(batch_size=16, cores=4)
+        extractor.start(
+            batch_size=16,
+            cores=4,
+            progress_monitor=progress_monitor.subtask(work_amount=0.8),
+        )
 
     logger.info("Converting Frame by Frame representations to Video Representations")
 
     converter = FrameToVideoRepresentation(reps)
 
-    converter.start()
+    converter.start(progress_monitor=progress_monitor.subtask(work_amount=0.05))
 
     logger.info("Extracting Signatures from Video representations")
 
@@ -63,6 +68,8 @@ def extract_features(config: Config, videos: list):
     assert len(vid_level_iterator) > 0, "No Signatures left to be processed"
 
     signatures = sm.predict(vid_level_iterator)  # Get {ReprKey => signature} dict
+
+    progress_monitor.increase(amount=0.1)
 
     logger.info("Saving Video Signatures on :{}".format(reps.signature.directory))
 
@@ -80,3 +87,5 @@ def extract_features(config: Config, videos: list):
 
     if config.save_files:
         bulk_write(reps.signature, signatures)
+
+    progress_monitor.complete()
