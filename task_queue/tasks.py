@@ -7,7 +7,7 @@ from celery import states
 from celery.utils.log import get_task_logger
 
 from .application import celery_application
-from .metadata import TaskRuntimeMetadata
+from .progress_monitor import make_progress_monitor
 from .winnow_task import winnow_task
 
 logger = get_task_logger(__name__)
@@ -29,6 +29,9 @@ def process_directory(self, directory, frame_sampling=None, save_frames=None):
         f"frame_sampling={frame_sampling}, save_frames={save_frames}"
     )
 
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
     # Load configuration file
     logger.info("Loading config file")
     config = resolve_config(frame_sampling=frame_sampling, save_frames=save_frames)
@@ -42,21 +45,15 @@ def process_directory(self, directory, frame_sampling=None, save_frames=None):
 
     videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
 
-    self.update_metadata(TaskRuntimeMetadata(progress=0.1))
-
     # Run pipeline
     logger.info("Starting extract-features step...")
-    extract_features(config, videos)
-
-    self.update_metadata(TaskRuntimeMetadata(progress=0.5))
+    extract_features(config, videos, progress_monitor=monitor.subtask(work_amount=0.7))
 
     logger.info("Starting generate-matches step...")
-    generate_matches(config)
-
-    self.update_metadata(TaskRuntimeMetadata(progress=0.9))
+    generate_matches(config, progress_monitor=monitor.subtask(work_amount=0.1))
 
     logger.info("Starting extract-exif step...")
-    extract_exif(config)
+    extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.1))
 
 
 @winnow_task(bind=True)
@@ -74,23 +71,24 @@ def process_file_list(self, files, frame_sampling=None, save_frames=None):
         f"frame_sampling={frame_sampling}, save_frames={save_frames}"
     )
 
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
     # Load configuration file
     logger.info("Loading config file")
     config = resolve_config(frame_sampling=frame_sampling, save_frames=save_frames)
 
     # Run pipeline
     logger.info("Starting extract-features step...")
-    extract_features(config, files)
-
-    self.update_metadata(TaskRuntimeMetadata(progress=0.45))
+    extract_features(config, files, progress_monitor=monitor.subtask(work_amount=0.7))
 
     logger.info("Starting generate-matches step...")
-    generate_matches(config)
-
-    self.update_metadata(TaskRuntimeMetadata(progress=0.9))
+    generate_matches(config, progress_monitor=monitor.subtask(work_amount=0.2))
 
     logger.info("Starting extract-exif step...")
-    extract_exif(config)
+    extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.1))
+
+    monitor.complete()
 
 
 def fibo(n):
