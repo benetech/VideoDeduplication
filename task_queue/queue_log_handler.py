@@ -12,6 +12,10 @@ class QueueLogHandler(logging.Handler):
     # Handler which is used when no task found
     _NULL = logging.NullHandler()
 
+    @staticmethod
+    def log_file_name(task_id):
+        return f"task-{task_id}.log"
+
     def __init__(self, directory, mode="a", encoding=None, delay=False, level=logging.NOTSET):
         self._directory = directory
         self._mode = mode
@@ -67,7 +71,7 @@ class QueueLogHandler(logging.Handler):
         return task.request.id
 
     def _make_task_handler(self, task_id) -> logging.Handler:
-        log_file = os.path.join(self._directory, f"task-{task_id}")
+        log_file = os.path.join(self._directory, self.log_file_name(task_id))
         handler = logging.FileHandler(filename=log_file, mode=self._mode, encoding=self._encoding, delay=self._delay)
         handler.setLevel(self.level)
         handler.setFormatter(self.formatter)
