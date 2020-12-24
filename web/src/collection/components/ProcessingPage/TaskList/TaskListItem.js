@@ -158,6 +158,11 @@ function TaskListItem(props) {
   const running = task.status === TaskStatus.RUNNING;
   const { clickTrigger, popup } = usePopup("task-menu-");
 
+  // TODO: redirect to proper logs UI
+  const handleShowLogs = useCallback(() =>
+    window.open(`/api/v1/tasks/${task.id}/logs`)
+  );
+
   const handleCancel = useCallback(() => {
     popup.onClose();
     server.cancelTask({ id: task.id }).then((response) => {
@@ -207,7 +212,7 @@ function TaskListItem(props) {
         <TaskProgress value={task.progress} className={classes.progress} />
       )}
       <Menu {...popup}>
-        <MenuItem onClick={popup.onClose}>{messages.showLogs}</MenuItem>
+        <MenuItem onClick={handleShowLogs}>{messages.showLogs}</MenuItem>
         <MenuItem onClick={handleCancel}>{messages.cancel}</MenuItem>
         <MenuItem onClick={handleDelete}>{messages.delete}</MenuItem>
       </Menu>

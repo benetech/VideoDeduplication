@@ -1,7 +1,7 @@
 import os
 from http import HTTPStatus
 
-from flask import jsonify, request, abort, send_from_directory, Response
+from flask import jsonify, request, abort, send_from_directory
 
 from server.queue.instance import queue, request_transformer, log_storage
 from server.queue.model import Task, TaskStatus
