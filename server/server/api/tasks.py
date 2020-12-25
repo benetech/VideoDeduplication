@@ -1,7 +1,7 @@
 import os
 from http import HTTPStatus
 
-from flask import jsonify, request, abort, send_from_directory
+from flask import jsonify, request, abort, send_from_directory, Response
 
 from server.queue.instance import queue, request_transformer
 from server.queue.model import Task, TaskStatus
@@ -82,5 +82,5 @@ def get_task_logs(task_id):
     log_storage = get_log_storage()
     log_file_path = log_storage.get_log_file(task_id)
     if log_file_path is None or not os.path.isfile(log_file_path):
-        abort(HTTPStatus.NOT_FOUND.value, f"Logs not found: task_id={task_id}")
+        return Response("", mimetype="text/plain")
     return send_from_directory(log_storage.directory, os.path.basename(log_file_path), mimetype="text/plain")

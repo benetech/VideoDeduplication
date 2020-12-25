@@ -33,7 +33,7 @@ class TaskLogStorage:
 
     def delete_log_file(self, task_id):
         log_file_path = self.get_log_file(task_id)
-        if log_file_path is not None:
+        if log_file_path is not None and os.path.isfile(log_file_path):
             os.remove(log_file_path)
 
     def make_task_observer(self) -> BaseObserver:
