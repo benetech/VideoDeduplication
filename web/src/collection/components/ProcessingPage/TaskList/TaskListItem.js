@@ -159,9 +159,10 @@ function TaskListItem(props) {
   const { clickTrigger, popup } = usePopup("task-menu-");
 
   // TODO: redirect to proper logs UI
-  const handleShowLogs = useCallback(() =>
-    window.open(`/api/v1/tasks/${task.id}/logs`)
-  );
+  const handleShowLogs = useCallback(() => {
+    popup.onClose();
+    window.open(`/api/v1/tasks/${task.id}/logs`);
+  }, []);
 
   const handleCancel = useCallback(() => {
     popup.onClose();

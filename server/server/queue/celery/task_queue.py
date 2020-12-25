@@ -1,7 +1,7 @@
 import inspect
 import logging
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Set, Callable
 
 from celery.utils import uuid
 
@@ -46,6 +46,7 @@ class CeleryTaskQueue:
         self._req_transformer = request_transformer
         for request_type, task in requests.items():
             self._celery_tasks[request_type] = task
+        self._observers: Set[BaseObserver] = set()
 
     def dispatch(self, request):
         # Resolve actual celery task to be invoked
@@ -156,7 +157,7 @@ class CeleryTaskQueue:
     def exists(self, task_id):
         return self._celery_backend.exists(task_id=task_id)
 
-    def _make_event_handler(self, state, task_handler):
+    def _make_event_handler(self, state, task_handler: Callable[[Task], None]):
         """Create Celery event-receiver callback, which will accept Celery
         events, create a task and pass the task to the actual handler.
         """
@@ -170,6 +171,16 @@ class CeleryTaskQueue:
                 task_handler(task)
 
         return event_handler
+
+    def _notify(self, state, task_handler: Callable[[Task, BaseObserver], None]):
+        """Create task handler that loops over the existing observers and apply the provided operation."""
+
+        def notifier(task):
+            """Notify each observer with the given task"""
+            for observer in self._observers:
+                task_handler(task, observer)
+
+        return self._make_event_handler(state, notifier)
 
     def _update_meta_from_event(self, event):
         """Try to read TaskRuntimeMetadata from event and save it to the backend."""
@@ -190,9 +201,17 @@ class CeleryTaskQueue:
             logger.exception("Cannot update task metadata")
 
     def observe(self, observer: BaseObserver):
-        """Listen to the celery events and notify observers.
+        """Add observer to the queue notification list."""
+        self._observers.add(observer)
 
-        This is a blocking method that should be executed in a background thread.
+    def stop_observing(self, observer: BaseObserver):
+        """Remove observer from the queue notification list."""
+        self._observers.remove(observer)
+
+    def listen(self):
+        """Listen for queue events and notify observers.
+
+        This is a blocking method, it should be executed in a background thread.
         """
 
         def handle_started(task):
@@ -201,15 +220,16 @@ class CeleryTaskQueue:
             # because "state-failed" and "state-succeeded"
             # events will be handled after that.
             task.status = TaskStatus.RUNNING
-            observer.on_task_started(task)
+            for observer in self._observers:
+                observer.on_task_started(task)
 
         state = self.app.events.State()
-        announce_task_sent = self._make_event_handler(state, observer.on_task_sent)
+        announce_task_sent = self._notify(state, lambda task, observer: observer.on_task_sent(task))
         announce_task_started = self._make_event_handler(state, handle_started)
-        announce_succeeded_tasks = self._make_event_handler(state, observer.on_task_succeeded)
-        announce_failed_tasks = self._make_event_handler(state, observer.on_task_failed)
-        announce_revoked_tasks = self._make_event_handler(state, observer.on_task_revoked)
-        announce_metadata_update = self._make_event_handler(state, observer.on_task_meta_updated)
+        announce_succeeded_tasks = self._notify(state, lambda task, observer: observer.on_task_succeeded(task))
+        announce_failed_tasks = self._notify(state, lambda task, observer: observer.on_task_failed(task))
+        announce_revoked_tasks = self._notify(state, lambda task, observer: observer.on_task_revoked(task))
+        announce_metadata_update = self._notify(state, lambda task, observer: observer.on_task_meta_updated(task))
 
         with self.app.connection() as connection:
             receiver = self.app.events.Receiver(

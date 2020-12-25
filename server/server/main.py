@@ -82,7 +82,8 @@ def serve(
 
     # Initialize SocketIO
     socketio.init_app(application)
-    threading.Thread(target=queue.observe, args=(TaskObserver(socketio),), daemon=True).start()
+    queue.observe(TaskObserver(socketio))
+    threading.Thread(target=queue.listen, daemon=True).start()
 
     # Serve REST API
     socketio.run(application, host=config.host, port=config.port, log_output=True)
