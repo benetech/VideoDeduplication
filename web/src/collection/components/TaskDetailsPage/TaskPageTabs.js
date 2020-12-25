@@ -11,7 +11,7 @@ import {
 import { makeStyles } from "@material-ui/styles";
 import clsx from "clsx";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   tabs: {
     maxWidth: 150,
   },

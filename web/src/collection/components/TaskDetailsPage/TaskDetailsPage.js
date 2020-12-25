@@ -5,6 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import TaskPageTabs from "./TaskPageTabs";
 import { Route, Switch } from "react-router-dom";
 import { routes } from "../../../routing/routes";
+import TaskLogs from "./TaskLogs";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -32,7 +33,7 @@ function TaskDetailsPage(props) {
             TBD: Task details...
           </Route>
           <Route exact path={routes.collection.taskLogs}>
-            TBD: Task logs...
+            <TaskLogs />
           </Route>
         </Switch>
       </div>
