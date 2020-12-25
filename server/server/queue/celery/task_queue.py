@@ -37,6 +37,10 @@ def _task_filter(status=None):
 
 
 class CeleryTaskQueue:
+
+    # Event type for task deletion
+    TASK_DELETED_EVENT = "task-deleted"
+
     def __init__(self, app, backend, request_transformer, requests):
         if app is None:
             raise ValueError("Celery app cannot be None")
@@ -81,6 +85,7 @@ class CeleryTaskQueue:
             self._celery_backend.delete_task_meta(task_id)
             async_result = self.app.AsyncResult(task_id)
             async_result.forget()
+            self._notify_deleted(task_id)
 
     def get_task(self, task_id):
         return self._construct_task(task_id, {})
@@ -178,7 +183,10 @@ class CeleryTaskQueue:
         def notifier(task):
             """Notify each observer with the given task"""
             for observer in self._observers:
-                task_handler(task, observer)
+                try:
+                    task_handler(task, observer)
+                except Exception:
+                    logger.exception("Error handling task update")
 
         return self._make_event_handler(state, notifier)
 
@@ -208,6 +216,12 @@ class CeleryTaskQueue:
         """Remove observer from the queue notification list."""
         self._observers.remove(observer)
 
+    def _notify_deleted(self, task_id):
+        """Send task-deleted event via the Celery message bus."""
+        retry_policy = self.app.conf.task_publish_retry_policy
+        with self.app.events.default_dispatcher() as dispatcher:
+            dispatcher.send(type=self.TASK_DELETED_EVENT, uuid=task_id, retry=True, retry_policy=retry_policy)
+
     def listen(self):
         """Listen for queue events and notify observers.
 
@@ -221,7 +235,19 @@ class CeleryTaskQueue:
             # events will be handled after that.
             task.status = TaskStatus.RUNNING
             for observer in self._observers:
-                observer.on_task_started(task)
+                try:
+                    observer.on_task_started(task)
+                except Exception:
+                    logger.exception("Error handling 'task-started' event")
+
+        def announce_task_deleted(event):
+            """Do handle task-deleted event."""
+            task_id = event["uuid"]
+            for observer in self._observers:
+                try:
+                    observer.on_task_deleted(task_id)
+                except Exception:
+                    logger.exception(f"Error handling '{self.TASK_DELETED_EVENT}' event")
 
         state = self.app.events.State()
         announce_task_sent = self._notify(state, lambda task, observer: observer.on_task_sent(task))
@@ -241,6 +267,7 @@ class CeleryTaskQueue:
                     "task-failed": announce_failed_tasks,
                     "task-revoked": announce_revoked_tasks,
                     TASK_METADATA: announce_metadata_update,
+                    self.TASK_DELETED_EVENT: announce_task_deleted,
                 },
             )
             receiver.capture(limit=None, timeout=None, wakeup=True)
