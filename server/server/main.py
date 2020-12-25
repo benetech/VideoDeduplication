@@ -6,6 +6,7 @@ import fire
 from flask import Flask
 
 from server.config import Config
+from server.queue.celery.task_log_storage import TaskLogStorage
 from server.socket.task_observer import TaskObserver
 from thumbnail.cache import ThumbnailCache
 
@@ -83,6 +84,13 @@ def serve(
     # Initialize SocketIO
     socketio.init_app(application)
     queue.observe(TaskObserver(socketio))
+
+    # Initialize task log storage
+    log_storage = TaskLogStorage(directory=config.task_log_directory)
+    queue.observe(log_storage.make_task_observer())
+    application.config["LOG_STORAGE"] = log_storage
+
+    # Listen for task queue events in a background thread
     threading.Thread(target=queue.listen, daemon=True).start()
 
     # Serve REST API

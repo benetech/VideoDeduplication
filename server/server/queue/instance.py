@@ -1,5 +1,4 @@
 from server.queue.celery.backend import resolve_backend
-from server.queue.celery.task_log_storage import TaskLogStorage
 from server.queue.celery.task_queue import CeleryTaskQueue
 from server.queue.model import ProcessDirectory, ProcessFileList, TestTask
 from server.queue.request_transformer import RequestTransformer
@@ -14,5 +13,3 @@ queue = CeleryTaskQueue(
     request_transformer=request_transformer,
     requests={ProcessDirectory: process_directory, ProcessFileList: process_file_list, TestTask: test_fibonacci},
 )
-
-log_storage = TaskLogStorage()

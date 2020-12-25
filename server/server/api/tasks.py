@@ -3,10 +3,10 @@ from http import HTTPStatus
 
 from flask import jsonify, request, abort, send_from_directory
 
-from server.queue.instance import queue, request_transformer, log_storage
+from server.queue.instance import queue, request_transformer
 from server.queue.model import Task, TaskStatus
 from .blueprint import api
-from .helpers import parse_enum_seq, parse_positive_int, get_config
+from .helpers import parse_enum_seq, parse_positive_int, get_log_storage
 
 
 def parse_status():
@@ -79,7 +79,8 @@ def get_task_logs(task_id):
     if not queue.exists(task_id):
         abort(HTTPStatus.NOT_FOUND.value, f"Task id not found: {task_id}")
 
-    config = get_config()
-    task_log_directory = os.path.abspath(config.task_log_directory)
-    filename = log_storage.log_file_name(task_id)
-    return send_from_directory(task_log_directory, filename, mimetype="text/plain")
+    log_storage = get_log_storage()
+    log_file_path = log_storage.get_log_file(task_id)
+    if log_file_path is None or not os.path.isfile(log_file_path):
+        abort(HTTPStatus.NOT_FOUND.value, f"Logs not found: task_id={task_id}")
+    return send_from_directory(log_storage.directory, os.path.basename(log_file_path), mimetype="text/plain")
