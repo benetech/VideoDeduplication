@@ -41,6 +41,22 @@ export const routes = {
     get processing() {
       return `${this.home}/processing`;
     },
+
+    get task() {
+      return `${this.processing}/tasks/:id`;
+    },
+
+    taskURL(id) {
+      return `${this.processing}/tasks/${id}`;
+    },
+
+    get taskLogs() {
+      return `${this.task}/logs`;
+    },
+
+    taskLogsURL(id) {
+      return `${this.taskURL(id)}/logs`;
+    },
   },
   database: {
     home: "/database",

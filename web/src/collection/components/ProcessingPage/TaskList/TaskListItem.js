@@ -23,6 +23,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 import { useServer } from "../../../../server-api/context";
 import { useDispatch } from "react-redux";
 import { deleteTask, updateTask } from "../../../state/tasks/actions";
+import { routes } from "../../../../routing/routes";
+import { useHistory } from "react-router";
 
 const useStyles = makeStyles((theme) => ({
   task: {
@@ -157,12 +159,17 @@ function TaskListItem(props) {
   const Icon = getStatusIcon(task.status);
   const running = task.status === TaskStatus.RUNNING;
   const { clickTrigger, popup } = usePopup("task-menu-");
+  const history = useHistory();
 
-  // TODO: redirect to proper logs UI
-  const handleShowLogs = useCallback(() => {
-    popup.onClose();
-    window.open(`/api/v1/tasks/${task.id}/logs`);
-  }, []);
+  const handleShowLogs = useCallback(
+    () => history.push(routes.collection.taskLogsURL(task.id)),
+    [task.id]
+  );
+
+  const handleExpand = useCallback(
+    () => history.push(routes.collection.taskURL(task.id)),
+    [task.id]
+  );
 
   const handleCancel = useCallback(() => {
     popup.onClose();
@@ -193,7 +200,7 @@ function TaskListItem(props) {
         <div className={classes.attributes}>
           <div className={classes.topAttributes}>
             <div className={classes.timeCaption}>{messages.time(task)}</div>
-            <IconButton size="small">
+            <IconButton size="small" onClick={handleExpand}>
               <HeightOutlinedIcon
                 className={classes.expandIcon}
                 fontSize="small"
