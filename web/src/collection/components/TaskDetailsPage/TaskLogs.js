@@ -6,7 +6,22 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { useParams } from "react-router";
 import { useServer } from "../../../server-api/context";
 
-const useStyles = makeStyles(() => ({ logsContainer: {} }));
+const useStyles = makeStyles((theme) => ({
+  logsContainer: {
+    overflow: "auto",
+    width: "100%",
+    minHeight: 400,
+    padding: theme.spacing(2),
+    paddingTop: 0,
+    paddingBottom: 0,
+    backgroundColor: "#272c34",
+    color: theme.palette.common.white,
+  },
+  logs: {},
+  progress: {
+    marginTop: theme.spacing(2),
+  },
+}));
 
 function TaskLogs(props) {
   const { className, ...other } = props;
@@ -23,8 +38,14 @@ function TaskLogs(props) {
 
   return (
     <div className={clsx(classes.logsContainer, className)} {...other}>
-      {logs == null && <CircularProgress color="primary" />}
-      <pre>{logs}</pre>
+      {logs && <pre className={classes.logs}>{logs}</pre>}
+      {logs == null && (
+        <CircularProgress
+          size={30}
+          color="inherit"
+          className={classes.progress}
+        />
+      )}
     </div>
   );
 }
