@@ -4,14 +4,8 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import TaskType from "../../../prop-types/TaskType";
 import TaskStatus from "../../../state/tasks/TaskStatus";
-import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
-import CheckOutlinedIcon from "@material-ui/icons/CheckOutlined";
-import BlockOutlinedIcon from "@material-ui/icons/BlockOutlined";
-import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
-import PlayCircleFilledWhiteOutlinedIcon from "@material-ui/icons/PlayCircleFilledWhiteOutlined";
 import HeightOutlinedIcon from "@material-ui/icons/HeightOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
-import HelpOutlineOutlinedIcon from "@material-ui/icons/HelpOutlineOutlined";
 import { formatDistance } from "date-fns";
 import { IconButton } from "@material-ui/core";
 import TaskRequest from "../../../state/tasks/TaskRequest";
@@ -25,6 +19,9 @@ import { useDispatch } from "react-redux";
 import { deleteTask, updateTask } from "../../../state/tasks/actions";
 import { routes } from "../../../../routing/routes";
 import { useHistory } from "react-router";
+import getStatusIcon from "../../TaskDetailsPage/TaskSummary/helpers/getStatusIcon";
+import useCancelTask from "../../../hooks/useCancelTask";
+import useDeleteTask from "../../../hooks/useDeleteTask";
 
 const useStyles = makeStyles((theme) => ({
   task: {
@@ -75,24 +72,6 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
   },
 }));
-
-function getStatusIcon(status) {
-  switch (status) {
-    case TaskStatus.PENDING:
-      return ScheduleOutlinedIcon;
-    case TaskStatus.RUNNING:
-      return PlayCircleFilledWhiteOutlinedIcon;
-    case TaskStatus.SUCCESS:
-      return CheckOutlinedIcon;
-    case TaskStatus.FAILURE:
-      return CloseOutlinedIcon;
-    case TaskStatus.CANCELLED:
-      return BlockOutlinedIcon;
-    default:
-      console.warn(`Unsupported task status: ${status}`);
-      return HelpOutlineOutlinedIcon;
-  }
-}
 
 function useMessages() {
   const intl = useIntl();
@@ -151,10 +130,8 @@ function getTextDescription(request, messages) {
 
 function TaskListItem(props) {
   const { task, className, ...other } = props;
-  const server = useServer();
   const classes = useStyles();
   const messages = useMessages();
-  const dispatch = useDispatch();
   const description = getTextDescription(task.request, messages);
   const Icon = getStatusIcon(task.status);
   const running = task.status === TaskStatus.RUNNING;
@@ -171,27 +148,14 @@ function TaskListItem(props) {
     [task.id]
   );
 
-  const handleCancel = useCallback(() => {
-    popup.onClose();
-    server.cancelTask({ id: task.id }).then((response) => {
-      if (response.success) {
-        dispatch(updateTask(response.data));
-      } else {
-        console.error(`Error cancel task: ${task.id}`, response.error);
-      }
-    });
-  }, [task.id]);
-
-  const handleDelete = useCallback(() => {
-    popup.onClose();
-    server.deleteTask({ id: task.id }).then((response) => {
-      if (response.success) {
-        dispatch(deleteTask(task.id));
-      } else {
-        console.log(`Error delete task: ${task.id}`, response.error);
-      }
-    });
-  }, [task.id]);
+  const handleCancel = useCancelTask({
+    id: task.id,
+    onTrigger: () => popup.onClose(),
+  });
+  const handleDelete = useDeleteTask({
+    id: task.id,
+    onTrigger: () => popup.onClose(),
+  });
 
   return (
     <div className={clsx(classes.task, className)} {...other}>
