@@ -94,6 +94,9 @@ class CeleryTaskQueue:
         winnow_meta = self._get_task_meta(task_id)
         async_result = self.app.AsyncResult(task_id)
 
+        if winnow_meta is None:
+            return None
+
         status = task_status(async_result.status)
         status_updated = winnow_meta.created
         if task_id in active_task_meta:
