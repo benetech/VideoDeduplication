@@ -6,12 +6,19 @@ import TaskPageTabs from "./TaskPageTabs";
 import { Route, Switch } from "react-router-dom";
 import { routes } from "../../../routing/routes";
 import TaskLogs from "./TaskLogs";
+import { useParams } from "react-router";
+import { randomTask } from "../../../server-api/MockServer/fake-data/tasks";
+import TaskStatus from "../../state/tasks/TaskStatus";
+import TaskSummaryHeader from "./TaskSummaryHeader";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: theme.dimensions.content.padding,
     paddingTop: theme.dimensions.content.padding * 3,
     minWidth: theme.dimensions.collectionPage.width,
+  },
+  header: {
+    marginBottom: theme.spacing(5),
   },
   content: {
     paddingTop: theme.spacing(5),
@@ -22,10 +29,13 @@ const useStyles = makeStyles((theme) => ({
 
 function TaskDetailsPage(props) {
   const { className, ...other } = props;
+  const { id } = useParams();
   const classes = useStyles();
+  const task = randomTask({ id, status: TaskStatus.RUNNING });
 
   return (
     <div className={clsx(classes.root, className)} {...other}>
+      <TaskSummaryHeader task={task} className={classes.header} />
       <TaskPageTabs />
       <div className={classes.content}>
         <Switch>

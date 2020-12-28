@@ -70,6 +70,7 @@
     "actions.delete": "Delete",
     "actions.cancel": "Cancel",
     "actions.showLogs": "Show Logs",
+    "actions.process": "Process {what}",
     "sort.duration": "Duration",
     "sort.date": "Date",
     "sort.related": "Count of Related",
@@ -202,12 +203,18 @@
     "task.status.success": "OK",
     "task.status.failure": "Failed",
     "task.status.cancelled": "Cancelled",
+    "task.statusLong.pending": "Task Scheduled",
+    "task.statusLong.running": "Task is Running",
+    "task.statusLong.success": "Task Succeeded",
+    "task.statusLong.failure": "Task Failed",
+    "task.statusLong.cancelled": "Task Cancelled",
     "task.time": "{time} ago",
     "task.list.all": "All",
     "task.list.active": "Active",
     "task.list.finished": "Finished",
     "task.details": "Details",
     "task.logs": "Logs",
-    "task.error.load": "Error loading tasks"
+    "task.error.load": "Error loading tasks",
+    "task.created": "Creation date"
   }
 }
