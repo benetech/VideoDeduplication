@@ -15,7 +15,6 @@ import usePopup from "../../../../common/hooks/usePopup";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import TaskStatus from "../../../state/tasks/TaskStatus";
-import { deleteTask, updateTask } from "../../../state/tasks/actions";
 import useCancelTask from "../../../hooks/useCancelTask";
 import useDeleteTask from "../../../hooks/useDeleteTask";
 

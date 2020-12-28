@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import TaskType from "../../../prop-types/TaskType";
 import getStatusIcon from "./helpers/getStatusIcon";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   statusIcon: {
     fontSize: 52,
   },
