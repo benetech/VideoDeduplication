@@ -215,6 +215,8 @@
     "task.details": "Details",
     "task.logs": "Logs",
     "task.error.load": "Error loading tasks",
+    "task.error.load.single": "Error loading task.",
+    "task.error.load.notFound": "Task not found.",
     "task.created": "Creation date"
   }
 }

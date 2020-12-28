@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     letterSpacing: 0,
     lineHeight: "30px",
-    width: 100,
+    width: 120,
   },
 }));
 

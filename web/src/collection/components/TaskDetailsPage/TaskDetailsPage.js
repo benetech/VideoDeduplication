@@ -10,6 +10,8 @@ import { useParams } from "react-router";
 import { randomTask } from "../../../server-api/MockServer/fake-data/tasks";
 import TaskStatus from "../../state/tasks/TaskStatus";
 import TaskSummaryHeader from "./TaskSummaryHeader";
+import useGetTask from "../../hooks/useGetTask";
+import TaskLoadingHeader from "./TaskLoadingHeader";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,11 +33,25 @@ function TaskDetailsPage(props) {
   const { className, ...other } = props;
   const { id } = useParams();
   const classes = useStyles();
-  const task = randomTask({ id, status: TaskStatus.RUNNING });
+  const { task, error, loadTask } = useGetTask(id);
+  const dummyTask = randomTask({ id, status: TaskStatus.RUNNING });
+
+  if (task == null) {
+    return (
+      <div className={clsx(classes.root, className)} {...other}>
+        <TaskLoadingHeader
+          error={error}
+          onRetry={loadTask}
+          className={classes.header}
+        />
+        <TaskPageTabs />
+      </div>
+    );
+  }
 
   return (
     <div className={clsx(classes.root, className)} {...other}>
-      <TaskSummaryHeader task={task} className={classes.header} />
+      <TaskSummaryHeader task={task || dummyTask} className={classes.header} />
       <TaskPageTabs />
       <div className={classes.content}>
         <Switch>
