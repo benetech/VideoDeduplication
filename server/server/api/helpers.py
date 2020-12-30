@@ -10,6 +10,7 @@ from sqlalchemy.orm import joinedload
 from thumbnail.cache import ThumbnailCache
 from ..config import Config
 from ..queue.celery.task_log_storage import TaskLogStorage
+from ..socket.log_watcher import LogWatcher
 
 
 def get_config() -> Config:
@@ -20,6 +21,11 @@ def get_config() -> Config:
 def get_log_storage() -> TaskLogStorage:
     """Get current TaskLogStorage instance associated with the current application."""
     return current_app.config.get("LOG_STORAGE")
+
+
+def get_log_watcher() -> LogWatcher:
+    """Get current LogWatcher instance."""
+    return current_app.config.get("LOG_WATCHER")
 
 
 def get_thumbnails() -> ThumbnailCache:
