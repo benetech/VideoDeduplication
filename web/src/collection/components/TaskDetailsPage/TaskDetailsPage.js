@@ -59,7 +59,7 @@ function TaskDetailsPage(props) {
             TBD: Task details...
           </Route>
           <Route exact path={routes.collection.taskLogs}>
-            <TaskLogs />
+            <TaskLogs task={task} />
           </Route>
         </Switch>
       </div>

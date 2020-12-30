@@ -4,6 +4,7 @@ import fileMatchesInitialState from "./fileMatches/initialState";
 import fileListInitialState from "./fileList/initialState";
 import tasksInitialState from "./tasks/initialState";
 import taskCacheInitialState from "./taskCache/initialState";
+import taskLogsInitialState from "./taskLogs/initialState";
 
 /**
  * Initial State for file collection management.
@@ -34,6 +35,10 @@ const initialState = {
    * Background task cache.
    */
   taskCache: taskCacheInitialState,
+  /**
+   * Background task logs.
+   */
+  taskLogs: taskLogsInitialState,
 };
 
 export default initialState;
