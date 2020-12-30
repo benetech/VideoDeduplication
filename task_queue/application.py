@@ -11,4 +11,7 @@ celery_application = Celery("winnow-pipeline", broker=BROKER, backend=BACKEND, i
 celery_application.conf.update(result_extended=True, worker_send_task_events=True, task_send_sent_event=True)
 
 if __name__ == "__main__":
+    # Apply celery config
+    import task_queue.celery_config  # noqa
+
     celery_application.start()

@@ -24,3 +24,7 @@ class BaseObserver:
     def on_task_meta_updated(self, task):
         """Fires when task runtime metadata is updated."""
         pass
+
+    def on_task_deleted(self, task_id):
+        """Fires when task is deleted from the queue."""
+        pass

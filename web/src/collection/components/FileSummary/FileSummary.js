@@ -4,13 +4,12 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Name from "./Name";
 import { FileType } from "../../prop-types/FileType";
-import Divider from "./Divider";
-import Spacer from "./Spacer";
 import Fingerprint from "./Fingerprint";
 import Duration from "./Duration";
 import CreationDate from "./CreationDate";
 import HasExif from "./HasExif";
 import HasAudio from "./HasAudio";
+import indentAttributes from "../../../common/components/AttributeLists/indentAttributes";
 
 const useStyles = makeStyles({
   summary: {
@@ -33,25 +32,6 @@ function bindProps(file) {
       ...attribute.props,
     });
   };
-}
-
-/**
- * Add indentation between attribute elements.
- * @param attributes attribute elements array.
- * @param divider display visible dividers
- */
-function indentAttributes(attributes, divider) {
-  const result = [];
-  const IndentComponent = divider ? Divider : Spacer;
-  if (attributes != null) {
-    attributes.forEach((attribute, index) => {
-      result.push(attribute);
-      if (index < attributes.length - 1) {
-        result.push(<IndentComponent key={`divider-${index}`} />);
-      }
-    });
-  }
-  return result;
 }
 
 /**

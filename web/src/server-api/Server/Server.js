@@ -132,6 +132,17 @@ export default class Server {
     }
   }
 
+  async fetchLogs({ id }) {
+    try {
+      const response = await this.axios.get(`/tasks/${id}/logs`, {
+        params: {},
+      });
+      return Response.ok(response.data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
   async deleteTask({ id }) {
     try {
       const response = await this.axios.delete(`/tasks/${id}`);

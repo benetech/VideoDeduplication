@@ -1,3 +1,4 @@
+import logging
 from functools import wraps
 
 from celery import states
@@ -5,6 +6,8 @@ from celery import states
 from . import events
 from .application import celery_application
 from .events import RUNTIME_METADATA_ATTR
+
+winnow_task_logger = logging.getLogger(__name__)
 
 
 class WinnowTask(celery_application.Task):
@@ -41,7 +44,18 @@ def winnow_task(*args, base=None, **opts):
                 if options.get("bind", False):
                     task_args = (self,) + task_args
                 self.update_state(state=states.STARTED)
-                return task(*task_args, **task_kwargs)
+
+                # Ensure correct logging setup
+                logging.getLogger("winnow").setLevel(logging.INFO)
+                winnow_task_logger.info(
+                    f"Initiating task '{self.name}[{self.request.id}]': args={task_args}, kwargs={task_kwargs}"
+                )
+
+                try:
+                    return task(*task_args, **task_kwargs)
+                except Exception as exc:
+                    winnow_task_logger.exception(f"Task raised exception: {exc}")
+                    raise
 
             return celery_application.task(base=WinnowTask, *arguments, **options)(wrapper)
 

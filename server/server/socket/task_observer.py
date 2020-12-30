@@ -28,3 +28,6 @@ class TaskObserver(BaseObserver):
 
     def on_task_meta_updated(self, task):
         self._emit_task_update(task)
+
+    def on_task_deleted(self, task_id):
+        self._socketio.emit(events.TASK_DELETED, task_id, namespace=ns.TASKS)

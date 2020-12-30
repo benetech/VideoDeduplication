@@ -76,10 +76,14 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "admin"
       CELERY_BROKER: "redis://redis:6379/0"
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+      TASK_LOG_DIRECTORY: "/project/pipeline-logs"
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed the source data
       - "${BENETECH_DATA_LOCATION:?\n\nPlease set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
+      # You may want to set BENETECH_TASK_LOGS environment variable to
+      # keep pipeline logs in a specific directory in your host fs.
+      - "${BENETECH_TASK_LOGS:-pipeline-logs}:/project/pipeline-logs"
     depends_on:
       - postgres
     networks:
@@ -102,10 +106,14 @@ services:
       THUMBNAIL_CACHE_CAP: 10000
       CELERY_BROKER: "redis://redis:6379/0"
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+      TASK_LOG_DIRECTORY: "/project/pipeline-logs"
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed your video files
       - "${BENETECH_DATA_LOCATION:?\n\nPlease set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
+      # You may want to set BENETECH_TASK_LOGS environment variable to
+      # keep pipeline logs in a specific directory in your host fs.
+      - "${BENETECH_TASK_LOGS:-pipeline-logs}:/project/pipeline-logs"
     ports:
       - "${BENETECH_SERVER_PORT:-5000}:5000"
     depends_on:
@@ -118,4 +126,4 @@ networks:
 
 volumes:
   postgres-data:
-
+  pipeline-logs:

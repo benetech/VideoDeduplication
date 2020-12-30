@@ -55,3 +55,4 @@ class Config:
         self.related_distance = float(os.environ.get("RELATED_DISTANCE", 0.73))
         self.thumbnail_cache_folder = os.environ.get("THUMBNAIL_CACHE_FOLDER", "./thumbnails_cache")
         self.thumbnail_cache_cap = int(os.environ.get("THUMBNAIL_CACHE_CAP", 1000))
+        self.task_log_directory = os.environ.get("TASK_LOG_DIRECTORY", "./task_logs")

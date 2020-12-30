@@ -1,6 +1,7 @@
 // Task-related Socket.io events.
 export const SocketEvent = {
   TASK_UPDATED: "TASK_UPDATED",
+  TASK_DELETED: "TASK_DELETED",
 };
 
 // Socket.io namespaces

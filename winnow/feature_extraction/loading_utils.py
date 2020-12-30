@@ -10,10 +10,7 @@ from sklearn.metrics import precision_recall_curve
 
 from winnow.pipeline.progress_monitor import ProgressMonitor
 
-logger = logging.getLogger("winnow")
-logger.setLevel(logging.ERROR)
-output_file_handler = logging.FileHandler("processing_error.log")
-logger.addHandler(output_file_handler)
+logger = logging.getLogger(__name__)
 
 
 def load_dataset(dataset):

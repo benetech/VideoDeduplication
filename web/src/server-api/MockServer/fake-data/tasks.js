@@ -8,9 +8,7 @@ function randomRequest() {
   };
 
   if (request.type === TaskRequest.DIRECTORY) {
-    request.directoryPath = `yt2020/collection-${Math.floor(
-      Math.random() * 100
-    )}`;
+    request.directory = `yt2020/collection-${Math.floor(Math.random() * 100)}`;
   } else if (request.type === TaskRequest.FILE_LIST) {
     const count = Math.floor(500 * Math.random());
     const files = [];
@@ -70,4 +68,15 @@ export function randomTasks({
       count: cancelled,
     }),
   ];
+}
+
+export function randomTask({ id = null, status = "RUNNING" }) {
+  return {
+    id: id || "42",
+    submissionTime: new Date(),
+    statusUpdateTime: new Date(),
+    status: status,
+    request: randomRequest(),
+    progress: status === "RUNNING" ? Math.random() : undefined,
+  };
 }

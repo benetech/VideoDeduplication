@@ -41,6 +41,7 @@ Server honors the following environment variables:
  * `RELATED_DISTANCE` - maximal distance between related videos (default is `0.4`) 
  * `THUMBNAIL_CACHE_FOLDER` - folder in which thumbnails will be stored (default is `thumbnails_cache`)
  * `THUMBNAIL_CACHE_CAP` - maximal number of thumbnails to be cached (default is `1000`)
+ * `TASK_LOG_DIRECTORY` - directory in which background task logs are located (default is `./task_logs`)
  
 
 

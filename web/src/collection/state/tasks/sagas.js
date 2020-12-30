@@ -3,6 +3,7 @@ import { eventChannel } from "redux-saga";
 import {
   ACTION_FETCH_TASK_SLICE,
   ACTION_UPDATE_TASKS_PARAMS,
+  deleteTask,
   fetchTaskSliceFailure,
   fetchTaskSliceSuccess,
   updateTask,
@@ -13,8 +14,11 @@ function makeTaskChannel(server) {
   return eventChannel((emit) => {
     const socket = server.openMessageChannel();
 
-    // Handle task updates..
+    // Handle task updates...
     socket.on("task-update", (task) => emit(updateTask(task)));
+
+    // Handle task deletions...
+    socket.on("task-delete", (taskId) => emit(deleteTask(taskId)));
 
     // Close socket when channel is closed
     return () => socket.close();

@@ -35,3 +35,9 @@ export const selectFileCluster = (state) => selectColl(state).fileCluster;
  * Select background tasks state.
  */
 export const selectTasks = (state) => selectColl(state).tasks;
+
+/**
+ * Select cached task.
+ */
+export const selectCachedTask = (id) => (state) =>
+  selectColl(state).taskCache.tasks[id];
