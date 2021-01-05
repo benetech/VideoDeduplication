@@ -47,6 +47,7 @@ module.exports = {
       template: template,
     }),
   ],
+  devtool: "source-map",
   devServer: {
     contentBase: outputDir,
     port: 9999,
