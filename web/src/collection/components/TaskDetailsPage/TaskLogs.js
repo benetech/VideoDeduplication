@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   logsContainer: {
     overflow: "auto",
     width: "100%",
-    minHeight: 400,
+    height: "50vh",
     padding: theme.spacing(2),
     paddingTop: 0,
     paddingBottom: 0,
@@ -26,9 +26,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
   },
   logs: {},
-  progress: {
-    marginTop: theme.spacing(2),
-  },
+  progress: {},
 }));
 
 function isActive(task) {
@@ -53,7 +51,7 @@ function TaskLogs(props) {
     } else if (taskLogs.taskId !== task.id || taskLogs.more) {
       dispatch(setTaskLogs({ id: task.id, logs: null, more: true }));
       server.fetchLogs({ id: task.id }).then((resp) => {
-        dispatch(setTaskLogs({ id: task.id, logs: [resp.data] }));
+        dispatch(setTaskLogs({ id: task.id, logs: [resp.data], more: false }));
       });
     }
   }, [task.id]);
@@ -63,7 +61,7 @@ function TaskLogs(props) {
       {taskLogs.logs && <pre className={classes.logs}>{taskLogs.logs}</pre>}
       {taskLogs.more && active && (
         <CircularProgress
-          size={30}
+          size={20}
           color="inherit"
           className={classes.progress}
         />

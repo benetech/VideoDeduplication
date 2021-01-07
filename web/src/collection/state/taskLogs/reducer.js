@@ -14,7 +14,7 @@ export default function taskLogsReducer(state = initialState, action) {
         more: true,
       };
     case ACTION_APPEND_TASK_LOGS:
-      if (action.id === state.task.id) {
+      if (action.id === state.taskId) {
         const existing = state.logs == null ? [] : state.logs;
         return {
           ...state,

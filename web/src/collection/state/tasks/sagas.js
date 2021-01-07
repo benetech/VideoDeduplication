@@ -9,25 +9,53 @@ import {
   updateTask,
 } from "./actions";
 import fetchEntitiesSaga from "../fetchEntities/fetchEntitiesSaga";
+import {
+  ACTION_SUBSCRIBE_FOR_TASK_LOGS,
+  ACTION_UNSUBSCRIBE_FROM_TASK_LOGS,
+  appendTaskLogs,
+} from "../taskLogs/actions";
 
-function makeTaskChannel(server) {
+function makeTaskChannel(socket) {
   return eventChannel((emit) => {
-    const socket = server.openMessageChannel();
-
     // Handle task updates...
     socket.on("task-update", (task) => emit(updateTask(task)));
 
     // Handle task deletions...
     socket.on("task-delete", (taskId) => emit(deleteTask(taskId)));
 
+    // Handle task logs updates...
+    socket.on("logs-update", ({ taskId, data }) =>
+      emit(appendTaskLogs({ id: taskId, logs: [data], more: true }))
+    );
+
     // Close socket when channel is closed
     return () => socket.close();
   });
 }
 
+function* logSubscriptionSaga(socket) {
+  while (true) {
+    const action = yield take([
+      ACTION_SUBSCRIBE_FOR_TASK_LOGS,
+      ACTION_UNSUBSCRIBE_FROM_TASK_LOGS,
+    ]);
+    try {
+      if (action.type === ACTION_SUBSCRIBE_FOR_TASK_LOGS) {
+        socket.subscribeForLogs(action.id);
+      } else if (action.type === ACTION_UNSUBSCRIBE_FROM_TASK_LOGS) {
+        socket.unsubscribeFromLogs(action.id);
+      }
+    } catch (error) {
+      console.error("Log subscription error", action, error);
+    }
+  }
+}
+
 function* handleTaskUpdatesSaga(server) {
   try {
-    const channel = yield call(makeTaskChannel, server);
+    const socket = server.openMessageChannel();
+    const channel = yield call(makeTaskChannel, socket);
+    yield fork(logSubscriptionSaga, socket);
 
     while (true) {
       const action = yield take(channel);

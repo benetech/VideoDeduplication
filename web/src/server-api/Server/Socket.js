@@ -7,6 +7,7 @@ import { SocketEvent } from "./constants";
  * Defines the following events:
  *  1. "task-update" - fire when background task is updated.
  *  2. "task-delete" - fire when background task is deleted.
+ *  3. "logs-update" - fire when logs are updated.
  */
 export default class Socket extends EventEmitter {
   constructor({ socket, transform }) {
@@ -29,6 +30,19 @@ export default class Socket extends EventEmitter {
     this._socket.on(SocketEvent.TASK_DELETED, (taskId) => {
       this.emit("task-delete", taskId);
     });
+
+    // Notify listeners on "log-update"
+    this._socket.on(SocketEvent.TASK_LOGS_UPDATED, ({ task_id, data }) => {
+      this.emit("logs-update", { taskId: task_id, data });
+    });
+  }
+
+  subscribeForLogs(taskId) {
+    this._socket.emit(SocketEvent.TASK_LOGS_SUBSCRIBE, { task_id: taskId });
+  }
+
+  unsubscribeFromLogs(taskId) {
+    this._socket.emit(SocketEvent.TASK_LOGS_UNSUBSCRIBE, { task_id: taskId });
   }
 
   close() {
