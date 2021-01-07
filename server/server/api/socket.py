@@ -8,7 +8,7 @@ from server.socket.instance import socketio
 @socketio.on("disconnect", namespace=ns.TASKS)
 def disconnect():
     log_watcher = get_log_watcher()
-    log_watcher.unsubscribe(room_id=request.sid)
+    log_watcher.unsubscribe_room(room_id=request.sid)
 
 
 @socketio.on(events.TASK_LOGS_SUBSCRIBE, namespace=ns.TASKS)
@@ -16,8 +16,9 @@ def subscribe_logs(message):
     task_id = message.get("task_id")
     if task_id is None:
         return
+    offset = message.get("offset", 0)
     log_watcher = get_log_watcher()
-    log_watcher.subscribe(_task_id=task_id, room_id=request.sid)
+    log_watcher.subscribe(task_id=task_id, room_id=request.sid, offset=offset)
 
 
 @socketio.on(events.TASK_LOGS_UNSUBSCRIBE, namespace=ns.TASKS)

@@ -99,7 +99,7 @@ def serve(
     threading.Thread(target=queue.listen, daemon=True).start()
 
     # Publish log updates in a background thread
-    threading.Thread(target=log_watcher.publish_log_updates, daemon=True).start()
+    threading.Thread(target=log_watcher.broadcast_logs, daemon=True).start()
 
     # Serve REST API
     socketio.run(application, host=config.host, port=config.port, log_output=True)
