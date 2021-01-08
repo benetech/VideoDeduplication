@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
     overflow: "auto",
     width: "100%",
     height: "50vh",
+    minHeight: 300,
     padding: theme.spacing(2),
     paddingTop: 0,
     paddingBottom: 0,
@@ -27,6 +28,10 @@ const useStyles = makeStyles((theme) => ({
   },
   logs: {},
   progress: {},
+  logsEnd: {
+    width: "100%",
+    height: 1,
+  },
 }));
 
 function isActive(task) {
@@ -42,6 +47,8 @@ function TaskLogs(props) {
   const active = isActive(task);
   const dispatch = useDispatch();
   const taskLogs = useSelector(selectTaskLogs);
+  const [follow, setFollow] = useState(true);
+  const containerRef = useRef();
 
   // Fetch available logs
   useEffect(() => {
@@ -56,8 +63,37 @@ function TaskLogs(props) {
     }
   }, [task.id]);
 
+  // Follow logs
+  useEffect(() => {
+    if (follow && containerRef.current) {
+      const container = containerRef.current;
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [containerRef, taskLogs.logs?.length, follow]);
+
+  // Enable/disable following on scroll
+  const handleScroll = useCallback(
+    (event) => {
+      const container = event.target;
+      if (container != null) {
+        const maxScroll = container.scrollHeight - container.clientHeight;
+        const containerScrolledToBottom = container.scrollTop === maxScroll;
+        if (containerScrolledToBottom !== follow) {
+          setFollow(containerScrolledToBottom);
+          console.log("Follow", containerScrolledToBottom);
+        }
+      }
+    },
+    [follow]
+  );
+
   return (
-    <div className={clsx(classes.logsContainer, className)} {...other}>
+    <div
+      className={clsx(classes.logsContainer, className)}
+      onScroll={handleScroll}
+      ref={containerRef}
+      {...other}
+    >
       {taskLogs.logs && <pre className={classes.logs}>{taskLogs.logs}</pre>}
       {taskLogs.more && active && (
         <CircularProgress
@@ -66,6 +102,7 @@ function TaskLogs(props) {
           className={classes.progress}
         />
       )}
+      <div className={classes.logsEnd} />
     </div>
   );
 }
