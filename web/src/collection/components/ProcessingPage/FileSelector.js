@@ -28,7 +28,7 @@ function FileSelector(props) {
     setLoading(true);
     server
       .createTask({
-        request: { type: "TestTask", n: 100, delay: 1 },
+        request: { type: "ProcessDirectory", directory: "." },
       })
       .then((response) => {
         if (response.success) {

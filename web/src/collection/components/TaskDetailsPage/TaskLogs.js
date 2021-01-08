@@ -28,10 +28,6 @@ const useStyles = makeStyles((theme) => ({
   },
   logs: {},
   progress: {},
-  logsEnd: {
-    width: "100%",
-    height: 1,
-  },
 }));
 
 function isActive(task) {
@@ -80,7 +76,6 @@ function TaskLogs(props) {
         const containerScrolledToBottom = container.scrollTop === maxScroll;
         if (containerScrolledToBottom !== follow) {
           setFollow(containerScrolledToBottom);
-          console.log("Follow", containerScrolledToBottom);
         }
       }
     },
@@ -102,7 +97,6 @@ function TaskLogs(props) {
           className={classes.progress}
         />
       )}
-      <div className={classes.logsEnd} />
     </div>
   );
 }

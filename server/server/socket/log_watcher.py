@@ -17,7 +17,6 @@ class LogWatcher:
         with self._lock:
 
             def emit_log_updates(data):
-                print(f"SENDING: {task_id}, '{data}'")
                 message = {"task_id": task_id, "data": data}
                 self._socketio.emit(events.TASK_LOGS_UPDATED, message, namespace=ns.TASKS, to=room_id)
 

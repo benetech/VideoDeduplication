@@ -33,3 +33,9 @@ export const ACTION_UPDATE_TASK = "coll.UPDATE_TASK";
 export function updateTask(task) {
   return { task, type: ACTION_UPDATE_TASK };
 }
+
+export const ACTION_SOCKET_CONNECTED = "coll.SOCKET_CONNECTED";
+
+export function socketConnected() {
+  return { type: ACTION_SOCKET_CONNECTED };
+}

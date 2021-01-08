@@ -3,6 +3,7 @@ import {
   ACTION_APPEND_TASK_LOGS,
   ACTION_SET_TASK_LOGS,
   ACTION_SUBSCRIBE_FOR_TASK_LOGS,
+  ACTION_UNSUBSCRIBE_FROM_TASK_LOGS,
 } from "./actions";
 
 export default function taskLogsReducer(state = initialState, action) {
@@ -13,6 +14,8 @@ export default function taskLogsReducer(state = initialState, action) {
         logs: null,
         more: true,
       };
+    case ACTION_UNSUBSCRIBE_FROM_TASK_LOGS:
+      return initialState;
     case ACTION_APPEND_TASK_LOGS:
       if (action.id === state.taskId) {
         const existing = state.logs == null ? [] : state.logs;
