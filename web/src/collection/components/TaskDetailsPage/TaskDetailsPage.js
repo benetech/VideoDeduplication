@@ -55,10 +55,10 @@ function TaskDetailsPage(props) {
       <TaskPageTabs />
       <div className={classes.content}>
         <Switch>
-          <Route exact path={routes.collection.task}>
+          <Route exact path={routes.processing.task}>
             TBD: Task details...
           </Route>
-          <Route exact path={routes.collection.taskLogs}>
+          <Route exact path={routes.processing.taskLogs}>
             <TaskLogs task={task} />
           </Route>
         </Switch>

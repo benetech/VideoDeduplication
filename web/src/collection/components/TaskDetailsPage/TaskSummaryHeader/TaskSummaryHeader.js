@@ -62,7 +62,7 @@ function TaskSummaryHeader(props) {
   const { clickTrigger, popup } = usePopup("task-menu-");
 
   const handleBack = useCallback(
-    () => history.push(routes.collection.processing),
+    () => history.push(routes.processing.home),
     []
   );
 

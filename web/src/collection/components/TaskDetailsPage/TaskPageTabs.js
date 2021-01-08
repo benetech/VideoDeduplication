@@ -30,11 +30,11 @@ const Section = {
  */
 function useSection() {
   const details = useRouteMatch({
-    path: routes.collection.task,
+    path: routes.processing.task,
     exact: true,
   });
   const logs = useRouteMatch({
-    path: routes.collection.taskLogs,
+    path: routes.processing.taskLogs,
     exact: true,
   });
   if (details) {
@@ -62,9 +62,9 @@ function useNavigation(id) {
   const history = useHistory();
   return (newSection) => {
     if (newSection === Section.details) {
-      history.replace(routes.collection.taskURL(id));
+      history.replace(routes.processing.taskURL(id));
     } else if (newSection === Section.logs) {
-      history.replace(routes.collection.taskLogsURL(id));
+      history.replace(routes.processing.taskLogsURL(id));
     }
   };
 }

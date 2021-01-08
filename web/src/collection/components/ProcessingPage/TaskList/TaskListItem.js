@@ -136,12 +136,12 @@ function TaskListItem(props) {
   const history = useHistory();
 
   const handleShowLogs = useCallback(
-    () => history.push(routes.collection.taskLogsURL(task.id)),
+    () => history.push(routes.processing.taskLogsURL(task.id)),
     [task.id]
   );
 
   const handleExpand = useCallback(
-    () => history.push(routes.collection.taskURL(task.id)),
+    () => history.push(routes.processing.taskURL(task.id)),
     [task.id]
   );
 
