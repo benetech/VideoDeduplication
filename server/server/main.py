@@ -7,6 +7,7 @@ from flask import Flask
 
 from server.config import Config
 from server.queue.celery.task_log_storage import TaskLogStorage
+from server.socket.log_watcher import LogWatcher
 from server.socket.task_observer import TaskObserver
 from thumbnail.cache import ThumbnailCache
 
@@ -90,8 +91,15 @@ def serve(
     queue.observe(log_storage.make_task_observer())
     application.config["LOG_STORAGE"] = log_storage
 
+    # Initialize task log watcher
+    log_watcher = LogWatcher(socketio=socketio, log_storage=log_storage)
+    application.config["LOG_WATCHER"] = log_watcher
+
     # Listen for task queue events in a background thread
     threading.Thread(target=queue.listen, daemon=True).start()
+
+    # Publish log updates in a background thread
+    threading.Thread(target=log_watcher.broadcast_logs, daemon=True).start()
 
     # Serve REST API
     socketio.run(application, host=config.host, port=config.port, log_output=True)

@@ -54,7 +54,7 @@ function TaskLoadingHeader(props) {
   const history = useHistory();
 
   const handleBack = useCallback(
-    () => history.push(routes.collection.processing),
+    () => history.push(routes.processing.home),
     []
   );
 

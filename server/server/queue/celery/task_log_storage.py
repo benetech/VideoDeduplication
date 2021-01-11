@@ -1,7 +1,9 @@
 import logging
 import os
+from typing import Optional
 
 from server.queue.celery.base_observer import BaseObserver
+from server.queue.celery.file_streaming import FileStreamer, BaseFileStream
 from task_queue.queue_log_handler import QueueLogHandler
 
 logger = logging.getLogger(__name__)
@@ -21,8 +23,9 @@ class TaskLogStorage:
         """Get task log file name by id."""
         return QueueLogHandler.log_file_name(task_id)
 
-    def __init__(self, directory):
+    def __init__(self, directory, file_streamer=None):
         self.directory = os.path.abspath(directory)
+        self._file_streamer = file_streamer or FileStreamer()
 
     def get_log_file(self, task_id):
         log_file_path = os.path.abspath(os.path.join(self.directory, self.log_file_name(task_id)))
@@ -38,3 +41,16 @@ class TaskLogStorage:
 
     def make_task_observer(self) -> BaseObserver:
         return _TaskObserver(storage=self)
+
+    def stream_task_logs(self, task_id, callback, offset=0, whence=os.SEEK_SET) -> Optional[BaseFileStream]:
+        file_path = self.get_log_file(task_id)
+        if not os.path.isfile(file_path):
+            return None
+        file = open(file_path)
+        file.seek(offset, whence)
+        return self._file_streamer.start_stream(file=file, callback=callback, finished=False)
+
+    def broadcast_logs(self):
+        """Broadcast log updates. This is a blocking method, you
+        probably want to execute it in a background thread."""
+        self._file_streamer.broadcast()

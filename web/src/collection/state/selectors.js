@@ -41,3 +41,8 @@ export const selectTasks = (state) => selectColl(state).tasks;
  */
 export const selectCachedTask = (id) => (state) =>
   selectColl(state).taskCache.tasks[id];
+
+/**
+ * Select task logs.
+ */
+export const selectTaskLogs = (state) => selectColl(state).taskLogs;

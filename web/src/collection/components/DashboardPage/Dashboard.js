@@ -9,6 +9,7 @@ import { useTheme } from "@material-ui/core";
 // import BackdropMenu from "./BackdropMenu";
 import StackedLineChart from "./StackedLineChart";
 import Grid from "@material-ui/core/Grid";
+import useMatchStats from "./useMatchStats";
 // import useUniqueId from "../../../common/hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({
@@ -43,25 +44,6 @@ const useStyles = makeStyles((theme) => ({
 //     dashboard: intl.formatMessage({ id: "collection.dashboard.title" }),
 //   };
 // }
-
-// This data will be retrieved from server.
-const matches = (theme) => [
-  {
-    name: "Matches",
-    value: 23,
-    color: theme.palette.primary.main,
-  },
-  {
-    name: "Possibly related",
-    value: 80,
-    color: theme.palette.primary.light,
-  },
-  {
-    name: "Unique files",
-    value: 267,
-    color: "#131726",
-  },
-];
 
 // This data will be retrieved from server.
 const dbMatches = (theme) => ({
@@ -121,6 +103,7 @@ function Dashboard(props) {
   // const [showMenu, setShowMenu] = useState(false);
   const showMenu = false;
   // const backdropMenuId = useUniqueId("backdrop-menu");
+  const matchStats = useMatchStats();
 
   return (
     <div className={clsx(classes.dashboardContainer, className)}>
@@ -141,7 +124,7 @@ function Dashboard(props) {
             aria-label={intl.formatMessage({ id: "aria.label.dashboard" })}
           >
             <Grid item lg={6} xs={12}>
-              <PieChart title="My Matches" categories={matches(theme)} />
+              <PieChart title="My Matches" categories={matchStats} />
             </Grid>
             <Grid item lg={6} xs={12}>
               <StackedLineChart

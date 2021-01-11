@@ -5,6 +5,7 @@ import fileClusterReducer from "./fileCluster/reducer";
 import fileListReducer from "./fileList/reducer";
 import taskReducer from "./tasks/reducer";
 import taskCacheReducer from "./taskCache/reducer";
+import taskLogsReducer from "./taskLogs/reducer";
 
 const collRootReducer = combineReducers({
   fileList: fileListReducer,
@@ -13,6 +14,7 @@ const collRootReducer = combineReducers({
   fileMatches: fileMatchesReducer,
   tasks: taskReducer,
   taskCache: taskCacheReducer,
+  taskLogs: taskLogsReducer,
 });
 
 export default collRootReducer;

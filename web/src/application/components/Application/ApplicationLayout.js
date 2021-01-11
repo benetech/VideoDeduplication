@@ -14,6 +14,7 @@ import { routes } from "../../../routing/routes";
 import AppPage from "../AppPage";
 import { useIntl } from "react-intl";
 import DashboardPage from "../../../collection/components/DashboardPage";
+import ProcessingRootPage from "../../../collection/components/ProcessingRootPage";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -81,10 +82,7 @@ function ApplicationLayout(props) {
               />
             </Route>
             <Route path={routes.processing.home}>
-              <AppPage
-                title={intl.formatMessage({ id: "nav.processing" })}
-                className={classes.body}
-              />
+              <ProcessingRootPage className={classes.body} />
             </Route>
           </Switch>
         </Router>

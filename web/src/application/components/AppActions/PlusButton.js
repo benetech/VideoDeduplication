@@ -16,7 +16,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function PlusButton(props) {
-  const { onClick, className } = props;
+  const { onClick, className, ...other } = props;
   const classes = useStyles();
   const intl = useIntl();
 
@@ -27,6 +27,7 @@ function PlusButton(props) {
       variant="contained"
       className={clsx(classes.button, className)}
       aria-label={intl.formatMessage({ id: "actions.addMedia" })}
+      {...other}
     >
       <AddOutlinedIcon />
     </SquaredIconButton>

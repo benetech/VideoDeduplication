@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -10,6 +10,8 @@ import NotificationsNoneOutlinedIcon from "@material-ui/icons/NotificationsNoneO
 import PlusButton from "./PlusButton";
 import ProfileMenuButton from "./ProfileMenuButton";
 import { useIntl } from "react-intl";
+import { useHistory } from "react-router-dom";
+import { routes } from "../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -39,10 +41,15 @@ function AppActions(props) {
   const { className } = props;
   const classes = useStyles();
   const intl = useIntl();
+  const history = useHistory();
+
+  const handleAddMedia = useCallback(() =>
+    history.push(routes.processing.home)
+  );
 
   return (
     <div className={clsx(classes.actions, className)}>
-      <PlusButton />
+      <PlusButton onClick={handleAddMedia} />
       <ConnectionIndicator offline className={classes.indicator} />
       <Divider orientation="vertical" className={classes.divider} />
       <IconButton

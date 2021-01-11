@@ -193,7 +193,7 @@ function FileBrowserPage(props) {
   const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
 
   const handleAddMedia = useCallback(
-    () => history.push(routes.collection.processing),
+    () => history.push(routes.processing.home),
     [history]
   );
 

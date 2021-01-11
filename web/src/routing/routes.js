@@ -35,28 +35,6 @@ export const routes = {
     fileComparisonURL(id, matchFileId = "") {
       return `${this.fileURL(id)}/compare/${matchFileId}`;
     },
-
-    // Processing Pages
-
-    get processing() {
-      return `${this.home}/processing`;
-    },
-
-    get task() {
-      return `${this.processing}/tasks/:id`;
-    },
-
-    taskURL(id) {
-      return `${this.processing}/tasks/${id}`;
-    },
-
-    get taskLogs() {
-      return `${this.task}/logs`;
-    },
-
-    taskLogsURL(id) {
-      return `${this.taskURL(id)}/logs`;
-    },
   },
   database: {
     home: "/database",
@@ -69,5 +47,21 @@ export const routes = {
   },
   processing: {
     home: "/processing",
+
+    get task() {
+      return `${this.home}/tasks/:id`;
+    },
+
+    taskURL(id) {
+      return `${this.home}/tasks/${id}`;
+    },
+
+    get taskLogs() {
+      return `${this.task}/logs`;
+    },
+
+    taskLogsURL(id) {
+      return `${this.taskURL(id)}/logs`;
+    },
   },
 };

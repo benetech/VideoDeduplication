@@ -5,28 +5,28 @@ import { format as formatDate } from "date-fns";
  */
 export default function fileFiltersToQueryParams(filters) {
   const params = {};
-  if (filters.query) {
+  if (filters?.query) {
     params.path = filters.query;
   }
-  if (filters.audio != null) {
+  if (filters?.audio != null) {
     params.audio = String(!!filters.audio);
   }
-  if (filters.exif != null) {
+  if (filters?.exif != null) {
     params.exif = String(!!filters.exif);
   }
-  if (filters.length.lower != null) {
+  if (filters?.length?.lower != null) {
     params.min_length = filters.length.lower * 60; // minutes to seconds
   }
-  if (filters.length.upper != null) {
+  if (filters?.length?.upper != null) {
     params.max_length = filters.length.upper * 60; // minutes to seconds
   }
-  if (filters.date.lower != null) {
+  if (filters?.date?.lower != null) {
     params.date_from = formatDate(filters.date.lower, "yyyy-MM-dd");
   }
-  if (filters.date.upper != null) {
+  if (filters?.date?.upper != null) {
     params.date_to = formatDate(filters.date.upper, "yyyy-MM-dd");
   }
-  if (filters.extensions && filters.extensions.length > 0) {
+  if (filters?.extensions && filters?.extensions?.length > 0) {
     const extensions = filters.extensions
       .map((ext) => ext.trim())
       .filter((ext) => ext.length > 0);
@@ -34,10 +34,10 @@ export default function fileFiltersToQueryParams(filters) {
       params.extensions = extensions.join(",");
     }
   }
-  if (filters.matches != null) {
+  if (filters?.matches != null) {
     params.matches = filters.matches;
   }
-  if (filters.sort) {
+  if (filters?.sort) {
     params.sort = filters.sort;
   }
   return params;

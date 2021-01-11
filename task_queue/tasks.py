@@ -2,10 +2,8 @@ import os
 import time
 from pathlib import Path
 
-from celery import states
 from celery.utils.log import get_task_logger
 
-from .application import celery_application
 from .progress_monitor import make_progress_monitor
 from .winnow_task import winnow_task
 
@@ -85,11 +83,11 @@ def fibo(n):
     return fibo(n - 1) + fibo(n - 2)
 
 
-@celery_application.task(bind=True)
+@winnow_task(bind=True)
 def test_fibonacci(self, n, delay):
-    # Mark task as started
-    self.update_state(state=states.STARTED, meta={})
-
-    logger.info(f"Received a test task: n={n}, delay={delay}")
-    time.sleep(delay)
-    return fibo(n)
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=n)
+    for step in range(n):
+        time.sleep(delay)
+        logger.info(f"Step #{step} of {n}")
+        monitor.increase(1)
