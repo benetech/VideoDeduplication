@@ -46,25 +46,6 @@ const useStyles = makeStyles((theme) => ({
 // }
 
 // This data will be retrieved from server.
-const matches = (theme) => [
-  {
-    name: "Matches",
-    value: 23,
-    color: theme.palette.primary.main,
-  },
-  {
-    name: "Possibly related",
-    value: 80,
-    color: theme.palette.primary.light,
-  },
-  {
-    name: "Unique files",
-    value: 267,
-    color: "#131726",
-  },
-];
-
-// This data will be retrieved from server.
 const dbMatches = (theme) => ({
   labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
   series: [
