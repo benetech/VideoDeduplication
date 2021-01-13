@@ -1,5 +1,6 @@
 import logging
 import os
+from pickle import dumps
 
 from db import Database
 from winnow.config import Config
@@ -75,7 +76,7 @@ def extract_features(config: Config, videos: list, progress_monitor=ProgressMoni
 
     if config.database.use:
         # Convert dict to list of (path, sha256, signature) tuples
-        entries = [(key.path, key.hash, sig) for key, sig in signatures.items()]
+        entries = [(key.path, key.hash, dumps(sig)) for key, sig in signatures.items()]
 
         # Connect to database
         database = Database(uri=config.database.uri)
