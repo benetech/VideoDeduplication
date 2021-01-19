@@ -49,7 +49,7 @@ class Files(Base):
     signature = relationship("Signature", uselist=False, back_populates="file")
     meta = relationship("VideoMetadata", uselist=False, back_populates="file")
     scenes = relationship("Scene", back_populates="file")
-    templatematches = relationship("Templatematches", back_populates="file", cascade="all, delete-orphan")
+    template_matches = relationship("TemplateMatches", back_populates="file", cascade="all, delete-orphan")
     exif = relationship("Exif", uselist=False, back_populates="file")
 
     # TODO: find a way to merge these two relationships
@@ -92,19 +92,19 @@ class Scene(Base):
     start_time = Column(Integer)
 
 
-class Templatematches(Base):
+class TemplateMatches(Base):
     __tablename__ = "templatematches"
     # __table_args__ = (UniqueConstraint('file_id', 'template_name'),)
     id = Column(Integer, autoincrement=True, primary_key=True)
     file_id = Column(Integer, ForeignKey("files.id"), nullable=True)
-    file = relationship("Files", back_populates="templatematches")
+    file = relationship("Files", back_populates="template_matches")
     template_name = Column(String)
     distance = Column(Float)
     closest_match = Column(Float)
     closest_match_time = Column(String)
 
 
-@event.listens_for(Files.templatematches, "remove")
+@event.listens_for(Files.template_matches, "remove")
 def rem(state, item, initiator):
     sess = object_session(item)
 
