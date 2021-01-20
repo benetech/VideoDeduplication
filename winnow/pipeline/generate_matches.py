@@ -113,17 +113,11 @@ def generate_matches(config, progress_monitor=ProgressMonitor.NULL, files=[]):  
 
     if config.proc.detect_scenes:
 
-        frame_features_dict = bulk_read(reps.frame_level, select=None)
+        frame_level_reps = reps.frame_level.list()
         if files:
-            temp = dict()
-            for k, v in frame_features_dict.items():
+            frame_level_reps = files_reprkey
 
-                if k in files_reprkey:
-                    temp[k] = v
-            frame_features_dict = temp
-
-        assert len(frame_features_dict) > 0, "No Frame Level features were found."
-        scenes = extract_scenes(frame_features_dict)
+        scenes = extract_scenes(frame_level_reps, reps.frame_level)
         scene_metadata = pd.DataFrame(asdict(scenes))
 
         if config.database.use:
