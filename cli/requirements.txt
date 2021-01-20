@@ -1,0 +1,8 @@
+SQLAlchemy
+PyYAML
+psycopg2
+fire
+inquirer
+termcolor
+cached-property
+dataclasses
