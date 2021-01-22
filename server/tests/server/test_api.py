@@ -483,19 +483,19 @@ def test_list_files_filter_matches(client, app, config):
     assert_files(resp, expected=all_files, total=len(all_files), related=len(related), duplicates=len(duplicates))
 
     # Get all explicitly
-    resp = client.get(f"/api/v1/files/?matches={FileMatchFilter.ALL}&limit={len(all_files)}")
+    resp = client.get(f"/api/v1/files/?matches={FileMatchFilter.ALL.value}&limit={len(all_files)}")
     assert_files(resp, expected=all_files, total=len(all_files), related=len(related), duplicates=len(duplicates))
 
     # Get unique
-    resp = client.get(f"/api/v1/files/?matches={FileMatchFilter.UNIQUE}&limit={len(all_files)}")
+    resp = client.get(f"/api/v1/files/?matches={FileMatchFilter.UNIQUE.value}&limit={len(all_files)}")
     assert_files(resp, expected=unique, total=len(all_files), related=len(related), duplicates=len(duplicates))
 
     # Get related
-    resp = client.get(f"/api/v1/files/?matches={FileMatchFilter.RELATED}&limit={len(all_files)}")
+    resp = client.get(f"/api/v1/files/?matches={FileMatchFilter.RELATED.value}&limit={len(all_files)}")
     assert_files(resp, expected=related, total=len(all_files), related=len(related), duplicates=len(duplicates))
 
     # Get duplicates
-    resp = client.get(f"/api/v1/files/?matches={FileMatchFilter.DUPLICATES}&limit={len(all_files)}")
+    resp = client.get(f"/api/v1/files/?matches={FileMatchFilter.DUPLICATES.value}&limit={len(all_files)}")
     assert_files(resp, expected=duplicates, total=len(all_files), related=len(related), duplicates=len(duplicates))
 
 
@@ -512,11 +512,11 @@ def test_list_files_sort_date(client, app):
     all_date_sorted = new + old
 
     # Get all
-    resp = client.get(f"/api/v1/files/?limit={len(all_date_sorted)}&sort={FileSort.DATE}")
+    resp = client.get(f"/api/v1/files/?limit={len(all_date_sorted)}&sort={FileSort.DATE.value}")
     assert_files(resp, expected=all_date_sorted, total=len(all_date_sorted))
 
     # Get old
-    resp = client.get(f"/api/v1/files/?limit={len(all_date_sorted)}&offset={len(new)}&sort={FileSort.DATE}")
+    resp = client.get(f"/api/v1/files/?limit={len(all_date_sorted)}&offset={len(new)}&sort={FileSort.DATE.value}")
     assert_files(resp, expected=old, total=len(all_date_sorted))
 
 
@@ -532,11 +532,11 @@ def test_list_files_sort_length(client, app):
     all_length_sorted = long + short
 
     # Get all
-    resp = client.get(f"/api/v1/files/?limit={len(all_length_sorted)}&sort={FileSort.LENGTH}")
+    resp = client.get(f"/api/v1/files/?limit={len(all_length_sorted)}&sort={FileSort.LENGTH.value}")
     assert_files(resp, expected=all_length_sorted, total=len(all_length_sorted))
 
     # Get short
-    resp = client.get(f"/api/v1/files/?limit={len(all_length_sorted)}&offset={len(long)}&sort={FileSort.LENGTH}")
+    resp = client.get(f"/api/v1/files/?limit={len(all_length_sorted)}&offset={len(long)}&sort={FileSort.LENGTH.value}")
     assert_files(resp, expected=short, total=len(all_length_sorted))
 
 
@@ -556,13 +556,13 @@ def test_list_files_sort_duplicates(client, app, config):
     all_dup_sorted = [a] + sorted([b, c], key=attr("id")) + sorted([d, e] + unique, key=attr("id"))
 
     # Get all
-    resp = client.get(f"/api/v1/files/?limit={len(all_dup_sorted)}&sort={FileSort.DUPLICATES}")
+    resp = client.get(f"/api/v1/files/?limit={len(all_dup_sorted)}&sort={FileSort.DUPLICATES.value}")
     assert_files(resp, expected=all_dup_sorted, total=len(all_dup_sorted))
 
     # Get slice
     offset = int(len(all_dup_sorted) / 2)
     limit = int(len(all_dup_sorted) / 4)
-    resp = client.get(f"/api/v1/files/?limit={limit}&offset={offset}&sort={FileSort.DUPLICATES}")
+    resp = client.get(f"/api/v1/files/?limit={limit}&offset={offset}&sort={FileSort.DUPLICATES.value}")
     assert_files(resp, expected=all_dup_sorted[offset : offset + limit], total=len(all_dup_sorted))
 
 
@@ -583,13 +583,13 @@ def test_list_files_sort_related(client, app, config):
     all_rel_sorted = sorted([a, c, d], key=attr("id")) + sorted([b, e], key=attr("id")) + sorted(unique, key=attr("id"))
 
     # Get all
-    resp = client.get(f"/api/v1/files/?limit={len(all_rel_sorted)}&sort={FileSort.RELATED}")
+    resp = client.get(f"/api/v1/files/?limit={len(all_rel_sorted)}&sort={FileSort.RELATED.value}")
     assert_files(resp, expected=all_rel_sorted, total=len(all_rel_sorted))
 
     # Get slice
     offset = int(len(all_rel_sorted) / 2)
     limit = int(len(all_rel_sorted) / 4)
-    resp = client.get(f"/api/v1/files/?limit={limit}&offset={offset}&sort={FileSort.RELATED}")
+    resp = client.get(f"/api/v1/files/?limit={limit}&offset={offset}&sort={FileSort.RELATED.value}")
     assert_files(resp, expected=all_rel_sorted[offset : offset + limit], total=len(all_rel_sorted))
 
 
@@ -619,8 +619,8 @@ def test_list_files_mixed_example(client, app, config):
     resp = client.get(
         f"/api/v1/files/?"
         f"min_length={length_large}&"
-        f"matches={FileMatchFilter.RELATED}&"
-        f"sort={FileSort.DUPLICATES}&"
+        f"matches={FileMatchFilter.RELATED.value}&"
+        f"sort={FileSort.DUPLICATES.value}&"
         f"limit={len(all_files)}"
     )
     expected = sorted([b, c], key=attr("id")) + [e]
@@ -630,8 +630,8 @@ def test_list_files_mixed_example(client, app, config):
     resp = client.get(
         f"/api/v1/files/?"
         f"max_length={length_small}&"
-        f"matches={FileMatchFilter.RELATED}&"
-        f"sort={FileSort.DUPLICATES}&"
+        f"matches={FileMatchFilter.RELATED.value}&"
+        f"sort={FileSort.DUPLICATES.value}&"
         f"limit={len(all_files)}"
     )
     expected = [a, d]
@@ -641,8 +641,8 @@ def test_list_files_mixed_example(client, app, config):
     resp = client.get(
         f"/api/v1/files/?"
         f"min_length={length_large}&"
-        f"matches={FileMatchFilter.UNIQUE}&"
-        f"sort={FileSort.RELATED}&"
+        f"matches={FileMatchFilter.UNIQUE.value}&"
+        f"sort={FileSort.RELATED.value}&"
         f"limit={len(all_files)}"
     )
     expected = [f]

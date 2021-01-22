@@ -99,7 +99,7 @@ def parse_enum(args, name, enum, default=None):
     values = set(e.value for e in enum)
     value = args.get(name, default=default)
     if value is default:
-        return enum(value)
+        return enum(value) if value is not None else value
     if value not in values:
         abort(HTTPStatus.BAD_REQUEST.value, f"'{name}' must be one of {values}")
     return enum(value)
