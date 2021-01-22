@@ -58,6 +58,19 @@ def valid_date(name, value, required=False):
         raise CliError(f"Cannot recognize --{name} value. Expected format is {DATE_FORMAT}")
 
 
+def valid_string(name, value, pattern, required=False):
+    """Ensure valid string format."""
+    if not required and value is None:
+        return None
+    if value is None:
+        raise CliError(f"Missing required parameter --{name}")
+    value = str(value)
+    if pattern.match(value):
+        return value
+    else:
+        raise CliError(f"Invalid argument format: --{name}={value}")
+
+
 def _enumerate(values):
     """Enumerate possible values."""
     values = list(values)

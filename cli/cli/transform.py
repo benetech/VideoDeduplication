@@ -1,7 +1,7 @@
 from datetime import timedelta
 from pickle import loads
 
-from db.schema import Files
+from db.schema import Files, Repository
 
 
 def format_duration():
@@ -22,6 +22,8 @@ class Transform:
         "repo_name",
         "repo_address",
     )
+
+    REPO_FIELDS = ("name", "address", "user", "type")
 
     @staticmethod
     def file(file: Files):
@@ -48,4 +50,13 @@ class Transform:
             "contributor_name": file.contributor.name if file.contributor else None,
             "repo_name": file.contributor.repository.name if file.contributor else None,
             "repo_address": file.contributor.repository.network_address if file.contributor else None,
+        }
+
+    @staticmethod
+    def repo(repo: Repository):
+        return {
+            "name": repo.name,
+            "address": repo.network_address,
+            "user": repo.account_id,
+            "type": repo.repository_type.value,
         }
