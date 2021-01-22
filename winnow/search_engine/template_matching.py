@@ -4,7 +4,6 @@ import shutil
 from collections import defaultdict
 from glob import glob
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
