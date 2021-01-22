@@ -1,4 +1,5 @@
 import sys
+from typing import Optional, List
 
 from cli.console.validate import positive_int, boolean, valid_date, valid_enum, valid_sequence
 from cli.formatters import Format, resolve_formatter
@@ -23,21 +24,21 @@ class DBGetterCli:
     @handle_errors
     def files(
         self,
-        path=None,
-        offset=0,
-        limit=1000,
-        exif=None,
-        audio=None,
-        min_length=None,
-        max_length=None,
-        extensions=(),
+        path: Optional[str] = None,
+        offset: int = 0,
+        limit: int = 1000,
+        exif: Optional[bool] = None,
+        audio: Optional[bool] = None,
+        min_length: Optional[int] = None,
+        max_length: Optional[int] = None,
+        extensions: Optional[List[str]] = (),
         date_from=None,
         date_to=None,
-        match=FileMatchFilter.ALL.value,
-        sort=FileSort.LENGTH.value,
-        hash=None,
-        output=Format.PLAIN.value,
-        fields=("path", "length_human", "hash_short", "fingerprint_short"),
+        match: FileMatchFilter = FileMatchFilter.ALL.value,
+        sort: FileSort = FileSort.LENGTH.value,
+        hash: Optional[str] = None,
+        output: str = Format.PLAIN.value,
+        fields: List[str] = ("path", "length_human", "hash_short", "fingerprint_short"),
     ):
         """Get processed files from the database."""
         path = str(path) if path is not None else None
