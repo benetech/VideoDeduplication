@@ -2,6 +2,7 @@ from winnow.config import Config
 from winnow.config.path import resolve_config_path
 from .database import DatabaseCli
 from .db_getter import DBGetterCli
+from .pipeline import PipelineCli
 from .repo import RepoCli
 
 
@@ -17,3 +18,4 @@ class RootCli:
         self.db = DatabaseCli(self._config)
         self.get = DBGetterCli(self._config)
         self.repo = RepoCli(self._config)
+        self.process = PipelineCli(self._config)
