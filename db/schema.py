@@ -187,15 +187,13 @@ class Repository(Base):
 
     id = Column(Integer, primary_key=True)
     # Human-readable repository name which will be displayed by interface
-    name = Column(String, nullable=False)
+    name = Column(String, CheckConstraint("name ~ '^[A-Za-z0-9][A-Za-z0-9-]*$'"), nullable=False, unique=True)
     # Repository type determines how to access the repository
     repository_type = Column(Enum(RepositoryType), nullable=False, default=RepositoryType.BARE_DATABASE)
     # Address format may depend on repository type
     network_address = Column(String, nullable=False)
     # Account id or username which we use to access the repository
     account_id = Column(String, nullable=False)
-    # Credentials ID in a secured credentials store
-    credentials_id = Column(String, nullable=False)
 
     # Relationships
 
