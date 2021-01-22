@@ -43,6 +43,7 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
       PGADMIN_DEFAULT_PASSWORD: "admin"
+      BENETECH_MASTER_KEY_PATH: "${BENETECH_MASTER_KEY_PATH}"
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed the source data
@@ -51,6 +52,9 @@ services:
       - "${BENETECH_DEDUP_PORT:-8888}:8888"
     depends_on:
       - postgres
+# TODO: Migrate to v3 and uncomment secrets (issue #267)
+#    secrets:
+#      - benetech_master_key
     networks:
       - postgres-compose-network
 
@@ -127,3 +131,8 @@ networks:
 volumes:
   postgres-data:
   pipeline-logs:
+
+# TODO: Migrate to v3 and uncomment secrets (issue #267)
+#secrets:
+#  benetech_master_key:
+#    external: true

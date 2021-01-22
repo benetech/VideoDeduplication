@@ -70,6 +70,22 @@ if [ "$FORCE_UPDATE" = "YES" ] || [ -z "${BENETECH_MODE+x}" ]; then
   echo
 fi
 
+
+# Set remote repositories master key
+if [ "$FORCE_UPDATE" = "YES" ] || [ -z "${BENETECH_MASTER_KEY_PATH+x}" ]; then
+  DIRTY=yes
+  tput setaf 6; echo "Would you like to remote repository secrets?"; tput sgr0;
+  choose BENETECH_MASTER_KEY_PATH '/run/secrets/benetech_master_key'="Encrypt remote repository secrets." ''="Do not encrypt secrets."
+  echo
+fi
+
+
+# Generate benetech master key if necessary
+if ! sudo docker inspect benetech_master_key >/dev/null 2>&1; then
+  openssl rand -base64 40 | sudo docker secret create benetech_master_key - >/dev/null
+fi
+
+
 # Write data to the .env file
 if [ -n "$DIRTY" ]; then
   {
@@ -78,6 +94,7 @@ if [ -n "$DIRTY" ]; then
     echo "BENETECH_RUNTIME=$BENETECH_RUNTIME"
     echo "BENETECH_DOCKER_RUNTIME=$BENETECH_DOCKER_RUNTIME"
     echo "BENETECH_MODE=$BENETECH_MODE"
+    echo "BENETECH_MASTER_KEY_PATH=$BENETECH_MASTER_KEY_PATH"
   } > .env
   tput setaf 2; echo -n "OK"; tput sgr0;
   echo " Configuration is written to the $(pwd)/.env";
