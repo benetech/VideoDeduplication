@@ -30,7 +30,7 @@ from winnow.utils.logging import configure_logging_cli
     "--save-frames",
     "-sf",
     help="Whether to save the frames sampled from the videos - overrides save_frames on the config file",
-    default=False,
+    default=None,
     is_flag=True,
 )
 def main(config, list_of_files, frame_sampling, save_frames):
