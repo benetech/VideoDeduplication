@@ -30,5 +30,7 @@ dependencies:
     - celery
     - redis
     - billiard
+    - fire
+    - inquirer
 prefix: C:\ProgramData\Anaconda3\envs\winnow
 
