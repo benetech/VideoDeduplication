@@ -187,7 +187,7 @@ class Repository(Base):
 
     id = Column(Integer, primary_key=True)
     # Human-readable repository name which will be displayed by interface
-    name = Column(String, CheckConstraint("name ~ '^[A-Za-z0-9][A-Za-z0-9-]*$'"), nullable=False, unique=True)
+    name = Column(String, nullable=False, unique=True)
     # Repository type determines how to access the repository
     repository_type = Column(Enum(RepositoryType), nullable=False, default=RepositoryType.BARE_DATABASE)
     # Address format may depend on repository type
