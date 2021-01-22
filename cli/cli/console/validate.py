@@ -3,13 +3,28 @@ from datetime import datetime
 from cli.console.error import CliError
 
 
-def valid_enum(name, value, enum_values, required=False):
+def valid_sequence(name, value, admissible_values, required=False):
+    """Ensure the value is a sequence of the admissible values."""
+    if not required and value is None:
+        return None
+    if value in admissible_values:
+        return (value,)
+    if isinstance(value, (list, tuple)):
+        for item in value:
+            if item not in admissible_values:
+                raise CliError(f"--{name} must be a sequence of {_enumerate(admissible_values)}")
+        return value
+    raise CliError(f"--{name} must be a sequence of {_enumerate(admissible_values)}")
+
+
+def valid_enum(name, value, enum, required=False):
     """Ensure the value is from the enum."""
+    enum_values = set(e.value for e in enum)
     if not required and value is None:
         return None
     if value not in enum_values:
         raise CliError(f"--{name} must be {_enumerate(enum_values)}")
-    return value
+    return enum(value)
 
 
 def positive_int(name, value, required=False):

@@ -41,12 +41,10 @@ def parse_params():
     result.extensions = parse_seq(request.args, "extensions")
     result.date_from = parse_date(request.args, "date_from")
     result.date_to = parse_date(request.args, "date_to")
-    result.match_filter = parse_enum(
-        request.args, "matches", values=FileMatchFilter.values, default=FileMatchFilter.ALL
-    )
+    result.match_filter = parse_enum(request.args, "matches", enum=FileMatchFilter, default=FileMatchFilter.ALL)
     result.related_distance = config.related_distance
     result.duplicate_distance = config.duplicate_distance
-    result.sort = parse_enum(request.args, "sort", values=FileSort.values, default=None)
+    result.sort = parse_enum(request.args, "sort", enum=FileSort, default=None)
     return result
 
 

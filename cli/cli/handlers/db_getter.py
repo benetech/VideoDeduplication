@@ -1,12 +1,14 @@
-from cli.console.color import highlight
-from cli.console.validate import positive_int, boolean, valid_date, valid_enum
+import sys
 
-# Maximal amount of items to be fetched at a time
+from cli.console.validate import positive_int, boolean, valid_date, valid_enum, valid_sequence
+from cli.formatters import Format, resolve_formatter
 from cli.handlers.errors import handle_errors
+from cli.transform import Transform
 from db import Database
-from db.access.files import FileMatchFilter, FileSort, ListFilesRequest, FilesDAO, ListFilesResults
+from db.access.files import FileMatchFilter, FileSort, ListFilesRequest, FilesDAO
 from db.schema import Files
 
+# Maximal amount of items to be fetched at a time
 ITEMS_CHUNK = 100
 
 
@@ -29,11 +31,15 @@ class DBGetterCli:
         extensions=(),
         date_from=None,
         date_to=None,
-        match=FileMatchFilter.ALL,
-        sort=FileSort.LENGTH,
-        output="plain",
+        match=FileMatchFilter.ALL.value,
+        sort=FileSort.LENGTH.value,
+        hash=None,
+        output=Format.PLAIN.value,
+        fields=("path", "length_human", "hash_short", "fingerprint_short"),
     ):
         """Get processed files from the database."""
+        name = str(name) if name is not None else None
+        hash = str(hash) if hash is not None else None
         req = ListFilesRequest()
         req.limit = positive_int("limit", limit)
         req.offset = positive_int("offset", offset)
@@ -46,18 +52,17 @@ class DBGetterCli:
         req.extensions = extensions
         req.date_from = valid_date("date_from", date_from)
         req.date_to = valid_date("date_to", date_to)
-        req.match_filter = valid_enum("match", match, FileMatchFilter.values)
-        req.sort = valid_enum("sort", sort, FileSort.values)
-        output = valid_enum("output", output, {"plain", "json", "yaml", "csv", "wide"})
+        req.match_filter = valid_enum("match", match, FileMatchFilter)
+        req.sort = valid_enum("sort", sort, FileSort)
+        req.sha256 = hash
+        output = valid_enum("output", output, Format)
+        fields = valid_sequence("fields", fields, Transform.FILE_FIELDS, required=False)
 
         database = Database(self._config.database.uri)
         with database.session_scope(expunge=True) as session:
             results = FilesDAO.list_files(req, session)
-
-        self._print_files(results, name, output)
-
-    @staticmethod
-    def _print_files(results: ListFilesResults, name, output):
-        if output == "plain":
-            for file in results.items:
-                print(highlight(file.file_path, str(name or "")))
+            files = [Transform.file(file) for file in results.items]
+            formatter = resolve_formatter(format=output)
+            formatter.format(
+                files, fields, file=sys.stdout, highlights={"path": name, "hash": hash, "hash_short": hash}
+            )

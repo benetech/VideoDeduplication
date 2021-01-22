@@ -1,6 +1,7 @@
+import enum
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import or_, func, literal_column
 from sqlalchemy.orm import aliased
@@ -8,7 +9,7 @@ from sqlalchemy.orm import aliased
 from db.schema import Files, Matches, Exif
 
 
-class FileMatchFilter:
+class FileMatchFilter(enum.Enum):
     """Enum for file match filtering criteria."""
 
     ALL = "all"
@@ -16,18 +17,14 @@ class FileMatchFilter:
     DUPLICATES = "duplicates"
     UNIQUE = "unique"
 
-    values = {ALL, RELATED, DUPLICATES, UNIQUE}
 
-
-class FileSort:
+class FileSort(enum.Enum):
     """Enum for result ordering."""
 
     DATE = "date"
     LENGTH = "length"
     RELATED = "related"
     DUPLICATES = "duplicates"
-
-    values = {DATE, LENGTH, RELATED, DUPLICATES}
 
 
 @dataclass
@@ -45,10 +42,11 @@ class ListFilesRequest:
     date_from: datetime = None
     date_to: datetime = None
     preload: list = field(default_factory=list)
-    sort: str = None
-    match_filter: str = FileMatchFilter.ALL
+    sort: Optional[FileSort] = None
+    match_filter: FileMatchFilter = FileMatchFilter.ALL
     related_distance: float = 0.4
     duplicate_distance: float = 0.1
+    sha256: str = None
 
 
 @dataclass
@@ -218,6 +216,13 @@ class FilesDAO:
         return query
 
     @staticmethod
+    def _filter_hash(req: ListFilesRequest, query):
+        """Filter file by hash."""
+        if req.sha256:
+            return query.filter(Files.sha256.ilike(f"%{req.sha256}%"))
+        return query
+
+    @staticmethod
     def _filter_by_matches(req: ListFilesRequest, query):
         """Filter by presence of similar files."""
         if req.match_filter == FileMatchFilter.DUPLICATES:
@@ -238,4 +243,5 @@ class FilesDAO:
         query = FilesDAO._filter_audio(req, query)
         query = FilesDAO._filter_date(req, query)
         query = FilesDAO._filter_length(req, query)
+        query = FilesDAO._filter_hash(req, query)
         return query
