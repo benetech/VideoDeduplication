@@ -1,7 +1,7 @@
 from datetime import timedelta
 from pickle import loads
 
-from db.schema import Files, Repository
+from db.schema import Files, Repository, Matches
 
 
 def format_duration():
@@ -24,6 +24,8 @@ class Transform:
     )
 
     REPO_FIELDS = ("name", "address", "user", "type")
+
+    MATCH_FIELDS = ("distance", "source", "target")
 
     @staticmethod
     def file(file: Files):
@@ -59,4 +61,12 @@ class Transform:
             "address": repo.network_address,
             "user": repo.account_id,
             "type": repo.repository_type.value,
+        }
+
+    @staticmethod
+    def match(match: Matches):
+        return {
+            "source": match.query_video_file.file_path,
+            "target": match.match_video_file.file_path,
+            "distance": match.distance,
         }

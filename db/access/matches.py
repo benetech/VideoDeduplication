@@ -1,8 +1,8 @@
 import itertools
-from dataclasses import dataclass, field
 from typing import List
 
-from sqlalchemy import Column
+from dataclasses import dataclass, field
+from sqlalchemy import Column, or_
 from sqlalchemy.orm import joinedload, aliased, contains_eager
 
 from db.schema import Files, Matches
@@ -147,3 +147,21 @@ class MatchesDAO:
             files.add(match.query_video_file)
         files = sorted(list(files), key=lambda item: item.id)
         return matches, files, total
+
+    @staticmethod
+    def list_matches_query(session, path=None, min_distance=None, max_distance=None, limit=1000, offset=0):
+        """Query matches."""
+        query = session.query(Matches)
+        query = query.options(joinedload(Matches.query_video_file), joinedload(Matches.match_video_file))
+        if min_distance is not None:
+            query = query.filter(Matches.distance >= min_distance)
+        if max_distance is not None:
+            query = query.filter(Matches.distance <= max_distance)
+        if path:
+            query = query.filter(
+                or_(
+                    Matches.match_video_file.has(Files.file_path.ilike(f"%{path}%")),
+                    Matches.query_video_file.has(Files.file_path.ilike(f"%{path}%")),
+                )
+            )
+        return query.limit(limit).offset(offset)

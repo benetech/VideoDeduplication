@@ -7,6 +7,7 @@ from cli.handlers.repo import RepoCli
 from cli.transform import Transform
 from db import Database
 from db.access.files import FileMatchFilter, FileSort, ListFilesRequest, FilesDAO
+from db.access.matches import MatchesDAO
 from db.schema import Files
 
 # Maximal amount of items to be fetched at a time
@@ -72,3 +73,29 @@ class DBGetterCli:
         """List known fingerprint repositories."""
         repo_cli = RepoCli(config=self._config)
         repo_cli.list(name=name, offset=offset, limit=limit, output=output, fields=fields)
+
+    def matches(
+        self,
+        path=None,
+        min_distance=None,
+        max_distance=None,
+        limit=1000,
+        offset=0,
+        output=Format.PLAIN.value,
+        fields=Transform.MATCH_FIELDS,
+    ):
+        """List file matches."""
+        output = valid_enum("output", output, Format)
+        limit = positive_int("limit", limit)
+        offset = positive_int("offset", offset)
+        fields = valid_sequence("fields", fields, admissible_values=Transform.MATCH_FIELDS)
+
+        # Query matches
+        database = Database(self._config.database.uri)
+        with database.session_scope() as session:
+            matches = MatchesDAO.list_matches_query(
+                session, path=path, min_distance=min_distance, max_distance=max_distance, limit=limit, offset=offset
+            ).all()
+            items = [Transform.match(match) for match in matches]
+            formatter = resolve_formatter(format=output)
+            formatter.format(items, fields, file=sys.stdout, highlights={"source": path, "target": path})
