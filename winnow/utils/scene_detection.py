@@ -1,10 +1,13 @@
 import datetime
 from typing import List, Tuple
-
+import logging
 import matplotlib.pyplot as plt
 import numpy as np
 from dataclasses import dataclass
 from scipy.spatial.distance import cosine
+from tqdm import tqdm
+
+logger = logging.getLogger(__name__)
 
 
 def cosine_series(arr):
@@ -111,14 +114,28 @@ class SceneExtractionResults:
     total_video_duration_timestamp: List[datetime.timedelta] = None
 
 
-def extract_scenes(frame_features_dict, minimum_duration=10):
+def frame_iterator(keys, lmdb_repr):
+    for key in keys:
+
+        try:
+
+            path = key.path
+            file_hash = key.hash
+            features = lmdb_repr.read(key)
+            yield path, file_hash, features
+
+        except Exception as e:
+
+            logger.error("Error processing:{} - {}".format(key, e))
+
+
+def extract_scenes(frame_level_reps, lmdb_repr, minimum_duration=10):
     """
 
     Extracts scenes from a list of files
 
     Args:
-        frame_features_dict (dict): A dictionary mapping original file
-        (path,hash) to its frame-level features.
+        frame_features_dict (array): List of repr keys containing path to its frame-level features and hash.
 
     Keyword Args:
         minimum_duration (int): Minimum duration of video in seconds.
@@ -129,17 +146,25 @@ def extract_scenes(frame_features_dict, minimum_duration=10):
         extraction results.
     """
     # Filter videos by duration
-    filtered_dict = {
-        key: feature for key, feature in frame_features_dict.items() if feature.shape[0] > minimum_duration
-    }
+    frame_level_iterator = frame_iterator(frame_level_reps, lmdb_repr)
 
-    # Unpack names, hashes and features as separate lists
-    assert len(filtered_dict) > 0, "Frame level features not found."
-    keys, features = zip(*filtered_dict.items())
-    paths = [key.path for key in keys]
-    hashes = [key.hash for key in keys]
+    raw_scenes = []
+    paths = []
+    hashes = []
 
-    raw_scenes = [cosine_series(frame_features) for frame_features in features]
+    progress_bar = tqdm(frame_level_iterator, mininterval=1.0, unit="files", desc="Performing scene detection:")
+
+    for path, file_hash, frame_level_features in frame_level_iterator:
+
+        progress_bar.set_description("Performing scene detection of file:{}".format(path))
+        progress_bar.refresh()
+
+        if frame_level_features.shape[0] > minimum_duration:
+
+            raw_scenes.append(cosine_series(frame_level_features))
+            paths.append(path)
+            hashes.append(file_hash)
+
     scene_ident = [((diffs > np.quantile(diffs, 0.90)) & (diffs > 0.05)) for diffs in raw_scenes]
 
     video_scenes = []

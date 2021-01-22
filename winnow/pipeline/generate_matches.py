@@ -113,17 +113,11 @@ def generate_matches(config, progress_monitor=ProgressMonitor.NULL, files=[]):  
 
     if config.proc.detect_scenes:
 
-        frame_features_dict = bulk_read(reps.frame_level, select=None)
+        frame_level_reps = reps.frame_level.list()
         if files:
-            temp = dict()
-            for k, v in frame_features_dict.items():
+            frame_level_reps = files_reprkey
 
-                if k in files_reprkey:
-                    temp[k] = v
-            frame_features_dict = temp
-
-        assert len(frame_features_dict) > 0, "No Frame Level features were found."
-        scenes = extract_scenes(frame_features_dict)
+        scenes = extract_scenes(frame_level_reps, reps.frame_level)
         scene_metadata = pd.DataFrame(asdict(scenes))
 
         if config.database.use:
@@ -161,56 +155,56 @@ def generate_matches(config, progress_monitor=ProgressMonitor.NULL, files=[]):  
         )
 
         # Flag videos to be discarded
-
-        metadata_df["video_dark_flag"] = metadata_df.gray_max < config.proc.filter_dark_videos_thr
+        metadata_df.loc[:, "video_dark_flag"] = metadata_df.gray_max < config.proc.filter_dark_videos_thr
 
         logger.info("Videos discarded because of darkness:{}".format(metadata_df["video_dark_flag"].sum()))
 
-        metadata_df["flagged"] = metadata_df["video_dark_flag"]
+        metadata_df.loc[:, "flagged"] = metadata_df["video_dark_flag"]
 
         # Discard videos
-        discarded_videos = metadata_df.loc[metadata_df["flagged"], :][["fn", "sha256"]]
-        discarded_videos = set(tuple(row) for row in discarded_videos.to_numpy())
+        discarded_videos = metadata_df.loc[metadata_df["flagged"], :][["fn", "sha256"]].to_numpy()
+        discarded_videos = set(tuple(row) for row in discarded_videos)
 
         # Function to check if the (path,hash) row is in the discarded set
         def is_discarded(row):
             return tuple(row) in discarded_videos
 
-        msk_1 = match_df[["query_video", "query_sha256"]].apply(is_discarded, axis=1)
-        msk_2 = match_df[["match_video", "match_sha256"]].apply(is_discarded, axis=1)
+        msk_1 = match_df.loc[:, ["query_video", "query_sha256"]].apply(is_discarded, axis=1)
+        msk_2 = match_df.loc[:, ["match_video", "match_sha256"]].apply(is_discarded, axis=1)
         discard_msk = msk_1 | msk_2
 
-        FILTERED_REPORT_PATH = os.path.join(
-            config.repr.directory, f"matches_at_{config.proc.match_distance}_distance_filtered.csv"
-        )
-        METADATA_REPORT_PATH = os.path.join(config.repr.directory, "metadata_signatures.csv")
-
         match_df = match_df.loc[~discard_msk, :]
+
+        if config.database.use:
+            database = Database(uri=config.database.uri)
+            database.create_tables()
+            result_storage = DBResultStorage(database)
+            metadata_entries = metadata_df.loc[:, ["fn", "sha256"]]
+            metadata_entries.loc[:, "metadata"] = metadata_df.drop(columns=["fn", "sha256"]).to_dict("records")
+            # metadata_entries["metadata"] = metadata_df.drop(columns=["fn", "sha256"]).to_dict("records")
+            result_storage.add_metadata(metadata_entries.to_numpy())
+
+        if config.save_files:
+
+            FILTERED_REPORT_PATH = os.path.join(
+                config.repr.directory, f"matches_at_{config.proc.match_distance}_distance_filtered.csv"
+            )
+            METADATA_REPORT_PATH = os.path.join(config.repr.directory, "metadata_signatures.csv")
+
+            logger.info("Saving metadata to {}".format(METADATA_REPORT_PATH))
+            metadata_df.to_csv(METADATA_REPORT_PATH)
+            logger.info("Saving Filtered Matches report to {}".format(METADATA_REPORT_PATH))
+            match_df.to_csv(FILTERED_REPORT_PATH)
 
     if config.database.use:
         # Connect to database and ensure schema
         database = Database(uri=config.database.uri)
         database.create_tables()
-
         # Save metadata
         result_storage = DBResultStorage(database)
-
-        if metadata_df is not None:
-
-            metadata_entries = metadata_df[["fn", "sha256"]]
-            metadata_entries["metadata"] = metadata_df.drop(columns=["fn", "sha256"]).to_dict("records")
-            result_storage.add_metadata(metadata_entries.to_numpy())
-
         # Save matches
         match_columns = ["query_video", "query_sha256", "match_video", "match_sha256", "distance"]
-
-        result_storage.add_matches(match_df[match_columns].to_numpy())
-
-    if config.save_files:
-
-        logger.info("Saving metadata to {}".format(METADATA_REPORT_PATH))
-        metadata_df.to_csv(METADATA_REPORT_PATH)
-        logger.info("Saving Filtered Matches report to {}".format(METADATA_REPORT_PATH))
-        match_df.to_csv(FILTERED_REPORT_PATH)
+        # Saves matches to DB (matches related to dark videos (if that option was set to true) won't be saved)
+        result_storage.add_matches(match_df.loc[:, match_columns].to_numpy())
 
     progress_monitor.complete()

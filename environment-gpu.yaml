@@ -7,7 +7,7 @@ dependencies:
   - numpy
   - matplotlib
   - pandas
-  - scikit-learn
+  - scikit-learn==0.23.2
   - scipy
   - tensorflow-gpu==1.15
   - tqdm
@@ -33,4 +33,3 @@ dependencies:
     - fire
     - inquirer
 prefix: C:\ProgramData\Anaconda3\envs\winnow
-

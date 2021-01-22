@@ -35,10 +35,10 @@ def extract_features(config: Config, videos: list, progress_monitor=ProgressMoni
     VIDEOS_LIST = create_video_list(remaining_videos_path, config.proc.video_list_filename)
 
     logger.info("Processed video List saved on :{}".format(VIDEOS_LIST))
-
     if len(remaining_videos_path) > 0:
         # Instantiates the extractor
         model_path = default_model_path(config.proc.pretrained_model_local_path)
+
         extractor = IntermediateCnnExtractor(
             video_src=VIDEOS_LIST,
             reprs=reps,

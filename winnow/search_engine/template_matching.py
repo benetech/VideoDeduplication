@@ -4,7 +4,6 @@ import shutil
 from collections import defaultdict
 from glob import glob
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
@@ -116,11 +115,10 @@ class SearchEngine:
         for repr_key in self.reprs.frame_level.list():
             try:
                 sample = self.reprs.frame_level.read(repr_key)
-                video_frames = self.reprs.frames.read(repr_key)
 
                 distances = np.mean(cdist(feats, sample, metric="cosine"), axis=0)
 
-                self.results_cache[query][repr_key] = dict()
+                self.results_cache[query][(repr_key.path, repr_key.hash)] = dict()
 
                 if len(distances) > 0:
                     frame_of_interest_index = np.argmin(distances)
@@ -129,18 +127,11 @@ class SearchEngine:
                     frame_of_interest_index = 0
                     min_d = 1.0
 
-                self.results_cache[query][repr_key]["distance"] = min_d
-                self.results_cache[query][repr_key]["closest_match"] = frame_of_interest_index
-
-                if (min_d < threshold) and plot:
-
-                    frame_of_interest = np.hstack(video_frames[frame_of_interest_index:][:5])
-                    plt.figure(figsize=(20, 10))
-                    plt.imshow(frame_of_interest)
-                    plt.show()
+                self.results_cache[query][(repr_key.path, repr_key.hash)]["distance"] = min_d
+                self.results_cache[query][(repr_key.path, repr_key.hash)]["closest_match"] = frame_of_interest_index
 
             except Exception as e:
-                print("Error:", e, distances, repr_key, frame_of_interest_index)
+                print("Error:", e)
                 pass
 
 
