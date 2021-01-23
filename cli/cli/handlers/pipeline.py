@@ -1,11 +1,5 @@
 import os
 
-from winnow.pipeline.extract_exif import extract_exif
-from winnow.pipeline.extract_features import extract_features
-from winnow.pipeline.generate_matches import generate_matches
-from winnow.utils.files import scan_videos
-from winnow.utils.logging import configure_logging_cli
-
 
 class PipelineCli:
     """Process video files."""
@@ -15,6 +9,12 @@ class PipelineCli:
 
     def all(self):
         """Process all video files."""
+        from winnow.pipeline.extract_exif import extract_exif
+        from winnow.pipeline.extract_features import extract_features
+        from winnow.pipeline.generate_matches import generate_matches
+        from winnow.utils.files import scan_videos
+        from winnow.utils.logging import configure_logging_cli
+
         logger = configure_logging_cli()
 
         # Resolve list of video files from the directory
