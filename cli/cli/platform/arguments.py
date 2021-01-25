@@ -40,7 +40,7 @@ def ask_password(
         elif literal_pass_arg is not None:
             raise CliError(f"Password must be specified by --{literal_pass_arg} argument.")
         else:
-            raise CliError(f"Cannot read password from non-interactive terminal.")
+            raise CliError("Cannot read password from non-interactive terminal.")
     return None
 
 
