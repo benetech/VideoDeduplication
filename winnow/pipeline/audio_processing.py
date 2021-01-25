@@ -1,7 +1,5 @@
-import sys
 import os
 import time
-import argparse
 import warnings
 import numpy as np
 import pandas as pd
@@ -49,7 +47,6 @@ LABEL_TO_NAME_MAP = {
 
 
 def predict_all(X, clipnames, model):
-    start_time = time.time()
 
     results = []
     clip_times = np.asarray([(fname.split("@")[1]).replace(".wav", "") for fname in clipnames])
