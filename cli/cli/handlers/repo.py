@@ -1,8 +1,7 @@
 import sys
 
-import inquirer
-
 from cli.handlers.errors import handle_errors
+from cli.platform.arguments import ask_password
 from cli.platform.error import CliError
 from cli.platform.formatters import Format, resolve_formatter
 from cli.platform.security import resolve_secure_storage
@@ -21,13 +20,13 @@ class RepoCli:
         self._config = config
 
     @handle_errors
-    def add(self, name, address, user, type=RepositoryType.BARE_DATABASE.value):
+    def add(self, name, address, user, password=None, password_file=None, type=RepositoryType.BARE_DATABASE.value):
         """Register new fingerprint repository."""
         name = valid_string("name", name, SecureStorage.NAME_PATTERN)
         type = valid_enum("type", type, RepositoryType)
 
         # Save credentials
-        credentials = self._get_credentials(user, type)
+        credentials = self._get_credentials(user, password, password_file, type)
         secret_storage = resolve_secure_storage(self._config)
         secret_storage.set_secret(SecretNamespace.REPOS, secret_name=name, secret_data=credentials)
 
@@ -93,9 +92,14 @@ class RepoCli:
             formatter = resolve_formatter(format=output)
             formatter.format(items, fields, file=sys.stdout, highlights={"name": name})
 
-    def _get_credentials(self, user, type=RepositoryType.BARE_DATABASE):
+    def _get_credentials(self, user, password, password_file, type=RepositoryType.BARE_DATABASE):
         if type == RepositoryType.BARE_DATABASE:
-            password = inquirer.password("Please enter database password")
+            password = ask_password(
+                "Please enter database password",
+                literal_pass=("password", password),
+                file_pass=("password_file", password_file),
+                required=True,
+            )
             return {"username": user, "password": password}
         else:
             raise CliError(f"Unsupported repo type: {type}")
