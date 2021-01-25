@@ -5,7 +5,7 @@ from cli.handlers.errors import handle_errors
 from cli.handlers.repo import RepoCli
 from cli.platform.formatters import Format, resolve_formatter
 from cli.platform.transform import Transform
-from cli.platform.validate import positive_int, boolean, valid_date, valid_enum, valid_sequence
+from cli.platform.validate import positive_int, boolean, valid_date, valid_enum, valid_sequence, valid_duration_millis
 from db import Database
 from db.access.files import FileMatchFilter, FileSort, ListFilesRequest, FilesDAO
 from db.access.matches import MatchesDAO
@@ -49,8 +49,8 @@ class DBGetterCli:
         req.path_query = path
         req.exif = boolean("exif", exif)
         req.audio = boolean("audio", audio)
-        req.min_length = positive_int("min_length", min_length)
-        req.max_length = positive_int("max_length", max_length)
+        req.min_length = valid_duration_millis("min_length", min_length)
+        req.max_length = valid_duration_millis("max_length", max_length)
         req.preload = [Files.exif, Files.scenes, Files.meta]
         req.extensions = extensions
         req.date_from = valid_date("date_from", date_from)

@@ -1,4 +1,7 @@
-from datetime import datetime
+import numbers
+from datetime import datetime, timedelta
+
+import pytimeparse
 
 from cli.platform.error import CliError
 
@@ -82,3 +85,27 @@ def _enumerate(values):
     if len(values) > 1:
         result = f"{result} or {repr(values[-1])}"
     return result
+
+
+def valid_duration_millis(name, value, required=False, granularity="seconds"):
+    """Ensure value is a valid duration."""
+    if not required and value is None:
+        return None
+    if isinstance(value, numbers.Number):
+        amount = float(value)
+        if amount < 0:
+            raise CliError(f"--{name} cannot be negative.")
+        return timedelta(**{granularity: amount}).total_seconds() * 1000
+    try:
+        seconds = pytimeparse.parse(value)
+    except TypeError:
+        raise CliError(
+            f"Invalid --{name} format: expected valid duration in {granularity} "
+            f"(e.g. '1.2', '1:05:00', '0:35', '25s', '1d', '1d5h30s', etc.)"
+        )
+    if seconds is None:
+        raise CliError(
+            f"Invalid --{name} format: expected valid duration in {granularity} "
+            f"(e.g. '1.2', '1:05:00', '0:35', '25s', '1d', '1d5h30s', etc.)"
+        )
+    return float(seconds) * 1000

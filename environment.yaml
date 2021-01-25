@@ -32,4 +32,5 @@ dependencies:
     - billiard
     - fire
     - inquirer
+    - pytimeparse
 prefix: C:\ProgramData\Anaconda3\envs\winnow
