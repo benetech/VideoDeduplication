@@ -70,11 +70,13 @@ class DBGetterCli:
                 files, fields, file=sys.stdout, highlights={"path": path, "hash": hash, "hash_short": hash}
             )
 
+    @handle_errors
     def repos(self, name=None, offset=0, limit=1000, output=Format.PLAIN.value, fields=Transform.REPO_FIELDS):
         """List known fingerprint repositories."""
         repo_cli = RepoCli(config=self._config)
         repo_cli.list(name=name, offset=offset, limit=limit, output=output, fields=fields)
 
+    @handle_errors
     def matches(
         self,
         path=None,
