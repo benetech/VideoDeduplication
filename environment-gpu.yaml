@@ -16,6 +16,9 @@ dependencies:
   - pytest
   - jupyter
   - jupyterlab
+  - pysoundfile
+  - h5py==2.9.0
+  - ffmpeg
   - pip:
       - lmdb
       - image
@@ -30,4 +33,6 @@ dependencies:
       - celery
       - redis
       - billiard
+      - librosa
+
 prefix: C:\ProgramData\Anaconda3\envs\winnow
