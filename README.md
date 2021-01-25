@@ -170,6 +170,7 @@ This repo contains three main scripts that perform the following tasks:
     1. extract_features.py : Signature extraction Pipeline
     2. generate_matches.py : Signature to Matches (saved as CSV)
     3. template_matching.py: Uses source templates to query the extracted embeddings and generates a report containing potential matches
+    4. audio_processing.py: Audio processing pipeline developed in collaboration with Microsoft as described on our [wiki](https://github.com/benetech/VideoDeduplication/wiki/Audio-Processing)
 
 Important notebooks include (located inside the notebooks folder):
 
@@ -233,6 +234,17 @@ Arguments:
     '--config', '-cp' : Path to the project config file [default:'config.yml']
     '--list-of-files', '-lof' : path to txt with a list of files for processing and generating matches / scene detection / metadata extraction - overrides loading all signatures available from the file system
 
+Audio processing
+
+`python audio_processing.py`
+
+Arguments:
+
+    '--config', '-cp' : Path to the project config file [default:'config.yml']
+    '--list-of-files', '-lof' : path to txt with a list of files for processing and generating matches / scene detection / metadata extraction - overrides loading all signatures available from the file system
+    '--cores', '-' : Number of cores to be used on parallel processing routines [default:5]
+    "--model", "-m" : Path to the audio processing model", [default:'data/audio_model.h5']
+
 Template Object Matching
 
 `python template_matching.py`
@@ -247,19 +259,6 @@ Exif Extraction
 
 `python extract_exif.py`
 
-Single video processing
-
-`python process_video.py [FILE_PATH] [OUTPUT_DIR]`
-
-Arguments:
-
-    'FILE_PATH': Path to videofile
-    'OUTPUT_PATH': Path where the output of running the script will be saved [default: 'data/']
-    '--config', '-cp' : Path to the project config file [default:'config.yml']
-    '--save-frames' : Whether to save video frames [default:True]
-    '--save-features/--no-features': Whether to save features [default=True]
-    '--save-signatures/--no-signatures': Whether to save features [default = True]
-    '--save-db' : Whether to save features [default = True]
 
 Benchmarks
 
@@ -286,3 +285,7 @@ This script will download our subset of the [google landmark dataset](https://gi
 
 The results of the benchmarking script are saved at the root of
 the data folder.
+
+
+
+
