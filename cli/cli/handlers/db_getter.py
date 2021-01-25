@@ -1,11 +1,11 @@
 import sys
 from typing import Optional, List
 
-from cli.console.validate import positive_int, boolean, valid_date, valid_enum, valid_sequence
-from cli.formatters import Format, resolve_formatter
 from cli.handlers.errors import handle_errors
 from cli.handlers.repo import RepoCli
-from cli.transform import Transform
+from cli.platform.formatters import Format, resolve_formatter
+from cli.platform.transform import Transform
+from cli.platform.validate import positive_int, boolean, valid_date, valid_enum, valid_sequence
 from db import Database
 from db.access.files import FileMatchFilter, FileSort, ListFilesRequest, FilesDAO
 from db.access.matches import MatchesDAO

@@ -2,11 +2,12 @@ import sys
 
 import inquirer
 
-from cli.console.error import CliError
-from cli.console.validate import valid_string, valid_enum, positive_int, valid_sequence
-from cli.formatters import Format, resolve_formatter
-from cli.security import resolve_secure_storage
-from cli.transform import Transform
+from cli.handlers.errors import handle_errors
+from cli.platform.error import CliError
+from cli.platform.formatters import Format, resolve_formatter
+from cli.platform.security import resolve_secure_storage
+from cli.platform.transform import Transform
+from cli.platform.validate import valid_string, valid_enum, positive_int, valid_sequence
 from db import Database
 from db.schema import RepositoryType, Repository
 from winnow.security import SecretNamespace
@@ -19,6 +20,7 @@ class RepoCli:
     def __init__(self, config):
         self._config = config
 
+    @handle_errors
     def add(self, name, address, user, type=RepositoryType.BARE_DATABASE.value):
         """Register new fingerprint repository."""
         name = valid_string("name", name, SecureStorage.NAME_PATTERN)
@@ -35,6 +37,7 @@ class RepoCli:
             new_repository = Repository(name=name, repository_type=type, network_address=address, account_id=user)
             session.add(new_repository)
 
+    @handle_errors
     def rename(self, old, new):
         """Rename remote fingerprint repository."""
         new = valid_string("new", new, SecureStorage.NAME_PATTERN)
@@ -56,6 +59,7 @@ class RepoCli:
                 raise CliError(f"Repository not found: {old}")
             repo.name = new
 
+    @handle_errors
     def remove(self, repo):
         """Delete remote fingerprint repository."""
         try:
@@ -70,6 +74,7 @@ class RepoCli:
         with database.session_scope() as session:
             session.query(Repository).filter(Repository.name == repo).delete()
 
+    @handle_errors
     def list(self, name=None, offset=0, limit=1000, output=Format.PLAIN.value, fields=Transform.REPO_FIELDS):
         """List known fingerprint repositories."""
         output = valid_enum("output", output, Format)

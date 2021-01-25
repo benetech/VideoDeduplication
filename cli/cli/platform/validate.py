@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from cli.console.error import CliError
+from cli.platform.error import CliError
 
 
 def valid_sequence(name, value, admissible_values, required=False):

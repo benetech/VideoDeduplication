@@ -4,7 +4,7 @@ import sys
 
 import yaml
 
-from cli.console.color import highlight
+from cli.platform.color import highlight
 
 
 def _select_fields(data, fields):
