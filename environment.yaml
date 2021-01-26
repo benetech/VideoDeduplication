@@ -20,18 +20,22 @@ dependencies:
   - h5py==2.9.0
   - ffmpeg
   - pip:
-      - lmdb
-      - image
-      - imageio
-      - moviepy
-      - opencv-contrib-python
-      - pillow
-      - scenedetect
-      - pyyaml
-      - cached-property
-      - dataclasses
-      - celery
-      - redis
-      - billiard
-      - librosa
+    - lmdb
+    - image
+    - imageio
+    - moviepy
+    - opencv-contrib-python
+    - pillow
+    - scenedetect
+    - pyyaml
+    - cached-property
+    - dataclasses
+    - celery
+    - redis
+    - billiard
+    - librosa
+    - fire
+    - inquirer
+    - pytimeparse
+
 prefix: C:\ProgramData\Anaconda3\envs\winnow

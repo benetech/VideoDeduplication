@@ -31,6 +31,9 @@ WORKDIR /project/
 RUN /bin/bash -c "source activate winnow && \
     pip install -e ."
 
+# Install application CLI tool
+ENV PATH /project/cli/bin:$PATH
+
 ARG GIT_HASH=unspecified
 LABEL git_hash=$GIT_HASH
 

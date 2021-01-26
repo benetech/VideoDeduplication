@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# Determine project directory
+CLI_DIRECTORY="$(realpath "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/.." )"
+export CLI_DIRECTORY
+
+# Setup module search path
+export PYTHONPATH="$PYTHONPATH:$CLI_DIRECTORY" || exit
+# Execute CLI script
+python -m cli.main "$@"

@@ -94,14 +94,15 @@ def parse_date(args, name, default=None):
         abort(HTTPStatus.BAD_REQUEST.value, str(error))
 
 
-def parse_enum(args, name, values, default=None):
+def parse_enum(args, name, enum, default=None):
     """Parse enum parameter."""
+    values = set(e.value for e in enum)
     value = args.get(name, default=default)
     if value is default:
-        return value
+        return enum(value) if value is not None else value
     if value not in values:
         abort(HTTPStatus.BAD_REQUEST.value, f"'{name}' must be one of {values}")
-    return value
+    return enum(value)
 
 
 def parse_enum_seq(args, name, values, default=None):

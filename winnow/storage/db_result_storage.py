@@ -6,7 +6,7 @@ from time import time
 from sqlalchemy import tuple_
 from sqlalchemy.orm import joinedload, aliased
 
-from db.schema import Files, Signature, Scene, VideoMetadata, Matches, Exif, Templatematches
+from db.schema import Files, Signature, Scene, VideoMetadata, Matches, Exif, TemplateMatches
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +127,7 @@ class DBResultStorage:
                     else:
                         index[(path, sha256)] = [template_match]
 
-                query = session.query(Files).options(joinedload(Files.templatematches))
+                query = session.query(Files).options(joinedload(Files.template_matches))
                 files = query.filter(self._by_path_and_hash(list(index.keys()))).all()
 
                 print("Number of files found", len(files))
@@ -138,10 +138,10 @@ class DBResultStorage:
                 # Update existing files
                 for file in files:
                     tm = index.pop((file.file_path, file.sha256))
-                    new_tm = self._create_template_matches(file, tm, file.templatematches)
+                    new_tm = self._create_template_matches(file, tm, file.template_matches)
                     if len(new_tm) > 0:
 
-                        file.templatematches = file.templatematches + new_tm
+                        file.template_matches = file.template_matches + new_tm
 
     @benchmark
     def add_scenes(self, entries, override=False):
@@ -334,7 +334,7 @@ class DBResultStorage:
     @staticmethod
     def _template_matches_ids(session, *files):
         """Get all template_matches ids associated with the given files."""
-        template_matches = itertools.chain(*(file.templatematches or () for file in files))
+        template_matches = itertools.chain(*(file.template_matches or () for file in files))
         return [template_match.id for template_match in template_matches]
 
     @staticmethod
@@ -351,8 +351,8 @@ class DBResultStorage:
         existing_template_matches_ids = DBResultStorage._template_matches_ids(*files)
 
         (
-            session.query(Templatematches)
-            .filter(Templatematches.id.in_(existing_template_matches_ids))
+            session.query(TemplateMatches)
+            .filter(TemplateMatches.id.in_(existing_template_matches_ids))
             .delete(synchronize_session="fetch")
         )
 
@@ -388,7 +388,7 @@ class DBResultStorage:
             if hsh not in seen:
 
                 tm.append(
-                    Templatematches(
+                    TemplateMatches(
                         file=file,
                         file_id=file.id,
                         distance=match["distance"],
