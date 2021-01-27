@@ -8,6 +8,7 @@ from sqlalchemy import (
     LargeBinary,
     DDL,
     event,
+    UniqueConstraint,
 )
 
 # Collection of all repository database schema constructs
@@ -20,7 +21,8 @@ fingerprints_table = Table(
     Column("id", Integer, primary_key=True),
     Column("sha256", String, nullable=False),
     Column("fingerprint", LargeBinary, nullable=False),
-    Column("contributor", String, nullable=False)
+    Column("contributor", String, nullable=False),
+    UniqueConstraint("contributor", "sha256", name="contributor_file_unique_constraint"),
 )
 
 # -------------------------------------
