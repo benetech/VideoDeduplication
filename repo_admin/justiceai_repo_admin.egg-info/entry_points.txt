@@ -1,0 +1,3 @@
+[console_scripts]
+repo-admin = repo_admin.cli.main:main
+

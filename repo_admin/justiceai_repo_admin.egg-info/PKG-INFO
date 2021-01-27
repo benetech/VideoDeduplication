@@ -1,0 +1,20 @@
+Metadata-Version: 2.1
+Name: justiceai-repo-admin
+Version: 0.0.1
+Summary: Administration toolkit for video fingerprint repositories.
+Home-page: https://github.com/benetech/VideoDeduplication
+Author: Benetech
+License: UNKNOWN
+Description: # Fingerprint Repository Management Tool
+        
+        
+Platform: UNKNOWN
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: System Administrators
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: POSIX :: Linux
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
