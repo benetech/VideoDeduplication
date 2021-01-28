@@ -1,3 +1,8 @@
+import logging
+import secrets
+from contextlib import contextmanager
+
+import coolname
 from sqlalchemy import (
     Table,
     Column,
@@ -10,6 +15,11 @@ from sqlalchemy import (
     event,
     UniqueConstraint,
 )
+
+# Default module logger
+from repo_admin.bare_database.error import RepoOperationError
+
+logger = logging.getLogger(__name__)
 
 # Collection of all repository database schema constructs
 metadata = MetaData()
@@ -121,13 +131,91 @@ event.listen(fingerprints_table, "after_create", _update_fingerprint_trigger.exe
 class RepoDatabase:
     """ReoDatabase offers high-level operations on the repository database."""
 
+    USER_PARENT_ROLE = "benetech_repo_user_group"
+
     def __init__(self, url, **engine_args):
         self.engine = create_engine(url, **engine_args)
 
     def apply_schema(self):
         """Apply repository database schema."""
         metadata.create_all(bind=self.engine)
+        self._ensure_parent_role_exists()
 
     def drop_schema(self):
         """Drop all elements defined by repository database schema."""
         metadata.drop_all(bind=self.engine)
+
+    @contextmanager
+    def _transaction(self):
+        """Execute code in a transaction."""
+        with self.engine.connect() as connection:
+            with connection.begin():
+                yield connection
+
+    def _role_exists(self, role_name, txn):
+        """Check role exists."""
+        return txn.execute(f"SELECT COUNT(1) FROM pg_roles WHERE " f"rolname = '{role_name}'").scalar() == 1
+
+    def _ensure_parent_role_exists(self, txn):
+        """Ensure the parent role for repo users exists."""
+        if not self._role_exists(self.USER_PARENT_ROLE, txn):
+            logger.info("Creating parent role '%s' for repository users", self.USER_PARENT_ROLE)
+            txn.execute(f"CREATE ROLE {self.USER_PARENT_ROLE}")
+        txn.execute(f"GRANT INSERT, SELECT, UPDATE, DELETE ON fingerprints TO {self.USER_PARENT_ROLE}")
+        txn.execute(f"GRANT USAGE, SELECT ON SEQUENCE fingerprints_id_seq TO {self.USER_PARENT_ROLE}")
+
+    def _generate_random_user_name(self, txn):
+        """Generate random unique user name."""
+        for _ in range(42):
+            new_name = "_".join(coolname.generate(2))
+            if not self._role_exists(new_name, txn):
+                return new_name
+        raise RuntimeError("Cannot generate a unique name.")
+
+    def _generate_random_password(self, length=40):
+        """Generate cryptographically strong random password."""
+        return secrets.token_urlsafe(nbytes=length)
+
+    def create_user(self, name=None, password=None):
+        """Create a database user for repository contributor."""
+        with self._transaction() as txn:
+            self._ensure_parent_role_exists(txn)
+            name = name or self._generate_random_user_name(txn)
+            password = password or self._generate_random_password()
+            txn.execute(f"CREATE USER {name} WITH PASSWORD '{password}'")
+            txn.execute(f"GRANT {self.USER_PARENT_ROLE} TO {name}")
+            return name, password
+
+    def _ensure_contributor(self, user_name, txn):
+        """Ensure the given database user is a repository contributor."""
+        # Database user cannot be a contributor if parent role is not initialized
+        if not self._role_exists(self.USER_PARENT_ROLE, txn):
+            raise RepoOperationError(f"Database user '{user_name}' is not a repository contributor")
+        is_contributor = txn.execute(f"SELECT pg_has_role('{user_name}', '{self.USER_PARENT_ROLE}', 'member')").scalar()
+        if not is_contributor:
+            raise RepoOperationError(f"Database user '{user_name}' is not a repository contributor")
+
+    def delete_user(self, name):
+        """Delete a repo contributor database user."""
+        with self._transaction() as txn:
+            self._ensure_contributor(name, txn)
+            txn.execute(f"DROP USER {name}")
+
+    def update_password(self, name, password=None):
+        """Update a repo contributor database password."""
+        with self._transaction() as txn:
+            self._ensure_contributor(name, txn)
+            password = password or self._generate_random_password()
+            txn.execute(f"ALTER USER {name} WITH PASSWORD '{password}'")
+
+    def list_users(self):
+        """List a repo contributors."""
+        with self._transaction() as txn:
+            if not self._role_exists(self.USER_PARENT_ROLE, txn):
+                return ()
+            results = txn.execute(
+                f"SELECT rolname FROM pg_roles "
+                f"WHERE pg_has_role(rolname, '{self.USER_PARENT_ROLE}', 'member') "
+                f"AND rolname <> '{self.USER_PARENT_ROLE}'"
+            )
+            return tuple(entry[0] for entry in results)
