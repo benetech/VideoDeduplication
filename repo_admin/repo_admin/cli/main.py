@@ -1,11 +1,11 @@
 import fire
 
-from repo_admin.cli.handlers.root import RootHandler
+from repo_admin.cli.handlers.root import RootCliHandler
 
 
 def main():
     """Execute repo-admin command-line interface."""
-    fire.Fire(RootHandler, name="repo-admin")
+    fire.Fire(RootCliHandler, name="repo-admin")
 
 
 if __name__ == "__main__":

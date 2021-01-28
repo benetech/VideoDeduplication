@@ -1,1 +1,9 @@
 fire
+SQLAlchemy
+PyYAML
+psycopg2
+inquirer
+termcolor
+cached-property
+dataclasses
+sqlalchemy-utils
