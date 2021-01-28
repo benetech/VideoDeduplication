@@ -1,4 +1,5 @@
 from repo_admin.cli.handlers.schema import SchemaCliHandler
+from repo_admin.cli.handlers.user import UserCliHandler
 
 
 class RootCliHandler:
@@ -6,3 +7,4 @@ class RootCliHandler:
 
     def __init__(self):
         self.schema = SchemaCliHandler()
+        self.user = UserCliHandler()

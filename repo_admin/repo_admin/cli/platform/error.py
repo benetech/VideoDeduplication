@@ -2,7 +2,13 @@ import logging
 from functools import wraps
 
 from fire.core import FireError
-from sqlalchemy.exc import ArgumentError as DBArgumentError, OperationalError as DBOperationalError, IntegrityError
+from sqlalchemy.exc import (
+    ArgumentError as DBArgumentError,
+    OperationalError as DBOperationalError,
+    IntegrityError,
+    ProgrammingError,
+)
+from termcolor import colored
 
 
 class CliError(FireError):
@@ -23,12 +29,12 @@ def handle_errors(func):
         except (DBOperationalError, DBArgumentError) as error:
             if hasattr(error, "orig") and error.orig is not None:
                 error = error.orig
-            logger.error(f"Database error: {error}")
+            logger.error(f"{colored('ERROR', 'red', attrs=('bold',))} Database error: {error}")
             raise SystemExit(1)
-        except IntegrityError as error:
+        except (IntegrityError, ProgrammingError) as error:
             if hasattr(error, "orig") and error.orig is not None:
                 error = error.orig
-            logger.error(f"Invalid request: {error}")
+            logger.error(f"{colored('ERROR', 'red', attrs=('bold',))} Invalid request: {error}")
             raise SystemExit(1)
 
     return wrapper
