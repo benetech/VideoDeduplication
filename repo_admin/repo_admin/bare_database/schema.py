@@ -139,7 +139,7 @@ class RepoDatabase:
     def apply_schema(self):
         """Apply repository database schema."""
         metadata.create_all(bind=self.engine)
-        self._ensure_parent_role_exists()
+        self._ensure_parent_role_exists(txn=self.engine)
 
     def drop_schema(self):
         """Drop all elements defined by repository database schema."""
@@ -160,7 +160,7 @@ class RepoDatabase:
         """Ensure the parent role for repo users exists."""
         if not self._role_exists(self.USER_PARENT_ROLE, txn):
             logger.info("Creating parent role '%s' for repository users", self.USER_PARENT_ROLE)
-            txn.execute(f"CREATE ROLE {self.USER_PARENT_ROLE}")
+            txn.execute(f"CREATE ROLE {self.USER_PARENT_ROLE} NOINHERIT")
         txn.execute(f"GRANT INSERT, SELECT, UPDATE, DELETE ON fingerprints TO {self.USER_PARENT_ROLE}")
         txn.execute(f"GRANT USAGE, SELECT ON SEQUENCE fingerprints_id_seq TO {self.USER_PARENT_ROLE}")
 
