@@ -18,6 +18,7 @@ from sqlalchemy import (
 
 # Default module logger
 from repo_admin.bare_database.error import RepoOperationError
+from repo_admin.cli.platform.error import handle_errors
 
 logger = logging.getLogger(__name__)
 
@@ -190,10 +191,18 @@ class RepoDatabase:
         """Ensure the given database user is a repository contributor."""
         # Database user cannot be a contributor if parent role is not initialized
         if not self._role_exists(self.USER_PARENT_ROLE, txn):
-            raise RepoOperationError(f"Database user '{user_name}' is not a repository contributor")
-        is_contributor = txn.execute(f"SELECT pg_has_role('{user_name}', '{self.USER_PARENT_ROLE}', 'member')").scalar()
+            raise RepoOperationError(f"'{user_name}' is not a repository contributor")
+        is_contributor_query = txn.execute(
+            "SELECT COUNT(1) "
+            "FROM pg_roles parent "
+            "JOIN pg_auth_members member ON (member.roleid = parent.oid) "
+            "JOIN pg_roles contrib ON (member.member = contrib.oid) "
+            f"WHERE (parent.rolname = '{self.USER_PARENT_ROLE}')"
+            f"AND (contrib.rolname = '{user_name}')"
+        )
+        is_contributor = is_contributor_query.scalar() == 1
         if not is_contributor:
-            raise RepoOperationError(f"Database user '{user_name}' is not a repository contributor")
+            raise RepoOperationError(f"'{user_name}' is not a repository contributor")
 
     def delete_user(self, name):
         """Delete a repo contributor database user."""
@@ -214,8 +223,10 @@ class RepoDatabase:
             if not self._role_exists(self.USER_PARENT_ROLE, txn):
                 return ()
             results = txn.execute(
-                f"SELECT rolname FROM pg_roles "
-                f"WHERE pg_has_role(rolname, '{self.USER_PARENT_ROLE}', 'member') "
-                f"AND rolname <> '{self.USER_PARENT_ROLE}'"
+                "SELECT contrib.rolname "
+                "FROM pg_roles parent "
+                "JOIN pg_auth_members member ON (member.roleid = parent.oid) "
+                "JOIN pg_roles contrib ON (member.member = contrib.oid) "
+                f"WHERE parent.rolname = '{self.USER_PARENT_ROLE}'"
             )
             return tuple(entry[0] for entry in results)

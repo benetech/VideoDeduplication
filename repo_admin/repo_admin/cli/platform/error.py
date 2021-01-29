@@ -10,6 +10,8 @@ from sqlalchemy.exc import (
 )
 from termcolor import colored
 
+from repo_admin.bare_database.error import RepoOperationError
+
 
 class CliError(FireError):
     """Exception used by the CLI when command cannot be executed."""
@@ -31,7 +33,7 @@ def handle_errors(func):
                 error = error.orig
             logger.error(f"{colored('ERROR', 'red', attrs=('bold',))} Database error: {error}")
             raise SystemExit(1)
-        except (IntegrityError, ProgrammingError) as error:
+        except (IntegrityError, ProgrammingError, RepoOperationError) as error:
             if hasattr(error, "orig") and error.orig is not None:
                 error = error.orig
             logger.error(f"{colored('ERROR', 'red', attrs=('bold',))} Invalid request: {error}")
