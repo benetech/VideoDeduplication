@@ -4,6 +4,7 @@ from typing import Optional
 import inquirer
 
 from repo_admin.bare_database.credentials import RepoStorage
+from repo_admin.bare_database.schema import RepoDatabase
 from repo_admin.cli.platform.error import CliError
 
 

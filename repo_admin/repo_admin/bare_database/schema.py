@@ -218,6 +218,7 @@ class RepoDatabase:
             self._ensure_contributor(name, txn)
             password = password or self._generate_random_password()
             txn.execute(f"ALTER USER {name} WITH PASSWORD '{password}'")
+            return name, password
 
     def list_users(self):
         """List a repo contributors."""

@@ -4,7 +4,7 @@ from typing import Optional
 import inquirer
 
 from repo_admin.bare_database.schema import RepoDatabase
-from repo_admin.cli.platform.arguments import get_database_url
+from repo_admin.cli.platform.arguments import resolve_database_url
 from repo_admin.cli.platform.error import handle_errors
 
 
@@ -14,25 +14,34 @@ class SchemaCliHandler:
     @handle_errors
     def apply(
         self,
-        host: str,
-        port: int,
-        dbname: str,
-        user: str = "postgres",
+        repo: str = None,
+        host: str = None,
+        port: int = None,
+        dbname: str = None,
+        user: str = None,
         password: Optional[str] = None,
         verbose: bool = False,
     ):
         """Apply repository schema."""
-        database_url = get_database_url(host=host, port=port, dbname=dbname, user=user, password=password)
+        database_url = resolve_database_url(
+            repo=repo,
+            host=host,
+            port=port,
+            dbname=dbname,
+            user=user,
+            password=password,
+        )
         database = RepoDatabase(url=database_url, echo=bool(verbose))
         database.apply_schema()
 
     @handle_errors
     def drop(
         self,
-        host: str,
-        port: int,
-        dbname: str,
-        user: str = "postgres",
+        repo: str = None,
+        host: str = None,
+        port: int = None,
+        dbname: str = None,
+        user: str = None,
         password: Optional[str] = None,
         force: bool = False,
         verbose: bool = False,
@@ -44,6 +53,15 @@ class SchemaCliHandler:
         if not proceed:
             print("Aborting")
             sys.exit(1)
-        database_url = get_database_url(host=host, port=port, dbname=dbname, user=user, password=password)
+
+        database_url = resolve_database_url(
+            repo=repo,
+            host=host,
+            port=port,
+            dbname=dbname,
+            user=user,
+            password=password,
+        )
+
         database = RepoDatabase(url=database_url, echo=bool(verbose))
         database.drop_schema()
