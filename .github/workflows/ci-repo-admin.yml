@@ -1,0 +1,46 @@
+name: Repo-Admin CI
+
+on:
+  push:
+    branches: [ development ]
+  pull_request:
+    branches: [ development ]
+
+jobs:
+  unit-tests:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        working-directory: ./repo_admin
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 'black~=20.8b1'
+          pip install -r requirements.txt
+      - name: Check formatting with black
+        working-directory: ./repo_admin
+        run: |
+          # Check formatting of the dedup-app python files
+          black --line-length 120 --check repo_admin
+      - name: Lint with flake8
+        working-directory: ./repo_admin
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 repo_admin --count --select=E9,F63,F7,F82 --show-source --statistics
+          # --ignore=E203 as it is not PEP8 and black style compliant. See: https://github.com/psf/black/issues/315
+          # Also --ignore=W503 as it is not compatible with black style.
+          flake8 repo_admin --count --max-complexity=10 --ignore=E203,W503 --max-line-length=120 --statistics
+#      - name: Test with pytest
+#        working-directory: ./repo_admin
+#        run: |
+#          export PYTHONPATH="$(pwd)"
+#          pytest tests
