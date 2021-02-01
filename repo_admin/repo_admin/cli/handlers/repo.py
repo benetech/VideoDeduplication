@@ -62,7 +62,7 @@ class RepoCliHandler:
         proceed = force or (
             inquirer.text(
                 "Are you sure you want to drop the database"
-                f" schema for the repository {repo_name}? All "
+                f" schema for the repository '{repo_name}'? All "
                 "information will be deleted permanently. "
                 f"Enter 'drop {repo_name}' if you want to proceed."
             )

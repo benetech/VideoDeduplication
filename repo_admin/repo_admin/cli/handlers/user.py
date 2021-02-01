@@ -51,7 +51,7 @@ class UserCliHandler:
     @handle_errors
     def delete(
         self,
-        contributor: str,
+        contributor_name: str,
         repo: str = None,
         host: str = None,
         port: int = None,
@@ -63,7 +63,7 @@ class UserCliHandler:
     ):
         """Delete existing repository contributor."""
         proceed = force or inquirer.confirm(
-            f"This will delete contributor '{contributor}' permanently. Continue?", default=False
+            f"This will delete contributor '{contributor_name}' permanently. Continue?", default=False
         )
         if not proceed:
             print("Aborting")
@@ -77,7 +77,7 @@ class UserCliHandler:
             password=password,
         )
         repo = RepoDatabase(url=database_url, echo=bool(verbose))
-        repo.delete_user(name=contributor)
+        repo.delete_user(name=contributor_name)
 
     @handle_errors
     def list(
