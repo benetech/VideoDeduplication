@@ -4,7 +4,6 @@ from typing import Optional
 import inquirer
 
 from repo_admin.bare_database.credentials import RepoStorage
-from repo_admin.bare_database.schema import RepoDatabase
 from repo_admin.cli.platform.error import CliError
 
 
@@ -18,7 +17,7 @@ def ask_password(message, pass_arg=None, pass_arg_value=None):
         return inquirer.password(message)
     if pass_arg is not None:
         raise CliError(f"Missing argument: --{pass_arg}")
-    raise CliError(f"Cannot determine password: interactive terminal is required.")
+    raise CliError("Cannot determine password: interactive terminal is required.")
 
 
 def resolve_database_url(
