@@ -18,7 +18,6 @@ from sqlalchemy import (
 
 # Default module logger
 from repo_admin.bare_database.error import RepoOperationError
-from repo_admin.cli.platform.error import handle_errors
 
 logger = logging.getLogger(__name__)
 
@@ -136,6 +135,9 @@ class RepoDatabase:
 
     def __init__(self, url, **engine_args):
         self.engine = create_engine(url, **engine_args)
+        dialect_name = self.engine.dialect.name
+        if dialect_name != "postgresql":
+            raise ValueError(f"Unsupported dialect: {dialect_name}. Expected: postgresql")
 
     def apply_schema(self):
         """Apply repository database schema."""

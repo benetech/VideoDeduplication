@@ -41,7 +41,7 @@ class UserCliHandler:
         )
 
     @handle_errors
-    def remove(
+    def delete(
         self,
         contributor: str,
         host: str,
