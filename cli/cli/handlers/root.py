@@ -15,6 +15,7 @@ class RootCli:
 
     def __init__(self, config=None):
         self._config = Config.read(resolve_config_path(config))
+        self._config.read_env()
         self.db = DatabaseCli(self._config)
         self.get = DBGetterCli(self._config)
         self.repo = RepoCli(self._config)

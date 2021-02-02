@@ -4,12 +4,11 @@ from cli.handlers.errors import handle_errors
 from cli.platform.arguments import ask_password
 from cli.platform.error import CliError
 from cli.platform.formatters import Format, resolve_formatter
-from cli.platform.security import resolve_secure_storage
 from cli.platform.transform import Transform
 from cli.platform.validate import valid_string, valid_enum, positive_int, valid_sequence
 from db import Database
 from db.schema import RepositoryType, Repository
-from winnow.security import SecretNamespace
+from winnow.security import SecretNamespace, resolve_secure_storage
 from winnow.security.storage import SecureStorage
 
 
