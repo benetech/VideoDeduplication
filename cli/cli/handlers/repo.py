@@ -24,16 +24,18 @@ class RepoCli:
         name = valid_string("name", name, SecureStorage.NAME_PATTERN)
         type = valid_enum("type", type, RepositoryType)
 
-        # Save credentials
+        # Determine credentials
         credentials = self._get_credentials(user, password, password_file, type)
-        secret_storage = resolve_secure_storage(self._config)
-        secret_storage.set_secret(SecretNamespace.REPOS, secret_name=name, secret_data=credentials)
 
         # Save repository
         database = Database(self._config.database.uri)
         with database.session_scope() as session:
             new_repository = Repository(name=name, repository_type=type, network_address=address, account_id=user)
             session.add(new_repository)
+
+        # Save credentials
+        secret_storage = resolve_secure_storage(self._config)
+        secret_storage.set_secret(SecretNamespace.REPOS, secret_name=name, secret_data=credentials)
 
     @handle_errors
     def rename(self, old, new):
