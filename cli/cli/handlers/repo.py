@@ -4,12 +4,11 @@ from cli.handlers.errors import handle_errors
 from cli.platform.arguments import ask_password
 from cli.platform.error import CliError
 from cli.platform.formatters import Format, resolve_formatter
-from cli.platform.security import resolve_secure_storage
 from cli.platform.transform import Transform
 from cli.platform.validate import valid_string, valid_enum, positive_int, valid_sequence
 from db import Database
 from db.schema import RepositoryType, Repository
-from winnow.security import SecretNamespace
+from winnow.security import SecretNamespace, resolve_secure_storage
 from winnow.security.storage import SecureStorage
 
 
@@ -25,16 +24,18 @@ class RepoCli:
         name = valid_string("name", name, SecureStorage.NAME_PATTERN)
         type = valid_enum("type", type, RepositoryType)
 
-        # Save credentials
+        # Determine credentials
         credentials = self._get_credentials(user, password, password_file, type)
-        secret_storage = resolve_secure_storage(self._config)
-        secret_storage.set_secret(SecretNamespace.REPOS, secret_name=name, secret_data=credentials)
 
         # Save repository
         database = Database(self._config.database.uri)
         with database.session_scope() as session:
             new_repository = Repository(name=name, repository_type=type, network_address=address, account_id=user)
             session.add(new_repository)
+
+        # Save credentials
+        secret_storage = resolve_secure_storage(self._config)
+        secret_storage.set_secret(SecretNamespace.REPOS, secret_name=name, secret_data=credentials)
 
     @handle_errors
     def rename(self, old, new):

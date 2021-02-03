@@ -14,6 +14,7 @@ from sqlalchemy import (
     DDL,
     event,
     UniqueConstraint,
+    Sequence,
 )
 
 # Default module logger
@@ -28,7 +29,7 @@ metadata = MetaData()
 fingerprints_table = Table(
     "fingerprints",
     metadata,
-    Column("id", Integer, primary_key=True),
+    Column("id", Integer, Sequence("fingerprints_id_seq"), primary_key=True),
     Column("sha256", String, nullable=False),
     Column("fingerprint", LargeBinary, nullable=False),
     Column("contributor", String, nullable=False),

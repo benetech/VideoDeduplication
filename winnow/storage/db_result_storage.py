@@ -7,17 +7,9 @@ from sqlalchemy import tuple_
 from sqlalchemy.orm import joinedload, aliased
 
 from db.schema import Files, Signature, Scene, VideoMetadata, Matches, Exif, TemplateMatches
+from winnow.utils.iterators import chunks
 
 logger = logging.getLogger(__name__)
-
-
-def chunks(iterable, size=100):
-    """Split iterable into equal-sized chunks."""
-    iterator = iter(iterable)
-    chunk = list(itertools.islice(iterator, size))
-    while chunk:
-        yield chunk
-        chunk = list(itertools.islice(iterator, size))
 
 
 def benchmark(func):
