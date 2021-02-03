@@ -23,7 +23,4 @@ def _make_bare_database_url(network_address, credentials):
     address = urlparse(network_address)
     username = credentials["username"]
     password = credentials["password"]
-    return (
-        f"postgresql://{quote(username, safe='')}:{quote(password, safe='')}"
-        f"@{quote(address.netloc, safe='')}{quote(address.path)}"
-    )
+    return f"postgresql://{quote(username, safe='')}:{quote(password, safe='')}@{address.netloc}{quote(address.path)}"

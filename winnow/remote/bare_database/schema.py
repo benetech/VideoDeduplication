@@ -24,9 +24,6 @@ _logger = logging.getLogger(__name__)
 # Collection of all repository database schema constructs
 _metadata = MetaData()
 
-# Unique hash per contributor constraint name
-UNIQUE_FILE_CONSTRAINT_NAME = "contributor_file_unique_constraint"
-
 # Fingerprint table
 fingerprints_table = Table(
     "fingerprints",
@@ -35,7 +32,7 @@ fingerprints_table = Table(
     Column("sha256", String, nullable=False),
     Column("fingerprint", LargeBinary, nullable=False),
     Column("contributor", String, nullable=False),
-    UniqueConstraint("contributor", "sha256", name=UNIQUE_FILE_CONSTRAINT_NAME),
+    UniqueConstraint("contributor", "sha256", name="contributor_file_unique_constraint"),
 )
 
 

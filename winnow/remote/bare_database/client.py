@@ -2,8 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import func
 
-import winnow.remote.bare_database.schema as schema
-from winnow.remote.bare_database.schema import RepoDatabase
+from .schema import RepoDatabase, fingerprints_table
 
 
 class BareDatabaseClient:
@@ -13,26 +12,22 @@ class BareDatabaseClient:
         self.database = RepoDatabase(url=database_url)
         self.contributor_name = contributor_name
 
-    def push_fingerprints(self, fingerprints):
+    def push(self, fingerprints):
         """Push fingerprints to the remote repository."""
-        fingerprints = map(lambda pair: {"sha256": pair[0], "fingerprint": pair[1]}, fingerprints)
+        fingerprints = tuple(map(lambda pair: {"sha256": pair[0], "fingerprint": pair[1]}, fingerprints))
 
         with self.database.transaction() as txn:
-            insert_stmt = (
-                insert(schema.fingerprints_table)
-                .values(fingerprints)
-                .on_conflict_do_nothing(index_elements=[schema.UNIQUE_FILE_CONSTRAINT_NAME])
-            )
+            insert_stmt = insert(fingerprints_table).values(fingerprints).on_conflict_do_nothing()
             txn.execute(insert_stmt)
 
     def latest_pushed_fingerprint(self):
         """Get latest pushed fingerprint."""
         with self.database.transaction() as txn:
-            select_id_stmt = select([func.max(schema.fingerprints_table.c.id)]).where(
-                schema.fingerprints_table.c.contributor == self.contributor_name
+            select_id_stmt = select([func.max(fingerprints_table.c.id)]).where(
+                fingerprints_table.c.contributor == self.contributor_name
             )
             latest_pushed_id = txn.execute(select_id_stmt).scalar()
-            select_latest_stmt = select([schema.fingerprints_table.c.sha256]).where(
-                schema.fingerprints_table.c.id == latest_pushed_id
+            select_latest_stmt = select([fingerprints_table.c.sha256]).where(
+                fingerprints_table.c.id == latest_pushed_id
             )
             return txn.execute(select_latest_stmt).scalar()
