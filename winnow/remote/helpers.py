@@ -16,7 +16,7 @@ def push_database_fingerprints(database: Database, repo_client, chunk_size=1000)
     with database.session_scope() as session:
         resume_id = _get_resume_id(session, latest_sha256)
         file_query = session.query(Files).options(joinedload(Files.signature))
-        file_query = file_query.filter(Files.id >= resume_id, Files.contributor == None)
+        file_query = file_query.filter(Files.id >= resume_id, Files.contributor == None)  # noqa: E711
         file_query = file_query.yield_per(chunk_size)
         total_count = file_query.count()
         with tqdm(file=sys.stdout, total=total_count, unit="fingerprints") as progress:
@@ -30,7 +30,7 @@ def _get_resume_id(session, latest_sha256):
     """Get file id from which to resume pushing."""
     query = session.query(func.min(Files.id))
     query = query.filter(Files.sha256 == latest_sha256)
-    query = query.filter(Files.contributor == None)
+    query = query.filter(Files.contributor == None)  # noqa: E711
     resume_id = query.scalar()
     if resume_id is None:
         return 0
