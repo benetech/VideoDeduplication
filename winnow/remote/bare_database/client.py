@@ -1,7 +1,7 @@
 from typing import Iterable, List, Optional
 
 from dataclasses import asdict
-from sqlalchemy import select
+from sqlalchemy import select, asc
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import func
 
@@ -24,8 +24,38 @@ class BareDatabaseClient(RepositoryClient):
             insert_stmt = insert(fingerprints_table).values(fingerprints).on_conflict_do_nothing()
             txn.execute(insert_stmt)
 
-    def pull(self) -> List[RemoteFingerprint]:
-        """Fetch fingerprints from the remote repository."""
+    def pull(self, start_from: int, limit: int = 1000) -> List[RemoteFingerprint]:
+        """Fetch fingerprints from the remote repository.
+
+        Args:
+            start_from (int): external fingerprint id (within remote repo) from which to start pulling.
+            limit (int): maximal number of fingerprints to pull at once. Must be between 0 and 10000.
+        """
+        if not (0 <= limit <= 10000):
+            raise ValueError(f"Limit must be from [0, 10000]. Given: {limit}")
+        with self.database.transaction() as txn:
+            select_statement = (
+                select(
+                    [
+                        fingerprints_table.c.id,
+                        fingerprints_table.c.sha256,
+                        fingerprints_table.c.fingerprint,
+                        fingerprints_table.c.contributor,
+                    ]
+                )
+                .where(
+                    fingerprints_table.c.id > start_from,
+                    fingerprints_table.c.contributor != self.contributor_name,
+                )
+                .order_by(asc(fingerprints_table.c.id))
+                .limit(limit)
+            )
+            results = txn.execute(select_statement)
+            return list(map(self._make_remote_fp, results))
+
+    def _make_remote_fp(self, record):
+        """Convert database record to remote fingerprint record."""
+        return RemoteFingerprint(id=record[0], sha256=record[1], fingerprint=record[2], contributor=record[3])
 
     def latest_contribution(self) -> Optional[LocalFingerprint]:
         """Get the latest local fingerprint pushed to this repository."""
@@ -41,3 +71,12 @@ class BareDatabaseClient(RepositoryClient):
             if record is None:
                 return None
             return LocalFingerprint(sha256=record[0], fingerprint=record[1])
+
+    def count(self, start_from: int) -> int:
+        """Get count of fingerprint with id greater than the given one."""
+        with self.database.transaction() as txn:
+            statement = select([func.count(fingerprints_table.c.id)]).where(
+                fingerprints_table.c.id > start_from,
+                fingerprints_table.c.contributor != self.contributor_name,
+            )
+            return txn.execute(statement).scalar()
