@@ -4,10 +4,11 @@ from urllib.parse import urlparse, quote
 from db.schema import Repository, RepositoryType
 from winnow.config import Config
 from winnow.remote.bare_database.client import BareDatabaseClient
+from winnow.remote.model import RepositoryClient
 from winnow.security import resolve_secure_storage, SecretNamespace
 
 
-def make_client(repo: Repository, config: Config):
+def make_client(repo: Repository, config: Config) -> RepositoryClient:
     """Create a remote repository client given."""
     if repo.repository_type == RepositoryType.BARE_DATABASE:
         secrets = resolve_secure_storage(config)
