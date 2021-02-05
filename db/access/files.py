@@ -243,8 +243,8 @@ class FilesDAO:
         if req.remote is None:
             return query
         if req.remote:
-            return query.filter(Files.contributor != None)
-        return query.filter(Files.contributor == None)
+            return query.filter(Files.contributor != None)  # noqa: E711
+        return query.filter(Files.contributor == None)  # noqa: E711
 
     @staticmethod
     def _filter_repository(req: ListFilesRequest, query):
