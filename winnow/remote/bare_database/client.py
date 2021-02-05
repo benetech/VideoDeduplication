@@ -44,8 +44,8 @@ class BareDatabaseClient(RepositoryClient):
                     ]
                 )
                 .where(
-                    fingerprints_table.c.id > start_from,
-                    fingerprints_table.c.contributor != self.contributor_name,
+                    (fingerprints_table.c.id > start_from)
+                    & (fingerprints_table.c.contributor != self.contributor_name),
                 )
                 .order_by(asc(fingerprints_table.c.id))
                 .limit(limit)
@@ -76,7 +76,6 @@ class BareDatabaseClient(RepositoryClient):
         """Get count of fingerprint with id greater than the given one."""
         with self.database.transaction() as txn:
             statement = select([func.count(fingerprints_table.c.id)]).where(
-                fingerprints_table.c.id > start_from,
-                fingerprints_table.c.contributor != self.contributor_name,
+                (fingerprints_table.c.id > start_from) & (fingerprints_table.c.contributor != self.contributor_name),
             )
             return txn.execute(statement).scalar()

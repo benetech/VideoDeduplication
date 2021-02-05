@@ -70,7 +70,7 @@ class DatabaseConnector:
     def _get_latest_pulled_fingerprint_id(self) -> int:
         """Get latest file from the local database that was pulled from the given repository."""
         with self.database.session_scope() as session:
-            query = session.query([func.max(Files.external_id)])
+            query = session.query(func.max(Files.external_id))
             query = query.filter(Files.contributor.has(Contributor.repository == self.repo))
             latest_pulled_id = query.scalar()
             if latest_pulled_id is None:
