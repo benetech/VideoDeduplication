@@ -5,6 +5,11 @@ from typing import Tuple
 import inquirer
 
 from cli.platform.error import CliError
+from db import Database
+from db.schema import Repository
+from winnow.config import Config
+from winnow.remote import make_client
+from winnow.remote.helpers import DatabaseConnector
 
 
 def ask_password(
@@ -52,3 +57,14 @@ def read_argument_file(file_path):
         raise CliError(f"File not found: {file_path}")
     with open(str(file_path)) as file:
         return file.read().strip()
+
+
+def get_repo_connector(repo_name: str, config: Config):
+    """Create and configure local database connector."""
+    database = Database(uri=config.database.uri)
+    with database.session_scope(expunge=True) as session:
+        repository = session.query(Repository).filter(Repository.name == repo_name).one_or_none()
+    if repository is None:
+        raise CliError(f"Unknown repository: {repo_name}")
+    repo_client = make_client(repository, config)
+    return DatabaseConnector(repo=repository, database=database, repo_client=repo_client)

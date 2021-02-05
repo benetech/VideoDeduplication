@@ -1,14 +1,18 @@
+import sys
+
 from db import Database
 from db.schema import Repository
 from winnow.config import Config
 from winnow.config.path import resolve_config_path
+from winnow.pipeline.progress_monitor import ProgressBar
 from winnow.remote import make_client
-from winnow.remote.helpers import push_database_fingerprints
+from winnow.remote.helpers import DatabaseConnector
 from .database import DatabaseCli
 from .db_getter import DBGetterCli
 from .errors import handle_errors
 from .pipeline import PipelineCli
 from .repo import RepoCli
+from ..platform.arguments import get_repo_connector
 from ..platform.error import CliError
 
 
@@ -30,10 +34,5 @@ class RootCli:
     @handle_errors
     def push(self, repo: str):
         """Push all local fingerprints to the remote repository."""
-        database = Database(self._config.database.uri)
-        with database.session_scope(expunge=True) as session:
-            repository = session.query(Repository).filter(Repository.name == repo).one_or_none()
-        if repository is None:
-            raise CliError(f"Unknown repository: {repo}")
-        repo_client = make_client(repository, self._config)
-        push_database_fingerprints(database, repo_client, chunk_size=100)
+        connector = get_repo_connector(repo_name=repo, config=self._config)
+        connector.push_all(chunk_size=1, progress=ProgressBar(file=sys.stdout, unit="fingerprints"))
