@@ -1,4 +1,7 @@
 import abc
+import sys
+
+from tqdm import tqdm
 
 
 class BaseProgressMonitor(abc.ABC):
@@ -27,6 +30,11 @@ class BaseProgressMonitor(abc.ABC):
     def progress(self):
         """Get current progress [0.0, 1.0]"""
 
+    @property
+    @abc.abstractmethod
+    def total(self):
+        """Get total work to be done."""
+
 
 class _NullProgressMonitor(BaseProgressMonitor):
     """A NoOp implementation of progress monitor."""
@@ -50,11 +58,19 @@ class _NullProgressMonitor(BaseProgressMonitor):
     def progress(self):
         return 0.0
 
+    @property
+    def total(self):
+        return 0.0
+
+
+def _null_observer(progress, increase):
+    """No-op observer."""
+
 
 class ProgressMonitor(BaseProgressMonitor):
     NULL = _NullProgressMonitor()
 
-    def __init__(self, observer, scale=1.0):
+    def __init__(self, observer=_null_observer, scale=1.0):
         self._observer = observer
         self._total_work = float(scale)
         self._work_done = 0.0
@@ -101,3 +117,45 @@ class ProgressMonitor(BaseProgressMonitor):
         if self._total_work == 0.0:
             return 1.0
         return self._work_done / self._total_work
+
+    @property
+    def total(self):
+        """Get total work scale."""
+        return self._total_work
+
+
+class ProgressBar(BaseProgressMonitor):
+    """Wrapper around a progress-monitor which will display a progress bar on the console."""
+
+    def __init__(self, monitor: BaseProgressMonitor = None, file=sys.stdout, unit=None):
+        self._monitor: BaseProgressMonitor = monitor or ProgressMonitor()
+        self._progress_bar: tqdm = tqdm(file=file, total=self._monitor.total, unit=unit)
+        self._progress_bar.update(self._monitor.progress * self._monitor.total)
+
+    def scale(self, total_work):
+        self._monitor.scale(total_work)
+        self._progress_bar.reset(total=total_work)
+
+    def update(self, work_done):
+        current = self._monitor.total * self._monitor.progress
+        self._monitor.update(work_done)
+        self._progress_bar.update(work_done - current)
+
+    def complete(self):
+        self._monitor.complete()
+        self._progress_bar.close()
+
+    def increase(self, amount):
+        self._monitor.increase(amount)
+        self._progress_bar.update(amount)
+
+    def subtask(self, work_amount):
+        return self._monitor.subtask(work_amount)
+
+    @property
+    def progress(self):
+        return self._monitor.progress
+
+    @property
+    def total(self):
+        return self._monitor.total

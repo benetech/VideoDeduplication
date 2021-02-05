@@ -37,6 +37,9 @@ class DBGetterCli:
         match: FileMatchFilter = FileMatchFilter.ALL.value,
         sort: FileSort = FileSort.LENGTH.value,
         hash: Optional[str] = None,
+        remote: bool = False,
+        repo: Optional[str] = None,
+        contributor: Optional[str] = None,
         output: str = Format.PLAIN.value,
         fields: List[str] = ("path", "length_human", "hash_short", "fingerprint_short"),
     ):
@@ -58,6 +61,9 @@ class DBGetterCli:
         req.match_filter = valid_enum("match", match, FileMatchFilter)
         req.sort = valid_enum("sort", sort, FileSort)
         req.sha256 = hash
+        req.remote = boolean("remote", remote) or (repo is not None) or (contributor is not None)
+        req.repository = repo
+        req.contributor = contributor
         output = valid_enum("output", output, Format)
         fields = valid_sequence("fields", fields, Transform.FILE_FIELDS, required=False)
 

@@ -33,23 +33,14 @@ class RepoCli:
             new_repository = Repository(name=name, repository_type=type, network_address=address, account_id=user)
             session.add(new_repository)
 
-        # Save credentials
-        secret_storage = resolve_secure_storage(self._config)
-        secret_storage.set_secret(SecretNamespace.REPOS, secret_name=name, secret_data=credentials)
+            # Save credentials
+            secret_storage = resolve_secure_storage(self._config)
+            secret_storage.set_secret(SecretNamespace.REPOS, secret_name=name, secret_data=credentials)
 
     @handle_errors
     def rename(self, old, new):
         """Rename remote fingerprint repository."""
         new = valid_string("new", new, SecureStorage.NAME_PATTERN)
-
-        try:
-            # Move credentials
-            secret_storage = resolve_secure_storage(self._config)
-            credentials = secret_storage.get_secret(SecretNamespace.REPOS, old)
-            secret_storage.remove_secret(SecretNamespace.REPOS, old)
-            secret_storage.set_secret(SecretNamespace.REPOS, secret_name=new, secret_data=credentials)
-        except KeyError:
-            raise CliError(f"Repository not found: {old}")
 
         # Update repository
         database = Database(self._config.database.uri)
@@ -59,20 +50,29 @@ class RepoCli:
                 raise CliError(f"Repository not found: {old}")
             repo.name = new
 
+            try:
+                # Move credentials
+                secret_storage = resolve_secure_storage(self._config)
+                credentials = secret_storage.get_secret(SecretNamespace.REPOS, old)
+                secret_storage.remove_secret(SecretNamespace.REPOS, old)
+                secret_storage.set_secret(SecretNamespace.REPOS, secret_name=new, secret_data=credentials)
+            except KeyError:
+                raise CliError(f"Repository not found: {old}")
+
     @handle_errors
     def remove(self, repo):
         """Delete remote fingerprint repository."""
-        try:
-            # Remove credentials
-            secret_storage = resolve_secure_storage(self._config)
-            secret_storage.remove_secret(SecretNamespace.REPOS, secret_name=repo)
-        except KeyError:
-            raise CliError(f"Repository not found: {repo}")
-
-        # Remove repository
         database = Database(self._config.database.uri)
         with database.session_scope() as session:
+            # Remove repository
             session.query(Repository).filter(Repository.name == repo).delete()
+
+            try:
+                # Remove credentials within the same transaction
+                secret_storage = resolve_secure_storage(self._config)
+                secret_storage.remove_secret(SecretNamespace.REPOS, secret_name=repo)
+            except KeyError:
+                raise CliError(f"Repository not found: {repo}")
 
     @handle_errors
     def list(self, name=None, offset=0, limit=1000, output=Format.PLAIN.value, fields=Transform.REPO_FIELDS):
