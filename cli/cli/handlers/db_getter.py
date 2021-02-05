@@ -61,7 +61,7 @@ class DBGetterCli:
         req.match_filter = valid_enum("match", match, FileMatchFilter)
         req.sort = valid_enum("sort", sort, FileSort)
         req.sha256 = hash
-        req.remote = boolean("remote", remote)
+        req.remote = boolean("remote", remote) or (repo is not None) or (contributor is not None)
         req.repository = repo
         req.contributor = contributor
         output = valid_enum("output", output, Format)
