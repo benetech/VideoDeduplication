@@ -9,7 +9,7 @@ from db import Database
 from db.schema import Repository
 from winnow.config import Config
 from winnow.remote import make_client
-from winnow.remote.helpers import DatabaseConnector
+from winnow.remote.connect import DatabaseConnector
 
 
 def ask_password(
@@ -59,7 +59,7 @@ def read_argument_file(file_path):
         return file.read().strip()
 
 
-def get_repo_connector(repo_name: str, config: Config):
+def get_repo_connector(repo_name: str, config: Config) -> DatabaseConnector:
     """Create and configure local database connector."""
     database = Database(uri=config.database.uri)
     with database.session_scope(expunge=True) as session:

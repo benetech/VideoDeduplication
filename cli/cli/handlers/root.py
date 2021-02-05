@@ -1,19 +1,14 @@
 import sys
 
-from db import Database
-from db.schema import Repository
 from winnow.config import Config
 from winnow.config.path import resolve_config_path
 from winnow.pipeline.progress_monitor import ProgressBar
-from winnow.remote import make_client
-from winnow.remote.helpers import DatabaseConnector
 from .database import DatabaseCli
 from .db_getter import DBGetterCli
 from .errors import handle_errors
 from .pipeline import PipelineCli
 from .repo import RepoCli
 from ..platform.arguments import get_repo_connector
-from ..platform.error import CliError
 
 
 class RootCli:
