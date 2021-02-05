@@ -1,12 +1,12 @@
 import enum
-from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Optional
 
+from dataclasses import dataclass, field
 from sqlalchemy import or_, func, literal_column
 from sqlalchemy.orm import aliased
 
-from db.schema import Files, Matches, Exif
+from db.schema import Files, Matches, Exif, Contributor, Repository
 
 
 class FileMatchFilter(enum.Enum):
@@ -46,6 +46,9 @@ class ListFilesRequest:
     match_filter: FileMatchFilter = FileMatchFilter.ALL
     related_distance: float = 0.4
     duplicate_distance: float = 0.1
+    remote: bool = False
+    contributor: Optional[str] = None
+    repository: Optional[str] = None
     sha256: str = None
 
 
@@ -235,6 +238,29 @@ class FilesDAO:
         return query
 
     @staticmethod
+    def _filter_remote(req: ListFilesRequest, query):
+        """Filter by local/external origin."""
+        if req.remote is None:
+            return query
+        if req.remote:
+            return query.filter(Files.contributor != None)
+        return query.filter(Files.contributor == None)
+
+    @staticmethod
+    def _filter_repository(req: ListFilesRequest, query):
+        """Filter by repository name (external files only)."""
+        if req.repository is not None:
+            return query.filter(Files.contributor.has(Contributor.repository.has(Repository.name == req.repository)))
+        return query
+
+    @staticmethod
+    def _filter_contributor(req: ListFilesRequest, query):
+        """Filter by contributor name (external files only)."""
+        if req.contributor is not None:
+            return query.filter(Files.contributor.has(Contributor.name == req.contributor))
+        return query
+
+    @staticmethod
     def _filter_by_file_attributes(req: ListFilesRequest, query):
         """Apply filters related to the properties of video file itself."""
         query = FilesDAO._filter_path(req, query)
@@ -244,4 +270,7 @@ class FilesDAO:
         query = FilesDAO._filter_date(req, query)
         query = FilesDAO._filter_length(req, query)
         query = FilesDAO._filter_hash(req, query)
+        query = FilesDAO._filter_remote(req, query)
+        query = FilesDAO._filter_repository(req, query)
+        query = FilesDAO._filter_contributor(req, query)
         return query
