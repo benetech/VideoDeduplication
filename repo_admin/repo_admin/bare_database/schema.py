@@ -198,17 +198,20 @@ class RepoDatabase:
                 return generated_role
         raise RuntimeError("Cannot generate a unique role name.")
 
-    def create_contributor(self, role: Role, txn=None):
+    def create_contributor(self, role: Role = None, txn=None) -> Role:
         """Create a database user for repository contributor."""
         with self.transaction(ongoing=txn) as txn:
             if role is None:
                 role = self._generate_unique_role(txn)
+            else:
+                # Make sure password is specified
+                role = Role.fill(role)
             role.ensure_valid()
             txn.execute(sql.text(f"CREATE USER {role.name} WITH PASSWORD :password"), password=role.password)
             txn.execute(f"GRANT {self.PARENT_ROLE.name} TO {role.name}")
             return role
 
-    def is_contributor(self, role: Role, txn=None):
+    def is_contributor(self, role: Role, txn=None) -> bool:
         """Check if the given role is existing contributor role."""
         with self.transaction(ongoing=txn) as txn:
             is_contributor = txn.execute(
