@@ -39,9 +39,7 @@ jobs:
 
   unit-tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.6]
+    container: python:3.6
 
     services:
       postgres:
