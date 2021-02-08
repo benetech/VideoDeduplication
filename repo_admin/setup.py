@@ -33,6 +33,13 @@ setuptools.setup(
         "sqlalchemy-utils",
         "coolname",
     ],
+    extras_require={
+        "dev": [
+            "pytest",
+            "black~=20.8b1",
+            "flake8",
+        ],
+    },
     python_requires=">=3.6",
     test_suite="tests",
     entry_points={"console_scripts": ["repo-admin=repo_admin.cli.main:main"]},
