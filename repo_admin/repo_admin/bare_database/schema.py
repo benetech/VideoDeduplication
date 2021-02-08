@@ -1,9 +1,7 @@
 import logging
-import re
-import secrets
 from contextlib import contextmanager
+from typing import Tuple
 
-import coolname
 from sqlalchemy import (
     Table,
     Column,
@@ -21,6 +19,7 @@ from sqlalchemy import (
 
 # Default module logger
 from repo_admin.bare_database.error import RepoOperationError
+from repo_admin.bare_database.model import Role
 
 logger = logging.getLogger(__name__)
 
@@ -134,19 +133,8 @@ event.listen(fingerprints_table, "after_create", _update_fingerprint_trigger.exe
 class RepoDatabase:
     """ReoDatabase offers high-level operations on the repository database."""
 
-    USER_PARENT_ROLE = "benetech_repo_user_group"
-    NAME_PATTERN = re.compile(r"^[\w][\w_]*$")
-
-    @staticmethod
-    def is_valid_name(user_name):
-        """Check if the user name is valid."""
-        return bool(RepoDatabase.NAME_PATTERN.match(user_name))
-
-    @staticmethod
-    def _ensure_safe_name(user_name):
-        """Ensure the given name is safe user name."""
-        if not RepoDatabase.is_valid_name(user_name):
-            raise ValueError(f"Invalid user name: '{user_name}'")
+    # Immutable parent role for all contributor roles.
+    PARENT_ROLE = Role(name="benetech_repo_user_group")
 
     def __init__(self, url, **engine_args):
         self.engine = create_engine(url, **engine_args)
@@ -157,116 +145,118 @@ class RepoDatabase:
     def apply_schema(self):
         """Apply repository database schema."""
         metadata.create_all(bind=self.engine)
-        self._ensure_parent_role_exists(txn=self.engine)
+        self._create_parent_role()
 
     def drop_schema(self):
         """Drop all elements defined by repository database schema."""
         metadata.drop_all(bind=self.engine)
-        self._drop_all_users()
+        self._drop_contributor_roles()
+
+    def _create_parent_role(self, txn=None):
+        """Create a parent role for all contributor roles."""
+        with self.transaction(ongoing=txn) as txn:
+            txn.execute(f"CREATE ROLE {self.PARENT_ROLE.name} NOINHERIT")
+            txn.execute(f"GRANT INSERT, SELECT, UPDATE, DELETE ON fingerprints TO {self.PARENT_ROLE.name}")
+            txn.execute(f"GRANT USAGE, SELECT ON SEQUENCE fingerprints_id_seq TO {self.PARENT_ROLE.name}")
+
+    def _drop_contributor_roles(self, txn=None):
+        """Drop all contributor roles."""
+        roles = self.list_contributors()
+        with self.transaction(ongoing=txn) as txn:
+            for role in roles:
+                self._delete_role(role, txn)
+            self._delete_role(self.PARENT_ROLE, txn)
+
+    def _delete_role(self, role: Role, txn=None):
+        """Unconditionally delete a database role."""
+        role.ensure_valid()
+        with self.transaction(ongoing=txn) as txn:
+            txn.execute(f"DROP USER IF EXISTS {role.name}")
 
     @contextmanager
-    def _transaction(self):
-        """Execute code in a transaction."""
-        with self.engine.connect() as connection:
-            with connection.begin():
-                yield connection
+    def transaction(self, ongoing=None):
+        """Execute a code in a transaction."""
+        if ongoing is not None:
+            # Use ongoing transaction if possible
+            yield ongoing
+        else:
+            # Otherwise create a new one
+            with self.engine.connect() as connection:
+                with connection.begin():
+                    yield connection
 
-    def _role_exists(self, role_name, txn):
+    def _exists(self, role: Role, txn):
         """Check role exists."""
         statement = sql.text("SELECT COUNT(1) FROM pg_roles WHERE rolname = :name")
-        return txn.execute(statement, name=role_name).scalar() == 1
+        return txn.execute(statement, name=role.name).scalar() == 1
 
-    def _ensure_parent_role_exists(self, txn):
-        """Ensure the parent role for repo users exists."""
-        if not self._role_exists(self.USER_PARENT_ROLE, txn):
-            logger.info("Creating parent role '%s' for repository users", self.USER_PARENT_ROLE)
-            txn.execute(f"CREATE ROLE {self.USER_PARENT_ROLE} NOINHERIT")
-        txn.execute(f"GRANT INSERT, SELECT, UPDATE, DELETE ON fingerprints TO {self.USER_PARENT_ROLE}")
-        txn.execute(f"GRANT USAGE, SELECT ON SEQUENCE fingerprints_id_seq TO {self.USER_PARENT_ROLE}")
-
-    def _generate_random_user_name(self, txn):
-        """Generate random unique user name."""
+    def _generate_unique_role(self, txn):
+        """Generate a unique contributor name."""
         for _ in range(42):
-            new_name = "_".join(coolname.generate(2))
-            if not self._role_exists(new_name, txn):
-                return new_name
-        raise RuntimeError("Cannot generate a unique name.")
+            generated_role = Role.generate()
+            if not self._exists(generated_role, txn):
+                return generated_role
+        raise RuntimeError("Cannot generate a unique role name.")
 
-    def _generate_random_password(self, length=40):
-        """Generate cryptographically strong random password."""
-        return secrets.token_urlsafe(nbytes=length)
-
-    def create_user(self, name=None, password=None):
+    def create_contributor(self, role: Role, txn=None):
         """Create a database user for repository contributor."""
-        if name is not None:
-            self._ensure_safe_name(name)
-        with self._transaction() as txn:
-            self._ensure_parent_role_exists(txn)
-            name = name or self._generate_random_user_name(txn)
-            password = password or self._generate_random_password()
-            txn.execute(sql.text(f"CREATE USER {name} WITH PASSWORD :password"), password=password)
-            txn.execute(f"GRANT {self.USER_PARENT_ROLE} TO {name}")
-            return name, password
+        with self.transaction(ongoing=txn) as txn:
+            if role is None:
+                role = self._generate_unique_role(txn)
+            role.ensure_valid()
+            txn.execute(sql.text(f"CREATE USER {role.name} WITH PASSWORD :password"), password=role.password)
+            txn.execute(f"GRANT {self.PARENT_ROLE.name} TO {role.name}")
+            return role
 
-    def _ensure_contributor(self, user_name, txn):
+    def is_contributor(self, role: Role, txn=None):
+        """Check if the given role is existing contributor role."""
+        with self.transaction(ongoing=txn) as txn:
+            is_contributor = txn.execute(
+                sql.text(
+                    "SELECT COUNT(1) "
+                    "FROM pg_roles parent "
+                    "JOIN pg_auth_members member ON (member.roleid = parent.oid) "
+                    "JOIN pg_roles contrib ON (member.member = contrib.oid) "
+                    f"WHERE (parent.rolname = :parent_role)"
+                    f"AND (contrib.rolname = :contributor_name)"
+                ),
+                parent_role=self.PARENT_ROLE.name,
+                contributor_name=role.name,
+            ).scalar()
+            return bool(is_contributor)
+
+    def _ensure_contributor(self, role: Role, txn=None):
         """Ensure the given database user is a repository contributor."""
-        # Database user cannot be a contributor if parent role is not initialized
-        if not self._role_exists(self.USER_PARENT_ROLE, txn):
-            raise RepoOperationError(f"'{user_name}' is not a repository contributor")
-        is_contributor_query = txn.execute(
-            sql.text(
-                "SELECT COUNT(1) "
-                "FROM pg_roles parent "
-                "JOIN pg_auth_members member ON (member.roleid = parent.oid) "
-                "JOIN pg_roles contrib ON (member.member = contrib.oid) "
-                f"WHERE (parent.rolname = :parent_role)"
-                f"AND (contrib.rolname = :user_name)"
-            ),
-            parent_role=self.USER_PARENT_ROLE,
-            user_name=user_name,
-        )
-        is_contributor = is_contributor_query.scalar() == 1
-        if not is_contributor:
-            raise RepoOperationError(f"'{user_name}' is not a repository contributor")
+        if not self.is_contributor(role, txn):
+            raise RepoOperationError(f"'{role.name}' is not a repository contributor")
 
-    def delete_user(self, name):
+    def delete_contributor(self, role: Role, txn=None) -> Role:
         """Delete a repo contributor database user."""
-        self._ensure_safe_name(name)
-        with self._transaction() as txn:
-            self._ensure_contributor(name, txn)
-            txn.execute(f"DROP USER {name}")
+        with self.transaction(ongoing=txn) as txn:
+            self._ensure_contributor(role, txn)
+            self._delete_role(role, txn)
+            return role
 
-    def update_password(self, name, password=None):
-        """Update a repo contributor database password."""
-        self._ensure_safe_name(name)
-        with self._transaction() as txn:
-            self._ensure_contributor(name, txn)
-            password = password or self._generate_random_password()
-            txn.execute(sql.text(f"ALTER USER {name} WITH PASSWORD :password"), password=password)
-            return name, password
+    def update_contributor(self, role: Role, txn=None) -> Role:
+        """Update a repo contributor role password. Return the argument."""
+        role.ensure_valid()
+        with self.transaction(ongoing=txn) as txn:
+            self._ensure_contributor(role, txn)
+            new_password = role.password or Role.generate().password
+            txn.execute(sql.text(f"ALTER USER {role.name} WITH PASSWORD :password"), password=new_password)
+            return Role(name=role.name, password=new_password)
 
-    def list_users(self):
+    def list_contributors(self, txn=None) -> Tuple[Role]:
         """List a repo contributors."""
-        with self._transaction() as txn:
-            if not self._role_exists(self.USER_PARENT_ROLE, txn):
-                return ()
+        with self.transaction(ongoing=txn) as txn:
             results = txn.execute(
                 sql.text(
                     "SELECT contrib.rolname "
                     "FROM pg_roles parent "
                     "JOIN pg_auth_members member ON (member.roleid = parent.oid) "
                     "JOIN pg_roles contrib ON (member.member = contrib.oid) "
-                    "WHERE parent.rolname = :parent_rolname"
+                    "WHERE parent.rolname = :parent"
                 ),
-                parent_rolname=self.USER_PARENT_ROLE,
+                parent=self.PARENT_ROLE.name,
             )
-            return tuple(entry[0] for entry in results)
-
-    def _drop_all_users(self):
-        """Drop all users."""
-        users = self.list_users()
-        with self._transaction() as txn:
-            for user_name in users:
-                self._ensure_safe_name(user_name)
-                txn.execute(f"DROP USER IF EXISTS {user_name}")
-            txn.execute(f"DROP USER IF EXISTS {self.USER_PARENT_ROLE}")
+            return tuple(Role(name=entry[0]) for entry in results)

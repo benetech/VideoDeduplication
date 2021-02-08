@@ -4,6 +4,7 @@ from typing import Optional
 import inquirer
 from termcolor import colored
 
+from repo_admin.bare_database.model import Role
 from repo_admin.bare_database.schema import RepoDatabase
 from repo_admin.cli.platform.arguments import resolve_database_url
 from repo_admin.cli.platform.error import handle_errors
@@ -35,18 +36,9 @@ class UserCliHandler:
             password=password,
         )
         repo = RepoDatabase(url=database_url, echo=bool(verbose))
-        contributor_name, contributor_password = repo.create_user(name=contributor_name, password=contributor_password)
+        created = repo.create_contributor(Role(name=contributor_name, password=contributor_password))
         print("Successfully created a new contributor:")
-        print(f"[username]: {contributor_name}")
-        print(f"[password]: {repr(contributor_password)}\n")
-        print(
-            colored("WARNING:", "yellow", attrs=("bold",)),
-            colored(
-                "This is the only time you will be able to view this password. "
-                "However you can modify users to create a new password at any time.",
-                "yellow",
-            ),
-        )
+        self._print_role(created)
 
     @handle_errors
     def delete(
@@ -77,7 +69,7 @@ class UserCliHandler:
             password=password,
         )
         repo = RepoDatabase(url=database_url, echo=bool(verbose))
-        repo.delete_user(name=contributor_name)
+        repo.delete_contributor(Role(name=contributor_name))
 
     @handle_errors
     def list(
@@ -99,8 +91,8 @@ class UserCliHandler:
             password=password,
         )
         repo = RepoDatabase(url=database_url)
-        for contributor in repo.list_users():
-            print(contributor)
+        for role in repo.list_contributors():
+            print(role.name)
 
     @handle_errors
     def update(
@@ -125,12 +117,14 @@ class UserCliHandler:
             password=password,
         )
         repo = RepoDatabase(url=database_url, echo=bool(verbose))
-        contributor_name, contributor_password = repo.update_password(
-            name=contributor_name, password=contributor_password
-        )
+        updated = repo.update_contributor(Role(name=contributor_name, password=contributor_password))
         print("Successfully updated contributor password:")
-        print(f"[username]: {contributor_name}")
-        print(f"[password]: {repr(contributor_password)}\n")
+        self._print_role(updated)
+
+    def _print_role(self, role: Role):
+        """Print role credentials."""
+        print(f"[username]: {role.name}")
+        print(f"[password]: {repr(role.password)}\n")
         print(
             colored("WARNING:", "yellow", attrs=("bold",)),
             colored(
