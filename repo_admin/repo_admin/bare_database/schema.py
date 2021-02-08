@@ -162,6 +162,7 @@ class RepoDatabase:
     def drop_schema(self):
         """Drop all elements defined by repository database schema."""
         metadata.drop_all(bind=self.engine)
+        self._drop_all_users()
 
     @contextmanager
     def _transaction(self):
@@ -260,3 +261,12 @@ class RepoDatabase:
                 parent_rolname=self.USER_PARENT_ROLE,
             )
             return tuple(entry[0] for entry in results)
+
+    def _drop_all_users(self):
+        """Drop all users."""
+        users = self.list_users()
+        with self._transaction() as txn:
+            for user_name in users:
+                self._ensure_safe_name(user_name)
+                txn.execute(f"DROP USER {user_name}")
+            txn.execute(f"DROP USER {self.USER_PARENT_ROLE}")
