@@ -1,4 +1,5 @@
 import logging
+import re
 import secrets
 from contextlib import contextmanager
 
@@ -15,6 +16,7 @@ from sqlalchemy import (
     event,
     UniqueConstraint,
     Sequence,
+    sql,
 )
 
 # Default module logger
@@ -133,6 +135,18 @@ class RepoDatabase:
     """ReoDatabase offers high-level operations on the repository database."""
 
     USER_PARENT_ROLE = "benetech_repo_user_group"
+    NAME_PATTERN = re.compile(r"^[\w][\w_]*$")
+
+    @staticmethod
+    def is_valid_name(user_name):
+        """Check if the user name is valid."""
+        return bool(RepoDatabase.NAME_PATTERN.match(user_name))
+
+    @staticmethod
+    def _ensure_safe_name(user_name):
+        """Ensure the given name is safe user name."""
+        if not RepoDatabase.is_valid_name(user_name):
+            raise ValueError(f"Invalid user name: '{user_name}'")
 
     def __init__(self, url, **engine_args):
         self.engine = create_engine(url, **engine_args)
@@ -158,7 +172,8 @@ class RepoDatabase:
 
     def _role_exists(self, role_name, txn):
         """Check role exists."""
-        return txn.execute(f"SELECT COUNT(1) FROM pg_roles WHERE " f"rolname = '{role_name}'").scalar() == 1
+        statement = sql.text("SELECT COUNT(1) FROM pg_roles WHERE rolname = :name")
+        return txn.execute(statement, name=role_name).scalar() == 1
 
     def _ensure_parent_role_exists(self, txn):
         """Ensure the parent role for repo users exists."""
@@ -182,11 +197,13 @@ class RepoDatabase:
 
     def create_user(self, name=None, password=None):
         """Create a database user for repository contributor."""
+        if name is not None:
+            self._ensure_safe_name(name)
         with self._transaction() as txn:
             self._ensure_parent_role_exists(txn)
             name = name or self._generate_random_user_name(txn)
             password = password or self._generate_random_password()
-            txn.execute(f"CREATE USER {name} WITH PASSWORD '{password}'")
+            txn.execute(sql.text(f"CREATE USER {name} WITH PASSWORD :password"), password=password)
             txn.execute(f"GRANT {self.USER_PARENT_ROLE} TO {name}")
             return name, password
 
@@ -196,12 +213,16 @@ class RepoDatabase:
         if not self._role_exists(self.USER_PARENT_ROLE, txn):
             raise RepoOperationError(f"'{user_name}' is not a repository contributor")
         is_contributor_query = txn.execute(
-            "SELECT COUNT(1) "
-            "FROM pg_roles parent "
-            "JOIN pg_auth_members member ON (member.roleid = parent.oid) "
-            "JOIN pg_roles contrib ON (member.member = contrib.oid) "
-            f"WHERE (parent.rolname = '{self.USER_PARENT_ROLE}')"
-            f"AND (contrib.rolname = '{user_name}')"
+            sql.text(
+                "SELECT COUNT(1) "
+                "FROM pg_roles parent "
+                "JOIN pg_auth_members member ON (member.roleid = parent.oid) "
+                "JOIN pg_roles contrib ON (member.member = contrib.oid) "
+                f"WHERE (parent.rolname = :parent_role)"
+                f"AND (contrib.rolname = :user_name)"
+            ),
+            parent_role=self.USER_PARENT_ROLE,
+            user_name=user_name,
         )
         is_contributor = is_contributor_query.scalar() == 1
         if not is_contributor:
@@ -209,16 +230,18 @@ class RepoDatabase:
 
     def delete_user(self, name):
         """Delete a repo contributor database user."""
+        self._ensure_safe_name(name)
         with self._transaction() as txn:
             self._ensure_contributor(name, txn)
             txn.execute(f"DROP USER {name}")
 
     def update_password(self, name, password=None):
         """Update a repo contributor database password."""
+        self._ensure_safe_name(name)
         with self._transaction() as txn:
             self._ensure_contributor(name, txn)
             password = password or self._generate_random_password()
-            txn.execute(f"ALTER USER {name} WITH PASSWORD '{password}'")
+            txn.execute(sql.text(f"ALTER USER {name} WITH PASSWORD :password"), password=password)
             return name, password
 
     def list_users(self):
@@ -227,10 +250,13 @@ class RepoDatabase:
             if not self._role_exists(self.USER_PARENT_ROLE, txn):
                 return ()
             results = txn.execute(
-                "SELECT contrib.rolname "
-                "FROM pg_roles parent "
-                "JOIN pg_auth_members member ON (member.roleid = parent.oid) "
-                "JOIN pg_roles contrib ON (member.member = contrib.oid) "
-                f"WHERE parent.rolname = '{self.USER_PARENT_ROLE}'"
+                sql.text(
+                    "SELECT contrib.rolname "
+                    "FROM pg_roles parent "
+                    "JOIN pg_auth_members member ON (member.roleid = parent.oid) "
+                    "JOIN pg_roles contrib ON (member.member = contrib.oid) "
+                    "WHERE parent.rolname = :parent_rolname"
+                ),
+                parent_rolname=self.USER_PARENT_ROLE,
             )
             return tuple(entry[0] for entry in results)
