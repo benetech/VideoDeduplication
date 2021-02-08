@@ -1,4 +1,4 @@
-name: Repo-Admin CI
+name: Repo-Admin
 
 on:
   push:
@@ -7,8 +7,7 @@ on:
     branches: [ development ]
 
 jobs:
-  unit-tests:
-
+  static-checks:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -23,9 +22,7 @@ jobs:
       - name: Install dependencies
         working-directory: ./repo_admin
         run: |
-          python -m pip install --upgrade pip
-          pip install flake8 'black~=20.8b1'
-          pip install -r requirements.txt
+          pip install -e .[dev]
       - name: Check formatting with black
         working-directory: ./repo_admin
         run: |
@@ -39,8 +36,37 @@ jobs:
           # --ignore=E203 as it is not PEP8 and black style compliant. See: https://github.com/psf/black/issues/315
           # Also --ignore=W503 as it is not compatible with black style.
           flake8 repo_admin --count --max-complexity=10 --ignore=E203,W503 --max-line-length=120 --statistics
-#      - name: Test with pytest
-#        working-directory: ./repo_admin
-#        run: |
-#          export PYTHONPATH="$(pwd)"
-#          pytest tests
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6]
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: admin
+          POSTGRES_USER: admin
+          POSTGRES_DB: repo
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        working-directory: ./repo_admin
+        run: |
+          pip install -e .[dev]
+      - name: Install dependencies
+        working-directory: ./repo_admin
+        run: |
+          pytest --integration --database_uri=postgresql://admin:admin@postgres:5432/repo
