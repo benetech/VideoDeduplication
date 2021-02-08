@@ -268,5 +268,5 @@ class RepoDatabase:
         with self._transaction() as txn:
             for user_name in users:
                 self._ensure_safe_name(user_name)
-                txn.execute(f"DROP USER {user_name}")
-            txn.execute(f"DROP USER {self.USER_PARENT_ROLE}")
+                txn.execute(f"DROP USER IF EXISTS {user_name}")
+            txn.execute(f"DROP USER IF EXISTS {self.USER_PARENT_ROLE}")
