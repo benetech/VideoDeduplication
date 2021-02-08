@@ -27,15 +27,15 @@ jobs:
         working-directory: ./repo_admin
         run: |
           # Check formatting of the dedup-app python files
-          black --line-length 120 --check repo_admin
+          black --line-length 120 --check repo_admin tests
       - name: Lint with flake8
         working-directory: ./repo_admin
         run: |
           # stop the build if there are Python syntax errors or undefined names
-          flake8 repo_admin --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 repo_admin tests --count --select=E9,F63,F7,F82 --show-source --statistics
           # --ignore=E203 as it is not PEP8 and black style compliant. See: https://github.com/psf/black/issues/315
           # Also --ignore=W503 as it is not compatible with black style.
-          flake8 repo_admin --count --max-complexity=10 --ignore=E203,W503 --max-line-length=120 --statistics
+          flake8 repo_admin tests --count --max-complexity=10 --ignore=E203,W503 --max-line-length=120 --statistics
 
   unit-tests:
     runs-on: ubuntu-latest

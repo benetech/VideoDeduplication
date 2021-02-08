@@ -220,8 +220,8 @@ class RepoDatabase:
                     "FROM pg_roles parent "
                     "JOIN pg_auth_members member ON (member.roleid = parent.oid) "
                     "JOIN pg_roles contrib ON (member.member = contrib.oid) "
-                    f"WHERE (parent.rolname = :parent_role)"
-                    f"AND (contrib.rolname = :contributor_name)"
+                    "WHERE (parent.rolname = :parent_role)"
+                    "AND (contrib.rolname = :contributor_name)"
                 ),
                 parent_role=self.PARENT_ROLE.name,
                 contributor_name=role.name,
