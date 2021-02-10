@@ -1,5 +1,6 @@
 sources:
   root: data/
+
   extensions:
     - mp4
     - ogv
@@ -7,8 +8,7 @@ sources:
     - avi
 
 repr:
-  directory: data/representations
-
+  directory: data/planet_earth
 
 processing:
   frame_sampling: 1
@@ -19,11 +19,12 @@ processing:
   filter_dark_videos_thr: 2
   min_video_duration_seconds: 3
   detect_scenes: true
+  minimum_scene_duration: 2
   pretrained_model_local_path: null
   keep_fileoutput: true
 
 database:
-  use: true
+  use: false
   uri: postgres://postgres:admin@postgres:5432/videodeduplicationdb
 
 templates:

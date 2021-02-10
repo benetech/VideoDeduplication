@@ -60,6 +60,7 @@ class ProcessingConfig:
     filter_dark_videos_thr: int = 2
     min_video_duration_seconds: int = 3
     detect_scenes: bool = True
+    minimum_scene_duration: int = 2
     pretrained_model_local_path: str = None
     frame_sampling: int = 1
     save_frames: bool = True
