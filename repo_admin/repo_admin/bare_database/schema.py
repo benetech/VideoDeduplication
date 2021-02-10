@@ -146,6 +146,7 @@ class RepoDatabase:
         """Apply repository database schema."""
         metadata.create_all(bind=self.engine)
         self._create_parent_role()
+        self._configure_schema_permissions()
 
     def drop_schema(self):
         """Drop all elements defined by repository database schema."""
@@ -158,6 +159,12 @@ class RepoDatabase:
             txn.execute(f"CREATE ROLE {self.PARENT_ROLE.name} NOINHERIT")
             txn.execute(f"GRANT INSERT, SELECT, UPDATE, DELETE ON fingerprints TO {self.PARENT_ROLE.name}")
             txn.execute(f"GRANT USAGE, SELECT ON SEQUENCE fingerprints_id_seq TO {self.PARENT_ROLE.name}")
+
+    def _configure_schema_permissions(self, txn=None):
+        """Configure default schema permissions."""
+        with self.transaction(ongoing=txn) as txn:
+            schema_name = txn.execute("SELECT current_schema()").scalar()
+            txn.execute(f"REVOKE CREATE ON SCHEMA {schema_name} from public")
 
     def _drop_contributor_roles(self, txn=None):
         """Drop all contributor roles."""
