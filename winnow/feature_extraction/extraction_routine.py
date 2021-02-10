@@ -9,10 +9,7 @@ from .model_tf import CNN_tf
 from .utils import load_video
 from ..pipeline.progress_monitor import ProgressMonitor
 
-logger = logging.getLogger()
-logger.setLevel(logging.ERROR)
-output_file_handler = logging.FileHandler("processing_error.log")
-logger.addHandler(output_file_handler)
+logger = logging.getLogger(__name__)
 
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -51,13 +48,11 @@ def feature_extraction_videos(
     """
     video_list = {i: video.strip() for i, video in enumerate(open(video_list, encoding="utf-8").readlines())}
 
-    print("\nNumber of videos: ", len(video_list))
-    print("Storage directory: ", reprs)
-    print("CPU cores: ", cores)
-    print("Batch size: ", batch_sz)
-
-    print("\nFeature Extraction Process")
-    print("==========================")
+    logger.info("Number of videos: %s", len(video_list))
+    logger.info("Storage directory: %s", reprs)
+    logger.info("CPU cores: %s", cores)
+    logger.info("Batch size: %s", batch_sz)
+    logger.info("Starting Feature Extraction Process")
 
     pool = mp.Pool(cores)
     future_videos = dict()
@@ -106,8 +101,6 @@ def feature_extraction_videos(
     progress_monitor.complete()
 
 
-def load_featurizer(PRETRAINED_LOCAL_PATH):
-
-    model = CNN_tf("vgg", PRETRAINED_LOCAL_PATH)
-
-    return model
+def load_featurizer(pretrained_local_path):
+    """Load pretrained model."""
+    return CNN_tf("vgg", pretrained_local_path)
