@@ -1,9 +1,10 @@
 from math import floor
 
 import pytest
+import sqlalchemy.exc
 
 from repo_admin.bare_database.model import Role
-from repo_admin.bare_database.schema import RepoDatabase
+from repo_admin.bare_database.schema import RepoDatabase, fingerprints_table
 from tests.conftest import integration
 from tests.helpers import connect_as, insert_one, select_one, insert_many, select_all, files, Record, delete_all, names
 
@@ -174,3 +175,19 @@ def test_delete_others(database: RepoDatabase):
     after_second_deletion = select_all(as_first)
 
     assert not files(after_second_deletion)
+
+
+@integration
+def test_create_table(database: RepoDatabase):
+    user = database.create_contributor()
+    as_user = connect_as(database, user)
+    with pytest.raises(sqlalchemy.exc.ProgrammingError):
+        as_user.execute("CREATE TABLE my_table (id INTEGER PRIMARY KEY)")
+
+
+@integration
+def test_drop_table(database: RepoDatabase):
+    user = database.create_contributor()
+    as_user = connect_as(database, user)
+    with pytest.raises(sqlalchemy.exc.ProgrammingError):
+        as_user.execute(f"DROP TABLE {fingerprints_table.name}")
