@@ -191,11 +191,13 @@ These scripts use the 'config.yaml' file to define where to collect data from, h
 
 **filter_dark_videos**: [true / false] Whether to remove dark videos from final output files.
 
-**filter_dark_videos_thr**:[1-10 int range] Ideally a number 1 and 10. Higher numbers means we will less strict when filtering out dark videos.
+**filter_dark_videos_thr**:[1-10 int range] Ideally a number between 1 and 10. Higher numbers means we will be less strict when filtering out dark videos.
 
 **\*min_video_duration_seconds**: Minimum video duration in secondds
 
 **detect_scenes**: [true / false] Whether to run scene detection or not.
+
+**minimum_scene_duration**: [1-5 int range] Ideally a number between 1 and 10. Higher numbers means we will be append smaller scenes into larger oners.
 
 **use_pretrained_model_local_path:** [true / false] Whether to use the pretrained model from your local file system
 
@@ -259,7 +261,6 @@ Exif Extraction
 
 `python extract_exif.py`
 
-
 Benchmarks
 
 We have created a few benchmarking scripts to allow performance testing for a few features of the project.
@@ -286,6 +287,13 @@ This script will download our subset of the [google landmark dataset](https://gi
 The results of the benchmarking script are saved at the root of
 the data folder.
 
+### Scene detection
 
+In order to evaluate scene detection, please run the script below:
 
+`python benchmarks/evaluate.py --benchmark scene_detection`
 
+This script will download our subset of the [Planet Earth](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=12).
+
+The results of the benchmarking script are saved at the root of
+the data folder.
