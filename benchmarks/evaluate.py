@@ -1,6 +1,6 @@
 import pandas as pd
 from glob import glob
-from utils import evaluate_augmented_dataset, evaluate_landmarks
+from utils import evaluate_augmented_dataset, evaluate_landmarks, evaluate_scene_detection
 import os
 from winnow.utils.config import resolve_config
 import click
@@ -38,6 +38,10 @@ def main(benchmark, force_download, overwrite):
     elif benchmark == "landmarks":
 
         evaluate_landmarks(config, force_download, overwrite, config_path)
+
+    elif benchmark == "scene_detection":
+
+        evaluate_scene_detection(config, force_download, overwrite, config_path)
 
     else:
 

@@ -1,5 +1,5 @@
 sources:
-  root: data/landmarks
+  root: data/planet_earth
   extensions:
     - mp4
     - ogv

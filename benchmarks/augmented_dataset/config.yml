@@ -17,6 +17,7 @@ processing:
   filter_dark_videos: true
   filter_dark_videos_thr: 2
   min_video_duration_seconds: 3
+  minimum_scene_duration: 2
   detect_scenes: true
   pretrained_model_local_path: null
   keep_fileoutput: true
