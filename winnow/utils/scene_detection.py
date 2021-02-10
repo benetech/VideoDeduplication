@@ -114,6 +114,21 @@ class SceneExtractionResults:
     total_video_duration_timestamp: List[datetime.timedelta] = None
 
 
+def filter_short_scenes(scene_duration_list, min_duration=2):
+
+    adj = []
+    buffer = 0
+    for scene in scene_duration_list:
+        if scene > min_duration:
+            scene += buffer
+            adj.append(scene)
+            buffer = 0
+
+        else:
+            buffer += scene
+    return adj
+
+
 def frame_iterator(keys, lmdb_repr):
     for key in keys:
 
@@ -129,7 +144,9 @@ def frame_iterator(keys, lmdb_repr):
             logger.error("Error processing:{} - {}".format(key, e))
 
 
-def extract_scenes(frame_level_reps, lmdb_repr, minimum_duration=10):
+def extract_scenes(
+    frame_level_reps, lmdb_repr, minimum_duration=10, upper_thresh=0.793878, min_dif=0.04, min_scene_duration=2
+):
     """
 
     Extracts scenes from a list of files
@@ -165,7 +182,7 @@ def extract_scenes(frame_level_reps, lmdb_repr, minimum_duration=10):
             paths.append(path)
             hashes.append(file_hash)
 
-    scene_ident = [((diffs > np.quantile(diffs, 0.90)) & (diffs > 0.05)) for diffs in raw_scenes]
+    scene_ident = [((diffs > np.quantile(diffs, upper_thresh)) & (diffs > min_dif)) for diffs in raw_scenes]
 
     video_scenes = []
     for sid in scene_ident:
@@ -184,6 +201,9 @@ def extract_scenes(frame_level_reps, lmdb_repr, minimum_duration=10):
     results.video_filename = paths
     results.video_sha256 = hashes
     results.scene_duration_seconds = [get_duration(x) for x in video_scenes]
+    results.scene_duration_seconds = [
+        filter_short_scenes(x, min_scene_duration) for x in results.scene_duration_seconds
+    ]
     results.scenes_timestamp = [seconds_to_time(d) for d in results.scene_duration_seconds]
     results.num_scenes = [len(x) for x in video_scenes]
     results.avg_duration_seconds = [np.mean(x) for x in results.scene_duration_seconds]
