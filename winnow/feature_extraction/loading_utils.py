@@ -69,7 +69,7 @@ def global_vector_from_tensor(video_tensor):
         X = normalize(X)
         return X
     except Exception:
-        print("Error processing video tensor.")
+        logger.exception("Error processing video tensor.")
         return np.array([])
 
 
@@ -93,8 +93,8 @@ def global_vector(frame_feature_vector):
         X = normalize(X)
         return X
     except Exception:
-        print("Error processing video tensor.")
-        return np.array([])
+        logger.exception("Error processing video tensor.")
+        raise
 
 
 def frame_to_global(representations, progress_monitor=ProgressMonitor.NULL):
