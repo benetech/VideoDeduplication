@@ -10,7 +10,7 @@ from winnow.utils.repr import get_config_tag
 logger = logging.getLogger(__name__)
 
 
-class PathToLMDB:
+class PathToLMDBMigration:
     """PathToLMDB carries out migration of PathReprStorage to LMDBReprStorage."""
 
     # Known representation types
@@ -36,11 +36,29 @@ class PathToLMDB:
             if clean_source:
                 path_storage.delete(path, sha256)
 
-    def migrate_all(self, root_directory=None, representations=KNOWN_REPRESENTATIONS):
+    def migrate_all(self, source_root, destination_root, clean_source=False, representations=KNOWN_REPRESENTATIONS):
         """Migrate entire representations directory inplace, cleaning up the old representations."""
-        root_directory = self._normalize(root_directory or self._config.repr.directory)
-        for repr_path in self._storage_paths(root_directory, representations):
-            self.migrate_single_storage(source=repr_path, destination=repr_path, clean_source=True)
+        source_root = self._normalize(source_root)
+        destination_root = self._normalize(destination_root)
+        for repr_name in representations:
+            source_repr_path = os.path.join(source_root, repr_name)
+            destination_repr_path = os.path.join(destination_root, repr_name)
+            if os.path.isdir(source_repr_path):
+                self.migrate_single_storage(
+                    source=source_repr_path,
+                    destination=destination_repr_path,
+                    clean_source=clean_source,
+                )
+
+    def migrate_all_inplace(self, root_directory=None, clean_source=False, representations=KNOWN_REPRESENTATIONS):
+        """Migrate representation storage inplace."""
+        root_directory = root_directory or self._config.repr.directory
+        self.migrate_all(
+            source_root=root_directory,
+            destination_root=root_directory,
+            clean_source=clean_source,
+            representations=representations,
+        )
 
     def _storage_paths(self, root_directory, representations):
         """List different representation storage paths."""
