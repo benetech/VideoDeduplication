@@ -30,11 +30,14 @@ class PathToLMDBMigration:
         config_tag = get_config_tag(self._config)
         path_storage = PathReprStorage(directory=source)
         lmdb_storage = LMDBReprStorage(directory=destination)
-        for path, sha256 in path_storage.list():
-            repr_value = path_storage.read(path, sha256)
-            lmdb_storage.write(key=ReprKey(path=path, hash=sha256, tag=config_tag), value=repr_value)
-            if clean_source:
-                path_storage.delete(path, sha256)
+        try:
+            for path, sha256 in path_storage.list():
+                repr_value = path_storage.read(path, sha256)
+                lmdb_storage.write(key=ReprKey(path=path, hash=sha256, tag=config_tag), value=repr_value)
+                if clean_source:
+                    path_storage.delete(path, sha256)
+        finally:
+            lmdb_storage.close()
 
     def migrate_all(self, source_root, destination_root, clean_source=False, representations=KNOWN_REPRESENTATIONS):
         """Migrate entire representations directory inplace, cleaning up the old representations."""

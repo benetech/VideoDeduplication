@@ -1,12 +1,12 @@
 import json
 import logging
 import os
-from dataclasses import dataclass, asdict
 from glob import glob
 from os.path import join, relpath, abspath, exists, dirname
 
 import lmdb
 import numpy as np
+from dataclasses import dataclass, asdict
 
 from winnow.storage.repr_key import ReprKey
 
@@ -124,6 +124,10 @@ class LMDBReprStorage:
         """Count of storage entries."""
         with self._metadata_storage.begin(write=False) as txn:
             return txn.stat()["entries"]
+
+    def close(self):
+        """Dispose storage."""
+        self._metadata_storage.close()
 
     # Private methods
 

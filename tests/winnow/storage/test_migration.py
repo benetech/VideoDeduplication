@@ -68,6 +68,14 @@ def check_every(storage: ReprStorage, read, expected):
     assert read(storage.signature) == expected
 
 
+def close_all(storage: ReprStorage):
+    """Close all lmdb storages."""
+    storage.frames.close()
+    storage.frame_level.close()
+    storage.video_level.close()
+    storage.signature.close()
+
+
 def test_migrate_all_inplace(source):
     reprs = set(make_reprs(count=10))
     path_storage = ReprStorage(directory=source, storage_factory=PathReprStorage)
@@ -78,6 +86,7 @@ def test_migrate_all_inplace(source):
     check_every(path_storage, read_all_path, reprs)
     check_every(lmdb_storage, read_all_lmdb, set())
 
+    close_all(lmdb_storage)
     path_to_lmdb = PathToLMDBMigration(make_config(repr_root=source))
     path_to_lmdb.migrate_all_inplace()
 
@@ -97,6 +106,7 @@ def test_migrate_all_inplace_clean_source(source):
     check_every(path_storage, read_all_path, reprs)
     check_every(lmdb_storage, read_all_lmdb, set())
 
+    close_all(lmdb_storage)
     path_to_lmdb = PathToLMDBMigration(make_config(repr_root=source))
     path_to_lmdb.migrate_all_inplace(clean_source=True)
 
