@@ -9,7 +9,6 @@ sources:
 repr:
   directory: tests/test_data/test_output/representations
 
-
 processing:
   frame_sampling: 1
   save_frames: true
@@ -19,6 +18,7 @@ processing:
   filter_dark_videos_thr: 2
   min_video_duration_seconds: 3
   detect_scenes: true
+  minimum_scene_duration: 2
   pretrained_model_local_path: null
   keep_fileoutput: true
 
@@ -28,4 +28,3 @@ database:
 
 templates:
   source_path: data/templates/test-group/CCSI Object Recognition External/
-

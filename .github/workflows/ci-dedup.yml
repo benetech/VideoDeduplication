@@ -20,6 +20,18 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Maximize build space
+        run: |
+          echo "Available storage:"
+          df -h
+          echo
+          sudo apt clean
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          echo "Available storage:"
+          df -h
+          echo
       - name: Checkout
         uses: actions/checkout@v2
       - name: Copy test data

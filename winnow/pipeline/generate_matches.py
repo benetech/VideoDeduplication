@@ -117,7 +117,9 @@ def generate_matches(config, progress_monitor=ProgressMonitor.NULL, files=[]):  
         if files:
             frame_level_reps = files_reprkey
 
-        scenes = extract_scenes(frame_level_reps, reps.frame_level)
+        scenes = extract_scenes(
+            frame_level_reps, reps.frame_level, min_scene_duration=config.proc.minimum_scene_duration
+        )
         scene_metadata = pd.DataFrame(asdict(scenes))
 
         if config.database.use:

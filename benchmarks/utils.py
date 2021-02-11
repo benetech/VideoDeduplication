@@ -18,6 +18,14 @@ from winnow.utils.network import download_file
 from winnow.feature_extraction import SimilarityModel
 from winnow.utils.files import scan_videos
 from winnow.feature_extraction.loading_utils import plot_pr_curve
+from winnow.utils.config import resolve_config
+from winnow.utils.repr import reprkey_resolver
+from winnow.storage.repr_storage import ReprStorage
+from datetime import datetime, timedelta
+from sklearn.metrics import homogeneity_completeness_v_measure
+import time
+from dataclasses import asdict
+from winnow.utils.scene_detection import extract_scenes, filter_short_scenes, seconds_to_time
 
 
 def get_queries(min_num_of_samples, df, col="original_filename"):
@@ -357,3 +365,174 @@ def evaluate_landmarks(config, force_download, overwrite, config_path):
     np.save(dst_path, results)
 
     print("Landmark benchmarks saved to:", dst_path)
+
+
+def process_scenes(reps, upper_thresh, min_dif):
+    # Processes the evaluation dataset "Planet Earth" and returns results as a dataframe
+    scenes = extract_scenes(
+        reps.frame_level.list(), reps.frame_level, upper_thresh=upper_thresh, min_dif=min_dif, min_scene_duration=1
+    )
+    scenes_df = pd.DataFrame(asdict(scenes))
+    scenes_df["file_id"] = scenes_df["video_filename"].apply(lambda x: int(x.split(".")[0].split("_")[-1]))
+    return scenes_df
+
+
+def process_labels(fp="data/planet_earth/planet_earth/annotations/shots/**.txt"):
+
+    test_labels = glob(fp)
+    dfs = [pd.read_csv(x, sep="\t", names=["start", "end"]) for x in test_labels if x != "README.txt"]
+    scene_labels = pd.concat(dfs, keys=[int(os.path.basename(x).split(".")[0].split("_")[0]) for x in test_labels])
+    scene_labels_seconds = scene_labels / 25
+    scene_labels_seconds["length"] = scene_labels_seconds["end"] - scene_labels_seconds["start"]
+
+    return scene_labels_seconds
+
+
+def convert_to_seconds(timestamp):
+    t = time.strptime(timestamp, "%H:%M:%S")
+    return int(timedelta(hours=t.tm_hour, minutes=t.tm_min, seconds=t.tm_sec).total_seconds())
+
+
+def process_row(list_of_scenes):
+    start_end = []
+    for scene in list_of_scenes:
+        s, e = scene
+        standard = [convert_to_seconds(s), convert_to_seconds(e)]
+        standard.append(standard[-1] - standard[0])
+        start_end.append(standard)
+
+    return start_end
+
+
+def evaluate_video(labels, predicted_scenes, video_id=8):
+
+    sample_video_labels = labels.loc[(video_id,)].values
+    bins = []
+    counter = 0.0
+    for x in sample_video_labels[:, 2]:
+        bins.append(counter)
+        counter += x
+
+    axis = list(range(1, round(bins[-1])))
+
+    row = predicted_scenes.loc[predicted_scenes.file_id == video_id, ["scenes_timestamp"]].values[0][0]
+    list_of_scenes = process_row(row)
+    pred_bins = []
+    counter = 0.0
+    for x in np.array(list_of_scenes)[:, 2]:
+        pred_bins.append(counter)
+        counter += x
+
+    label_clusters = pd.cut(axis, bins)
+    pred_clusters = pd.cut(axis, pred_bins)
+    avg_number_scenes = predicted_scenes["num_scenes"].mean()
+    avg_scene_duration_seconds = predicted_scenes["avg_duration_seconds"].mean()
+    std_scene_duration_seconds = predicted_scenes["avg_duration_seconds"].std()
+
+    h, c, v = homogeneity_completeness_v_measure(label_clusters, pred_clusters)
+
+    return h, c, v, avg_number_scenes, avg_scene_duration_seconds, std_scene_duration_seconds
+
+
+def run_experiment(reps, upper_thresh=0.90, min_dif=0.05):
+
+    predicted_scenes = process_scenes(reps, upper_thresh, min_dif)
+    labels = process_labels()
+    results = []
+    for i in range(1, 12):
+        h, c, v, a, b, d = evaluate_video(labels, predicted_scenes, video_id=i)
+        results.append([h, c, v, a, b, d])
+
+    return np.array(results).mean(axis=0)
+
+
+def pipeline(reps, upper_thresh, min_dif, scene_length, labels):
+
+    # Runs a single benchmark run given the parameters above with minimun changes to the extract scenes code
+
+    predicted_scenes = process_scenes(reps, upper_thresh, min_dif)
+    predicted_scenes["scene_duration_seconds"] = predicted_scenes["scene_duration_seconds"].apply(
+        lambda x: filter_short_scenes(x, min_duration=scene_length)
+    )
+    predicted_scenes["num_scenes"] = predicted_scenes["scene_duration_seconds"].apply(lambda x: len(x))
+    predicted_scenes["avg_duration_seconds"] = predicted_scenes["scene_duration_seconds"].apply(lambda x: np.mean(x))
+    predicted_scenes["std_duration_seconds"] = predicted_scenes["scene_duration_seconds"].apply(lambda x: np.std(x))
+    predicted_scenes["scenes_timestamp"] = predicted_scenes["scene_duration_seconds"].apply(
+        lambda x: seconds_to_time(x)
+    )
+    results = []
+
+    for i in range(1, 12):
+        h, c, v, a, b, d = evaluate_video(labels, predicted_scenes, video_id=i)
+        results.append([h, c, v, a, b, d])
+
+    return np.array(results).mean(axis=0)
+
+
+def evaluate_scene_detection(config, force_download, overwrite, config_path):
+
+    source_folder = config.sources.root
+    videos = scan_videos(source_folder, "**")
+
+    if len(videos) == 0 or force_download:
+
+        download_dataset(
+            source_folder, url="https://justiceai.s3.amazonaws.com/scene_detection_evaluation_dataset.tar.xz"
+        )
+
+        videos = scan_videos(source_folder, "**")
+
+        print(f"Videos found after download:{len(videos)}")
+
+    if len(videos) > 0:
+
+        print("Video files found. Checking for existing signatures...")
+
+        signatures_path = os.path.join(config.repr.directory, "video_signatures", "**", "**.npy")
+
+        signatures = glob(os.path.join(signatures_path), recursive=True)
+
+        if len(signatures) == 0 or overwrite:
+
+            # Load signatures and labels
+            command = f"python extract_features.py -cp {config_path}"
+            command = shlex.split(command)
+            subprocess.run(command, check=True)
+
+        # Check if signatures were generated properly
+        signatures = glob(os.path.join(signatures_path), recursive=True)
+
+        # config = resolve_config(config_path='config.yaml')
+        reps = ReprStorage(config.repr.directory)
+        reprkey = reprkey_resolver(config)
+
+        labels = process_labels()
+        n = 25
+        upper_thresh_ranges = np.linspace(0.1, 0.95, num=n)
+        min_dif_ranges = np.linspace(0.0, 0.99, num=n)
+        scene_length = list(range(1, 5))
+        results = []
+        for ut in upper_thresh_ranges:
+            for md in min_dif_ranges:
+                for s in scene_length:
+                    try:
+                        results.append([ut, md, s, *pipeline(reps, ut, md, s, labels)])
+                    except Exception as e:
+                        print(e)
+                        continue
+        report_df = pd.DataFrame.from_records(results)
+        report_df.columns = [
+            "upper_thresh",
+            "min_dif",
+            "scene_length",
+            "homogeneity",
+            "completeness",
+            "v_measure",
+            "avg_number_scenes",
+            "avg_scene_duration_seconds",
+            "std_scene_duration_seconds",
+        ]
+
+        dst_path = os.path.join("data", "scene_detection_metrics.csv")
+
+        report_df.to_csv(dst_path)
