@@ -26,7 +26,7 @@ class PathToLMDBMigration:
 
     def migrate_single_storage(self, source, destination, clean_source=False):
         """Migrate single PathReprStorage to LMDBReprStorage."""
-        logger.info("Migrating path to lmdb storage: source=%s, destination=%s", source, destination)
+        logger.info("Migrating to lmdb storage:\n\tsrc=%s\n\tdst=%s", source, destination)
         config_tag = get_config_tag(self._config)
         path_storage = PathReprStorage(directory=source)
         lmdb_storage = LMDBReprStorage(directory=destination)
