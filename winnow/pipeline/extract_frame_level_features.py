@@ -13,23 +13,23 @@ def extract_frame_level_features(files: Collection[str], pipeline: PipelineConte
 
     config = pipeline.config
     logger = logging.getLogger(__name__)
-    logger.info("Starting frame-level feature extraction.")
 
     files = tuple(files)
-    logger.info("Number of files: %s", len(files))
-
     remaining_video_paths = tuple(missing_frame_features(files, pipeline))
-    logger.info(f"There are %s videos left", len(remaining_video_paths))
 
+    # Skip step if required results already exist
     if not remaining_video_paths:
         logger.info("All required frame-level features already exist. Skipping...")
         progress.complete()
         return
 
+    logger.info("Starting frame-level feature extraction for %s of %s files", len(remaining_video_paths), len(files))
+
+    # Save list of processed files
     video_list_file = create_video_list(remaining_video_paths, config.proc.video_list_filename)
     logger.info("Processed video list is saved: %s", video_list_file)
 
-    # Load pretrained model
+    # Prepare feature extractor
     model_path = default_model_path(config.proc.pretrained_model_local_path)
     pretrained_model = load_featurizer(model_path)
     logger.info("Pretrained model is loaded from: %s", model_path)
@@ -51,8 +51,9 @@ def extract_frame_level_features(files: Collection[str], pipeline: PipelineConte
         model=pretrained_model,
     )
 
-    # Starts Extracting Frame Level Features
+    # Do extract frame-level features
     extractor.extract_features(batch_size=16, cores=multiprocessing.cpu_count())
+    logger.info("Done frame-level feature extraction.")
     progress.complete()
 
 

@@ -16,28 +16,24 @@ logger = logging.getLogger(__name__)
 def extract_video_level_features(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
     """Extract video-level features from the dataset videos."""
 
-    logger.info("Starting video-level feature extraction.")
-
     files = tuple(files)
-    logger.info("Number of files: %s", len(files))
-
     remaining_video_paths = tuple(missing_video_features(files, pipeline))
-    logger.info(f"There are %s videos left", len(remaining_video_paths))
 
     # Ensure dependencies are satisfied
     if not frame_features_exist(remaining_video_paths, pipeline):
-        logger.info("Some frame-level features are missing...")
         extract_frame_level_features(remaining_video_paths, pipeline, progress=progress.subtask(0.9))
         progress = progress.subtask(0.1)
 
+    # Skip step if required results already exist
     if not remaining_video_paths:
         logger.info("All required video-level features already exist. Skipping...")
         progress.complete()
         return
 
     # Do convert frame-level features into video-level features.
-    logger.info("Converting Frame-by-Frame representations to Video-Level representations")
+    logger.info("Starting video-level feature extraction for %s of %s files", len(remaining_video_paths), len(files))
     frame_to_global(remaining_video_paths, pipeline, progress)
+    logger.info("Done video-level feature extraction.")
 
 
 def missing_video_features(files, pipeline: PipelineContext):
