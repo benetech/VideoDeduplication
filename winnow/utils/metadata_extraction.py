@@ -220,11 +220,6 @@ def parse_and_filter_metadata_df(metadata_df):
     all_columns = [column_name for column_name in CI if column_name in metadata_df.columns]
     numeric_columns = [column_name for column_name in NCI if column_name in metadata_df.columns]
     date_columns = [column_name for column_name in DCI if column_name in metadata_df.columns]
-    string_columns = [
-        column_name
-        for column_name in all_columns
-        if column_name not in numeric_columns and column_name not in date_columns
-    ]
 
     filtered = metadata_df.loc[:, all_columns]
 
@@ -237,6 +232,7 @@ def parse_and_filter_metadata_df(metadata_df):
     filtered.loc[:, date_columns] = filtered.loc[:, date_columns].apply(parse_date_series)
 
     # Convert NaN values into None / Null
+
     filtered = filtered.where(pd.notnull(filtered), None)
 
     return filtered
