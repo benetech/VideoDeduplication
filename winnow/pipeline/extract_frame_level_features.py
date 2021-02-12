@@ -8,7 +8,7 @@ from winnow.pipeline.progress_monitor import ProgressMonitor
 from winnow.utils.files import create_video_list
 
 
-def extract_frame_features(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
+def extract_frame_level_features(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
     """Extract frame-level features from dataset videos."""
 
     config = pipeline.config
@@ -66,4 +66,4 @@ def missing_frame_features(files, pipeline: PipelineContext):
 
 def frame_features_exist(files, pipeline: PipelineContext):
     """Check if all required frame-level features do exist."""
-    return any(missing_frame_features(files, pipeline))
+    return not any(missing_frame_features(files, pipeline))
