@@ -235,7 +235,8 @@ def parse_and_filter_metadata_df(metadata_df):
 
     # Parsing date fields
     filtered.loc[:, date_columns] = filtered.loc[:, date_columns].apply(parse_date_series)
-    # Convert NaN values into None / Null     
+
+    # Convert NaN values into None / Null
     filtered = filtered.where(pd.notnull(filtered), None)
 
     return filtered
