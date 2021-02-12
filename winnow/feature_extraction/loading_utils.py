@@ -97,31 +97,6 @@ def global_vector(frame_feature_vector):
         raise
 
 
-def frame_to_global(representations, progress_monitor=ProgressMonitor.NULL):
-    """
-    Calculate and save global feature vectors based on frame-level
-    representation.
-
-    Args:
-        representations (winnow.storage.repr_storage.ReprStorage):
-            Intermediate representations storage.
-        progress_monitor (ProgressMonitor): progress monitor for the given routine.
-    """
-    progress_monitor.scale(len(representations.frame_level))
-    for key in representations.frame_level.list():
-        try:
-
-            frame_feature_vector = representations.frame_level.read(key)
-
-            video_representation = global_vector(frame_feature_vector)
-            representations.video_level.write(key, video_representation)
-        except Exception:
-            logger.exception(f"Error processing file:{key}")
-        finally:
-            progress_monitor.increase(1)
-    progress_monitor.complete()
-
-
 def plot_pr_curve(pr_curve, title):
     """
     Function that plots the PR-curve.
