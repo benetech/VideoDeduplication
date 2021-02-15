@@ -1,5 +1,5 @@
 """This module offers functions to find duplicates among the nearest neighbors."""
-from typing import Any, Dict, Collection
+from typing import Any, Dict, Collection, Tuple
 
 from cached_property import cached_property
 from sklearn.neighbors import NearestNeighbors
@@ -37,7 +37,11 @@ class NeighborMatcher:
         nearest_neighbors.fit(self._haystack_vectors)
         return nearest_neighbors
 
-    def find_matches(self, needles: Dict[Any, Collection[float]], max_distance=None):
+    def find_matches(
+        self,
+        needles: Dict[Any, Collection[float]],
+        max_distance: float = None,
+    ) -> Collection[Tuple[Any, Any, float]]:
         """Find close matches of needle-vectors among haystack-vectors set.
 
         Returns:
