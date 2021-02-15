@@ -50,3 +50,7 @@ class Database:
             raise
         finally:
             session.close()
+
+    def close(self):
+        """Dispose of the connection pool used by this database."""
+        self.engine.dispose()
