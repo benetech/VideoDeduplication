@@ -1,9 +1,11 @@
+import logging
 import os
 
 import numpy as np
 
 from .siamese_net import DNN
 
+logger = logging.getLogger(__name__)
 package_directory = os.path.dirname(os.path.abspath(__file__))
 similarity_model_pretrained = os.path.join(package_directory, "model")
 
@@ -30,7 +32,7 @@ class SimilarityModel:
 
         # Create model
         if self.model is None:
-            print(f"Creating similarity model for shape {features.shape}")
+            logger.info("Creating similarity model for shape %s", features.shape)
             self.model = DNN(features.shape[1], None, similarity_model_pretrained, load_model=True, trainable=False)
 
         embeddings = self.model.embeddings(features)

@@ -6,6 +6,7 @@ from db import Database
 from winnow.config import Config
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_storage import ReprStorage
+from winnow.storage.repr_utils import path_resolver
 from winnow.utils.repr import reprkey_resolver
 
 
@@ -37,6 +38,11 @@ class PipelineContext:
     def reprkey(self) -> Callable:
         """Get representation key getter."""
         return reprkey_resolver(self.config)
+
+    @cached_property
+    def storepath(self) -> Callable:
+        """Get a function to convert absolute file paths to storage root-relative paths."""
+        return path_resolver(self.config.sources.root)
 
     @cached_property
     def result_storage(self) -> DBResultStorage:

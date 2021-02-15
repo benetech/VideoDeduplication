@@ -6,11 +6,10 @@ from winnow.feature_extraction import SimilarityModel
 from winnow.pipeline.extract_video_level_features import video_features_exist, extract_video_level_features
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
-
-# Default module logger
 from winnow.storage.repr_key import ReprKey
 from winnow.storage.repr_utils import bulk_read, bulk_write
 
+# Default module logger
 logger = logging.getLogger(__name__)
 
 
