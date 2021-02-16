@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 from .schema import Base
 
@@ -36,7 +36,7 @@ class Database:
         self.base.metadata.drop_all(bind=self.engine)
 
     @contextmanager
-    def session_scope(self, expunge=False):
+    def session_scope(self, expunge=False) -> Session:
         """Provide a transactional scope."""
         session = self.session()
         try:

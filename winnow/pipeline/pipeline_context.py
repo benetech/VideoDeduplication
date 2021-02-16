@@ -1,3 +1,4 @@
+import os
 from typing import Callable
 
 from cached_property import cached_property
@@ -5,6 +6,11 @@ from cached_property import cached_property
 from db import Database
 from winnow.config import Config
 from winnow.storage.db_result_storage import DBResultStorage
+from winnow.storage.remote_signature_dao import (
+    RemoteSignatureDatabaseDAO,
+    RemoteSignatureReprDAO,
+    RemoteSignatureDAOType,
+)
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import path_resolver
 from winnow.utils.repr import reprkey_resolver
@@ -48,3 +54,11 @@ class PipelineContext:
     def result_storage(self) -> DBResultStorage:
         """Get database result storage."""
         return DBResultStorage(database=self.database)
+
+    @cached_property
+    def remote_signature_dao(self) -> RemoteSignatureDAOType:
+        """Get remote signature DAO depending on the config."""
+        if self.config.database.use:
+            return RemoteSignatureDatabaseDAO(self.database)
+        storage_root = os.path.join(self.config.repr.directory, "remote_signatures")
+        return RemoteSignatureReprDAO(root_directory=storage_root, output_directory=self.config.repr.directory)
