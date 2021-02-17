@@ -7,7 +7,7 @@ import pandas as pd
 from dataclasses import asdict
 
 from db import Database
-from db.schema import Repository
+from db.schema import Repository, RepositoryType
 from winnow.remote.model import RemoteRepository
 from winnow.security import SecureStorage, SecretNamespace
 
@@ -133,7 +133,7 @@ class RemoteRepoCsvDAO:
             raise ValueError(f"Invalid repository name: {repository.name}")
 
         dataframe = self._dataframe()
-        dataframe = dataframe.append(asdict(repository), ignore_index=True)
+        dataframe = dataframe.append(self._to_row(repository), ignore_index=True)
         dataframe = dataframe.drop_duplicates(subset=["name"], keep="last")
 
         # Save credentials
@@ -191,11 +191,19 @@ class RemoteRepoCsvDAO:
         return repos[offset : offset + limit]
 
     def _from_row(self, row: Dict) -> RemoteRepository:
-        """Convert repository database entity to RemoteRepository model."""
+        """Convert dataframe row dictionary to RemoteRepository model."""
         credentials = self._secret_storage.get_secret(SecretNamespace.REPOS, secret_name=row["name"])
         repository = RemoteRepository(**row)
         repository.credentials = credentials
+        repository.type = RepositoryType(repository.type)
         return repository
+
+    def _to_row(self, repo: RemoteRepository) -> Dict:
+        """Convert repository to a dataframe row as dict."""
+        row = asdict(repo)
+        row["type"] = row["type"].value
+        del row["credentials"]
+        return row
 
     def _dataframe(self) -> pd.DataFrame:
         """Get read repository details from csv file as Pandas DataFrame."""
