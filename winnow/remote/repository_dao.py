@@ -179,6 +179,8 @@ class RemoteRepoCsvDAO:
     def list(self, name=None, offset=0, limit=1000) -> List[RemoteRepository]:
         """List known fingerprint repositories."""
         dataframe = self._dataframe()
+        if name is not None:
+            dataframe = dataframe[dataframe["name"].map(lambda actual_name: name in actual_name)]
         repos = [self._from_row(row) for row in dataframe.to_dict("records")]
         return repos[offset : offset + limit]
 
