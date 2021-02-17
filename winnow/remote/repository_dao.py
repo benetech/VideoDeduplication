@@ -44,7 +44,7 @@ class RemoteRepoDatabaseDAO:
                 secret_name=repository.name,
                 secret_data=repository.credentials,
             )
-        except:
+        except Exception:
             # Remove entity if we cannot store credentials
             with self._database.session_scope(expunge=True) as session:
                 session.query(Repository).filter(Repository.name == repository.name).delete()
