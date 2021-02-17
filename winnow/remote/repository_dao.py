@@ -143,7 +143,7 @@ class RemoteRepoCsvDAO:
             secret_data=repository.credentials,
         )
 
-        dataframe.to_csv(self._csv_file_path)
+        self._save(dataframe)
 
     def get(self, name) -> Optional[RemoteRepository]:
         """Get repository by name."""
@@ -174,7 +174,7 @@ class RemoteRepoCsvDAO:
 
         dataframe = self._dataframe()
         dataframe = dataframe[dataframe["name"] != repository.name]
-        dataframe.to_csv(self._csv_file_path)
+        self._save(dataframe)
 
         try:
             # Remove credentials within the same transaction
@@ -202,6 +202,10 @@ class RemoteRepoCsvDAO:
         if os.path.exists(self._csv_file_path):
             return pd.read_csv(self._csv_file_path)
         return pd.DataFrame((), columns=["name", "address", "user", "type"])
+
+    def _save(self, dataframe: pd.DataFrame):
+        """Save DataFrame to csv file."""
+        dataframe.to_csv(self._csv_file_path, index=False)
 
 
 RepoDAO = Union[RemoteRepoDatabaseDAO, RemoteRepoCsvDAO]
