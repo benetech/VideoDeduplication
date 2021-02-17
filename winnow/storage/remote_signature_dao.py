@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from db import Database
 from db.access.files import FilesDAO
 from db.schema import Matches
+from winnow.remote.model import RemoteFingerprint
 from winnow.storage.lmdb_repr_storage import LMDBReprStorage
 from winnow.storage.repr_key import ReprKey
 from winnow.utils.iterators import chunks
@@ -112,6 +113,12 @@ class RemoteSignatureReprDAO:
         remote_signatures = self._iter_signatures(repository_name, contributor_name)
         for chunk in chunks(remote_signatures, size=chunk_size):
             return {(repo, contrib, hash): signature for repo, contrib, hash, signature in chunk}
+
+    def save_signatures(self, repository_name: str, signatures: Iterable[RemoteFingerprint]):
+        """Save remote fingerprints to the local representation storage."""
+        for item in signatures:
+            storage = self._get_storage(repository_name, contributor=item.contributor)
+            storage.write(ReprKey(path=item.sha256, hash=item.sha256), item.fingerprint)
 
     def count(self, repository_name: str = None, contributor_name: str = None) -> int:
         """Count remote signatures."""
