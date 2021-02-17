@@ -170,6 +170,7 @@ class Exif(Base):
     Json_full_exif = Column(JSON)
 
 
+# TODO: move RepositoryType to a separate module
 class RepositoryType(enum.Enum):
     """Repository type determines its access method.
 

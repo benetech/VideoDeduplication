@@ -5,6 +5,8 @@ from cached_property import cached_property
 
 from db import Database
 from winnow.config import Config
+from winnow.remote.repository_dao import RepoDAO, RemoteRepoDatabaseDAO, RemoteRepoCsvDAO
+from winnow.security import SecureStorage
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.remote_signature_dao import (
     RemoteSignatureDatabaseDAO,
@@ -62,3 +64,18 @@ class PipelineContext:
             return RemoteSignatureDatabaseDAO(self.database)
         storage_root = os.path.join(self.config.repr.directory, "remote_signatures")
         return RemoteSignatureReprDAO(root_directory=storage_root, output_directory=self.config.repr.directory)
+
+    @cached_property
+    def repository_dao(self) -> RepoDAO:
+        """Get repository Data-Access-Object."""
+        if self.config.database.use:
+            return RemoteRepoDatabaseDAO(database=self.database, secret_storage=self.secure_storage)
+        return RemoteRepoCsvDAO(
+            csv_file_path=os.path.join(self.config.repr.directory, "repositories.csv"),
+            secret_storage=self.secure_storage,
+        )
+
+    @cached_property
+    def secure_storage(self) -> SecureStorage:
+        """Get secured credentials storage."""
+        return SecureStorage(path=self.config.repr.directory, master_key_path=self.config.security.master_key_path)

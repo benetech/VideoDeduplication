@@ -1,7 +1,7 @@
 """This module offers Data-Access-Objects for known remote repositories details."""
 import logging
 import os
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union
 
 import pandas as pd
 from dataclasses import asdict
@@ -196,3 +196,6 @@ class RemoteRepoCsvDAO:
         if os.path.exists(self._csv_file_path):
             return pd.read_csv(self._csv_file_path)
         return pd.DataFrame((), columns=["name", "address", "user", "type"])
+
+
+RepoDAO = Union[RemoteRepoDatabaseDAO, RemoteRepoCsvDAO]
