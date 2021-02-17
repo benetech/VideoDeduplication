@@ -8,8 +8,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from sklearn.metrics import precision_recall_curve
 
-from winnow.pipeline.progress_monitor import ProgressMonitor
-
+# Default module logger
 logger = logging.getLogger(__name__)
 
 

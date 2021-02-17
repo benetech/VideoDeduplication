@@ -20,7 +20,7 @@ from winnow.utils.brightness import get_brightness_estimation
 logger = logging.getLogger(__name__)
 
 
-def generate_matches(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):  # noqa: C901
+def generate_local_matches(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
     """Find matches between video files."""
 
     files = tuple(files)

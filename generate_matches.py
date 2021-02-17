@@ -3,7 +3,7 @@ import os
 import click
 
 from winnow.pipeline.detect_scenes import detect_scenes
-from winnow.pipeline.generate_matches import generate_matches
+from winnow.pipeline.generate_local_matches import generate_local_matches
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.utils.config import resolve_config
 from winnow.utils.files import scan_videos, scan_videos_from_txt
@@ -47,7 +47,7 @@ def main(config, list_of_files, frame_sampling, save_frames):
         videos = scan_videos_from_txt(list_of_files, extensions=config.sources.extensions)
 
     pipeline = PipelineContext(config)
-    generate_matches(files=videos, pipeline=pipeline)
+    generate_local_matches(files=videos, pipeline=pipeline)
     detect_scenes(files=videos, pipeline=pipeline)
 
 
