@@ -8,8 +8,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from sklearn.metrics import precision_recall_curve
 
-from winnow.pipeline.progress_monitor import ProgressMonitor
-
+# Default module logger
 logger = logging.getLogger(__name__)
 
 
@@ -69,7 +68,7 @@ def global_vector_from_tensor(video_tensor):
         X = normalize(X)
         return X
     except Exception:
-        print("Error processing video tensor.")
+        logger.exception("Error processing video tensor.")
         return np.array([])
 
 
@@ -93,33 +92,8 @@ def global_vector(frame_feature_vector):
         X = normalize(X)
         return X
     except Exception:
-        print("Error processing video tensor.")
-        return np.array([])
-
-
-def frame_to_global(representations, progress_monitor=ProgressMonitor.NULL):
-    """
-    Calculate and save global feature vectors based on frame-level
-    representation.
-
-    Args:
-        representations (winnow.storage.repr_storage.ReprStorage):
-            Intermediate representations storage.
-        progress_monitor (ProgressMonitor): progress monitor for the given routine.
-    """
-    progress_monitor.scale(len(representations.frame_level))
-    for key in representations.frame_level.list():
-        try:
-
-            frame_feature_vector = representations.frame_level.read(key)
-
-            video_representation = global_vector(frame_feature_vector)
-            representations.video_level.write(key, video_representation)
-        except Exception:
-            logger.exception(f"Error processing file:{key}")
-        finally:
-            progress_monitor.increase(1)
-    progress_monitor.complete()
+        logger.exception("Error processing video tensor.")
+        raise
 
 
 def plot_pr_curve(pr_curve, title):

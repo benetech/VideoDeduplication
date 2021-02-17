@@ -2,20 +2,23 @@ import os
 
 import click
 
-from winnow.pipeline.detect_scenes import detect_scenes
-from winnow.pipeline.generate_local_matches import generate_local_matches
+from winnow.pipeline.generate_remote_matches import generate_remote_matches
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.utils.config import resolve_config
-from winnow.utils.files import scan_videos, scan_videos_from_txt
 from winnow.utils.logging import configure_logging_cli
 
 
 @click.command()
 @click.option("--config", "-cp", help="path to the project config file", default=os.environ.get("WINNOW_CONFIG"))
 @click.option(
-    "--list-of-files",
-    "-lof",
-    help="path to txt with a list of files for processing - overrides source folder from the config file",
+    "--repo",
+    "-r",
+    help="remote repository name",
+    default=None,
+)
+@click.option(
+    "--contributor",
+    help="remote contributor name",
     default=None,
 )
 @click.option(
@@ -35,20 +38,11 @@ from winnow.utils.logging import configure_logging_cli
     default=None,
     is_flag=True,
 )
-def main(config, list_of_files, frame_sampling, save_frames):
+def main(repo, contributor, config, frame_sampling, save_frames):
     logger = configure_logging_cli()
     logger.info("Loading config file")
     config = resolve_config(config_path=config, frame_sampling=frame_sampling, save_frames=save_frames)
-
-    logger.info("Searching for Dataset Video Files")
-    if list_of_files is None:
-        videos = scan_videos(config.sources.root, "**", extensions=config.sources.extensions)
-    else:
-        videos = scan_videos_from_txt(list_of_files, extensions=config.sources.extensions)
-
-    pipeline = PipelineContext(config)
-    generate_local_matches(files=videos, pipeline=pipeline)
-    detect_scenes(files=videos, pipeline=pipeline)
+    generate_remote_matches(repository_name=repo, contributor_name=contributor, pipeline=PipelineContext(config))
 
 
 if __name__ == "__main__":

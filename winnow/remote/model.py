@@ -1,8 +1,36 @@
 """This module offers model classes for remote repository clients."""
 from abc import abstractmethod, ABC
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Optional, Any
+from urllib.parse import urlparse, quote
 
 from dataclasses import dataclass
+
+from db.schema import RepositoryType
+
+
+@dataclass
+class RemoteRepository:
+    """Represents remote repository."""
+
+    name: str
+    address: str
+    user: str
+    type: RepositoryType
+    credentials: Any = None
+
+    @staticmethod
+    def bare_database(name, address, user, password):
+        """Create bare database repo."""
+        parsed_address = urlparse(address)
+        auth = f"{quote(user, safe='')}:{quote(password, safe='')}"
+        uri = f"postgresql://{auth}@{parsed_address.netloc}{quote(parsed_address.path)}"
+        return RemoteRepository(
+            name=name,
+            address=address,
+            user=user,
+            type=RepositoryType.BARE_DATABASE,
+            credentials=uri,
+        )
 
 
 @dataclass

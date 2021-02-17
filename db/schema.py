@@ -46,11 +46,11 @@ class Files(Base):
 
     # Relationships
 
-    signature = relationship("Signature", uselist=False, back_populates="file")
-    meta = relationship("VideoMetadata", uselist=False, back_populates="file")
-    scenes = relationship("Scene", back_populates="file")
+    signature = relationship("Signature", cascade="all,delete", uselist=False, back_populates="file")
+    meta = relationship("VideoMetadata", cascade="all,delete", uselist=False, back_populates="file")
+    scenes = relationship("Scene", cascade="all,delete", back_populates="file")
     template_matches = relationship("TemplateMatches", back_populates="file", cascade="all, delete-orphan")
-    exif = relationship("Exif", uselist=False, back_populates="file")
+    exif = relationship("Exif", cascade="all,delete", uselist=False, back_populates="file")
 
     # TODO: find a way to merge these two relationships
     #   (See https://github.com/benetech/VideoDeduplication/issues/141)
@@ -170,6 +170,7 @@ class Exif(Base):
     Json_full_exif = Column(JSON)
 
 
+# TODO: move RepositoryType to a separate module
 class RepositoryType(enum.Enum):
     """Repository type determines its access method.
 
@@ -197,7 +198,7 @@ class Repository(Base):
 
     # Relationships
 
-    contributors = relationship("Contributor", back_populates="repository")
+    contributors = relationship("Contributor", cascade="all,delete", back_populates="repository")
 
 
 class Contributor(Base):
@@ -214,4 +215,4 @@ class Contributor(Base):
     # Relationships
 
     repository = relationship("Repository", back_populates="contributors")
-    files = relationship("Files", back_populates="contributor")
+    files = relationship("Files", cascade="all,delete", back_populates="contributor")
