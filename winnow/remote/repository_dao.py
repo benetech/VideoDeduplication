@@ -27,7 +27,7 @@ class RemoteRepoDatabaseDAO:
         if not SecureStorage.is_valid_name(repository.name):
             raise ValueError(f"Invalid repository name: {repository.name}")
 
-        with self._database.session_scope() as session:
+        with self._database.session_scope(expunge=True) as session:
             # Save database entity
             new_repository = Repository(
                 name=repository.name,
@@ -37,12 +37,18 @@ class RemoteRepoDatabaseDAO:
             )
             session.add(new_repository)
 
-            # Save credentials
+        # Save credentials
+        try:
             self._secret_storage.set_secret(
                 SecretNamespace.REPOS,
                 secret_name=repository.name,
                 secret_data=repository.credentials,
             )
+        except:
+            # Remove entity if we cannot store credentials
+            with self._database.session_scope(expunge=True) as session:
+                session.query(Repository).filter(Repository.name == repository.name).delete()
+            raise
 
     def get(self, name) -> Optional[RemoteRepository]:
         """Get repository by name."""
