@@ -1,5 +1,7 @@
 import sys
 
+from dataclasses import asdict
+
 from cli.handlers.errors import handle_errors
 from cli.platform.arguments import ask_password
 from cli.platform.error import CliError
@@ -61,7 +63,7 @@ class RepoCli:
         fields = valid_sequence("fields", fields, admissible_values=Transform.REPO_FIELDS)
 
         repository_dao = self._pipeline.repository_dao
-        repos = repository_dao.list(name=name, offset=offset, limit=limit)
+        repos = list(map(asdict, repository_dao.list(name=name, offset=offset, limit=limit)))
         formatter = resolve_formatter(format=output)
         formatter.format(repos, fields, file=sys.stdout, highlights={"name": name})
 

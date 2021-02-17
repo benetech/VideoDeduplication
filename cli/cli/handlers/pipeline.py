@@ -1,6 +1,5 @@
 import os
 
-from winnow.pipeline.detect_scenes import detect_scenes
 from winnow.pipeline.pipeline_context import PipelineContext
 
 
@@ -12,6 +11,7 @@ class PipelineCli:
 
     def all(self):
         """Process all video files."""
+        from winnow.pipeline.detect_scenes import detect_scenes
         from winnow.pipeline.generate_local_matches import generate_local_matches
         from winnow.utils.files import scan_videos
 

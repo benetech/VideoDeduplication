@@ -1,6 +1,7 @@
 import math
+import pickle
 from math import ceil
-from typing import Iterable, List
+from typing import Iterable, List, Union
 
 from sqlalchemy import func, tuple_
 from sqlalchemy.orm import joinedload
@@ -23,10 +24,14 @@ class DatabaseConnector:
     and pull all available fingerprints.
     """
 
-    def __init__(self, repo: Repository, database: Database, repo_client: RepositoryClient):
-        self.repo: Repository = repo
+    def __init__(self, repo_name, database: Database, repo_client: RepositoryClient):
+        self.repo_name = repo_name
         self.database: Database = database
         self.client: RepositoryClient = repo_client
+
+    def _repo(self, session) -> Repository:
+        """Get repository entity."""
+        return session.query(Repository).filter(Repository.name == self.repo_name).one()
 
     def push_all(self, chunk_size=1000, progress: BaseProgressMonitor = ProgressMonitor.NULL):
         """Push all fingerprints from the given local database to the remote repository."""
@@ -54,7 +59,8 @@ class DatabaseConnector:
             latest_pulled_id = max(map(lambda fingerprint: fingerprint.id, fingerprints))
             remaining_count -= len(fingerprints)
             with self.database.session_scope() as session:
-                self.store_remote_fingerprints(session=session, repo=self.repo, fingerprints=fingerprints)
+                repo = self._repo(session)
+                self.store_remote_fingerprints(session=session, repo=repo, fingerprints=fingerprints)
             progress.increase(len(fingerprints))
         progress.complete()
 
@@ -74,8 +80,9 @@ class DatabaseConnector:
     def _get_latest_pulled_fingerprint_id(self) -> int:
         """Get latest file from the local database that was pulled from the given repository."""
         with self.database.session_scope() as session:
+            repo = self._repo(session)
             query = session.query(func.max(Files.external_id))
-            query = query.filter(Files.contributor.has(Contributor.repository == self.repo))
+            query = query.filter(Files.contributor.has(Contributor.repository == repo))
             latest_pulled_id = query.scalar()
             if latest_pulled_id is None:
                 return 0
@@ -152,6 +159,8 @@ class ReprConnector:
         iterations_count = ceil(total_count / float(chunk_size))
         for _ in range(iterations_count):
             fingerprints = self.client.pull(start_from=latest_pulled, limit=chunk_size)
+            for entry in fingerprints:
+                entry.fingerprint = pickle.loads(entry.fingerprint)
             self._remote_signature_dao.save_signatures(self.repository_name, fingerprints)
             latest_pulled = max(map(lambda fingerprint: fingerprint.id, fingerprints))
             progress.increase(len(fingerprints))
@@ -159,4 +168,7 @@ class ReprConnector:
 
     @staticmethod
     def to_local_fingerprints(keys: Iterable[ReprKey], storage: LMDBReprStorage) -> List[LocalFingerprint]:
-        return [LocalFingerprint(sha256=key.hash, fingerprint=storage.read(key)) for key in keys]
+        return [LocalFingerprint(sha256=key.hash, fingerprint=pickle.dumps(storage.read(key))) for key in keys]
+
+
+RepoConnector = Union[DatabaseConnector, ReprConnector]

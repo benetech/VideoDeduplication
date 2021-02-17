@@ -1,4 +1,5 @@
 import logging
+import sys
 from functools import wraps
 
 from sqlalchemy.exc import ArgumentError as DBArgumentError, OperationalError as DBOperationalError, IntegrityError
@@ -17,12 +18,12 @@ def handle_errors(func):
         except (DBOperationalError, DBArgumentError) as error:
             if hasattr(error, "orig") and error.orig is not None:
                 error = error.orig
-            logger.error(f"Database error: {error}")
+            print(f"Database error: {error}", file=sys.stderr)
             raise SystemExit(1)
         except IntegrityError as error:
             if hasattr(error, "orig") and error.orig is not None:
                 error = error.orig
-            logger.error(f"Invalid request: {error}")
+            print(f"Invalid request: {error}", file=sys.stderr)
             raise SystemExit(1)
 
     return wrapper

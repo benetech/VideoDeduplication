@@ -35,7 +35,7 @@ def generate_local_matches(files: Collection[str], pipeline: PipelineContext, pr
         progress = progress.subtask(0.1)
     if not video_signatures_exist(files, pipeline):
         extract_video_signatures(files, pipeline, progress=progress.subtask(0.7))
-        progress = progress.subtask(0.2)
+        progress = progress.subtask(0.3)
 
     logger.info("Starting match detection for %s files", len(files))
 

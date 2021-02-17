@@ -112,7 +112,7 @@ class RemoteSignatureReprDAO:
         where size of each dict is 'chunk_size' items at max."""
         remote_signatures = self._iter_signatures(repository_name, contributor_name)
         for chunk in chunks(remote_signatures, size=chunk_size):
-            return {(repo, contrib, hash): signature for repo, contrib, hash, signature in chunk}
+            yield {(repo, contrib, hash): signature for repo, contrib, hash, signature in chunk}
 
     def save_signatures(self, repository_name: str, signatures: Iterable[RemoteFingerprint]):
         """Save remote fingerprints to the local representation storage."""
