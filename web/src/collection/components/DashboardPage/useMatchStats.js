@@ -14,7 +14,7 @@ export default function useMatchStats() {
         const counts = response.data.counts;
         setStats({
           unique: counts.unique,
-          related: counts.related - counts.duplicates,
+          related: counts.related,
           duplicates: counts.duplicates,
         });
       }
