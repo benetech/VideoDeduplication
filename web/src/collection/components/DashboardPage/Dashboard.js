@@ -94,6 +94,26 @@ const dbMatches = (theme) => ({
 
 // TODO: Uncomment code when backdrop menu is back again
 
+function pieChartStats(stats, theme) {
+  return [
+    {
+      name: "Duplicates",
+      value: stats.duplicates,
+      color: theme.palette.primary.main,
+    },
+    {
+      name: "Possibly related",
+      value: stats.related,
+      color: theme.palette.primary.light,
+    },
+    {
+      name: "Unique files",
+      value: stats.unique,
+      color: "#131726",
+    },
+  ];
+}
+
 function Dashboard(props) {
   const { className } = props;
   const classes = useStyles();
@@ -124,7 +144,11 @@ function Dashboard(props) {
             aria-label={intl.formatMessage({ id: "aria.label.dashboard" })}
           >
             <Grid item lg={6} xs={12}>
-              <PieChart title="My Matches" categories={matchStats} />
+              <PieChart
+                title="My Matches"
+                categories={pieChartStats(matchStats, theme)}
+                total={matchStats.duplicates + matchStats.related}
+              />
             </Grid>
             <Grid item lg={6} xs={12}>
               <StackedLineChart

@@ -54,7 +54,7 @@ const options = (theme) => ({
   },
 });
 
-const total = (categories) =>
+const sumCategories = (categories) =>
   categories.reduce((acc, cat) => acc + cat.value, 0);
 
 const Actions = () => {
@@ -69,14 +69,14 @@ const Actions = () => {
 };
 
 function PieChart(props) {
-  const { title, categories, className } = props;
+  const { title, total, categories, className } = props;
   const classes = useStyles();
   const theme = useTheme();
 
   return (
     <Dashlet
       title={title}
-      summary={total(categories)}
+      summary={total || sumCategories(categories)}
       actions={<Actions />}
       className={className}
     >
@@ -96,6 +96,7 @@ PieChart.propTypes = {
       color: PropTypes.string.isRequired,
     })
   ).isRequired,
+  total: PropTypes.number,
   className: PropTypes.string,
 };
 

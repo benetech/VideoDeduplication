@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { useServer } from "../../../server-api/context";
-import { useTheme } from "@material-ui/core";
 
 /**
  * Hook for retrieving matches statistics.
  */
 export default function useMatchStats() {
-  const theme = useTheme();
   const server = useServer();
   const [stats, setStats] = useState({ unique: 0, related: 0, duplicates: 0 });
 
@@ -23,21 +21,5 @@ export default function useMatchStats() {
     });
   }, []);
 
-  return [
-    {
-      name: "Duplicates",
-      value: stats.duplicates,
-      color: theme.palette.primary.main,
-    },
-    {
-      name: "Possibly related",
-      value: stats.related,
-      color: theme.palette.primary.light,
-    },
-    {
-      name: "Unique files",
-      value: stats.unique,
-      color: "#131726",
-    },
-  ];
+  return stats;
 }
