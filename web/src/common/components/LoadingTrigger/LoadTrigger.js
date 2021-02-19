@@ -7,14 +7,12 @@ import VisibilitySensor from "react-visibility-sensor";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
-  trigger: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  trigger: {},
   triggerArea: {
     minWidth: 1,
     minHeight: 1,
+    width: "100%",
+    height: "100%",
   },
   errorMessage: {
     display: "flex",
