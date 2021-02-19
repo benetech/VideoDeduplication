@@ -82,7 +82,10 @@ function MatchFiles(props) {
     resumeLoading: loadMatches,
     hasMore,
     progress,
-  } = useFileMatches({ fileId: motherFileId });
+  } = useFileMatches({
+    fileId: motherFileId,
+    fields: ["meta", "exif", "scenes"],
+  });
 
   const matches = loadedMatches.sort(matchComparator);
 

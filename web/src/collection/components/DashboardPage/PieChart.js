@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import AddIcon from "@material-ui/icons/Add";
@@ -18,6 +18,7 @@ const useStyles = makeStyles(() => ({
 const data = (categories, theme) => ({
   datasets: [
     {
+      label: "Categories",
       data: categories.map((category) => category.value),
       backgroundColor: categories.map((category) => category.color),
       borderWidth: 2,
@@ -54,7 +55,7 @@ const options = (theme) => ({
   },
 });
 
-const total = (categories) =>
+const sumCategories = (categories) =>
   categories.reduce((acc, cat) => acc + cat.value, 0);
 
 const Actions = () => {
@@ -69,19 +70,37 @@ const Actions = () => {
 };
 
 function PieChart(props) {
-  const { title, categories, className } = props;
+  const { title, total, categories, className } = props;
   const classes = useStyles();
   const theme = useTheme();
+
+  const handleClick = useCallback(
+    (elements) => {
+      if (elements[0] == null) {
+        return;
+      }
+      const { _index: index } = elements[0];
+      const category = categories[index];
+      if (category?.onClick != null) {
+        category.onClick();
+      }
+    },
+    [categories]
+  );
 
   return (
     <Dashlet
       title={title}
-      summary={total(categories)}
+      summary={total || sumCategories(categories)}
       actions={<Actions />}
       className={className}
     >
       <div className={classes.content}>
-        <Doughnut data={data(categories, theme)} options={options(theme)} />
+        <Doughnut
+          data={data(categories, theme)}
+          options={options(theme)}
+          getElementAtEvent={handleClick}
+        />
       </div>
     </Dashlet>
   );
@@ -94,8 +113,10 @@ PieChart.propTypes = {
       name: PropTypes.string.isRequired,
       value: PropTypes.number.isRequired,
       color: PropTypes.string.isRequired,
+      onClick: PropTypes.func,
     })
   ).isRequired,
+  total: PropTypes.number,
   className: PropTypes.string,
 };
 
