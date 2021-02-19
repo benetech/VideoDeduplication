@@ -71,7 +71,10 @@ function LoadTrigger(props) {
   return (
     <Container className={clsx(classes.trigger, className)} {...other}>
       {!loading && !error && (
-        <VisibilitySensor onChange={handleVisibilityChange} partialVisibility>
+        <VisibilitySensor
+          onChange={handleVisibilityChange}
+          partialVisibility="bottom"
+        >
           <div className={classes.triggerArea} />
         </VisibilitySensor>
       )}
