@@ -26,6 +26,7 @@ class UserCliHandler:
         """Add a new repository contributor."""
         repository = arguments.read_repository(name=repo, password=Arg(admin_password=admin_password))
         database = RepoDatabase(uri=repository.uri, echo=bool(verbose))
+        username = arguments.normalize_username(username)
         password = arguments.resolve_user_password(Arg(password=password))
         created = database.create_contributor(Role(name=username, password=password))
         print("Successfully created a new contributor:")
@@ -41,9 +42,10 @@ class UserCliHandler:
         force: bool = False,
     ):
         """Delete existing repository contributor."""
-        self._ensure_proceed(contributor=username, force=force)
+        username = arguments.normalize_username(username=username)
         repository = arguments.read_repository(name=repo, password=Arg(admin_password=admin_password))
         database = RepoDatabase(uri=repository.uri, echo=bool(verbose))
+        self._ensure_proceed(contributor=username, force=force)
         database.delete_contributor(Role(name=username))
 
     @handle_errors
@@ -70,8 +72,9 @@ class UserCliHandler:
     ):
         """Update contributor password."""
         repository = arguments.read_repository(name=repo, password=Arg(admin_password=admin_password))
-        database = RepoDatabase(uri=repository.uri, echo=bool(verbose))
+        contributor = arguments.normalize_username(username=contributor)
         new_password = arguments.resolve_user_password(Arg(password=new_password))
+        database = RepoDatabase(uri=repository.uri, echo=bool(verbose))
         updated = database.update_contributor(Role(name=contributor, password=new_password))
         print("Successfully updated contributor password:")
         self._print_role(updated)

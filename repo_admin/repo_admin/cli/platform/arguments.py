@@ -6,6 +6,7 @@ import inquirer
 from repo_admin.bare_database.model import Repository
 from repo_admin.bare_database.storage import RepoStorage
 from repo_admin.cli.platform.error import CliError
+from repo_admin.cli.platform.messages import warn
 
 
 class Arg:
@@ -70,3 +71,17 @@ def resolve_user_password(argument: Arg):
             f"Please enter password for a contributor role (or press Enter to generate a random one)"
         )
     return password or None
+
+
+def normalize_username(username):
+    """Make sure username is lowercase."""
+    if username is None:
+        return None
+    username = str(username)
+    if not username.islower():
+        warn(
+            f"Note that contributor names are not case-sensitive. "
+            f"'{username.lower()}' will be used instead of '{username}'"
+        )
+        username = username.lower()
+    return username
