@@ -68,7 +68,7 @@ def resolve_user_password(argument: Arg):
     password = argument.value
     if password is None and sys.stdin.isatty():
         password = inquirer.password(
-            f"Please enter password for a contributor role (or press Enter to generate a random one)"
+            "Please enter password for a contributor role (or press Enter to generate a random one)"
         )
     return password or None
 
