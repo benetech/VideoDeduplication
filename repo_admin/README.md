@@ -13,7 +13,7 @@ pip install --upgrade justiceai-repo-admin
 
 Save repository credentials:
 ```shell
-repo-admin repo add --repo_name=central --host=localhost --port=5432 --user=postgres --dbname=example
+repo-admin add --name=central --host=localhost --port=5432 --database=example --username=postgres
 ```
 
 All credentials will be stored at `~/.benetech-repo-admin`.
@@ -22,20 +22,24 @@ List saved repos:
 ```shell
 repo-admin repo list
 ```
+```
+REPOSITORY NAME
+central
+```
 
 Delete repository credentials:
 ```shell
-repo-admin repo delete --repo_name=central
+repo-admin delete --repo=central
 ```
 
 Initialize repository database schema:
 ```shell
-repo-admin repo init --repo_name=central
+repo-admin init --repo=central
 ```
 
 Drop repository database schema:
 ```shell
-repo-admin repo drop --repo_name=central
+repo-admin drop --repo=central
 ```
 
 ### Manage Users
@@ -47,18 +51,47 @@ repo-admin user list --repo=central
 
 Add user for the given repository:
 ```shell
-repo-admin user add --repo=central [--contributor_name=<name>] [--contributor_password=<password>]
+repo-admin user add --repo=central [--username=<name>] [--password=<password>]
 ```
 
-If `contributor_name` or `contributor_password` are not specified, 
+If `username` or `password` are not specified, 
 random values will be generated and printed to the console.
 
 Delete user from the repository:
 ```shell
-repo-admin user delete --repo=central --contributor_name=hungry_dolphin
+repo-admin user delete --repo=central --username=<contributor-name> [--force]
 ```
 
 Update user password:
 ```shell
-repo-admin user update --repo=central --contributor_name=electric_vulture
+repo-admin user update --repo=central --contributor=electric_vulture [--new_password=<password>]
+```
+
+If `new_password` is not specified a new random password will be generated.
+
+## Development
+
+### Setup Development Environment
+
+Checkout the repository:
+```shell 
+git clone git@github.com:benetech/VideoDeduplication.git
+cd VideoDeduplication/repo_admin
+```
+
+Make an 'editable' installation with dev dependencies:
+```shell
+pip install -e .[dev]
+```
+
+### Testing
+
+Execute unit-tests:
+```shell
+pytest tests
+```
+
+Execute integration tests:
+```shell
+pytest --integration --database_uri=<test-database-uri>
 ```
