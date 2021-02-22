@@ -11,7 +11,7 @@ const dimensions = {
     maxWidth: 1455,
   },
   scrollbar: {
-    width: 8,
+    size: 12,
   },
   header: {
     padding: 16,
