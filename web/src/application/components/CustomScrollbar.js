@@ -5,7 +5,8 @@ import { makeStyles } from "@material-ui/styles";
 const useStyles = makeStyles((theme) => ({
   "@global": {
     "*::-webkit-scrollbar": {
-      width: theme.dimensions.scrollbar.width,
+      height: theme.dimensions.scrollbar.size,
+      width: theme.dimensions.scrollbar.size,
       backgroundColor: theme.palette.background.default,
     },
     "*::-webkit-scrollbar-track": {
@@ -14,8 +15,8 @@ const useStyles = makeStyles((theme) => ({
     "*::-webkit-scrollbar-thumb": {
       outline: "1px solid slategrey",
       backgroundColor: theme.palette.grey[400],
-      borderRadius: theme.dimensions.scrollbar.width,
-      border: `${theme.dimensions.scrollbar.width / 4}px solid ${
+      borderRadius: theme.dimensions.scrollbar.size,
+      border: `${theme.dimensions.scrollbar.size / 4}px solid ${
         theme.palette.background.default
       }`,
     },

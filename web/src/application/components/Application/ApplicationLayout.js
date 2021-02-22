@@ -18,7 +18,7 @@ import ProcessingRootPage from "../../../collection/components/ProcessingRootPag
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: `calc(100vw - ${theme.spacing(1)}px)`,
+    width: `calc(100vw - ${theme.dimensions.scrollbar.size}px)`,
     height: "100vh",
     display: "flex",
     justifyContent: "center",
