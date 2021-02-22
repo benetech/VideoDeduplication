@@ -2,12 +2,13 @@ import sys
 from typing import Optional
 
 import inquirer
-from termcolor import colored
 
+import repo_admin.cli.platform.arguments as arguments
 from repo_admin.bare_database.model import Role
 from repo_admin.bare_database.schema import RepoDatabase
-from repo_admin.cli.platform.arguments import resolve_database_url
+from repo_admin.cli.platform.arguments import Arg
 from repo_admin.cli.platform.error import handle_errors
+from repo_admin.cli.platform.messages import warn
 
 
 class UserCliHandler:
@@ -16,108 +17,62 @@ class UserCliHandler:
     @handle_errors
     def add(
         self,
-        repo: str = None,
-        host: str = None,
-        port: int = None,
-        dbname: str = None,
-        user: str = None,
+        repo: str,
+        username: Optional[str] = None,
         password: Optional[str] = None,
-        contributor_name: Optional[str] = None,
-        contributor_password: Optional[str] = None,
+        admin_password: Optional[str] = None,
         verbose: bool = False,
     ):
         """Add a new repository contributor."""
-        database_url = resolve_database_url(
-            repo=repo,
-            host=host,
-            port=port,
-            dbname=dbname,
-            user=user,
-            password=password,
-        )
-        repo = RepoDatabase(url=database_url, echo=bool(verbose))
-        created = repo.create_contributor(Role(name=contributor_name, password=contributor_password))
+        repository = arguments.read_repository(name=repo, password=Arg(admin_password=admin_password))
+        database = RepoDatabase(uri=repository.uri, echo=bool(verbose))
+        password = arguments.resolve_user_password(Arg(password=password))
+        created = database.create_contributor(Role(name=username, password=password))
         print("Successfully created a new contributor:")
         self._print_role(created)
 
     @handle_errors
     def delete(
         self,
-        contributor_name: str,
-        repo: str = None,
-        host: str = None,
-        port: int = None,
-        dbname: str = None,
-        user: str = None,
-        password: Optional[str] = None,
+        repo: str,
+        username: str,
+        admin_password: Optional[str] = None,
         verbose: bool = False,
         force: bool = False,
     ):
         """Delete existing repository contributor."""
-        proceed = force or inquirer.confirm(
-            f"This will delete contributor '{contributor_name}' permanently. Continue?", default=False
-        )
-        if not proceed:
-            print("Aborting")
-            sys.exit(1)
-        database_url = resolve_database_url(
-            repo=repo,
-            host=host,
-            port=port,
-            dbname=dbname,
-            user=user,
-            password=password,
-        )
-        repo = RepoDatabase(url=database_url, echo=bool(verbose))
-        repo.delete_contributor(Role(name=contributor_name))
+        self._ensure_proceed(contributor=username, force=force)
+        repository = arguments.read_repository(name=repo, password=Arg(admin_password=admin_password))
+        database = RepoDatabase(uri=repository.uri, echo=bool(verbose))
+        database.delete_contributor(Role(name=username))
 
     @handle_errors
     def list(
         self,
-        repo: str = None,
-        host: str = None,
-        port: int = None,
-        dbname: str = None,
-        user: str = None,
+        repo: str,
         password: Optional[str] = None,
     ):
         """List registered repository contributors."""
-        database_url = resolve_database_url(
-            repo=repo,
-            host=host,
-            port=port,
-            dbname=dbname,
-            user=user,
-            password=password,
-        )
-        repo = RepoDatabase(url=database_url)
-        for role in repo.list_contributors():
+        repository = arguments.read_repository(name=repo, password=Arg(password=password))
+        database = RepoDatabase(uri=repository.uri)
+        print("CONTRIBUTOR NAME")
+        for role in database.list_contributors():
             print(role.name)
 
     @handle_errors
     def update(
         self,
-        contributor_name: str,
-        contributor_password: Optional[str] = None,
-        repo: str = None,
-        host: str = None,
-        port: int = None,
-        dbname: str = None,
-        user: str = None,
-        password: Optional[str] = None,
+        repo: str,
+        contributor: str,
+        new_password: Optional[str] = None,
+        admin_password: Optional[str] = None,
         verbose: bool = False,
     ):
         """Update contributor password."""
-        database_url = resolve_database_url(
-            repo=repo,
-            host=host,
-            port=port,
-            dbname=dbname,
-            user=user,
-            password=password,
-        )
-        repo = RepoDatabase(url=database_url, echo=bool(verbose))
-        updated = repo.update_contributor(Role(name=contributor_name, password=contributor_password))
+        repository = arguments.read_repository(name=repo, password=Arg(admin_password=admin_password))
+        database = RepoDatabase(uri=repository.uri, echo=bool(verbose))
+        new_password = arguments.resolve_user_password(Arg(password=new_password))
+        updated = database.update_contributor(Role(name=contributor, password=new_password))
         print("Successfully updated contributor password:")
         self._print_role(updated)
 
@@ -125,11 +80,16 @@ class UserCliHandler:
         """Print role credentials."""
         print(f"[username]: {role.name}")
         print(f"[password]: {repr(role.password)}\n")
-        print(
-            colored("WARNING:", "yellow", attrs=("bold",)),
-            colored(
-                "This is the only time you will be able to view this password. "
-                "However you can modify users to create a new password at any time.",
-                "yellow",
-            ),
+        warn(
+            "This is the only time you will be able to view this password. "
+            "However you can modify users to create a new password at any time."
+        ),
+
+    def _ensure_proceed(self, contributor: str, force: bool):
+        """"""
+        proceed = force or inquirer.confirm(
+            f"This will delete contributor '{contributor}' permanently. Continue?", default=False
         )
+        if not proceed:
+            print("Aborting")
+            sys.exit(1)

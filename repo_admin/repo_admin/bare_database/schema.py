@@ -136,8 +136,8 @@ class RepoDatabase:
     # Immutable parent role for all contributor roles.
     PARENT_ROLE = Role(name="benetech_repo_user_group")
 
-    def __init__(self, url, **engine_args):
-        self.engine = create_engine(url, **engine_args)
+    def __init__(self, uri, **engine_args):
+        self.engine = create_engine(uri, **engine_args)
         dialect_name = self.engine.dialect.name
         if dialect_name != "postgresql":
             raise ValueError(f"Unsupported dialect: {dialect_name}. Expected: postgresql")

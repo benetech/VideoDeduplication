@@ -15,11 +15,11 @@ class RepoStorage:
     """Persistent repository storage."""
 
     def __init__(self, directory="~/.benetech-repo-admin"):
-        self._directory = os.path.abspath(os.path.expanduser(directory))
-        if not os.path.exists(self._directory):
-            logger.info("Creating repository credentials directory %s", self._directory)
-            os.makedirs(self._directory)
-            os.chmod(self._directory, stat.S_IRWXU)
+        self.directory = os.path.abspath(os.path.expanduser(directory))
+        if not os.path.exists(self.directory):
+            logger.info("Creating repository credentials directory %s", self.directory)
+            os.makedirs(self.directory)
+            os.chmod(self.directory, stat.S_IRWXU)
 
     def save(self, repo: Repository) -> Repository:
         """Save repository to the persistent storage."""
@@ -46,19 +46,20 @@ class RepoStorage:
 
     def names(self):
         """List all saved repository names."""
-        for name in os.listdir(self._directory):
+        for name in os.listdir(self.directory):
             if self.exists(name):
                 yield name
 
-    def delete(self, repo: Repository):
+    def delete(self, *, name: str = None, repo: Repository = None):
         """Delete repository connection string."""
-        if not self.exists(repo.name):
-            raise KeyError(f"Repository not found: {repo.name}")
-        os.remove(self._file_path(repo.name))
+        name = name or repo.name
+        if not self.exists(name):
+            raise KeyError(f"Repository not found: {name}")
+        os.remove(self._file_path(name))
 
     def _file_path(self, name: str) -> str:
         """Get path of the file to store repository."""
-        return os.path.join(self._directory, name)
+        return os.path.join(self.directory, name)
 
     def _serialize(self, repo: Repository) -> str:
         """Serialize repository to a string."""
