@@ -12,7 +12,7 @@ from tests.helpers import connect_as, insert_one, select_one, insert_many, selec
 @pytest.fixture
 def database(database_uri):
     """Create repository database."""
-    database = RepoDatabase(url=database_uri)
+    database = RepoDatabase(uri=database_uri)
     database.drop_schema()
     database.apply_schema()
     try:
