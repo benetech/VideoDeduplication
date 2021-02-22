@@ -3,13 +3,16 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   /**
    * Limited viewport for scenes
    */
   scenesViewport: {
     minWidth: 0,
-    overflow: "auto",
+    overflowX: "scroll",
+    "&::-webkit-scrollbar": {
+      backgroundColor: theme.palette.common.white,
+    },
   },
   /**
    * Linear sequence of scenes
