@@ -131,17 +131,14 @@ function MatchPreview(props) {
       <div className={classes.divider} />
       <Distance value={distance} className={classes.distance} />
       <div className={classes.divider} />
-      <div className={classes.more}>
-        <ButtonBase
-          className={classes.link}
-          onClick={handleCompare}
-          focusRipple
-          disableTouchRipple
-          aria-label={messages.compare}
-        >
-          {messages.compare}
-        </ButtonBase>
-      </div>
+      <ButtonBase
+        className={classes.more}
+        onClick={handleCompare}
+        focusRipple
+        aria-label={messages.compare}
+      >
+        <div className={classes.link}>{messages.compare}</div>
+      </ButtonBase>
     </Container>
   );
 }
