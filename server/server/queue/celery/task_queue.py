@@ -4,11 +4,12 @@ from datetime import datetime
 from typing import Optional, Set, Callable
 
 from celery.utils import uuid
-
 from server.queue.celery.base_observer import BaseObserver
+
 from server.queue.celery.task_metadata import TaskMetadata
 from server.queue.celery.task_status import task_status
 from server.queue.model import Task, TaskStatus, TaskError
+from server.queue.task_utils import task_status_filter
 from task_queue.events import TASK_METADATA, RUNTIME_METADATA_ATTR
 from task_queue.metadata import TaskRuntimeMetadata
 
@@ -18,22 +19,6 @@ logger = logging.getLogger(__name__)
 
 def _task_name(task):
     return task.__qualname__
-
-
-def _task_filter(status=None):
-    if status is None:
-        status = set(TaskStatus)
-    elif isinstance(status, TaskStatus):
-        status = {status}
-    else:
-        status = set(status)
-
-    def task_filter(task):
-        if task is None:
-            return False
-        return task.status in status
-
-    return task_filter
 
 
 class CeleryTaskQueue:
@@ -151,7 +136,7 @@ class CeleryTaskQueue:
         return metadata_index
 
     def list_tasks(self, status=None, offset=0, limit=None):
-        satisfies = _task_filter(status)
+        satisfies = task_status_filter(status)
         result = []
         filtered_count = 0
         for task_id in self._celery_backend.task_ids():
