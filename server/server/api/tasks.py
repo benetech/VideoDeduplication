@@ -1,7 +1,6 @@
-import os
 from http import HTTPStatus
 
-from flask import jsonify, request, abort, send_from_directory, Response
+from flask import jsonify, request, abort, Response
 
 from server.queue.instance import task_queue, request_transformer
 from server.queue.model import Task, TaskStatus
@@ -80,7 +79,12 @@ def get_task_logs(task_id):
         abort(HTTPStatus.NOT_FOUND.value, f"Task id not found: {task_id}")
 
     log_storage = get_log_storage()
-    log_file_path = log_storage.get_log_file(task_id)
-    if log_file_path is None or not os.path.isfile(log_file_path):
-        return Response("", mimetype="text/plain")
-    return send_from_directory(log_storage.directory, os.path.basename(log_file_path), mimetype="text/plain")
+
+    def read_logs():
+        """Read logs line-by-line."""
+        task_logs = log_storage.get_logs(task_id)
+        with task_logs as task_logs:
+            for line in task_logs:
+                yield line
+
+    return Response(read_logs(), mimetype="text/plain")
