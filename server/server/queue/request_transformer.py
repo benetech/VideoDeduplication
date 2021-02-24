@@ -1,7 +1,13 @@
 import inspect
+from typing import Dict
+
+from server.queue.model import Request
 
 
 class RequestTransformer:
+    """Transform Request objects to/from dict data."""
+
+    # Dict attribute in which the request type is encoded
     REQUEST_TYPE_ATTR = "type"
 
     def __init__(self, *types):
@@ -14,7 +20,8 @@ class RequestTransformer:
                 raise ValueError(f"The request type '{type_name}' is ambiguous")
             self._types[type_name] = request_type
 
-    def fromdict(self, dict_data):
+    def fromdict(self, dict_data: Dict) -> Request:
+        """Restore request type from the dict data."""
         if self.REQUEST_TYPE_ATTR not in dict_data:
             raise ValueError(f"Required attribute '{self.REQUEST_TYPE_ATTR}' is missing. Cannot resolve request type.")
         type_name = dict_data[self.REQUEST_TYPE_ATTR]
@@ -26,7 +33,8 @@ class RequestTransformer:
         return request_type(**kwargs)
 
     @staticmethod
-    def asdict(request):
+    def asdict(request: Request) -> Dict:
+        """Convert Request into dict representation."""
         result = request.kwargs().copy()
         result[RequestTransformer.REQUEST_TYPE_ATTR] = RequestTransformer._request_type_name(request)
         return result
