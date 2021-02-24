@@ -58,9 +58,6 @@ def delete_task(task_id):
 
 @api.route("/tasks/<task_id>", methods=["PATCH"])
 def cancel_task(task_id):
-    if not task_queue.exists(task_id):
-        abort(HTTPStatus.NOT_FOUND.value, f"Task id not found: {task_id}")
-
     request_payload = request.get_json()
     if request_payload is None:
         abort(HTTPStatus.BAD_REQUEST.value, "Expected valid 'application/json' payload.")
@@ -70,6 +67,10 @@ def cancel_task(task_id):
 
     task_queue.terminate(task_id)
     task = task_queue.get_task(task_id)
+
+    if task is None:
+        abort(HTTPStatus.NOT_FOUND.value, f"Task id not found: {task_id}")
+
     return jsonify(task.asdict())
 
 
@@ -79,12 +80,15 @@ def get_task_logs(task_id):
         abort(HTTPStatus.NOT_FOUND.value, f"Task id not found: {task_id}")
 
     log_storage = get_log_storage()
+    task_logs = log_storage.get_logs(task_id)
+
+    if task_logs is None:
+        abort(HTTPStatus.NOT_FOUND.value, f"Task logs not found: {task_id}")
 
     def read_logs():
         """Read logs line-by-line."""
-        task_logs = log_storage.get_logs(task_id)
-        with task_logs as task_logs:
-            for line in task_logs:
+        with task_logs as logs:
+            for line in logs:
                 yield line
 
     return Response(read_logs(), mimetype="text/plain")

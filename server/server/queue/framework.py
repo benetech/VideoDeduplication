@@ -57,7 +57,7 @@ class TaskQueue(abc.ABC):
         """Delete task by id."""
 
     @abc.abstractmethod
-    def get_task(self, task_id: str) -> Task:
+    def get_task(self, task_id: str) -> Optional[Task]:
         """Get task by id."""
 
     @abc.abstractmethod
