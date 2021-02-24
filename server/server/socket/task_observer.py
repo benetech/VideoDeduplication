@@ -1,4 +1,4 @@
-from server.queue.celery.base_observer import BaseObserver
+from server.queue.framework import BaseObserver
 from server.socket import events, namespace as ns
 
 

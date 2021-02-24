@@ -4,10 +4,10 @@ from datetime import datetime
 from typing import Optional, Set, Callable
 
 from celery.utils import uuid
-from server.queue.celery.base_observer import BaseObserver
 
 from server.queue.celery.task_metadata import TaskMetadata
 from server.queue.celery.task_status import task_status
+from server.queue.framework import TaskQueue, BaseObserver
 from server.queue.model import Task, TaskStatus, TaskError
 from server.queue.task_utils import task_status_filter
 from task_queue.events import TASK_METADATA, RUNTIME_METADATA_ATTR
@@ -21,7 +21,7 @@ def _task_name(task):
     return task.__qualname__
 
 
-class CeleryTaskQueue:
+class CeleryTaskQueue(TaskQueue):
 
     # Event type for task deletion
     TASK_DELETED_EVENT = "task-deleted"

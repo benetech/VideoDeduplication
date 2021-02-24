@@ -1,9 +1,7 @@
-from typing import Optional, Union, Callable, Iterable
+from typing import Optional, Callable
 
+from server.queue.framework import StatusFilterSpec
 from server.queue.model import TaskStatus, Task
-
-# Status filter spec is either an iterable of statuses or a single status.
-StatusFilterSpec = Union[Iterable[TaskStatus], TaskStatus]
 
 
 def task_status_filter(status: Optional[StatusFilterSpec] = None) -> Callable[[Task], bool]:

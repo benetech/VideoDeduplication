@@ -1,8 +1,8 @@
 import threading
 from typing import Dict, Tuple
 
-from server.queue.celery.file_streaming import BaseFileStream
 from server.queue.celery.task_log_storage import TaskLogStorage
+from server.queue.file_streaming import BaseFileStream
 from server.socket import events, namespace as ns
 
 

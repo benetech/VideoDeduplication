@@ -2,8 +2,8 @@ import logging
 import os
 from typing import Optional
 
-from server.queue.celery.base_observer import BaseObserver
-from server.queue.celery.file_streaming import FileStreamer, BaseFileStream
+from server.queue.file_streaming import FileStreamer, BaseFileStream
+from server.queue.framework import BaseObserver
 from task_queue.queue_log_handler import QueueLogHandler
 
 logger = logging.getLogger(__name__)
