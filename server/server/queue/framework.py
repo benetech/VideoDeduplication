@@ -1,5 +1,6 @@
 import abc
-from typing import Tuple, List, Iterable, Union, Optional
+import os
+from typing import Tuple, List, Iterable, Union, Optional, TextIO
 
 from server.queue.model import TaskStatus, Task, Request
 
@@ -81,3 +82,52 @@ class TaskQueue(abc.ABC):
 
         This is a blocking method, it should be executed in a background thread.
         """
+
+
+class LogStream(abc.ABC):
+    """Abstract base class for task logs stream."""
+
+    @property
+    @abc.abstractmethod
+    def active(self) -> bool:
+        """Check if the stream is active. Active stream will
+        send data updates as they get available."""
+
+    @abc.abstractmethod
+    def mark_finished(self):
+        """The stream will automatically stop itself
+        once no more data is available in the file."""
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def stop(self):
+        """Stop the stream.
+
+        Once stopped stream will not broadcast any updates, all
+        resources (open file descriptors, etc.) will be released."""
+        pass
+
+
+class TaskLogStorage(abc.ABC):
+    """Abstract base class for log storage implementations."""
+
+    @abc.abstractmethod
+    def get_logs(self, task_id: str) -> Optional[TextIO]:
+        """Get task logs as file-like object."""
+
+    @abc.abstractmethod
+    def delete_logs(self, task_id: str):
+        """Delete task logs."""
+
+    @abc.abstractmethod
+    def connect(self, queue: TaskQueue):
+        """Receive updates from task queue."""
+
+    @abc.abstractmethod
+    def stream_logs(self, task_id, callback, offset=0, whence=os.SEEK_SET) -> Optional[LogStream]:
+        """Start a new task logs stream."""
+
+    @abc.abstractmethod
+    def serve_streams(self):
+        """Broadcast log updates. This is a blocking method, you
+        probably want to execute it in a background thread."""

@@ -9,7 +9,7 @@ from sqlalchemy.orm import joinedload
 
 from thumbnail.cache import ThumbnailCache
 from ..config import Config
-from ..queue.celery.task_log_storage import TaskLogStorage
+from ..queue.framework import TaskLogStorage
 from ..socket.log_watcher import LogWatcher
 
 

@@ -1,16 +1,27 @@
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from server.queue import time_utils
-from server.queue.request_transformer import RequestTransformer
 
 
 @dataclass
 class Request:
+    """Base class for task request details."""
+
+    # Dict attribute in which the request type is encoded
+    TYPE_ATTR = "type"
+
     def kwargs(self):
+        """Get key-work arguments to invoke task."""
         return asdict(self)
+
+    def asdict(self) -> Dict:
+        """Convert request to serializable dict data."""
+        result = self.kwargs().copy()
+        result[self.TYPE_ATTR] = type(self).__name__
+        return result
 
 
 @dataclass
@@ -48,7 +59,7 @@ class Task:
         data["created"] = time_utils.dumps(self.created)
         data["status_updated"] = time_utils.dumps(self.status_updated)
         data["status"] = self.status.value
-        data["request"] = RequestTransformer.asdict(self.request)
+        data["request"] = self.request.asdict()
         return data
 
 
