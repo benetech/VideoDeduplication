@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Iterator
 from uuid import uuid4 as uuid
 
 import numpy as np
@@ -7,6 +8,7 @@ from sqlalchemy import Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 
 from db import Database
+from winnow.storage.base_repr_storage import BaseReprStorage
 from winnow.storage.repr_key import ReprKey
 
 # Logger used in representation-storage module
@@ -32,7 +34,7 @@ class FeatureFile(Base):
         return ReprKey(path=self.source_path, hash=self.hash, tag=self.tag)
 
 
-class SQLiteReprStorage:
+class SQLiteReprStorage(BaseReprStorage):
     """SQLite-based persistent storage for intermediate representations.
 
     For each dataset file path there is a single entry in the storage.
@@ -111,7 +113,7 @@ class SQLiteReprStorage:
             os.remove(feature_file_path)
             session.delete(record)
 
-    def list(self):
+    def list(self) -> Iterator[ReprKey]:
         """Iterate over all storage keys."""
         with self.database.session_scope() as session:
             for record in session.query(FeatureFile):

@@ -3,11 +3,13 @@ import logging
 import os
 from glob import glob
 from os.path import join, relpath, abspath, exists, dirname
+from typing import Iterator
 
 import lmdb
 import numpy as np
 from dataclasses import dataclass, asdict
 
+from winnow.storage.base_repr_storage import BaseReprStorage
 from winnow.storage.repr_key import ReprKey
 
 # Logger used in representation-storage module
@@ -41,7 +43,7 @@ class Metadata:
         return Metadata(hash=key.hash, tag=key.tag)
 
 
-class LMDBReprStorage:
+class LMDBReprStorage(BaseReprStorage):
     """LMDB-based persistent storage for intermediate representations.
 
     For each dataset file path there is a single entry in the storage.
@@ -77,7 +79,7 @@ class LMDBReprStorage:
             os.makedirs(self.directory)
         self._metadata_storage = lmdb.open(join(self.directory, "store.lmdb"))
 
-    def exists(self, key: ReprKey):
+    def exists(self, key: ReprKey) -> bool:
         """Check if the representation exists."""
         try:
             with self._metadata_storage.begin(write=False) as txn:
@@ -110,7 +112,7 @@ class LMDBReprStorage:
             os.remove(self._map(path))
             self._delete_metadata(path, txn)
 
-    def list(self):
+    def list(self) -> Iterator[ReprKey]:
         """Iterate over all storage keys."""
         path_pattern = join(self.directory, f"**/*{self.suffix}")
         with self._metadata_storage.begin(write=False) as txn:
