@@ -14,6 +14,11 @@ class SimpleReprStorage(BaseReprStorage):
     This is simply an adapter of legacy path storage to current protocol.
     """
 
+    @staticmethod
+    def is_storage(directory):
+        """Check if the directory may contain path-based repr storage."""
+        return PathReprStorage.is_storage(directory)
+
     def __init__(self, directory, config_tag="", save=np.save, load=np.load, suffix="_vgg_features.npy"):
         self._path_storage = PathReprStorage(directory=directory, save=save, load=load, suffix=suffix)
         self._config_tag = config_tag

@@ -61,6 +61,14 @@ class LMDBReprStorage(BaseReprStorage):
     pipeline configurations have different key tags.
     """
 
+    # LMDB directory name
+    LMDB_DIR_NAME = "store.lmdb"
+
+    @staticmethod
+    def is_storage(directory):
+        """Check if the directory contains LMDB repr storage."""
+        return os.path.isdir(os.path.join(directory, LMDBReprStorage.LMDB_DIR_NAME))
+
     def __init__(self, directory, save=np.save, load=np.load, suffix=".npy"):
         """Create a new LMDBReprStorage instance.
 
@@ -77,7 +85,7 @@ class LMDBReprStorage(BaseReprStorage):
         if not exists(self.directory):
             logger.info("Creating intermediate representations directory: %s", self.directory)
             os.makedirs(self.directory)
-        self._metadata_storage = lmdb.open(join(self.directory, "store.lmdb"))
+        self._metadata_storage = lmdb.open(join(self.directory, self.LMDB_DIR_NAME))
 
     def exists(self, key: ReprKey) -> bool:
         """Check if the representation exists."""

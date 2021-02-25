@@ -52,6 +52,13 @@ class SQLiteReprStorage(BaseReprStorage):
     pipeline configurations have different key tags.
     """
 
+    # SQLite database file name
+    DB_FILE_NAME = "repr.sqlite"
+
+    @staticmethod
+    def is_storage(directory):
+        return os.path.isfile(os.path.join(directory, SQLiteReprStorage.DB_FILE_NAME))
+
     # The storage is implemented as follows:
     #   * All information is stored in some user-specified directory.
     #   * SQLite database file is created at the root of the storage directory.
@@ -76,7 +83,7 @@ class SQLiteReprStorage(BaseReprStorage):
             logger.info("Creating intermediate representation directory: %s", self.directory)
             os.makedirs(self.directory)
 
-        self.db_file = os.path.join(self.directory, "repr.sqlite")
+        self.db_file = os.path.join(self.directory, self.DB_FILE_NAME)
         self.database = Database(f"sqlite:///{self.db_file}", base=Base)
         self.database.create_tables()
 
