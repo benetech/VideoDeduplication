@@ -1,3 +1,4 @@
+import enum
 import os
 from functools import cached_property
 
@@ -42,6 +43,24 @@ class DatabaseConfig:
         return f"{self.dialect}://{self.host}:{self.port}/{self.name}"
 
 
+class QueueType(enum.Enum):
+    """Task queue type."""
+
+    CELERY = "celery"
+    FAKE = "fake"
+
+    @staticmethod
+    def parse(value, default=CELERY):
+        """Try to parse task queue type from the given value."""
+        if value is None:
+            return QueueType(default)
+        if isinstance(value, QueueType):
+            return value
+        if isinstance(value, str):
+            return QueueType(value.lower().strip())
+        raise TypeError(f"Unrecognized QueueType value: {value}")
+
+
 class Config:
     """Server configuration."""
 
@@ -56,3 +75,4 @@ class Config:
         self.thumbnail_cache_folder = os.environ.get("THUMBNAIL_CACHE_FOLDER", "./thumbnails_cache")
         self.thumbnail_cache_cap = int(os.environ.get("THUMBNAIL_CACHE_CAP", 1000))
         self.task_log_directory = os.environ.get("TASK_LOG_DIRECTORY", "./task_logs")
+        self.task_queue_type = QueueType.parse(os.environ.get("TASK_QUEUE_TYPE", QueueType.CELERY))
