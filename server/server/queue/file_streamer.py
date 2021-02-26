@@ -4,34 +4,13 @@ import time
 from abc import ABC as Abstract, abstractmethod  # noqa
 from typing import TextIO, Callable, Set
 
+from server.queue.framework import LogStream
+
 # Default module logger
 logger = logging.getLogger(__name__)
 
 
-class BaseFileStream(Abstract):
-    @property
-    @abstractmethod
-    def active(self) -> bool:
-        """Check if the stream is active. Active stream will
-        send data updates as they get available."""
-        pass
-
-    @abstractmethod
-    def mark_finished(self):
-        """The stream will automatically stop itself
-        once no more data is available in the file."""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def stop(self):
-        """Stop the stream.
-
-        Once stopped stream will not broadcast any updates, all
-        resources (open file descriptors, etc.) will be released."""
-        pass
-
-
-class _FileStream(BaseFileStream):
+class _LogFileStream(LogStream):
     def __init__(self, file: TextIO, callback: Callable, finished: bool, chunk_size=100 * 2 ** 10):
         self._file: TextIO = file
         self._callback: Callable = callback
@@ -82,7 +61,7 @@ class FileStreamer:
         self._timeout: float = timeout
         self._chunk_size: int = chunk_size
         self._poll_condition = threading.Condition()
-        self._streams: Set[_FileStream] = set()
+        self._streams: Set[_LogFileStream] = set()
 
     def _has_streams(self) -> bool:
         """Check if there are active streams."""
@@ -90,7 +69,7 @@ class FileStreamer:
 
     def start_stream(self, file, callback, finished=False):
         """Create a new file stream."""
-        stream = _FileStream(file=file, callback=callback, finished=finished, chunk_size=self._chunk_size)
+        stream = _LogFileStream(file=file, callback=callback, finished=finished, chunk_size=self._chunk_size)
         with self._poll_condition:
             self._streams.add(stream)
             self._poll_condition.notify()

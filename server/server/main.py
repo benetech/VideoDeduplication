@@ -6,7 +6,6 @@ import fire
 from flask import Flask
 
 from server.config import Config
-from server.queue.celery.task_log_storage import TaskLogStorage
 from server.socket.log_watcher import LogWatcher
 from server.socket.task_observer import TaskObserver
 from thumbnail.cache import ThumbnailCache
@@ -59,8 +58,9 @@ def serve(
     eventlet.monkey_patch()
 
     from server.model import database
-    from server.queue.instance import queue
+    from server.queue.instance import request_transformer
     from server.socket.instance import socketio
+    from server.queue import make_task_queue, make_log_storage
 
     # Read configuration
     config = Config()
@@ -82,13 +82,16 @@ def serve(
     # Initialize database
     database.init_app(application)
 
+    # Initialize task queue
+    task_queue = make_task_queue(config, request_transformer)
+    application.config["TASK_QUEUE"] = task_queue
+
     # Initialize SocketIO
     socketio.init_app(application)
-    queue.observe(TaskObserver(socketio))
+    task_queue.observe(TaskObserver(socketio))
 
     # Initialize task log storage
-    log_storage = TaskLogStorage(directory=config.task_log_directory)
-    queue.observe(log_storage.make_task_observer())
+    log_storage = make_log_storage(config, task_queue)
     application.config["LOG_STORAGE"] = log_storage
 
     # Initialize task log watcher
@@ -96,7 +99,7 @@ def serve(
     application.config["LOG_WATCHER"] = log_watcher
 
     # Listen for task queue events in a background thread
-    threading.Thread(target=queue.listen, daemon=True).start()
+    threading.Thread(target=task_queue.listen, daemon=True).start()
 
     # Publish log updates in a background thread
     threading.Thread(target=log_watcher.broadcast_logs, daemon=True).start()
