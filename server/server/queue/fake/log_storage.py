@@ -38,7 +38,7 @@ class FakeStream(LogStream):
         if self.active:
             try:
                 self._callback(data)
-            except:
+            except Exception:
                 logger.exception("Error occurred while streaming logs data.")
 
 
