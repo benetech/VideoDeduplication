@@ -1,12 +1,13 @@
 import enum
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Iterator
 
 from dataclasses import dataclass, field
-from sqlalchemy import or_, func, literal_column
-from sqlalchemy.orm import aliased
+from sqlalchemy import or_, func, literal_column, tuple_
+from sqlalchemy.orm import aliased, Query, Session, joinedload
 
-from db.schema import Files, Matches, Exif, Contributor, Repository
+from db.schema import Files, Matches, Exif, Contributor, Repository, Signature
+from winnow.utils.iterators import chunks
 
 
 class FileMatchFilter(enum.Enum):
@@ -121,7 +122,7 @@ class FilesDAO:
         )
 
     @staticmethod
-    def file_matches(file_id, session):
+    def file_matches(file_id, session: Session) -> Query:
         """Query for all file matches."""
         return session.query(Matches).filter(
             or_(Matches.query_video_file_id == file_id, Matches.match_video_file_id == file_id)
@@ -137,7 +138,7 @@ class FilesDAO:
         return values
 
     @staticmethod
-    def _sort_items(req: ListFilesRequest, query):
+    def _sort_items(req: ListFilesRequest, query: Query) -> Query:
         """Apply ordering."""
         if req.sort == FileSort.RELATED or req.sort == FileSort.DUPLICATES:
             match = FilesDAO._countable_match
@@ -157,14 +158,14 @@ class FilesDAO:
         return query
 
     @staticmethod
-    def _filter_path(req: ListFilesRequest, query):
+    def _filter_path(req: ListFilesRequest, query: Query) -> Query:
         """Filter by file name."""
         if req.path_query:
             return query.filter(Files.file_path.ilike(f"%{req.path_query}%"))
         return query
 
     @staticmethod
-    def _filter_extensions(req: ListFilesRequest, query):
+    def _filter_extensions(req: ListFilesRequest, query: Query) -> Query:
         """Filter by file extension."""
         if req.extensions:
             conditions = (Files.file_path.ilike(f"%.{ext}") for ext in req.extensions)
@@ -172,7 +173,7 @@ class FilesDAO:
         return query
 
     @staticmethod
-    def _filter_exif(req: ListFilesRequest, query):
+    def _filter_exif(req: ListFilesRequest, query: Query) -> Query:
         """Filter by EXIF data presence."""
         if req.exif is not None:
             has_exif = Files.exif.has()
@@ -183,7 +184,7 @@ class FilesDAO:
         return query
 
     @staticmethod
-    def _filter_audio(req: ListFilesRequest, query):
+    def _filter_audio(req: ListFilesRequest, query: Query) -> Query:
         """Filter by audio presence."""
         if req.audio is not None:
             has_audio = Files.exif.has(Exif.Audio_Duration > 0)
@@ -194,7 +195,7 @@ class FilesDAO:
         return query
 
     @staticmethod
-    def _filter_date(req: ListFilesRequest, query):
+    def _filter_date(req: ListFilesRequest, query: Query) -> Query:
         """Filter by creation date."""
         if req.date_from is not None:
             query = query.filter(Files.exif.has(Exif.General_Encoded_Date >= req.date_from))
@@ -205,7 +206,7 @@ class FilesDAO:
         return query
 
     @staticmethod
-    def _filter_length(req: ListFilesRequest, query):
+    def _filter_length(req: ListFilesRequest, query: Query) -> Query:
         """Filter by length."""
         if req.min_length is not None or req.max_length is not None:
             query = query.join(Files.exif)
@@ -219,14 +220,14 @@ class FilesDAO:
         return query
 
     @staticmethod
-    def _filter_hash(req: ListFilesRequest, query):
+    def _filter_hash(req: ListFilesRequest, query: Query) -> Query:
         """Filter file by hash."""
         if req.sha256:
             return query.filter(Files.sha256.ilike(f"%{req.sha256}%"))
         return query
 
     @staticmethod
-    def _filter_by_matches(req: ListFilesRequest, query):
+    def _filter_by_matches(req: ListFilesRequest, query: Query) -> Query:
         """Filter by presence of similar files."""
         if req.match_filter == FileMatchFilter.DUPLICATES:
             return query.filter(FilesDAO.has_matches(req.duplicate_distance))
@@ -238,7 +239,7 @@ class FilesDAO:
         return query
 
     @staticmethod
-    def _filter_remote(req: ListFilesRequest, query):
+    def _filter_remote(req: ListFilesRequest, query: Query) -> Query:
         """Filter by local/external origin."""
         if req.remote is None:
             return query
@@ -247,21 +248,21 @@ class FilesDAO:
         return query.filter(Files.contributor == None)  # noqa: E711
 
     @staticmethod
-    def _filter_repository(req: ListFilesRequest, query):
+    def _filter_repository(req: ListFilesRequest, query: Query) -> Query:
         """Filter by repository name (external files only)."""
         if req.repository is not None:
             return query.filter(Files.contributor.has(Contributor.repository.has(Repository.name == req.repository)))
         return query
 
     @staticmethod
-    def _filter_contributor(req: ListFilesRequest, query):
+    def _filter_contributor(req: ListFilesRequest, query: Query):
         """Filter by contributor name (external files only)."""
         if req.contributor is not None:
             return query.filter(Files.contributor.has(Contributor.name == req.contributor))
         return query
 
     @staticmethod
-    def _filter_by_file_attributes(req: ListFilesRequest, query):
+    def _filter_by_file_attributes(req: ListFilesRequest, query: Query):
         """Apply filters related to the properties of video file itself."""
         query = FilesDAO._filter_path(req, query)
         query = FilesDAO._filter_extensions(req, query)
@@ -274,3 +275,35 @@ class FilesDAO:
         query = FilesDAO._filter_repository(req, query)
         query = FilesDAO._filter_contributor(req, query)
         return query
+
+    @staticmethod
+    def query_local_files(session: Session, path_hash_pairs) -> Query:
+        """Query local files by (path, hash) pairs."""
+        query = session.query(Files).filter(Files.contributor == None)  # noqa: E711
+        query = query.filter(tuple_(Files.file_path, Files.sha256).in_(tuple(path_hash_pairs)))
+        return query
+
+    @staticmethod
+    def query_remote_files(session: Session, repository_name: str = None, contributor_name: str = None) -> Query:
+        """Query remote signatures from database."""
+        query = session.query(Files).filter(Files.contributor != None)  # noqa: E711
+        query = query.options(joinedload(Files.signature), joinedload(Files.contributor))
+
+        # Apply repository filters
+        if repository_name is not None:
+            query = query.filter(Files.contributor.has(Contributor.repository.has(Repository.name == repository_name)))
+
+        # Apply contributor filters
+        if contributor_name is not None:
+            query = query.filter(Files.contributor.has(Contributor.name == contributor_name))
+
+        return query
+
+    @staticmethod
+    def select_missing_signatures(path_hash_pairs, session: Session, chunk_size=1000) -> Iterator[Files]:
+        """Query files with missing signatures."""
+        for chunk in chunks(path_hash_pairs, size=chunk_size):
+            query = session.query(Files).filter(Files.signature.has(Signature.signature != None))  # noqa: E711
+            query = query.filter(tuple_(Files.file_path, Files.sha256).in_(chunk)).yield_per(chunk_size)
+            have_signature = set((file.file_path, file.sha256) for file in query)
+            yield from set(chunk) - have_signature

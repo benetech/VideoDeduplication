@@ -20,3 +20,10 @@ class ReprStorage:
 
     def __repr__(self):
         return f"ReprStorage('{self.directory}')"
+
+    def close(self):
+        """Release any underlying resources (close database connections, etc.)."""
+        self.frames.close()
+        self.frame_level.close()
+        self.video_level.close()
+        self.signature.close()

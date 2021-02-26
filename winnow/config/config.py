@@ -1,5 +1,6 @@
+import enum
 import os
-from typing import Tuple
+from typing import Tuple, Dict
 
 import yaml
 from dataclasses import dataclass, asdict, field
@@ -10,6 +11,26 @@ def _bool_env(variable_name, default):
     if variable_name not in os.environ:
         return default
     return os.environ[variable_name].lower() == "true"
+
+
+class StorageType(enum.Enum):
+    """Supported storage types."""
+
+    DETECT = "detect"
+    LMDB = "lmdb"
+    SIMPLE = "simple"
+    SQLITE = "sqlite"
+
+    @staticmethod
+    def parse(value, default=None):
+        """Create a StorageType described by the given value."""
+        if value is None:
+            return default
+        if isinstance(value, StorageType):
+            return value
+        if isinstance(value, str):
+            return StorageType(value.lower().strip())
+        raise TypeError(f"Unrecognized value for StorageType: {value}")
 
 
 @dataclass
@@ -31,10 +52,19 @@ class RepresentationConfig:
     """Configuration of intermediate representation storage."""
 
     directory: str = None  # Root folder with intermediate representations
+    storage_type: StorageType = StorageType.LMDB  # Specify representation storage type
 
     def read_env(self):
         """Read config from environment variables."""
         self.directory = os.environ.get("WINNOW_REPR_DIRECTORY", self.directory)
+        self.storage_type = StorageType.parse(os.environ.get("WINNOW_REPR_STORAGE_TYPE", self.storage_type))
+
+    @staticmethod
+    def fromdict(data: Dict):
+        """Construct repr config from dict data."""
+        result = RepresentationConfig(**data)
+        result.storage_type = StorageType.parse(result.storage_type)
+        return result
 
 
 @dataclass
@@ -127,7 +157,7 @@ class Config:
     def fromdict(data):
         """Build config from dict."""
         database = DatabaseConfig(**data.pop("database", {}))
-        rep = RepresentationConfig(**data.pop("repr", {}))
+        rep = RepresentationConfig.fromdict(data.pop("repr", {}))
         sources = SourcesConfig(**data.pop("sources", {}))
         templates = TemplatesConfig(**data.pop("templates", {}))
         processing = ProcessingConfig(**data.pop("processing", {}))

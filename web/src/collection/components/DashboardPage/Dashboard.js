@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -10,6 +10,11 @@ import { useTheme } from "@material-ui/core";
 import StackedLineChart from "./StackedLineChart";
 import Grid from "@material-ui/core/Grid";
 import useMatchStats from "./useMatchStats";
+import { useDispatch } from "react-redux";
+import { updateFilters } from "../../state/fileList/actions";
+import { useHistory } from "react-router";
+import { routes } from "../../../routing/routes";
+import { MatchCategory } from "../../state/fileList/MatchCategory";
 // import useUniqueId from "../../../common/hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({
@@ -94,6 +99,53 @@ const dbMatches = (theme) => ({
 
 // TODO: Uncomment code when backdrop menu is back again
 
+function usePieChartStats() {
+  const stats = useMatchStats();
+  const theme = useTheme();
+  const dispatch = useDispatch();
+  const history = useHistory();
+
+  const showDuplicates = useCallback(() => {
+    dispatch(updateFilters({ matches: MatchCategory.duplicates }));
+    history.push(routes.collection.fingerprints, { keepFilters: true });
+  }, []);
+
+  const showRelated = useCallback(() => {
+    dispatch(updateFilters({ matches: MatchCategory.related }));
+    history.push(routes.collection.fingerprints, { keepFilters: true });
+  }, []);
+
+  const showUnique = useCallback(() => {
+    dispatch(updateFilters({ matches: MatchCategory.unique }));
+    history.push(routes.collection.fingerprints, { keepFilters: true });
+  }, []);
+
+  return {
+    dataset: [
+      {
+        name: "Duplicates",
+        value: stats.duplicates,
+        color: theme.palette.primary.main,
+        onClick: showDuplicates,
+      },
+      {
+        name: "Possibly related",
+        value: stats.related - stats.duplicates,
+        color: theme.palette.primary.light,
+        onClick: showRelated,
+      },
+      {
+        name: "Unique files",
+        value: stats.unique,
+        color: "#131726",
+        onClick: showUnique,
+      },
+    ],
+    stats,
+    total: stats.related,
+  };
+}
+
 function Dashboard(props) {
   const { className } = props;
   const classes = useStyles();
@@ -103,7 +155,7 @@ function Dashboard(props) {
   // const [showMenu, setShowMenu] = useState(false);
   const showMenu = false;
   // const backdropMenuId = useUniqueId("backdrop-menu");
-  const matchStats = useMatchStats();
+  const pieChartStats = usePieChartStats();
 
   return (
     <div className={clsx(classes.dashboardContainer, className)}>
@@ -124,7 +176,11 @@ function Dashboard(props) {
             aria-label={intl.formatMessage({ id: "aria.label.dashboard" })}
           >
             <Grid item lg={6} xs={12}>
-              <PieChart title="My Matches" categories={matchStats} />
+              <PieChart
+                title="My Matches"
+                categories={pieChartStats.dataset}
+                total={pieChartStats.total}
+              />
             </Grid>
             <Grid item lg={6} xs={12}>
               <StackedLineChart

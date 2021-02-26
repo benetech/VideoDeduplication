@@ -15,8 +15,9 @@ def process_directory(self, directory, frame_sampling=None, save_frames=None):
     from winnow.utils.config import resolve_config
     from winnow.utils.files import scan_videos
     from winnow.pipeline.extract_exif import extract_exif
-    from winnow.pipeline.extract_features import extract_features
-    from winnow.pipeline.generate_matches import generate_matches
+    from winnow.pipeline.detect_scenes import detect_scenes
+    from winnow.pipeline.generate_local_matches import generate_local_matches
+    from winnow.pipeline.pipeline_context import PipelineContext
 
     # Initialize a progress monitor
     monitor = make_progress_monitor(task=self, total_work=1.0)
@@ -36,23 +37,21 @@ def process_directory(self, directory, frame_sampling=None, save_frames=None):
 
     # Run pipeline
     monitor.update(0)
+    pipeline_context = PipelineContext(config)
+    generate_local_matches(files=videos, pipeline=pipeline_context, progress=monitor.subtask(work_amount=0.9))
+    detect_scenes(files=videos, pipeline=pipeline_context, progress=monitor.subtask(0.01))
+    extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.05))
 
-    logger.info("Starting extract-features step...")
-    extract_features(config, videos, progress_monitor=monitor.subtask(work_amount=0.7))
-
-    logger.info("Starting generate-matches step...")
-    generate_matches(config, progress_monitor=monitor.subtask(work_amount=0.1))
-
-    logger.info("Starting extract-exif step...")
-    extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.1))
+    monitor.complete()
 
 
 @winnow_task(bind=True)
 def process_file_list(self, files, frame_sampling=None, save_frames=None):
     from winnow.utils.config import resolve_config
     from winnow.pipeline.extract_exif import extract_exif
-    from winnow.pipeline.extract_features import extract_features
-    from winnow.pipeline.generate_matches import generate_matches
+    from winnow.pipeline.detect_scenes import detect_scenes
+    from winnow.pipeline.generate_local_matches import generate_local_matches
+    from winnow.pipeline.pipeline_context import PipelineContext
 
     # Initialize a progress monitor
     monitor = make_progress_monitor(task=self, total_work=1.0)
@@ -63,15 +62,10 @@ def process_file_list(self, files, frame_sampling=None, save_frames=None):
 
     # Run pipeline
     monitor.update(0)
-
-    logger.info("Starting extract-features step...")
-    extract_features(config, files, progress_monitor=monitor.subtask(work_amount=0.7))
-
-    logger.info("Starting generate-matches step...")
-    generate_matches(config, progress_monitor=monitor.subtask(work_amount=0.2))
-
-    logger.info("Starting extract-exif step...")
-    extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.1))
+    pipeline_context = PipelineContext(config)
+    generate_local_matches(files, pipeline=pipeline_context, progress=monitor.subtask(work_amount=0.9))
+    detect_scenes(files, pipeline=pipeline_context, progress=monitor.subtask(0.01))
+    extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.05))
 
     monitor.complete()
 

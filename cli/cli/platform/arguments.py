@@ -5,11 +5,8 @@ from typing import Tuple
 import inquirer
 
 from cli.platform.error import CliError
-from db import Database
-from db.schema import Repository
-from winnow.config import Config
-from winnow.remote import make_client
-from winnow.remote.connect import DatabaseConnector
+from winnow.pipeline.pipeline_context import PipelineContext
+from winnow.remote.connect import RepoConnector
 
 
 def ask_password(
@@ -59,12 +56,9 @@ def read_argument_file(file_path):
         return file.read().strip()
 
 
-def get_repo_connector(repo_name: str, config: Config) -> DatabaseConnector:
+def get_repo_connector(name: str, pipeline: PipelineContext) -> RepoConnector:
     """Create and configure local database connector."""
-    database = Database(uri=config.database.uri)
-    with database.session_scope(expunge=True) as session:
-        repository = session.query(Repository).filter(Repository.name == repo_name).one_or_none()
+    repository = pipeline.repository_dao.get(name=name)
     if repository is None:
-        raise CliError(f"Unknown repository: {repo_name}")
-    repo_client = make_client(repository, config)
-    return DatabaseConnector(repo=repository, database=database, repo_client=repo_client)
+        raise CliError(f"Unknown repository: {name}")
+    return pipeline.make_connector(repository)

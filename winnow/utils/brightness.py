@@ -22,17 +22,15 @@ def load_gray_estimation_model():
     return model
 
 
-def get_gray_max(video_level_features):
+def get_gray_max(video_level_features) -> float:
 
     model = load_gray_estimation_model()
     predictions = model.predict(video_level_features)
 
-    return predictions
+    return predictions[0]
 
 
-def get_brightness_estimation(reps, repr_key):
+def get_brightness_estimation(video_level_features) -> float:
 
-    vl_features = np.nan_to_num(reps.video_level.read(repr_key))
-    estimates = get_gray_max(vl_features)
-
-    return estimates
+    video_level_features = np.nan_to_num(video_level_features)
+    return get_gray_max(video_level_features)

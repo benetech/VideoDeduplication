@@ -17,6 +17,14 @@ class PathReprStorage:
     Original path and hash are encoded in the representation file path.
     """
 
+    @staticmethod
+    def is_storage(directory):
+        """Check if directory contains path-based repr storage."""
+        if not os.path.isdir(directory):
+            return False
+        storage = PathReprStorage(directory)
+        return any(storage.list())
+
     def __init__(self, directory, save=np.save, load=np.load, suffix="_vgg_features.npy"):
         """Create a new ReprStorage instance.
 

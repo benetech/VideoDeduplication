@@ -80,6 +80,7 @@ function FileMatchesPage(props) {
   useEffect(() => {
     if (fileMatches.params.fileId !== id) {
       dispatch(updateFileMatchesParams({ fileId: id }));
+      dispatch(fetchFileMatchesSlice());
     }
   }, [id, fileMatches]);
 

@@ -1,152 +1,97 @@
 import os
+import pickle
 import tempfile
-from pathlib import Path
 
-import numpy as np
 import pytest
 
-from winnow.feature_extraction import IntermediateCnnExtractor, FrameToVideoRepresentation, SimilarityModel
-from winnow.storage.repr_storage import ReprStorage
+from db.schema import Files
+from winnow.pipeline.extract_frame_level_features import extract_frame_level_features
+from winnow.pipeline.extract_video_level_features import extract_video_level_features
+from winnow.pipeline.extract_video_signatures import extract_video_signatures
+from winnow.pipeline.pipeline_context import PipelineContext
+from winnow.pipeline.store_database_signatures import store_database_signatures
+from winnow.storage.repr_key import ReprKey
 from winnow.storage.repr_utils import bulk_read
-from winnow.utils.repr import reprkey_resolver
-from winnow.utils.files import scan_videos, create_video_list
 from winnow.utils.config import resolve_config
-
-NUMBER_OF_TEST_VIDEOS = 40
-
-test_folder = os.path.dirname(__file__)
-cfg = resolve_config(config_path=os.path.join(test_folder, "config.yaml"))
-
-# Load main config variables from the TEST config file
-
-DATASET_DIR = cfg.sources.root
-DST_DIR = cfg.repr.directory
-VIDEO_LIST_TXT = cfg.processing.video_list_filename
-USE_DB = cfg.database.use
-CONNINFO = cfg.database.uri
-KEEP_FILES = cfg.processing.keep_fileoutput
-HANDLE_DARK = cfg.processing.filter_dark_videos
-DETECT_SCENES = cfg.processing.detect_scenes
-MIN_VIDEO_DURATION = cfg.processing.min_video_duration_seconds
-DISTANCE = float(cfg.processing.match_distance)
+from winnow.utils.files import scan_videos
+from winnow.utils.repr import get_config_tag
 
 
-# Ensures that the config file follows specs
-def test_config_input():
-    assert type(DATASET_DIR) == str, "video_source_folder takes a string as a parameter"
-    assert type(DST_DIR) == str, "destination_folder takes a string as a parameter"
-    assert type(USE_DB) == bool, "use_db takes a boolean as a parameter"
-    assert type(CONNINFO) == str, "use_db takes a boolean as a parameter"
+def repr_keys(paths, pipeline: PipelineContext):
+    for path in paths:
+        yield pipeline.reprkey(path)
+
+
+def file_key(config):
+    """Get file repr-storage key."""
+    config_tag = get_config_tag(config)
+
+    def get_key(file: Files):
+        return ReprKey(path=file.file_path, hash=file.sha256, tag=config_tag)
+
+    return get_key
 
 
 @pytest.fixture(scope="module")
-def reprs():
-    """Fixture that creates an empty representation folder in a temporary directory."""
-    with tempfile.TemporaryDirectory(prefix="representations-") as directory:
-        yield ReprStorage(directory=directory)
+def config():
+    """Resolve test configuration."""
+    test_folder = os.path.dirname(__file__)
+    config = resolve_config(config_path=os.path.join(test_folder, "config.yaml"))
+    with tempfile.TemporaryDirectory(prefix="representations-") as temp_directory:
+        config.repr.directory = temp_directory
+        config.database.use = True
+        config.database.uri = f"sqlite:///{os.path.join(temp_directory, 'test.sqlite')}"
+        yield config
 
 
 @pytest.fixture(scope="module")
-def videos():
-    """Paths of videos in a test_data."""
-    return scan_videos(DATASET_DIR, "**", extensions=cfg.sources.extensions)
+def pipeline(config):
+    """Create pipeline context."""
+    return PipelineContext(config)
 
 
 @pytest.fixture(scope="module")
-def repr_keys(videos):
-    """(path_inside_storage,sha256) pairs for test dataset videos."""
-    reprkey = reprkey_resolver(cfg)
-    return [reprkey(path) for path in videos]
+def dataset(config):
+    """Get list of test dataset videos."""
+    return scan_videos(config.sources.root, wildcard="**", extensions=config.sources.extensions)
 
 
-@pytest.fixture(scope="module")
-def intermediate_cnn_results(videos, reprs):
-    """Ensure processing by intermediate CNN is done.
+def test_extract_frame_level_features(dataset, pipeline: PipelineContext):
+    extract_frame_level_features(files=dataset, pipeline=pipeline)
+    features_storage = pipeline.repr_storage.frame_level
+    values = bulk_read(features_storage).values()
 
-    Each test dependent on this fixture is guaranteed to be
-    executed AFTER processing by the intermediate CNN is done.
-
-    Returns:
-        ReprStorage with populated with intermediate CNN results.
-    """
-    reprkey = reprkey_resolver(cfg)
-    videos_list = create_video_list(videos, VIDEO_LIST_TXT)
-    extractor = IntermediateCnnExtractor(video_src=videos_list, reprs=reprs, reprkey=reprkey)
-    extractor.start(batch_size=16, cores=4)
-    return reprs
+    assert set(features_storage.list()) == set(repr_keys(dataset, pipeline))
+    assert sum(feature.shape[1] == 4096 for feature in values) == len(dataset)
 
 
-@pytest.fixture(scope="module")
-def frame_to_video_results(intermediate_cnn_results):
-    """Ensure video-level features are extracted.
+def test_extract_video_level_features(dataset, pipeline: PipelineContext):
+    extract_video_level_features(files=dataset, pipeline=pipeline)
+    features_storage = pipeline.repr_storage.video_level
+    values = bulk_read(features_storage).values()
 
-    Each test dependent on this fixture is guaranteed to be
-    executed AFTER video-level features extraction is done.
-
-    Returns:
-        ReprStorage populated with video-level features.
-    """
-    reprs = intermediate_cnn_results
-    converter = FrameToVideoRepresentation(reprs)
-    converter.start()
-    return reprs
+    assert set(features_storage.list()) == set(repr_keys(dataset, pipeline))
+    assert sum(feature.shape[1] == 4096 for feature in values) == len(dataset)
 
 
-@pytest.fixture(scope="module")
-def signatures(frame_to_video_results):
-    """Get calculated signatures as a dict.
+def test_extract_video_signatures(dataset, pipeline: PipelineContext):
+    extract_video_signatures(files=dataset, pipeline=pipeline)
+    signatures_storage = pipeline.repr_storage.signature
+    signatures = bulk_read(signatures_storage).values()
 
-    Each test dependent on this fixture is guaranteed to be
-    executed AFTER signatures are calculated.
-
-    Returns:
-        Signatures dict (orig_path,hash) => signature.
-    """
-    reprs = frame_to_video_results
-    sm = SimilarityModel()
-    signatures = sm.predict(bulk_read(reprs.video_level))
-    for repr_key, sig_value in signatures.items():
-        reprs.signature.write(repr_key, sig_value)
-    return signatures
+    assert set(signatures_storage.list()) == set(repr_keys(dataset, pipeline))
+    assert sum(sig.shape == (500,) for sig in signatures)
 
 
-def test_video_extension_filter(videos):
-    # Path(..).suffix returns values with leading dot (e.g. '.mp4').
-    # Thus we need to chop the first character.
-    not_videos = sum(Path(video).suffix[1:] not in cfg.sources.extensions for video in videos)
+def test_signatures_are_saved(dataset, pipeline: PipelineContext):
+    store_database_signatures(files=dataset, pipeline=pipeline)
+    signature_storage = pipeline.repr_storage.signature
+    with pipeline.database.session_scope(expunge=True) as session:
+        files = session.query(Files).all()
+        key = file_key(pipeline.config)
+        db_signatures = {key(file): list(pickle.loads(file.signature.signature)) for file in files}
 
-    assert not_videos == 0
+    repr_signatures = bulk_read(signature_storage)
+    repr_signatures = {key: list(value) for key, value in repr_signatures.items()}
 
-
-def test_intermediate_cnn_extractor(intermediate_cnn_results, repr_keys):
-    assert set(intermediate_cnn_results.frame_level.list()) == set(repr_keys)
-
-    frame_level_features = list(bulk_read(intermediate_cnn_results.frame_level).values())
-
-    shapes_correct = sum(features.shape[1] == 4096 for features in frame_level_features)
-
-    assert shapes_correct == len(repr_keys)
-
-
-def test_frame_to_video_converter(frame_to_video_results, repr_keys):
-    assert set(frame_to_video_results.video_level.list()) == set(repr_keys)
-
-    video_level_features = np.array(list(bulk_read(frame_to_video_results.video_level).values()))
-
-    assert video_level_features.shape == (len(repr_keys), 1, 4096)
-
-
-def test_signatures_shape(signatures, repr_keys):
-    assert set(signatures.keys()) == set(repr_keys)
-
-    signatures_array = np.array(list(signatures.values()))
-    assert signatures_array.shape == (NUMBER_OF_TEST_VIDEOS, 500)
-
-
-@pytest.mark.usefixtures("signatures")
-def test_saved_signatures(reprs, repr_keys):
-    signatures = bulk_read(reprs.signature)
-    assert set(signatures.keys()) == set(repr_keys)
-
-    signatures_array = np.array(list(signatures.values()))
-    assert signatures_array.shape == (NUMBER_OF_TEST_VIDEOS, 500)
+    assert db_signatures == repr_signatures

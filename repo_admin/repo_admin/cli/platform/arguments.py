@@ -1,61 +1,87 @@
 import sys
-from typing import Optional
+from typing import Any
 
 import inquirer
 
-from repo_admin.bare_database.credentials import RepoStorage
+from repo_admin.bare_database.model import Repository
+from repo_admin.bare_database.storage import RepoStorage
 from repo_admin.cli.platform.error import CliError
+from repo_admin.cli.platform.messages import warn
 
 
-def ask_password(message, pass_arg=None, pass_arg_value=None):
-    """Get required password."""
-    if pass_arg is None and pass_arg_value is not None:
-        raise RuntimeError("Invalid usage: pass_arg is None while pass_arg_value is not None")
-    if pass_arg_value is not None:
-        return pass_arg_value
-    if sys.stdin.isatty():
-        return inquirer.password(message)
-    if pass_arg is not None:
-        raise CliError(f"Missing argument: --{pass_arg}")
-    raise CliError("Cannot determine password: interactive terminal is required.")
+class Arg:
+    """CLI argument."""
+
+    def __init__(self, **kwargs):
+        if len(kwargs) != 1:
+            raise TypeError("Arg() takes exactly one keyword argument")
+        for name, value in kwargs.items():
+            self.name = name
+            self.value = value
+
+    name: str
+    value: Any
 
 
-def resolve_database_url(
-    repo: str = None,
-    host: str = None,
-    port: int = None,
-    dbname: str = None,
-    user: str = None,
-    password: Optional[str] = None,
-):
-    """Resolve database URL."""
-    if repo is not None:
-        if host is not None:
-            raise CliError("Ambiguous repository: repository name and database host cannot be provided simultaneously")
-        if port is not None:
-            raise CliError("Ambiguous repository: repository name and database port cannot be provided simultaneously")
-        if dbname is not None:
-            raise CliError("Ambiguous repository: repository name and database name cannot be provided simultaneously")
-        if user is not None:
-            raise CliError("Ambiguous repository: repository name and database user cannot be provided simultaneously")
-        if password is not None:
-            raise CliError(
-                "Ambiguous repository: repository name and database password cannot be provided simultaneously"
-            )
-        repo_storage = RepoStorage()
-        if not repo_storage.exists(repo):
-            raise CliError(f"Unknown repository name: {repo}")
-        return repo_storage.read_repo(repo)
-    return get_database_url(host=host, port=port, dbname=dbname, user=user, password=password)
+def read_repository(name, password: Arg) -> Repository:
+    """Read repository with its credentials."""
+    try:
+        repo = RepoStorage().read(name)
+    except KeyError:
+        raise CliError(f"Repository not found: {name}")
+
+    return resolve_repository(repo, require_password=True, password_argument=password)
 
 
-def get_database_url(
-    host: str,
-    port: int,
-    dbname: str,
-    user: str = "postgres",
-    password: Optional[str] = None,
-):
-    """Construct a database connection string."""
-    password = ask_password(f"Please enter database password for user '{user}'", "password", password)
-    return f"postgres://{user}:{password}@{host}:{port}/{dbname}"
+def resolve_repository(repo: Repository, require_password=True, password_argument: Arg = None) -> Repository:
+    """Resolve missing repository attributes."""
+    error_message = repo.validate()
+    if error_message is not None:
+        raise CliError(error_message)
+
+    # Try to use password literal argument if password is unknown
+    if not repo.password and password_argument is not None:
+        repo.password = password_argument.value
+
+    # If password literal is not provided try to ask for password interactively
+    if not repo.password and sys.stdin.isatty():
+        repo.password = inquirer.password(f"Please enter admin password for repository '{repo.name}'")
+
+    # If password is required but still undefined, raise an error
+    if require_password and not repo.password and password_argument is not None:
+        raise CliError(
+            f"Cannot resolve password for repository {repo.name}. "
+            f"Please specify password as '--{password_argument.name}=<password>' "
+            "or using interactive terminal."
+        )
+    elif require_password and not repo.password:
+        raise CliError(
+            f"Cannot resolve password for repository {repo.name}. "
+            f"Please specify password using interactive terminal."
+        )
+
+    return repo
+
+
+def resolve_user_password(argument: Arg):
+    """Resolve contributor role password."""
+    password = argument.value
+    if password is None and sys.stdin.isatty():
+        password = inquirer.password(
+            "Please enter password for a contributor role (or press Enter to generate a random one)"
+        )
+    return password or None
+
+
+def normalize_username(username):
+    """Make sure username is lowercase."""
+    if username is None:
+        return None
+    username = str(username)
+    if not username.islower():
+        warn(
+            f"Note that contributor names are not case-sensitive. "
+            f"'{username.lower()}' will be used instead of '{username}'"
+        )
+        username = username.lower()
+    return username
