@@ -42,7 +42,9 @@ Server honors the following environment variables:
  * `THUMBNAIL_CACHE_FOLDER` - folder in which thumbnails will be stored (default is `thumbnails_cache`)
  * `THUMBNAIL_CACHE_CAP` - maximal number of thumbnails to be cached (default is `1000`)
  * `TASK_LOG_DIRECTORY` - directory in which background task logs are located (default is `./task_logs`)
- 
+ * `TASK_QUEUE_TYPE` - task queue backend. Possible values are `celery` or `fake` (default is `celery`) 
+ * `CELERY_BROKER` - Celery message broker uri. Ignored if `TASK_QUEUE_TYPE` is not `celery` (default is `redis://localhost:6379/0`)
+ * `CELERY_RESULT_BACKEND` - Celery result backend. Ignored if `TASK_QUEUE_TYPE` is not `celery` (default is `redis://localhost:6379/0`)
 
 
 Server accepts the following command-line arguments:
