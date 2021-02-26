@@ -18,7 +18,7 @@ from winnow.storage.remote_signature_dao import (
 )
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import path_resolver
-from winnow.utils.repr import reprkey_resolver
+from winnow.utils.repr import reprkey_resolver, repr_storage_factory
 
 
 class PipelineContext:
@@ -36,7 +36,10 @@ class PipelineContext:
     @cached_property
     def repr_storage(self) -> ReprStorage:
         """Get representation storage."""
-        return ReprStorage(directory=self.config.repr.directory)
+        return ReprStorage(
+            directory=self.config.repr.directory,
+            storage_factory=repr_storage_factory(self.config),
+        )
 
     @cached_property
     def database(self) -> Database:

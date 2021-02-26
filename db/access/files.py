@@ -1,12 +1,13 @@
 import enum
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Iterator
 
 from dataclasses import dataclass, field
 from sqlalchemy import or_, func, literal_column, tuple_
 from sqlalchemy.orm import aliased, Query, Session, joinedload
 
-from db.schema import Files, Matches, Exif, Contributor, Repository
+from db.schema import Files, Matches, Exif, Contributor, Repository, Signature
+from winnow.utils.iterators import chunks
 
 
 class FileMatchFilter(enum.Enum):
@@ -297,3 +298,12 @@ class FilesDAO:
             query = query.filter(Files.contributor.has(Contributor.name == contributor_name))
 
         return query
+
+    @staticmethod
+    def select_missing_signatures(path_hash_pairs, session: Session, chunk_size=1000) -> Iterator[Files]:
+        """Query files with missing signatures."""
+        for chunk in chunks(path_hash_pairs, size=chunk_size):
+            query = session.query(Files).filter(Files.signature.has(Signature.signature != None))  # noqa: E711
+            query = query.filter(tuple_(Files.file_path, Files.sha256).in_(chunk)).yield_per(chunk_size)
+            have_signature = set((file.file_path, file.sha256) for file in query)
+            yield from set(chunk) - have_signature

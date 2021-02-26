@@ -12,6 +12,7 @@ from winnow.pipeline.extract_video_level_features import video_features_exist, e
 from winnow.pipeline.extract_video_signatures import video_signatures_exist, extract_video_signatures
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
+from winnow.pipeline.store_database_signatures import database_signatures_exist, store_database_signatures
 from winnow.storage.repr_key import ReprKey
 from winnow.storage.repr_utils import bulk_read
 from winnow.utils.brightness import get_brightness_estimation
@@ -36,6 +37,9 @@ def generate_local_matches(files: Collection[str], pipeline: PipelineContext, pr
     if not video_signatures_exist(files, pipeline):
         extract_video_signatures(files, pipeline, progress=progress.subtask(0.7))
         progress = progress.subtask(0.3)
+    if not database_signatures_exist(files, pipeline):
+        store_database_signatures(files, pipeline, progress=progress.subtask(0.2))
+        progress = progress.subtask(0.8)
 
     logger.info("Starting match detection for %s files", len(files))
 

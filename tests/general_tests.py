@@ -9,6 +9,7 @@ from winnow.pipeline.extract_frame_level_features import extract_frame_level_fea
 from winnow.pipeline.extract_video_level_features import extract_video_level_features
 from winnow.pipeline.extract_video_signatures import extract_video_signatures
 from winnow.pipeline.pipeline_context import PipelineContext
+from winnow.pipeline.store_database_signatures import store_database_signatures
 from winnow.storage.repr_key import ReprKey
 from winnow.storage.repr_utils import bulk_read
 from winnow.utils.config import resolve_config
@@ -83,7 +84,7 @@ def test_extract_video_signatures(dataset, pipeline: PipelineContext):
 
 
 def test_signatures_are_saved(dataset, pipeline: PipelineContext):
-    extract_video_signatures(files=dataset, pipeline=pipeline)
+    store_database_signatures(files=dataset, pipeline=pipeline)
     signature_storage = pipeline.repr_storage.signature
     with pipeline.database.session_scope(expunge=True) as session:
         files = session.query(Files).all()
