@@ -131,3 +131,11 @@ class TaskLogStorage(abc.ABC):
     def serve_streams(self):
         """Broadcast log updates. This is a blocking method, you
         probably want to execute it in a background thread."""
+
+
+class TaskQueueError(Exception):
+    """Error in task queue operation."""
+
+
+class TaskQueueUnavailable(Exception):
+    """The request cannot be served property because queue is not available or overloaded."""
