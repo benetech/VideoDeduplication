@@ -5,8 +5,9 @@ from datetime import datetime
 from typing import Optional, Tuple, List, Dict, Set
 from uuid import uuid4 as uuid
 
+from server.queue.fake.log_storage import FakeTaskLogStorage
 from server.queue.fake.safe_observer import SafeObserver
-from server.queue.framework import TaskQueue, BaseObserver, StatusFilterSpec
+from server.queue.framework import TaskQueue, BaseObserver, StatusFilterSpec, TaskLogStorage
 from server.queue.model import Task, Request, TaskStatus
 from server.queue.request_transformer import RequestTransformer
 from server.queue.task_utils import task_status_filter
@@ -16,11 +17,16 @@ class FakeTaskQueue(TaskQueue):
     def __init__(self, transformer: RequestTransformer, maxtasks=100):
         self._transformer = transformer
         self._tasks: Dict[str, Task] = {}
-        self._active: Optional[Task] = None
         self._observers: Set[BaseObserver] = set()
         self._lock = threading.RLock()
         self._condition = threading.Condition(lock=self._lock)
         self._maxtasks = maxtasks
+        self._log_storage = FakeTaskLogStorage()
+
+    @property
+    def log_storage(self) -> TaskLogStorage:
+        """Get fake log storage."""
+        return self._log_storage
 
     def dispatch(self, request: Request) -> Task:
         """Dispatch a new task."""
@@ -30,6 +36,7 @@ class FakeTaskQueue(TaskQueue):
             # Add task to pending list
             self._tasks[task.id] = task
             self._evict()
+            self._condition.notify()
 
             # Notify observers
             for observer in self._observers:
@@ -69,6 +76,7 @@ class FakeTaskQueue(TaskQueue):
             # Terminate and delete task
             self.terminate(task.id)
             del self._tasks[task.id]
+            self._log_storage.delete_logs(task_id)
             for observer in self._observers:
                 observer.on_task_deleted(task.id)
 
@@ -84,7 +92,7 @@ class FakeTaskQueue(TaskQueue):
         with self._lock:
             selected_tasks = list(filter(task_status_filter(status), self._tasks.values()))
             limit = limit or len(selected_tasks)
-            return selected_tasks[offset : offset + limit]
+            return selected_tasks[offset : offset + limit], len(selected_tasks)
 
     def exists(self, task_id: str) -> bool:
         """Check if task with the given id exists."""
@@ -133,15 +141,19 @@ class FakeTaskQueue(TaskQueue):
     def _execute_task(self, task: Task):
         """Emulate task execution."""
         total_seconds = 30
+        logs = self._log_storage.create_logs(task.id)
         for i in range(total_seconds):
+            logs.append(f"[{datetime.now()} INFO] Extracting signature for file {i} of {total_seconds}\n")
             time.sleep(1)
             with self._lock:
                 if task.status is not TaskStatus.RUNNING:
+                    logs.finish()
                     return
                 task.progress = float(i + 1) / total_seconds
                 for observer in self._observers:
                     observer.on_task_meta_updated(self._clone(task))
         with self._lock:
+            logs.finish()
             task.status = TaskStatus.SUCCESS
             task.status_updated = datetime.now()
             for observer in self._observers:
@@ -181,5 +193,6 @@ class FakeTaskQueue(TaskQueue):
 
             for evicted_task in to_be_evicted:
                 del self._tasks[evicted_task.id]
+                self._log_storage.delete_logs(evicted_task.id)
                 for observer in self._observers:
                     observer.on_task_deleted(evicted_task.id)
