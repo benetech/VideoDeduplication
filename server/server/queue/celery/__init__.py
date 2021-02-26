@@ -3,7 +3,7 @@ from server.queue.request_transformer import RequestTransformer
 
 
 def make_celery_task_queue(task_request_transformer: RequestTransformer):
-    """Create a celery"""
+    """Create a celery task queue."""
     from server.queue.celery.backend import resolve_backend
     from server.queue.celery.task_queue import CeleryTaskQueue
     from task_queue.application import celery_application

@@ -2,10 +2,10 @@ from http import HTTPStatus
 
 from flask import jsonify, request, abort, Response
 
-from server.queue.instance import task_queue, request_transformer
+from server.queue.instance import request_transformer
 from server.queue.model import Task, TaskStatus
 from .blueprint import api
-from .helpers import parse_enum_seq, parse_positive_int, get_log_storage
+from .helpers import parse_enum_seq, parse_positive_int, get_log_storage, get_task_queue
 
 
 def parse_status():
@@ -17,6 +17,7 @@ def parse_status():
 
 @api.route("/tasks/<task_id>", methods=["GET"])
 def get_task(task_id):
+    task_queue = get_task_queue()
     task = task_queue.get_task(task_id)
     if task is None:
         abort(HTTPStatus.NOT_FOUND.value, f"Task id not found: {task_id}")
@@ -28,6 +29,7 @@ def list_tasks():
     status = parse_status()
     offset = parse_positive_int(request.args, "offset", 0)
     limit = parse_positive_int(request.args, "limit", 100)
+    task_queue = get_task_queue()
     tasks, total = task_queue.list_tasks(status=status, limit=limit, offset=offset)
     return jsonify({"items": list(map(Task.asdict, tasks)), "total": total})
 
@@ -44,12 +46,14 @@ def post_task():
     except (ValueError, TypeError):
         abort(HTTPStatus.BAD_REQUEST.value, "Invalid request.")
 
+    task_queue = get_task_queue()
     task = task_queue.dispatch(task_request)
     return jsonify(task.asdict())
 
 
 @api.route("/tasks/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
+    task_queue = get_task_queue()
     if not task_queue.exists(task_id):
         abort(HTTPStatus.NOT_FOUND.value, f"Task id not found: {task_id}")
     task_queue.delete(task_id)
@@ -65,6 +69,7 @@ def cancel_task(task_id):
     if request_payload != {"status": TaskStatus.REVOKED.value}:
         abort(HTTPStatus.BAD_REQUEST.value, "Invalid request.")
 
+    task_queue = get_task_queue()
     task_queue.terminate(task_id)
     task = task_queue.get_task(task_id)
 
@@ -76,6 +81,7 @@ def cancel_task(task_id):
 
 @api.route("/tasks/<task_id>/logs", methods=["GET"])
 def get_task_logs(task_id):
+    task_queue = get_task_queue()
     if not task_queue.exists(task_id):
         abort(HTTPStatus.NOT_FOUND.value, f"Task id not found: {task_id}")
 

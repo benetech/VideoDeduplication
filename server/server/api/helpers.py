@@ -9,6 +9,7 @@ from sqlalchemy.orm import joinedload
 
 from thumbnail.cache import ThumbnailCache
 from ..config import Config
+from ..queue import TaskQueue
 from ..queue.framework import TaskLogStorage
 from ..socket.log_watcher import LogWatcher
 
@@ -16,6 +17,11 @@ from ..socket.log_watcher import LogWatcher
 def get_config() -> Config:
     """Get current application config."""
     return current_app.config.get("CONFIG")
+
+
+def get_task_queue() -> TaskQueue:
+    """Get current TaskQueue instance associated with the current application."""
+    return current_app.config.get("TASK_QUEUE")
 
 
 def get_log_storage() -> TaskLogStorage:
