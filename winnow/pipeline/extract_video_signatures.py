@@ -1,5 +1,4 @@
 import logging
-from pickle import dumps
 from typing import Collection, Dict
 
 from winnow.feature_extraction import SimilarityModel
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def extract_video_signatures(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
-    """Calculate and save signatures for the given files."""
+    """Calculate and save signatures for the given files to repr-storage."""
 
     files = tuple(files)
     remaining_video_paths = tuple(missing_video_signatures(files, pipeline))
@@ -26,7 +25,7 @@ def extract_video_signatures(files: Collection[str], pipeline: PipelineContext, 
 
     # Skip step if required results already exist
     if not remaining_video_paths:
-        logger.info("All required signatures already exist. Skipping...")
+        logger.info("Representation storage contains all required signatures. Skipping...")
         progress.complete()
         return
 
@@ -34,11 +33,6 @@ def extract_video_signatures(files: Collection[str], pipeline: PipelineContext, 
     logger.info("Starting signature extraction for %s of %s files", len(remaining_video_paths), len(files))
     signatures = extract_signatures(remaining_video_paths, pipeline)
     bulk_write(pipeline.repr_storage.signature, signatures)
-
-    # Save signatures to database if needed
-    logger.info("Saving signatures to the database")
-    if pipeline.config.database.use:
-        pipeline.result_storage.add_signatures((key.path, key.hash, dumps(sig)) for key, sig in signatures.items())
 
     logger.info("Done signature extraction.")
     progress.complete()
