@@ -8,7 +8,8 @@ sources:
     - avi
 
 repr:
-  directory: data/planet_earth
+  directory: data/representations
+  storage_type: detect
 
 processing:
   frame_sampling: 1
