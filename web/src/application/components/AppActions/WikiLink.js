@@ -2,7 +2,8 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { ButtonBase } from "@material-ui/core";
+import { ButtonBase, Tooltip } from "@material-ui/core";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   wikiLink: {
@@ -16,18 +17,34 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Get translated text.
+ */
+function useMessages() {
+  const intl = useIntl();
+  return {
+    wiki: intl.formatMessage({ id: "app.action.wiki" }),
+    wikiLabel: intl.formatMessage({ id: "aria.label.openWiki" }),
+  };
+}
+
 function WikiLink(props) {
   const { onClick, className, ...other } = props;
   const classes = useStyles();
+  const messages = useMessages();
+
   return (
-    <ButtonBase
-      className={clsx(classes.wikiLink, className)}
-      focusRipple
-      onClick={onClick}
-      {...other}
-    >
-      Wiki
-    </ButtonBase>
+    <Tooltip title={messages.wikiLabel}>
+      <ButtonBase
+        className={clsx(classes.wikiLink, className)}
+        focusRipple
+        onClick={onClick}
+        aria-label={messages.wikiLabel}
+        {...other}
+      >
+        {messages.wiki}
+      </ButtonBase>
+    </Tooltip>
   );
 }
 
