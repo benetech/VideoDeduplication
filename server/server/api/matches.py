@@ -40,7 +40,7 @@ def list_file_matches(file_id):
     include_flags = {field.key: True for field in include_fields}
     return jsonify(
         {
-            "items": [Transform.file_match_dict(item, file_id, **include_flags) for item in items],
+            "items": [Transform.file_match(item, file_id, **include_flags) for item in items],
             "total": total,
             "offset": offset,
         }
