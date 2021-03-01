@@ -64,4 +64,7 @@ export const routes = {
       return `${this.taskURL(id)}/logs`;
     },
   },
+  external: {
+    wiki: "https://github.com/benetech/VideoDeduplication/wiki",
+  },
 };
