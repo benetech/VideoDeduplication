@@ -72,7 +72,7 @@ export default class Transform {
     if (file.exif && file.exif.General_FileExtension) {
       return file.exif.General_FileExtension;
     }
-    const match = file.file_path.match(/\.([^/.]+)$/);
+    const match = file.file_path?.match(/\.([^/.]+)$/);
     if (match && match[1]) {
       return match[1];
     } else {
