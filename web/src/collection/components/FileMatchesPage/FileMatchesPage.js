@@ -49,6 +49,9 @@ const useStyles = makeStyles((theme) => ({
   trigger: {
     minHeight: 250,
   },
+  match: {
+    height: "100%",
+  },
 }));
 
 /**
@@ -137,10 +140,11 @@ function FileMatchesPage(props) {
         aria-label={messages.matched}
         className={classes.matches}
       >
-        <Grid container spacing={4}>
+        <Grid container spacing={4} alignItems="stretch">
           {fileMatches.matches.map((match) => (
             <Grid item xs={6} lg={3} key={match.id}>
               <MatchPreview
+                className={classes.match}
                 distance={match.distance}
                 file={match.file}
                 onCompare={handleCompare}

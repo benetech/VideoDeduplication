@@ -2,16 +2,13 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
-import Marked from "../../../../common/components/Marked";
-import IconButton from "@material-ui/core/IconButton";
-import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import FileAttributes from "./FileAttributes";
 import { useIntl } from "react-intl";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import FileType from "../../../prop-types/FileType";
 import Container from "./Container";
 import Distance from "../../../../common/components/Distance";
+import MatchHeader from "./MatchHeader";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,48 +16,14 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     alignItems: "stretch",
   },
-  nameContainer: {
-    display: "flex",
-    alignItems: "center",
-    padding: theme.spacing(1),
-  },
-  nameAttr: {
-    display: "flex",
-    flexDirection: "column",
-    flexShrink: 1,
-    flexGrow: 1,
-    minWidth: 0,
-  },
-  caption: {
-    ...theme.mixins.captionText,
-    marginBottom: theme.spacing(0.5),
-  },
-  name: {
-    ...theme.mixins.textEllipsis,
-    ...theme.mixins.title4,
-    color: theme.palette.primary.main,
-    fontWeight: "bold",
-    flexGrow: 1,
-  },
-  icon: {
-    color: theme.palette.common.black,
-    width: theme.spacing(4),
-    height: theme.spacing(4),
-  },
-  iconContainer: {
-    width: theme.spacing(6),
-    height: theme.spacing(6),
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-    marginRight: theme.spacing(1),
-  },
   divider: {
     borderTop: "1px solid #F5F5F5",
   },
   attrs: {
     margin: theme.spacing(1),
+  },
+  spacer: {
+    flexGrow: 1,
   },
   distance: {
     marginTop: theme.spacing(1),
@@ -94,9 +57,17 @@ function useMessages(file) {
   };
 }
 
+/**
+ * Get header attributes.
+ */
+function header(file) {
+  const type = file?.external ? "remote" : "local";
+  const name = file?.external ? file.hash : file.filename;
+  return { type, name };
+}
+
 function MatchPreview(props) {
   const { file, distance, highlight, onCompare, className } = props;
-  const intl = useIntl();
   const classes = useStyles();
   const messages = useMessages(file);
 
@@ -110,24 +81,10 @@ function MatchPreview(props) {
       data-selector="MatchPreview"
       data-file-id={file.id}
     >
-      <div className={classes.nameContainer}>
-        <div className={classes.iconContainer}>
-          <VideocamOutlinedIcon className={classes.icon} />
-        </div>
-        <div className={classes.nameAttr}>
-          <div className={classes.caption}>
-            {intl.formatMessage({ id: "file.attr.name" })}
-          </div>
-          <div className={classes.name}>
-            <Marked mark={highlight}>{file.filename}</Marked>
-          </div>
-        </div>
-        <IconButton size="small" aria-label={messages.moreOptions}>
-          <MoreHorizOutlinedIcon fontSize="small" />
-        </IconButton>
-      </div>
+      <MatchHeader {...header(file)} highlight={highlight} />
       <div className={classes.divider} />
       <FileAttributes file={file} className={classes.attrs} />
+      <div className={classes.spacer} />
       <div className={classes.divider} />
       <Distance value={distance} className={classes.distance} />
       <div className={classes.divider} />

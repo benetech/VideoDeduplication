@@ -6,9 +6,10 @@ import FileType from "../../../prop-types/FileType";
 import TableBody from "@material-ui/core/TableBody";
 import Table from "@material-ui/core/Table";
 import { useIntl } from "react-intl";
-import attributes from "./attributes";
+import { localAttrs, remoteAttrs } from "./attributes";
 import { TableRow } from "@material-ui/core";
 import TableCell from "@material-ui/core/TableCell";
+import RemoteIndicator from "./RemoteIndicator";
 
 const useStyles = makeStyles((theme) => ({
   attrName: {
@@ -24,6 +25,10 @@ const useStyles = makeStyles((theme) => ({
     borderBottom: "none",
     padding: theme.spacing(1),
   },
+  indicator: {
+    height: 58,
+    margin: theme.spacing(1),
+  },
 }));
 
 function FileAttributes(props) {
@@ -31,13 +36,15 @@ function FileAttributes(props) {
   const classes = useStyles();
   const intl = useIntl();
 
+  const attributes = file?.external ? remoteAttrs : localAttrs;
+
   const attrs = attributes.map((attr) => ({
     title: intl.formatMessage({ id: attr.title }),
     value: attr.value(file, intl),
   }));
 
   return (
-    <Table className={clsx(className)}>
+    <Table className={className}>
       <TableBody>
         {attrs.map((attr) => (
           <TableRow key={attr.title}>
