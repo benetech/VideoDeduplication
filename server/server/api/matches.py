@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 from db.access.files import FilesDAO
 from db.schema import Matches, Files
 from .blueprint import api
-from .helpers import parse_positive_int, Fields, parse_fields
+from .helpers import parse_positive_int, Fields, parse_fields, parse_boolean
 from ..model import Transform, database
 
 # Optional file fields
@@ -18,6 +18,7 @@ def list_file_matches(file_id):
     limit = parse_positive_int(request.args, "limit", 20)
     offset = parse_positive_int(request.args, "offset", 0)
     include_fields = parse_fields(request.args, "include", FILE_FIELDS)
+    remote = parse_boolean(request.args, "remote")
 
     file = database.session.query(Files).get(file_id)
 
@@ -28,6 +29,10 @@ def list_file_matches(file_id):
     query = FilesDAO.file_matches(file_id, database.session).options(
         joinedload(Matches.match_video_file), joinedload(Matches.query_video_file)
     )
+
+    if not remote:
+        query = query.filter(Matches.match_video_file.has(Files.contributor == None))  # noqa: E711
+        query = query.filter(Matches.query_video_file.has(Files.contributor == None))  # noqa: E711
 
     # Preload file fields
     query = FILE_FIELDS.preload(query, include_fields, Matches.match_video_file)
