@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 
 export const FileType = PropTypes.shape({
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  filename: PropTypes.string.isRequired,
+  filename: PropTypes.string,
   metadata: PropTypes.shape({
     uploadedBy: PropTypes.string,
     uploadDate: PropTypes.number,
@@ -24,6 +24,8 @@ export const FileType = PropTypes.shape({
   preview: PropTypes.string,
   playbackURL: PropTypes.string,
   exif: PropTypes.object,
+  external: PropTypes.bool,
+  contributor: PropTypes.object,
 });
 
 export default FileType;
