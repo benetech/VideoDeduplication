@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import ContributorType from "./ContributorType";
 
 export const FileType = PropTypes.shape({
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
@@ -25,7 +26,7 @@ export const FileType = PropTypes.shape({
   playbackURL: PropTypes.string,
   exif: PropTypes.object,
   external: PropTypes.bool,
-  contributor: PropTypes.object,
+  contributor: ContributorType,
 });
 
 export default FileType;
