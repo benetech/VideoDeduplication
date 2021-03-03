@@ -88,7 +88,7 @@ function FileMatchesPage(props) {
   }, [id, fileMatches]);
 
   const handleCompare = useCallback(
-    (file) => history.push(routes.collection.fileComparisonURL(id, file?.id)),
+    () => history.push(routes.collection.fileComparisonURL(id)),
     [id]
   );
 
@@ -144,10 +144,10 @@ function FileMatchesPage(props) {
           {fileMatches.matches.map((match) => (
             <Grid item xs={6} lg={3} key={match.id}>
               <MatchPreview
-                className={classes.match}
+                motherFile={file}
+                matchFile={match.file}
                 distance={match.distance}
-                file={match.file}
-                onCompare={handleCompare}
+                className={classes.match}
               />
             </Grid>
           ))}

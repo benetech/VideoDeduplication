@@ -14,7 +14,7 @@ const useStyles = makeStyles({
   },
 });
 
-function Container(props) {
+function BasicContainer(props) {
   const { children, className, ...other } = props;
   const classes = useStyles();
   return (
@@ -24,7 +24,7 @@ function Container(props) {
   );
 }
 
-Container.propTypes = {
+BasicContainer.propTypes = {
   /**
    * Preview content.
    */
@@ -35,4 +35,4 @@ Container.propTypes = {
   className: PropTypes.string,
 };
 
-export default Container;
+export default BasicContainer;

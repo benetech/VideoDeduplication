@@ -55,10 +55,11 @@ function useMessages(type) {
   const caption = type === "local" ? "file.attr.name" : "file.attr.remoteHash";
   return {
     caption: intl.formatMessage({ id: caption }),
+    moreOptions: intl.formatMessage({ id: "actions.showMoreOptions" }),
   };
 }
 
-function MatchHeader(props) {
+function PreviewHeader(props) {
   const { type, name, highlight, className, ...other } = props;
   const messages = useMessages(type);
 
@@ -81,9 +82,9 @@ function MatchHeader(props) {
   );
 }
 
-MatchHeader.propTypes = {
+PreviewHeader.propTypes = {
   /**
-   * Matched file type.
+   * Matched file origin.
    */
   type: PropTypes.oneOf(["local", "remote"]).isRequired,
   /**
@@ -97,4 +98,4 @@ MatchHeader.propTypes = {
   className: PropTypes.string,
 };
 
-export default MatchHeader;
+export default PreviewHeader;

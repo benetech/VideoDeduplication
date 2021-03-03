@@ -1,8 +1,14 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { formatDate, formatDuration } from "../../../../common/helpers/format";
 import Bool from "../../../../common/components/Bool";
 
-export const localAttrs = [
+export const AttrType = PropTypes.shape({
+  title: PropTypes.string.isRequired,
+  value: PropTypes.func.isRequired,
+});
+
+export const localAttributes = [
   {
     title: "file.length",
     value: (file, intl) => formatDuration(file?.metadata?.length, intl, true),
@@ -27,7 +33,7 @@ export const localAttrs = [
   },
 ];
 
-export const remoteAttrs = [
+export const remoteAttributes = [
   {
     title: "file.source",
     value: (file) => file?.contributor?.repository?.name,
