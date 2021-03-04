@@ -45,6 +45,9 @@ def parse_params():
     result.related_distance = config.related_distance
     result.duplicate_distance = config.duplicate_distance
     result.sort = parse_enum(request.args, "sort", enum=FileSort, default=None)
+    result.remote = parse_boolean(request.args, "remote")
+    result.contributor = request.args.get("contributor", None, type=str)
+    result.repository = request.args.get("repository", None, type=str)
     return result
 
 
