@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import lodash from "lodash";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -24,6 +25,7 @@ import {
   fetchFileMatchesSlice,
   updateFileMatchesParams,
 } from "../../state/fileMatches/actions";
+import initialState from "../../state/fileMatches/initialState";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -81,10 +83,12 @@ function FileMatchesPage(props) {
   const history = useHistory();
 
   useEffect(() => {
-    if (fileMatches.params.fileId !== id) {
-      dispatch(
-        updateFileMatchesParams({ fileId: id, filters: { remote: true } })
-      );
+    const newParams = lodash.merge({}, initialState.params, {
+      fileId: id,
+      filters: { remote: true },
+    });
+    if (!lodash.isEqual(fileMatches.params, newParams)) {
+      dispatch(updateFileMatchesParams(newParams));
       dispatch(fetchFileMatchesSlice());
     }
   }, [id, fileMatches]);
