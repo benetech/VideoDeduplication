@@ -7,8 +7,6 @@ import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import { useIntl } from "react-intl";
 import FileSummary from "../../FileSummary";
-import { useMediaQuery } from "@material-ui/core";
-import useTheme from "@material-ui/styles/useTheme";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -45,16 +43,6 @@ function useMessages() {
   };
 }
 
-/**
- * Get screen size.
- */
-function useScreenSize() {
-  const theme = useTheme();
-  const medium = useMediaQuery(theme.breakpoints.up("md"));
-  const large = useMediaQuery(theme.breakpoints.up("lg"));
-  return { medium, large };
-}
-
 const RemoteFileLinearListItem = React.memo(function FpRemoteFileLinearListItem(
   props
 ) {
@@ -63,12 +51,10 @@ const RemoteFileLinearListItem = React.memo(function FpRemoteFileLinearListItem(
     button = false,
     highlight,
     onClick,
-    dense,
     className,
     ...other
   } = props;
   const messages = useMessages();
-  const { large, medium } = useScreenSize();
 
   const handleClick = useCallback(() => onClick(file), [file, onClick]);
 
