@@ -26,6 +26,7 @@ import {
   updateFileMatchesParams,
 } from "../../state/fileMatches/actions";
 import initialState from "../../state/fileMatches/initialState";
+import { Fade } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -117,7 +118,11 @@ function FileMatchesPage(props) {
 
   return (
     <div className={clsx(classes.root, className)}>
-      <FileActionHeader id={id} matches={file.matchesCount}>
+      <FileActionHeader
+        id={id}
+        matches={file.matchesCount}
+        remote={file?.external}
+      >
         <FileMatchesActions
           view={view}
           onViewChange={setView}

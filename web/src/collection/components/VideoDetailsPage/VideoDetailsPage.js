@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -71,6 +71,14 @@ function VideoDetailsPage(props) {
   const [player, setPlayer] = useState(null);
   const classes = useStyles();
   const history = useHistory();
+
+  // There is nothing to show for external files.
+  // Navigate to file matches if file is external.
+  useEffect(() => {
+    if (file?.external) {
+      history.replace(routes.collection.fileMatchesURL(file.id));
+    }
+  }, [file]);
 
   const handleCompare = useCallback(
     () => history.push(routes.collection.fileComparisonURL(id)),

@@ -57,15 +57,25 @@ function SelectableTab(props) {
     badge,
     badgeMax,
     badgeColor = "default",
+    disabled = false,
     ...other
   } = props;
   const classes = useStyles();
-  const handleSelect = useCallback(() => onSelect(value), [onSelect, value]);
+
+  const handleSelect = useCallback(() => {
+    if (!disabled) {
+      onSelect(value);
+    }
+  }, [disabled, onSelect, value]);
 
   return (
     <ButtonBase
       onClick={handleSelect}
-      className={clsx(classes.tab, selected && classes.selected, className)}
+      className={clsx(
+        classes.tab,
+        selected && !disabled && classes.selected,
+        className
+      )}
       component="div"
       focusRipple
       disableTouchRipple
@@ -113,6 +123,10 @@ SelectableTab.propTypes = {
    * Max count to show in badge (if the value is numeric).
    */
   badgeMax: PropTypes.number,
+  /**
+   * Indicates that tab cannot be activated.
+   */
+  disabled: PropTypes.bool,
   className: PropTypes.string,
 };
 
