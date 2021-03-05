@@ -16,7 +16,7 @@ function FileSummaryHeader(props) {
 
 FileSummaryHeader.propTypes = {
   /**
-   * Video file to be played
+   * Video file to be displayed
    */
   file: FileType.isRequired,
   className: PropTypes.string,
