@@ -127,6 +127,7 @@ function FileMatchesPage(props) {
           view={view}
           onViewChange={setView}
           onCompare={handleCompare}
+          remote={file?.external}
         />
       </FileActionHeader>
       <FileSummaryHeader file={file} className={classes.summaryHeader} />
