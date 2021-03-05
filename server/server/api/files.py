@@ -101,6 +101,10 @@ def get_thumbnail(file_id):
     if file is None:
         abort(HTTPStatus.NOT_FOUND.value, f"File not found: {file_id}")
 
+    # Handle remote files
+    if not file.file_path:
+        abort(HTTPStatus.NOT_FOUND.value, f"Remote file cannot have thumbnails: {file_id}")
+
     thumbnails_cache = get_thumbnails()
     thumbnail = thumbnails_cache.get(file.file_path, file.sha256, position=time)
     if thumbnail is None:
