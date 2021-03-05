@@ -8,6 +8,7 @@ import { useIntl } from "react-intl";
 import ActionType from "../../../prop-types/ActionType";
 import usePopup from "../../../../common/hooks/usePopup";
 import { Menu, MenuItem } from "@material-ui/core";
+import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   nameContainer: {
@@ -82,7 +83,7 @@ function PreviewHeader(props) {
   const handle = bindHandler(popup);
 
   return (
-    <div className={classes.nameContainer} {...other}>
+    <div className={clsx(classes.nameContainer, className)} {...other}>
       <div className={classes.iconContainer}>
         <Icon className={classes.icon} />
       </div>

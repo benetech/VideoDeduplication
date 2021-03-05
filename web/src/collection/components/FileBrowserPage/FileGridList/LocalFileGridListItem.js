@@ -224,6 +224,10 @@ LocalFileGridListItem.propTypes = {
    * Control preview blur.
    */
   blur: PropTypes.bool,
+  /**
+   * List item click handler.
+   */
+  onClick: PropTypes.func.isRequired,
   className: PropTypes.string,
 };
 

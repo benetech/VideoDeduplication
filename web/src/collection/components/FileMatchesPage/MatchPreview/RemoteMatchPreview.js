@@ -15,13 +15,13 @@ import { useIntl } from "react-intl";
 import { useHistory } from "react-router-dom";
 import { routes } from "../../../../routing/routes";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   root: {},
   spacer: {
     flexGrow: 1,
     display: "flex",
   },
-}));
+});
 
 /**
  * Get translated text.
@@ -59,14 +59,7 @@ function useActions(matchFile, handleCopy, messages) {
 }
 
 function RemoteMatchPreview(props) {
-  const {
-    matchFile,
-    motherFile,
-    distance,
-    highlight,
-    className,
-    ...other
-  } = props;
+  const { matchFile, distance, highlight, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
 

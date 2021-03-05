@@ -7,7 +7,6 @@ import FilterDramaOutlinedIcon from "@material-ui/icons/FilterDramaOutlined";
 import PersonOutlineOutlinedIcon from "@material-ui/icons/PersonOutlineOutlined";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
-import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 import DescriptionOutlinedIcon from "@material-ui/icons/DescriptionOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import AttributeText from "../../../../common/components/AttributeText";
@@ -229,6 +228,10 @@ RemoteFileGridListItem.propTypes = {
    * Control preview blur.
    */
   blur: PropTypes.bool,
+  /**
+   * List item click handler.
+   */
+  onClick: PropTypes.func.isRequired,
   className: PropTypes.string,
 };
 

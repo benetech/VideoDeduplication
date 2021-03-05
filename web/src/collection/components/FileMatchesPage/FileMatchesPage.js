@@ -26,7 +26,6 @@ import {
   updateFileMatchesParams,
 } from "../../state/fileMatches/actions";
 import initialState from "../../state/fileMatches/initialState";
-import { Fade } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {

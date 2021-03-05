@@ -6,13 +6,13 @@ import FileType from "../../../prop-types/FileType";
 import BasicContainer from "./BasicContainer";
 import { useIntl } from "react-intl";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   root: {
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
   },
-}));
+});
 
 /**
  * Get translated text
