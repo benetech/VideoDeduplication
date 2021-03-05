@@ -28,7 +28,7 @@ FileType.propTypes = {
   /**
    * File format
    */
-  type: PropTypes.string.isRequired,
+  type: PropTypes.string,
   className: PropTypes.string,
 };
 
