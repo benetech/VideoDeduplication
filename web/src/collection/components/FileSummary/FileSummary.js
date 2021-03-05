@@ -10,6 +10,9 @@ import CreationDate from "./CreationDate";
 import HasExif from "./HasExif";
 import HasAudio from "./HasAudio";
 import indentAttributes from "../../../common/components/AttributeLists/indentAttributes";
+import RemoteHash from "./RmoteHash";
+import RemoteRepo from "./RemoteRepo";
+import RemoteOwner from "./RemoteOwner";
 
 const useStyles = makeStyles({
   summary: {
@@ -60,6 +63,9 @@ FileSummary.Duration = Duration;
 FileSummary.CreationDate = CreationDate;
 FileSummary.HasExif = HasExif;
 FileSummary.HasAudio = HasAudio;
+FileSummary.RemoteHash = RemoteHash;
+FileSummary.RemoteRepo = RemoteRepo;
+FileSummary.RemoteOwner = RemoteOwner;
 
 FileSummary.propTypes = {
   /**
