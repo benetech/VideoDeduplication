@@ -22,7 +22,7 @@ function useMessages() {
   return {
     caption: intl.formatMessage({ id: "file.attr.name" }),
     compare: intl.formatMessage({ id: "actions.compare" }),
-    showDetails: intl.formatMessage({ id: "actions.showDetails" }),
+    showDetails: intl.formatMessage({ id: "actions.showFileDetails" }),
   };
 }
 

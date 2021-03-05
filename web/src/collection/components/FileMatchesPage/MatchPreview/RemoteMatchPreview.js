@@ -32,7 +32,7 @@ function useMessages() {
     caption: intl.formatMessage({ id: "file.attr.remoteHash" }),
     copySHA: intl.formatMessage({ id: "actions.copyHash" }),
     ack: intl.formatMessage({ id: "actions.copyHash.ack" }),
-    showDetails: intl.formatMessage({ id: "actions.showDetails" }),
+    showMatches: intl.formatMessage({ id: "actions.showMatches" }),
   };
 }
 
@@ -45,7 +45,7 @@ function useActions(matchFile, handleCopy, messages) {
   return useMemo(
     () => [
       {
-        title: messages.showDetails,
+        title: messages.showMatches,
         handler: () =>
           history.push(routes.collection.fileMatchesURL(matchFile?.id)),
       },
