@@ -50,7 +50,11 @@ function MatchGraph(props) {
   );
 
   const handleClickMatch = useCallback(
-    (link) => history.push(comparisonURL(source.id, link)),
+    (link) => {
+      if (!files[link.source].external && !files[link.target].external) {
+        history.push(comparisonURL(source.id, link));
+      }
+    },
     [source]
   );
 
