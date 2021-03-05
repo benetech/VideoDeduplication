@@ -29,17 +29,22 @@ const useStyles = makeStyles((theme) => ({
   selected: {
     borderBottom: `3px solid ${theme.palette.primary.main}`,
   },
+  disabled: {
+    color: theme.palette.action.textInactive,
+    cursor: "not-allowed",
+  },
 }));
 
 /**
  * Get tab's label CSS class
  */
-function labelClass(classes, size, selected) {
+function labelClass(classes, size, selected, disabled = false) {
   return clsx({
     [classes.sizeMedium]: size === "medium",
     [classes.sizeSmall]: size === "small",
     [classes.sizeLarge]: size === "large",
     [classes.inactive]: !selected,
+    [classes.disabled]: disabled,
   });
 }
 
@@ -84,7 +89,9 @@ function SelectableTab(props) {
       {...other}
     >
       <Badge badgeContent={badge} max={badgeMax} color={badgeColor}>
-        <div className={labelClass(classes, size, selected)}>{label}</div>
+        <div className={labelClass(classes, size, selected, disabled)}>
+          {label}
+        </div>
       </Badge>
     </ButtonBase>
   );
