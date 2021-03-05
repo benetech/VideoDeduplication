@@ -74,6 +74,7 @@
     "actions.process": "Process {what}",
     "actions.copyHash": "Copy File SHA-256",
     "actions.copyHash.ack": "File SHA-256 is copied to the clipboard",
+    "actions.showDetails": "Show Details",
     "sort.duration": "Duration",
     "sort.date": "Date",
     "sort.related": "Count of Related",

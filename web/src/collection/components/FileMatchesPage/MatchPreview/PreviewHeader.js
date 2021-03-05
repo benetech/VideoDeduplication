@@ -1,11 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import Marked from "../../../../common/components/Marked";
 import IconButton from "@material-ui/core/IconButton";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import { useIntl } from "react-intl";
+import ActionType from "../../../prop-types/ActionType";
+import usePopup from "../../../../common/hooks/usePopup";
+import { Menu, MenuItem } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   nameContainer: {
@@ -50,51 +52,85 @@ const useStyles = makeStyles((theme) => ({
 /**
  * Get translated text.
  */
-function useMessages(type) {
+function useMessages() {
   const intl = useIntl();
-  const caption = type === "local" ? "file.attr.name" : "file.attr.remoteHash";
   return {
-    caption: intl.formatMessage({ id: caption }),
     moreOptions: intl.formatMessage({ id: "actions.showMoreOptions" }),
   };
 }
 
-function PreviewHeader(props) {
-  const { type, name, highlight, className, ...other } = props;
-  const messages = useMessages(type);
+function bindHandler(popup) {
+  return (action) => () => {
+    popup.onClose();
+    action.handler();
+  };
+}
 
+function PreviewHeader(props) {
+  const {
+    text,
+    highlight,
+    caption,
+    icon: Icon,
+    actions = [],
+    className,
+    ...other
+  } = props;
+  const messages = useMessages();
+  const { clickTrigger, popup } = usePopup("match-actions-");
   const classes = useStyles();
+  const handle = bindHandler(popup);
+
   return (
     <div className={classes.nameContainer} {...other}>
       <div className={classes.iconContainer}>
-        <VideocamOutlinedIcon className={classes.icon} />
+        <Icon className={classes.icon} />
       </div>
       <div className={classes.nameAttr}>
-        <div className={classes.caption}>{messages.caption}</div>
+        <div className={classes.caption}>{caption}</div>
         <div className={classes.name}>
-          <Marked mark={highlight}>{name}</Marked>
+          <Marked mark={highlight}>{text}</Marked>
         </div>
       </div>
-      <IconButton size="small" aria-label={messages.moreOptions}>
+      <IconButton
+        size="small"
+        aria-label={messages.moreOptions}
+        {...clickTrigger}
+      >
         <MoreHorizOutlinedIcon fontSize="small" />
       </IconButton>
+      <Menu {...popup}>
+        {actions.map((action) => (
+          <MenuItem key={action.title} onClick={handle(action)}>
+            {action.title}
+          </MenuItem>
+        ))}
+      </Menu>
     </div>
   );
 }
 
 PreviewHeader.propTypes = {
   /**
-   * Matched file origin.
-   */
-  type: PropTypes.oneOf(["local", "remote"]).isRequired,
-  /**
    * Match header content.
    */
-  name: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
   /**
    * File name substring to highlight
    */
   highlight: PropTypes.string,
+  /**
+   * Caption text.
+   */
+  caption: PropTypes.string.isRequired,
+  /**
+   * Icon to be displayed.
+   */
+  icon: PropTypes.elementType.isRequired,
+  /**
+   * Match actions array.
+   */
+  actions: PropTypes.arrayOf(ActionType),
   className: PropTypes.string,
 };
 

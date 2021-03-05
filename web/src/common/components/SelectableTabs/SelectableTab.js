@@ -30,7 +30,6 @@ const useStyles = makeStyles((theme) => ({
     borderBottom: `3px solid ${theme.palette.primary.main}`,
   },
   disabled: {
-    color: theme.palette.action.textInactive,
     cursor: "not-allowed",
   },
 }));
@@ -38,13 +37,12 @@ const useStyles = makeStyles((theme) => ({
 /**
  * Get tab's label CSS class
  */
-function labelClass(classes, size, selected, disabled = false) {
+function labelClass(classes, size, selected) {
   return clsx({
     [classes.sizeMedium]: size === "medium",
     [classes.sizeSmall]: size === "small",
     [classes.sizeLarge]: size === "large",
     [classes.inactive]: !selected,
-    [classes.disabled]: disabled,
   });
 }
 
@@ -79,6 +77,7 @@ function SelectableTab(props) {
       className={clsx(
         classes.tab,
         selected && !disabled && classes.selected,
+        disabled && classes.disabled,
         className
       )}
       component="div"
