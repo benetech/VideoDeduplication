@@ -6,7 +6,16 @@ import ButtonSelect from "../../../../common/components/ButtonSelect";
 import { useIntl } from "react-intl";
 
 function BoolFilter(props) {
-  const { title, value, onChange, tooltip, className, ...other } = props;
+  const {
+    title,
+    value,
+    onChange,
+    tooltip,
+    className,
+    trueText: propTrueText,
+    falseText: propFalseText,
+    ...other
+  } = props;
   const intl = useIntl();
 
   const handleChange = useCallback(
@@ -20,6 +29,9 @@ function BoolFilter(props) {
     [value, onChange]
   );
 
+  const trueText = propTrueText || intl.formatMessage({ id: "filter.yes" });
+  const falseText = propFalseText || intl.formatMessage({ id: "filter.no" });
+
   return (
     <FilterContainer
       title={title}
@@ -28,12 +40,8 @@ function BoolFilter(props) {
       {...other}
     >
       <ButtonSelect value={value} onChange={handleChange}>
-        <ButtonSelect.Option value={false}>
-          {intl.formatMessage({ id: "filter.no" })}
-        </ButtonSelect.Option>
-        <ButtonSelect.Option value={true}>
-          {intl.formatMessage({ id: "filter.yes" })}
-        </ButtonSelect.Option>
+        <ButtonSelect.Option value={false}>{falseText}</ButtonSelect.Option>
+        <ButtonSelect.Option value={true}>{trueText}</ButtonSelect.Option>
       </ButtonSelect>
     </FilterContainer>
   );
@@ -56,6 +64,14 @@ BoolFilter.propTypes = {
    * Optional filter tooltip
    */
   tooltip: PropTypes.string,
+  /**
+   * Text displayed for true option.
+   */
+  trueText: PropTypes.string,
+  /**
+   * Text displayed for false option.
+   */
+  falseText: PropTypes.string,
   className: PropTypes.string,
 };
 

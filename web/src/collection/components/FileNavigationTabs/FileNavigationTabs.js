@@ -73,7 +73,7 @@ function useNavigation(id) {
 }
 
 function FileNavigationTabs(props) {
-  const { id, matches = 0, className } = props;
+  const { id, matches = 0, remote = false, className } = props;
   const section = useSection();
   const messages = useMessages({ matches });
   const navigate = useNavigation(id);
@@ -88,6 +88,7 @@ function FileNavigationTabs(props) {
         label={messages.details}
         value={Section.details}
         size="large"
+        disabled={remote}
       />
       <SelectableTab
         label={messages.matches}
@@ -112,6 +113,10 @@ FileNavigationTabs.propTypes = {
    * Number of file matches.
    */
   matches: PropTypes.number,
+  /**
+   * Flag indicating that the file is remote.
+   */
+  remote: PropTypes.bool,
   className: PropTypes.string,
 };
 

@@ -15,7 +15,7 @@ def watch_video(file_id):
     file = database.session.query(Files).filter(Files.id == file_id).first()
 
     # Handle file not found
-    if file is None:
+    if file is None or not file.file_path:
         abort(HTTPStatus.NOT_FOUND.value, f"File id not found: {file_id}")
 
     path = resolve_video_file_path(file.file_path)

@@ -29,6 +29,9 @@ const useStyles = makeStyles((theme) => ({
   selected: {
     borderBottom: `3px solid ${theme.palette.primary.main}`,
   },
+  disabled: {
+    cursor: "not-allowed",
+  },
 }));
 
 /**
@@ -57,15 +60,26 @@ function SelectableTab(props) {
     badge,
     badgeMax,
     badgeColor = "default",
+    disabled = false,
     ...other
   } = props;
   const classes = useStyles();
-  const handleSelect = useCallback(() => onSelect(value), [onSelect, value]);
+
+  const handleSelect = useCallback(() => {
+    if (!disabled) {
+      onSelect(value);
+    }
+  }, [disabled, onSelect, value]);
 
   return (
     <ButtonBase
       onClick={handleSelect}
-      className={clsx(classes.tab, selected && classes.selected, className)}
+      className={clsx(
+        classes.tab,
+        selected && !disabled && classes.selected,
+        disabled && classes.disabled,
+        className
+      )}
       component="div"
       focusRipple
       disableTouchRipple
@@ -74,7 +88,9 @@ function SelectableTab(props) {
       {...other}
     >
       <Badge badgeContent={badge} max={badgeMax} color={badgeColor}>
-        <div className={labelClass(classes, size, selected)}>{label}</div>
+        <div className={labelClass(classes, size, selected, disabled)}>
+          {label}
+        </div>
       </Badge>
     </ButtonBase>
   );
@@ -113,6 +129,10 @@ SelectableTab.propTypes = {
    * Max count to show in badge (if the value is numeric).
    */
   badgeMax: PropTypes.number,
+  /**
+   * Indicates that tab cannot be activated.
+   */
+  disabled: PropTypes.bool,
   className: PropTypes.string,
 };
 

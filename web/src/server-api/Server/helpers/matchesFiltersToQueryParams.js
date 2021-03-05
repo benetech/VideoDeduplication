@@ -1,10 +1,13 @@
 /**
  * Convert file match filters to axios request parameters.
  */
-export default function matchesFiltersToQueryParams({ fields }) {
+export default function matchesFiltersToQueryParams({ fields, filters }) {
   const params = {};
   if (fields != null && fields.length > 0) {
     params.include = fields.join(",");
+  }
+  if (filters?.remote != null) {
+    params.remote = !!filters.remote;
   }
   return params;
 }

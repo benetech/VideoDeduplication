@@ -24,6 +24,10 @@ function useMessages() {
     audioHelp: intl.formatMessage({ id: "filter.hasAudio.help" }),
     exif: intl.formatMessage({ id: "filter.hasExif" }),
     exifHelp: intl.formatMessage({ id: "filter.hasExif.help" }),
+    origin: intl.formatMessage({ id: "filter.origin" }),
+    originHelp: intl.formatMessage({ id: "filter.origin.help" }),
+    originRemote: intl.formatMessage({ id: "filter.origin.remote" }),
+    originLocal: intl.formatMessage({ id: "filter.origin.local" }),
   };
 }
 
@@ -33,7 +37,7 @@ function useMessages() {
 function useActiveFilters() {
   const filters = useSelector(selectFileFilters);
   const diff = objectDiff(filters, defaultFilters);
-  return diff.extensions + diff.date + diff.audio + diff.exif;
+  return diff.extensions + diff.date + diff.audio + diff.exif + diff.remote;
 }
 
 function MetadataFilters(props) {
@@ -56,6 +60,10 @@ function MetadataFilters(props) {
   ]);
 
   const handleExifChange = useCallback((exif) => setFilters({ exif }), [
+    setFilters,
+  ]);
+
+  const handleRemoteChange = useCallback((remote) => setFilters({ remote }), [
     setFilters,
   ]);
 
@@ -83,6 +91,14 @@ function MetadataFilters(props) {
         value={filters.exif}
         onChange={handleExifChange}
         tooltip={messages.exifHelp}
+      />
+      <BoolFilter
+        title={messages.origin}
+        value={filters.remote}
+        onChange={handleRemoteChange}
+        tooltip={messages.originHelp}
+        trueText={messages.originRemote}
+        falseText={messages.originLocal}
       />
     </FilterList>
   );

@@ -78,7 +78,9 @@ export default class Server {
     limit = 20,
     offset = 0,
     fields = ["meta", "exif", "scenes"],
-    filters = {},
+    filters = {
+      remote: false,
+    },
   }) {
     try {
       const response = await this.axios.get(`/files/${fileId}/matches`, {

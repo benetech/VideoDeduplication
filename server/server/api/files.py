@@ -45,6 +45,9 @@ def parse_params():
     result.related_distance = config.related_distance
     result.duplicate_distance = config.duplicate_distance
     result.sort = parse_enum(request.args, "sort", enum=FileSort, default=None)
+    result.remote = parse_boolean(request.args, "remote")
+    result.contributor = request.args.get("contributor", None, type=str)
+    result.repository = request.args.get("repository", None, type=str)
     return result
 
 
@@ -57,7 +60,7 @@ def list_files():
 
     return jsonify(
         {
-            "items": [Transform.file_dict(item, **include_flags) for item in results.items],
+            "items": [Transform.file(item, **include_flags) for item in results.items],
             "total": results.counts.total,
             "duplicates": results.counts.duplicates,
             "related": results.counts.related,
@@ -80,7 +83,7 @@ def get_file(file_id):
         abort(HTTPStatus.NOT_FOUND.value, f"File id not found: {file_id}")
 
     include_flags = {field.key: True for field in extra_fields}
-    data = Transform.file_dict(file, **include_flags)
+    data = Transform.file(file, **include_flags)
     data["matches_count"] = FilesDAO.file_matches(file_id, database.session).count()
     return jsonify(data)
 
@@ -97,6 +100,10 @@ def get_thumbnail(file_id):
     # Handle file not found
     if file is None:
         abort(HTTPStatus.NOT_FOUND.value, f"File not found: {file_id}")
+
+    # Handle remote files
+    if not file.file_path:
+        abort(HTTPStatus.NOT_FOUND.value, f"Remote file cannot have thumbnails: {file_id}")
 
     thumbnails_cache = get_thumbnails()
     thumbnail = thumbnails_cache.get(file.file_path, file.sha256, position=time)

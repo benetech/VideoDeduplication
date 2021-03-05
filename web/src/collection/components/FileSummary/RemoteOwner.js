@@ -5,23 +5,23 @@ import { FileType } from "../../prop-types/FileType";
 import { useIntl } from "react-intl";
 
 /**
- * Get i18n text.
+ * Get translated text.
  */
 function useMessages() {
   const intl = useIntl();
   return {
-    fingerprint: intl.formatMessage({ id: "file.attr.fingerprint" }),
+    owner: intl.formatMessage({ id: "file.owner" }),
   };
 }
 
-function Fingerprint(props) {
+function RemoteOwner(props) {
   const { file, className, ...other } = props;
   const messages = useMessages();
 
   return (
     <AttributeText
-      name={messages.fingerprint}
-      value={file.fingerprint && file.fingerprint.slice(0, 7)}
+      name={messages.owner}
+      value={file?.contributor?.name}
       variant="primary"
       className={className}
       {...other}
@@ -29,7 +29,7 @@ function Fingerprint(props) {
   );
 }
 
-Fingerprint.propTypes = {
+RemoteOwner.propTypes = {
   /**
    * Video file to be summarized.
    */
@@ -37,4 +37,4 @@ Fingerprint.propTypes = {
   className: PropTypes.string,
 };
 
-export default Fingerprint;
+export default RemoteOwner;

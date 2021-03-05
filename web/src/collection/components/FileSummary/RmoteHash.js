@@ -1,37 +1,37 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { FileType } from "../../prop-types/FileType";
-import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
+import CloudOutlinedIcon from "@material-ui/icons/CloudOutlined";
 import { useIntl } from "react-intl";
 import MainAttribute from "./MainAttribute";
 
 /**
- * Get i18n text.
+ * Get translated text.
  */
 function useMessages() {
   const intl = useIntl();
   return {
-    filename: intl.formatMessage({ id: "file.attr.name" }),
+    remoteHash: intl.formatMessage({ id: "file.attr.remoteHash" }),
   };
 }
 
-function Name(props) {
+function RemoteHash(props) {
   const { file, highlight, className, ...other } = props;
   const messages = useMessages();
 
   return (
     <MainAttribute
-      name={messages.filename}
-      value={file.filename}
-      icon={VideocamOutlinedIcon}
-      highlight={highlight}
+      name={messages.remoteHash}
+      value={file.hash}
+      icon={CloudOutlinedIcon}
       className={className}
+      highlight={highlight}
       {...other}
     />
   );
 }
 
-Name.propTypes = {
+RemoteHash.propTypes = {
   /**
    * Video file to be summarized.
    */
@@ -43,4 +43,4 @@ Name.propTypes = {
   className: PropTypes.string,
 };
 
-export default Name;
+export default RemoteHash;

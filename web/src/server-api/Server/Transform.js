@@ -44,6 +44,8 @@ export default class Transform {
       scenes: this.fileScenes(data),
       objects: [...randomObjects(10, meta.length)],
       matchesCount: data.matches_count,
+      external: data.contributor != null,
+      contributor: this.contributor(data.contributor),
     };
   }
 
@@ -72,7 +74,7 @@ export default class Transform {
     if (file.exif && file.exif.General_FileExtension) {
       return file.exif.General_FileExtension;
     }
-    const match = file.file_path.match(/\.([^/.]+)$/);
+    const match = file.file_path?.match(/\.([^/.]+)$/);
     if (match && match[1]) {
       return match[1];
     } else {
@@ -175,5 +177,29 @@ export default class Transform {
       utcDate.getMilliseconds()
     );
     return new Date(timestamp);
+  }
+
+  contributor(data) {
+    if (data == null) {
+      return undefined;
+    }
+    return {
+      id: data.id,
+      name: data.name,
+      repository: this.repository(data.repository),
+    };
+  }
+
+  repository(data) {
+    if (data == null) {
+      return undefined;
+    }
+    return {
+      id: data.id,
+      name: data.name,
+      address: data.address,
+      login: data.login,
+      type: data.type,
+    };
   }
 }
