@@ -23,6 +23,10 @@ const useStyles = makeStyles((theme) => ({
   tabs: {
     margin: theme.spacing(2),
   },
+  tabContent: {
+    maxHeight: "calc(100vh - 150px)",
+    overflowY: "auto",
+  },
 }));
 
 /**
@@ -98,7 +102,7 @@ function FilterPane(props) {
           />
           <SelectableTab label={messages.presets} value={Tab.presets} />
         </SelectableTabs>
-        <TabComponent />
+        <TabComponent className={classes.tabContent} />
       </div>
     </div>
   );

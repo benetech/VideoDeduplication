@@ -41,7 +41,7 @@ function useActiveFilters() {
 }
 
 function MetadataFilters(props) {
-  const { className } = props;
+  const { className, ...other } = props;
   const [filters, setFilters] = useFilters();
   const extensions = useExtensions();
   const messages = useMessages();
@@ -68,7 +68,7 @@ function MetadataFilters(props) {
   ]);
 
   return (
-    <FilterList className={className}>
+    <FilterList className={className} {...other}>
       <FileExtensionPicker
         selected={filters.extensions}
         onChange={handleUpdateExtensions}

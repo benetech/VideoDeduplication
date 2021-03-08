@@ -13,9 +13,13 @@ const useStyles = makeStyles((theme) => ({
  * Common layout for single filter tab.
  */
 function FilterList(props) {
-  const { children, className } = props;
+  const { children, className, ...other } = props;
   const classes = useStyles();
-  return <div className={clsx(classes.root, className)}>{children}</div>;
+  return (
+    <div className={clsx(classes.root, className)} {...other}>
+      {children}
+    </div>
+  );
 }
 
 FilterList.propTypes = {
