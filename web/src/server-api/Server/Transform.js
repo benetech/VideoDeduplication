@@ -32,7 +32,9 @@ export default class Transform {
       metadata: {
         fileType: this.fileType(data),
         hasAudio: data.exif && !!data.exif.Audio_Format,
-        hasEXIF: data.exif != null,
+        // Always false, until exif is actually extracted
+        // TODO: https://github.com/benetech/VideoDeduplication/issues/313
+        hasEXIF: false,
         created: this.fileCreatedDate(data),
         ...meta,
       },

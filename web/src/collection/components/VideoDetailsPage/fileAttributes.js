@@ -43,7 +43,7 @@ export const fileAttributes = [
   {
     title: "file.exif",
     // eslint-disable-next-line react/display-name
-    value: (file) => <Bool value={file.exif != null} />,
+    value: (file) => <Bool value={!!file.metadata?.hasEXIF} />,
   },
   {
     title: "file.fingerprint",
