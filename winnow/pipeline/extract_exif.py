@@ -22,7 +22,7 @@ def extract_exif(config: Config, progress_monitor=ProgressMonitor.NULL):
         database.create_tables()
 
         with database.session_scope() as session:
-            video_records = session.query(Files).yield_per(10 ** 4)
+            video_records = session.query(Files).filter(Files.contributor == None).yield_per(10 ** 4)  # noqa: E711
             path_hash_pairs = [(join(config.sources.root, record.file_path), record.sha256) for record in video_records]
             videos, hashes = zip(*path_hash_pairs)
     else:
