@@ -34,7 +34,7 @@ export const fileAttributes = [
   {
     title: "file.codec",
     // eslint-disable-next-line react/display-name
-    value: (file) => <ValueBadge type={file.exif?.Video_Format} />,
+    value: (file) => <ValueBadge value={file.exif?.Video_Format} />,
   },
   {
     title: "file.sha256hash",

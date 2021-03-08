@@ -19,9 +19,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ValueBadge(props) {
-  const { type, className } = props;
+  const { value, className } = props;
   const classes = useStyles();
-  return <div className={clsx(classes.type, className)}>{type}</div>;
+  return <div className={clsx(classes.type, className)}>{value}</div>;
 }
 
 ValueBadge.propTypes = {
