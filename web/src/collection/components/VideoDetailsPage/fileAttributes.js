@@ -2,6 +2,7 @@ import React from "react";
 import Bool from "../../../common/components/Bool";
 import FileType from "./FileType";
 import { formatDuration } from "../../../common/helpers/format";
+import ValueBadge from "./ValueBadge";
 
 /**
  * General video-file attributes
@@ -28,16 +29,12 @@ export const fileAttributes = [
   },
   {
     title: "file.frames",
-    value: () => null,
+    value: (file) => file.exif?.General_FrameCount,
   },
   {
     title: "file.codec",
-    value: () => null,
-  },
-  {
-    title: "file.avgGrey",
-    value: (file) =>
-      file.metadata.grayAverage != null && file.metadata.grayAverage.toFixed(2),
+    // eslint-disable-next-line react/display-name
+    value: (file) => <ValueBadge type={file.exif?.Video_Format} />,
   },
   {
     title: "file.sha256hash",
