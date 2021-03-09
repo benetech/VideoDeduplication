@@ -69,9 +69,9 @@ function ApplicationLayout(props) {
                 className={classes.body}
               />
             </Route>
-            <Route path={routes.organization.home}>
+            <Route path={routes.templates.home}>
               <AppPage
-                title={intl.formatMessage({ id: "nav.organization" })}
+                title={intl.formatMessage({ id: "nav.templates" })}
                 className={classes.body}
               />
             </Route>
