@@ -2,7 +2,7 @@
 from typing import Any, Dict, Collection, Tuple
 
 from cached_property import cached_property
-from sklearn.neighbors import NearestNeighbors
+from .annoy_neighbors import AnnoyNNeighbors
 
 
 class NeighborMatcher:
@@ -21,19 +21,17 @@ class NeighborMatcher:
         haystack: Dict[Any, Collection[float]],
         max_matches=20,
         metric="euclidean",
-        algorithm="kd_tree",
     ):
         haystack_ids, haystack_vectors = map(tuple, zip(*haystack.items()))
         self._haystack_ids = haystack_ids
         self._haystack_vectors = haystack_vectors
         self._max_matches = max_matches
         self._metric = metric
-        self._algorithm = algorithm
 
     @cached_property
-    def model(self) -> NearestNeighbors:
+    def model(self) -> AnnoyNNeighbors:
         neighbors = min(self._max_matches, len(self._haystack_vectors))
-        nearest_neighbors = NearestNeighbors(n_neighbors=neighbors, metric=self._metric, algorithm=self._algorithm)
+        nearest_neighbors = AnnoyNNeighbors(n_neighbors=neighbors, metric=self._metric)
         nearest_neighbors.fit(self._haystack_vectors)
         return nearest_neighbors
 
