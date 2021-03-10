@@ -14,19 +14,19 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.title0,
     marginRight: theme.spacing(5),
     flexShrink: 0,
-    [theme.breakpoints.down("md")]: {
-      flexGrow: 1,
-    },
+  },
+  grow: {
+    flexGrow: 1,
   },
 }));
 
 function Title(props) {
-  const { text, children, className, ...other } = props;
+  const { text, children, grow = false, className, ...other } = props;
   const classes = useStyles();
 
   return (
     <div className={clsx(classes.header, className)} {...other}>
-      <div className={classes.title}>{text}</div>
+      <div className={clsx(classes.title, grow && classes.grow)}>{text}</div>
       {children}
     </div>
   );
@@ -44,6 +44,10 @@ Title.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]),
+  /**
+   * Control title horizontal stretching.
+   */
+  grow: PropTypes.bool,
   className: PropTypes.string,
 };
 

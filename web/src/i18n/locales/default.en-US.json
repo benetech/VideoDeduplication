@@ -79,6 +79,13 @@
     "actions.copyHash.ack": "File SHA-256 is copied to the clipboard",
     "actions.showDetails": "Show Details",
     "actions.showMatches": "Show Matches",
+    "actions.addTemplate": "Add Template",
+    "actions.runTemplateMatching": "Run template matching",
+    "actions.searchTemplates": "Search templates",
+    "actions.edit": "Edit",
+    "actions.done": "Done",
+    "actions.showTasks": "Show tasks",
+    "actions.hideTasks": "Hide tasks",
     "sort.duration": "Duration",
     "sort.date": "Date",
     "sort.related": "Count of Related",
@@ -235,6 +242,11 @@
     "task.error.load": "Error loading tasks",
     "task.error.load.single": "Error loading task.",
     "task.error.load.notFound": "Task not found.",
-    "task.created": "Creation date"
+    "task.created": "Creation date",
+    "templates.myTemplates": "My Templates",
+    "templates.process": "Process",
+    "templates.examples.one": "01 Example",
+    "templates.examples.many": "{count} Examples",
+    "templates.examples.description": "Images to match"
   }
 }

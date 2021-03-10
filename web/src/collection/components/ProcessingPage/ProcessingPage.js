@@ -2,7 +2,6 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { useHistory } from "react-router-dom";
 import FileSelector from "./FileSelector";
 import TaskSidebar from "./TaskSidebar";
 import { useIntl } from "react-intl";
@@ -10,7 +9,8 @@ import Title from "../../../common/components/Title";
 import Description from "./Description";
 import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import PlaylistAddCheckOutlinedIcon from "@material-ui/icons/PlaylistAddCheckOutlined";
-import { IconButton } from "@material-ui/core";
+import { IconButton, Tooltip } from "@material-ui/core";
+import Spacer from "../../../common/components/Spacer";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
   },
   tasks: {
     marginLeft: theme.spacing(4),
+    maxWidth: 380,
   },
   description: {
     flexGrow: 1,
@@ -44,13 +45,14 @@ function useMessages() {
   const intl = useIntl();
   return {
     title: intl.formatMessage({ id: "processing.title" }),
+    showTasks: intl.formatMessage({ id: "actions.showTasks" }),
+    hideTasks: intl.formatMessage({ id: "actions.hideTasks" }),
   };
 }
 
 function ProcessingPage(props) {
   const { className, ...other } = props;
   const classes = useStyles();
-  const history = useHistory();
   const messages = useMessages();
   const [showTasks, setShowTasks] = useState(true);
 
@@ -59,14 +61,22 @@ function ProcessingPage(props) {
   ]);
 
   const Icon = showTasks ? CloseOutlinedIcon : PlaylistAddCheckOutlinedIcon;
+  const tooltip = showTasks ? messages.hideTasks : messages.showTasks;
 
   return (
     <div className={clsx(classes.root, className)} {...other}>
       <Title text={messages.title}>
         <Description className={classes.description} />
-        <IconButton color="inherit" onClick={handleToggleTasks}>
-          <Icon color="inherit" fontSize="large" />
-        </IconButton>
+        <Spacer />
+        <Tooltip title={tooltip}>
+          <IconButton
+            color="inherit"
+            onClick={handleToggleTasks}
+            aria-label={tooltip}
+          >
+            <Icon color="inherit" fontSize="large" />
+          </IconButton>
+        </Tooltip>
       </Title>
       <div className={classes.content}>
         <FileSelector className={classes.selector} />
