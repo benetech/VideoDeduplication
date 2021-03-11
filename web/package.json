@@ -73,6 +73,7 @@
     "react": "^16.13.1",
     "react-chartjs-2": "^2.9.0",
     "react-dom": "^16.13.1",
+    "react-fa-icon-picker": "^1.0.3",
     "react-intl": "^5.4.0",
     "react-player": "^2.6.0",
     "react-redux": "^7.2.1",
