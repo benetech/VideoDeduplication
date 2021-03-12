@@ -53,6 +53,7 @@ function IconPicker(props) {
     onChange,
     classes: classesProp = {},
     preview = true,
+    initialQuery = "",
     className,
   } = props;
 
@@ -105,6 +106,7 @@ function IconPicker(props) {
           classesProp.picker,
           tab !== IconKind.PREDEFINED && classes.hide
         )}
+        initialQuery={initialQuery}
       />
       <IconUploader
         className={clsx(
@@ -140,6 +142,10 @@ IconPicker.propTypes = {
      */
     picker: PropTypes.string,
   }),
+  /**
+   * Initial standard icon search query.
+   */
+  initialQuery: PropTypes.string,
   className: PropTypes.string,
 };
 

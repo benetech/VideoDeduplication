@@ -44,10 +44,16 @@ function useDelayState(initial, timeout = 1000) {
 }
 
 function StandardIconPicker(props) {
-  const { icon, onChange, classes: classesProp = {}, className } = props;
+  const {
+    icon,
+    onChange,
+    classes: classesProp = {},
+    initialQuery = "",
+    className,
+  } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const [query, stagingQuery, setQuery] = useDelayState("");
+  const [query, stagingQuery, setQuery] = useDelayState(initialQuery);
   const icons = useIconQuery(query);
 
   const handleQuery = useCallback((event) => setQuery(event.target.value), []);
@@ -89,6 +95,10 @@ StandardIconPicker.propTypes = {
      */
     iconList: PropTypes.string,
   }),
+  /**
+   * Initial icon query.
+   */
+  initialQuery: PropTypes.string,
   className: PropTypes.string,
 };
 
