@@ -15,6 +15,12 @@ import NavigateNextOutlinedIcon from "@material-ui/icons/NavigateNextOutlined";
 import IconKind from "../../state/templates/IconKind";
 import TemplateIcon from "./TemplateIcon/TemplateIcon";
 import IconPicker from "./IconPicker";
+import StandardIconPicker from "./StandardIconPicker";
+import {
+  randomTemplate,
+  randomTemplates,
+} from "../../../server-api/MockServer/fake-data/templates";
+import TemplateList from "./TemplateList";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -122,6 +128,8 @@ TasksHeader.propTypes = {
   className: PropTypes.string,
 };
 
+const templates = [...randomTemplates({ count: 3 })];
+
 function ProcessingPage(props) {
   const { className, ...other } = props;
   const classes = useStyles();
@@ -146,8 +154,11 @@ function ProcessingPage(props) {
           onShowTasks={handleShowTasks}
           tasksShown={showTasks}
         />
-        <TemplateIcon icon={icon} />
-        <IconPicker icon={icon} onChange={setIcon} />
+        <TemplateList>
+          {templates.map((template) => (
+            <TemplateList.Item template={template} key={template.id} />
+          ))}
+        </TemplateList>
       </div>
       {showTasks && (
         <div className={clsx(classes.column, classes.tasks)}>

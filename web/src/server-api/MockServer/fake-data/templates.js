@@ -1,30 +1,28 @@
-import PropTypes from "prop-types";
 import IconKind from "../../../collection/state/templates/IconKind";
 import { pickRandom, randomId } from "./helpers";
 import faker from "faker";
+import * as GameIcons from "react-icons/gi";
 
-function standardIcon(key) {
+const icons = Object.keys(GameIcons);
+
+function randomIcon() {
   return {
     kind: IconKind.PREDEFINED,
-    key: key,
+    key: pickRandom(icons),
   };
 }
 
-const nameIcons = [
-  { name: "Police Car", icon: standardIcon("GiPoliceCar") },
-  { name: "Police Officer", icon: standardIcon("GiPoliceOfficerHead") },
-  { name: "Knife", icon: standardIcon("GiButterflyKnife") },
-  { name: "Molotov Cocktail", icon: standardIcon("GiMolotov") },
-  { name: "Explosion", icon: standardIcon("GiCornerExplosion") },
-  { name: "Handgun", icon: standardIcon("GiPistolGun") },
-  { name: "Bombing", icon: standardIcon("GiBombingRun") },
-  { name: "Jet Fighter", icon: standardIcon("GiJetFighter") },
-];
+function randomName() {
+  return (
+    `${faker.commerce.productAdjective()} ` +
+    `${faker.company.catchPhraseNoun()}`
+  );
+}
 
 function randomExample({ templateId }) {
   return {
     id: randomId(),
-    url: faker.image.imageUrl(),
+    url: faker.image.image(),
     templateId: templateId || randomId(),
   };
 }
@@ -35,17 +33,12 @@ function* randomExamples({ templateId, count = 5 }) {
   }
 }
 
-function randomIcon() {
-  return pickRandom(nameIcons).icon;
-}
-
 export function randomTemplate() {
   const id = randomId();
-  const { name, icon } = pickRandom(nameIcons);
   return {
     id: id,
-    name: name,
-    icon: icon,
+    name: randomName(),
+    icon: randomIcon(),
     examples: [...randomExamples({ templateId: id })],
   };
 }
