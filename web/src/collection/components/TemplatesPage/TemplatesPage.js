@@ -12,8 +12,9 @@ import Button from "../../../common/components/Button";
 import AddOutlinedIcon from "@material-ui/icons/AddOutlined";
 import TaskSidebar from "../ProcessingPage/TaskSidebar";
 import NavigateNextOutlinedIcon from "@material-ui/icons/NavigateNextOutlined";
-import PlayCircleFilledWhiteOutlinedIcon from "@material-ui/icons/PlayCircleFilledWhiteOutlined";
-import PlayArrowOutlinedIcon from "@material-ui/icons/PlayArrowOutlined";
+import IconKind from "../../state/templates/IconKind";
+import TemplateIcon from "./TemplateIcon/TemplateIcon";
+import IconPicker from "./IconPicker";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,18 +44,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "stretch",
   },
 }));
-// "templates.myTemplates": "My Templates",
-//     "templates.processing": "Processing",
-//     "templates.examples.one": "01 Example",
-//     "templates.examples.many": "{count} Examples",
-//     "templates.examples.description": "Images to match"
-// "actions.addTemplate": "Add Template",
-//   "actions.runTemplateMatching": "Run template matching",
-//   "actions.searchTemplates": "Search templates",
-//   "actions.edit": "Edit",
-// "actions.done": "Done",
-//     "actions.showTasks": "Show tasks",
-//     "actions.hideTasks": "Hide tasks",
+
 /**
  * Get translated text.
  */
@@ -139,6 +129,14 @@ function ProcessingPage(props) {
   const [showTasks, setShowTasks] = useState(true);
   const handleShowTasks = useCallback(() => setShowTasks(true));
   const handleHideTasks = useCallback(() => setShowTasks(false));
+  const [icon, setIcon] = useState({
+    kind: IconKind.CUSTOM,
+    key:
+      "https://images.unsplash.com/photo-1519501025264-" +
+      "65ba15a82390?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfH" +
+      "x8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=" +
+      "crop&w=100&q=80",
+  });
 
   return (
     <div className={clsx(classes.root, className)} {...other}>
@@ -148,6 +146,8 @@ function ProcessingPage(props) {
           onShowTasks={handleShowTasks}
           tasksShown={showTasks}
         />
+        <TemplateIcon icon={icon} />
+        <IconPicker icon={icon} onChange={setIcon} />
       </div>
       {showTasks && (
         <div className={clsx(classes.column, classes.tasks)}>

@@ -88,6 +88,8 @@
     "actions.hideTasks": "Hide tasks",
     "actions.chooseIcon": "Select",
     "actions.uploadIcon": "Upload",
+    "actions.dnd.drag": "Drag and drop your file(s)",
+    "actions.dnd.click": "You can click to choose file(s)",
     "sort.duration": "Duration",
     "sort.date": "Date",
     "sort.related": "Count of Related",

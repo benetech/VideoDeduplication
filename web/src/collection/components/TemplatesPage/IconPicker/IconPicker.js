@@ -81,6 +81,15 @@ function IconPicker(props) {
     [onChange]
   );
 
+  const handleChangeCustom = useCallback(
+    (url) =>
+      onChange({
+        kind: IconKind.CUSTOM,
+        key: url,
+      }),
+    [onChange]
+  );
+
   return (
     <div className={clsx(className)}>
       <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
@@ -110,6 +119,7 @@ function IconPicker(props) {
           classesProp.picker,
           tab !== IconKind.CUSTOM && classes.hide
         )}
+        onUpload={handleChangeCustom}
       />
     </div>
   );
