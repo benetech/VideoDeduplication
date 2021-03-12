@@ -10,8 +10,17 @@ import StandardIconPicker from "../StandardIconPicker";
 import { TemplateIconType } from "../../../prop-types/TemplateType";
 import clsx from "clsx";
 import IconUploader from "../IconUploader";
+import TemplateIcon from "../TemplateIcon/TemplateIcon";
+import { Paper } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
+  preview: {
+    marginLeft: theme.spacing(3),
+    margin: theme.spacing(2),
+    padding: theme.spacing(1),
+    width: "max-content",
+    height: "max-content",
+  },
   tabs: {
     maxWidth: 150,
     margin: theme.spacing(1),
@@ -38,36 +47,15 @@ function useMessages() {
   };
 }
 
-/**
- * Get concrete picker properties depending on the desired icon kind.
- */
-function usePickerProps(kind, icon, onChange) {
-  const handleChangePredefined = useCallback(
-    (name) =>
-      onChange({
-        kind: IconKind.PREDEFINED,
-        key: name,
-      }),
-    [onChange]
-  );
-
-  if (kind === IconKind.PREDEFINED) {
-    return { onChange: handleChangePredefined, icon: icon.key };
-  } else {
-    return {};
-  }
-}
-
-function resolvePicker(kind) {
-  if (kind === IconKind.PREDEFINED) {
-    return StandardIconPicker;
-  } else {
-    return "div";
-  }
-}
-
 function IconPicker(props) {
-  const { icon, onChange, classes: classesProp = {}, className } = props;
+  const {
+    icon,
+    onChange,
+    classes: classesProp = {},
+    preview = true,
+    className,
+  } = props;
+
   const classes = useStyles();
   const messages = useMessages();
   const [tab, setTab] = useState(IconKind.PREDEFINED);
@@ -92,6 +80,11 @@ function IconPicker(props) {
 
   return (
     <div className={clsx(className)}>
+      {preview && (
+        <Paper className={classes.preview}>
+          <TemplateIcon icon={icon} />
+        </Paper>
+      )}
       <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
         <SelectableTab
           label={messages.choose}
@@ -134,6 +127,10 @@ IconPicker.propTypes = {
    * Handle icon change.
    */
   onChange: PropTypes.func.isRequired,
+  /**
+   * Show selected icon preview.
+   */
+  preview: PropTypes.bool,
   /**
    * Custom picker elements styles.
    */
