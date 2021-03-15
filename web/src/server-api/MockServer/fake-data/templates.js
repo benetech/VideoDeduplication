@@ -39,7 +39,9 @@ export function randomTemplate() {
     id: id,
     name: randomName(),
     icon: randomIcon(),
-    examples: [...randomExamples({ templateId: id })],
+    examples: [
+      ...randomExamples({ templateId: id, count: 1 + Math.random() * 4 }),
+    ],
   };
 }
 

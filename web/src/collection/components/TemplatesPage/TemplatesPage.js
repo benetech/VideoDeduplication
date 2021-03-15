@@ -156,7 +156,13 @@ function ProcessingPage(props) {
         />
         <TemplateList>
           {templates.map((template) => (
-            <TemplateList.Item template={template} key={template.id} />
+            <TemplateList.Item
+              key={template.id}
+              template={template}
+              onChange={console.log}
+              onAddExamples={console.log}
+              onDeleteExample={console.log}
+            />
           ))}
         </TemplateList>
       </div>

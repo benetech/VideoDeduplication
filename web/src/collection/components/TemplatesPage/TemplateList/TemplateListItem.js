@@ -3,11 +3,13 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { TemplateType } from "../../../prop-types/TemplateType";
-import TemplateIcon from "../TemplateIcon/TemplateIcon";
-import IconButton from "@material-ui/core/IconButton";
 import { Collapse } from "@material-ui/core";
-import ChevronRightOutlinedIcon from "@material-ui/icons/ChevronRightOutlined";
-import ExpandMoreOutlinedIcon from "@material-ui/icons/ExpandMoreOutlined";
+import { useIntl } from "react-intl";
+import TemplateHeader from "./TemplateHeader";
+import TemplateExamplePreview from "./TemplateExamplePreview";
+import ButtonBase from "@material-ui/core/ButtonBase";
+import AddOutlinedIcon from "@material-ui/icons/AddOutlined";
+import useUniqueId from "../../../../common/hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({
   item: {
@@ -18,56 +20,138 @@ const useStyles = makeStyles((theme) => ({
     borderColor: theme.palette.border.light,
     borderStyle: "solid",
   },
-  header: {
+  header: {},
+  examples: {
     display: "flex",
     alignItems: "center",
-  },
-  icon: {
-    marginLeft: theme.spacing(1),
-  },
-  title: {
-    marginLeft: theme.spacing(3),
-    ...theme.mixins.title3,
-    fontWeight: "bold",
+    flexWrap: "wrap",
   },
   example: {
+    margin: theme.spacing(1),
+  },
+  examplesDescription: {
+    ...theme.mixins.text,
+    color: theme.palette.primary.main,
+    margin: theme.spacing(1),
+  },
+  addExampleInput: {
+    display: "none",
+  },
+  addExampleButton: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderColor: theme.palette.divider,
+    borderStyle: "dashed",
+    borderWidth: 1,
     width: 80,
     height: 80,
     margin: theme.spacing(1),
-    display: "inline-block",
+    fontSize: 50,
+    color: theme.palette.divider,
   },
 }));
 
+/**
+ * Get translated text.
+ */
+function useMessages() {
+  const intl = useIntl();
+  return {
+    examplesDescription: intl.formatMessage({ id: "templates.examples" }),
+  };
+}
+
 function TemplateListItem(props) {
-  const { template, className, ...other } = props;
+  const {
+    template,
+    onChange,
+    onAddExamples,
+    onDeleteExample,
+    className,
+    ...other
+  } = props;
   const classes = useStyles();
+  const messages = useMessages();
+  const inputId = useUniqueId("add-files-");
   const [expand, setExpand] = useState(false);
+  const [edit, setEdit] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
 
-  const ExpandIcon = expand ? ExpandMoreOutlinedIcon : ChevronRightOutlinedIcon;
+  const toggleExpand = useCallback(() => setExpand(!expand), [expand]);
 
-  const handleExpand = useCallback(() => setExpand(!expand), [expand]);
+  const toggleEdit = useCallback(() => {
+    setEdit(!edit);
+    setExpand(true);
+  }, [edit]);
+
+  const handleAddExamples = useCallback(
+    (event) => onAddExamples(event.target.files),
+    [onAddExamples]
+  );
+
+  const handleIconChange = useCallback((icon) => onChange({ icon }), [
+    onChange,
+  ]);
+
+  const handleNameChange = useCallback((name) => onChange({ name }), [
+    onChange,
+  ]);
+
+  const handleDeleteExample = useCallback(
+    (example) => onDeleteExample(example, template),
+    [template, onDeleteExample]
+  );
 
   return (
     <div className={clsx(classes.item, className)} {...other}>
-      <div className={classes.header}>
-        <IconButton onClick={handleExpand}>
-          <ExpandIcon />
-        </IconButton>
-        <TemplateIcon icon={template.icon} className={classes.icon} />
-        <div className={classes.title}>{template.name}</div>
-      </div>
+      <TemplateHeader
+        template={template}
+        onEditChange={toggleEdit}
+        onIconChange={handleIconChange}
+        onNameChange={handleNameChange}
+        onExpandChange={toggleExpand}
+        edit={edit}
+        expanded={expand}
+        className={classes.header}
+      />
       <Collapse in={expand}>
         <div>
-          <div>
-            {template.examples.map((example, index) => (
-              <img
-                src={example.url}
+          <div className={classes.examplesDescription}>
+            {messages.examplesDescription}
+          </div>
+          <div className={classes.examples}>
+            {template.examples.map((example) => (
+              <TemplateExamplePreview
                 key={example.id}
-                alt={`Example ${index}`}
+                example={example}
+                edit={edit}
+                onDelete={handleDeleteExample}
+                onClick={console.log}
                 className={classes.example}
               />
             ))}
+            {edit && (
+              <React.Fragment>
+                <input
+                  accept="image/*"
+                  className={classes.addExampleInput}
+                  id={inputId}
+                  multiple
+                  type="file"
+                  onChange={handleAddExamples}
+                />
+                <label htmlFor={inputId}>
+                  <ButtonBase
+                    focusRipple
+                    className={classes.addExampleButton}
+                    component="span"
+                  >
+                    <AddOutlinedIcon fontSize="inherit" />
+                  </ButtonBase>
+                </label>
+              </React.Fragment>
+            )}
           </div>
         </div>
       </Collapse>
@@ -80,6 +164,15 @@ TemplateListItem.propTypes = {
    * Template to be displayed.
    */
   template: TemplateType.isRequired,
+  /**
+   * Handle change template name.
+   */
+  onChange: PropTypes.func.isRequired,
+  /**
+   * Handle
+   */
+  onDeleteExample: PropTypes.func.isRequired,
+  onAddExamples: PropTypes.func.isRequired,
   className: PropTypes.string,
 };
 

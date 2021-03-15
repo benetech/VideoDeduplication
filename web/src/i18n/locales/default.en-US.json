@@ -90,6 +90,8 @@
     "actions.uploadIcon": "Upload",
     "actions.dnd.drag": "Drag and drop your file(s)",
     "actions.dnd.click": "You can click to choose file(s)",
+    "actions.editName": "Edit Name",
+    "actions.editIcon": "Edit Icon",
     "sort.duration": "Duration",
     "sort.date": "Date",
     "sort.related": "Count of Related",
@@ -252,6 +254,10 @@
     "templates.examples.one": "01 Example",
     "templates.examples.many": "{count} Examples",
     "templates.examples.description": "Images to match",
-    "templates.icon": "Template icon"
+    "templates.icon": "Template icon",
+    "templates.name": "Template name",
+    "templates.deleteExample": "Delete template example?",
+    "templates.deleteExample.confirm": "Are you sure you want to delete example image permanently?",
+    "templates.examples": "Images to match:"
   }
 }
