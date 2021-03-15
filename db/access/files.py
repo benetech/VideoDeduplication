@@ -9,6 +9,7 @@ from sqlalchemy.orm import aliased, Query, Session, joinedload
 
 from db.schema import Files, Matches, Exif, Contributor, Repository, Signature
 
+
 # TODO: Improve dependency management and get rid of duplicate code (#295)
 def _chunks(iterable, size=100):
     """Split iterable into equal-sized chunks."""
