@@ -61,7 +61,7 @@ PickIconDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onDone: PropTypes.func.isRequired,
-  icon: TemplateIconType.isRequired,
+  icon: TemplateIconType,
   onChange: PropTypes.func.isRequired,
   className: PropTypes.string,
 };

@@ -15,6 +15,6 @@ export const TemplateExampleType = PropTypes.shape({
 export const TemplateType = PropTypes.shape({
   id: PropTypes.any.isRequired,
   name: PropTypes.string.isRequired,
-  icon: TemplateIconType.isRequired,
+  icon: TemplateIconType,
   examples: PropTypes.arrayOf(TemplateExampleType).isRequired,
 });

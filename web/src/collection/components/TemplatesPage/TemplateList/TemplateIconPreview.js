@@ -64,7 +64,7 @@ TemplateIconPreview.propTypes = {
   /**
    * Icon to be displayed.
    */
-  icon: TemplateIconType.isRequired,
+  icon: TemplateIconType,
   /**
    * Enable edit mode.
    */

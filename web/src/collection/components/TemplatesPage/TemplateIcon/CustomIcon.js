@@ -45,7 +45,7 @@ CustomIcon.propTypes = {
   /**
    * Icon url.
    */
-  url: PropTypes.string.isRequired,
+  url: PropTypes.string,
   className: PropTypes.string,
 };
 

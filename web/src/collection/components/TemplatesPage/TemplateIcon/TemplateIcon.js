@@ -10,10 +10,10 @@ import CustomIcon from "./CustomIcon";
  */
 function TemplateIcon(props) {
   const { icon, ...other } = props;
-  if (icon.kind === IconKind.PREDEFINED) {
+  if (icon?.kind === IconKind.PREDEFINED) {
     return <StandardIcon name={icon.key} {...other} />;
   } else {
-    return <CustomIcon url={icon.key} {...other} />;
+    return <CustomIcon url={icon?.key} {...other} />;
   }
 }
 

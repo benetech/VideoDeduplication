@@ -21,6 +21,7 @@ import {
   randomTemplates,
 } from "../../../server-api/MockServer/fake-data/templates";
 import TemplateList from "./TemplateList";
+import useTemplateAPI from "./useTemplateAPI";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -128,7 +129,7 @@ TasksHeader.propTypes = {
   className: PropTypes.string,
 };
 
-const templates = [...randomTemplates({ count: 3 })];
+const defaultTemplates = [...randomTemplates({ count: 3 })];
 
 function ProcessingPage(props) {
   const { className, ...other } = props;
@@ -137,20 +138,21 @@ function ProcessingPage(props) {
   const [showTasks, setShowTasks] = useState(true);
   const handleShowTasks = useCallback(() => setShowTasks(true));
   const handleHideTasks = useCallback(() => setShowTasks(false));
-  const [icon, setIcon] = useState({
-    kind: IconKind.CUSTOM,
-    key:
-      "https://images.unsplash.com/photo-1519501025264-" +
-      "65ba15a82390?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfH" +
-      "x8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=" +
-      "crop&w=100&q=80",
-  });
+
+  // Get templates API
+  const {
+    templates,
+    onDeleteExample,
+    onAddExamples,
+    onChange,
+    onAddTemplate,
+  } = useTemplateAPI(defaultTemplates);
 
   return (
     <div className={clsx(classes.root, className)} {...other}>
       <div className={clsx(classes.column, classes.templates)}>
         <TemplatesHeader
-          onAddTemplate={() => console.log("add")}
+          onAddTemplate={onAddTemplate}
           onShowTasks={handleShowTasks}
           tasksShown={showTasks}
         />
@@ -159,9 +161,9 @@ function ProcessingPage(props) {
             <TemplateList.Item
               key={template.id}
               template={template}
-              onChange={console.log}
-              onAddExamples={console.log}
-              onDeleteExample={console.log}
+              onChange={onChange}
+              onAddExamples={onAddExamples}
+              onDeleteExample={onDeleteExample}
             />
           ))}
         </TemplateList>

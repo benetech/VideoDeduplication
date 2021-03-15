@@ -86,17 +86,19 @@ function TemplateListItem(props) {
   }, [edit]);
 
   const handleAddExamples = useCallback(
-    (event) => onAddExamples(event.target.files),
-    [onAddExamples]
+    (event) => onAddExamples(event.target.files, template),
+    [template, onAddExamples]
   );
 
-  const handleIconChange = useCallback((icon) => onChange({ icon }), [
-    onChange,
-  ]);
+  const handleIconChange = useCallback(
+    (icon) => onChange({ id: template.id, icon }),
+    [template, onChange]
+  );
 
-  const handleNameChange = useCallback((name) => onChange({ name }), [
-    onChange,
-  ]);
+  const handleNameChange = useCallback(
+    (name) => onChange({ id: template.id, name }),
+    [template, onChange]
+  );
 
   const handleDeleteExample = useCallback(
     (example) => onDeleteExample(example, template),
@@ -169,10 +171,17 @@ TemplateListItem.propTypes = {
    */
   onChange: PropTypes.func.isRequired,
   /**
-   * Handle
+   * Handle example delete.
    */
   onDeleteExample: PropTypes.func.isRequired,
+  /**
+   * Handle new examples.
+   */
   onAddExamples: PropTypes.func.isRequired,
+  /**
+   * Enable edit-mode by default for new templates.
+   */
+  new: PropTypes.bool,
   className: PropTypes.string,
 };
 
