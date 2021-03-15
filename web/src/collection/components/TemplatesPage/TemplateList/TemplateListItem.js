@@ -10,6 +10,7 @@ import TemplateExamplePreview from "./TemplateExamplePreview";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import AddOutlinedIcon from "@material-ui/icons/AddOutlined";
 import useUniqueId from "../../../../common/hooks/useUniqueId";
+import TemplateGalleryDialog from "./TemplateGalleryDialog";
 
 const useStyles = makeStyles((theme) => ({
   item: {
@@ -76,7 +77,14 @@ function TemplateListItem(props) {
   const inputId = useUniqueId("add-files-");
   const [expand, setExpand] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [startExample, setStartExample] = useState(null);
   const [showGallery, setShowGallery] = useState(false);
+
+  const openGallery = useCallback((example) => {
+    setStartExample(example);
+    setShowGallery(true);
+  });
+  const closeGallery = useCallback(() => setShowGallery(false));
 
   const toggleExpand = useCallback(() => setExpand(!expand), [expand]);
 
@@ -129,7 +137,7 @@ function TemplateListItem(props) {
                 example={example}
                 edit={edit}
                 onDelete={handleDeleteExample}
-                onClick={console.log}
+                onClick={openGallery}
                 className={classes.example}
               />
             ))}
@@ -157,6 +165,12 @@ function TemplateListItem(props) {
           </div>
         </div>
       </Collapse>
+      <TemplateGalleryDialog
+        template={template}
+        open={showGallery}
+        onClose={closeGallery}
+        startExample={startExample}
+      />
     </div>
   );
 }

@@ -39,6 +39,7 @@ function TemplateExamplePreview(props) {
   const [deleting, setDeleting] = useState(false);
 
   const toggleDeleting = useCallback(() => setDeleting(!deleting), [deleting]);
+  const handleClick = useCallback(() => onClick(example), [example]);
 
   return (
     <div className={clsx(classes.container, className)} {...other}>
@@ -47,7 +48,7 @@ function TemplateExamplePreview(props) {
         key={example.id}
         alt={`Example ${example.id}`}
         className={classes.image}
-        onClick={onClick}
+        onClick={handleClick}
       />
       <Fab
         onClick={toggleDeleting}

@@ -78,6 +78,7 @@
     "react-fa-icon-picker": "^1.0.3",
     "react-icons": "^4.2.0",
     "react-image-crop": "^8.6.6",
+    "react-image-gallery": "^1.0.9",
     "react-intl": "^5.4.0",
     "react-lazyload": "^3.2.0",
     "react-player": "^2.6.0",
