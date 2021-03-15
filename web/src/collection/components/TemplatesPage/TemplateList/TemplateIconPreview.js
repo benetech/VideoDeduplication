@@ -8,7 +8,7 @@ import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 import Fab from "@material-ui/core/Fab";
 import PickIconDialog from "./PickIconDialog";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   container: {
     transform: "translate(0%, 0px)",
   },
@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   fabLabel: {
     minHeight: 20,
   },
-}));
+});
 
 function TemplateIconPreview(props) {
   const { icon, onChange, edit, className, ...other } = props;

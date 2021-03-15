@@ -38,7 +38,7 @@ function filterOptions(options, queryWords) {
     queryWords.filter((word) => name.includes(word)).length,
     name,
   ]);
-  return weighted.sort((a, b) => b[0] - a[0]).map(([_, name]) => name);
+  return weighted.sort((a, b) => b[0] - a[0]).map((pair) => pair[1]);
 }
 
 function useIconQuery(query) {

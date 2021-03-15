@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import lodash from "lodash";
 import LazyLoad from "react-lazyload";
-import Grid from "@material-ui/core/Grid";
 import IconOption from "./IconOption";
 
 const useStyles = makeStyles((theme) => ({

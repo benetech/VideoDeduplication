@@ -12,14 +12,7 @@ import Button from "../../../common/components/Button";
 import AddOutlinedIcon from "@material-ui/icons/AddOutlined";
 import TaskSidebar from "../ProcessingPage/TaskSidebar";
 import NavigateNextOutlinedIcon from "@material-ui/icons/NavigateNextOutlined";
-import IconKind from "../../state/templates/IconKind";
-import TemplateIcon from "./TemplateIcon/TemplateIcon";
-import IconPicker from "./IconPicker";
-import StandardIconPicker from "./StandardIconPicker";
-import {
-  randomTemplate,
-  randomTemplates,
-} from "../../../server-api/MockServer/fake-data/templates";
+import { randomTemplates } from "../../../server-api/MockServer/fake-data/templates";
 import TemplateList from "./TemplateList";
 import useTemplateAPI from "./useTemplateAPI";
 

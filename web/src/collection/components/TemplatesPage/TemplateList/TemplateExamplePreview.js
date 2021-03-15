@@ -7,7 +7,7 @@ import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import Fab from "@material-ui/core/Fab";
 import DeleteExampleDialog from "./DeleteExampleDialog";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   container: {
     width: 80,
     height: 80,
@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
     height: 80,
     objectFit: "cover",
   },
-}));
+});
 
 function TemplateExamplePreview(props) {
   const { example, edit, onClick, onDelete, className, ...other } = props;

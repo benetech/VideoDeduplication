@@ -5,18 +5,18 @@ import * as GameIcon from "react-icons/gi";
 import CancelPresentationOutlinedIcon from "@material-ui/icons/CancelPresentationOutlined";
 import clsx from "clsx";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   defaultIcon: {
     width: 40,
     height: 40,
     fontSize: 40,
   },
-}));
+});
 
 function StandardIcon(props) {
   const { name, className, ...other } = props;
   const classes = useStyles();
-  const iconDiv = !!GameIcon[name] ? (
+  const iconDiv = GameIcon[name] ? (
     React.createElement(GameIcon[name])
   ) : (
     <CancelPresentationOutlinedIcon />

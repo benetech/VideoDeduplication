@@ -2,11 +2,10 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { useIntl } from "react-intl";
 import IconDropZone from "./IconDropZone";
 import IconCropper from "./IconCropper";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   root: {},
   dropZone: {
     width: "100%",
@@ -16,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "100%",
   },
-}));
+});
 
 function IconUploader(props) {
   const { onUpload, className } = props;

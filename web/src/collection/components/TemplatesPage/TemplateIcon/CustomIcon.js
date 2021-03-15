@@ -5,12 +5,12 @@ import { useIntl } from "react-intl";
 import { Avatar } from "@material-ui/core";
 import clsx from "clsx";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   icon: {
     width: 40,
     height: 40,
   },
-}));
+});
 
 /**
  * Get translated text.

@@ -6,7 +6,6 @@ import IconButton from "@material-ui/core/IconButton";
 import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 import DoneOutlinedIcon from "@material-ui/icons/DoneOutlined";
 import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
-import { useIntl } from "react-intl";
 import { TextField } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -26,22 +25,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-/**
- * Get translated text.
- */
-function useMessages() {
-  const intl = useIntl();
-  return {
-    fieldLabel: intl.formatMessage({ id: "templates.name" }),
-    editName: intl.formatMessage({ id: "actions.editName" }),
-    editIcon: intl.formatMessage({ id: "actions.editIcon" }),
-  };
-}
-
 function TemplateTitle(props) {
   const { name, edit, onChange, className, ...other } = props;
   const classes = useStyles();
-  const messages = useMessages();
   const [editing, setEditing] = useState(false);
   const [staging, setStaging] = useState(name);
 
