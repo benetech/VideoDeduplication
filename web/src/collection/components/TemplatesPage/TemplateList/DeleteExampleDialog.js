@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
     height: 200,
     margin: theme.spacing(2),
     marginTop: 0,
+    objectFit: "cover",
     borderRadius: theme.spacing(1),
   },
   confirm: {
