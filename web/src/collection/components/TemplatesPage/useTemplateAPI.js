@@ -15,10 +15,30 @@ function deleteExample(template, deleted) {
     const examples = template.examples.filter(
       (example) => example.id !== deleted.id
     );
-    return lodash.merge({}, template, { examples });
+    return { ...template, examples };
   } else {
     return template;
   }
+}
+
+function extendExamples(template, examples) {
+  if (template.id === examples[0]?.templateId) {
+    return { ...template, examples: [...template.examples, ...examples] };
+  }
+  return template;
+}
+
+function loadExample(file, template) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () =>
+      resolve({
+        id: randomId(),
+        templateId: template.id,
+        url: reader.result,
+      });
+    reader.readAsDataURL(file);
+  });
 }
 
 export default function useTemplateAPI(initialTemplates) {
@@ -33,14 +53,25 @@ export default function useTemplateAPI(initialTemplates) {
   );
 
   const onDeleteExample = useCallback(
-    (example) =>
+    (example) => {
       setTemplates(
         templates.map((template) => deleteExample(template, example))
-      ),
+      );
+    },
     [templates]
   );
 
-  const onAddExamples = console.log;
+  const onAddExamples = useCallback(
+    async (files, target) => {
+      const examples = await Promise.all(
+        files.map((file) => loadExample(file, target))
+      );
+      setTemplates(
+        templates.map((template) => extendExamples(template, examples))
+      );
+    },
+    [templates]
+  );
 
   const onAddTemplate = useCallback(
     () =>

@@ -86,7 +86,7 @@ function TemplateListItem(props) {
   }, [edit]);
 
   const handleAddExamples = useCallback(
-    (event) => onAddExamples(event.target.files, template),
+    (event) => onAddExamples([...event.target.files], template),
     [template, onAddExamples]
   );
 
