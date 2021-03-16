@@ -140,9 +140,18 @@ class TemplateMatches(Base):
     id = Column(Integer, autoincrement=True, primary_key=True)
     file_id = Column(Integer, ForeignKey("files.id"), nullable=True)
     template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
-    distance = Column(Float)
-    closest_match = Column(Float)
-    closest_match_time = Column(String)
+    start_ms = Column(Float)
+    end_ms = Column(Float)
+    # Mean distance of the sequence (start -> end)
+    mean_distance_sequence = Column(Float)
+    # Min distance found in the whole video
+    min_distance_video = Column(Float)
+    # ms offset
+    min_distance_ms = Column(Float)
+
+    # distance = Column(Float)
+    # closest_match = Column(Float)
+    # closest_match_time = Column(String)
 
     # Relationships
 

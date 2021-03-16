@@ -23,7 +23,17 @@ class SearchEngine:
         self.available_queries = self.find_available_templates()
         self.reprs = reprs
         self.template_cache = self.load_available_templates()
-        self.results_cache = {}
+        self.relevant_cols = [
+            "path",
+            "hash",
+            "template_name",
+            "start_ms",
+            "end_ms",
+            "mean_distance_sequence",
+            "min_distance_video",
+            "min_distance_ms",
+        ]
+        self.results_cache = pd.DataFrame(columns=self.relevant_cols)
 
     def find_available_templates(self):
 
@@ -48,7 +58,9 @@ class SearchEngine:
 
         return cache
 
-    def create_annotation_report(self, threshold=0.07, fp="template_test.csv", queries=None, frame_sampling=1):
+    def create_annotation_report(
+        self, threshold=0.07, fp="template_test.csv", queries=None, frame_sampling=1, distance_min=0.05
+    ):
 
         """Creates an annotation report suitable for annotation
         (using our own Annotator class)
@@ -64,35 +76,21 @@ class SearchEngine:
 
         if queries is None:
             for q in self.available_queries:
-                self.find(q, threshold=threshold, plot=False)
+                self.find(q, threshold=threshold, distance_min=distance_min, plot=False)
         else:
             for q in queries:
-                self.find(q, threshold=threshold, plot=False)
+                self.find(q, threshold=threshold, distance_min=distance_min, plot=False)
 
         print(self.available_queries)
 
-        if self.results_cache:
+        if self.results_cache is not None:
 
-            records = pd.DataFrame.from_records(self.results_cache, index=None).reset_index()
+            df = self.results_cache
 
-            # Massage template matching results
-            df = pd.melt(records, id_vars=["level_0", "level_1"])
-            msk = df["variable"] != "Unnamed: 0"
-            df = df.loc[msk, :]
-            # Convert df into a more suitable format to be saved
-            df.rename(columns={"level_0": "fn", "level_1": "sha256", "variable": "template_name"}, inplace=True)
-
-            additional_info = df.loc[:, ["value"]].to_dict("records")
-            additional_info = [x["value"] for x in additional_info]
-            add_df = pd.DataFrame.from_records(x for x in additional_info)
-            df["distance"] = add_df["distance"]
-            df["closest_match"] = add_df["closest_match"]
-            # This will adjust the time sampling to the sampling rate (ideally
-            # this should be sourced from the DB and not from the config file)
-            df["closest_match_time"] = df["closest_match"].apply(
-                lambda x: datetime.timedelta(seconds=x * frame_sampling)
-            )
-            df.drop(columns=["value"], inplace=True)
+            df["start_ms"] = df["start_ms"].apply(lambda x: x * frame_sampling * 1000)
+            df["end_ms"] = df["end_ms"].apply(lambda x: x * frame_sampling * 1000)
+            df["min_distance_ms"] = df["min_distance_ms"].apply(lambda x: x * frame_sampling * 1000)
+            # df.drop(columns=["value"], inplace=True)
 
             return df
 
@@ -107,32 +105,71 @@ class SearchEngine:
                 )
             )
 
-    def find(self, query, threshold=0.07, plot=True):
+    def distance_from_min(self, data, thr=0.05):
+
+        inds = np.where(np.diff(((data / data.min()) < (1 + thr))))
+        if len(inds[0]) > 0:
+            return np.split(data, inds[0])
+        return [
+            data,
+        ]
+
+    def find(self, query, threshold=0.07, plot=True, distance_min=0.05):
 
         feats = self.template_cache[query]
         print("Loaded query embeddings", feats.shape)
-        self.results_cache[query] = defaultdict()
+        # self.results_cache[query] = defaultdict()
+        dfs = []
         for repr_key in self.reprs.frame_level.list():
             try:
                 sample = self.reprs.frame_level.read(repr_key)
 
                 distances = np.mean(cdist(feats, sample, metric="cosine"), axis=0)
-
-                self.results_cache[query][(repr_key.path, repr_key.hash)] = dict()
+                # np.save(f"dists{repr_key.path}_{query}.npy", distances)
+                # self.results_cache[query][(repr_key.path, repr_key.hash)] = list()
 
                 if len(distances) > 0:
-                    frame_of_interest_index = np.argmin(distances)
-                    min_d = min(distances)
-                else:
-                    frame_of_interest_index = 0
-                    min_d = 1.0
 
-                self.results_cache[query][(repr_key.path, repr_key.hash)]["distance"] = min_d
-                self.results_cache[query][(repr_key.path, repr_key.hash)]["closest_match"] = frame_of_interest_index
+                    local_min = np.min(distances)
+                    local_min_idx = np.argmin(distances)
+
+                    if local_min <= threshold:
+
+                        seqs = self.distance_from_min(distances, thr=distance_min)
+                        sequence_matches = []
+
+                        start = 0
+                        # end = 0
+                        for idx, i in enumerate(seqs):
+                            #     print(i,a.shape)
+                            seq_len = len(i)
+                            if seq_len:
+                                if idx > 0:
+                                    start = end
+                                end = start + seq_len
+
+                                tseq = np.min(i) < (local_min * (1 + distance_min))
+                                if tseq:
+                                    sequence_matches.append(
+                                        [
+                                            repr_key.path,
+                                            repr_key.hash,
+                                            query,
+                                            start,
+                                            end,
+                                            np.mean(i),
+                                            local_min,
+                                            local_min_idx,
+                                        ]
+                                    )
+
+                        dfs.append(pd.DataFrame(sequence_matches, columns=self.relevant_cols))
 
             except Exception as e:
                 print("Error:", e)
                 pass
+
+        self.results_cache = pd.concat([self.results_cache, *dfs], ignore_index=True)
 
 
 def download_sample_templates(TEMPLATES_PATH, URL="https://s3.amazonaws.com/winnowpretrainedmodels/templates.tar.gz"):

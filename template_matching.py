@@ -14,6 +14,7 @@ config = Config.read(resolve_config_path())
 
 TEMPLATE_TEST_OUTPUT = os.path.join(config.repr.directory, "template_test.csv")
 DISTANCE = 0.07
+DISTANCE_MIN = 0.05
 
 
 @click.command()
@@ -48,11 +49,14 @@ def main(override, template_dir):
     se = SearchEngine(templates_root=templates_source, reprs=reprs, model=model)
 
     template_matches = se.create_annotation_report(
-        threshold=DISTANCE, fp=TEMPLATE_TEST_OUTPUT, frame_sampling=config.proc.frame_sampling
+        threshold=DISTANCE,
+        fp=TEMPLATE_TEST_OUTPUT,
+        frame_sampling=config.proc.frame_sampling,
+        distance_min=DISTANCE_MIN,
     )
 
-    tm_entries = template_matches[["fn", "sha256"]]
-    tm_entries["template_matches"] = template_matches.drop(columns=["fn", "sha256"]).to_dict("records")
+    tm_entries = template_matches[["path", "hash"]]
+    tm_entries["template_matches"] = template_matches.drop(columns=["path", "hash"]).to_dict("records")
 
     if config.database.use:
 
