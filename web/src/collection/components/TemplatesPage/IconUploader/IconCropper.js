@@ -24,6 +24,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function maxCrop(image) {
+  const width =
+    image.width <= image.height ? 100 : 100 * (image.height / image.width);
+  const height =
+    image.height <= image.width ? 100 : 100 * (image.width / image.height);
+  const x =
+    image.width <= image.height ? 0 : 50 * (1 - image.height / image.width);
+  const y =
+    image.height <= image.width ? 0 : 50 * (1 - image.width / image.height);
+  return { unit: "%", aspect: 1, width, height, x, y };
+}
+
 function IconCropper(props) {
   const { iconFile, onCropped, onCancel, className } = props;
   const [imageURL, setImageURL] = useState(null);
@@ -36,19 +48,29 @@ function IconCropper(props) {
     reader.readAsDataURL(iconFile);
   }, [iconFile]);
 
-  const handleCropChange = useCallback(
-    (_, percentCrop) => setCrop(percentCrop),
-    []
-  );
+  const handleCropChange = useCallback((_, percentCrop) => {
+    console.log(_, percentCrop);
+    setCrop(percentCrop);
+  }, []);
 
   const handleCrop = useCallback(async () => {
     const croppedDataURL = await cropImageURL({ imageURL, ...crop });
     onCropped(croppedDataURL);
   }, [crop, imageURL]);
 
+  const handleLoaded = useCallback((image) => {
+    setCrop(maxCrop(image));
+    return false;
+  }, []);
+
   return (
     <div className={clsx(classes.root, className)}>
-      <ReactCrop src={imageURL} crop={crop} onChange={handleCropChange} />
+      <ReactCrop
+        src={imageURL}
+        crop={crop}
+        onChange={handleCropChange}
+        onImageLoaded={handleLoaded}
+      />
       <div className={classes.actions}>
         <Fab
           size="small"
