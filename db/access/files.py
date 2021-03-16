@@ -1,4 +1,5 @@
 import enum
+import itertools
 from datetime import datetime
 from typing import List, Optional, Iterator
 
@@ -7,7 +8,16 @@ from sqlalchemy import or_, func, literal_column, tuple_
 from sqlalchemy.orm import aliased, Query, Session, joinedload
 
 from db.schema import Files, Matches, Exif, Contributor, Repository, Signature
-from winnow.utils.iterators import chunks
+
+
+# TODO: Improve dependency management and get rid of duplicate code (#295)
+def _chunks(iterable, size=100):
+    """Split iterable into equal-sized chunks."""
+    iterator = iter(iterable)
+    chunk = list(itertools.islice(iterator, size))
+    while chunk:
+        yield chunk
+        chunk = list(itertools.islice(iterator, size))
 
 
 class FileMatchFilter(enum.Enum):
@@ -302,7 +312,7 @@ class FilesDAO:
     @staticmethod
     def select_missing_signatures(path_hash_pairs, session: Session, chunk_size=1000) -> Iterator[Files]:
         """Query files with missing signatures."""
-        for chunk in chunks(path_hash_pairs, size=chunk_size):
+        for chunk in _chunks(path_hash_pairs, size=chunk_size):
             query = session.query(Files).filter(Files.signature.has(Signature.signature != None))  # noqa: E711
             query = query.filter(tuple_(Files.file_path, Files.sha256).in_(chunk)).yield_per(chunk_size)
             have_signature = set((file.file_path, file.sha256) for file in query)

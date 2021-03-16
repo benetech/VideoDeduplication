@@ -12,9 +12,7 @@ import { fetchTaskSlice } from "../../../state/tasks/actions";
 import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
-  container: {
-    width: 380,
-  },
+  container: {},
   tasks: {
     marginTop: theme.spacing(2),
     maxHeight: 450,

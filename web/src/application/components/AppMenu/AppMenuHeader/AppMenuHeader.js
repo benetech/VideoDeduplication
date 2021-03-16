@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 /**
- * Header of the application left-side menu.
+ * Title of the application left-side menu.
  */
 function AppMenuHeader(props) {
   const {

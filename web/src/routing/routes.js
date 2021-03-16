@@ -42,8 +42,8 @@ export const routes = {
   collaborators: {
     home: "/collaborators",
   },
-  organization: {
-    home: "/organization",
+  templates: {
+    home: "/templates",
   },
   processing: {
     home: "/processing",

@@ -7,7 +7,7 @@ import AppMenuListItem from "./AppMenuListItem";
 
 import LayersOutlinedIcon from "@material-ui/icons/LayersOutlined";
 import PersonOutlinedIcon from "@material-ui/icons/PersonOutlined";
-import AccountTreeOutlinedIcon from "@material-ui/icons/AccountTreeOutlined";
+import ImageSearchOutlinedIcon from "@material-ui/icons/ImageSearchOutlined";
 import CompareOutlinedIcon from "@material-ui/icons/CompareOutlined";
 import BarChartOutlinedIcon from "@material-ui/icons/BarChartOutlined";
 import AppMenuHeader from "./AppMenuHeader";
@@ -59,9 +59,9 @@ const menuItems = [
     location: routes.collaborators.home,
   },
   {
-    icon: <AccountTreeOutlinedIcon fontSize="large" />,
-    title: "nav.organization",
-    location: routes.organization.home,
+    icon: <ImageSearchOutlinedIcon fontSize="large" />,
+    title: "nav.templates",
+    location: routes.templates.home,
   },
   {
     icon: <CompareOutlinedIcon fontSize="large" />,

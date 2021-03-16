@@ -39,8 +39,8 @@ const makeLinks = (intl) => [
     location: routes.collaborators.home,
   },
   {
-    title: intl.formatMessage({ id: "nav.organization" }),
-    location: routes.organization.home,
+    title: intl.formatMessage({ id: "nav.templates" }),
+    location: routes.templates.home,
   },
 ];
 

@@ -5,7 +5,6 @@ const mixins = {
   drawer: { width: 261 },
   title0: {
     height: 62,
-    width: 355,
     color: "#040303",
     fontFamily: "Roboto",
     fontSize: 53,
