@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
   iconList: {
     overflow: "auto",
     padding: theme.spacing(1),
-    height: 74 * 4,
+    height: 74 * 2 + theme.spacing(1),
   },
   icon: {
     display: "inline-block",

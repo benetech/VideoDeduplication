@@ -8,7 +8,9 @@ import useIconQuery from "./useIconQuery";
 import IconList from "./IconList";
 
 const useStyles = makeStyles((theme) => ({
-  pickerRoot: {},
+  pickerRoot: {
+    height: "max-content",
+  },
   search: {
     marginLeft: theme.spacing(2),
   },

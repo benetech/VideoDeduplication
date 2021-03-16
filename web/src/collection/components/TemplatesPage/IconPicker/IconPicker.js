@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
   picker: {
     margin: theme.spacing(1),
-    height: 350,
+    height: 220,
     width: 400,
   },
   hide: { display: "none" },
