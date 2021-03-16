@@ -92,16 +92,62 @@ class Scene(Base):
     start_time = Column(Integer)
 
 
+# TODO: move to a separate module (#295)
+class IconType(enum.Enum):
+    """Enumeration for template icon types."""
+
+    PREDEFINED = "predefined"
+    CUSTOM = "custom"
+
+
+class Template(Base):
+    """Template descriptor."""
+
+    __tablename__ = "templates"
+
+    # Attributes
+
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    name = Column(String, nullable=False)
+    icon_type = Column(Enum(IconType), nullable=False, default=IconType.PREDEFINED)
+    icon_key = Column(String, nullable=True, default="GiHealthNormal")
+
+    # Relationships
+
+    examples = relationship("TemplateExample", cascade="all,delete", back_populates="template")
+    matches = relationship("TemplateMatches", cascade="all,delete", back_populates="template")
+
+
+class TemplateExample(Base):
+    """Example image to match, part of a template."""
+
+    __tablename__ = "examples"
+
+    # Attributes
+
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
+    storage_key = Column(String, nullable=False)
+    signature = Column(LargeBinary)
+
+    # Relationships
+
+    template = relationship("Template", back_populates="examples")
+
+
 class TemplateMatches(Base):
     __tablename__ = "templatematches"
-    # __table_args__ = (UniqueConstraint('file_id', 'template_name'),)
     id = Column(Integer, autoincrement=True, primary_key=True)
     file_id = Column(Integer, ForeignKey("files.id"), nullable=True)
-    file = relationship("Files", back_populates="template_matches")
-    template_name = Column(String)
+    template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
     distance = Column(Float)
     closest_match = Column(Float)
     closest_match_time = Column(String)
+
+    # Relationships
+
+    file = relationship("Files", back_populates="template_matches")
+    template = relationship("Template", back_populates="matches")
 
 
 @event.listens_for(Files.template_matches, "remove")
@@ -170,7 +216,7 @@ class Exif(Base):
     Json_full_exif = Column(JSON)
 
 
-# TODO: move RepositoryType to a separate module
+# TODO: move RepositoryType to a separate module (#295)
 class RepositoryType(enum.Enum):
     """Repository type determines its access method.
 
