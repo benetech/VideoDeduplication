@@ -1,83 +1,67 @@
 import os
+
 import click
-from db import Database
-from winnow.config import Config
-from winnow.config.path import resolve_config_path
-from winnow.feature_extraction import default_model_path
-from winnow.feature_extraction.extraction_routine import load_featurizer
-from winnow.search_engine.template_matching import SearchEngine
-from winnow.storage.repr_storage import ReprStorage
-from winnow.storage.db_result_storage import DBResultStorage
 
-config = Config.read(resolve_config_path())
-
-
-TEMPLATE_TEST_OUTPUT = os.path.join(config.repr.directory, "template_test.csv")
-DISTANCE = 0.07
-DISTANCE_MIN = 0.05
+from winnow.pipeline.match_templates import match_templates
+from winnow.pipeline.pipeline_context import PipelineContext
+from winnow.utils.config import resolve_config
+from winnow.utils.files import scan_videos, scan_videos_from_txt
+from winnow.utils.logging import configure_logging_cli
 
 
 @click.command()
+@click.option("--config", "-cp", help="path to the project config file", default=os.environ.get("WINNOW_CONFIG"))
 @click.option(
-    "--override", "-ovr", help="Overrides the previous template matches saved on the DB", default=False, is_flag=True
+    "--list-of-files",
+    "-lof",
+    help="path to txt with a list of files for processing - overrides source folder from the config file",
+    default=None,
+)
+@click.option(
+    "--frame-sampling",
+    "-fs",
+    help=(
+        "Sets the sampling strategy (values from 1 to 10 - eg "
+        "sample one frame every X seconds) - overrides frame "
+        "sampling from the config file"
+    ),
+    default=None,
+)
+@click.option(
+    "--save-frames",
+    "-sf",
+    help="Whether to save the frames sampled from the videos - overrides save_frames on the config file",
+    default=None,
+    is_flag=True,
+)
+@click.option(
+    "--override", "-ovr", help="Overrides the previous template matches saved on the DB", default=None, is_flag=True
 )
 @click.option(
     "--template-dir",
     "-td",
     help="path to a directory containing templates - overrides source folder from the config file",
-    default="",
+    default=None,
 )
-def main(override, template_dir):
-
-    print("Loading model...")
-    model_path = default_model_path(config.proc.pretrained_model_local_path)
-    model = load_featurizer(model_path)
-
-    templates_source = config.templates.source_path
-
-    if len(template_dir) > 0:
-
-        templates_source = template_dir
-
-    print(
-        f"Initiating search engine using templates from: "
-        f"{templates_source} and looking at "
-        f"videos located in: {config.repr.directory}"
+def main(config, list_of_files, frame_sampling, save_frames, override, template_dir):
+    logger = configure_logging_cli()
+    logger.info("Loading config file")
+    config = resolve_config(
+        config_path=config,
+        frame_sampling=frame_sampling,
+        save_frames=save_frames,
+        override_templates=override,
+        templates_dir=template_dir,
     )
 
-    reprs = ReprStorage(config.repr.directory)
-    se = SearchEngine(templates_root=templates_source, reprs=reprs, model=model)
+    logger.info("Searching for Dataset Video Files")
+    if list_of_files is None:
+        videos = scan_videos(config.sources.root, "**", extensions=config.sources.extensions)
+    else:
+        videos = scan_videos_from_txt(list_of_files, extensions=config.sources.extensions)
 
-    template_matches = se.create_annotation_report(
-        threshold=DISTANCE,
-        fp=TEMPLATE_TEST_OUTPUT,
-        frame_sampling=config.proc.frame_sampling,
-        distance_min=DISTANCE_MIN,
-    )
-
-    tm_entries = template_matches[["path", "hash"]]
-    tm_entries["template_matches"] = template_matches.drop(columns=["path", "hash"]).to_dict("records")
-
-    if config.database.use:
-
-        # Connect to database
-        database = Database(uri=config.database.uri)
-        database.create_tables()
-
-        # Save Template Matches
-        result_storage = DBResultStorage(database)
-        result_storage.add_template_matches(tm_entries.to_numpy(), override=override)
-
-    if config.save_files:
-
-        TEMPLATE_MATCHES_REPORT_PATH = os.path.join(config.repr.directory, "template_matches.csv")
-        template_matches.to_csv(TEMPLATE_MATCHES_REPORT_PATH)
-
-        print(f"Template Matches report exported to:{TEMPLATE_MATCHES_REPORT_PATH}")
-
-    print("Report saved to {}".format(TEMPLATE_TEST_OUTPUT))
+    match_templates(files=videos, pipeline=PipelineContext(config))
 
 
 if __name__ == "__main__":
-
     main()

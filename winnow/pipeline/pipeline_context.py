@@ -7,8 +7,6 @@ from cached_property import cached_property
 from db import Database
 from winnow import remote
 from winnow.config import Config
-from winnow.feature_extraction import default_model_path, load_featurizer
-from winnow.feature_extraction.model_tf import CNN_tf
 from winnow.remote import RemoteRepository
 from winnow.remote.connect import RepoConnector, DatabaseConnector, ReprConnector
 from winnow.remote.repository_dao import RepoDAO, RemoteRepoDatabaseDAO, RemoteRepoCsvDAO
@@ -92,8 +90,10 @@ class PipelineContext:
         return SecureStorage(path=self.config.repr.directory, master_key_path=self.config.security.master_key_path)
 
     @cached_property
-    def pretrained_model(self) -> CNN_tf:
+    def pretrained_model(self):
         """Load default model."""
+        from winnow.feature_extraction import default_model_path, load_featurizer
+
         model_path = default_model_path(self.config.proc.pretrained_model_local_path)
         logger.info("Loading pretrained model from: %s", model_path)
         return load_featurizer(model_path)
