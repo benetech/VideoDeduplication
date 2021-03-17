@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Callable
 
@@ -6,6 +7,8 @@ from cached_property import cached_property
 from db import Database
 from winnow import remote
 from winnow.config import Config
+from winnow.feature_extraction import default_model_path, load_featurizer
+from winnow.feature_extraction.model_tf import CNN_tf
 from winnow.remote import RemoteRepository
 from winnow.remote.connect import RepoConnector, DatabaseConnector, ReprConnector
 from winnow.remote.repository_dao import RepoDAO, RemoteRepoDatabaseDAO, RemoteRepoCsvDAO
@@ -20,9 +23,11 @@ from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import path_resolver
 from winnow.utils.repr import reprkey_resolver, repr_storage_factory
 
+logger = logging.getLogger(__name__)
+
 
 class PipelineContext:
-    """Reusable components and resources that should be shared between pipeline stages."""
+    """Pipeline components created and wired consistently according to the pipeline Config."""
 
     def __init__(self, config: Config):
         """Create pipeline context."""
@@ -85,6 +90,13 @@ class PipelineContext:
     def secure_storage(self) -> SecureStorage:
         """Get secured credentials storage."""
         return SecureStorage(path=self.config.repr.directory, master_key_path=self.config.security.master_key_path)
+
+    @cached_property
+    def pretrained_model(self) -> CNN_tf:
+        """Load default model."""
+        model_path = default_model_path(self.config.proc.pretrained_model_local_path)
+        logger.info("Loading pretrained model from: %s", model_path)
+        return load_featurizer(model_path)
 
     def make_connector(self, repo: RemoteRepository) -> RepoConnector:
         """Get remote repository connector."""

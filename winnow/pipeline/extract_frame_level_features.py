@@ -29,11 +29,6 @@ def extract_frame_level_features(files: Collection[str], pipeline: PipelineConte
     video_list_file = create_video_list(remaining_video_paths, config.proc.video_list_filename)
     logger.info("Processed video list is saved: %s", video_list_file)
 
-    # Prepare feature extractor
-    model_path = default_model_path(config.proc.pretrained_model_local_path)
-    pretrained_model = load_featurizer(model_path)
-    logger.info("Pretrained model is loaded from: %s", model_path)
-
     progress.scale(total_work=len(remaining_video_paths))
 
     def save_features(file_path, frames_tensor, frames_features):
@@ -48,7 +43,7 @@ def extract_frame_level_features(files: Collection[str], pipeline: PipelineConte
         videos=remaining_video_paths,
         on_extracted=save_features,
         frame_sampling=config.proc.frame_sampling,
-        model=pretrained_model,
+        model=pipeline.pretrained_model,
     )
 
     # Do extract frame-level features
