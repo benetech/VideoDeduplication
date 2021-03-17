@@ -115,10 +115,16 @@ class TemplatesConfig:
     """Configuration for template matching."""
 
     source_path: str = None
+    distance: float = 0.07
+    distance_min: float = 0.05
+    override: bool = False  # Override template matches
 
     def read_env(self):
         """Read config from environment variables."""
         self.source_path = os.environ.get("WINNOW_TEMPLATE_SOURCE_PATH", self.source_path)
+        self.distance = float(os.environ.get("WINNOW_TEMPLATE_DISTANCE", self.distance))
+        self.distance_min = float(os.environ.get("WINNOW_TEMPLATE_DISTANCE_MIN", self.distance_min))
+        self.override = float(os.environ.get("WINNOW_TEMPLATE_OVERRIDE", self.override))
 
 
 @dataclass
