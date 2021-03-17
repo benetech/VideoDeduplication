@@ -39,7 +39,7 @@ class TemplateLoader:
         extensions = extensions or self._extensions
         template_name = os.path.basename(path)
         image_paths = self._image_paths(path, extensions)
-        resized_images = [load_image(image, self._image_size) for image in image_paths]
+        resized_images = np.array([load_image(image, self._image_size) for image in image_paths])
         features = self._pretrained_model.extract(resized_images, batch_sz=10)
         return Template(name=template_name, features=features)
 
@@ -81,7 +81,7 @@ class TemplateLoader:
                 image_path = os.path.join(tmp_directory, f"example-{index}")
                 file_storage.get_file(example.storage_key, image_path)
                 resized_images.append(load_image(image_path, self._image_size))
-            calculated_features = self._pretrained_model.extract(resized_images, batch_sz=10)
+            calculated_features = self._pretrained_model.extract(np.array(resized_images), batch_sz=10)
             for index, features in enumerate(calculated_features):
                 example = unhandled_examples[index]
                 example.features = pickle.dumps(features)

@@ -1,5 +1,4 @@
-from typing import List
-
+import numpy as np
 from dataclasses import dataclass
 
 
@@ -8,4 +7,4 @@ class Template:
     """Template representation."""
 
     name: str
-    features: List[List[float]]  # Features that will be searched for in video files
+    features: np.ndarray  # Features that will be searched for in video files

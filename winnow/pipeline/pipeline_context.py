@@ -98,6 +98,16 @@ class PipelineContext:
         logger.info("Loading pretrained model from: %s", model_path)
         return load_featurizer(model_path)
 
+    @cached_property
+    def template_loader(self):
+        """Get template loader."""
+        from winnow.search_engine.template_loading import TemplateLoader
+
+        return TemplateLoader(
+            pretrained_model=self.pretrained_model,
+            extensions=self.config.templates.extensions,
+        )
+
     def make_connector(self, repo: RemoteRepository) -> RepoConnector:
         """Get remote repository connector."""
         client = remote.make_client(repo)

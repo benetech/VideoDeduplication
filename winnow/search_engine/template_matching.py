@@ -1,28 +1,23 @@
-import datetime
+import logging
 import os
 import shutil
-from collections import defaultdict
 from glob import glob
+from typing import List
 
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
 
-from winnow.feature_extraction.utils import load_image
-from winnow.utils.network import download_file
+from winnow.search_engine.model import Template
 from winnow.storage.repr_storage import ReprStorage
+from winnow.utils.network import download_file
+
+_logger = logging.getLogger(__name__)
 
 
 class SearchEngine:
-    def __init__(self, templates_root, reprs: ReprStorage, model):
-
-        templates_glob = os.path.join(templates_root, "*")
-
-        self.templates_root = templates_glob
-        self.model = model
-        self.available_queries = self.find_available_templates()
+    def __init__(self, reprs: ReprStorage):
         self.reprs = reprs
-        self.template_cache = self.load_available_templates()
         self.relevant_cols = [
             "path",
             "hash",
@@ -35,33 +30,7 @@ class SearchEngine:
         ]
         self.results_cache = pd.DataFrame(columns=self.relevant_cols)
 
-    def find_available_templates(self):
-
-        folders = glob(self.templates_root)
-        available = dict(zip([x.split("/")[-1] for x in folders], folders))
-
-        return available
-
-    def load_templates(self, files):
-
-        resized = np.array([load_image(x, 224) for x in files])
-        features = self.model.extract(resized, batch_sz=10)
-        return features
-
-    def load_available_templates(self):
-
-        cache = dict()
-
-        for k, v in self.available_queries.items():
-
-            cache[k] = self.load_templates(glob(v + "/**"))
-
-        return cache
-
-    def create_annotation_report(
-        self, threshold=0.07, fp="template_test.csv", queries=None, frame_sampling=1, distance_min=0.05
-    ):
-
+    def create_annotation_report(self, templates: List[Template], threshold=0.07, frame_sampling=1, distance_min=0.05):
         """Creates an annotation report suitable for annotation
         (using our own Annotator class)
 
@@ -69,19 +38,10 @@ class SearchEngine:
             [pandas.DataFrame] -- Dataframe in the same format as the output
             from the "generate_matches.py" script
         """
+        _logger.info("Searching for templates: %s", [template.name for template in templates])
 
-        def create_template_summary(files):
-            resized = np.array([load_image(x, 224) for x in files])
-            return resized
-
-        if queries is None:
-            for q in self.available_queries:
-                self.find(q, threshold=threshold, distance_min=distance_min, plot=False)
-        else:
-            for q in queries:
-                self.find(q, threshold=threshold, distance_min=distance_min, plot=False)
-
-        print(self.available_queries)
+        for template in templates:
+            self.find(template, threshold=threshold, distance_min=distance_min, plot=False)
 
         if self.results_cache is not None:
 
@@ -94,17 +54,6 @@ class SearchEngine:
 
             return df
 
-        elif not self.available_queries:
-            raise Exception("No templates were found at {}".format(self.templates_root))
-
-        else:
-            raise Exception(
-                "No matches were found at \
-                            the current distance configuration ({})".format(
-                    threshold
-                )
-            )
-
     def distance_from_min(self, data, thr=0.05):
 
         inds = np.where(np.diff(((data / data.min()) < (1 + thr))))
@@ -114,10 +63,9 @@ class SearchEngine:
             data,
         ]
 
-    def find(self, query, threshold=0.07, plot=True, distance_min=0.05):
-
-        feats = self.template_cache[query]
-        print("Loaded query embeddings", feats.shape)
+    def find(self, template: Template, threshold=0.07, plot=True, distance_min=0.05):
+        feats = template.features
+        _logger.info("Loaded query embeddings", feats.shape)
         # self.results_cache[query] = defaultdict()
         dfs = []
         for repr_key in self.reprs.frame_level.list():
@@ -154,7 +102,7 @@ class SearchEngine:
                                         [
                                             repr_key.path,
                                             repr_key.hash,
-                                            query,
+                                            template.name,
                                             start,
                                             end,
                                             np.mean(i),
@@ -166,8 +114,7 @@ class SearchEngine:
                         dfs.append(pd.DataFrame(sequence_matches, columns=self.relevant_cols))
 
             except Exception as e:
-                print("Error:", e)
-                pass
+                _logger.exception("Error occurred while matching template %s", template.name)
 
         self.results_cache = pd.concat([self.results_cache, *dfs], ignore_index=True)
 
@@ -175,15 +122,14 @@ class SearchEngine:
 def download_sample_templates(TEMPLATES_PATH, URL="https://s3.amazonaws.com/winnowpretrainedmodels/templates.tar.gz"):
 
     if os.path.exists(TEMPLATES_PATH):
-        print("Templates Found", glob(TEMPLATES_PATH + "/**"))
+        _logger.info("Templates Found", glob(TEMPLATES_PATH + "/**"))
 
     else:
         try:
             os.makedirs(TEMPLATES_PATH)
-        except Exception as e:
-            print(e)
-            pass
-        print("Downloading sample templates to:{}".format(TEMPLATES_PATH))
+        except Exception:
+            _logger.exception("Error creating directory %s", TEMPLATES_PATH)
+        _logger.info("Downloading sample templates to: %s", TEMPLATES_PATH)
         DST = TEMPLATES_PATH + "/templates.tar.gz"
         download_file(DST, URL)
         # unzip files

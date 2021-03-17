@@ -2,14 +2,10 @@ import logging
 import os
 from typing import Collection
 
-from db import Database
-from winnow.feature_extraction import default_model_path
-from winnow.feature_extraction.extraction_routine import load_featurizer
 from winnow.pipeline.extract_frame_level_features import frame_features_exist, extract_frame_level_features
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
 from winnow.search_engine.template_matching import SearchEngine
-from winnow.storage.db_result_storage import DBResultStorage
 
 # Default module logger
 logger = logging.getLogger(__name__)
@@ -37,12 +33,12 @@ def match_templates(files: Collection[str], pipeline: PipelineContext, progress=
         f"videos located in: {config.repr.directory}"
     )
 
-    template_test_output = os.path.join(pipeline.config.repr.directory, "template_test.csv")
-    se = SearchEngine(templates_root=templates_source, reprs=pipeline.repr_storage, model=pipeline.pretrained_model)
+    templates = pipeline.template_loader.load_templates_from_folder(templates_source)
 
+    se = SearchEngine(reprs=pipeline.repr_storage)
     template_matches = se.create_annotation_report(
+        templates=templates,
         threshold=config.templates.distance,
-        fp=template_test_output,
         frame_sampling=config.proc.frame_sampling,
         distance_min=config.templates.distance_min,
     )
@@ -61,5 +57,6 @@ def match_templates(files: Collection[str], pipeline: PipelineContext, progress=
 
         logger.info("Template Matches report exported to: %s", template_matches_report_path)
 
+    template_test_output = os.path.join(pipeline.config.repr.directory, "template_test.csv")
     logger.info("Report saved to %s", template_test_output)
     progress.complete()
