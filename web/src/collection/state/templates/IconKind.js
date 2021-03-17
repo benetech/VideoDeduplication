@@ -1,6 +1,6 @@
 export const IconKind = {
   PREDEFINED: "predefined",
-  CUSTOM: "uploaded",
+  CUSTOM: "custom",
 };
 
 export default IconKind;

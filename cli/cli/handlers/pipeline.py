@@ -11,9 +11,12 @@ class PipelineCli:
 
     def all(self):
         """Process all video files."""
+        from winnow.utils.logging import configure_logging_cli
         from winnow.pipeline.detect_scenes import detect_scenes
         from winnow.pipeline.generate_local_matches import generate_local_matches
         from winnow.utils.files import scan_videos
+
+        configure_logging_cli()
 
         # Resolve list of video files from the directory
         absolute_root = os.path.abspath(self._config.sources.root)
