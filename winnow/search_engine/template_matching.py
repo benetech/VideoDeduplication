@@ -87,7 +87,7 @@ class SearchEngine:
                         sequence_matches = []
 
                         start = 0
-                        # end = 0
+                        end = 0
                         for idx, i in enumerate(seqs):
                             #     print(i,a.shape)
                             seq_len = len(i)
@@ -113,7 +113,7 @@ class SearchEngine:
 
                         dfs.append(pd.DataFrame(sequence_matches, columns=self.relevant_cols))
 
-            except Exception as e:
+            except Exception:
                 _logger.exception("Error occurred while matching template %s", template.name)
 
         self.results_cache = pd.concat([self.results_cache, *dfs], ignore_index=True)

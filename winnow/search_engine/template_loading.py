@@ -31,8 +31,8 @@ class TemplateLoader:
     def load_template_from_folder(self, path: str, extensions: List[str] = None) -> Template:
         """Load single template from folder.
 
-        Template name is equal to folder name. Template examples are images
-        with the given extensions found at the template folder root.
+        Template name is equal to the folder name. Template examples are
+        images with the given extensions located at the template folder root.
         """
         if not os.path.isdir(path):
             raise ValueError(f"Not a directory: {path}")
@@ -49,7 +49,7 @@ class TemplateLoader:
         The folder should contain top-level sub-folders with images.
         Each top-level sub-folder is interpreted as a template.
         Template name is equal to the corresponding sub-folder name.
-        Template examples are images found at the corresponding sub-folder root.
+        Template examples are images found at the corresponding sub-folders root.
         """
         templates = []
         for template_folder in self._child_folders(path):
