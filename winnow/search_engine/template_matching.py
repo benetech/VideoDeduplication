@@ -65,7 +65,7 @@ class SearchEngine:
 
     def find(self, template: Template, threshold=0.07, plot=True, distance_min=0.05):
         feats = template.features
-        _logger.info("Loaded query embeddings", feats.shape)
+        _logger.info("Loaded query embeddings %s", feats.shape)
         # self.results_cache[query] = defaultdict()
         dfs = []
         for repr_key in self.reprs.frame_level.list():
