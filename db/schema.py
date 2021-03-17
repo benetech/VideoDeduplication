@@ -128,7 +128,7 @@ class TemplateExample(Base):
     id = Column(Integer, autoincrement=True, primary_key=True)
     template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
     storage_key = Column(String, nullable=False)
-    signature = Column(LargeBinary)
+    features = Column(LargeBinary)
 
     # Relationships
 
