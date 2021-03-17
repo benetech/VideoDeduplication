@@ -30,3 +30,5 @@ database:
 
 templates:
   source_path: data/templates/test-group/CCSI Object Recognition External/
+  distance: 0.07
+  distance_min: 0.05
