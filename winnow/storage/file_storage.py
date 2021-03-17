@@ -11,8 +11,8 @@ _logger = logging.getLogger(__name__)
 
 
 class FileStorage(abc.ABC):
-    """FileStorage defines API to save and retrieve application-related
-    files (assets, template images, etc.) to/from some organized storage.
+    """FileStorage defines common API to save and retrieve application-related
+    files (assets, template images, etc.) to/from some persistent storage.
     """
 
     @abc.abstractmethod
@@ -122,3 +122,53 @@ class LocalFileStorage(FileStorage):
     def _key_to_path(self, key: str) -> str:
         """Convert file key to local file path."""
         return os.path.abspath(os.path.normpath(os.path.join(self._directory, key)))
+
+
+class S3FileStorage(FileStorage):
+    """S3-based file storage."""
+
+    def __init__(self, s3_client, bucket: str, prefix: str = ""):
+        """Create new instance.
+
+        Args:
+            s3_client: boto3 s3 client.
+            bucket (str): bucket name.
+            prefix (str): common prefix for files.
+        """
+        raise NotImplementedError()
+
+    def save_file(self, file_path: str) -> str:
+        """Save file to storage and get storage key for the saved file."""
+        raise NotImplementedError()
+
+    def keys(self) -> Iterator[str]:
+        """Iterate over file keys."""
+        raise NotImplementedError()
+
+    def exists(self, key: str) -> bool:
+        """Check if the storage contains entry with the given key."""
+        raise NotImplementedError()
+
+    def delete(self, key: str) -> bool:
+        """Delete file by storage key.
+
+        Returns:
+            True iff the key was found and deleted.
+        """
+        raise NotImplementedError()
+
+    def get_file(self, key: str, destination_path: str) -> bool:
+        """Save file to the destination path.
+
+        Returns:
+            True iff storage contains the file with the given key.
+        """
+        raise NotImplementedError()
+
+    def get_file_uri(self, key: str) -> Optional[str]:
+        """Get a URI by which the file could be accessed by the client code."""
+        raise NotImplementedError()
+
+    def open_file(self, key: str, binary: bool = False) -> Optional[Union[TextIO, BinaryIO]]:
+        """Open store entry as a file object."""
+        raise NotImplementedError()
