@@ -108,7 +108,7 @@ class Template(Base):
     # Attributes
 
     id = Column(Integer, autoincrement=True, primary_key=True)
-    name = Column(String, nullable=False)
+    name = Column(String, nullable=False, unique=True)
     icon_type = Column(Enum(IconType), nullable=False, default=IconType.PREDEFINED)
     icon_key = Column(String, nullable=True, default="GiHealthNormal")
 
