@@ -229,6 +229,7 @@
     "tasks.one": "Task",
     "tasks.many": "Tasks",
     "task.type.all": "Entire Dataset",
+    "task.type.templates": "Match Templates",
     "task.status.pending": "Scheduled",
     "task.status.running": "Started",
     "task.status.success": "OK",

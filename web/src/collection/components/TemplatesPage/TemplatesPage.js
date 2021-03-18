@@ -15,6 +15,9 @@ import NavigateNextOutlinedIcon from "@material-ui/icons/NavigateNextOutlined";
 import { randomTemplates } from "../../../server-api/MockServer/fake-data/templates";
 import TemplateList from "./TemplateList";
 import useTemplateAPI from "./useTemplateAPI";
+import { useServer } from "../../../server-api/context";
+import { useDispatch } from "react-redux";
+import { updateTask } from "../../state/tasks/actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -128,9 +131,26 @@ function ProcessingPage(props) {
   const { className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
+  const server = useServer();
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
   const [showTasks, setShowTasks] = useState(true);
   const handleShowTasks = useCallback(() => setShowTasks(true));
   const handleHideTasks = useCallback(() => setShowTasks(false));
+
+  const handleProcess = useCallback(() => {
+    setLoading(true);
+    server
+      .createTask({
+        request: { type: "MatchTemplates" },
+      })
+      .then((response) => {
+        if (response.success) {
+          dispatch(updateTask(response.data));
+        }
+      })
+      .finally(() => setLoading(false));
+  });
 
   // Get templates API
   const {
@@ -165,7 +185,12 @@ function ProcessingPage(props) {
         <div className={clsx(classes.column, classes.tasks)}>
           <TasksHeader onClose={handleHideTasks} />
           <TaskSidebar />
-          <Button variant="contained" color="primary">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleProcess}
+            disabled={loading}
+          >
             {messages.runTemplateMatching}
             <NavigateNextOutlinedIcon />
           </Button>
