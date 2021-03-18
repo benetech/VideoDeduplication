@@ -5,6 +5,7 @@ from typing import Callable
 from cached_property import cached_property
 
 from db import Database
+from template_support.file_storage import FileStorage, LocalFileStorage
 from winnow import remote
 from winnow.config import Config
 from winnow.remote import RemoteRepository
@@ -119,3 +120,8 @@ class PipelineContext:
             signature_storage=self.repr_storage.signature,
             repo_client=client,
         )
+
+    @cached_property
+    def file_storage(self) -> FileStorage:
+        """Create file storage for template examples."""
+        return LocalFileStorage(directory=self.config.file_storage.directory)

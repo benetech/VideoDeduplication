@@ -143,6 +143,17 @@ class SecurityConfig:
 
 
 @dataclass
+class FileStorageConfig:
+    """Configuration for template examples storage."""
+
+    directory: str = None
+
+    def read_env(self):
+        """Read config from environment variables."""
+        self.directory = os.environ.get("WINNOW_FILE_STORAGE_DIRECTORY", self.directory)
+
+
+@dataclass
 class Config:
     """Root application configuration."""
 
@@ -151,7 +162,8 @@ class Config:
     database: DatabaseConfig = field(default_factory=DatabaseConfig)
     processing: ProcessingConfig = field(default_factory=ProcessingConfig)
     templates: TemplatesConfig = field(default_factory=TemplatesConfig)
-    security: SecurityConfig = field(default=SecurityConfig)
+    security: SecurityConfig = field(default_factory=SecurityConfig)
+    file_storage: FileStorageConfig = field(default_factory=FileStorageConfig)
 
     @property
     def proc(self):
@@ -172,6 +184,7 @@ class Config:
         templates = TemplatesConfig(**data.pop("templates", {}))
         processing = ProcessingConfig(**data.pop("processing", {}))
         security = SecurityConfig(**data.pop("security", {}))
+        file_storage = FileStorageConfig(**data.pop("file_storage", {}))
         return Config(
             database=database,
             processing=processing,
@@ -179,6 +192,7 @@ class Config:
             sources=sources,
             templates=templates,
             security=security,
+            file_storage=file_storage,
         )
 
     @staticmethod
@@ -206,3 +220,4 @@ class Config:
         self.processing.read_env()
         self.templates.read_env()
         self.security.read_env()
+        self.file_storage.read_env()
