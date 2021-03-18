@@ -1,5 +1,6 @@
 import os
 
+from winnow.pipeline.extract_exif import extract_exif
 from winnow.pipeline.pipeline_context import PipelineContext
 
 
@@ -25,3 +26,4 @@ class PipelineCli:
         pipeline_context = PipelineContext(self._config)
         generate_local_matches(files=videos, pipeline=pipeline_context)
         detect_scenes(files=videos, pipeline=pipeline_context)
+        extract_exif(pipeline_context.config)
