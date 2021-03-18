@@ -7,7 +7,7 @@ from typing import Dict, Optional
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect
 
-from db.schema import Contributor, Repository, Files, VideoMetadata, Scene, Exif, Matches
+from db.schema import Contributor, Repository, Files, VideoMetadata, Scene, Exif, Matches, Template, TemplateExample
 
 database = SQLAlchemy()
 
@@ -158,3 +158,29 @@ class Transform:
             "login": repository.account_id,
             "type": repository.repository_type.value,
         }
+
+    @staticmethod
+    @serializable
+    def template(template: Template, *, examples=False) -> Dict:
+        """Get dict-data for template."""
+        data = {
+            "id": template.id,
+            "name": template.name,
+            "icon_type": template.icon_type.value if template.icon_type else None,
+            "icon_key": template.icon_key,
+        }
+        if examples:
+            data["examples"] = [Transform.template_example(example, template=False) for example in template.examples]
+        return data
+
+    @staticmethod
+    @serializable
+    def template_example(example: TemplateExample, *, template=False) -> Dict:
+        """Get dict-data representation of the template example."""
+        data = {
+            "id": example.id,
+            "template_id": example.template_id,
+        }
+        if template:
+            data["template"] = Transform.template(example.template, examples=False)
+        return data

@@ -8,6 +8,7 @@ from flask import Flask
 from server.config import Config
 from server.socket.log_watcher import LogWatcher
 from server.socket.task_observer import TaskObserver
+from template_support.file_storage import LocalFileStorage
 from thumbnail.cache import ThumbnailCache
 
 
@@ -81,6 +82,9 @@ def serve(
 
     # Initialize database
     database.init_app(application)
+
+    # Initialize file storage
+    application.config["APP_FILE_STORAGE"] = LocalFileStorage(directory=config.file_store_directory)
 
     # Initialize task queue
     task_queue = make_task_queue(config, request_transformer)

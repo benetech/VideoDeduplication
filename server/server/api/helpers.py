@@ -7,6 +7,7 @@ from http import HTTPStatus
 from flask import current_app, abort
 from sqlalchemy.orm import joinedload
 
+from template_support.file_storage import FileStorage
 from thumbnail.cache import ThumbnailCache
 from ..config import Config
 from ..queue import TaskQueue
@@ -27,6 +28,11 @@ def get_task_queue() -> TaskQueue:
 def get_log_storage() -> TaskLogStorage:
     """Get current TaskLogStorage instance associated with the current application."""
     return current_app.config.get("LOG_STORAGE")
+
+
+def get_file_storage() -> FileStorage:
+    """Get application file storage."""
+    return current_app.config.get("APP_FILE_STORAGE")
 
 
 def get_log_watcher() -> LogWatcher:
