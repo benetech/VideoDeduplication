@@ -46,10 +46,11 @@ def match_templates(files: Collection[str], pipeline: PipelineContext, progress=
     tm_entries = template_matches[["path", "hash"]]
     tm_entries["template_matches"] = template_matches.drop(columns=["path", "hash"]).to_dict("records")
 
-    # if config.database.use:
-    #     # Save Template Matches
-    #     result_storage = pipeline.result_storage
-    #     result_storage.add_template_matches(tm_entries.to_numpy(), override=config.templates.override)
+    if config.database.use:
+        # Save Template Matches
+        result_storage = pipeline.result_storage
+        template_names = {template.name for template in templates}
+        result_storage.add_template_matches(template_names, tm_entries.to_numpy())
 
     if config.save_files:
         template_matches_report_path = os.path.join(config.repr.directory, "template_matches.csv")

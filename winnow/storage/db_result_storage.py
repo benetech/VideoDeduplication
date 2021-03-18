@@ -2,11 +2,12 @@ import itertools
 import logging
 from functools import wraps
 from time import time
+from typing import Dict
 
 from sqlalchemy import tuple_
 from sqlalchemy.orm import joinedload, aliased
 
-from db.schema import Files, Signature, Scene, VideoMetadata, Matches, Exif, TemplateMatches
+from db.schema import Files, Signature, Scene, VideoMetadata, Matches, Exif, TemplateMatches, Template
 from winnow.utils.iterators import chunks
 
 logger = logging.getLogger(__name__)
@@ -103,37 +104,37 @@ class DBResultStorage:
             session.add_all(file.scenes)
 
     @benchmark
-    def add_template_matches(self, entries, override=False):
+    def add_template_matches(self, template_names, entries):
+        """
+        Write template matches for the given files assuming that
+        the same set of templates are matched against each file.
+        """
+        entries = tuple(entries)
 
-        for chunk in chunks(entries, len(entries)):
+        # Get index (path,hash) -> [ match, match, ... ]
+        index = {}
+        for path, sha256, template_match in entries:
+            index.setdefault((path, sha256), []).append(template_match)
 
+        for chunk in chunks(index.keys(), size=1000):
             with self.database.session_scope() as session:
 
-                index = {}
-                for path, sha256, template_match in chunk:
-
-                    if (path, sha256) in index:
-
-                        index[(path, sha256)].append(template_match)
-
-                    else:
-                        index[(path, sha256)] = [template_match]
+                templates = self._ensure_templates_exist(session, template_names)
 
                 query = session.query(Files).options(joinedload(Files.template_matches))
-                files = query.filter(self._by_path_and_hash(list(index.keys()))).all()
-
-                print("Number of files found", len(files))
-                # Delete existing template_matches
-                if override:
-                    self._delete_file_template_matches(session, *files)
+                existing_files = query.filter(self._by_path_and_hash(chunk)).all()
+                self._delete_file_template_matches(session, existing_files, templates.values())
 
                 # Update existing files
-                for file in files:
-                    tm = index.pop((file.file_path, file.sha256))
-                    new_tm = self._create_template_matches(file, tm, file.template_matches)
-                    if len(new_tm) > 0:
+                for file in existing_files:
+                    self._create_template_matches(file, index[(file.file_path, file.sha256)], templates)
 
-                        file.template_matches = file.template_matches + new_tm
+                # Create missing files
+                existing = {(file.file_path, file.sha256) for file in existing_files}
+                for path, sha256 in set(chunk) - existing:
+                    file = Files(file_path=path, sha256=sha256)
+                    self._create_template_matches(file, index[(path, sha256)], templates)
+                    session.add(file)
 
     @benchmark
     def add_scenes(self, entries, override=False):
@@ -338,59 +339,46 @@ class DBResultStorage:
             file.scenes = []
 
     @staticmethod
-    def _delete_file_template_matches(session, *files):
-        """Delete all scenes associated with the given files."""
-        existing_template_matches_ids = DBResultStorage._template_matches_ids(*files)
+    def _ensure_templates_exist(session, template_names) -> Dict[str, Template]:
+        """Load database template by names, create missing templates if any."""
+        existing_templates = session.query(Template).filter(Template.name.in_(tuple(template_names))).all()
+        templates_index = {template.name: template for template in existing_templates}
+        for name in template_names:
+            new_template = Template(name=name)
+            session.add(new_template)
+            templates_index[name] = new_template
+        return templates_index
 
-        (
-            session.query(TemplateMatches)
-            .filter(TemplateMatches.id.in_(existing_template_matches_ids))
-            .delete(synchronize_session="fetch")
-        )
+    @staticmethod
+    def _delete_file_template_matches(session, files, templates):
+        """Delete all matches of the given templates against the given files."""
+        file_ids = {file.id for file in files if file.id is not None}
+        template_ids = {template.id for template in templates if template.id is not None}
+        matches = session.query(TemplateMatches)
+        matches = matches.filter(TemplateMatches.file_id.in_(tuple(file_ids)))
+        matches = matches.filter(TemplateMatches.template_id.in_(tuple(template_ids)))
+        matches.delete(synchronize_session=False)
 
         for file in files:
             file.template_matches = []
 
     @staticmethod
-    def _filter_unique_templates(old_templates, new_templates):
-
-        filtered = []
-        seen = dict({f"{element.file_id}{element.template_name}": True for element in old_templates})
-
-        for element in new_templates:
-            hsh = f'{element["file_id"]}{element["template_name"]}'
-            if hsh not in seen:
-                filtered.append(element)
-                seen[hsh] = True
-
-        return filtered
-
-    @staticmethod
-    def _create_template_matches(file, tp_match, old_templates):
-
-        """Create Template Matches entities for the given file
-        from the durations.
-        """
-        seen = dict({f"{element.file_id}{element.template_name}": True for element in old_templates})
-        tm = []
-        for match in tp_match:
-
-            hsh = f'{file.id}{match["template_name"]}'
-
-            if hsh not in seen:
-
-                tm.append(
-                    TemplateMatches(
-                        file=file,
-                        file_id=file.id,
-                        distance=match["distance"],
-                        template_name=match["template_name"],
-                        closest_match=match["closest_match"],
-                        closest_match_time=match["closest_match_time"],
-                    )
-                )
-
-        return tm
+    def _create_template_matches(file: Files, template_matches, templates):
+        """Create Template Matches entities for the given file from the durations."""
+        entities = []
+        for match in template_matches:
+            template_name = match["template_name"]
+            match_entity = TemplateMatches(
+                file=file,
+                template=templates[template_name],
+                start_ms=match["start_ms"],
+                end_ms=match["end_ms"],
+                mean_distance_sequence=match["mean_distance_sequence"],
+                min_distance_video=match["min_distance_video"],
+                min_distance_ms=match["min_distance_ms"],
+            )
+            entities.append(match_entity)
+        file.template_matches = entities
 
     @staticmethod
     def _create_scenes(file, durations):
