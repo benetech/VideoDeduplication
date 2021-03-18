@@ -35,8 +35,15 @@ function useMessages() {
 
 const byDate = (first, second) => second.submissionTime - first.submissionTime;
 
+/**
+ * Show all tasks.
+ */
+function showAll() {
+  return true;
+}
+
 function TaskSidebar(props) {
-  const { className, ...other } = props;
+  const { filter: filterProp = showAll, className, ...other } = props;
   const classes = useStyles();
   const [tab, setTab] = useState(Tab.ALL);
   const messages = useMessages();
@@ -55,9 +62,12 @@ function TaskSidebar(props) {
         onTabChange={setTab}
       />
       <TaskList className={classes.tasks}>
-        {tasks.filter(tab.filter).map((task) => (
-          <TaskList.Item task={task} key={task.id} />
-        ))}
+        {tasks
+          .filter(tab.filter)
+          .filter(filterProp)
+          .map((task) => (
+            <TaskList.Item task={task} key={task.id} />
+          ))}
         <LoadTrigger
           loading={taskState.loading}
           onLoad={handleLoad}
@@ -72,6 +82,10 @@ function TaskSidebar(props) {
 }
 
 TaskSidebar.propTypes = {
+  /**
+   * Optional task display filter
+   */
+  filter: PropTypes.func,
   className: PropTypes.string,
 };
 

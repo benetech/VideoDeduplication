@@ -18,6 +18,7 @@ import useTemplateAPI from "./useTemplateAPI";
 import { useServer } from "../../../server-api/context";
 import { useDispatch } from "react-redux";
 import { updateTask } from "../../state/tasks/actions";
+import TaskRequest from "../../state/tasks/TaskRequest";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -138,6 +139,11 @@ function ProcessingPage(props) {
   const handleShowTasks = useCallback(() => setShowTasks(true));
   const handleHideTasks = useCallback(() => setShowTasks(false));
 
+  const filterTemplateTasks = useCallback(
+    (task) => task?.request?.type === TaskRequest.MATCH_TEMPLATES,
+    []
+  );
+
   const handleProcess = useCallback(() => {
     setLoading(true);
     server
@@ -184,7 +190,7 @@ function ProcessingPage(props) {
       {showTasks && (
         <div className={clsx(classes.column, classes.tasks)}>
           <TasksHeader onClose={handleHideTasks} />
-          <TaskSidebar />
+          <TaskSidebar filter={filterTemplateTasks} />
           <Button
             variant="contained"
             color="primary"
