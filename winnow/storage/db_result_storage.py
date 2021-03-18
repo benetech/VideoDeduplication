@@ -341,9 +341,10 @@ class DBResultStorage:
     @staticmethod
     def _ensure_templates_exist(session, template_names) -> Dict[str, Template]:
         """Load database template by names, create missing templates if any."""
+        template_names = set(template_names)
         existing_templates = session.query(Template).filter(Template.name.in_(tuple(template_names))).all()
         templates_index = {template.name: template for template in existing_templates}
-        for name in template_names:
+        for name in template_names - set(templates_index.keys()):
             new_template = Template(name=name)
             session.add(new_template)
             templates_index[name] = new_template

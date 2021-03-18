@@ -1,10 +1,11 @@
 import logging
 import os
-from typing import Collection
+from typing import Collection, List
 
 from winnow.pipeline.extract_frame_level_features import frame_features_exist, extract_frame_level_features
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
+from winnow.search_engine import Template
 from winnow.search_engine.template_matching import SearchEngine
 
 # Default module logger
@@ -26,16 +27,7 @@ def match_templates(files: Collection[str], pipeline: PipelineContext, progress=
         progress = progress.subtask(0.3)
 
     # Load templates
-    templates_source = config.templates.source_path
-    if templates_source:
-        logger.info("Loading templates from: %s", templates_source)
-        templates = pipeline.template_loader.load_templates_from_folder(templates_source)
-        if config.database.use:
-            templates = pipeline.template_loader.store_templates(templates, pipeline.database, pipeline.file_storage)
-    else:
-        logger.info("Loading templates from the database")
-        templates = pipeline.template_loader.load_templates_from_database(pipeline.database, pipeline.file_storage)
-
+    templates = load_templates(pipeline)
     logger.info("Loaded %s templates", len(templates))
     if len(templates) == 0:
         logger.info("No templates found. Skipping template matching step...")
@@ -66,3 +58,17 @@ def match_templates(files: Collection[str], pipeline: PipelineContext, progress=
     template_test_output = os.path.join(pipeline.config.repr.directory, "template_test.csv")
     logger.info("Report saved to %s", template_test_output)
     progress.complete()
+
+
+def load_templates(pipeline: PipelineContext) -> List[Template]:
+    """Load templates according to the pipeline config."""
+    config = pipeline.config
+    templates_source = config.templates.source_path
+    if templates_source:
+        logger.info("Loading templates from: %s", templates_source)
+        templates = pipeline.template_loader.load_templates_from_folder(templates_source)
+        if config.database.use:
+            return pipeline.template_loader.store_templates(templates, pipeline.database, pipeline.file_storage)
+    else:
+        logger.info("Loading templates from the database")
+        return pipeline.template_loader.load_templates_from_database(pipeline.database, pipeline.file_storage)

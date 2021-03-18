@@ -75,7 +75,7 @@ class TemplateLoader:
         """Load templates from the database."""
         templates = []
         with database.session_scope(expunge=True) as session:
-            for db_template in session.query(DBTemplate).options(eagerload(DBTemplateExample)).all():
+            for db_template in session.query(DBTemplate).options(eagerload(DBTemplate.examples)).all():
                 template = self._load_db_template(db_template, file_storage)
                 templates.append(template)
         return templates
