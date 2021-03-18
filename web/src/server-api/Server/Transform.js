@@ -204,4 +204,39 @@ export default class Transform {
       type: data.type,
     };
   }
+
+  fetchTemplateResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      templates: data.items.map((template) => this.template(template)),
+    };
+  }
+
+  template(data) {
+    if (data == null) {
+      return undefined;
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      icon: {
+        kind: data.icon_type,
+        key: data.icon_key,
+      },
+      examples: (data.examples || []).map((example) =>
+        this.templateExample(example)
+      ),
+    };
+  }
+
+  templateExample(data) {
+    return {
+      id: data.id,
+      templateId: data.template_id,
+      template: this.template(data.template),
+      url: `/api/v1/examples/${data.id}/image`,
+    };
+  }
 }

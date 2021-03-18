@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -19,6 +19,7 @@ import { useServer } from "../../../server-api/context";
 import { useDispatch } from "react-redux";
 import { updateTask } from "../../state/tasks/actions";
 import TaskRequest from "../../state/tasks/TaskRequest";
+import loadTemplates from "./loadTemplates";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -161,11 +162,16 @@ function ProcessingPage(props) {
   // Get templates API
   const {
     templates,
+    setTemplates,
     onDeleteExample,
     onAddExamples,
     onChange,
     onAddTemplate,
-  } = useTemplateAPI(defaultTemplates);
+  } = useTemplateAPI([]);
+
+  useEffect(() => {
+    loadTemplates(server).then(setTemplates);
+  }, []);
 
   return (
     <div className={clsx(classes.root, className)} {...other}>

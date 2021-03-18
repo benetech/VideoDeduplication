@@ -9,6 +9,7 @@ import matchesFiltersToQueryParams from "./helpers/matchesFiltersToQueryParams";
 import taskFiltersToQueryParams from "./helpers/taskFiltersToQueryParams";
 import { SocketNamespace, socketPath } from "./constants";
 import Socket from "./Socket";
+import templateFiltersToQueryParams from "./helpers/templateFiltersToQueryParams";
 
 export default class Server {
   constructor({ baseURL = "/api/v1", timeout = 10 * 1000, headers = {} } = {}) {
@@ -183,6 +184,41 @@ export default class Server {
         }
       );
       return Response.ok(this.transform.task(response.data));
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchTemplates({
+    limit = 1000,
+    offset = 0,
+    fields = ["examples"],
+    filters = {},
+  }) {
+    try {
+      const response = await this.axios.get(`/templates/`, {
+        params: {
+          limit,
+          offset,
+          ...templateFiltersToQueryParams({ fields, filters }),
+        },
+      });
+      const data = this.transform.fetchTemplateResults(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchTemplate({ id, fields = ["examples"] }) {
+    try {
+      const response = await this.axios.get(`/templates/${id}`, {
+        params: {
+          ...templateFiltersToQueryParams({ fields }),
+        },
+      });
+      const data = this.transform.template(response.data);
+      return Response.ok(data);
     } catch (error) {
       return this.errorResponse(error);
     }
