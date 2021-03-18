@@ -13,7 +13,7 @@ from winnow.config import TemplatesConfig
 from winnow.feature_extraction.model_tf import CNN_tf
 from winnow.feature_extraction.utils import load_image
 from winnow.search_engine.model import Template
-from winnow.storage.file_storage import FileStorage
+from template_support.file_storage import FileStorage
 
 
 class TemplateLoader:
