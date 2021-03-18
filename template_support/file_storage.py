@@ -116,7 +116,7 @@ class LocalFileStorage(FileStorage):
 
     def open_file(self, key: str, binary: bool = False) -> Optional[Union[TextIO, BinaryIO]]:
         """Open store entry as a file object."""
-        mode = "b" if binary else "r"
+        mode = "rb" if binary else "r"
         if not self.exists(key):
             return None
         path = self._key_to_path(key)

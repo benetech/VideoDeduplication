@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from flask import jsonify, request, abort
+from flask import jsonify, request, abort, send_file
 from sqlalchemy.orm import defer
 
 from db.schema import TemplateExample
@@ -9,6 +9,7 @@ from .helpers import (
     parse_positive_int,
     Fields,
     parse_fields,
+    get_file_storage,
 )
 from ..model import database, Transform
 
@@ -60,8 +61,6 @@ def get_example(example_id):
 
 @api.route("/examples/<int:example_id>", methods=["DELETE"])
 def delete_example(example_id):
-    include_fields = parse_fields(request.args, "include", EXAMPLE_FIELDS)
-
     # Fetch template example from database
     query = database.session.query(TemplateExample).filter(TemplateExample.id == example_id)
     query = query.options(defer(TemplateExample.features))
@@ -74,3 +73,24 @@ def delete_example(example_id):
     # Delete example
     database.session.delete(example)
     return "", HTTPStatus.NO_CONTENT.value
+
+
+@api.route("/examples/<int:example_id>/image", methods=["GET"])
+def get_example_image(example_id):
+    # Fetch template example from database
+    query = database.session.query(TemplateExample).filter(TemplateExample.id == example_id)
+    query = query.options(defer(TemplateExample.features))
+    example = query.one_or_none()
+
+    # Handle example not found
+    if example is None:
+        return "", HTTPStatus.NOT_FOUND.value
+
+    file_storage = get_file_storage()
+    binary_io = file_storage.open_file(example.storage_key, binary=True)
+
+    # Handle file not found in storage
+    if binary_io is None:
+        return "", HTTPStatus.NOT_FOUND.value
+
+    return send_file(binary_io, mimetype="image")
