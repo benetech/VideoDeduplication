@@ -80,6 +80,82 @@ class TemplateLoader:
                 templates.append(template)
         return templates
 
+    def store_templates(self, templates: List[Template], database: Database, file_storage: FileStorage):
+        """Populate database with the given templates."""
+        return [self.store_template(template, database, file_storage) for template in templates]
+
+    def store_template(self, template: Template, database: Database, file_storage: FileStorage) -> Template:
+        """Write template to the database."""
+        stored_example_keys = []
+        try:
+            with database.session_scope(expunge=True) as session:
+                # Get or create database template entity by name
+                db_template = session.query(DBTemplate).filter(DBTemplate.name == template.name).one_or_none()
+                if db_template is None:
+                    db_template = DBTemplate(name=template.name)
+                    session.add(db_template)
+
+                # Delete old examples
+                deleted_example_keys = [example.storage_key for example in db_template.examples]
+                old_examples = session.query(DBTemplateExample)
+                old_examples = old_examples.filter(DBTemplateExample.template.has(DBTemplate.name == template.name))
+                old_examples.delete(synchronize_session="fetch")
+
+                # Create new examples from the given template
+                new_examples = []
+                with tempfile.TemporaryDirectory(prefix=f"template-{template.name}-") as tempdir:
+                    for example in template.examples:
+
+                        # Store example image
+                        destination = os.path.join(tempdir, example.storage_key)
+                        if not example.get_file(destination):
+                            _logger.warning(
+                                "Cannot get read example '%s' for template '%s'",
+                                example.storage_key,
+                                template.name,
+                            )
+                            continue
+                        storage_key = file_storage.save_file(destination)
+                        stored_example_keys.append(storage_key)
+
+                        # Dump example features
+                        features = example.features
+                        if features is not None:
+                            features = pickle.dumps(features)
+
+                        # Create new DB example
+                        db_example = DBTemplateExample(
+                            template=db_template,
+                            features=features,
+                            storage_key=storage_key,
+                        )
+                        session.add(db_example)
+                        new_examples.append(db_example)
+                db_template.examples = new_examples
+
+            # Delete file storage entries for old examples
+            for deleted_example_key in deleted_example_keys:
+                file_storage.delete(deleted_example_key)
+
+            # Create a new template model representing database template
+            result_examples = []
+            for db_example in db_template.examples:
+                features = pickle.loads(db_example.features) if db_example.features else None
+                example = TemplateExample(
+                    storage_key=db_example.storage_key,
+                    features=features,
+                    file_storage=file_storage,
+                )
+                result_examples.append(example)
+            features = np.array([example.features for example in result_examples])
+            return Template(name=template.name, features=features, examples=result_examples)
+
+        except Exception:
+            _logger.exception("Cannot create template %s", template.name)
+            for storage_key in stored_example_keys:
+                file_storage.delete(storage_key)
+            raise
+
     def _load_db_template(self, db_template: DBTemplate, file_storage: FileStorage) -> Template:
         """Load template from the database."""
         existing_features = []

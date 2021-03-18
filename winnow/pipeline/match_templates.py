@@ -25,15 +25,20 @@ def match_templates(files: Collection[str], pipeline: PipelineContext, progress=
         extract_frame_level_features(remaining_files, pipeline, progress=progress.subtask(0.7))
         progress = progress.subtask(0.3)
 
+    # Load templates
     templates_source = config.templates.source_path
+    if templates_source:
+        logger.info("Loading templates from: %s", templates_source)
+        templates = pipeline.template_loader.load_templates_from_folder(templates_source)
+        if config.database.use:
+            templates = pipeline.template_loader.store_templates(templates, pipeline.database, pipeline.file_storage)
+    else:
+        logger.info("Loading templates from the database")
+        templates = pipeline.template_loader.load_templates_from_database(pipeline.database, pipeline.file_storage)
 
-    logger.info(
-        f"Initiating search engine using templates from: "
-        f"{templates_source} and looking at "
-        f"videos located in: {config.repr.directory}"
-    )
-
-    templates = pipeline.template_loader.load_templates_from_folder(templates_source)
+    logger.info("Loaded %s templates", len(templates))
+    if len(templates) == 0:
+        logger.info("No templates found. Skipping template matching step...")
 
     se = SearchEngine(reprs=pipeline.repr_storage)
     template_matches = se.create_annotation_report(
