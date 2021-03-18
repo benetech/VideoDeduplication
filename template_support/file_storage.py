@@ -99,10 +99,13 @@ class LocalFileStorage(FileStorage):
         Returns:
             True iff storage contains the file with the given key.
         """
+        if not self.exists(key):
+            return False
         if not os.path.exists(os.path.dirname(destination_path)):
             os.makedirs(os.path.dirname(destination_path))
         source_path = self._key_to_path(key)
         copyfile(source_path, destination_path)
+        return True
 
     def get_file_uri(self, key: str) -> Optional[str]:
         """Get a URI by which the file could be accessed by the client code."""
