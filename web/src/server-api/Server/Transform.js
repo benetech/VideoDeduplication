@@ -205,11 +205,19 @@ export default class Transform {
     };
   }
 
-  fetchTemplateResults(data) {
+  fetchTemplatesResults(data) {
     return {
       offset: data.offset,
       total: data.total,
       templates: data.items.map((template) => this.template(template)),
+    };
+  }
+
+  fetchExamplesResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      examples: data.items.map((example) => this.templateExample(example)),
     };
   }
 
