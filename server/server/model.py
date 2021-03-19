@@ -7,7 +7,18 @@ from typing import Dict, Optional
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect
 
-from db.schema import Contributor, Repository, Files, VideoMetadata, Scene, Exif, Matches, Template, TemplateExample
+from db.schema import (
+    Contributor,
+    Repository,
+    Files,
+    VideoMetadata,
+    Scene,
+    Exif,
+    Matches,
+    Template,
+    TemplateExample,
+    TemplateMatches,
+)
 
 database = SQLAlchemy()
 
@@ -183,4 +194,24 @@ class Transform:
         }
         if template:
             data["template"] = Transform.template(example.template, examples=False)
+        return data
+
+    @staticmethod
+    @serializable
+    def template_match(match: TemplateMatches, *, template=False, file=Files) -> Dict:
+        """Get dict-data representation of the template match."""
+        data = {
+            "id": match.id,
+            "file_id": match.file_id,
+            "template_id": match.template_id,
+            "start_ms": match.start_ms,
+            "end_ms": match.end_ms,
+            "mean_distance_sequence": match.mean_distance_sequence,
+            "min_distance_video": match.min_distance_video,
+            "min_distance_ms": match.min_distance_ms,
+        }
+        if template:
+            data["template"] = Transform.template(match.template, examples=False)
+        if file:
+            data["file"] = Transform.file(match.file, meta=True, exif=True)
         return data
