@@ -4,6 +4,7 @@ from http import HTTPStatus
 from pathlib import Path
 
 from flask import jsonify, request, abort
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import defer, joinedload
 from werkzeug.utils import secure_filename
 
@@ -92,7 +93,11 @@ def update_template(template_id):
     template.name = request_payload.get("name", template.name)
     template.icon_type = request_payload.get("icon_type", template.icon_type)
     template.icon_key = request_payload.get("icon_key", template.icon_key)
-    database.session.commit()
+
+    try:
+        database.session.commit()
+    except IntegrityError:
+        abort(HTTPStatus.BAD_REQUEST.value, f"Data integrity violation.")
 
     include_flags = {field.key: True for field in include_fields}
     return jsonify(Transform.template(template, **include_flags))
@@ -156,6 +161,9 @@ def delete_template_example(template_id, example_id):
 
     # Delete example
     database.session.delete(example)
+    database.session.commit()
+    file_storage = get_file_storage()
+    file_storage.delete(example.storage_key)
     return "", HTTPStatus.NO_CONTENT.value
 
 

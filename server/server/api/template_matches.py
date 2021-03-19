@@ -76,6 +76,7 @@ def delete_template_match(match_id):
         abort(HTTPStatus.NOT_FOUND.value, f"Template match not found: id={match_id}")
 
     database.session.delete(match)
+    database.session.commit()
     return "", HTTPStatus.NO_CONTENT.value
 
 
@@ -142,4 +143,5 @@ def delete_file_template_match(file_id, match_id):
         abort(HTTPStatus.NOT_FOUND.value, f"Template match not found: id={match_id} file_id={file_id}")
 
     database.session.delete(match)
+    database.session.commit()
     return "", HTTPStatus.NO_CONTENT.value

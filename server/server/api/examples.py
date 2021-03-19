@@ -72,6 +72,9 @@ def delete_example(example_id):
 
     # Delete example
     database.session.delete(example)
+    database.session.commit()
+    file_storage = get_file_storage()
+    file_storage.delete(example.storage_key)
     return "", HTTPStatus.NO_CONTENT.value
 
 

@@ -99,12 +99,12 @@ function TemplateListItem(props) {
   );
 
   const handleIconChange = useCallback(
-    (icon) => onChange({ id: template.id, icon }),
+    (icon) => onChange({ id: template.id, icon }, template),
     [template, onChange]
   );
 
   const handleNameChange = useCallback(
-    (name) => onChange({ id: template.id, name }),
+    (name) => onChange({ id: template.id, name }, template),
     [template, onChange]
   );
 

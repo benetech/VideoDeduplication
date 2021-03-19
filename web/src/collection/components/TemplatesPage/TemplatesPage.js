@@ -20,7 +20,12 @@ import { updateTask } from "../../state/tasks/actions";
 import TaskRequest from "../../state/tasks/TaskRequest";
 import loadTemplates from "./loadTemplates";
 import { selectTemplates } from "../../state/selectors";
-import { setTemplates, updateTemplate } from "../../state/templates/actions";
+import {
+  addExample,
+  deleteExample,
+  setTemplates,
+  updateTemplate,
+} from "../../state/templates/actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -148,13 +153,36 @@ function ProcessingPage(props) {
     }
   }, []);
 
-  const handleTemplateUpdate = useCallback((template) => {
-    dispatch(updateTemplate(template));
-    server.updateTemplate({ template }).then((response) => {
-      if (response.success) {
-        dispatch(updateTemplate(response.data));
-      }
-    });
+  const handleTemplateUpdate = useCallback((updated, original) => {
+    dispatch(updateTemplate(updated));
+    server
+      .updateTemplate({ template: updated })
+      .then((response) => {
+        if (response.failure) {
+          console.error("Unsuccessful template update", response);
+          dispatch(updateTemplate(original));
+        }
+      })
+      .catch((error) => {
+        console.error("Catch template update error", error);
+        dispatch(updateTemplate(original));
+      });
+  });
+
+  const handleExampleDelete = useCallback((example) => {
+    dispatch(deleteExample(example.id));
+    server
+      .deleteExample({ id: example.id })
+      .then((response) => {
+        if (response.failure) {
+          console.error("Unsuccessful example delete", response);
+          dispatch(addExample(example));
+        }
+      })
+      .catch((error) => {
+        console.error("Catch delete-example error", error);
+        dispatch(addExample(example));
+      });
   });
 
   const filterTemplateTasks = useCallback(
@@ -177,7 +205,7 @@ function ProcessingPage(props) {
   });
 
   // Get templates API
-  const { onDeleteExample, onAddExamples, onAddTemplate } = useTemplateAPI([]);
+  const { onAddExamples, onAddTemplate } = useTemplateAPI([]);
 
   useEffect(() => {
     loadTemplates(server).then(setTemplates);
@@ -198,7 +226,7 @@ function ProcessingPage(props) {
               template={template}
               onChange={handleTemplateUpdate}
               onAddExamples={onAddExamples}
-              onDeleteExample={onDeleteExample}
+              onDeleteExample={handleExampleDelete}
             />
           ))}
         </TemplateList>
