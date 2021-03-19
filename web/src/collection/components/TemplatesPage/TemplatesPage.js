@@ -222,7 +222,7 @@ function ProcessingPage(props) {
         }
       })
       .catch((error) => {
-        console.error("Error occurred while deleting template");
+        console.error("Error occurred while deleting template", error);
         dispatch(addTemplates([template]));
       });
   });
