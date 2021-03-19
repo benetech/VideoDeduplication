@@ -12,7 +12,6 @@ import Button from "../../../common/components/Button";
 import AddOutlinedIcon from "@material-ui/icons/AddOutlined";
 import TaskSidebar from "../ProcessingPage/TaskSidebar";
 import NavigateNextOutlinedIcon from "@material-ui/icons/NavigateNextOutlined";
-import { randomTemplates } from "../../../server-api/MockServer/fake-data/templates";
 import TemplateList from "./TemplateList";
 import useTemplateAPI from "./useTemplateAPI";
 import { useServer } from "../../../server-api/context";
@@ -126,8 +125,6 @@ TasksHeader.propTypes = {
   onClose: PropTypes.func.isRequired,
   className: PropTypes.string,
 };
-
-const defaultTemplates = [...randomTemplates({ count: 3 })];
 
 function ProcessingPage(props) {
   const { className, ...other } = props;

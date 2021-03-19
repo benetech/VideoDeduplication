@@ -6,7 +6,6 @@ import Paper from "@material-ui/core/Paper";
 import { FileType } from "../../prop-types/FileType";
 import VideoPlayer from "./VideoPlayer";
 import SceneSelector from "./SceneSelector";
-import ObjectTimeLine from "./ObjectTimeLine";
 import { seekTo } from "./seekTo";
 import { useIntl } from "react-intl";
 import CollapseButton from "../../../common/components/CollapseButton";

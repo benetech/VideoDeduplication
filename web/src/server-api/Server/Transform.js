@@ -1,4 +1,3 @@
-import { randomObjects } from "../MockServer/fake-data/objects";
 import parse from "date-fns/parse";
 
 const defaultDateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS";

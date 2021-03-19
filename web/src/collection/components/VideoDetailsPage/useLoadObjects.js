@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import sleep from "sleep-promise";
 
 /**
  * Load video objects using bare server client.
