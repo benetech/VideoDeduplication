@@ -207,4 +207,5 @@ def upload_example(template_id):
         # Create and return a new template example
         example = TemplateExample(template=template, storage_key=storage_key)
         database.session.add(example)
+        database.session.commit()
         return jsonify(Transform.template_example(example, template=True))

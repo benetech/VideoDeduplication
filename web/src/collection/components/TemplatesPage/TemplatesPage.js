@@ -185,6 +185,26 @@ function ProcessingPage(props) {
       });
   });
 
+  const handleUploadExamples = useCallback((files, template) => {
+    for (const file of files) {
+      server
+        .uploadExample({ file, templateId: template.id })
+        .then((response) => {
+          if (response.success) {
+            dispatch(addExample(response.data));
+          } else {
+            console.error(`Example uploading failed: ${file.name}`, response);
+          }
+        })
+        .catch((error) =>
+          console.error(
+            `Error occurred while uploading a new example: ${file.name}`,
+            error
+          )
+        );
+    }
+  });
+
   const filterTemplateTasks = useCallback(
     (task) => task?.request?.type === TaskRequest.MATCH_TEMPLATES,
     []
@@ -205,7 +225,7 @@ function ProcessingPage(props) {
   });
 
   // Get templates API
-  const { onAddExamples, onAddTemplate } = useTemplateAPI([]);
+  const { onAddTemplate } = useTemplateAPI([]);
 
   useEffect(() => {
     loadTemplates(server).then(setTemplates);
@@ -225,7 +245,7 @@ function ProcessingPage(props) {
               key={template.id}
               template={template}
               onChange={handleTemplateUpdate}
-              onAddExamples={onAddExamples}
+              onAddExamples={handleUploadExamples}
               onDeleteExample={handleExampleDelete}
             />
           ))}

@@ -301,6 +301,32 @@ export default class Server {
     }
   }
 
+  async uploadExample({ templateId, file }) {
+    try {
+      let formData = new FormData();
+      formData.append("file", file);
+
+      const response = await this.axios.post(
+        `/templates/${templateId}/examples/`,
+        formData,
+        {
+          onUploadProgress: (progressEvent) => {
+            let percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            console.log(
+              `${file.name} uploading completed on ${percentCompleted}%`
+            );
+          },
+        }
+      );
+      const data = this.transform.templateExample(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
   async deleteExample({ id }) {
     try {
       const response = await this.axios.delete(`/examples/${id}`);
