@@ -2,6 +2,7 @@ import os
 import tempfile
 from http import HTTPStatus
 from pathlib import Path
+from typing import Dict, Tuple, List
 
 from flask import jsonify, request, abort
 from sqlalchemy.exc import IntegrityError
@@ -81,7 +82,7 @@ def update_template(template_id):
         abort(HTTPStatus.BAD_REQUEST.value, "Expected valid 'application/json' payload.")
 
     expected_fields = {"name", "icon_type", "icon_key"}
-    if not set(request_payload.keys()) < {"name", "icon_type", "icon_key"}:
+    if not set(request_payload.keys()) < expected_fields:
         abort(HTTPStatus.BAD_REQUEST.value, f"Payload can include only the following fields: {expected_fields}")
 
     if "icon_type" in request_payload:
@@ -101,6 +102,74 @@ def update_template(template_id):
 
     include_flags = {field.key: True for field in include_fields}
     return jsonify(Transform.template(template, **include_flags))
+
+
+def validate_new_template_dto(data: Dict) -> Tuple[str, List[str]]:
+    """Validate new template DTO.
+
+    Returns:
+        error message and a list invalid fields.
+    """
+
+    expected_fields = {"name", "icon_type", "icon_key"}
+    if set(data.keys()) != expected_fields:
+        return f"Payload must have the following fields: {expected_fields}", []
+
+    try:
+        data["icon_type"] = IconType(data["icon_type"])
+    except ValueError:
+        return f"Invalid icon type: {data['icon_type']}", ["icon_type"]
+
+    if not (isinstance(data["name"], str) and len(data["name"]) > 0):
+        return "Name must be non empty string", ["name"]
+
+    name_exists = database.session.query(Template).filter(Template.name == data["name"]).count() > 0
+    if name_exists:
+        return f"Template name already exists: {data['name']}", ["name"]
+
+    return None, []
+
+
+@api.route("/templates/", methods=["POST"])
+def create_template():
+    request_payload = request.get_json()
+    if request_payload is None:
+        abort(HTTPStatus.BAD_REQUEST.value, "Expected valid 'application/json' payload.")
+
+    # Validate payload
+    error, fields = validate_new_template_dto(request_payload)
+    if error is not None:
+        return (
+            jsonify({"error": error, "code": HTTPStatus.BAD_REQUEST.value, "fields": fields}),
+            HTTPStatus.BAD_REQUEST.value,
+        )
+
+    # Create template
+    template = Template(**request_payload)
+    database.session.add(template)
+
+    # Try to commit session
+    try:
+        database.session.commit()
+    except IntegrityError:
+        abort(HTTPStatus.BAD_REQUEST.value, "Data integrity violation.")
+
+    return jsonify(Transform.template(template, examples=False))
+
+
+@api.route("/templates/<int:template_id>", methods=["DELETE"])
+def delete_template(template_id):
+    # Fetch template from database
+    template = database.session.query(Template).get(template_id)
+
+    # Handle template not found
+    if template is None:
+        abort(HTTPStatus.NOT_FOUND.value, f"Template id not found: {template_id}")
+
+    # Delete example
+    database.session.delete(template)
+    database.session.commit()
+    return "", HTTPStatus.NO_CONTENT.value
 
 
 @api.route("/templates/<int:template_id>/examples/", methods=["GET"])

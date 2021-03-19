@@ -1,6 +1,6 @@
 export const ACTION_ADD_TEMPlATES = "coll.ADD_TEMPlATES";
 
-export function addTemPlAtes(templates) {
+export function addTemplates(templates) {
   return { type: ACTION_ADD_TEMPlATES, templates };
 }
 

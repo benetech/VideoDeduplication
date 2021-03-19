@@ -13,7 +13,6 @@ import AddOutlinedIcon from "@material-ui/icons/AddOutlined";
 import TaskSidebar from "../ProcessingPage/TaskSidebar";
 import NavigateNextOutlinedIcon from "@material-ui/icons/NavigateNextOutlined";
 import TemplateList from "./TemplateList";
-import useTemplateAPI from "./useTemplateAPI";
 import { useServer } from "../../../server-api/context";
 import { useDispatch, useSelector } from "react-redux";
 import { updateTask } from "../../state/tasks/actions";
@@ -22,10 +21,13 @@ import loadTemplates from "./loadTemplates";
 import { selectTemplates } from "../../state/selectors";
 import {
   addExample,
+  addTemplates,
   deleteExample,
+  deleteTemplate,
   setTemplates,
   updateTemplate,
 } from "../../state/templates/actions";
+import AddTemplateDialog from "./AddTemplateDialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -139,6 +141,7 @@ function ProcessingPage(props) {
   const messages = useMessages();
   const server = useServer();
   const dispatch = useDispatch();
+  const [showNewTemplateDialog, setShowNewTemplateDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showTasks, setShowTasks] = useState(true);
   const handleShowTasks = useCallback(() => setShowTasks(true));
@@ -152,6 +155,9 @@ function ProcessingPage(props) {
       );
     }
   }, []);
+
+  const showTemplateDialog = useCallback(() => setShowNewTemplateDialog(true));
+  const hideTemplateDialog = useCallback(() => setShowNewTemplateDialog(false));
 
   const handleTemplateUpdate = useCallback((updated, original) => {
     dispatch(updateTemplate(updated));
@@ -205,6 +211,22 @@ function ProcessingPage(props) {
     }
   });
 
+  const handleDeleteTemplate = useCallback((template) => {
+    dispatch(deleteTemplate(template.id));
+    server
+      .deleteTemplate({ id: template.id })
+      .then((response) => {
+        if (response.failure) {
+          console.error("Template deletion failed", response);
+          dispatch(addTemplates([template]));
+        }
+      })
+      .catch((error) => {
+        console.error("Error occurred while deleting template");
+        dispatch(addTemplates([template]));
+      });
+  });
+
   const filterTemplateTasks = useCallback(
     (task) => task?.request?.type === TaskRequest.MATCH_TEMPLATES,
     []
@@ -224,9 +246,6 @@ function ProcessingPage(props) {
       .finally(() => setLoading(false));
   });
 
-  // Get templates API
-  const { onAddTemplate } = useTemplateAPI([]);
-
   useEffect(() => {
     loadTemplates(server).then(setTemplates);
   }, []);
@@ -235,7 +254,7 @@ function ProcessingPage(props) {
     <div className={clsx(classes.root, className)} {...other}>
       <div className={clsx(classes.column, classes.templates)}>
         <TemplatesHeader
-          onAddTemplate={onAddTemplate}
+          onAddTemplate={showTemplateDialog}
           onShowTasks={handleShowTasks}
           tasksShown={showTasks}
         />
@@ -247,6 +266,8 @@ function ProcessingPage(props) {
               onChange={handleTemplateUpdate}
               onAddExamples={handleUploadExamples}
               onDeleteExample={handleExampleDelete}
+              onDelete={handleDeleteTemplate}
+              onShowMatches={() => console.log("show matches")}
             />
           ))}
         </TemplateList>
@@ -266,6 +287,10 @@ function ProcessingPage(props) {
           </Button>
         </div>
       )}
+      <AddTemplateDialog
+        open={showNewTemplateDialog}
+        onClose={hideTemplateDialog}
+      />
     </div>
   );
 }
