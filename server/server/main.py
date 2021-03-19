@@ -30,6 +30,7 @@ def create_application(config):
     app.debug = False
     app.config["SQLALCHEMY_DATABASE_URI"] = config.database.uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["MAX_CONTENT_LENGTH"] = config.max_upload_size
     app.config["CONFIG"] = config
     app.config["THUMBNAILS"] = ThumbnailCache(
         directory=config.thumbnail_cache_folder, capacity=config.thumbnail_cache_cap
