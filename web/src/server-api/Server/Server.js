@@ -11,6 +11,7 @@ import { SocketNamespace, socketPath } from "./constants";
 import Socket from "./Socket";
 import templateFiltersToQueryParams from "./helpers/templateFiltersToQueryParams";
 import exampleFiltersToQueryParams from "./helpers/exampleFiltersToQueryParams";
+import templateMatchFiltersToQueryParams from "./helpers/templateMatchFiltersToQueryParams";
 
 export default class Server {
   constructor({ baseURL = "/api/v1", timeout = 10 * 1000, headers = {} } = {}) {
@@ -293,6 +294,50 @@ export default class Server {
   async deleteExample({ id }) {
     try {
       const response = await this.axios.delete(`/examples/${id}`);
+      return Response.ok(response.data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchTemplateMatches({
+    limit = 1000,
+    offset = 0,
+    fields = ["template", "file"],
+    filters = {},
+  }) {
+    try {
+      const response = await this.axios.get(`/template_matches/`, {
+        params: {
+          limit,
+          offset,
+          ...templateMatchFiltersToQueryParams({ fields, filters }),
+        },
+      });
+      const data = this.transform.fetchTemplateMatchesResults(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchTemplateMatch({ id, fields = ["template", "file"] }) {
+    try {
+      const response = await this.axios.get(`/template_matches/${id}`, {
+        params: {
+          ...templateMatchFiltersToQueryParams({ fields }),
+        },
+      });
+      const data = this.transform.template(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async deleteTemplateMatch({ id }) {
+    try {
+      const response = await this.axios.delete(`/template_matches/${id}`);
       return Response.ok(response.data);
     } catch (error) {
       return this.errorResponse(error);

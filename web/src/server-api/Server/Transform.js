@@ -221,6 +221,18 @@ export default class Transform {
     };
   }
 
+  fetchTemplateMatchesResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      templateMatches: data.items.map((match) => this.templateMatch(match)),
+      files: (data.files || []).map((file) => this.videoFile(file)),
+      templates: (data.templates || []).map((template) =>
+        this.template(template)
+      ),
+    };
+  }
+
   template(data) {
     if (data == null) {
       return undefined;
@@ -246,5 +258,25 @@ export default class Transform {
       template: this.template(data.template),
       url: `/api/v1/examples/${data.id}/image`,
     };
+  }
+
+  templateMatch(data) {
+    const match = {
+      id: data.id,
+      fileId: data.file_id,
+      templateId: data.template_id,
+      start: data.start_ms,
+      end: data.end_ms,
+      meanDistance: data.mean_distance_sequence,
+      minDistance: data.min_distance_video,
+      minDistanceTime: data.min_distance_ms,
+    };
+    if (data.template != null) {
+      match.template = this.template(data.template);
+    }
+    if (data.file != null) {
+      match.file = this.videoFile(data.file);
+    }
+    return match;
   }
 }
