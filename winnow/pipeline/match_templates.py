@@ -69,6 +69,9 @@ def load_templates(pipeline: PipelineContext) -> List[Template]:
         templates = pipeline.template_loader.load_templates_from_folder(templates_source)
         if config.database.use:
             return pipeline.template_loader.store_templates(templates, pipeline.database, pipeline.file_storage)
-    else:
+    elif config.database.use:
         logger.info("Loading templates from the database")
         return pipeline.template_loader.load_templates_from_database(pipeline.database, pipeline.file_storage)
+    else:
+        logger.error("Neither database nor template source directory are not available")
+        return []
