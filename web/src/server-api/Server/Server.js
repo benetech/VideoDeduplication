@@ -201,6 +201,24 @@ export default class Server {
     }
   }
 
+  async createTemplate({ template }) {
+    try {
+      const newTemplateDTO = this.transform.newTemplateDTO(template);
+      const response = await this.axios.post(
+        `/templates/`,
+        JSON.stringify(newTemplateDTO),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return Response.ok(this.transform.template(response.data));
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
   async fetchTemplates({
     limit = 1000,
     offset = 0,

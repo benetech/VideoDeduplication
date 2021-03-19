@@ -69,6 +69,8 @@ function TemplateListItem(props) {
     onChange,
     onAddExamples,
     onDeleteExample,
+    onDelete,
+    onShowMatches,
     className,
     ...other
   } = props;
@@ -121,6 +123,8 @@ function TemplateListItem(props) {
         onIconChange={handleIconChange}
         onNameChange={handleNameChange}
         onExpandChange={toggleExpand}
+        onShowMatches={onShowMatches}
+        onDelete={onDelete}
         edit={edit}
         expanded={expand}
         className={classes.header}
@@ -196,6 +200,14 @@ TemplateListItem.propTypes = {
    * Enable edit-mode by default for new templates.
    */
   new: PropTypes.bool,
+  /**
+   * Handle show template matches.
+   */
+  onShowMatches: PropTypes.func.isRequired,
+  /**
+   * Handle delete template.
+   */
+  onDelete: PropTypes.func.isRequired,
   className: PropTypes.string,
 };
 

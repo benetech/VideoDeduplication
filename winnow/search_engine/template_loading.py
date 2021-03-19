@@ -175,21 +175,25 @@ class TemplateLoader:
             for index, features in enumerate(calculated_features):
                 example = unhandled_examples[index]
                 example.features = pickle.dumps(features)
-        features = np.concatenate((np.array(existing_features), calculated_features))
+
+        if len(existing_features) > 0:
+            result_features = np.concatenate((np.array(existing_features), calculated_features))
+        else:
+            result_features = calculated_features
 
         # Create examples model objects
         template_examples = []
         for db_example in db_template.examples:
             template_example = TemplateExample(
                 storage_key=db_example.storage_key,
-                features=db_example.features,
+                features=pickle.loads(db_example.features),
                 file_storage=file_storage,
             )
             template_examples.append(template_example)
 
         return Template(
             name=db_template.name,
-            features=features,
+            features=result_features,
             examples=template_examples,
         )
 

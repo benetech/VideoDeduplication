@@ -278,4 +278,12 @@ export default class Transform {
     }
     return match;
   }
+
+  newTemplateDTO(template) {
+    return {
+      name: template.name,
+      icon_type: template.icon?.kind,
+      icon_key: template.icon?.key,
+    };
+  }
 }
