@@ -5,11 +5,12 @@ import { makeStyles, withStyles } from "@material-ui/styles";
 import ObjectType from "../../../prop-types/ObjectType";
 import TimeCaption from "../TimeCaption";
 import SquaredIconButton from "../../../../common/components/SquaredIconButton";
-import ObjectKinds from "../ObjectKinds";
 import Tooltip from "@material-ui/core/Tooltip";
 import { formatDuration } from "../../../../common/helpers/format";
 import { useIntl } from "react-intl";
 import { ButtonBase } from "@material-ui/core";
+import position from "../objectPosition";
+import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
 
 const useStyles = makeStyles((theme) => ({
   groupListItem: {
@@ -33,8 +34,9 @@ const useStyles = makeStyles((theme) => ({
   },
   object: {
     margin: theme.spacing(1),
-    width: 45,
-    height: 45,
+    width: 50,
+    height: 50,
+    lineHeight: 1,
     "&:hover": {
       color: theme.palette.primary.contrastText,
       backgroundColor: theme.palette.primary.main,
@@ -63,9 +65,8 @@ const ObjectTooltip = withStyles((theme) => ({
 }))(Tooltip);
 
 function description(object, intl) {
-  const kind = ObjectKinds[object.kind];
-  const name = intl.formatMessage({ id: kind.name });
-  const time = formatDuration(object.position, null, false);
+  const name = object.template?.name;
+  const time = formatDuration(position(object), null, false);
   return intl.formatMessage({ id: "object.description" }, { type: name, time });
 }
 
@@ -73,7 +74,7 @@ function description(object, intl) {
  * Start position of the object group
  */
 function startTime(objects) {
-  return Math.min(...objects.map((object) => object.position));
+  return Math.min(...objects.map(position));
 }
 
 /**
@@ -82,12 +83,6 @@ function startTime(objects) {
 function captionLabel(objects, intl) {
   const time = formatDuration(startTime(objects), null, false);
   return intl.formatMessage({ id: "aria.label.objectGroup" }, { time });
-}
-
-function icon(object) {
-  const kind = ObjectKinds[object.kind];
-  const Icon = kind.icon;
-  return <Icon />;
 }
 
 function ObjectGroupListItem(props) {
@@ -113,7 +108,7 @@ function ObjectGroupListItem(props) {
           <ObjectTooltip
             arrow
             title={description(object, intl)}
-            key={object.position}
+            key={object.id}
           >
             <SquaredIconButton
               variant="text"
@@ -121,7 +116,7 @@ function ObjectGroupListItem(props) {
               onClick={() => onJump(object)}
               aria-label={description(object, intl)}
             >
-              {icon(object)}
+              <TemplateIcon icon={object.template?.icon} />
             </SquaredIconButton>
           </ObjectTooltip>
         ))}

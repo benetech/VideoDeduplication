@@ -12,13 +12,23 @@ import Socket from "./Socket";
 import templateFiltersToQueryParams from "./helpers/templateFiltersToQueryParams";
 import exampleFiltersToQueryParams from "./helpers/exampleFiltersToQueryParams";
 import templateMatchFiltersToQueryParams from "./helpers/templateMatchFiltersToQueryParams";
+import AxiosRetry from "axios-retry";
 
 export default class Server {
-  constructor({ baseURL = "/api/v1", timeout = 10 * 1000, headers = {} } = {}) {
+  constructor({
+    baseURL = "/api/v1",
+    timeout = 10 * 1000,
+    retries = 5,
+    headers = {},
+  } = {}) {
     this.axios = axios.create({
       baseURL,
       timeout,
       headers,
+    });
+    AxiosRetry(this.axios, {
+      retries,
+      retryDelay: AxiosRetry.exponentialDelay,
     });
     this.transform = new Transform();
   }

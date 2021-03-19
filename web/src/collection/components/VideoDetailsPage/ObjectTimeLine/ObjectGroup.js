@@ -8,6 +8,7 @@ import ObjectGroupPopper from "./ObjectGroupPopper";
 import { ButtonBase } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import { objectTime } from "./helpers";
+import position from "../objectPosition";
 
 const useStyles = makeStyles((theme) => ({
   objectGroup: {
@@ -25,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
  * Get relative start position of the group
  */
 function relativePosition(objects, fullLength) {
-  const first = Math.min(...objects.map((object) => object.position));
+  const first = Math.min(...objects.map(position));
   return first / fullLength;
 }
 

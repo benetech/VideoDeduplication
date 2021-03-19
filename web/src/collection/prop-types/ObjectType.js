@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { TemplateType } from "./TemplateType";
 
 /**
- * Property type for object recognized in a video file.
+ * Recognized object (synonym for Template Match) schema.
  */
 const ObjectType = PropTypes.shape({
   /**

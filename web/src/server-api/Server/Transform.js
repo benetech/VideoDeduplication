@@ -44,7 +44,6 @@ export default class Transform {
       preview: `/api/v1/files/${data.id}/thumbnail?time=0`,
       playbackURL: `/api/v1/files/${data.id}/watch`,
       scenes: this.fileScenes(data),
-      objects: [...randomObjects(10, meta.length)],
       matchesCount: data.matches_count,
       external: data.contributor != null,
       contributor: this.contributor(data.contributor),

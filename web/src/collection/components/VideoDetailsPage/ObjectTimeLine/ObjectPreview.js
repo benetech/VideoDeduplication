@@ -5,7 +5,8 @@ import { makeStyles } from "@material-ui/styles";
 import ObjectType from "../../../prop-types/ObjectType";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import { useIntl } from "react-intl";
-import { objectKind, objectTime } from "./helpers";
+import { objectTime } from "./helpers";
+import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
 
 const useStyles = makeStyles((theme) => ({
   preview: {
@@ -13,9 +14,13 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
   },
   icon: {
-    paddingRight: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 15,
+    height: 15,
+    fontSize: 15,
   },
   time: {
+    fontSize: 15,
     cursor: "pointer",
   },
 }));
@@ -26,12 +31,10 @@ const useStyles = makeStyles((theme) => ({
 function useMessages(object) {
   const intl = useIntl();
   const time = objectTime(object);
-  const kind = objectKind(object);
-  const name = intl.formatMessage({ id: kind.name });
   return {
     label: intl.formatMessage(
       { id: "actions.seekToTheObject" },
-      { object: name, time }
+      { object: object.name, time }
     ),
   };
 }
@@ -43,8 +46,6 @@ function ObjectPreview(props) {
   const { object, onJump, autoFocus = false, className } = props;
   const classes = useStyles();
   const messages = useMessages(object);
-
-  const Icon = objectKind(object).icon;
   const time = objectTime(object);
   const ref = useRef();
 
@@ -59,11 +60,10 @@ function ObjectPreview(props) {
       className={clsx(classes.preview, className)}
       onClick={() => onJump(object)}
       focusRipple
-      disableTouchRipple
       aria-label={messages.label}
       ref={ref}
     >
-      <Icon className={classes.icon} />
+      <TemplateIcon icon={object.template?.icon} className={classes.icon} />
       <div className={classes.time}>{time}</div>
     </ButtonBase>
   );

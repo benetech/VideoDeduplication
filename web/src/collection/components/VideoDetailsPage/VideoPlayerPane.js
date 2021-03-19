@@ -11,6 +11,7 @@ import { seekTo } from "./seekTo";
 import { useIntl } from "react-intl";
 import CollapseButton from "../../../common/components/CollapseButton";
 import Collapse from "@material-ui/core/Collapse";
+import LoadableObjectTimeLine from "./LoadableObjectTimeLine";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -105,7 +106,7 @@ function VideoPlayerPane(props) {
             onProgress={setProgress}
             suppressErrors
           />
-          <ObjectTimeLine
+          <LoadableObjectTimeLine
             file={file}
             className={classes.objects}
             onJump={handleJump}

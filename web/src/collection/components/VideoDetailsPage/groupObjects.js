@@ -1,8 +1,10 @@
+import position from "./objectPosition";
+
 /**
  * Group start position
  */
 function startPosition(group) {
-  return group[0].position;
+  return position(group[0]);
 }
 
 /**
@@ -15,14 +17,14 @@ export function groupObjects(objects, minDist) {
 
   // Sort objects by position in ascending order
   objects = [...objects];
-  objects.sort((first, second) => first.position - second.position);
+  objects.sort((first, second) => position(first) - position(second));
 
   // Group objects
   let currentGroup = [objects[0]];
   const groups = [currentGroup];
 
   for (let object of objects.slice(1)) {
-    if (object.position - startPosition(currentGroup) < minDist) {
+    if (position(object) - startPosition(currentGroup) < minDist) {
       // if distance is small enough, add the object to the current group
       currentGroup.push(object);
     } else {
