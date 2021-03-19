@@ -236,10 +236,10 @@ export default class Server {
     }
   }
 
-  async updateTemplate({ id, template }) {
+  async updateTemplate({ template }) {
     try {
       const response = await this.axios.patch(
-        `/templates/${id}`,
+        `/templates/${template.id}`,
         JSON.stringify({
           name: template.name,
           icon_type: template.icon?.kind,
@@ -251,7 +251,7 @@ export default class Server {
           },
         }
       );
-      return Response.ok(this.transform.task(response.data));
+      return Response.ok(this.transform.template(response.data));
     } catch (error) {
       return this.errorResponse(error);
     }

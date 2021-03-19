@@ -15,10 +15,12 @@ import NavigateNextOutlinedIcon from "@material-ui/icons/NavigateNextOutlined";
 import TemplateList from "./TemplateList";
 import useTemplateAPI from "./useTemplateAPI";
 import { useServer } from "../../../server-api/context";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { updateTask } from "../../state/tasks/actions";
 import TaskRequest from "../../state/tasks/TaskRequest";
 import loadTemplates from "./loadTemplates";
+import { selectTemplates } from "../../state/selectors";
+import { setTemplates, updateTemplate } from "../../state/templates/actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -136,6 +138,24 @@ function ProcessingPage(props) {
   const [showTasks, setShowTasks] = useState(true);
   const handleShowTasks = useCallback(() => setShowTasks(true));
   const handleHideTasks = useCallback(() => setShowTasks(false));
+  const templates = useSelector(selectTemplates).templates;
+
+  useEffect(() => {
+    if (templates.length === 0) {
+      loadTemplates(server).then((templates) =>
+        dispatch(setTemplates(templates))
+      );
+    }
+  }, []);
+
+  const handleTemplateUpdate = useCallback((template) => {
+    dispatch(updateTemplate(template));
+    server.updateTemplate({ template }).then((response) => {
+      if (response.success) {
+        dispatch(updateTemplate(response.data));
+      }
+    });
+  });
 
   const filterTemplateTasks = useCallback(
     (task) => task?.request?.type === TaskRequest.MATCH_TEMPLATES,
@@ -157,14 +177,7 @@ function ProcessingPage(props) {
   });
 
   // Get templates API
-  const {
-    templates,
-    setTemplates,
-    onDeleteExample,
-    onAddExamples,
-    onChange,
-    onAddTemplate,
-  } = useTemplateAPI([]);
+  const { onDeleteExample, onAddExamples, onAddTemplate } = useTemplateAPI([]);
 
   useEffect(() => {
     loadTemplates(server).then(setTemplates);
@@ -183,7 +196,7 @@ function ProcessingPage(props) {
             <TemplateList.Item
               key={template.id}
               template={template}
-              onChange={onChange}
+              onChange={handleTemplateUpdate}
               onAddExamples={onAddExamples}
               onDeleteExample={onDeleteExample}
             />

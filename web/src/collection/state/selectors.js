@@ -46,3 +46,8 @@ export const selectCachedTask = (id) => (state) =>
  * Select task logs.
  */
 export const selectTaskLogs = (state) => selectColl(state).taskLogs;
+
+/**
+ * Select templates.
+ */
+export const selectTemplates = (state) => selectColl(state).templates;

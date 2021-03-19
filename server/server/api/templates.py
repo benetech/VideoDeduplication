@@ -7,7 +7,7 @@ from flask import jsonify, request, abort
 from sqlalchemy.orm import defer, joinedload
 from werkzeug.utils import secure_filename
 
-from db.schema import Template, TemplateExample
+from db.schema import Template, TemplateExample, IconType
 from .blueprint import api
 from .helpers import (
     parse_positive_int,
@@ -26,7 +26,7 @@ def list_templates():
     offset = parse_positive_int(request.args, "offset", 0)
     include_fields = parse_fields(request.args, "include", TEMPLATE_FIELDS)
 
-    query = database.session.query(Template)
+    query = database.session.query(Template).order_by(Template.name.asc())
     if Template.examples in include_fields:
         query = query.options(joinedload(Template.examples).options(defer(TemplateExample.features)))
 
@@ -66,10 +66,10 @@ def update_template(template_id):
     include_fields = parse_fields(request.args, "include", TEMPLATE_FIELDS)
 
     # Fetch template from database
-    query = database.session.query(Template)
+    query = database.session.query(Template).filter(Template.id == template_id)
     if Template.examples in include_fields:
         query = query.options(joinedload(Template.examples).options(defer(TemplateExample.features)))
-    template = query.get(template_id)
+    template = query.one_or_none()
 
     # Handle template not found
     if template is None:
@@ -83,9 +83,16 @@ def update_template(template_id):
     if not set(request_payload.keys()) < {"name", "icon_type", "icon_key"}:
         abort(HTTPStatus.BAD_REQUEST.value, f"Payload can include only the following fields: {expected_fields}")
 
+    if "icon_type" in request_payload:
+        try:
+            request_payload["icon_type"] = IconType(request_payload["icon_type"])
+        except ValueError:
+            abort(HTTPStatus.BAD_REQUEST.value, f"Invalid icon type: {request_payload['icon_type']}")
+
     template.name = request_payload.get("name", template.name)
     template.icon_type = request_payload.get("icon_type", template.icon_type)
     template.icon_key = request_payload.get("icon_key", template.icon_key)
+    database.session.commit()
 
     include_flags = {field.key: True for field in include_fields}
     return jsonify(Transform.template(template, **include_flags))
