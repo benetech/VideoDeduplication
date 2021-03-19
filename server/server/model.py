@@ -7,7 +7,18 @@ from typing import Dict, Optional
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect
 
-from db.schema import Contributor, Repository, Files, VideoMetadata, Scene, Exif, Matches
+from db.schema import (
+    Contributor,
+    Repository,
+    Files,
+    VideoMetadata,
+    Scene,
+    Exif,
+    Matches,
+    Template,
+    TemplateExample,
+    TemplateMatches,
+)
 
 database = SQLAlchemy()
 
@@ -158,3 +169,49 @@ class Transform:
             "login": repository.account_id,
             "type": repository.repository_type.value,
         }
+
+    @staticmethod
+    @serializable
+    def template(template: Template, *, examples=False) -> Dict:
+        """Get dict-data for template."""
+        data = {
+            "id": template.id,
+            "name": template.name,
+            "icon_type": template.icon_type.value if template.icon_type else None,
+            "icon_key": template.icon_key,
+        }
+        if examples:
+            data["examples"] = [Transform.template_example(example, template=False) for example in template.examples]
+        return data
+
+    @staticmethod
+    @serializable
+    def template_example(example: TemplateExample, *, template=False) -> Dict:
+        """Get dict-data representation of the template example."""
+        data = {
+            "id": example.id,
+            "template_id": example.template_id,
+        }
+        if template:
+            data["template"] = Transform.template(example.template, examples=False)
+        return data
+
+    @staticmethod
+    @serializable
+    def template_match(match: TemplateMatches, *, template=False, file=Files) -> Dict:
+        """Get dict-data representation of the template match."""
+        data = {
+            "id": match.id,
+            "file_id": match.file_id,
+            "template_id": match.template_id,
+            "start_ms": match.start_ms,
+            "end_ms": match.end_ms,
+            "mean_distance_sequence": match.mean_distance_sequence,
+            "min_distance_video": match.min_distance_video,
+            "min_distance_ms": match.min_distance_ms,
+        }
+        if template:
+            data["template"] = Transform.template(match.template, examples=False)
+        if file:
+            data["file"] = Transform.file(match.file, meta=True, exif=True)
+        return data

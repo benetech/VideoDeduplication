@@ -70,6 +70,45 @@ def process_file_list(self, files, frame_sampling=None, save_frames=None):
     monitor.complete()
 
 
+@winnow_task(bind=True)
+def match_all_templates(self, match_distance=None, match_distance_min=None, frame_sampling=None, save_frames=None):
+    from winnow.utils.config import resolve_config
+    from winnow.utils.files import scan_videos
+    from winnow.pipeline.extract_exif import extract_exif
+    from winnow.pipeline.match_templates import match_templates
+    from winnow.pipeline.pipeline_context import PipelineContext
+
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
+    # Load configuration file
+    logger.info("Loading config file")
+    config = resolve_config(
+        frame_sampling=frame_sampling,
+        save_frames=save_frames,
+        templates_distance=match_distance,
+        templates_distance_min=match_distance_min,
+    )
+
+    # Resolve list of video files from the directory
+    directory = "."  # dataset root
+    logger.info(f"Resolving video list for directory {directory}")
+    absolute_root = os.path.abspath(config.sources.root)
+    absolute_dir = os.path.abspath(os.path.join(absolute_root, directory))
+    if Path(config.sources.root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:
+        raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
+
+    videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
+
+    # Run pipeline
+    monitor.update(0)
+    pipeline_context = PipelineContext(config)
+    extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.1))
+    match_templates(videos, pipeline_context, progress=monitor.subtask(work_amount=0.9))
+
+    monitor.complete()
+
+
 def fibo(n):
     """A very inefficient Fibonacci numbers generator."""
     if n <= 2:

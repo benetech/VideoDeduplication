@@ -82,6 +82,16 @@ class ProcessFileList(Request):
 
 
 @dataclass
+class MatchTemplates(Request):
+    """Match all templates for all existing files."""
+
+    match_distance: float = None
+    match_distance_min: float = None
+    frame_sampling: Optional[int] = None
+    save_frames: Optional[bool] = None
+
+
+@dataclass
 class TestTask(Request):
     """Example Fibonacci task for testing purpose."""
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -12,9 +12,20 @@ import Button from "../../../common/components/Button";
 import AddOutlinedIcon from "@material-ui/icons/AddOutlined";
 import TaskSidebar from "../ProcessingPage/TaskSidebar";
 import NavigateNextOutlinedIcon from "@material-ui/icons/NavigateNextOutlined";
-import { randomTemplates } from "../../../server-api/MockServer/fake-data/templates";
 import TemplateList from "./TemplateList";
 import useTemplateAPI from "./useTemplateAPI";
+import { useServer } from "../../../server-api/context";
+import { useDispatch, useSelector } from "react-redux";
+import { updateTask } from "../../state/tasks/actions";
+import TaskRequest from "../../state/tasks/TaskRequest";
+import loadTemplates from "./loadTemplates";
+import { selectTemplates } from "../../state/selectors";
+import {
+  addExample,
+  deleteExample,
+  setTemplates,
+  updateTemplate,
+} from "../../state/templates/actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -122,24 +133,103 @@ TasksHeader.propTypes = {
   className: PropTypes.string,
 };
 
-const defaultTemplates = [...randomTemplates({ count: 3 })];
-
 function ProcessingPage(props) {
   const { className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
+  const server = useServer();
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
   const [showTasks, setShowTasks] = useState(true);
   const handleShowTasks = useCallback(() => setShowTasks(true));
   const handleHideTasks = useCallback(() => setShowTasks(false));
+  const templates = useSelector(selectTemplates).templates;
+
+  useEffect(() => {
+    if (templates.length === 0) {
+      loadTemplates(server).then((templates) =>
+        dispatch(setTemplates(templates))
+      );
+    }
+  }, []);
+
+  const handleTemplateUpdate = useCallback((updated, original) => {
+    dispatch(updateTemplate(updated));
+    server
+      .updateTemplate({ template: updated })
+      .then((response) => {
+        if (response.failure) {
+          console.error("Unsuccessful template update", response);
+          dispatch(updateTemplate(original));
+        }
+      })
+      .catch((error) => {
+        console.error("Catch template update error", error);
+        dispatch(updateTemplate(original));
+      });
+  });
+
+  const handleExampleDelete = useCallback((example) => {
+    dispatch(deleteExample(example.id));
+    server
+      .deleteExample({ id: example.id })
+      .then((response) => {
+        if (response.failure) {
+          console.error("Unsuccessful example delete", response);
+          dispatch(addExample(example));
+        }
+      })
+      .catch((error) => {
+        console.error("Catch delete-example error", error);
+        dispatch(addExample(example));
+      });
+  });
+
+  const handleUploadExamples = useCallback((files, template) => {
+    for (const file of files) {
+      server
+        .uploadExample({ file, templateId: template.id })
+        .then((response) => {
+          if (response.success) {
+            dispatch(addExample(response.data));
+          } else {
+            console.error(`Example uploading failed: ${file.name}`, response);
+          }
+        })
+        .catch((error) =>
+          console.error(
+            `Error occurred while uploading a new example: ${file.name}`,
+            error
+          )
+        );
+    }
+  });
+
+  const filterTemplateTasks = useCallback(
+    (task) => task?.request?.type === TaskRequest.MATCH_TEMPLATES,
+    []
+  );
+
+  const handleProcess = useCallback(() => {
+    setLoading(true);
+    server
+      .createTask({
+        request: { type: "MatchTemplates" },
+      })
+      .then((response) => {
+        if (response.success) {
+          dispatch(updateTask(response.data));
+        }
+      })
+      .finally(() => setLoading(false));
+  });
 
   // Get templates API
-  const {
-    templates,
-    onDeleteExample,
-    onAddExamples,
-    onChange,
-    onAddTemplate,
-  } = useTemplateAPI(defaultTemplates);
+  const { onAddTemplate } = useTemplateAPI([]);
+
+  useEffect(() => {
+    loadTemplates(server).then(setTemplates);
+  }, []);
 
   return (
     <div className={clsx(classes.root, className)} {...other}>
@@ -154,9 +244,9 @@ function ProcessingPage(props) {
             <TemplateList.Item
               key={template.id}
               template={template}
-              onChange={onChange}
-              onAddExamples={onAddExamples}
-              onDeleteExample={onDeleteExample}
+              onChange={handleTemplateUpdate}
+              onAddExamples={handleUploadExamples}
+              onDeleteExample={handleExampleDelete}
             />
           ))}
         </TemplateList>
@@ -164,8 +254,13 @@ function ProcessingPage(props) {
       {showTasks && (
         <div className={clsx(classes.column, classes.tasks)}>
           <TasksHeader onClose={handleHideTasks} />
-          <TaskSidebar />
-          <Button variant="contained" color="primary">
+          <TaskSidebar filter={filterTemplateTasks} />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleProcess}
+            disabled={loading}
+          >
             {messages.runTemplateMatching}
             <NavigateNextOutlinedIcon />
           </Button>

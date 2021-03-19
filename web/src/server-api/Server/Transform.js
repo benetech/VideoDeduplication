@@ -1,4 +1,3 @@
-import { randomObjects } from "../MockServer/fake-data/objects";
 import parse from "date-fns/parse";
 
 const defaultDateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS";
@@ -44,7 +43,6 @@ export default class Transform {
       preview: `/api/v1/files/${data.id}/thumbnail?time=0`,
       playbackURL: `/api/v1/files/${data.id}/watch`,
       scenes: this.fileScenes(data),
-      objects: [...randomObjects(10, meta.length)],
       matchesCount: data.matches_count,
       external: data.contributor != null,
       contributor: this.contributor(data.contributor),
@@ -203,5 +201,81 @@ export default class Transform {
       login: data.login,
       type: data.type,
     };
+  }
+
+  fetchTemplatesResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      templates: data.items.map((template) => this.template(template)),
+    };
+  }
+
+  fetchExamplesResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      examples: data.items.map((example) => this.templateExample(example)),
+    };
+  }
+
+  fetchTemplateMatchesResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      templateMatches: data.items.map((match) => this.templateMatch(match)),
+      files: (data.files || []).map((file) => this.videoFile(file)),
+      templates: (data.templates || []).map((template) =>
+        this.template(template)
+      ),
+    };
+  }
+
+  template(data) {
+    if (data == null) {
+      return undefined;
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      icon: {
+        kind: data.icon_type,
+        key: data.icon_key,
+      },
+      examples: (data.examples || []).map((example) =>
+        this.templateExample(example)
+      ),
+    };
+  }
+
+  templateExample(data) {
+    return {
+      id: data.id,
+      templateId: data.template_id,
+      template: this.template(data.template),
+      url: `/api/v1/examples/${data.id}/image`,
+    };
+  }
+
+  templateMatch(data) {
+    const match = {
+      id: data.id,
+      fileId: data.file_id,
+      templateId: data.template_id,
+      start: data.start_ms,
+      end: data.end_ms,
+      meanDistance: data.mean_distance_sequence,
+      minDistance: data.min_distance_video,
+      minDistanceTime: data.min_distance_ms,
+      position: data.start_ms,
+    };
+    if (data.template != null) {
+      match.template = this.template(data.template);
+    }
+    if (data.file != null) {
+      match.file = this.videoFile(data.file);
+    }
+    return match;
   }
 }

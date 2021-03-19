@@ -10,6 +10,8 @@ def resolve_config(
     save_frames=None,
     override_templates=None,
     templates_dir=None,
+    templates_distance=None,
+    templates_distance_min=None,
 ):
     """Resolve config from command-line arguments."""
     config_path = resolve_config_path(config_path)
@@ -24,4 +26,8 @@ def resolve_config(
         config.templates.override = override_templates
     if templates_dir is not None:
         config.templates.source_path = templates_dir
+    if templates_distance is not None:
+        config.templates.distance = templates_distance
+    if templates_distance_min is not None:
+        config.templates.distance_min = templates_distance_min
     return config

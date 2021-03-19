@@ -87,5 +87,12 @@ export default function useTemplateAPI(initialTemplates) {
     [templates]
   );
 
-  return { templates, onChange, onDeleteExample, onAddExamples, onAddTemplate };
+  return {
+    templates,
+    setTemplates,
+    onChange,
+    onDeleteExample,
+    onAddExamples,
+    onAddTemplate,
+  };
 }

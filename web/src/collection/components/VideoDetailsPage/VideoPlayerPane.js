@@ -6,11 +6,11 @@ import Paper from "@material-ui/core/Paper";
 import { FileType } from "../../prop-types/FileType";
 import VideoPlayer from "./VideoPlayer";
 import SceneSelector from "./SceneSelector";
-import ObjectTimeLine from "./ObjectTimeLine";
 import { seekTo } from "./seekTo";
 import { useIntl } from "react-intl";
 import CollapseButton from "../../../common/components/CollapseButton";
 import Collapse from "@material-ui/core/Collapse";
+import LoadableObjectTimeLine from "./LoadableObjectTimeLine";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -105,7 +105,7 @@ function VideoPlayerPane(props) {
             onProgress={setProgress}
             suppressErrors
           />
-          <ObjectTimeLine
+          <LoadableObjectTimeLine
             file={file}
             className={classes.objects}
             onJump={handleJump}

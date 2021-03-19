@@ -77,6 +77,7 @@ function useMessages() {
     cancel: intl.formatMessage({ id: "actions.cancel" }),
     showLogs: intl.formatMessage({ id: "actions.showLogs" }),
     dataset: intl.formatMessage({ id: "task.type.all" }),
+    templates: intl.formatMessage({ id: "task.type.templates" }),
     files(count) {
       const files = intl.formatMessage({
         id: count === 1 ? "file.one" : "file.many",
@@ -119,6 +120,8 @@ function getTextDescription(request, messages) {
       }
     case TaskRequest.FILE_LIST:
       return messages.files(request.files.length);
+    case TaskRequest.MATCH_TEMPLATES:
+      return messages.templates;
     default:
       console.warn(`Unsupported task request type: ${request.type}`);
       return request.type;

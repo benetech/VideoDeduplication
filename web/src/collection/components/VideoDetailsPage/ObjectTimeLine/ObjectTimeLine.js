@@ -6,6 +6,7 @@ import { FileType } from "../../../prop-types/FileType";
 import ObjectGroup from "./ObjectGroup";
 import { groupObjects } from "../groupObjects";
 import { useIntl } from "react-intl";
+import ObjectType from "../../../prop-types/ObjectType";
 
 const useStyles = makeStyles(() => ({
   timeline: {
@@ -20,11 +21,11 @@ const useStyles = makeStyles(() => ({
  * Video file timeline with recognized objects.
  */
 function ObjectTimeLine(props) {
-  const { file, onJump, className } = props;
+  const { file, objects = [], onJump, className } = props;
   const classes = useStyles();
   const intl = useIntl();
 
-  const groups = groupObjects(file.objects, file.metadata.length * 0.02);
+  const groups = groupObjects(objects, file.metadata.length * 0.02);
 
   return (
     <div
@@ -48,6 +49,10 @@ ObjectTimeLine.propTypes = {
    * Video file metadata
    */
   file: FileType.isRequired,
+  /**
+   * Recognized objects (template matches).
+   */
+  objects: PropTypes.arrayOf(ObjectType).isRequired,
   /**
    * Handle jump to a particular object
    */

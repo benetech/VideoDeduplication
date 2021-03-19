@@ -5,7 +5,7 @@ from uuid import uuid4 as uuid
 
 import pytest
 
-from winnow.storage.file_storage import LocalFileStorage
+from template_support.file_storage import LocalFileStorage
 
 
 @pytest.fixture

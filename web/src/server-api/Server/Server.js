@@ -9,13 +9,26 @@ import matchesFiltersToQueryParams from "./helpers/matchesFiltersToQueryParams";
 import taskFiltersToQueryParams from "./helpers/taskFiltersToQueryParams";
 import { SocketNamespace, socketPath } from "./constants";
 import Socket from "./Socket";
+import templateFiltersToQueryParams from "./helpers/templateFiltersToQueryParams";
+import exampleFiltersToQueryParams from "./helpers/exampleFiltersToQueryParams";
+import templateMatchFiltersToQueryParams from "./helpers/templateMatchFiltersToQueryParams";
+import AxiosRetry from "axios-retry";
 
 export default class Server {
-  constructor({ baseURL = "/api/v1", timeout = 10 * 1000, headers = {} } = {}) {
+  constructor({
+    baseURL = "/api/v1",
+    timeout = 10 * 1000,
+    retries = 5,
+    headers = {},
+  } = {}) {
     this.axios = axios.create({
       baseURL,
       timeout,
       headers,
+    });
+    AxiosRetry(this.axios, {
+      retries,
+      retryDelay: AxiosRetry.exponentialDelay,
     });
     this.transform = new Transform();
   }
@@ -183,6 +196,185 @@ export default class Server {
         }
       );
       return Response.ok(this.transform.task(response.data));
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchTemplates({
+    limit = 1000,
+    offset = 0,
+    fields = ["examples"],
+    filters = {},
+  }) {
+    try {
+      const response = await this.axios.get(`/templates/`, {
+        params: {
+          limit,
+          offset,
+          ...templateFiltersToQueryParams({ fields, filters }),
+        },
+      });
+      const data = this.transform.fetchTemplatesResults(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchTemplate({ id, fields = ["examples"] }) {
+    try {
+      const response = await this.axios.get(`/templates/${id}`, {
+        params: {
+          ...templateFiltersToQueryParams({ fields }),
+        },
+      });
+      const data = this.transform.template(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async updateTemplate({ template }) {
+    try {
+      const response = await this.axios.patch(
+        `/templates/${template.id}`,
+        JSON.stringify({
+          name: template.name,
+          icon_type: template.icon?.kind,
+          icon_key: template.icon?.key,
+        }),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return Response.ok(this.transform.template(response.data));
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async deleteTemplate({ id }) {
+    try {
+      const response = await this.axios.delete(`/templates/${id}`);
+      return Response.ok(response.data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchExamples({
+    limit = 1000,
+    offset = 0,
+    fields = ["template"],
+    filters = {},
+  }) {
+    try {
+      const response = await this.axios.get(`/examples/`, {
+        params: {
+          limit,
+          offset,
+          ...exampleFiltersToQueryParams({ fields, filters }),
+        },
+      });
+      const data = this.transform.fetchExamplesResults(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchExample({ id, fields = ["template"] }) {
+    try {
+      const response = await this.axios.get(`/examples/${id}`, {
+        params: {
+          ...exampleFiltersToQueryParams({ fields }),
+        },
+      });
+      const data = this.transform.template(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async uploadExample({ templateId, file }) {
+    try {
+      let formData = new FormData();
+      formData.append("file", file);
+
+      const response = await this.axios.post(
+        `/templates/${templateId}/examples/`,
+        formData,
+        {
+          onUploadProgress: (progressEvent) => {
+            let percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            console.log(
+              `${file.name} uploading completed on ${percentCompleted}%`
+            );
+          },
+        }
+      );
+      const data = this.transform.templateExample(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async deleteExample({ id }) {
+    try {
+      const response = await this.axios.delete(`/examples/${id}`);
+      return Response.ok(response.data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchTemplateMatches({
+    limit = 1000,
+    offset = 0,
+    fields = ["template", "file"],
+    filters = {},
+  }) {
+    try {
+      const response = await this.axios.get(`/template_matches/`, {
+        params: {
+          limit,
+          offset,
+          ...templateMatchFiltersToQueryParams({ fields, filters }),
+        },
+      });
+      const data = this.transform.fetchTemplateMatchesResults(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchTemplateMatch({ id, fields = ["template", "file"] }) {
+    try {
+      const response = await this.axios.get(`/template_matches/${id}`, {
+        params: {
+          ...templateMatchFiltersToQueryParams({ fields }),
+        },
+      });
+      const data = this.transform.template(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async deleteTemplateMatch({ id }) {
+    try {
+      const response = await this.axios.delete(`/template_matches/${id}`);
+      return Response.ok(response.data);
     } catch (error) {
       return this.errorResponse(error);
     }
