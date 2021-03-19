@@ -269,6 +269,7 @@ export default class Transform {
       meanDistance: data.mean_distance_sequence,
       minDistance: data.min_distance_video,
       minDistanceTime: data.min_distance_ms,
+      position: data.start_ms,
     };
     if (data.template != null) {
       match.template = this.template(data.template);
