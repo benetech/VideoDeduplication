@@ -1,4 +1,6 @@
+import lodash from "lodash";
 import { useEffect, useMemo, useState } from "react";
+import useValue from "../../hooks/useValue";
 
 /**
  * Load video objects using bare server client.
@@ -8,8 +10,18 @@ export default function useLoadObjects({ server, filters, fields }) {
   const [objects, setObjects] = useState([]);
   const templatesCache = useMemo(() => new Map());
   const filesCache = useMemo(() => new Map());
+  const params = useValue({ filters, fields });
+
+  // Reset loaded objects when params are changed
+  useEffect(() => {
+    setTotal(undefined);
+    setObjects([]);
+  }, [params]);
 
   useEffect(() => {
+    // Copy current request params
+    const requestParams = lodash.merge({}, params);
+
     // If all objects are loaded, then do nothing
     if (total != null && total <= objects.length) {
       return;
@@ -19,6 +31,7 @@ export default function useLoadObjects({ server, filters, fields }) {
     const loadTemplates = async () => {
       const response = await server.fetchTemplateMatches({
         offset: objects.length,
+        limit: 1,
         filters,
         fields,
       });
@@ -58,7 +71,7 @@ export default function useLoadObjects({ server, filters, fields }) {
     // Apply changes if not cancelled.
     let cancel = false;
     loadTemplates().then(({ updatedTotal, updatedObjects }) => {
-      if (!cancel) {
+      if (!cancel && lodash.isEqual(requestParams, params)) {
         setTotal(updatedTotal);
         setObjects(updatedObjects);
       }
@@ -68,7 +81,7 @@ export default function useLoadObjects({ server, filters, fields }) {
     return () => {
       cancel = true;
     };
-  }, [total, objects]);
+  }, [total, objects, params]);
 
   const progress = total == null ? 0 : (100 * objects.length) / total;
   const done = total != null && total <= objects.length;
