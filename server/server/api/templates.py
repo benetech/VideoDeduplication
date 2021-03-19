@@ -97,7 +97,7 @@ def update_template(template_id):
     try:
         database.session.commit()
     except IntegrityError:
-        abort(HTTPStatus.BAD_REQUEST.value, f"Data integrity violation.")
+        abort(HTTPStatus.BAD_REQUEST.value, "Data integrity violation.")
 
     include_flags = {field.key: True for field in include_fields}
     return jsonify(Transform.template(template, **include_flags))
