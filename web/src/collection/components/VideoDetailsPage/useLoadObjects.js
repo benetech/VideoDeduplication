@@ -31,7 +31,6 @@ export default function useLoadObjects({ server, filters, fields }) {
     const loadTemplates = async () => {
       const response = await server.fetchTemplateMatches({
         offset: objects.length,
-        limit: 1,
         filters,
         fields,
       });
