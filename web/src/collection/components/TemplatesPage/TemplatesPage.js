@@ -22,6 +22,9 @@ import { selectTemplates } from "../../state/selectors";
 import { setTemplates } from "../../state/templates/actions";
 import AddTemplateDialog from "./AddTemplateDialog";
 import useTemplateAPI from "./useTemplateAPI";
+import { updateFilters } from "../../state/fileList/actions";
+import { routes } from "../../../routing/routes";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -134,6 +137,7 @@ function ProcessingPage(props) {
   const classes = useStyles();
   const messages = useMessages();
   const server = useServer();
+  const history = useHistory();
   const dispatch = useDispatch();
   const [showNewTemplateDialog, setShowNewTemplateDialog] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -158,6 +162,11 @@ function ProcessingPage(props) {
     (task) => task?.request?.type === TaskRequest.MATCH_TEMPLATES,
     []
   );
+
+  const showMatches = useCallback((template) => {
+    dispatch(updateFilters({ templates: [template.id] }));
+    history.push(routes.collection.fingerprints, { keepFilters: true });
+  });
 
   const handleProcess = useCallback(() => {
     setLoading(true);
@@ -194,7 +203,7 @@ function ProcessingPage(props) {
               onAddExamples={TemplateAPI.uploadExample}
               onDeleteExample={TemplateAPI.deleteExample}
               onDelete={TemplateAPI.deleteTemplate}
-              onShowMatches={() => console.log("show matches")}
+              onShowMatches={showMatches}
             />
           ))}
         </TemplateList>
