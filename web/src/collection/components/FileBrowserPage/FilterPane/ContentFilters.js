@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import FilterList from "./FilterList";
 import { useFilters } from "./useFilters";
