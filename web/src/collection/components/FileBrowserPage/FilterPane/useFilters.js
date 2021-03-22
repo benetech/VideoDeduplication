@@ -1,8 +1,17 @@
-import { isEqual, merge } from "lodash";
+import { isEqual, mergeWith, isArray } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileFilters } from "../../../state/selectors";
 import { useCallback, useEffect, useState } from "react";
 import { updateFilters } from "../../../state/fileList/actions";
+
+/**
+ * Filters merge customizer.
+ */
+function replaceArrays(objValue, srcValue) {
+  if (isArray(objValue)) {
+    return srcValue;
+  }
+}
 
 /**
  * Hook to smoothly update hooks
@@ -31,7 +40,7 @@ export function useFilters() {
 
   const editChanges = useCallback(
     (updates) => {
-      const updatedChanges = merge({}, changes, updates);
+      const updatedChanges = mergeWith({}, changes, updates, replaceArrays);
       setChanges(updatedChanges);
     },
     [changes]

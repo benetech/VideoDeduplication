@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from sqlalchemy import or_, func, literal_column, tuple_
 from sqlalchemy.orm import aliased, Query, Session, joinedload
 
-from db.schema import Files, Matches, Exif, Contributor, Repository, Signature
+from db.schema import Files, Matches, Exif, Contributor, Repository, Signature, TemplateMatches
 
 
 # TODO: Improve dependency management and get rid of duplicate code (#295)
@@ -61,6 +61,7 @@ class ListFilesRequest:
     contributor: Optional[str] = None
     repository: Optional[str] = None
     sha256: str = None
+    templates: Optional[List[int]] = None
 
 
 @dataclass
@@ -265,14 +266,21 @@ class FilesDAO:
         return query
 
     @staticmethod
-    def _filter_contributor(req: ListFilesRequest, query: Query):
+    def _filter_contributor(req: ListFilesRequest, query: Query) -> Query:
         """Filter by contributor name (external files only)."""
         if req.contributor is not None:
             return query.filter(Files.contributor.has(Contributor.name == req.contributor))
         return query
 
     @staticmethod
-    def _filter_by_file_attributes(req: ListFilesRequest, query: Query):
+    def _filter_templates(req: ListFilesRequest, query: Query) -> Query:
+        """Filter files by matched template ids."""
+        if req.templates is not None and len(req.templates) > 0:
+            return query.filter(Files.template_matches.any(TemplateMatches.template_id.in_(tuple(req.templates))))
+        return query
+
+    @staticmethod
+    def _filter_by_file_attributes(req: ListFilesRequest, query: Query) -> Query:
         """Apply filters related to the properties of video file itself."""
         query = FilesDAO._filter_path(req, query)
         query = FilesDAO._filter_extensions(req, query)
@@ -284,6 +292,7 @@ class FilesDAO:
         query = FilesDAO._filter_remote(req, query)
         query = FilesDAO._filter_repository(req, query)
         query = FilesDAO._filter_contributor(req, query)
+        query = FilesDAO._filter_templates(req, query)
         return query
 
     @staticmethod

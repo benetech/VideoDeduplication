@@ -19,6 +19,7 @@ from .helpers import (
     parse_fields,
     parse_seq,
     get_config,
+    parse_int_list,
 )
 from ..model import database, Transform
 
@@ -48,6 +49,7 @@ def parse_params():
     result.remote = parse_boolean(request.args, "remote")
     result.contributor = request.args.get("contributor", None, type=str)
     result.repository = request.args.get("repository", None, type=str)
+    result.templates = parse_int_list(request.args, "templates")
     return result
 
 

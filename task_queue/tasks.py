@@ -25,6 +25,7 @@ def process_directory(self, directory, frame_sampling=None, save_frames=None):
     # Load configuration file
     logger.info("Loading config file")
     config = resolve_config(frame_sampling=frame_sampling, save_frames=save_frames)
+    config.database.use = True
 
     # Resolve list of video files from the directory
     logger.info(f"Resolving video list for directory {directory}")
@@ -59,6 +60,7 @@ def process_file_list(self, files, frame_sampling=None, save_frames=None):
     # Load configuration file
     logger.info("Loading config file")
     config = resolve_config(frame_sampling=frame_sampling, save_frames=save_frames)
+    config.database.use = True
 
     # Run pipeline
     monitor.update(0)
@@ -89,6 +91,10 @@ def match_all_templates(self, match_distance=None, match_distance_min=None, fram
         templates_distance=match_distance,
         templates_distance_min=match_distance_min,
     )
+
+    # Make sure templates are loaded from the database
+    config.templates.source_path = None
+    config.database.use = True
 
     # Resolve list of video files from the directory
     directory = "."  # dataset root

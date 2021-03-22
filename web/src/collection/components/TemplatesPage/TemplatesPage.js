@@ -19,15 +19,12 @@ import { updateTask } from "../../state/tasks/actions";
 import TaskRequest from "../../state/tasks/TaskRequest";
 import loadTemplates from "./loadTemplates";
 import { selectTemplates } from "../../state/selectors";
-import {
-  addExample,
-  addTemplates,
-  deleteExample,
-  deleteTemplate,
-  setTemplates,
-  updateTemplate,
-} from "../../state/templates/actions";
+import { setTemplates } from "../../state/templates/actions";
 import AddTemplateDialog from "./AddTemplateDialog";
+import useTemplateAPI from "./useTemplateAPI";
+import { updateFilters } from "../../state/fileList/actions";
+import { routes } from "../../../routing/routes";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -140,6 +137,7 @@ function ProcessingPage(props) {
   const classes = useStyles();
   const messages = useMessages();
   const server = useServer();
+  const history = useHistory();
   const dispatch = useDispatch();
   const [showNewTemplateDialog, setShowNewTemplateDialog] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -147,6 +145,7 @@ function ProcessingPage(props) {
   const handleShowTasks = useCallback(() => setShowTasks(true));
   const handleHideTasks = useCallback(() => setShowTasks(false));
   const templates = useSelector(selectTemplates).templates;
+  const TemplateAPI = useTemplateAPI();
 
   useEffect(() => {
     if (templates.length === 0) {
@@ -159,78 +158,15 @@ function ProcessingPage(props) {
   const showTemplateDialog = useCallback(() => setShowNewTemplateDialog(true));
   const hideTemplateDialog = useCallback(() => setShowNewTemplateDialog(false));
 
-  const handleTemplateUpdate = useCallback((updated, original) => {
-    dispatch(updateTemplate(updated));
-    server
-      .updateTemplate({ template: updated })
-      .then((response) => {
-        if (response.failure) {
-          console.error("Unsuccessful template update", response);
-          dispatch(updateTemplate(original));
-        }
-      })
-      .catch((error) => {
-        console.error("Catch template update error", error);
-        dispatch(updateTemplate(original));
-      });
-  });
-
-  const handleExampleDelete = useCallback((example) => {
-    dispatch(deleteExample(example.id));
-    server
-      .deleteExample({ id: example.id })
-      .then((response) => {
-        if (response.failure) {
-          console.error("Unsuccessful example delete", response);
-          dispatch(addExample(example));
-        }
-      })
-      .catch((error) => {
-        console.error("Catch delete-example error", error);
-        dispatch(addExample(example));
-      });
-  });
-
-  const handleUploadExamples = useCallback((files, template) => {
-    for (const file of files) {
-      server
-        .uploadExample({ file, templateId: template.id })
-        .then((response) => {
-          if (response.success) {
-            dispatch(addExample(response.data));
-          } else {
-            console.error(`Example uploading failed: ${file.name}`, response);
-          }
-        })
-        .catch((error) =>
-          console.error(
-            `Error occurred while uploading a new example: ${file.name}`,
-            error
-          )
-        );
-    }
-  });
-
-  const handleDeleteTemplate = useCallback((template) => {
-    dispatch(deleteTemplate(template.id));
-    server
-      .deleteTemplate({ id: template.id })
-      .then((response) => {
-        if (response.failure) {
-          console.error("Template deletion failed", response);
-          dispatch(addTemplates([template]));
-        }
-      })
-      .catch((error) => {
-        console.error("Error occurred while deleting template", error);
-        dispatch(addTemplates([template]));
-      });
-  });
-
   const filterTemplateTasks = useCallback(
     (task) => task?.request?.type === TaskRequest.MATCH_TEMPLATES,
     []
   );
+
+  const showMatches = useCallback((template) => {
+    dispatch(updateFilters({ templates: [template.id] }));
+    history.push(routes.collection.fingerprints, { keepFilters: true });
+  });
 
   const handleProcess = useCallback(() => {
     setLoading(true);
@@ -263,11 +199,11 @@ function ProcessingPage(props) {
             <TemplateList.Item
               key={template.id}
               template={template}
-              onChange={handleTemplateUpdate}
-              onAddExamples={handleUploadExamples}
-              onDeleteExample={handleExampleDelete}
-              onDelete={handleDeleteTemplate}
-              onShowMatches={() => console.log("show matches")}
+              onChange={TemplateAPI.updateTemplate}
+              onAddExamples={TemplateAPI.uploadExample}
+              onDeleteExample={TemplateAPI.deleteExample}
+              onDelete={TemplateAPI.deleteTemplate}
+              onShowMatches={showMatches}
             />
           ))}
         </TemplateList>

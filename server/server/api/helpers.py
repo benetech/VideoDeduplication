@@ -84,6 +84,20 @@ def parse_positive_int(args, name, default=None):
     return value
 
 
+def parse_int_list(args, name, default=None):
+    """Parse integer list."""
+    value = args.get(name, default=None, type=str)
+    if value is None:
+        return default
+    result = []
+    for item in map(str.strip, value.split(",")):
+        try:
+            result.append(int(item))
+        except ValueError:
+            abort(HTTPStatus.BAD_REQUEST.value, f"'{name}' must be a comma-separated list of ints")
+    return result
+
+
 def parse_positive_float(args, name, default=None):
     """Parse positive float parameter."""
     value = args.get(name, default=default, type=float)

@@ -17,6 +17,7 @@ const initialState = {
     matches: MatchCategory.all,
     sort: FileSort.date,
     remote: null,
+    templates: [],
   },
   fileListType: FileListType.grid,
   blur: true,
