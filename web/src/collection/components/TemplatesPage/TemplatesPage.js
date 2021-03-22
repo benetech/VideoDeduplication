@@ -19,14 +19,7 @@ import { updateTask } from "../../state/tasks/actions";
 import TaskRequest from "../../state/tasks/TaskRequest";
 import loadTemplates from "./loadTemplates";
 import { selectTemplates } from "../../state/selectors";
-import {
-  addExample,
-  addTemplates,
-  deleteExample,
-  deleteTemplate,
-  setTemplates,
-  updateTemplate,
-} from "../../state/templates/actions";
+import { setTemplates } from "../../state/templates/actions";
 import AddTemplateDialog from "./AddTemplateDialog";
 import useTemplateAPI from "./useTemplateAPI";
 
