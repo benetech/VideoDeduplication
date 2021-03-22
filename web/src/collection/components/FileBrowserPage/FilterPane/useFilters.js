@@ -1,4 +1,4 @@
-import { isEqual, mergeWith } from "lodash";
+import { isEqual, mergeWith, isArray } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileFilters } from "../../../state/selectors";
 import { useCallback, useEffect, useState } from "react";
@@ -8,7 +8,7 @@ import { updateFilters } from "../../../state/fileList/actions";
  * Filters merge customizer.
  */
 function replaceArrays(objValue, srcValue) {
-  if (_.isArray(objValue)) {
+  if (isArray(objValue)) {
     return srcValue;
   }
 }
