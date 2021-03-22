@@ -90,6 +90,9 @@ def match_all_templates(self, match_distance=None, match_distance_min=None, fram
         templates_distance_min=match_distance_min,
     )
 
+    # Make sure templates are loaded from the database
+    config.templates.source_path = None
+
     # Resolve list of video files from the directory
     directory = "."  # dataset root
     logger.info(f"Resolving video list for directory {directory}")
