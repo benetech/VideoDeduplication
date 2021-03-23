@@ -6,39 +6,81 @@ from typing import Dict, Tuple, List
 
 from flask import jsonify, request, abort
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import defer, joinedload
+from sqlalchemy.orm import defer, joinedload, Session
 from werkzeug.utils import secure_filename
 
+from db.access.templates import TemplatesDAO
 from db.schema import Template, TemplateExample, IconType
 from .blueprint import api
 from .helpers import (
     parse_positive_int,
-    Fields,
-    parse_fields,
     get_file_storage,
+    parse_enum_seq,
 )
 from ..model import database, Transform
 
-TEMPLATE_FIELDS = Fields(Template.examples)
+
+class TemplateFields:
+    """Template field inclusion manager."""
+
+    _FIELD_NAMES = ("examples", "file_count")
+
+    examples: bool = False
+    file_count: bool = False
+
+    def __init__(self, args, name="include", default=()):
+        include_fields = parse_enum_seq(args, name, values=self._FIELD_NAMES, default=default)
+        self.examples = "examples" in include_fields
+        self.file_count = "file_count" in include_fields
+        self._file_counts: Dict[int, int] = {}
+        self._default_count = None
+
+    def load_file_counts(self, session: Session, templates: List[Template]):
+        """Preload file counts for the given templates."""
+        if self.file_count:
+            self._file_counts = TemplatesDAO.query_file_counts(session, templates)
+            self._default_count = 0
+
+    def __call__(self, template: Template):
+        """Get include fields for the given template."""
+        return {
+            "examples": self.examples,
+            "file_count": self._file_counts.get(template.id, self._default_count),
+        }
+
+
+def template_file_counter(session, templates, fetch_count=False):
+    """Create template file counter."""
+    file_counts = {}
+    default_count = None
+    if fetch_count:
+        file_counts = TemplatesDAO.query_file_counts(session=session, templates=templates)
+        default_count = 0
+
+    def counter(template: Template) -> int:
+        """Get matched files count for the template."""
+        return file_counts.get(template.id, default_count)
+
+    return counter
 
 
 @api.route("/templates/", methods=["GET"])
 def list_templates():
     limit = parse_positive_int(request.args, "limit", 100)
     offset = parse_positive_int(request.args, "offset", 0)
-    include_fields = parse_fields(request.args, "include", TEMPLATE_FIELDS)
+    include_fields = TemplateFields(request.args)
 
     query = database.session.query(Template).order_by(Template.name.asc())
-    if Template.examples in include_fields:
+    if include_fields.examples:
         query = query.options(joinedload(Template.examples).options(defer(TemplateExample.features)))
 
     total = query.count()
     templates = query.limit(limit).offset(offset).all()
 
-    include_flags = {field.key: True for field in include_fields}
+    include_fields.load_file_counts(database.session, templates)
     return jsonify(
         {
-            "items": [Transform.template(template, **include_flags) for template in templates],
+            "items": [Transform.template(template, **include_fields(template)) for template in templates],
             "total": total,
             "offset": offset,
         }
@@ -47,11 +89,11 @@ def list_templates():
 
 @api.route("/templates/<int:template_id>", methods=["GET"])
 def get_template(template_id):
-    include_fields = parse_fields(request.args, "include", TEMPLATE_FIELDS)
+    include_fields = TemplateFields(request.args)
 
     # Fetch template from database
     query = database.session.query(Template)
-    if Template.examples in include_fields:
+    if include_fields.examples:
         query = query.options(joinedload(Template.examples).options(defer(TemplateExample.features)))
     template = query.get(template_id)
 
@@ -59,17 +101,17 @@ def get_template(template_id):
     if template is None:
         abort(HTTPStatus.NOT_FOUND.value, f"Template id not found: {template_id}")
 
-    include_flags = {field.key: True for field in include_fields}
-    return jsonify(Transform.template(template, **include_flags))
+    include_fields.load_file_counts(database.session, [template])
+    return jsonify(Transform.template(template, **include_fields(template)))
 
 
 @api.route("/templates/<int:template_id>", methods=["PATCH"])
 def update_template(template_id):
-    include_fields = parse_fields(request.args, "include", TEMPLATE_FIELDS)
+    include_fields = TemplateFields(request.args)
 
     # Fetch template from database
     query = database.session.query(Template).filter(Template.id == template_id)
-    if Template.examples in include_fields:
+    if include_fields.examples:
         query = query.options(joinedload(Template.examples).options(defer(TemplateExample.features)))
     template = query.one_or_none()
 
@@ -100,8 +142,8 @@ def update_template(template_id):
     except IntegrityError:
         abort(HTTPStatus.BAD_REQUEST.value, "Data integrity violation.")
 
-    include_flags = {field.key: True for field in include_fields}
-    return jsonify(Transform.template(template, **include_flags))
+    include_fields.load_file_counts(database.session, [template])
+    return jsonify(Transform.template(template, **include_fields(template)))
 
 
 def validate_new_template_dto(data: Dict) -> Tuple[str, List[str]]:
