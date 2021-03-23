@@ -222,7 +222,7 @@ export default class Server {
   async fetchTemplates({
     limit = 1000,
     offset = 0,
-    fields = ["examples"],
+    fields = ["examples", "file_count"],
     filters = {},
   }) {
     try {

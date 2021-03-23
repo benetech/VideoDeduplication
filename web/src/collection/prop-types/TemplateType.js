@@ -17,4 +17,5 @@ export const TemplateType = PropTypes.shape({
   name: PropTypes.string.isRequired,
   icon: TemplateIconType,
   examples: PropTypes.arrayOf(TemplateExampleType).isRequired,
+  fileCount: PropTypes.number,
 });
