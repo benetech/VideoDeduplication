@@ -45,6 +45,17 @@ function useMessages() {
   };
 }
 
+/**
+ * Get template description.
+ * @param template
+ */
+function description(template) {
+  if (template.fileCount != null) {
+    return `${template.name} (${template.fileCount})`;
+  }
+  return template.name;
+}
+
 function TemplateFilter(props) {
   const { value = [], onChange, className, ...other } = props;
   const classes = useStyles();
@@ -98,7 +109,7 @@ function TemplateFilter(props) {
             <MenuItem key={template.id} value={template.id}>
               <Checkbox checked={value.indexOf(template.id) > -1} />
               <TemplateIcon icon={template.icon} className={classes.icon} />
-              <ListItemText primary={template.name} />
+              <ListItemText primary={description(template)} />
             </MenuItem>
           ))}
         </Select>

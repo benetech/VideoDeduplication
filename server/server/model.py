@@ -172,7 +172,7 @@ class Transform:
 
     @staticmethod
     @serializable
-    def template(template: Template, *, examples=False) -> Dict:
+    def template(template: Template, *, file_count: int = None, examples=False) -> Dict:
         """Get dict-data for template."""
         data = {
             "id": template.id,
@@ -182,6 +182,8 @@ class Transform:
         }
         if examples:
             data["examples"] = [Transform.template_example(example, template=False) for example in template.examples]
+        if file_count is not None:
+            data["file_count"] = file_count
         return data
 
     @staticmethod

@@ -243,6 +243,7 @@ export default class Transform {
         kind: data.icon_type,
         key: data.icon_key,
       },
+      fileCount: data.file_count,
       examples: (data.examples || []).map((example) =>
         this.templateExample(example)
       ),
