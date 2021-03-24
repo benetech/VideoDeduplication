@@ -265,6 +265,8 @@
     "templates.name": "Template name",
     "templates.deleteExample": "Delete template example?",
     "templates.deleteExample.confirm": "Are you sure you want to delete example image permanently?",
-    "templates.examples": "Images to match:"
+    "templates.examples": "Images to match:",
+    "templates.matchedFiles.many": "{count} files matched",
+    "templates.matchedFiles.one": "1 file matched"
   }
 }

@@ -13,7 +13,7 @@ import Button from "../../../../common/components/Button";
 import TemplateTitle from "./TemplateTitle";
 import TemplateIconPreview from "./TemplateIconPreview";
 import usePopup from "../../../../common/hooks/usePopup";
-import { Menu, MenuItem } from "@material-ui/core";
+import { Chip, Menu, MenuItem } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -41,6 +41,9 @@ const useStyles = makeStyles((theme) => ({
   hide: {
     display: "none",
   },
+  count: {
+    marginRight: theme.spacing(1),
+  },
 }));
 
 /**
@@ -64,6 +67,15 @@ function useMessages() {
     editIcon: intl.formatMessage({ id: "actions.editIcon" }),
     deleteTemplate: intl.formatMessage({ id: "actions.deleteTemplate" }),
     onShowMatches: intl.formatMessage({ id: "actions.showMatchedFiles" }),
+    matchedFiles(count) {
+      if (count === 1) {
+        return intl.formatMessage({ id: "templates.matchedFiles.one" });
+      }
+      return intl.formatMessage(
+        { id: "templates.matchedFiles.many" },
+        { count }
+      );
+    },
   };
 }
 
@@ -109,6 +121,10 @@ function TemplateHeader(props) {
   const { clickTrigger, popup } = usePopup("template-actions-");
   const actions = useActions({ messages, onShowMatches, onDelete, template });
   const handle = bindHandler(popup);
+  const handleShowMatches = useCallback(() => onShowMatches(template), [
+    onShowMatches,
+    template,
+  ]);
 
   const handleExpand = useCallback(() => onExpandChange(!expanded), [
     expanded,
@@ -137,9 +153,17 @@ function TemplateHeader(props) {
         className={classes.title}
       />
       <Spacer />
-      <div className={classes.exampleCount}>
-        {messages.examples(template?.examples?.length)}
-      </div>
+      <Chip
+        clickable
+        color="primary"
+        variant="outlined"
+        label={messages.matchedFiles(template.fileCount)}
+        className={clsx(
+          classes.count,
+          !(template.fileCount > 0) && classes.hide
+        )}
+        onClick={handleShowMatches}
+      />
       <Button
         className={clsx(classes.button, edit && classes.hide)}
         onClick={onEditChange}
