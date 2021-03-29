@@ -79,7 +79,9 @@ function VideoInformation(props) {
     <div className={clsx(classes.root, className)} {...other}>
       <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
         <SelectableTab label={messages.info} value={Tab.info} />
-        <SelectableTab label={messages.objects} value={Tab.objects} />
+        {objects.length > 0 && (
+          <SelectableTab label={messages.objects} value={Tab.objects} />
+        )}
         <SelectableTab label={messages.exif} value={Tab.exif} />
       </SelectableTabs>
       <FileInfoPanel file={file} style={styles.info} />
