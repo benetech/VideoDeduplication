@@ -17,11 +17,10 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "stretch",
   },
   tabs: {
-    maxWidth: 400,
     margin: theme.spacing(3),
+    width: "min-content",
   },
   data: {},
 }));

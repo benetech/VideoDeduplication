@@ -87,7 +87,12 @@ function FilterPane(props) {
     <div className={clsx(classes.pane, className)} {...other}>
       <div className={classes.filters}>
         <FilterPaneHeader onClose={onClose} onSave={onSave} autoFocus={true} />
-        <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
+        <SelectableTabs
+          value={tab}
+          onChange={setTab}
+          className={classes.tabs}
+          spacing={0}
+        >
           <SelectableTab
             label={messages.content}
             value={Tab.content}

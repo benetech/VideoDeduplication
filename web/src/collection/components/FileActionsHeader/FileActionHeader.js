@@ -12,7 +12,6 @@ const useStyles = makeStyles((theme) => ({
   },
   navTabs: {
     flexShrink: 2,
-    width: 400,
   },
   actions: {
     flexGrow: 2,

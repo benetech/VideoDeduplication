@@ -45,7 +45,7 @@ function SelectableTabs(props) {
     value,
     onChange,
     size = "medium",
-    spacing = 0,
+    spacing = 1,
     className,
     ...other
   } = props;

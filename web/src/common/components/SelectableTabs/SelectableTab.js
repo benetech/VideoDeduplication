@@ -11,6 +11,7 @@ const useStyles = makeStyles((theme) => ({
     borderBottom: `3px solid rgba(0,0,0,0)`,
     paddingBottom: theme.spacing(0.5),
     marginLeft: ({ indent }) => theme.spacing(indent),
+    flexShrink: 0,
   },
   sizeLarge: {
     ...theme.mixins.navlinkLarge,
@@ -50,19 +51,11 @@ function labelClass(classes, size, selected) {
 /**
  * Get spacing between tabs.
  */
-function getIndent({ first, size, spacing }) {
+function getIndent({ first, spacing }) {
   if (first) {
     return 0;
   }
-  switch (size) {
-    case "large":
-      return 4 * spacing;
-    case "medium":
-      return 2 * spacing;
-    case "small":
-    default:
-      return spacing;
-  }
+  return 4 * spacing;
 }
 
 /**
@@ -84,7 +77,7 @@ function SelectableTab(props) {
     spacing = 1,
     ...other
   } = props;
-  const indent = getIndent({ first, size, spacing });
+  const indent = getIndent({ first, spacing });
   const classes = useStyles({ indent });
 
   const handleSelect = useCallback(() => {
