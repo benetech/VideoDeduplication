@@ -11,6 +11,7 @@ import {
   SelectableTab,
   SelectableTabs,
 } from "../../../common/components/SelectableTabs";
+import useLoadFileObjects from "./useLoadFileObjects";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -71,6 +72,7 @@ function VideoInformation(props) {
   const messages = useMessages();
   const [tab, setTab] = useState(Tab.info);
 
+  const { objects = [] } = useLoadFileObjects(file.id);
   const styles = contentStyles(tab);
 
   return (
@@ -80,9 +82,9 @@ function VideoInformation(props) {
         <SelectableTab label={messages.objects} value={Tab.objects} />
         <SelectableTab label={messages.exif} value={Tab.exif} />
       </SelectableTabs>
-      <FileInfoPanel file={file} style={styles.info} onJump={onJump} />
-      <ObjectsPanel file={file} style={styles.objects} onJump={onJump} />
-      <ExifPanel file={file} style={styles.exif} onJump={onJump} />
+      <FileInfoPanel file={file} style={styles.info} />
+      <ObjectsPanel objects={objects} style={styles.objects} onJump={onJump} />
+      <ExifPanel file={file} style={styles.exif} />
     </div>
   );
 }

@@ -2,28 +2,21 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { FileType } from "../../prop-types/FileType";
-import useLoadObjects from "./useLoadObjects";
-import { useServer } from "../../../server-api/context";
 import { LinearProgress } from "@material-ui/core";
 import ObjectTimeLine from "./ObjectTimeLine";
+import useLoadFileObjects from "./useLoadFileObjects";
 
 function LoadableObjectTimeLine(props) {
   const { file, onJump, className, ...other } = props;
-  const server = useServer();
 
   // Load objects
-  const { objects, progress, total, done } = useLoadObjects({
-    server,
-    filters: { fileId: file.id },
-    fields: ["template"],
-  });
-
-  const variant = total == null ? "indeterminate" : "determinate";
+  const { objects = [], progress, done } = useLoadFileObjects(file.id);
+  const variant = progress == null ? "indeterminate" : "determinate";
 
   if (!done) {
     return (
       <div className={clsx(className)} {...other}>
-        <LinearProgress variant={variant} value={progress} />
+        <LinearProgress variant={variant} value={progress * 100} />
       </div>
     );
   }

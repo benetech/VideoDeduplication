@@ -2,14 +2,12 @@ import React, { useMemo } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { FileType } from "../../../prop-types/FileType";
 import ObjectGroupList from "./ObjectGroupList";
 import { groupObjects } from "../groupObjects";
 import ObjectGroupListItem from "./ObjectGroupListItem";
-import useLoadObjects from "../useLoadObjects";
 import { CircularProgress } from "@material-ui/core";
-import { useServer } from "../../../../server-api/context";
 import position from "../objectPosition";
+import ObjectType from "../../../prop-types/ObjectType";
 
 const useStyles = makeStyles(() => ({
   objectPane: {
@@ -27,16 +25,8 @@ const useStyles = makeStyles(() => ({
 const second = 1000; // in millis
 
 function ObjectsPanel(props) {
-  const { file, onJump, className, ...other } = props;
+  const { objects, onJump, className, ...other } = props;
   const classes = useStyles();
-  const server = useServer();
-
-  // Load objects
-  const { objects, done } = useLoadObjects({
-    server,
-    filters: { fileId: file.id },
-    fields: ["template"],
-  });
 
   const groups = useMemo(() => groupObjects(objects, 10 * second), [objects]);
 
@@ -51,20 +41,15 @@ function ObjectsPanel(props) {
           />
         ))}
       </ObjectGroupList>
-      {!done && (
-        <div className={classes.loading}>
-          <CircularProgress />
-        </div>
-      )}
     </div>
   );
 }
 
 ObjectsPanel.propTypes = {
   /**
-   * Video file
+   * Objects recognized in video file.
    */
-  file: FileType.isRequired,
+  objects: PropTypes.arrayOf(ObjectType).isRequired,
   /**
    * Jump to a particular object
    */

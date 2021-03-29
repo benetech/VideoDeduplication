@@ -1,11 +1,13 @@
 import lodash from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import useValue from "../../hooks/useValue";
+import { useServer } from "../../../server-api/context";
 
 /**
  * Load video objects using bare server client.
  */
-export default function useLoadObjects({ server, filters, fields }) {
+export default function useLoadObjects({ filters, fields }) {
+  const server = useServer();
   const [total, setTotal] = useState(undefined);
   const [objects, setObjects] = useState([]);
   const templatesCache = useMemo(() => new Map());
@@ -28,7 +30,7 @@ export default function useLoadObjects({ server, filters, fields }) {
     }
 
     // Define a function to load the next objects slice
-    const loadTemplates = async () => {
+    const loadObjects = async () => {
       const response = await server.fetchTemplateMatches({
         offset: objects.length,
         filters,
@@ -69,7 +71,7 @@ export default function useLoadObjects({ server, filters, fields }) {
 
     // Apply changes if not cancelled.
     let cancel = false;
-    loadTemplates().then(({ updatedTotal, updatedObjects }) => {
+    loadObjects().then(({ updatedTotal, updatedObjects }) => {
       if (!cancel && lodash.isEqual(requestParams, params)) {
         setTotal(updatedTotal);
         setObjects(updatedObjects);
