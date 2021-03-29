@@ -7,6 +7,7 @@ import taskReducer from "./tasks/reducer";
 import taskCacheReducer from "./taskCache/reducer";
 import taskLogsReducer from "./taskLogs/reducer";
 import templateReducer from "./templates/reducer";
+import objectCacheReducer from "./objectCache/reducer";
 
 const collRootReducer = combineReducers({
   fileList: fileListReducer,
@@ -17,6 +18,7 @@ const collRootReducer = combineReducers({
   taskCache: taskCacheReducer,
   taskLogs: taskLogsReducer,
   templates: templateReducer,
+  objectCache: objectCacheReducer,
 });
 
 export default collRootReducer;
