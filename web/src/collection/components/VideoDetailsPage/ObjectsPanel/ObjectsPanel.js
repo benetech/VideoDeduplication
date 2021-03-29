@@ -5,7 +5,6 @@ import { makeStyles } from "@material-ui/styles";
 import ObjectGroupList from "./ObjectGroupList";
 import { groupObjects } from "../groupObjects";
 import ObjectGroupListItem from "./ObjectGroupListItem";
-import { CircularProgress } from "@material-ui/core";
 import position from "../objectPosition";
 import ObjectType from "../../../prop-types/ObjectType";
 
