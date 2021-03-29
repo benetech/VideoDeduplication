@@ -65,7 +65,7 @@ function getAttributes(tab) {
 }
 
 function ExifPanel(props) {
-  const { file, className } = props;
+  const { file, className, ...other } = props;
   const classes = useStyles();
   const [tab, setTab] = useState(0);
   const intl = useIntl();
@@ -77,7 +77,7 @@ function ExifPanel(props) {
   }));
 
   return (
-    <div className={clsx(className)}>
+    <div className={clsx(className)} {...other}>
       <div className={classes.header}>
         <ExifIcon className={classes.icon} />
         <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
