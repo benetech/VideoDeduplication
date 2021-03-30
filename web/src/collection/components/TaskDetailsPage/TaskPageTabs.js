@@ -13,7 +13,7 @@ import clsx from "clsx";
 
 const useStyles = makeStyles(() => ({
   tabs: {
-    maxWidth: 150,
+    width: "min-content",
   },
 }));
 
@@ -82,14 +82,11 @@ function TaskPageTabs(props) {
       className={clsx(classes.tabs, className)}
       value={section}
       onChange={navigate}
+      size="large"
       {...other}
     >
-      <SelectableTab
-        label={messages.details}
-        value={Section.details}
-        size="large"
-      />
-      <SelectableTab label={messages.logs} value={Section.logs} size="large" />
+      <SelectableTab label={messages.details} value={Section.details} />
+      <SelectableTab label={messages.logs} value={Section.logs} />
     </SelectableTabs>
   );
 }

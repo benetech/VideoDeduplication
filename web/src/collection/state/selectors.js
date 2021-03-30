@@ -51,3 +51,9 @@ export const selectTaskLogs = (state) => selectColl(state).taskLogs;
  * Select templates.
  */
 export const selectTemplates = (state) => selectColl(state).templates;
+
+/**
+ * Select cached file objects.
+ */
+export const selectCachedObjects = (fileId) => (state) =>
+  selectColl(state).objectCache.objects[fileId];

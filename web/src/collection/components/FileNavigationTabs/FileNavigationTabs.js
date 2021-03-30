@@ -83,23 +83,15 @@ function FileNavigationTabs(props) {
       className={clsx(className)}
       value={section}
       onChange={navigate}
+      size="large"
     >
       <SelectableTab
         label={messages.details}
         value={Section.details}
-        size="large"
         disabled={remote}
       />
-      <SelectableTab
-        label={messages.matches}
-        value={Section.matches}
-        size="large"
-      />
-      <SelectableTab
-        label={messages.cluster}
-        value={Section.cluster}
-        size="large"
-      />
+      <SelectableTab label={messages.matches} value={Section.matches} />
+      <SelectableTab label={messages.cluster} value={Section.cluster} />
     </SelectableTabs>
   );
 }

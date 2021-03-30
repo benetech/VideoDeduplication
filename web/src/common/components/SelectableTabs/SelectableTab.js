@@ -10,6 +10,8 @@ const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
     borderBottom: `3px solid rgba(0,0,0,0)`,
     paddingBottom: theme.spacing(0.5),
+    marginLeft: ({ indent }) => theme.spacing(indent),
+    flexShrink: 0,
   },
   sizeLarge: {
     ...theme.mixins.navlinkLarge,
@@ -47,6 +49,16 @@ function labelClass(classes, size, selected) {
 }
 
 /**
+ * Get spacing between tabs.
+ */
+function getIndent({ first, spacing }) {
+  if (first) {
+    return 0;
+  }
+  return 4 * spacing;
+}
+
+/**
  * Array of selectable tabs
  */
 function SelectableTab(props) {
@@ -61,9 +73,12 @@ function SelectableTab(props) {
     badgeMax,
     badgeColor = "default",
     disabled = false,
+    first = true,
+    spacing = 1,
     ...other
   } = props;
-  const classes = useStyles();
+  const indent = getIndent({ first, spacing });
+  const classes = useStyles({ indent });
 
   const handleSelect = useCallback(() => {
     if (!disabled) {
@@ -122,7 +137,8 @@ SelectableTab.propTypes = {
    */
   badge: PropTypes.node,
   /**
-   * The color of the component. It supports those theme colors that make sense for this component.
+   * The color of the component. It supports those theme colors that make sense
+   * for this component.
    */
   badgeColor: PropTypes.oneOf(["default", "error", "primary", "secondary"]),
   /**
@@ -133,6 +149,15 @@ SelectableTab.propTypes = {
    * Indicates that tab cannot be activated.
    */
   disabled: PropTypes.bool,
+  /**
+   * Indicates tab is the first (always set by  enclosing SelectableTabs
+   * component). Required for auto-spacing between tabs.
+   */
+  first: PropTypes.bool,
+  /**
+   * Controls auto-spacing between tabs.
+   */
+  spacing: PropTypes.number,
   className: PropTypes.string,
 };
 

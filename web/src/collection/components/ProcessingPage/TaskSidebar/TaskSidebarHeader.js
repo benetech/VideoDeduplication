@@ -38,9 +38,6 @@ const useStyles = makeStyles((theme) => ({
     width: "min-content",
     paddingTop: theme.spacing(4),
   },
-  tab: {
-    marginRight: theme.spacing(4),
-  },
   progress: {
     marginRight: theme.spacing(1),
   },
@@ -89,7 +86,6 @@ function TaskSidebarHeader(props) {
             key={tab.title}
             label={messages.format(tab.title)}
             value={tab}
-            className={classes.tab}
           />
         ))}
       </SelectableTabs>

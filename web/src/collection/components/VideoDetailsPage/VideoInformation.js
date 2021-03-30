@@ -11,16 +11,16 @@ import {
   SelectableTab,
   SelectableTabs,
 } from "../../../common/components/SelectableTabs";
+import useLoadFileObjects from "./useLoadFileObjects";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "stretch",
   },
   tabs: {
-    maxWidth: 400,
     margin: theme.spacing(3),
+    width: "min-content",
   },
   data: {},
 }));
@@ -35,20 +35,25 @@ const Tab = {
 };
 
 /**
+ * Get styles to hide element if condition is false.
+ */
+function showIf(cond) {
+  if (!cond) {
+    return { display: "none" };
+  } else {
+    return {};
+  }
+}
+
+/**
  * Select data-presentation panel
  */
-function dataComponent(tab) {
-  switch (tab) {
-    case Tab.info:
-      return FileInfoPanel;
-    case Tab.objects:
-      return ObjectsPanel;
-    case Tab.exif:
-      return ExifPanel;
-    default:
-      console.error(`Unknown tab: ${tab}`);
-      return "div";
-  }
+function contentStyles(tab) {
+  return {
+    info: showIf(tab === Tab.info),
+    objects: showIf(tab === Tab.objects),
+    exif: showIf(tab === Tab.exif),
+  };
 }
 
 function useMessages() {
@@ -66,16 +71,21 @@ function VideoInformation(props) {
   const messages = useMessages();
   const [tab, setTab] = useState(Tab.info);
 
-  const DataPanel = dataComponent(tab);
+  const { objects = [] } = useLoadFileObjects(file.id);
+  const styles = contentStyles(tab);
 
   return (
     <div className={clsx(classes.root, className)} {...other}>
       <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
         <SelectableTab label={messages.info} value={Tab.info} />
-        <SelectableTab label={messages.objects} value={Tab.objects} />
+        {objects.length > 0 && (
+          <SelectableTab label={messages.objects} value={Tab.objects} />
+        )}
         <SelectableTab label={messages.exif} value={Tab.exif} />
       </SelectableTabs>
-      <DataPanel file={file} className={classes.data} onJump={onJump} />
+      <FileInfoPanel file={file} style={styles.info} />
+      <ObjectsPanel objects={objects} style={styles.objects} onJump={onJump} />
+      <ExifPanel file={file} style={styles.exif} />
     </div>
   );
 }
