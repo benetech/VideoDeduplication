@@ -11,6 +11,7 @@ import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import PlaylistAddCheckOutlinedIcon from "@material-ui/icons/PlaylistAddCheckOutlined";
 import { IconButton, Tooltip } from "@material-ui/core";
 import Spacer from "../../../common/components/Spacer";
+import TaskBuilder from "./TaskBuilder";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "stretch",
   },
-  selector: {
+  builder: {
     flexGrow: 1,
   },
   tasks: {
@@ -79,7 +80,7 @@ function ProcessingPage(props) {
         </Tooltip>
       </Title>
       <div className={classes.content}>
-        <FileSelector className={classes.selector} />
+        <TaskBuilder className={classes.builder} />
         {showTasks && <TaskSidebar className={classes.tasks} />}
       </div>
     </div>
