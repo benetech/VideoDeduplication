@@ -43,6 +43,7 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
       PGADMIN_DEFAULT_PASSWORD: "admin"
+      WINNOW_CONFIG: "/project/config/config.yaml"
 # TODO: Migrate to v3 and uncomment (issue #267)
 #      BENETECH_MASTER_KEY_PATH: "${BENETECH_MASTER_KEY_PATH}"
     volumes:
@@ -52,6 +53,9 @@ services:
       # You can specify BENETECH_FILE_STORAGE_DIRECTORY environment variable to
       # keep template examples in a specific directory in your host fs.
       - "${BENETECH_FILE_STORAGE_DIRECTORY:-file-storage}:/project/file-storage"
+      # You can specify BENETECH_CONFIG_DIRECTORY environment variable to
+      # keep application configs in a specific directory in your host fs.
+      - "${BENETECH_CONFIG_DIRECTORY:-config}:/project/config"
     ports:
       - "${BENETECH_DEDUP_PORT:-8888}:8888"
     depends_on:
@@ -82,6 +86,7 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
       PGADMIN_DEFAULT_PASSWORD: "admin"
+      WINNOW_CONFIG: "/project/config/config.yaml"
       CELERY_BROKER: "redis://redis:6379/0"
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
       TASK_LOG_DIRECTORY: "/project/pipeline-logs"
@@ -95,6 +100,9 @@ services:
       # You can specify BENETECH_FILE_STORAGE_DIRECTORY environment variable to
       # keep template examples in a specific directory in your host fs.
       - "${BENETECH_FILE_STORAGE_DIRECTORY:-file-storage}:/project/file-storage"
+      # You can specify BENETECH_CONFIG_DIRECTORY environment variable to
+      # keep application configs in a specific directory in your host fs.
+      - "${BENETECH_CONFIG_DIRECTORY:-config}:/project/config"
     depends_on:
       - postgres
     networks:
@@ -143,6 +151,7 @@ volumes:
   postgres-data:
   pipeline-logs:
   file-storage:
+  config:
 
 # TODO: Migrate to v3 and uncomment secrets (issue #267)
 #secrets:
