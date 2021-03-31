@@ -49,6 +49,9 @@ services:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed the source data
       - "${BENETECH_DATA_LOCATION:?\n\nPlease set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
+      # You can specify BENETECH_FILE_STORAGE_DIRECTORY environment variable to
+      # keep template examples in a specific directory in your host fs.
+      - "${BENETECH_FILE_STORAGE_DIRECTORY:-file-storage}:/project/file-storage"
     ports:
       - "${BENETECH_DEDUP_PORT:-8888}:8888"
     depends_on:
@@ -89,6 +92,9 @@ services:
       # You may want to set BENETECH_TASK_LOGS environment variable to
       # keep pipeline logs in a specific directory in your host fs.
       - "${BENETECH_TASK_LOGS:-pipeline-logs}:/project/pipeline-logs"
+      # You can specify BENETECH_FILE_STORAGE_DIRECTORY environment variable to
+      # keep template examples in a specific directory in your host fs.
+      - "${BENETECH_FILE_STORAGE_DIRECTORY:-file-storage}:/project/file-storage"
     depends_on:
       - postgres
     networks:
@@ -112,7 +118,7 @@ services:
       CELERY_BROKER: "redis://redis:6379/0"
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
       TASK_LOG_DIRECTORY: "/project/pipeline-logs"
-      FILE_STORE_DIRECTORY: "/project/data/representations/app_files"
+      FILE_STORE_DIRECTORY: "/project/file-storage"
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed your video files
@@ -120,6 +126,9 @@ services:
       # You may want to set BENETECH_TASK_LOGS environment variable to
       # keep pipeline logs in a specific directory in your host fs.
       - "${BENETECH_TASK_LOGS:-pipeline-logs}:/project/pipeline-logs"
+      # You can specify BENETECH_FILE_STORAGE_DIRECTORY environment variable to
+      # keep template examples in a specific directory in your host fs.
+      - "${BENETECH_FILE_STORAGE_DIRECTORY:-file-storage}:/project/file-storage"
     ports:
       - "${BENETECH_SERVER_PORT:-5000}:5000"
     depends_on:
@@ -133,6 +142,7 @@ networks:
 volumes:
   postgres-data:
   pipeline-logs:
+  file-storage:
 
 # TODO: Migrate to v3 and uncomment secrets (issue #267)
 #secrets:
