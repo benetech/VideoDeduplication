@@ -17,6 +17,7 @@ DEFAULT_CONFIG_LOCATION = "./default.config.yaml"
 # Default logger
 _log = logging.getLogger(__name__)
 
+
 def resolve_config_path(path=None):
     """Resolve config-file path."""
     if path is not None:
