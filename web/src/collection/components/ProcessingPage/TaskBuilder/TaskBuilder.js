@@ -1,14 +1,12 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import FormControl from "@material-ui/core/FormControl";
-import { InputLabel, MenuItem, Select } from "@material-ui/core";
 import Button from "../../../../common/components/Button";
 import PlayArrowOutlinedIcon from "@material-ui/icons/PlayArrowOutlined";
-import useUniqueId from "../../../../common/hooks/useUniqueId";
 import { useIntl } from "react-intl";
-import TaskTypes from "./TaskTypes";
+import TaskTypeDescriptors from "./TaskTypeDescriptors";
+import TypeSelector from "./TypeSelector";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,9 +18,8 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
   },
-  typeForm: {
+  select: {
     margin: theme.spacing(1),
-    width: 200,
   },
   runButton: {
     marginLeft: theme.spacing(1),
@@ -33,6 +30,9 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     ...theme.mixins.title2,
   },
+  taskForm: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
 /**
@@ -41,45 +41,29 @@ const useStyles = makeStyles((theme) => ({
 function useMessages() {
   const intl = useIntl();
   return {
-    task: intl.formatMessage({ id: "tasks.one" }),
     runTask: intl.formatMessage({ id: "actions.runTask" }),
     newTask: intl.formatMessage({ id: "task.new" }),
-    taskTitle: (type) => intl.formatMessage({ id: type.title }),
   };
 }
 
 function TaskBuilder(props) {
   const { className, ...other } = props;
-  const [taskType, setTaskType] = useState(TaskTypes[0]);
+  const [taskType, setTaskType] = useState(TaskTypeDescriptors[0]);
   const classes = useStyles();
   const messages = useMessages();
-  const labelId = useUniqueId("type-selector");
+  const [task, setTask] = useState(null);
 
-  const handleChange = useCallback((event) => setTaskType(event.target.value));
+  const TaskForm = taskType.component;
 
   return (
     <div className={clsx(classes.root, className)} {...other}>
       <div className={classes.header}>
         <div className={classes.title}>{messages.newTask}</div>
-        <FormControl
-          variant="outlined"
-          size="small"
-          className={classes.typeForm}
-        >
-          <InputLabel id={labelId}>{messages.task}</InputLabel>
-          <Select
-            labelId={labelId}
-            value={taskType}
-            onChange={handleChange}
-            label={messages.task}
-          >
-            {TaskTypes.map((type) => (
-              <MenuItem key={type.type} value={type}>
-                {messages.taskTitle(type)}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <TypeSelector
+          value={taskType}
+          onChange={setTaskType}
+          className={classes.select}
+        />
         <Button
           className={classes.runButton}
           color="primary"
@@ -89,6 +73,7 @@ function TaskBuilder(props) {
           {messages.runTask}
         </Button>
       </div>
+      <TaskForm task={task} onChange={setTask} className={classes.taskForm} />
     </div>
   );
 }
