@@ -34,4 +34,4 @@ templates:
   distance_min: 0.05
 
 file_storage:
-  directory: data/representations/app_files
+  directory: file-storage

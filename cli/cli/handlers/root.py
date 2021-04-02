@@ -1,9 +1,8 @@
 import sys
 
-from winnow.config import Config
-from winnow.config.path import resolve_config_path
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressBar
+from winnow.utils.config import resolve_config
 from .database import DatabaseCli
 from .db_getter import DBGetterCli
 from .errors import handle_errors
@@ -23,7 +22,7 @@ class RootCli:
     """
 
     def __init__(self, config=None):
-        self._config = Config.read(resolve_config_path(config))
+        self._config = resolve_config(config_path=config)
         self._config.read_env()
         self._pipeline = PipelineContext(self._config)
         self.db = DatabaseCli(self._config)

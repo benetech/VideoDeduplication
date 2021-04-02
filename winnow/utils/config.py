@@ -1,7 +1,7 @@
 """The config module offers high-level operations with pipeline configuration."""
 
 from winnow.config import Config
-from winnow.config.path import resolve_config_path
+from winnow.config.path import resolve_config_path, ensure_config_exists
 
 
 def resolve_config(
@@ -15,6 +15,7 @@ def resolve_config(
 ):
     """Resolve config from command-line arguments."""
     config_path = resolve_config_path(config_path)
+    ensure_config_exists(config_path)
     config = Config.read(config_path)
 
     # Read from command-line arguments
