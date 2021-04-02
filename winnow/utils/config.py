@@ -4,7 +4,7 @@ from winnow.config import Config
 from winnow.config.path import resolve_config_path
 
 
-def resolve_config(
+def resolve_config(  # noqa C901
     config_path=None,
     frame_sampling=None,
     save_frames=None,
