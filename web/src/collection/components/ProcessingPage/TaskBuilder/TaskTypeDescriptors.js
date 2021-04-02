@@ -1,4 +1,3 @@
-import React from "react";
 import PropTypes from "prop-types";
 import MatchTemplatesForm from "./MatchTemplatesForm";
 import ProcessDirectoryForm from "./ProcessDirectoryForm";

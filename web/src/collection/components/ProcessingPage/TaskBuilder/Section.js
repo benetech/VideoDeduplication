@@ -2,7 +2,6 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import InfoButton from "../../../../common/components/InfoButton";
 import { Collapse } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import ExpandMoreOutlinedIcon from "@material-ui/icons/ExpandMoreOutlined";

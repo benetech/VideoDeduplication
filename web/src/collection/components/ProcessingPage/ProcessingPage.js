@@ -2,7 +2,6 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import FileSelector from "./FileSelector";
 import TaskSidebar from "./TaskSidebar";
 import { useIntl } from "react-intl";
 import Title from "../../../common/components/Title";

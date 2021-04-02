@@ -184,6 +184,7 @@ function ProcessDirectoryForm(props) {
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (
                 <Chip
+                  key={option}
                   variant="outlined"
                   label={option}
                   {...getTagProps({ index })}

@@ -179,7 +179,7 @@ export default class Transform {
     const mapping = TaskRequests[request.type];
     if (mapping) {
       for (const [dtoProp, reqProp] of Object.entries(mapping)) {
-        if (data.hasOwnProperty(dtoProp)) {
+        if (Object.prototype.hasOwnProperty.call(data, dtoProp)) {
           request[reqProp] = data[dtoProp];
         }
       }
@@ -196,7 +196,7 @@ export default class Transform {
     const mapping = TaskRequests[request.type];
     if (mapping) {
       for (const [dtoProp, reqProp] of Object.entries(mapping)) {
-        if (request.hasOwnProperty(reqProp)) {
+        if (Object.prototype.hasOwnProperty.call(request, reqProp)) {
           dto[dtoProp] = request[reqProp];
         }
       }

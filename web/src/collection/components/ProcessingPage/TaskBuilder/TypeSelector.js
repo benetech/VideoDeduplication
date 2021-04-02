@@ -10,11 +10,11 @@ import FormControl from "@material-ui/core/FormControl";
 import { useIntl } from "react-intl";
 import useUniqueId from "../../../../common/hooks/useUniqueId";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   form: {
     width: 200,
   },
-}));
+});
 
 /**
  * Get translated text.
