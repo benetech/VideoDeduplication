@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -7,10 +7,12 @@ import PlayArrowOutlinedIcon from "@material-ui/icons/PlayArrowOutlined";
 import { useIntl } from "react-intl";
 import TaskTypeDescriptors from "./TaskTypeDescriptors";
 import TypeSelector from "./TypeSelector";
+import { updateTask } from "../../../state/tasks/actions";
+import { useServer } from "../../../../server-api/context";
+import { useDispatch } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    minHeight: 600,
     padding: theme.spacing(3),
     backgroundColor: theme.palette.common.white,
   },
@@ -51,7 +53,25 @@ function TaskBuilder(props) {
   const [taskType, setTaskType] = useState(TaskTypeDescriptors[0]);
   const classes = useStyles();
   const messages = useMessages();
-  const [task, setTask] = useState(null);
+  const [req, setReq] = useState({ type: taskType.type });
+  const [valid, setValid] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const server = useServer();
+  const dispatch = useDispatch();
+
+  const handleProcess = useCallback(() => {
+    setLoading(true);
+    server
+      .createTask({
+        request: req,
+      })
+      .then((response) => {
+        if (response.success) {
+          dispatch(updateTask(response.data));
+        }
+      })
+      .finally(() => setLoading(false));
+  });
 
   const TaskForm = taskType.component;
 
@@ -68,12 +88,19 @@ function TaskBuilder(props) {
           className={classes.runButton}
           color="primary"
           variant="contained"
+          disabled={!valid || loading}
+          onClick={handleProcess}
         >
           <PlayArrowOutlinedIcon />
           {messages.runTask}
         </Button>
       </div>
-      <TaskForm task={task} onChange={setTask} className={classes.taskForm} />
+      <TaskForm
+        request={req}
+        onChange={setReq}
+        onValidated={setValid}
+        className={classes.taskForm}
+      />
     </div>
   );
 }
