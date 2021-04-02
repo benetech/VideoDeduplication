@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import TaskStatus from "../state/tasks/TaskStatus";
+import TaskRequestType from "./TaskRequestType";
 
 export const TaskType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -12,11 +13,7 @@ export const TaskType = PropTypes.shape({
     TaskStatus.FAILURE,
     TaskStatus.CANCELLED,
   ]).isRequired,
-  request: PropTypes.shape({
-    type: PropTypes.string.isRequired,
-    directory: PropTypes.string,
-    files: PropTypes.arrayOf(PropTypes.string),
-  }).isRequired,
+  request: TaskRequestType.isRequired,
   error: PropTypes.shape({
     type: PropTypes.string,
     module: PropTypes.string,

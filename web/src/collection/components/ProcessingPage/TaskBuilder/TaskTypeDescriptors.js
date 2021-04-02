@@ -1,16 +1,19 @@
 import React from "react";
 import PropTypes from "prop-types";
+import MatchTemplatesForm from "./MatchTemplatesForm";
+import ProcessDirectoryForm from "./ProcessDirectoryForm";
+import TaskRequest from "../../../state/tasks/TaskRequest";
 
 const TaskTypeDescriptors = [
   {
-    type: "ProcessDirectory",
+    type: TaskRequest.DIRECTORY,
     title: "task.type.directory",
-    component: () => <div>TODO: Process Directory</div>,
+    component: ProcessDirectoryForm,
   },
   {
-    type: "MatchTemplates",
+    type: TaskRequest.MATCH_TEMPLATES,
     title: "task.type.templates",
-    component: () => <div>TODO: Match Templates</div>,
+    component: MatchTemplatesForm,
   },
 ];
 

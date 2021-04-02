@@ -28,7 +28,8 @@ const useStyles = makeStyles((theme) => ({
   },
   tasks: {
     marginLeft: theme.spacing(4),
-    maxWidth: 380,
+    width: 380,
+    flexShrink: 0,
   },
   description: {
     flexGrow: 1,
