@@ -1,9 +1,8 @@
-import React, { useCallback } from "react";
+import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import FilterContainer from "./FilterContainer";
-import ButtonSelect from "../../../../common/components/ButtonSelect";
-import { useIntl } from "react-intl";
+import BoolInput from "../../../../common/components/BoolInput";
 
 function BoolFilter(props) {
   const {
@@ -12,25 +11,10 @@ function BoolFilter(props) {
     onChange,
     tooltip,
     className,
-    trueText: propTrueText,
-    falseText: propFalseText,
+    trueText,
+    falseText,
     ...other
   } = props;
-  const intl = useIntl();
-
-  const handleChange = useCallback(
-    (newValue) => {
-      if (newValue === value) {
-        onChange(null);
-      } else {
-        onChange(newValue);
-      }
-    },
-    [value, onChange]
-  );
-
-  const trueText = propTrueText || intl.formatMessage({ id: "filter.yes" });
-  const falseText = propFalseText || intl.formatMessage({ id: "filter.no" });
 
   return (
     <FilterContainer
@@ -39,10 +23,12 @@ function BoolFilter(props) {
       tooltip={tooltip}
       {...other}
     >
-      <ButtonSelect value={value} onChange={handleChange}>
-        <ButtonSelect.Option value={false}>{falseText}</ButtonSelect.Option>
-        <ButtonSelect.Option value={true}>{trueText}</ButtonSelect.Option>
-      </ButtonSelect>
+      <BoolInput
+        value={value}
+        onChange={onChange}
+        trueText={trueText}
+        falseText={falseText}
+      />
     </FilterContainer>
   );
 }

@@ -1,6 +1,27 @@
 import parse from "date-fns/parse";
+import TaskRequest from "../../collection/state/tasks/TaskRequest";
 
 const defaultDateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS";
+
+const TaskRequests = {
+  [TaskRequest.DIRECTORY]: {
+    directory: "directory",
+    frame_sampling: "frameSampling",
+    match_distance: "matchDistance",
+    filter_dark: "filterDark",
+    dark_threshold: "darkThreshold",
+    min_duration: "minDuration",
+    extensions: "extensions",
+  },
+  [TaskRequest.MATCH_TEMPLATES]: {
+    frame_sampling: "frameSampling",
+    match_distance: "matchDistance",
+    filter_dark: "filterDark",
+    dark_threshold: "darkThreshold",
+    min_duration: "minDuration",
+    extensions: "extensions",
+  },
+};
 
 /**
  * Data-transfer object and internal data format may evolve independently, the
@@ -147,10 +168,43 @@ export default class Transform {
       submissionTime: this.utcDate(data.created),
       statusUpdateTime: this.utcDate(data.status_updated),
       status: data.status,
-      request: data.request,
+      request: this.fromTaskRequestDTO(data.request),
       progress: data.progress,
       error: this.taskError(data.error),
     };
+  }
+
+  fromTaskRequestDTO(data) {
+    const request = { type: data.type };
+    const mapping = TaskRequests[request.type];
+    if (mapping) {
+      for (const [dtoProp, reqProp] of Object.entries(mapping)) {
+        if (Object.prototype.hasOwnProperty.call(data, dtoProp)) {
+          request[reqProp] = data[dtoProp];
+        }
+      }
+      return request;
+    } else {
+      console.warn("Don't know how to convert task request type", data.type);
+      return data;
+    }
+  }
+
+  toTaskRequestDTO(request) {
+    console.log("Converting to DTO", request);
+    const dto = { type: request.type };
+    const mapping = TaskRequests[request.type];
+    if (mapping) {
+      for (const [dtoProp, reqProp] of Object.entries(mapping)) {
+        if (Object.prototype.hasOwnProperty.call(request, reqProp)) {
+          dto[dtoProp] = request[reqProp];
+        }
+      }
+      return dto;
+    } else {
+      console.warn("Don't know how to convert task request type", request.type);
+      return request;
+    }
   }
 
   taskError(data) {

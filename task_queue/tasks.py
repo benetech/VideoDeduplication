@@ -1,6 +1,8 @@
 import os
 import time
+from numbers import Number
 from pathlib import Path
+from typing import Optional, List
 
 from celery.utils.log import get_task_logger
 
@@ -11,7 +13,17 @@ logger = get_task_logger(__name__)
 
 
 @winnow_task(bind=True)
-def process_directory(self, directory, frame_sampling=None, save_frames=None):
+def process_directory(
+    self,
+    directory: str,
+    save_frames: Optional[int] = None,
+    frame_sampling: Optional[int] = None,
+    filter_dark: Optional[bool] = None,
+    dark_threshold: Optional[Number] = None,
+    extensions: Optional[List[str]] = None,
+    match_distance: Optional[float] = None,
+    min_duration: Optional[Number] = None,
+):
     from winnow.utils.config import resolve_config
     from winnow.utils.files import scan_videos
     from winnow.pipeline.extract_exif import extract_exif
@@ -24,7 +36,15 @@ def process_directory(self, directory, frame_sampling=None, save_frames=None):
 
     # Load configuration file
     logger.info("Loading config file")
-    config = resolve_config(frame_sampling=frame_sampling, save_frames=save_frames)
+    config = resolve_config(
+        frame_sampling=frame_sampling,
+        save_frames=save_frames,
+        filter_dark=filter_dark,
+        dark_threshold=dark_threshold,
+        extensions=extensions,
+        match_distance=match_distance,
+        min_duration=min_duration,
+    )
     config.database.use = True
 
     # Resolve list of video files from the directory
@@ -47,7 +67,17 @@ def process_directory(self, directory, frame_sampling=None, save_frames=None):
 
 
 @winnow_task(bind=True)
-def process_file_list(self, files, frame_sampling=None, save_frames=None):
+def process_file_list(
+    self,
+    files: List[str],
+    save_frames: Optional[int] = None,
+    frame_sampling: Optional[int] = None,
+    filter_dark: Optional[bool] = None,
+    dark_threshold: Optional[Number] = None,
+    extensions: Optional[List[str]] = None,
+    match_distance: Optional[float] = None,
+    min_duration: Optional[Number] = None,
+):
     from winnow.utils.config import resolve_config
     from winnow.pipeline.extract_exif import extract_exif
     from winnow.pipeline.detect_scenes import detect_scenes
@@ -59,7 +89,15 @@ def process_file_list(self, files, frame_sampling=None, save_frames=None):
 
     # Load configuration file
     logger.info("Loading config file")
-    config = resolve_config(frame_sampling=frame_sampling, save_frames=save_frames)
+    config = resolve_config(
+        frame_sampling=frame_sampling,
+        save_frames=save_frames,
+        filter_dark=filter_dark,
+        dark_threshold=dark_threshold,
+        extensions=extensions,
+        match_distance=match_distance,
+        min_duration=min_duration,
+    )
     config.database.use = True
 
     # Run pipeline
@@ -73,7 +111,18 @@ def process_file_list(self, files, frame_sampling=None, save_frames=None):
 
 
 @winnow_task(bind=True)
-def match_all_templates(self, match_distance=None, match_distance_min=None, frame_sampling=None, save_frames=None):
+def match_all_templates(
+    self,
+    save_frames: Optional[int] = None,
+    frame_sampling: Optional[int] = None,
+    filter_dark: Optional[bool] = None,
+    dark_threshold: Optional[Number] = None,
+    extensions: Optional[List[str]] = None,
+    match_distance: Optional[float] = None,
+    template_distance: Optional[float] = None,
+    template_distance_min: Optional[float] = None,
+    min_duration: Optional[Number] = None,
+):
     from winnow.utils.config import resolve_config
     from winnow.utils.files import scan_videos
     from winnow.pipeline.extract_exif import extract_exif
@@ -88,8 +137,13 @@ def match_all_templates(self, match_distance=None, match_distance_min=None, fram
     config = resolve_config(
         frame_sampling=frame_sampling,
         save_frames=save_frames,
-        templates_distance=match_distance,
-        templates_distance_min=match_distance_min,
+        templates_distance=template_distance,
+        templates_distance_min=template_distance_min,
+        filter_dark=filter_dark,
+        dark_threshold=dark_threshold,
+        extensions=extensions,
+        match_distance=match_distance,
+        min_duration=min_duration,
     )
 
     # Make sure templates are loaded from the database

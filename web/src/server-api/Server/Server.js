@@ -188,7 +188,7 @@ export default class Server {
     try {
       const response = await this.axios.post(
         `/tasks/`,
-        JSON.stringify(request),
+        JSON.stringify(this.transform.toTaskRequestDTO(request)),
         {
           headers: {
             "Content-Type": "application/json",

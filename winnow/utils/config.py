@@ -4,7 +4,7 @@ from winnow.config import Config
 from winnow.config.path import resolve_config_path, ensure_config_exists
 
 
-def resolve_config(
+def resolve_config(  # noqa C901
     config_path=None,
     frame_sampling=None,
     save_frames=None,
@@ -12,6 +12,11 @@ def resolve_config(
     templates_dir=None,
     templates_distance=None,
     templates_distance_min=None,
+    filter_dark=None,
+    dark_threshold=None,
+    extensions=None,
+    match_distance=None,
+    min_duration=None,
 ):
     """Resolve config from command-line arguments."""
     config_path = resolve_config_path(config_path)
@@ -31,4 +36,14 @@ def resolve_config(
         config.templates.distance = templates_distance
     if templates_distance_min is not None:
         config.templates.distance_min = templates_distance_min
+    if filter_dark is not None:
+        config.processing.filter_dark_videos = filter_dark
+    if dark_threshold is not None:
+        config.processing.filter_dark_videos_thr = dark_threshold
+    if extensions is not None:
+        config.sources.extensions = extensions
+    if match_distance is not None:
+        config.processing.match_distance = match_distance
+    if min_duration is not None:
+        config.processing.min_video_duration_seconds = min_duration
     return config

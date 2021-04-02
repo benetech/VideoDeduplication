@@ -2,7 +2,6 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import FileSelector from "./FileSelector";
 import TaskSidebar from "./TaskSidebar";
 import { useIntl } from "react-intl";
 import Title from "../../../common/components/Title";
@@ -11,6 +10,7 @@ import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import PlaylistAddCheckOutlinedIcon from "@material-ui/icons/PlaylistAddCheckOutlined";
 import { IconButton, Tooltip } from "@material-ui/core";
 import Spacer from "../../../common/components/Spacer";
+import TaskBuilder from "./TaskBuilder";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,12 +22,13 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "stretch",
   },
-  selector: {
+  builder: {
     flexGrow: 1,
   },
   tasks: {
     marginLeft: theme.spacing(4),
-    maxWidth: 380,
+    width: 380,
+    flexShrink: 0,
   },
   description: {
     flexGrow: 1,
@@ -79,7 +80,7 @@ function ProcessingPage(props) {
         </Tooltip>
       </Title>
       <div className={classes.content}>
-        <FileSelector className={classes.selector} />
+        <TaskBuilder className={classes.builder} />
         {showTasks && <TaskSidebar className={classes.tasks} />}
       </div>
     </div>

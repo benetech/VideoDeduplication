@@ -10,19 +10,20 @@ const useStyles = makeStyles((theme) => ({
   },
   header: {
     display: "flex",
+    alignItems: "center",
+    marginBottom: theme.spacing(2),
   },
   title: {
-    ...theme.mixins.title4,
+    ...theme.mixins.title3,
     fontWeight: "bold",
-    marginBottom: theme.spacing(2),
-    flexGrow: 2,
+    marginRight: theme.spacing(2),
   },
 }));
 
 /**
- * Common layout for titled filters.
+ * Common layout for individual task attribute inputs.
  */
-function FilterContainer(props) {
+function InputContainer(props) {
   const { title, tooltip, children, className, ...other } = props;
   const classes = useStyles();
 
@@ -42,17 +43,17 @@ function FilterContainer(props) {
   );
 }
 
-FilterContainer.propTypes = {
+InputContainer.propTypes = {
   /**
-   * FilterContainer title.
+   * Task param title.
    */
   title: PropTypes.string.isRequired,
   /**
-   * Optional filter tooltip
+   * Optional param tooltip
    */
   tooltip: PropTypes.string,
   /**
-   * FilterContainer content.
+   * Enveloped input components.
    */
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
@@ -61,4 +62,4 @@ FilterContainer.propTypes = {
   className: PropTypes.string,
 };
 
-export default FilterContainer;
+export default InputContainer;
