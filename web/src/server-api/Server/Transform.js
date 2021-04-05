@@ -3,6 +3,10 @@ import TaskRequest from "../../collection/state/tasks/TaskRequest";
 
 const defaultDateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 
+/**
+ * Mapping from DTO fields to task-request model
+ * fields as they are used in the application.
+ */
 const TaskRequests = {
   [TaskRequest.DIRECTORY]: {
     directory: "directory",
