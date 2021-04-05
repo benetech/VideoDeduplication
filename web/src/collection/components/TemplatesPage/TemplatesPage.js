@@ -53,6 +53,9 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     alignItems: "stretch",
   },
+  addButton: {
+    flexShrink: 0,
+  },
 }));
 
 /**
@@ -75,10 +78,16 @@ function useMessages() {
 function TemplatesHeader(props) {
   const { onAddTemplate, onShowTasks, tasksShown, className, ...other } = props;
   const messages = useMessages();
+  const classes = useStyles();
 
   return (
     <Title text={messages.title} className={className} {...other}>
-      <Button color="primary" variant="contained" onClick={onAddTemplate}>
+      <Button
+        className={classes.addButton}
+        color="primary"
+        variant="contained"
+        onClick={onAddTemplate}
+      >
         <AddOutlinedIcon />
         {messages.addTemplate}
       </Button>
