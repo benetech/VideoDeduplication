@@ -74,15 +74,17 @@ fi
 # Set remote repositories master key
 if [ "$FORCE_UPDATE" = "YES" ] || [ -z "${BENETECH_MASTER_KEY_PATH+x}" ]; then
   DIRTY=yes
-  tput setaf 6; echo "Would you like to remote repository secrets?"; tput sgr0;
+  tput setaf 6; echo "Would you like to encrypt remote repository secrets?"; tput sgr0;
   choose BENETECH_MASTER_KEY_PATH '/run/secrets/benetech_master_key'="Encrypt remote repository secrets." ''="Do not encrypt secrets."
   echo
 fi
 
 
 # Generate benetech master key if necessary
-if ! sudo docker inspect benetech_master_key >/dev/null 2>&1; then
-  openssl rand -base64 40 | sudo docker secret create benetech_master_key - >/dev/null
+if [ ! -z "$BENETECH_MASTER_KEY_PATH" ]; then
+  if ! sudo docker inspect benetech_master_key >/dev/null 2>&1; then
+    openssl rand -base64 40 | sudo docker secret create benetech_master_key - >/dev/null
+  fi
 fi
 
 
