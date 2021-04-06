@@ -42,7 +42,7 @@ docker-rebuild:
 .PHONY: docker-pull
 
 ## Update docker images (rebuild local or pull latest from repository depending on configuration).
-docker-pull:
+docker-pull: docker-stop
 	sudo docker-compose pull
 
 .PHONY: docker-purge
