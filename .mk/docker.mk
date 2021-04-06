@@ -16,7 +16,7 @@ docker-setup-update:
 
 ## Run application using docker-compose
 docker-run: docker-setup
-	sudo docker-compose up -d
+	@scripts/docker-run.sh -d
 
 
 .PHONY: docker-stop

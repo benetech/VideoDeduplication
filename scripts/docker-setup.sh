@@ -63,10 +63,15 @@ fi
 
 
 # Decide whether to use prebuilt images
-if [ "$FORCE_UPDATE" = "YES" ] || [ -z "${BENETECH_MODE+x}" ]; then
+if [ "$FORCE_UPDATE" = "YES" ] || [ -z "${BENETECH_MODE+x}" ] || [ -z "${BENETECH_GET_IMAGE_METHOD+x}" ]; then
   DIRTY=yes
   tput setaf 6; echo "Would you like to use production Docker images?"; tput sgr0;
-  choose BENETECH_MODE ''="Use production images." '-dev'="Pull the latest dev-images or build images locally."
+  choose BENETECH_GET_IMAGE_METHOD 'PULL_PROD'="Pull the latest production images from Dockerhub" 'PULL_DEV'="Pull the latest dev-images from Dockerhub." 'BUILD'="Build images from sources."
+  if [ "$BENETECH_GET_IMAGE_METHOD" = "PULL_PROD" ]; then
+    export BENETECH_MODE=""
+  else
+    export BENETECH_MODE="-dev"
+  fi
   echo
 fi
 
@@ -95,6 +100,7 @@ if [ -n "$DIRTY" ]; then
     echo "BENETECH_DATA_LOCATION=$BENETECH_DATA_LOCATION"
     echo "BENETECH_RUNTIME=$BENETECH_RUNTIME"
     echo "BENETECH_DOCKER_RUNTIME=$BENETECH_DOCKER_RUNTIME"
+    echo "BENETECH_GET_IMAGE_METHOD=$BENETECH_GET_IMAGE_METHOD"
     echo "BENETECH_MODE=$BENETECH_MODE"
     echo "BENETECH_MASTER_KEY_PATH=$BENETECH_MASTER_KEY_PATH"
   } > .env
