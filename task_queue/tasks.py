@@ -30,6 +30,7 @@ def process_directory(
     from winnow.pipeline.detect_scenes import detect_scenes
     from winnow.pipeline.generate_local_matches import generate_local_matches
     from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.utils.files import get_hash
 
     # Initialize a progress monitor
     monitor = make_progress_monitor(task=self, total_work=1.0)
@@ -55,12 +56,15 @@ def process_directory(
         raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
 
     videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
+    hashes = [get_hash(file) for file in files]
 
     # Run pipeline
     monitor.update(0)
     pipeline_context = PipelineContext(config)
-    generate_local_matches(files=videos, pipeline=pipeline_context, progress=monitor.subtask(work_amount=0.9))
-    detect_scenes(files=videos, pipeline=pipeline_context, progress=monitor.subtask(0.01))
+    generate_local_matches(
+        files=videos, pipeline=pipeline_context, hashes=hashes, progress=monitor.subtask(work_amount=0.9)
+    )
+    detect_scenes(files=videos, pipeline=pipeline_context, hashes=hashes, progress=monitor.subtask(0.01))
     extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.05))
 
     monitor.complete()
@@ -79,6 +83,7 @@ def process_file_list(
     min_duration: Optional[Number] = None,
 ):
     from winnow.utils.config import resolve_config
+    from winnow.utils.files import get_hash
     from winnow.pipeline.extract_exif import extract_exif
     from winnow.pipeline.detect_scenes import detect_scenes
     from winnow.pipeline.generate_local_matches import generate_local_matches
@@ -103,7 +108,8 @@ def process_file_list(
     # Run pipeline
     monitor.update(0)
     pipeline_context = PipelineContext(config)
-    generate_local_matches(files, pipeline=pipeline_context, progress=monitor.subtask(work_amount=0.9))
+    hashes = [get_hash(file) for file in files]
+    generate_local_matches(files, pipeline=pipeline_context, hashes=hashes, progress=monitor.subtask(work_amount=0.9))
     detect_scenes(files, pipeline=pipeline_context, progress=monitor.subtask(0.01))
     extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.05))
 

@@ -13,15 +13,17 @@ from winnow.pipeline.progress_monitor import ProgressMonitor
 logger = logging.getLogger(__name__)
 
 
-def extract_video_level_features(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
+def extract_video_level_features(
+    files: Collection[str], pipeline: PipelineContext, hashes, progress=ProgressMonitor.NULL
+):
     """Extract video-level features from the dataset videos."""
 
     files = tuple(files)
-    remaining_video_paths = tuple(missing_video_features(files, pipeline))
+    remaining_video_paths, remaining_hashes = zip(*missing_video_features(files, pipeline, hashes))
 
     # Ensure dependencies are satisfied
-    if not frame_features_exist(remaining_video_paths, pipeline):
-        extract_frame_level_features(remaining_video_paths, pipeline, progress=progress.subtask(0.9))
+    if not frame_features_exist(remaining_video_paths, pipeline, remaining_hashes):
+        extract_frame_level_features(remaining_video_paths, pipeline, remaining_hashes, progress=progress.subtask(0.9))
         progress = progress.subtask(0.1)
 
     # Skip step if required results already exist
@@ -36,17 +38,17 @@ def extract_video_level_features(files: Collection[str], pipeline: PipelineConte
     logger.info("Done video-level feature extraction.")
 
 
-def missing_video_features(files, pipeline: PipelineContext):
+def missing_video_features(files, pipeline: PipelineContext, hashes):
     """Get file paths with missing video-level features."""
     video_features = pipeline.repr_storage.video_level
-    for file_path in files:
-        if not video_features.exists(pipeline.reprkey(file_path)):
-            yield file_path
+    for i, file_path in enumerate(files):
+        if not video_features.exists(pipeline.reprkey(file_path, hash=hashes[i])):
+            yield file_path, hashes[i]
 
 
-def video_features_exist(files, pipeline: PipelineContext):
+def video_features_exist(files, pipeline: PipelineContext, hashes):
     """Check if all required video-level features do exist."""
-    return not any(missing_video_features(files, pipeline))
+    return not any(missing_video_features(files, pipeline, hashes))
 
 
 def frame_to_global(files, pipeline: PipelineContext, progress=ProgressMonitor.NULL):

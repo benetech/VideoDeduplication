@@ -18,15 +18,17 @@ from winnow.utils.scene_detection import extract_scenes
 logger = logging.getLogger(__name__)
 
 
-def detect_scenes(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
+def detect_scenes(
+    files: Collection[str], pipeline: PipelineContext, hashes: Collection[str], progress=ProgressMonitor.NULL
+):
     """Detect scenes for the given files."""
 
     files = tuple(files)
-    remaining_video_paths = tuple(missing_scenes(files, pipeline))
+    remaining_video_paths, remaining_hashes = zip(missing_scenes(files, pipeline, hashes))
 
     # Ensure dependencies are satisfied
-    if not frame_features_exist(remaining_video_paths, pipeline):
-        extract_frame_level_features(remaining_video_paths, pipeline, progress=progress.subtask(0.9))
+    if not frame_features_exist(remaining_video_paths, pipeline, remaining_hashes):
+        extract_frame_level_features(remaining_video_paths, pipeline, remaining_hashes, progress=progress.subtask(0.9))
         progress = progress.subtask(0.1)
 
     # Skip step if required results already exist
@@ -63,7 +65,7 @@ def scenes_exist(files, pipeline: PipelineContext):
     return not any(missing_scenes(files, pipeline, yield_per=1))
 
 
-def missing_scenes(files, pipeline: PipelineContext, yield_per=100):
+def missing_scenes(files, pipeline: PipelineContext, hashes, yield_per=100):
     """Select files with missing scenes."""
     # If scenes should not be extracted, then requirement is satisfied for all files
     if not pipeline.config.proc.detect_scenes:
@@ -77,13 +79,13 @@ def missing_scenes(files, pipeline: PipelineContext, yield_per=100):
         return
     # Otherwise requirement is not satisfied iff there is a database entries with missing scenes
     with pipeline.database.session_scope() as session:
-        for chunk in chunks(files, size=100):
-            query = _query_files_with_missing_scenes(chunk, session, pipeline).yield_per(yield_per)
+        for chunk, chunk_hashes in chunks(zip(files, hashes), size=100):
+            query = _query_files_with_missing_scenes(chunk, session, pipeline, chunk_hashes).yield_per(yield_per)
             for file in query:
                 yield os.path.join(pipeline.config.sources.root, file.file_path)
 
 
-def _query_files_with_missing_scenes(files, session, pipeline: PipelineContext):
+def _query_files_with_missing_scenes(files, session, pipeline: PipelineContext, hashes):
     """Create a database query for files with missing scenes."""
     path_hash_pairs = tuple(zip(map(pipeline.storepath, files), map(get_hash, files)))
     query = session.query(Files).filter(Files.contributor == None)  # noqa: E711

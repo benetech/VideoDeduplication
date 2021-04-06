@@ -1,21 +1,22 @@
 import logging
 import multiprocessing
 from typing import Collection
-
 from winnow.feature_extraction import IntermediateCnnExtractor
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
 from winnow.utils.files import create_video_list
 
 
-def extract_frame_level_features(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
+def extract_frame_level_features(
+    files: Collection[str], pipeline: PipelineContext, hashes: Collection[str], progress=ProgressMonitor.NULL
+):
     """Extract frame-level features from dataset videos."""
 
     config = pipeline.config
     logger = logging.getLogger(__name__)
 
     files = tuple(files)
-    remaining_video_paths = tuple(missing_frame_features(files, pipeline))
+    remaining_video_paths, remaining_hashes = zip(*missing_frame_features(files, pipeline, hashes))
 
     # Skip step if required results already exist
     if not remaining_video_paths:
@@ -52,14 +53,14 @@ def extract_frame_level_features(files: Collection[str], pipeline: PipelineConte
     progress.complete()
 
 
-def missing_frame_features(files, pipeline: PipelineContext):
+def missing_frame_features(files, pipeline: PipelineContext, hashes: Collection[str]):
     """Get file paths with missing frame-level features."""
     frame_features = pipeline.repr_storage.frame_level
-    for file_path in files:
-        if not frame_features.exists(pipeline.reprkey(file_path)):
-            yield file_path
+    for i, file_path in enumerate(files):
+        if not frame_features.exists(pipeline.reprkey(file_path, hash=hashes[i])):
+            yield file_path, hashes[i]
 
 
-def frame_features_exist(files, pipeline: PipelineContext):
+def frame_features_exist(files, pipeline: PipelineContext, hashes: Collection[str]):
     """Check if all required frame-level features do exist."""
-    return not any(missing_frame_features(files, pipeline))
+    return not any(missing_frame_features(files, pipeline, hashes))
