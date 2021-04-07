@@ -13,7 +13,6 @@ import { useIntl } from "react-intl";
 import Button from "../../../common/components/Button";
 import IconKind from "../../state/templates/IconKind";
 import TemplateIconPreview from "./TemplateList/TemplateIconPreview";
-import TemplateTitle from "./TemplateList/TemplateTitle";
 import { useServer } from "../../../server-api/context";
 import { useDispatch } from "react-redux";
 import { addTemplates } from "../../state/templates/actions";
@@ -21,15 +20,17 @@ import { addTemplates } from "../../state/templates/actions";
 const useStyles = makeStyles((theme) => ({
   content: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   icon: {
     width: 40,
     height: 40,
     fontSize: 40,
     margin: theme.spacing(1),
+    marginBottom: theme.spacing(2),
   },
   title: {
+    marginTop: theme.spacing(1),
     marginLeft: theme.spacing(3),
     minWidth: 250,
   },
