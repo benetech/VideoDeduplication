@@ -287,6 +287,9 @@
     "templates.deleteExample.confirm": "Are you sure you want to delete example image permanently?",
     "templates.examples": "Images to match:",
     "templates.matchedFiles.many": "{count} files matched",
-    "templates.matchedFiles.one": "1 file matched"
+    "templates.matchedFiles.one": "1 file matched",
+    "validation.invalidValue": "Invalid value",
+    "validation.nameMissing": "Name cannot be empty",
+    "validation.nameExists": "Name must be unique"
   }
 }
