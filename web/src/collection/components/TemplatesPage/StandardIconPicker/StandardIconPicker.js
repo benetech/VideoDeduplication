@@ -16,7 +16,6 @@ const useStyles = makeStyles((theme) => ({
   },
   icons: {
     marginTop: theme.spacing(1),
-    width: "max-content",
   },
 }));
 

@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     height: "max-content",
   },
   tabs: {
-    maxWidth: 150,
+    width: "max-content",
     margin: theme.spacing(1),
     marginLeft: theme.spacing(3),
     marginBottom: theme.spacing(2),
@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   picker: {
     margin: theme.spacing(1),
     height: 220,
-    width: 400,
+    minWidth: 400,
   },
   hide: { display: "none" },
 }));

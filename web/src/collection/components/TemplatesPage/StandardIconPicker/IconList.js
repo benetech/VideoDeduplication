@@ -13,7 +13,6 @@ const useStyles = makeStyles((theme) => ({
     height: 74 * 2 + theme.spacing(1),
   },
   icon: {
-    display: "inline-block",
     margin: theme.spacing(1),
   },
   row: {},
