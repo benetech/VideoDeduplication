@@ -19,7 +19,12 @@ def extract_video_level_features(
     """Extract video-level features from the dataset videos."""
 
     files = tuple(files)
-    remaining_video_paths, remaining_hashes = zip(*missing_video_features(files, pipeline, hashes))
+    remaining_data = [*missing_video_features(files, pipeline, hashes)]
+
+    if not remaining_data:
+        remaining_video_paths, remaining_hashes = [], []
+    else:
+        remaining_video_paths, remaining_hashes = zip(*remaining_data)
 
     # Ensure dependencies are satisfied
     if not frame_features_exist(remaining_video_paths, pipeline, remaining_hashes):

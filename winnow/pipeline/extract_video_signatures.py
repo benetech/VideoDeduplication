@@ -22,7 +22,13 @@ def extract_video_signatures(
     if hashes is None:
         pool = mp.Pool(mp.cpu_count())
         hashes = pool.map(get_hash, files)
-    remaining_video_paths, remaining_hashes = zip(*missing_video_signatures(files, pipeline, hashes))
+
+    remaining_data = [*missing_video_signatures(files, pipeline, hashes)]
+
+    if not remaining_data:
+        remaining_video_paths, remaining_hashes = [], []
+    else:
+        remaining_video_paths, remaining_hashes = zip(*remaining_data)
 
     # Ensure dependencies are satisfied
 

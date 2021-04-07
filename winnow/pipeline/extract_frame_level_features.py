@@ -20,7 +20,12 @@ def extract_frame_level_features(
         hashes = list(map(get_hash, files))
 
     files = tuple(files)
-    remaining_video_paths, remaining_hashes = zip(*missing_frame_features(files, pipeline, hashes))
+    remaining_data = [*missing_frame_features(files, pipeline, hashes)]
+
+    if not remaining_data:
+        remaining_video_paths, remaining_hashes = [], []
+    else:
+        remaining_video_paths, remaining_hashes = zip(*remaining_data)
 
     # Skip step if required results already exist
     if not remaining_video_paths:
