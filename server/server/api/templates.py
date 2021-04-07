@@ -169,7 +169,8 @@ def validate_new_template_dto(data: Dict) -> Tuple[str, Dict[str, str]]:
     if not isinstance(data["name"], str):
         return "Name must be a unique non empty string", {"name": ValidationErrors.INVALID_VALUE.value}
 
-    if len(data["name"].strip()) == 0:
+    data["name"] = data["name"].strip()
+    if len(data["name"]) == 0:
         return "Name must be a unique non empty string", {"name": ValidationErrors.MISSING_REQUIRED.value}
 
     name_exists = database.session.query(Template).filter(Template.name == data["name"]).count() > 0
@@ -195,7 +196,6 @@ def create_template():
 
     # Create template
     template = Template(**request_payload)
-    template.name = template.name.strip()
     database.session.add(template)
 
     # Try to commit session
