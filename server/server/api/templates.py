@@ -12,6 +12,7 @@ from werkzeug.utils import secure_filename
 from db.access.templates import TemplatesDAO
 from db.schema import Template, TemplateExample, IconType
 from .blueprint import api
+from .constants import ValidationErrors
 from .helpers import (
     parse_positive_int,
     get_file_storage,
@@ -146,7 +147,7 @@ def update_template(template_id):
     return jsonify(Transform.template(template, **include_fields(template)))
 
 
-def validate_new_template_dto(data: Dict) -> Tuple[str, List[str]]:
+def validate_new_template_dto(data: Dict) -> Tuple[str, Dict[str, str]]:
     """Validate new template DTO.
 
     Returns:
@@ -154,22 +155,28 @@ def validate_new_template_dto(data: Dict) -> Tuple[str, List[str]]:
     """
 
     expected_fields = {"name", "icon_type", "icon_key"}
-    if set(data.keys()) != expected_fields:
-        return f"Payload must have the following fields: {expected_fields}", []
+    missing_fields = expected_fields - set(data.keys())
+    if missing_fields:
+        return f"Payload must have the following fields: {expected_fields}", {
+            field: ValidationErrors.MISSING_REQUIRED.value for field in missing_fields
+        }
 
     try:
         data["icon_type"] = IconType(data["icon_type"])
     except ValueError:
-        return f"Invalid icon type: {data['icon_type']}", ["icon_type"]
+        return f"Invalid icon type: {data['icon_type']}", {"icon_type": ValidationErrors.INVALID_VALUE.value}
 
-    if not (isinstance(data["name"], str) and len(data["name"]) > 0):
-        return "Name must be non empty string", ["name"]
+    if not isinstance(data["name"], str):
+        return "Name must be a unique non empty string", {"name": ValidationErrors.INVALID_VALUE.value}
+
+    if len(data["name"].strip()) == 0:
+        return "Name must be a unique non empty string", {"name": ValidationErrors.MISSING_REQUIRED.value}
 
     name_exists = database.session.query(Template).filter(Template.name == data["name"]).count() > 0
     if name_exists:
-        return f"Template name already exists: {data['name']}", ["name"]
+        return f"Template name already exists: {data['name']}", {"name": ValidationErrors.UNIQUE_VIOLATION.value}
 
-    return None, []
+    return None, {}
 
 
 @api.route("/templates/", methods=["POST"])
@@ -188,6 +195,7 @@ def create_template():
 
     # Create template
     template = Template(**request_payload)
+    template.name = template.name.strip()
     database.session.add(template)
 
     # Try to commit session
