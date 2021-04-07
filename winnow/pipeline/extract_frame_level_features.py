@@ -5,15 +5,19 @@ from winnow.feature_extraction import IntermediateCnnExtractor
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
 from winnow.utils.files import create_video_list
+from winnow.utils.files import get_hash
 
 
 def extract_frame_level_features(
-    files: Collection[str], pipeline: PipelineContext, hashes: Collection[str], progress=ProgressMonitor.NULL
+    files: Collection[str], pipeline: PipelineContext, hashes=None, progress=ProgressMonitor.NULL
 ):
     """Extract frame-level features from dataset videos."""
 
     config = pipeline.config
     logger = logging.getLogger(__name__)
+
+    if hashes is None:
+        hashes = list(map(get_hash, files))
 
     files = tuple(files)
     remaining_video_paths, remaining_hashes = zip(*missing_frame_features(files, pipeline, hashes))
@@ -61,6 +65,10 @@ def missing_frame_features(files, pipeline: PipelineContext, hashes: Collection[
             yield file_path, hashes[i]
 
 
-def frame_features_exist(files, pipeline: PipelineContext, hashes: Collection[str]):
+def frame_features_exist(files, pipeline: PipelineContext, hashes=None):
     """Check if all required frame-level features do exist."""
+
+    if hashes is None:
+        hashes = list(map(get_hash, files))
+
     return not any(missing_frame_features(files, pipeline, hashes))

@@ -56,7 +56,7 @@ def process_directory(
         raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
 
     videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
-    hashes = [get_hash(file) for file in files]
+    hashes = [get_hash(file) for file in videos]
 
     # Run pipeline
     monitor.update(0)

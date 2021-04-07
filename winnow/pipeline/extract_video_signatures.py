@@ -13,12 +13,15 @@ import multiprocessing as mp
 logger = logging.getLogger(__name__)
 
 
-def extract_video_signatures(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
+def extract_video_signatures(
+    files: Collection[str], pipeline: PipelineContext, hashes=None, progress=ProgressMonitor.NULL
+):
     """Calculate and save signatures for the given files to repr-storage."""
 
     files = tuple(files)
-    pool = mp.Pool(mp.cpu_count())
-    hashes = pool.map(get_hash, files)
+    if hashes is None:
+        pool = mp.Pool(mp.cpu_count())
+        hashes = pool.map(get_hash, files)
     remaining_video_paths, remaining_hashes = zip(*missing_video_signatures(files, pipeline, hashes))
 
     # Ensure dependencies are satisfied
@@ -50,8 +53,12 @@ def missing_video_signatures(files, pipeline: PipelineContext, hashes: Collectio
             yield file_path, hashes[i]
 
 
-def video_signatures_exist(files, pipeline: PipelineContext, hashes: Collection[str]):
+def video_signatures_exist(files, pipeline: PipelineContext, hashes=None):
     """Check if all required signatures do exist."""
+
+    if hashes is None:
+        hashes = list(map(get_hash, files))
+
     return not any(missing_video_signatures(files, pipeline, hashes))
 
 
