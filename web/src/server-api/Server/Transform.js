@@ -171,6 +171,7 @@ export default class Transform {
       request: this.fromTaskRequestDTO(data.request),
       progress: data.progress,
       error: this.taskError(data.error),
+      result: data.result,
     };
   }
 

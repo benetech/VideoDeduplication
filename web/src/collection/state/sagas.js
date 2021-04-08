@@ -9,6 +9,7 @@ import fileMatchRootSaga from "./fileMatches/sagas";
 import fileClusterRootSaga from "./fileCluster/sagas";
 import fileListRootSaga from "./fileList/sagas";
 import taskRootSaga from "./tasks/sagas";
+import templateRootSaga from "./templates/sagas";
 
 /**
  * Initialize collection-related sagas...
@@ -18,4 +19,5 @@ export default function* collRootSaga(server) {
   yield fork(fileMatchRootSaga, server, selectFileMatches);
   yield fork(fileClusterRootSaga, server, selectFileCluster);
   yield fork(taskRootSaga, server, selectTasks);
+  yield fork(templateRootSaga);
 }

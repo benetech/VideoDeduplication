@@ -172,7 +172,8 @@ def match_all_templates(
     database = pipeline_context.database
     with database.session_scope() as session:
         templates = session.query(Template)
-        file_counts = TemplatesDAO.query_file_counts(session, templates)
+        raw_counts = TemplatesDAO.query_file_counts(session, templates)
+        file_counts = [{"template": template_id, "file_count": count} for template_id, count in raw_counts.items()]
 
     monitor.complete()
 
