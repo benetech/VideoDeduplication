@@ -7,12 +7,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  TextField,
 } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import Button from "../../../common/components/Button";
 import IconKind from "../../state/templates/IconKind";
 import TemplateIconPreview from "./TemplateList/TemplateIconPreview";
-import TemplateTitle from "./TemplateList/TemplateTitle";
 import { useServer } from "../../../server-api/context";
 import { useDispatch } from "react-redux";
 import { addTemplates } from "../../state/templates/actions";
@@ -20,15 +20,17 @@ import { addTemplates } from "../../state/templates/actions";
 const useStyles = makeStyles((theme) => ({
   content: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   icon: {
     width: 40,
     height: 40,
     fontSize: 40,
     margin: theme.spacing(1),
+    marginBottom: theme.spacing(2),
   },
   title: {
+    marginTop: theme.spacing(1),
     marginLeft: theme.spacing(3),
     minWidth: 250,
   },
@@ -44,6 +46,15 @@ function useMessages() {
     cancel: intl.formatMessage({ id: "actions.cancel" }),
     create: intl.formatMessage({ id: "actions.create" }),
     defaultName: intl.formatMessage({ id: "templates.name" }),
+    nameError(error) {
+      if (error === "UNIQUE_VIOLATION") {
+        return intl.formatMessage({ id: "validation.nameExists" });
+      } else if (error === "MISSING_REQUIRED") {
+        return intl.formatMessage({ id: "validation.nameMissing" });
+      } else {
+        return "";
+      }
+    },
   };
 }
 
@@ -61,6 +72,11 @@ function AddTemplateDialog(props) {
   const [icon, setIcon] = useState(defaultIcon);
   const [name, setName] = useState(messages.defaultName);
   const [loading, setLoading] = useState(false);
+  const [nameError, setNameError] = useState("");
+  const handleNameChange = useCallback((event) => {
+    setName(event.target.value);
+    setNameError("");
+  }, []);
 
   // Reset dialog state on open
   useEffect(() => {
@@ -68,6 +84,7 @@ function AddTemplateDialog(props) {
       setLoading(false);
       setIcon(defaultIcon);
       setName(messages.defaultName);
+      setNameError("");
     }
   }, [open]);
 
@@ -80,6 +97,7 @@ function AddTemplateDialog(props) {
           dispatch(addTemplates([response.data]));
           onClose();
         } else {
+          setNameError(messages.nameError(response?.data?.fields?.name));
           console.error("Creating template failed", response);
         }
       })
@@ -105,11 +123,13 @@ function AddTemplateDialog(props) {
             edit
             className={classes.icon}
           />
-          <TemplateTitle
-            name={name}
-            onChange={setName}
-            edit
+          <TextField
+            value={name}
+            onChange={handleNameChange}
             className={classes.title}
+            color="secondary"
+            error={!!nameError}
+            helperText={nameError}
           />
         </div>
       </DialogContent>
@@ -118,7 +138,7 @@ function AddTemplateDialog(props) {
           variant="contained"
           color="primary"
           onClick={handleCreate}
-          disabled={!name || loading}
+          disabled={!name || loading || !!nameError}
         >
           {messages.create}
         </Button>
