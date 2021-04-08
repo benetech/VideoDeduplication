@@ -100,6 +100,7 @@ class CeleryTaskQueue(TaskQueue):
             status=status,
             error=error,
             progress=winnow_meta.progress,
+            result=async_result.result,
         )
 
     def _get_task_meta(self, task_id, transaction=None) -> Optional[TaskMetadata]:
