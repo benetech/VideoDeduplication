@@ -18,9 +18,7 @@ from winnow.utils.scene_detection import extract_scenes
 logger = logging.getLogger(__name__)
 
 
-def detect_scenes(
-    files: Collection[str], pipeline: PipelineContext, hashes: Collection[str], progress=ProgressMonitor.NULL
-):
+def detect_scenes(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
     """Detect scenes for the given files."""
 
     files = tuple(files)

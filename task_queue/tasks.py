@@ -64,7 +64,7 @@ def process_directory(
     generate_local_matches(
         files=videos, pipeline=pipeline_context, hashes=hashes, progress=monitor.subtask(work_amount=0.9)
     )
-    detect_scenes(files=videos, pipeline=pipeline_context, hashes=hashes, progress=monitor.subtask(0.01))
+    detect_scenes(files=videos, pipeline=pipeline_context, progress=monitor.subtask(0.01))
     extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.05))
 
     monitor.complete()
@@ -88,6 +88,7 @@ def process_file_list(
     from winnow.pipeline.detect_scenes import detect_scenes
     from winnow.pipeline.generate_local_matches import generate_local_matches
     from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.utils.files import get_hash
 
     # Initialize a progress monitor
     monitor = make_progress_monitor(task=self, total_work=1.0)

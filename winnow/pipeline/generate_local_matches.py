@@ -16,6 +16,7 @@ from winnow.pipeline.store_database_signatures import database_signatures_exist,
 from winnow.storage.repr_key import ReprKey
 from winnow.storage.repr_utils import bulk_read
 from winnow.utils.brightness import get_brightness_estimation
+from winnow.utils.files import get_hash
 
 
 # Default module logger
@@ -23,16 +24,14 @@ logger = logging.getLogger(__name__)
 
 
 def generate_local_matches(
-    files: Collection[str], pipeline: PipelineContext, hashes: Collection[str], progress=ProgressMonitor.NULL
+    files: Collection[str], pipeline: PipelineContext, hashes=None, progress=ProgressMonitor.NULL
 ):
     """Find matches between video files."""
 
     files = tuple(files)
     config = pipeline.config
-
-    # pool = mp.Pool(mp.cpu_count())
-    # hashes = pool.map(get_hash, files)
-    # hashes = [get_hash(file) for file in files]
+    if hashes is None:
+        hashes = [get_hash(file) for file in files]
 
     # There is no way to check if matches are already generated.
     # Hence we must always attempt to generate matches.

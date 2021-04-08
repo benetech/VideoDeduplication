@@ -8,17 +8,20 @@ from winnow.pipeline.extract_frame_level_features import (
 )
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
+from winnow.utils.files import get_hash
 
 # Default module logger
 logger = logging.getLogger(__name__)
 
 
 def extract_video_level_features(
-    files: Collection[str], pipeline: PipelineContext, hashes, progress=ProgressMonitor.NULL
+    files: Collection[str], pipeline: PipelineContext, hashes=None, progress=ProgressMonitor.NULL
 ):
     """Extract video-level features from the dataset videos."""
 
     files = tuple(files)
+    if hashes is None:
+        hashes = [get_hash(file) for file in files]
     remaining_data = [*missing_video_features(files, pipeline, hashes)]
 
     if not remaining_data:

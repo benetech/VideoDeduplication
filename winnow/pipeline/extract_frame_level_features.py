@@ -4,8 +4,7 @@ from typing import Collection
 from winnow.feature_extraction import IntermediateCnnExtractor
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
-from winnow.utils.files import create_video_list
-from winnow.utils.files import get_hash
+from winnow.utils.files import create_video_list, get_hash
 
 
 def extract_frame_level_features(
