@@ -2,9 +2,12 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 from enum import Enum
 from numbers import Number
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union
 
 from server.queue import time_utils
+
+# Type hint for json-serializable data.
+JsonData = Union[List, Dict, Number, bool, str]
 
 
 @dataclass
@@ -54,6 +57,7 @@ class Task:
     request: Request
     error: Optional[TaskError] = None
     progress: Optional[float] = None
+    result: Optional[JsonData] = None
 
     def asdict(self):
         data = asdict(self)

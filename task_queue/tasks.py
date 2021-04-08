@@ -2,10 +2,12 @@ import os
 import time
 from numbers import Number
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 from celery.utils.log import get_task_logger
 
+from db.access.templates import TemplatesDAO
+from db.schema import Template
 from .progress_monitor import make_progress_monitor
 from .winnow_task import winnow_task
 
@@ -128,7 +130,7 @@ def match_all_templates(
     template_distance: Optional[float] = None,
     template_distance_min: Optional[float] = None,
     min_duration: Optional[Number] = None,
-):
+) -> Dict:
     from winnow.utils.config import resolve_config
     from winnow.utils.files import scan_videos
     from winnow.pipeline.extract_exif import extract_exif
@@ -172,7 +174,16 @@ def match_all_templates(
     extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.1))
     match_templates(videos, pipeline_context, progress=monitor.subtask(work_amount=0.9))
 
+    # Fetch matched file counts
+    database = pipeline_context.database
+    with database.session_scope() as session:
+        templates = session.query(Template)
+        raw_counts = TemplatesDAO.query_file_counts(session, templates)
+        file_counts = [{"template": template_id, "file_count": count} for template_id, count in raw_counts.items()]
+
     monitor.complete()
+
+    return {"file_counts": file_counts}
 
 
 def fibo(n):
