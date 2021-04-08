@@ -88,7 +88,6 @@ def process_file_list(
     from winnow.pipeline.detect_scenes import detect_scenes
     from winnow.pipeline.generate_local_matches import generate_local_matches
     from winnow.pipeline.pipeline_context import PipelineContext
-    from winnow.utils.files import get_hash
 
     # Initialize a progress monitor
     monitor = make_progress_monitor(task=self, total_work=1.0)
