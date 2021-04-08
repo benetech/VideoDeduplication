@@ -37,7 +37,7 @@ services:
       dockerfile: "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
       target: prod
       args:
-        GIT_HASH: "${GIT_HASH}"
+        GIT_HASH: "${GIT_HASH:-UNKNOWN}"
     runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
     command: bash -ic "bash serve_jupyter.sh"
     environment:
@@ -80,7 +80,7 @@ services:
       dockerfile: "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
       target: prod
       args:
-        GIT_HASH: "${GIT_HASH}"
+        GIT_HASH: "${GIT_HASH:-UNKNOWN}"
     runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
     command: bash -ic "python -m task_queue.application worker --loglevel=INFO -E"
     environment:
@@ -114,7 +114,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.server
       args:
-        GIT_HASH: "${GIT_HASH}"
+        GIT_HASH: "${GIT_HASH:-UNKNOWN}"
     environment:
       SERVER_HOST: "0.0.0.0"
       SERVER_PORT: "5000"
