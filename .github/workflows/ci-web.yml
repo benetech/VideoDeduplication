@@ -42,6 +42,7 @@ jobs:
         with:
           name: cypress-firefox-screenshots
           path: web/e2e/cypress/screenshots/**/*.png
+          retention-days: 7
       - name: E2E Testing with Cypress on Chrome
         working-directory: ./web
         run: npm run cy:chrome
@@ -51,3 +52,4 @@ jobs:
         with:
           name: cypress-chrome-screenshots
           path: web/e2e/cypress/screenshots/**/*.png
+          retention-days: 7
