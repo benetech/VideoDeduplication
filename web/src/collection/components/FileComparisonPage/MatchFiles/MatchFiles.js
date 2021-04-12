@@ -136,7 +136,11 @@ function MatchFiles(props) {
   }
 
   return (
-    <div className={clsx(classes.root, className)} {...other}>
+    <div
+      className={clsx(classes.root, className)}
+      data-selector="MatchFiles"
+      {...other}
+    >
       <div className={classes.header}>
         <div className={classes.title}>{messages.title}</div>
         {!hasMore && (
