@@ -115,6 +115,8 @@ function ObjectGroupListItem(props) {
               className={classes.object}
               onClick={() => onJump(object)}
               aria-label={description(object, intl)}
+              data-selector="ObjectListItemButton"
+              data-object-id={object.id}
             >
               <TemplateIcon icon={object.template?.icon} />
             </SquaredIconButton>

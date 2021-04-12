@@ -79,7 +79,11 @@ function VideoInformation(props) {
       <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
         <SelectableTab label={messages.info} value={Tab.info} />
         {objects.length > 0 && (
-          <SelectableTab label={messages.objects} value={Tab.objects} />
+          <SelectableTab
+            label={messages.objects}
+            value={Tab.objects}
+            data-selector="ObjectsTab"
+          />
         )}
         <SelectableTab label={messages.exif} value={Tab.exif} />
       </SelectableTabs>
