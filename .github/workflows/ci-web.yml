@@ -36,6 +36,18 @@ jobs:
       - name: E2E Testing with Cypress on Firefox
         working-directory: ./web
         run: npm run cy:firefox
+      - name: Archive Cypress Firefox screenshots if failed
+        uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        with:
+          name: cypress-firefox-screenshots
+          path: web/e2e/cypress/screenshots/**/*.png
       - name: E2E Testing with Cypress on Chrome
         working-directory: ./web
         run: npm run cy:chrome
+      - name: Archive Cypress Chrome screenshots if failed
+        uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        with:
+          name: cypress-chrome-screenshots
+          path: web/e2e/cypress/screenshots/**/*.png
