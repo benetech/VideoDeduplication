@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -60,9 +60,24 @@ function useMessages() {
   };
 }
 
+/**
+ * Get list of scenes sorted by position.
+ */
+function sorted(scenes) {
+  const result = [...scenes];
+  return result.sort((a, b) => a.position - b.position);
+}
+
 function SceneSelector(props) {
-  const { scenes, played, onSelect, collapsible, className } = props;
+  const {
+    scenes: scenesProp,
+    played,
+    onSelect,
+    collapsible,
+    className,
+  } = props;
   const classes = useStyles();
+  const scenes = useMemo(() => sorted(scenesProp), [scenes]);
   const selected = selectedScene(scenes, played);
   const messages = useMessages();
   const [collapsed, setCollapsed] = useState(false);
