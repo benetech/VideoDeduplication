@@ -7,6 +7,8 @@ import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 import DoneOutlinedIcon from "@material-ui/icons/DoneOutlined";
 import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
 import { TextField } from "@material-ui/core";
+import nameErrorMessage from "../nameErrorMessage";
+import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -28,29 +30,40 @@ const useStyles = makeStyles((theme) => ({
 function TemplateTitle(props) {
   const { name, edit, onChange, className, ...other } = props;
   const classes = useStyles();
+  const intl = useIntl();
   const [editing, setEditing] = useState(false);
   const [staging, setStaging] = useState(name);
-
-  // Reset staging when name is changed
-  useEffect(() => {
-    setStaging(name);
-  }, [name]);
+  const [nameError, setNameError] = useState("");
+  const [progress, setProgress] = useState(false);
 
   // Reset state when editing is disabled
   useEffect(() => {
     setEditing(false);
     setStaging(name);
+    setProgress(false);
+    setNameError("");
   }, [edit]);
 
-  const handleChange = useCallback((event) => setStaging(event.target.value));
+  const handleChange = useCallback((event) => {
+    setNameError("");
+    setStaging(event.target.value);
+  });
   const handleEdit = useCallback(() => setEditing(true));
   const handleCancel = useCallback(() => {
     setEditing(false);
     setStaging(name);
   }, [name]);
-  const handleDone = useCallback(() => {
-    setEditing(false);
-    onChange(staging);
+  const handleDone = useCallback(async () => {
+    setProgress(true);
+    try {
+      await onChange(staging);
+      setEditing(false);
+    } catch (error) {
+      const errorCode = error?.fields?.name;
+      setNameError(nameErrorMessage(intl, errorCode));
+    } finally {
+      setProgress(false);
+    }
   }, [onChange, staging]);
 
   if (!editing) {
@@ -71,11 +84,19 @@ function TemplateTitle(props) {
   } else {
     return (
       <div className={clsx(classes.container, className)} {...other}>
-        <TextField value={staging} onChange={handleChange} color="secondary" />
+        <TextField
+          value={staging}
+          onChange={handleChange}
+          disabled={progress}
+          color="secondary"
+          error={!!nameError}
+          helperText={nameError}
+        />
         <IconButton
           onClick={handleDone}
           className={classes.button}
           size="small"
+          disabled={progress}
         >
           <DoneOutlinedIcon />
         </IconButton>
@@ -83,6 +104,7 @@ function TemplateTitle(props) {
           onClick={handleCancel}
           className={classes.button}
           size="small"
+          disabled={progress}
         >
           <ClearOutlinedIcon />
         </IconButton>

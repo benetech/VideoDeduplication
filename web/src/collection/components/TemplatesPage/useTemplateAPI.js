@@ -58,6 +58,7 @@ export default function useTemplateAPI() {
     if (response.failure) {
       console.error("Unsuccessful template update", response);
       dispatch(updateTemplate(original));
+      response.error.fields = response.error.response?.data?.fields;
       throw response.error;
     } else {
       return response;
