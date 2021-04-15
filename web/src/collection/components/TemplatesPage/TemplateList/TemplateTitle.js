@@ -14,6 +14,7 @@ const useStyles = makeStyles((theme) => ({
   container: {
     display: "flex",
     alignItems: "center",
+    minHeight: 54,
   },
   title: {
     ...theme.mixins.title3,
