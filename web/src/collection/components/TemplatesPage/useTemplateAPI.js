@@ -52,20 +52,17 @@ export default function useTemplateAPI() {
     }
   });
 
-  const handleUpdateTemplate = useCallback((updated, original) => {
+  const handleUpdateTemplate = useCallback(async (updated, original) => {
     dispatch(updateTemplate(updated));
-    server
-      .updateTemplate({ template: updated })
-      .then((response) => {
-        if (response.failure) {
-          console.error("Unsuccessful template update", response);
-          dispatch(updateTemplate(original));
-        }
-      })
-      .catch((error) => {
-        console.error("Catch template update error", error);
-        dispatch(updateTemplate(original));
-      });
+    const response = await server.updateTemplate({ template: updated });
+    if (response.failure) {
+      console.error("Unsuccessful template update", response);
+      dispatch(updateTemplate(original));
+      response.error.fields = response.error.response?.data?.fields;
+      throw response.error;
+    } else {
+      return response;
+    }
   });
 
   const handleDeleteTemplate = useCallback((template) => {
@@ -85,19 +82,15 @@ export default function useTemplateAPI() {
   });
 
   const handleCreateTemplate = useCallback(async ({ name, icon }) => {
-    try {
-      const response = await server.createTemplate({
-        template: { name, icon },
-      });
-      if (response.success) {
-        dispatch(addTemplates([response.data]));
-      } else {
-        console.error("Creating template failed", response);
-      }
+    const response = await server.createTemplate({
+      template: { name, icon },
+    });
+    if (response.success) {
+      dispatch(addTemplates([response.data]));
       return response;
-    } catch (error) {
-      console.error("Error creating template", error);
-      throw error;
+    } else {
+      console.error("Creating template failed", response);
+      throw response.error;
     }
   });
 

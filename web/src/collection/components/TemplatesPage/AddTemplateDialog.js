@@ -16,6 +16,7 @@ import TemplateIconPreview from "./TemplateList/TemplateIconPreview";
 import { useServer } from "../../../server-api/context";
 import { useDispatch } from "react-redux";
 import { addTemplates } from "../../state/templates/actions";
+import nameErrorMessage from "./nameErrorMessage";
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -46,15 +47,7 @@ function useMessages() {
     cancel: intl.formatMessage({ id: "actions.cancel" }),
     create: intl.formatMessage({ id: "actions.create" }),
     defaultName: intl.formatMessage({ id: "templates.name" }),
-    nameError(error) {
-      if (error === "UNIQUE_VIOLATION") {
-        return intl.formatMessage({ id: "validation.nameExists" });
-      } else if (error === "MISSING_REQUIRED") {
-        return intl.formatMessage({ id: "validation.nameMissing" });
-      } else {
-        return "";
-      }
-    },
+    nameError: (error) => nameErrorMessage(intl, error),
   };
 }
 
