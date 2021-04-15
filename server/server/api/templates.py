@@ -106,6 +106,44 @@ def get_template(template_id):
     return jsonify(Transform.template(template, **include_fields(template)))
 
 
+def validate_update_template_dto(template, data: Dict) -> Tuple[str, Dict[str, str]]:
+    """Validate update-template DTO.
+
+    Returns:
+        error message and a dict of invalid fields -> error codes.
+    """
+
+    expected_fields = {"name", "icon_type", "icon_key"}
+    actual_fields = set(data.keys())
+    if not actual_fields < expected_fields:
+        return f"Payload can include only the following fields: {expected_fields}", {}
+
+    if "icon_type" in data:
+        try:
+            data["icon_type"] = IconType(data["icon_type"])
+        except ValueError:
+            return f"Invalid icon type: {data['icon_type']}", {"icon_type": ValidationErrors.INVALID_VALUE.value}
+
+    if "name" not in data:
+        return None, {}
+
+    if data["name"] is None:
+        return "Name cannot be null", {"name": ValidationErrors.MISSING_REQUIRED.value}
+
+    if not isinstance(data["name"], str):
+        return "Name must be a string value", {"name": ValidationErrors.INVALID_VALUE.value}
+
+    data["name"] = data["name"].strip()
+    if len(data["name"]) == 0:
+        return "Name cannot be empty", {"name": ValidationErrors.MISSING_REQUIRED.value}
+
+    name_exists = database.session.query(Template).filter(Template.name == data["name"]).count() > 0
+    if name_exists and data["name"] != template.name:
+        return f"Template name already exists: {data['name']}", {"name": ValidationErrors.UNIQUE_VIOLATION.value}
+
+    return None, {}
+
+
 @api.route("/templates/<int:template_id>", methods=["PATCH"])
 def update_template(template_id):
     include_fields = TemplateFields(request.args)
@@ -120,19 +158,18 @@ def update_template(template_id):
     if template is None:
         abort(HTTPStatus.NOT_FOUND.value, f"Template id not found: {template_id}")
 
+    # Get payload
     request_payload = request.get_json()
     if request_payload is None:
         abort(HTTPStatus.BAD_REQUEST.value, "Expected valid 'application/json' payload.")
 
-    expected_fields = {"name", "icon_type", "icon_key"}
-    if not set(request_payload.keys()) < expected_fields:
-        abort(HTTPStatus.BAD_REQUEST.value, f"Payload can include only the following fields: {expected_fields}")
-
-    if "icon_type" in request_payload:
-        try:
-            request_payload["icon_type"] = IconType(request_payload["icon_type"])
-        except ValueError:
-            abort(HTTPStatus.BAD_REQUEST.value, f"Invalid icon type: {request_payload['icon_type']}")
+    # Validate payload
+    error, fields = validate_update_template_dto(template, request_payload)
+    if error is not None:
+        return (
+            jsonify({"error": error, "code": HTTPStatus.BAD_REQUEST.value, "fields": fields}),
+            HTTPStatus.BAD_REQUEST.value,
+        )
 
     template.name = request_payload.get("name", template.name)
     template.icon_type = request_payload.get("icon_type", template.icon_type)
@@ -151,7 +188,7 @@ def validate_new_template_dto(data: Dict) -> Tuple[str, Dict[str, str]]:
     """Validate new template DTO.
 
     Returns:
-        error message and a list invalid fields.
+        error message and a dict of invalid fields -> error codes.
     """
 
     expected_fields = {"name", "icon_type", "icon_key"}
