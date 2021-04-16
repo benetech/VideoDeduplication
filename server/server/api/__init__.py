@@ -12,6 +12,7 @@ from . import (  # noqa: F401
     templates,
     examples,
     template_matches,
+    file_filter_presets,
 )
 from .blueprint import api
 

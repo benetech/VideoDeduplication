@@ -273,7 +273,7 @@ class Contributor(Base):
     files = relationship("Files", cascade="all,delete", back_populates="contributor")
 
 
-class FileFilterPreset:
+class FileFilterPreset(Base):
     """This is a way to store reusable file filtering presets."""
 
     __tablename__ = "file_filter_presets"
