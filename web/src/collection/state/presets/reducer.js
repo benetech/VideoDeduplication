@@ -36,7 +36,7 @@ function presetReducer(state = initialState, action) {
       return {
         ...state,
         presets: state.presets.filter(
-          (preset) => preset.id !== action.presetsId
+          (preset) => preset.id !== action.presetId
         ),
       };
     default:
