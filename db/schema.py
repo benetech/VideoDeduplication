@@ -271,3 +271,15 @@ class Contributor(Base):
 
     repository = relationship("Repository", back_populates="contributors")
     files = relationship("Files", cascade="all,delete", back_populates="contributor")
+
+
+class FileFilterPreset:
+    """This is a way to store reusable file filtering presets."""
+
+    __tablename__ = "file_filter_presets"
+
+    id = Column(Integer, primary_key=True)
+    # Any unique name for the preset
+    name = Column(String(60), nullable=False, unique=True)
+    # Any filter data as JSON blob
+    filters = Column(JSON, nullable=False)
