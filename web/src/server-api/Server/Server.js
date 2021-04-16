@@ -398,6 +398,76 @@ export default class Server {
     }
   }
 
+  async createPreset({ preset }) {
+    try {
+      const newPresetDTO = this.transform.newPresetDTO(preset);
+      const response = await this.axios.post(
+        "/files/filter-presets/",
+        JSON.stringify(newPresetDTO),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return Response.ok(this.transform.preset(response.data));
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchPresets({ limit = 1000, offset = 0, filters = {} }) {
+    try {
+      const response = await this.axios.get("/files/filter-presets/", {
+        params: {
+          limit,
+          offset,
+          ...presetFiltersToQueryParams({ filters }),
+        },
+      });
+      const data = this.transform.fetchPresetResults(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async fetchPreset({ id }) {
+    try {
+      const response = await this.axios.get(`/files/filter-presets/${id}`);
+      const data = this.transform.preset(response.data);
+      return Response.ok(data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async updatePreset({ preset }) {
+    try {
+      const response = await this.axios.patch(
+        `/files/filter-presets/${preset.id}`,
+        JSON.stringify(this.transform.updatePresetDTO(preset)),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return Response.ok(this.transform.preset(response.data));
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
+  async deletePreset({ id }) {
+    try {
+      const response = await this.axios.delete(`/files/filter-presets/${id}`);
+      return Response.ok(response.data);
+    } catch (error) {
+      return this.errorResponse(error);
+    }
+  }
+
   /**
    * Open a new connection for dynamic messaging.
    */
