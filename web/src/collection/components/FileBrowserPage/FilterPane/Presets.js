@@ -55,15 +55,15 @@ function Presets(props) {
   return (
     <div className={clsx(classes.root, className)}>
       <PresetList>
-        {presets.map((preset, index) => [
+        {presets.map((preset, index) => (
           <PresetList.Item
             key={preset.id}
             preset={preset}
             onClick={console.log}
             onDelete={console.log}
-          />,
-          index > presets.length + 1 && <PresetList.Divider />,
-        ])}
+            divider={index < presets.length - 1}
+          />
+        ))}
       </PresetList>
     </div>
   );

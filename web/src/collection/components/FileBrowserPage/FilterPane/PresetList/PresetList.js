@@ -3,7 +3,6 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import PresetListItem from "./PresetListItem";
-import Divider from "./Divider";
 
 const useStyles = makeStyles({
   root: {
@@ -22,7 +21,6 @@ function PresetList(props) {
 }
 
 PresetList.Item = PresetListItem;
-PresetList.Divider = Divider;
 
 PresetList.propTypes = {
   /**
