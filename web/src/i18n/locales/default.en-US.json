@@ -97,6 +97,7 @@
     "actions.editIcon": "Edit Icon",
     "actions.deleteTemplate": "Delete template",
     "actions.showMatchedFiles": "Show matched files",
+    "actions.createFilterPreset": "Create Filter Preset",
     "sort.duration": "Duration",
     "sort.date": "Date",
     "sort.related": "Count of Related",

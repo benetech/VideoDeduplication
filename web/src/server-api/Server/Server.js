@@ -13,6 +13,7 @@ import templateFiltersToQueryParams from "./helpers/templateFiltersToQueryParams
 import exampleFiltersToQueryParams from "./helpers/exampleFiltersToQueryParams";
 import templateMatchFiltersToQueryParams from "./helpers/templateMatchFiltersToQueryParams";
 import AxiosRetry from "axios-retry";
+import presetFiltersToQueryParams from "./helpers/presetFiltersToQueryParams";
 
 export default class Server {
   constructor({
