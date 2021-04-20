@@ -14,6 +14,7 @@ import exampleFiltersToQueryParams from "./helpers/exampleFiltersToQueryParams";
 import templateMatchFiltersToQueryParams from "./helpers/templateMatchFiltersToQueryParams";
 import AxiosRetry from "axios-retry";
 import presetFiltersToQueryParams from "./helpers/presetFiltersToQueryParams";
+import ServerError, { makeServerError } from "./ServerError";
 
 export default class Server {
   constructor({
@@ -411,9 +412,10 @@ export default class Server {
           },
         }
       );
-      return Response.ok(this.transform.preset(response.data));
+      return this.transform.preset(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      const request = { preset };
+      throw makeServerError("Create preset error.", error, request);
     }
   }
 
@@ -426,20 +428,20 @@ export default class Server {
           ...presetFiltersToQueryParams({ filters }),
         },
       });
-      const data = this.transform.fetchPresetResults(response.data);
-      return Response.ok(data);
+      return this.transform.fetchPresetResults(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      const request = { limit, offset, filters };
+      throw makeServerError("Fetch presets error.", error, request);
     }
   }
 
   async fetchPreset({ id }) {
     try {
       const response = await this.axios.get(`/files/filter-presets/${id}`);
-      const data = this.transform.preset(response.data);
-      return Response.ok(data);
+      return this.transform.preset(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      const request = { id };
+      throw makeServerError("Fetch preset error.", error, request);
     }
   }
 
@@ -454,18 +456,19 @@ export default class Server {
           },
         }
       );
-      return Response.ok(this.transform.preset(response.data));
+      return this.transform.preset(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      const request = { preset };
+      throw makeServerError("Update preset error.", error, request);
     }
   }
 
   async deletePreset({ id }) {
     try {
-      const response = await this.axios.delete(`/files/filter-presets/${id}`);
-      return Response.ok(response.data);
+      await this.axios.delete(`/files/filter-presets/${id}`);
     } catch (error) {
-      return this.errorResponse(error);
+      const request = { id };
+      throw makeServerError("Delete preset error.", error, request);
     }
   }
 
