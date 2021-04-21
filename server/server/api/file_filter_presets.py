@@ -128,7 +128,7 @@ def validate_update_preset_dto(preset: FileFilterPreset, data: Dict) -> Tuple[st
 
     expected_fields = {"name", "filters"}
     actual_fields = set(data.keys())
-    if not actual_fields < expected_fields:
+    if not actual_fields <= expected_fields:
         return f"Payload can include only the following fields: {expected_fields}", {}
 
     if "name" in data:
