@@ -13,6 +13,8 @@ import templateFiltersToQueryParams from "./helpers/templateFiltersToQueryParams
 import exampleFiltersToQueryParams from "./helpers/exampleFiltersToQueryParams";
 import templateMatchFiltersToQueryParams from "./helpers/templateMatchFiltersToQueryParams";
 import AxiosRetry from "axios-retry";
+import presetFiltersToQueryParams from "./helpers/presetFiltersToQueryParams";
+import { makeServerError } from "./ServerError";
 
 export default class Server {
   constructor({
@@ -395,6 +397,74 @@ export default class Server {
       return Response.ok(response.data);
     } catch (error) {
       return this.errorResponse(error);
+    }
+  }
+
+  async createPreset(preset) {
+    try {
+      const newPresetDTO = this.transform.newPresetDTO(preset);
+      const response = await this.axios.post(
+        "/files/filter-presets/",
+        JSON.stringify(newPresetDTO),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return this.transform.preset(response.data);
+    } catch (error) {
+      throw makeServerError("Create preset error.", error, { preset });
+    }
+  }
+
+  async fetchPresets(options = {}) {
+    try {
+      const { limit = 1000, offset = 0, filters = {} } = options;
+      const response = await this.axios.get("/files/filter-presets/", {
+        params: {
+          limit,
+          offset,
+          ...presetFiltersToQueryParams({ filters }),
+        },
+      });
+      return this.transform.fetchPresetResults(response.data);
+    } catch (error) {
+      throw makeServerError("Fetch presets error.", error, { options });
+    }
+  }
+
+  async fetchPreset(id) {
+    try {
+      const response = await this.axios.get(`/files/filter-presets/${id}`);
+      return this.transform.preset(response.data);
+    } catch (error) {
+      throw makeServerError("Fetch preset error.", error, { id });
+    }
+  }
+
+  async updatePreset(preset) {
+    try {
+      const response = await this.axios.patch(
+        `/files/filter-presets/${preset.id}`,
+        JSON.stringify(this.transform.updatePresetDTO(preset)),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return this.transform.preset(response.data);
+    } catch (error) {
+      throw makeServerError("Update preset error.", error, { preset });
+    }
+  }
+
+  async deletePreset(preset) {
+    try {
+      await this.axios.delete(`/files/filter-presets/${preset.id}`);
+    } catch (error) {
+      throw makeServerError("Delete preset error.", error, { preset });
     }
   }
 

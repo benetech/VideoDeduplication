@@ -71,7 +71,7 @@ function TemplateFilter(props) {
         dispatch(setTemplates(templates))
       );
     }
-  }, [templates]);
+  }, []);
 
   const handleChange = useCallback((event) => onChange(event.target.value), [
     onChange,
@@ -104,6 +104,7 @@ function TemplateFilter(props) {
           onChange={handleChange}
           input={<Input />}
           renderValue={renderValue}
+          disabled={!templates || templates.length === 0}
         >
           {templates.map((template) => (
             <MenuItem key={template.id} value={template.id}>

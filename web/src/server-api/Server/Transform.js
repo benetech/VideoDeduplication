@@ -346,4 +346,34 @@ export default class Transform {
       icon_key: template.icon?.key,
     };
   }
+
+  fetchPresetResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      presets: data.items.map((preset) => this.preset(preset)),
+    };
+  }
+
+  preset(data) {
+    return {
+      id: data.id,
+      name: data.name,
+      filters: data.filters,
+    };
+  }
+
+  newPresetDTO(preset) {
+    return {
+      name: preset.name,
+      filters: preset.filters,
+    };
+  }
+
+  updatePresetDTO(preset) {
+    return {
+      name: preset.name,
+      filters: preset.filters,
+    };
+  }
 }

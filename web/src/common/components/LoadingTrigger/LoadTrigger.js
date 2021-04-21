@@ -44,7 +44,7 @@ function useMessages() {
 function LoadTrigger(props) {
   const {
     error,
-    container: Container,
+    container: Container = "div",
     hasMore,
     loading,
     onLoad,
@@ -111,7 +111,7 @@ LoadTrigger.propTypes = {
   /**
    * Container component
    */
-  container: PropTypes.elementType.isRequired,
+  container: PropTypes.elementType,
   /**
    * Message displayed when error=true
    */

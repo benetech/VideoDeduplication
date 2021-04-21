@@ -57,3 +57,14 @@ export const selectTemplates = (state) => selectColl(state).templates;
  */
 export const selectCachedObjects = (fileId) => (state) =>
   selectColl(state).objectCache.objects[fileId];
+
+/**
+ * Select loaded presets state.
+ */
+export const selectPresets = (state) => selectColl(state).presets;
+
+/**
+ * Select preloaded preset if any.
+ */
+export const selectPreset = ({ id }) => (state) =>
+  selectPresets(state).presets.find((preset) => preset.id === id);

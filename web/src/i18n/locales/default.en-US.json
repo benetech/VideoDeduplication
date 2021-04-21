@@ -75,6 +75,7 @@
     "actions.delete": "Delete",
     "actions.cancel": "Cancel",
     "actions.create": "Create",
+    "actions.update": "Update",
     "actions.showLogs": "Show Logs",
     "actions.process": "Process {what}",
     "actions.copyHash": "Copy File SHA-256",
@@ -97,6 +98,7 @@
     "actions.editIcon": "Edit Icon",
     "actions.deleteTemplate": "Delete template",
     "actions.showMatchedFiles": "Show matched files",
+    "actions.createFilterPreset": "Create Filter Preset",
     "sort.duration": "Duration",
     "sort.date": "Date",
     "sort.related": "Count of Related",
@@ -290,6 +292,16 @@
     "templates.matchedFiles.one": "1 file matched",
     "validation.invalidValue": "Invalid value",
     "validation.nameMissing": "Name cannot be empty",
-    "validation.nameExists": "Name must be unique"
+    "validation.nameExists": "Name must be unique",
+    "validation.nameTooLong": "Name is too long",
+    "presets.loadError": "Error loading presets",
+    "presets.createPreset.title": "Create Preset",
+    "presets.createPreset.description": "To create file filter preset from the current filters please enter a unique preset name.",
+    "presets.updatePreset.title": "Update Preset",
+    "presets.updatePreset.description": "If you want to rename preset type a new unique name.",
+    "presets.updatePreset.filters": "Update from current filters",
+    "presets.deletePreset.title": "Delete Preset",
+    "presets.deletePreset.description": "Are you sure you want to delete the \"{name}\" preset?",
+    "presets.name": "Preset Name"
   }
 }

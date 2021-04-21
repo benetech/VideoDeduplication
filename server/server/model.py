@@ -18,6 +18,7 @@ from db.schema import (
     Template,
     TemplateExample,
     TemplateMatches,
+    FileFilterPreset,
 )
 
 database = SQLAlchemy()
@@ -217,3 +218,13 @@ class Transform:
         if file:
             data["file"] = Transform.file(match.file, meta=True, exif=True)
         return data
+
+    @staticmethod
+    @serializable
+    def file_filter_preset(preset: FileFilterPreset) -> Dict:
+        """Get dict-data representation of the file filer preset."""
+        return {
+            "id": preset.id,
+            "name": preset.name,
+            "filters": preset.filters,
+        }
