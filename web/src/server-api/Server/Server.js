@@ -462,7 +462,7 @@ export default class Server {
 
   async deletePreset(preset) {
     try {
-      await this.axios.delete(`/files/filter-presets/${id}`);
+      await this.axios.delete(`/files/filter-presets/${preset.id}`);
     } catch (error) {
       throw makeServerError("Delete preset error.", error, { preset });
     }
