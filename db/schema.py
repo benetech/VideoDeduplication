@@ -280,6 +280,6 @@ class FileFilterPreset(Base):
 
     id = Column(Integer, primary_key=True)
     # Any unique name for the preset
-    name = Column(String(60), nullable=False, unique=True)
+    name = Column(String(100), nullable=False, unique=True)
     # Any filter data as JSON blob
     filters = Column(JSON, nullable=False)
