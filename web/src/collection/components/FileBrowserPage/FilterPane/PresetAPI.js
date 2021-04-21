@@ -4,15 +4,25 @@ import { useServer } from "../../../../server-api/context";
 import {
   addPreset,
   addPresets,
+  deletePreset,
   updatePreset,
 } from "../../../state/presets/actions";
 import { selectPresets } from "../../../state/selectors";
+import initialState from "../../../state/fileList/initialState";
 
 /**
  * This API implements integration between bare Server API
  * and the Application state (managed by Redux.js).
  */
 export default class PresetAPI {
+  /**
+   * Default file filters.
+   */
+  static DefaultFilters = initialState.filters;
+
+  /**
+   * React hook to obtain PresetAPI
+   */
   static use() {
     const server = useServer();
     const dispatch = useDispatch();

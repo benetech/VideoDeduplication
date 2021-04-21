@@ -292,6 +292,10 @@
     "validation.invalidValue": "Invalid value",
     "validation.nameMissing": "Name cannot be empty",
     "validation.nameExists": "Name must be unique",
-    "presets.loadError": "Error loading presets"
+    "validation.nameTooLong": "Name is too long",
+    "presets.loadError": "Error loading presets",
+    "presets.createPreset.title": "Create Preset",
+    "presets.createPreset.description": "To create file filter preset from current filters please type a unique preset name.",
+    "presets.name": "Preset Name"
   }
 }

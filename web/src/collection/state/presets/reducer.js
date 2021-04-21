@@ -47,6 +47,7 @@ function presetReducer(state = initialState, action) {
         presets: state.presets.filter(
           (preset) => preset.id !== action.preset.id
         ),
+        total: state.total != null ? state.total - 1 : state.total,
       };
     default:
       return state;

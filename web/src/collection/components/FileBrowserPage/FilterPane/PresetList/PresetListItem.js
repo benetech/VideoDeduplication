@@ -52,7 +52,16 @@ function PresetListItem(props) {
   const classes = useStyles();
   const messages = useMessages({ divider });
 
-  const handleDelete = useCallback(() => onDelete(preset), [preset, onDelete]);
+  const handleDelete = useCallback(
+    (event) => {
+      event.stopPropagation();
+      onDelete(preset);
+    },
+    [preset, onDelete]
+  );
+
+  const handleMouseDown = useCallback((event) => event.stopPropagation());
+
   const handleClick = useCallback(() => onClick(preset), [preset, onClick]);
 
   return (
@@ -70,6 +79,7 @@ function PresetListItem(props) {
           size="small"
           aria-label={messages.delete}
           onClick={handleDelete}
+          onMouseDown={handleMouseDown}
           className={classes.button}
         >
           <DeleteOutlinedIcon />

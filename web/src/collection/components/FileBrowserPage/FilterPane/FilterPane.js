@@ -74,7 +74,7 @@ function useActiveFilters() {
 }
 
 function FilterPane(props) {
-  const { onSave, onClose, className, ...other } = props;
+  const { onClose, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
   const [tab, setTab] = useState(Tab.content);
@@ -86,7 +86,7 @@ function FilterPane(props) {
   return (
     <div className={clsx(classes.pane, className)} {...other}>
       <div className={classes.filters}>
-        <FilterPaneHeader onClose={onClose} onSave={onSave} autoFocus={true} />
+        <FilterPaneHeader onClose={onClose} autoFocus={true} />
         <SelectableTabs
           value={tab}
           onChange={setTab}
@@ -120,7 +120,6 @@ FilterPane.useActiveFilters = useActiveFilters;
 
 FilterPane.propTypes = {
   onClose: PropTypes.func,
-  onSave: PropTypes.func,
   className: PropTypes.string,
 };
 

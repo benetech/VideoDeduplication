@@ -40,7 +40,6 @@ function Presets(props) {
   const messages = useMessages();
   const presetApi = PresetAPI.use();
   const presetList = presetApi.useLazyPresetList();
-  console.log(presetList);
 
   const handleApply = useCallback((preset) => {
     const filters = lodash.merge({}, initialState.filters, preset.filters);
@@ -63,7 +62,7 @@ function Presets(props) {
             preset={preset}
             onClick={handleApply}
             onDelete={handleDelete}
-            divider={index < presets.length - 1}
+            divider={index < presetList.presets.length - 1}
           />
         ))}
         <LoadTrigger
