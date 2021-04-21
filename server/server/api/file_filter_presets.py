@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 
 from flask import jsonify, request, abort
 from sqlalchemy.exc import IntegrityError, DataError
@@ -48,6 +48,26 @@ def get_file_filter_presets(preset_id):
     return jsonify(Transform.file_filter_preset(preset))
 
 
+def validate_preset_name(data: Dict, current: Optional[FileFilterPreset] = None) -> Tuple[str, Dict[str, str]]:
+    """Validate preset name."""
+    if data["name"] is None:
+        return "Name cannot be null", {"name": ValidationErrors.MISSING_REQUIRED.value}
+
+    if not isinstance(data["name"], str):
+        return "Name must be a string value", {"name": ValidationErrors.INVALID_VALUE.value}
+
+    data["name"] = data["name"].strip()
+    if len(data["name"]) == 0:
+        return "Name cannot be empty", {"name": ValidationErrors.MISSING_REQUIRED.value}
+
+    if len(data["name"]) > 100:
+        return "Name is too long", {"name": ValidationErrors.OUT_OF_BOUNDS.value}
+
+    name_exists = database.session.query(FileFilterPreset).filter(FileFilterPreset.name == data["name"]).count() > 0
+    if name_exists and (current is None or data["name"] != current.name):
+        return f"Preset name already exists: {data['name']}", {"name": ValidationErrors.UNIQUE_VIOLATION.value}
+
+
 def validate_new_preset_dto(data: Dict) -> Tuple[str, Dict[str, str]]:
     """Validate new preset DTO.
 
@@ -66,22 +86,9 @@ def validate_new_preset_dto(data: Dict) -> Tuple[str, Dict[str, str]]:
     if unknown_fields:
         return f"Payload contains unexpected fields: {unknown_fields}", {}
 
-    if data["name"] is None:
-        return "Name cannot be null", {"name": ValidationErrors.MISSING_REQUIRED.value}
-
-    if not isinstance(data["name"], str):
-        return "Name must be a string", {"name": ValidationErrors.INVALID_VALUE.value}
-
-    data["name"] = data["name"].strip()
-    if len(data["name"]) == 0:
-        return "Name must cannot be empty", {"name": ValidationErrors.MISSING_REQUIRED.value}
-
-    if len(data["name"]) > 100:
-        return "Name is too long", {"name": ValidationErrors.OUT_OF_BOUNDS.value}
-
-    name_exists = database.session.query(FileFilterPreset).filter(FileFilterPreset.name == data["name"]).count() > 0
-    if name_exists:
-        return f"Preset name already exists: {data['name']}", {"name": ValidationErrors.UNIQUE_VIOLATION.value}
+    name_error = validate_preset_name(data)
+    if name_error is not None:
+        return name_error
 
     if data["filters"] is None:
         return "Filters cannot be null", {"filters": ValidationErrors.MISSING_REQUIRED.value}
@@ -132,22 +139,9 @@ def validate_update_preset_dto(preset: FileFilterPreset, data: Dict) -> Tuple[st
         return f"Payload can include only the following fields: {expected_fields}", {}
 
     if "name" in data:
-        if data["name"] is None:
-            return "Name cannot be null", {"name": ValidationErrors.MISSING_REQUIRED.value}
-
-        if not isinstance(data["name"], str):
-            return "Name must be a string value", {"name": ValidationErrors.INVALID_VALUE.value}
-
-        data["name"] = data["name"].strip()
-        if len(data["name"]) == 0:
-            return "Name cannot be empty", {"name": ValidationErrors.MISSING_REQUIRED.value}
-
-        if len(data["name"]) > 100:
-            return "Name is too long", {"name": ValidationErrors.OUT_OF_BOUNDS.value}
-
-        name_exists = database.session.query(FileFilterPreset).filter(FileFilterPreset.name == data["name"]).count() > 0
-        if name_exists and data["name"] != preset.name:
-            return f"Preset name already exists: {data['name']}", {"name": ValidationErrors.UNIQUE_VIOLATION.value}
+        name_error = validate_preset_name(data, current=preset)
+        if name_error is not None:
+            return name_error
 
     if "filters" in data:
         if data["filters"] is None:
