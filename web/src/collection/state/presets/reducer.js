@@ -2,6 +2,7 @@ import initialState from "./initialState";
 import extendEntityList from "../helpers/extendEntityList";
 import lodash from "lodash";
 import {
+  ACTION_ADD_PRESET,
   ACTION_ADD_PRESETS,
   ACTION_DELETE_PRESET,
   ACTION_SET_PRESETS,
@@ -10,15 +11,23 @@ import {
 
 function presetReducer(state = initialState, action) {
   switch (action.type) {
+    case ACTION_ADD_PRESET:
+      return {
+        ...state,
+        presets: extendEntityList(state.presets, [action.preset]),
+        total: state.total != null ? state.total + 1 : state.total,
+      };
     case ACTION_ADD_PRESETS:
       return {
         ...state,
         presets: extendEntityList(state.presets, action.presets),
+        total: action.total,
       };
     case ACTION_SET_PRESETS:
       return {
         ...state,
         presets: [...action.presets],
+        total: action.total,
       };
     case ACTION_UPDATE_PRESET: {
       const updatedPresets = state.presets.map((preset) => {
@@ -36,7 +45,7 @@ function presetReducer(state = initialState, action) {
       return {
         ...state,
         presets: state.presets.filter(
-          (preset) => preset.id !== action.presetId
+          (preset) => preset.id !== action.preset.id
         ),
       };
     default:
