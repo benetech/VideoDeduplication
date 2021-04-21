@@ -11,6 +11,7 @@ import LoadTrigger from "../../../../common/components/LoadingTrigger/LoadTrigge
 import { useIntl } from "react-intl";
 import PresetAPI from "./PresetAPI";
 import UpdatePresetDialog from "./UpdatePresetDialog";
+import DeletePresetDialog from "./DeletePresetDialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -82,7 +83,7 @@ function Presets(props) {
             preset={preset}
             onClick={handleApply}
             onUpdate={handleShowUpdate}
-            onDelete={handleDelete}
+            onDelete={handleShowDelete}
             divider={index < presetList.presets.length - 1}
           />
         ))}
@@ -101,6 +102,14 @@ function Presets(props) {
           open={showUpdate}
           onClose={handleCloseUpdate}
           onUpdate={handleUpdate}
+        />
+      )}
+      {preset && (
+        <DeletePresetDialog
+          preset={preset}
+          open={showDelete}
+          onClose={handleCloseDelete}
+          onDelete={handleDelete}
         />
       )}
     </div>

@@ -300,6 +300,8 @@
     "presets.updatePreset.title": "Update Preset",
     "presets.updatePreset.description": "If you want to rename preset type a new unique name.",
     "presets.updatePreset.filters": "Update from current filters",
+    "presets.deletePreset.title": "Delete Preset",
+    "presets.deletePreset.description": "Are you sure you want to delete the \"{name}\" preset?",
     "presets.name": "Preset Name"
   }
 }
