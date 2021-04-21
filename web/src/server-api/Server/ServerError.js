@@ -36,12 +36,12 @@ function errorMessage(error, message) {
  */
 export default class ServerError extends Error {
   /**
-   * Enum for application-specific error codes.
+   * Entity not found.
    */
   static NOT_FOUND = 2;
 
   /**
-   * Invalid request
+   * Invalid request.
    */
   static INVALID_REQUEST = 3;
 
@@ -98,10 +98,12 @@ function transformFields(fields) {
  * Request data validation error.
  */
 export class ValidationError extends ServerError {
+  /**
+   * Error codes for field validation errors.
+   * @type {string}
+   */
   static UNIQUE_VIOLATION = "UNIQUE_VIOLATION";
   static MISSING_REQUIRED = "MISSING_REQUIRED";
-  static INVALID_TYPE = "INVALID_TYPE";
-  static INVALID_FORMAT = "INVALID_FORMAT";
   static INVALID_VALUE = "INVALID_VALUE";
 
   constructor(message, cause, request) {
