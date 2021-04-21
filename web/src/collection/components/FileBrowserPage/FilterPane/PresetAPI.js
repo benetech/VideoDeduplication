@@ -60,6 +60,7 @@ export default class PresetAPI {
       await this.server.updatePreset(updated);
     } catch (error) {
       this.dispatch(updatePreset(original));
+      throw error;
     }
   }
 

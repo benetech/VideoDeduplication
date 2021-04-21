@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import lodash from "lodash";
 import PropTypes from "prop-types";
@@ -10,6 +10,7 @@ import { updateFilters } from "../../../state/fileList/actions";
 import LoadTrigger from "../../../../common/components/LoadingTrigger/LoadTrigger";
 import { useIntl } from "react-intl";
 import PresetAPI from "./PresetAPI";
+import UpdatePresetDialog from "./UpdatePresetDialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,6 +39,9 @@ function Presets(props) {
   const classes = useStyles();
   const dispatch = useDispatch();
   const messages = useMessages();
+  const [preset, setPreset] = useState(null);
+  const [showUpdate, setShowUpdate] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
   const presetApi = PresetAPI.use();
   const presetList = presetApi.useLazyPresetList();
 
@@ -46,12 +50,28 @@ function Presets(props) {
     dispatch(updateFilters(filters));
   });
 
-  const handleDelete = useCallback(
-    async (preset) => {
-      await presetApi.deletePreset(preset);
-    },
+  const handleUpdate = useCallback(
+    (updated, original) => presetApi.updatePreset(updated, original),
     [presetApi]
   );
+
+  const handleDelete = useCallback((preset) => presetApi.deletePreset(preset), [
+    presetApi,
+  ]);
+
+  const handleShowUpdate = useCallback((preset) => {
+    setPreset(preset);
+    setShowUpdate(true);
+  });
+
+  const handleCloseUpdate = useCallback(() => setShowUpdate(false));
+
+  const handleShowDelete = useCallback((preset) => {
+    setPreset(preset);
+    setShowDelete(true);
+  });
+
+  const handleCloseDelete = useCallback(() => setShowDelete(false));
 
   return (
     <div className={clsx(classes.root, className)}>
@@ -61,6 +81,7 @@ function Presets(props) {
             key={preset.id}
             preset={preset}
             onClick={handleApply}
+            onUpdate={handleShowUpdate}
             onDelete={handleDelete}
             divider={index < presetList.presets.length - 1}
           />
@@ -74,6 +95,14 @@ function Presets(props) {
           className={classes.trigger}
         />
       </PresetList>
+      {preset && (
+        <UpdatePresetDialog
+          preset={preset}
+          open={showUpdate}
+          onClose={handleCloseUpdate}
+          onUpdate={handleUpdate}
+        />
+      )}
     </div>
   );
 }

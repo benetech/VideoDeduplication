@@ -75,6 +75,7 @@
     "actions.delete": "Delete",
     "actions.cancel": "Cancel",
     "actions.create": "Create",
+    "actions.update": "Update",
     "actions.showLogs": "Show Logs",
     "actions.process": "Process {what}",
     "actions.copyHash": "Copy File SHA-256",
@@ -295,7 +296,10 @@
     "validation.nameTooLong": "Name is too long",
     "presets.loadError": "Error loading presets",
     "presets.createPreset.title": "Create Preset",
-    "presets.createPreset.description": "To create file filter preset from current filters please type a unique preset name.",
+    "presets.createPreset.description": "To create file filter preset from the current filters please enter a unique preset name.",
+    "presets.updatePreset.title": "Update Preset",
+    "presets.updatePreset.description": "If you want to rename preset type a new unique name.",
+    "presets.updatePreset.filters": "Update from current filters",
     "presets.name": "Preset Name"
   }
 }

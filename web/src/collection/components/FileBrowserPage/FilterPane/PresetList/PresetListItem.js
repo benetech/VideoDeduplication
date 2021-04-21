@@ -3,6 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { ButtonBase, IconButton, Tooltip } from "@material-ui/core";
+import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 import DeleteOutlinedIcon from "@material-ui/icons/DeleteOutlined";
 import PresetType from "../../../../prop-types/PresetType";
 import { useIntl } from "react-intl";
@@ -37,6 +38,7 @@ function useMessages() {
   const intl = useIntl();
   return {
     delete: intl.formatMessage({ id: "actions.delete" }),
+    edit: intl.formatMessage({ id: "actions.edit" }),
   };
 }
 
@@ -45,6 +47,7 @@ function PresetListItem(props) {
     preset,
     onClick,
     onDelete,
+    onUpdate,
     divider = false,
     className,
     ...other
@@ -58,6 +61,14 @@ function PresetListItem(props) {
       onDelete(preset);
     },
     [preset, onDelete]
+  );
+
+  const handleUpdate = useCallback(
+    (event) => {
+      event.stopPropagation();
+      onUpdate(preset);
+    },
+    [preset, onUpdate]
   );
 
   const handleMouseDown = useCallback((event) => event.stopPropagation());
@@ -74,6 +85,17 @@ function PresetListItem(props) {
     >
       <div className={classes.title}>{preset.name}</div>
       <Spacer />
+      <Tooltip title={messages.edit}>
+        <IconButton
+          size="small"
+          aria-label={messages.edit}
+          onClick={handleUpdate}
+          onMouseDown={handleMouseDown}
+          className={classes.button}
+        >
+          <EditOutlinedIcon />
+        </IconButton>
+      </Tooltip>
       <Tooltip title={messages.delete}>
         <IconButton
           size="small"
@@ -98,6 +120,10 @@ PresetListItem.propTypes = {
    * Handle preset delete.
    */
   onDelete: PropTypes.func.isRequired,
+  /**
+   * Handle preset update.
+   */
+  onUpdate: PropTypes.func.isRequired,
   /**
    * Handle preset click.
    */
