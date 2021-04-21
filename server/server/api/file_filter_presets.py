@@ -2,7 +2,7 @@ from http import HTTPStatus
 from typing import Dict, Tuple
 
 from flask import jsonify, request, abort
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, DataError
 
 from db.schema import FileFilterPreset
 from .blueprint import api
@@ -76,6 +76,9 @@ def validate_new_preset_dto(data: Dict) -> Tuple[str, Dict[str, str]]:
     if len(data["name"]) == 0:
         return "Name must cannot be empty", {"name": ValidationErrors.MISSING_REQUIRED.value}
 
+    if len(data["name"]) > 100:
+        return "Name is too long", {"name": ValidationErrors.OUT_OF_BOUNDS.value}
+
     name_exists = database.session.query(FileFilterPreset).filter(FileFilterPreset.name == data["name"]).count() > 0
     if name_exists:
         return f"Preset name already exists: {data['name']}", {"name": ValidationErrors.UNIQUE_VIOLATION.value}
@@ -110,7 +113,7 @@ def create_file_filter_preset():
     # Try to commit session
     try:
         database.session.commit()
-    except IntegrityError:
+    except (IntegrityError, DataError):
         abort(HTTPStatus.BAD_REQUEST.value, "Data integrity violation.")
 
     return jsonify(Transform.file_filter_preset(preset))
@@ -138,6 +141,9 @@ def validate_update_preset_dto(preset: FileFilterPreset, data: Dict) -> Tuple[st
         data["name"] = data["name"].strip()
         if len(data["name"]) == 0:
             return "Name cannot be empty", {"name": ValidationErrors.MISSING_REQUIRED.value}
+
+        if len(data["name"]) > 100:
+            return "Name is too long", {"name": ValidationErrors.OUT_OF_BOUNDS.value}
 
         name_exists = database.session.query(FileFilterPreset).filter(FileFilterPreset.name == data["name"]).count() > 0
         if name_exists and data["name"] != preset.name:

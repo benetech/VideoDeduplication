@@ -81,15 +81,14 @@ export default class ServerError extends Error {
  */
 function transformFields(fields) {
   return lodash.transform(fields, (result, value, key) => {
-    switch (value) {
-      case "UNIQUE_VIOLATION":
-        result[key] = ValidationError.UNIQUE_VIOLATION;
-        return;
-      case "MISSING_REQUIRED":
-        result[key] = ValidationError.MISSING_REQUIRED;
-        return;
-      default:
-        result[key] = ValidationError.INVALID_VALUE;
+    if (value === "UNIQUE_VIOLATION") {
+      result[key] = ValidationError.UNIQUE_VIOLATION;
+    } else if (value === "MISSING_REQUIRED") {
+      result[key] = ValidationError.MISSING_REQUIRED;
+    } else if (value === "OUT_OF_BOUNDS") {
+      result[key] = ValidationError.OUT_OF_BOUNDS;
+    } else {
+      result[key] = ValidationError.INVALID_VALUE;
     }
   });
 }
@@ -105,6 +104,7 @@ export class ValidationError extends ServerError {
   static UNIQUE_VIOLATION = "UNIQUE_VIOLATION";
   static MISSING_REQUIRED = "MISSING_REQUIRED";
   static INVALID_VALUE = "INVALID_VALUE";
+  static OUT_OF_BOUNDS = "OUT_OF_BOUNDS";
 
   constructor(message, cause, request, fields) {
     super(message, cause, request);
