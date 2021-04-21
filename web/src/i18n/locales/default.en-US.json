@@ -291,6 +291,7 @@
     "templates.matchedFiles.one": "1 file matched",
     "validation.invalidValue": "Invalid value",
     "validation.nameMissing": "Name cannot be empty",
-    "validation.nameExists": "Name must be unique"
+    "validation.nameExists": "Name must be unique",
+    "presets.loadError": "Error loading presets"
   }
 }
