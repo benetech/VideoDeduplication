@@ -6,18 +6,18 @@ import lodash from "lodash";
  */
 function errorCode(error) {
   if (error?.response == null) {
-    return Status.CLIENT_ERROR;
+    return ServerError.CLIENT_ERROR;
   }
   const response = error.response;
   switch (response.status) {
     case HttpStatus.BAD_REQUEST:
-      return Status.INVALID_REQUEST;
+      return ServerError.INVALID_REQUEST;
     case HttpStatus.UNAUTHORIZED:
-      return Status.UNAUTHORIZED;
+      return ServerError.UNAUTHORIZED;
     case HttpStatus.NOT_FOUND:
-      return Status.NOT_FOUND;
+      return ServerError.NOT_FOUND;
     default:
-      return Status.CLIENT_ERROR;
+      return ServerError.CLIENT_ERROR;
   }
 }
 
@@ -80,7 +80,7 @@ export default class ServerError extends Error {
  * See server.api.constants.ValidationErrors on Backend.
  */
 function transformFields(fields) {
-  lodash.transform(fields, (result, value, key) => {
+  return lodash.transform(fields, (result, value, key) => {
     switch (value) {
       case "UNIQUE_VIOLATION":
         result[key] = ValidationError.UNIQUE_VIOLATION;
@@ -106,8 +106,8 @@ export class ValidationError extends ServerError {
   static MISSING_REQUIRED = "MISSING_REQUIRED";
   static INVALID_VALUE = "INVALID_VALUE";
 
-  constructor(message, cause, request) {
-    super(message, cause, request, fields);
+  constructor(message, cause, request, fields) {
+    super(message, cause, request);
     this.fields = fields || transformFields(this.data?.fields) || {};
   }
 }
