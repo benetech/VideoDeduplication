@@ -1,11 +1,14 @@
 from http import HTTPStatus
+from typing import Dict, Tuple
 
 from flask import jsonify, request, abort
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 
 from db.access.files import FilesDAO
 from db.schema import Matches, Files
 from .blueprint import api
+from .constants import ValidationErrors
 from .helpers import parse_positive_int, Fields, parse_fields, parse_boolean
 from ..model import Transform, database
 
@@ -50,3 +53,60 @@ def list_file_matches(file_id):
             "offset": offset,
         }
     )
+
+
+def validate_update_match_dto(data: Dict) -> Tuple[str, Dict[str, str]]:
+    """Validate update-match DTO.
+
+    Returns:
+        error message and a dict of invalid fields -> error codes.
+    """
+
+    expected_fields = {"false_positive"}
+    actual_fields = set(data.keys())
+    if not actual_fields < expected_fields:
+        return f"Payload can include only the following fields: {expected_fields}", {}
+
+    if "false_positive" in data:
+        false_positive = data["false_positive"]
+
+        if false_positive is None:
+            return "false_positive cannot be null", {"false_positive": ValidationErrors.INVALID_VALUE.value}
+
+        if not isinstance(false_positive, bool):
+            return "false_positive cannot be boolean", {"false_positive": ValidationErrors.INVALID_VALUE.value}
+
+    return None, {}
+
+
+@api.route("/matches/<int:match_id>", methods=["PATCH"])
+def update_match(match_id):
+
+    # Fetch match from database
+    match = database.session.query(Matches).filter(Matches.id == match_id).one_or_none()
+
+    # Handle match not found
+    if match is None:
+        abort(HTTPStatus.NOT_FOUND.value, f"Match id not found: {match_id}")
+
+    # Get payload
+    request_payload = request.get_json()
+    if request_payload is None:
+        abort(HTTPStatus.BAD_REQUEST.value, "Expected valid 'application/json' payload.")
+
+    # Validate payload
+    error, fields = validate_update_match_dto(request_payload)
+    if error is not None:
+        return (
+            jsonify({"error": error, "code": HTTPStatus.BAD_REQUEST.value, "fields": fields}),
+            HTTPStatus.BAD_REQUEST.value,
+        )
+
+    match.false_positive = request_payload.get("false_positive", match.false_positive)
+
+    try:
+        database.session.commit()
+    except IntegrityError:
+        abort(HTTPStatus.BAD_REQUEST.value, "Data integrity violation.")
+
+    return Transform.match(match)

@@ -130,6 +130,7 @@ class Transform:
             "id": match.id,
             "distance": match.distance,
             "file": Transform.file(matched, meta=meta, signature=signature, scenes=scenes, exif=exif),
+            "false_positive": match.false_positive,
         }
 
     @staticmethod
@@ -141,6 +142,7 @@ class Transform:
             "distance": match.distance,
             "source": match.query_video_file_id,
             "target": match.match_video_file_id,
+            "false_positive": match.false_positive,
         }
 
     @staticmethod
