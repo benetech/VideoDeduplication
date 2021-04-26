@@ -12,9 +12,6 @@ const useStyles = makeStyles(() => ({
   body: {
     height: "100%",
   },
-  dashboard: {
-    height: "100%",
-  },
 }));
 
 function ProcessingRootPage(props) {

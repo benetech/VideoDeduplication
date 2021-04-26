@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -14,6 +14,7 @@ import { useHistory, useParams } from "react-router-dom";
 import FileLoadingHeader from "../FileLoadingHeader";
 import useFile from "../../hooks/useFile";
 import { routes } from "../../../routing/routes";
+import useLoadFileObjects from "./useLoadFileObjects";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -72,6 +73,17 @@ function VideoDetailsPage(props) {
   const classes = useStyles();
   const history = useHistory();
 
+  // Preload file objects
+  const { done: objectsLoaded } = useLoadFileObjects(id);
+
+  // There is nothing to show for external files.
+  // Navigate to file matches if file is external.
+  useEffect(() => {
+    if (file?.external) {
+      history.replace(routes.collection.fileMatchesURL(file.id));
+    }
+  }, [file]);
+
   const handleCompare = useCallback(
     () => history.push(routes.collection.fileComparisonURL(id)),
     [id]
@@ -79,7 +91,7 @@ function VideoDetailsPage(props) {
 
   const handleJump = useCallback(seekTo(player, file), [player, file]);
 
-  if (file == null) {
+  if (file == null || !objectsLoaded) {
     return (
       <div className={clsx(classes.root, className)}>
         <FileActionHeader id={id}>

@@ -55,7 +55,7 @@ export class Response {
   }
 
   static fail(status, error) {
-    return new Response(status, null, error);
+    return new Response(status, error?.response?.data, error);
   }
 
   static invalid(error) {

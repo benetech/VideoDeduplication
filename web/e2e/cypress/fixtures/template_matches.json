@@ -1,0 +1,24 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "file_id": 5,
+      "template_id": 1,
+      "start_ms": 1.0,
+      "end_ms": 1.0,
+      "min_distance_ms": 1.5,
+      "min_distance_video": 0.025491458467757244,
+      "mean_distance_sequence": 0.06378334660717784
+    }
+  ],
+  "templates": [
+    {
+      "id": 1,
+      "icon_type": "predefined",
+      "icon_key": "GiPoliceOfficerHead",
+      "name": "Police Officer"
+    }
+  ],
+  "offset": 0,
+  "total": 1
+}

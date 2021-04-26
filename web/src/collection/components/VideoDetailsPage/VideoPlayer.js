@@ -46,7 +46,11 @@ function setupBundledFlvJs(options = { suppressLogs: false }) {
 }
 
 const useStyles = makeStyles((theme) => ({
-  container: {},
+  container: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: theme.palette.common.black,
+  },
   preview: {
     width: "100%",
     height: "100%",
@@ -154,21 +158,23 @@ const VideoPlayer = function VideoPlayer(props) {
         />
       )}
       {watch && error == null && (
-        <ReactPlayer
-          playing
-          ref={setPlayer}
-          width="100%"
-          height="100%"
-          controls
-          url={file.playbackURL}
-          onProgress={onProgress}
-          onError={() => setError(messages.playbackError)}
-          config={{
-            file: {
-              forceFLV,
-            },
-          }}
-        />
+        <div className={classes.container}>
+          <ReactPlayer
+            playing
+            ref={setPlayer}
+            width="100%"
+            height="100%"
+            controls
+            url={file.playbackURL}
+            onProgress={onProgress}
+            onError={() => setError(messages.playbackError)}
+            config={{
+              file: {
+                forceFLV,
+              },
+            }}
+          />
+        </div>
       )}
       {watch && error != null && (
         <div className={classes.error}>

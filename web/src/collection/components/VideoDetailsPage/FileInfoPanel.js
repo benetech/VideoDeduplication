@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function FileInfoPanel(props) {
-  const { file, className } = props;
+  const { file, className, ...other } = props;
   const classes = useStyles();
   const intl = useIntl();
 
@@ -37,7 +37,7 @@ function FileInfoPanel(props) {
   }));
 
   return (
-    <div className={clsx(classes.panel, className)}>
+    <div className={clsx(classes.panel, className)} {...other}>
       <Table>
         <TableBody>
           {attributes.map((attr) => (

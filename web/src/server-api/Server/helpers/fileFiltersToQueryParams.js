@@ -40,5 +40,11 @@ export default function fileFiltersToQueryParams(filters) {
   if (filters?.sort) {
     params.sort = filters.sort;
   }
+  if (filters?.remote != null) {
+    params.remote = filters.remote;
+  }
+  if (filters?.templates != null && filters.templates.length > 0) {
+    params.templates = filters.templates.join(",");
+  }
   return params;
 }

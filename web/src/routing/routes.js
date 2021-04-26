@@ -42,8 +42,8 @@ export const routes = {
   collaborators: {
     home: "/collaborators",
   },
-  organization: {
-    home: "/organization",
+  templates: {
+    home: "/templates",
   },
   processing: {
     home: "/processing",
@@ -63,5 +63,8 @@ export const routes = {
     taskLogsURL(id) {
       return `${this.taskURL(id)}/logs`;
     },
+  },
+  external: {
+    wiki: "https://github.com/benetech/VideoDeduplication/wiki",
   },
 };

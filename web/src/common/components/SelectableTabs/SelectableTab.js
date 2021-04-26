@@ -10,6 +10,8 @@ const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
     borderBottom: `3px solid rgba(0,0,0,0)`,
     paddingBottom: theme.spacing(0.5),
+    marginLeft: ({ indent }) => theme.spacing(indent),
+    flexShrink: 0,
   },
   sizeLarge: {
     ...theme.mixins.navlinkLarge,
@@ -29,6 +31,9 @@ const useStyles = makeStyles((theme) => ({
   selected: {
     borderBottom: `3px solid ${theme.palette.primary.main}`,
   },
+  disabled: {
+    cursor: "not-allowed",
+  },
 }));
 
 /**
@@ -41,6 +46,16 @@ function labelClass(classes, size, selected) {
     [classes.sizeLarge]: size === "large",
     [classes.inactive]: !selected,
   });
+}
+
+/**
+ * Get spacing between tabs.
+ */
+function getIndent({ first, spacing }) {
+  if (first) {
+    return 0;
+  }
+  return 4 * spacing;
 }
 
 /**
@@ -57,15 +72,29 @@ function SelectableTab(props) {
     badge,
     badgeMax,
     badgeColor = "default",
+    disabled = false,
+    first = true,
+    spacing = 1,
     ...other
   } = props;
-  const classes = useStyles();
-  const handleSelect = useCallback(() => onSelect(value), [onSelect, value]);
+  const indent = getIndent({ first, spacing });
+  const classes = useStyles({ indent });
+
+  const handleSelect = useCallback(() => {
+    if (!disabled) {
+      onSelect(value);
+    }
+  }, [disabled, onSelect, value]);
 
   return (
     <ButtonBase
       onClick={handleSelect}
-      className={clsx(classes.tab, selected && classes.selected, className)}
+      className={clsx(
+        classes.tab,
+        selected && !disabled && classes.selected,
+        disabled && classes.disabled,
+        className
+      )}
       component="div"
       focusRipple
       disableTouchRipple
@@ -74,7 +103,9 @@ function SelectableTab(props) {
       {...other}
     >
       <Badge badgeContent={badge} max={badgeMax} color={badgeColor}>
-        <div className={labelClass(classes, size, selected)}>{label}</div>
+        <div className={labelClass(classes, size, selected, disabled)}>
+          {label}
+        </div>
       </Badge>
     </ButtonBase>
   );
@@ -106,13 +137,27 @@ SelectableTab.propTypes = {
    */
   badge: PropTypes.node,
   /**
-   * The color of the component. It supports those theme colors that make sense for this component.
+   * The color of the component. It supports those theme colors that make sense
+   * for this component.
    */
   badgeColor: PropTypes.oneOf(["default", "error", "primary", "secondary"]),
   /**
    * Max count to show in badge (if the value is numeric).
    */
   badgeMax: PropTypes.number,
+  /**
+   * Indicates that tab cannot be activated.
+   */
+  disabled: PropTypes.bool,
+  /**
+   * Indicates tab is the first (always set by  enclosing SelectableTabs
+   * component). Required for auto-spacing between tabs.
+   */
+  first: PropTypes.bool,
+  /**
+   * Controls auto-spacing between tabs.
+   */
+  spacing: PropTypes.number,
   className: PropTypes.string,
 };
 

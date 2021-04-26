@@ -38,8 +38,8 @@ def fetch_file_cluster(file_id):
     include_flags = {field.key: True for field in req.preload}
     return jsonify(
         {
-            "files": [Transform.file_dict(file, **include_flags) for file in resp.files],
-            "matches": [Transform.match_dict(match) for match in resp.matches],
+            "files": [Transform.file(file, **include_flags) for file in resp.files],
+            "matches": [Transform.match(match) for match in resp.matches],
             "total": resp.total,
             "hops": req.hops,
         }

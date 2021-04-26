@@ -5,6 +5,9 @@ import fileListInitialState from "./fileList/initialState";
 import tasksInitialState from "./tasks/initialState";
 import taskCacheInitialState from "./taskCache/initialState";
 import taskLogsInitialState from "./taskLogs/initialState";
+import templatesInitialState from "./templates/initialState";
+import objectCacheInitialState from "./objectCache/initialState";
+import presetInitialState from "./presets/initialState";
 
 /**
  * Initial State for file collection management.
@@ -39,6 +42,18 @@ const initialState = {
    * Background task logs.
    */
   taskLogs: taskLogsInitialState,
+  /**
+   * Object templates.
+   */
+  templates: templatesInitialState,
+  /**
+   * Cache of recognized objects per file.
+   */
+  objectCache: objectCacheInitialState,
+  /**
+   * File filter presets.
+   */
+  presets: presetInitialState,
 };
 
 export default initialState;

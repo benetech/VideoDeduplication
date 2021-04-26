@@ -16,26 +16,32 @@ from winnow.pipeline.store_database_signatures import database_signatures_exist,
 from winnow.storage.repr_key import ReprKey
 from winnow.storage.repr_utils import bulk_read
 from winnow.utils.brightness import get_brightness_estimation
+from winnow.utils.files import get_hash
+
 
 # Default module logger
 logger = logging.getLogger(__name__)
 
 
-def generate_local_matches(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
+def generate_local_matches(
+    files: Collection[str], pipeline: PipelineContext, hashes=None, progress=ProgressMonitor.NULL
+):
     """Find matches between video files."""
 
     files = tuple(files)
     config = pipeline.config
+    if hashes is None:
+        hashes = [get_hash(file) for file in files]
 
     # There is no way to check if matches are already generated.
     # Hence we must always attempt to generate matches.
 
     # Ensure dependencies are satisfied
-    if not video_features_exist(files, pipeline) and config.proc.filter_dark_videos:
-        extract_video_level_features(files, pipeline, progress=progress.subtask(0.9))
+    if not video_features_exist(files, pipeline, hashes) and config.proc.filter_dark_videos:
+        extract_video_level_features(files, pipeline, hashes, progress=progress.subtask(0.9))
         progress = progress.subtask(0.1)
-    if not video_signatures_exist(files, pipeline):
-        extract_video_signatures(files, pipeline, progress=progress.subtask(0.7))
+    if not video_signatures_exist(files, pipeline, hashes):
+        extract_video_signatures(files, pipeline, hashes, progress=progress.subtask(0.7))
         progress = progress.subtask(0.3)
     if not database_signatures_exist(files, pipeline):
         store_database_signatures(files, pipeline, progress=progress.subtask(0.2))

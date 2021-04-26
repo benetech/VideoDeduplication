@@ -12,7 +12,6 @@ const useStyles = makeStyles((theme) => ({
   },
   navTabs: {
     flexShrink: 2,
-    width: 400,
   },
   actions: {
     flexGrow: 2,
@@ -24,13 +23,21 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function FileActionHeader(props) {
-  const { id, matches, children: actions, className } = props;
+  const {
+    id,
+    matches,
+    remote = false,
+    children: actions,
+    className,
+    ...other
+  } = props;
   const classes = useStyles();
   return (
-    <div className={clsx(classes.actionsHeader, className)}>
+    <div className={clsx(classes.actionsHeader, className)} {...other}>
       <FileNavigationTabs
         id={id}
         matches={matches}
+        remote={remote}
         className={classes.navTabs}
       />
       <div className={classes.actions}>{actions}</div>
@@ -47,6 +54,10 @@ FileActionHeader.propTypes = {
    * Number of file matches.
    */
   matches: PropTypes.number,
+  /**
+   * Flag indicating that the file is remote.
+   */
+  remote: PropTypes.bool,
   /**
    * Action elements
    */

@@ -23,6 +23,10 @@ const useStyles = makeStyles((theme) => ({
   tabs: {
     margin: theme.spacing(2),
   },
+  tabContent: {
+    maxHeight: "calc(100vh - 150px)",
+    overflowY: "auto",
+  },
 }));
 
 /**
@@ -70,7 +74,7 @@ function useActiveFilters() {
 }
 
 function FilterPane(props) {
-  const { onSave, onClose, className, ...other } = props;
+  const { onClose, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
   const [tab, setTab] = useState(Tab.content);
@@ -82,8 +86,13 @@ function FilterPane(props) {
   return (
     <div className={clsx(classes.pane, className)} {...other}>
       <div className={classes.filters}>
-        <FilterPaneHeader onClose={onClose} onSave={onSave} autoFocus={true} />
-        <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
+        <FilterPaneHeader onClose={onClose} autoFocus={true} />
+        <SelectableTabs
+          value={tab}
+          onChange={setTab}
+          className={classes.tabs}
+          spacing={0}
+        >
           <SelectableTab
             label={messages.content}
             value={Tab.content}
@@ -98,7 +107,7 @@ function FilterPane(props) {
           />
           <SelectableTab label={messages.presets} value={Tab.presets} />
         </SelectableTabs>
-        <TabComponent />
+        <TabComponent className={classes.tabContent} />
       </div>
     </div>
   );
@@ -111,7 +120,6 @@ FilterPane.useActiveFilters = useActiveFilters;
 
 FilterPane.propTypes = {
   onClose: PropTypes.func,
-  onSave: PropTypes.func,
   className: PropTypes.string,
 };
 

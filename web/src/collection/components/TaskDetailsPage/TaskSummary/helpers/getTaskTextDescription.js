@@ -21,6 +21,8 @@ export default function getTaskTextDescription(request, intl) {
         { what: `${count} ${files}` }
       );
     }
+    case TaskRequest.MATCH_TEMPLATES:
+      return intl.formatMessage({ id: "task.type.templates" });
     default:
       console.warn(`Unsupported task request type: ${request.type}`);
       return request.type;

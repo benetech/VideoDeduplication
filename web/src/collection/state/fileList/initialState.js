@@ -16,6 +16,8 @@ const initialState = {
     exif: null,
     matches: MatchCategory.all,
     sort: FileSort.date,
+    remote: null,
+    templates: [],
   },
   fileListType: FileListType.grid,
   blur: true,

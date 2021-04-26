@@ -31,9 +31,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 16,
     fontWeight: 500,
   },
-  tabs: {
-    width: 200,
-  },
+  tabs: {},
   table: {
     height: 500,
     overflow: "auto",
@@ -65,7 +63,7 @@ function getAttributes(tab) {
 }
 
 function ExifPanel(props) {
-  const { file, className } = props;
+  const { file, className, ...other } = props;
   const classes = useStyles();
   const [tab, setTab] = useState(0);
   const intl = useIntl();
@@ -77,13 +75,18 @@ function ExifPanel(props) {
   }));
 
   return (
-    <div className={clsx(className)}>
+    <div className={clsx(className)} {...other}>
       <div className={classes.header}>
         <ExifIcon className={classes.icon} />
-        <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
-          <SelectableTab label="General" size="small" />
-          <SelectableTab label="Flash Pix" size="small" />
-          <SelectableTab label="Audio" size="small" />
+        <SelectableTabs
+          value={tab}
+          onChange={setTab}
+          className={classes.tabs}
+          size="small"
+        >
+          <SelectableTab label="General" />
+          <SelectableTab label="Flash Pix" />
+          <SelectableTab label="Audio" />
         </SelectableTabs>
       </div>
       <div className={classes.table}>

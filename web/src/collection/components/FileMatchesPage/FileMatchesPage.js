@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import lodash from "lodash";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -24,6 +25,7 @@ import {
   fetchFileMatchesSlice,
   updateFileMatchesParams,
 } from "../../state/fileMatches/actions";
+import initialState from "../../state/fileMatches/initialState";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,6 +50,9 @@ const useStyles = makeStyles((theme) => ({
   },
   trigger: {
     minHeight: 250,
+  },
+  match: {
+    height: "100%",
   },
 }));
 
@@ -78,14 +83,18 @@ function FileMatchesPage(props) {
   const history = useHistory();
 
   useEffect(() => {
-    if (fileMatches.params.fileId !== id) {
-      dispatch(updateFileMatchesParams({ fileId: id }));
+    const newParams = lodash.merge({}, initialState.params, {
+      fileId: id,
+      filters: { remote: true },
+    });
+    if (!lodash.isEqual(fileMatches.params, newParams)) {
+      dispatch(updateFileMatchesParams(newParams));
       dispatch(fetchFileMatchesSlice());
     }
   }, [id, fileMatches]);
 
   const handleCompare = useCallback(
-    (file) => history.push(routes.collection.fileComparisonURL(id, file?.id)),
+    () => history.push(routes.collection.fileComparisonURL(id)),
     [id]
   );
 
@@ -108,11 +117,16 @@ function FileMatchesPage(props) {
 
   return (
     <div className={clsx(classes.root, className)}>
-      <FileActionHeader id={id} matches={file.matchesCount}>
+      <FileActionHeader
+        id={id}
+        matches={file.matchesCount}
+        remote={file?.external}
+      >
         <FileMatchesActions
           view={view}
           onViewChange={setView}
           onCompare={handleCompare}
+          remote={file?.external}
         />
       </FileActionHeader>
       <FileSummaryHeader file={file} className={classes.summaryHeader} />
@@ -137,13 +151,14 @@ function FileMatchesPage(props) {
         aria-label={messages.matched}
         className={classes.matches}
       >
-        <Grid container spacing={4}>
+        <Grid container spacing={4} alignItems="stretch">
           {fileMatches.matches.map((match) => (
             <Grid item xs={6} lg={3} key={match.id}>
               <MatchPreview
+                motherFile={file}
+                matchFile={match.file}
                 distance={match.distance}
-                file={match.file}
-                onCompare={handleCompare}
+                className={classes.match}
               />
             </Grid>
           ))}

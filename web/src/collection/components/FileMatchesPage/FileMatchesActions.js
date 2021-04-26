@@ -31,21 +31,30 @@ function useMessages() {
   };
 }
 function FileMatchesActions(props) {
-  const { view, onViewChange, onCompare, disabled = false, className } = props;
+  const {
+    view,
+    onViewChange,
+    onCompare,
+    disabled = false,
+    remote = false,
+    className,
+  } = props;
   const classes = useStyles();
   const messages = useMessages();
 
   return (
     <div className={clsx(classes.actions, className)}>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={onCompare}
-        className={classes.button}
-        disabled={disabled}
-      >
-        {messages.compare}
-      </Button>
+      {!remote && (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={onCompare}
+          className={classes.button}
+          disabled={disabled}
+        >
+          {messages.compare}
+        </Button>
+      )}
       <IconSelect value={view} onChange={onViewChange}>
         <IconSelect.Option
           icon={GraphIcon}
@@ -81,6 +90,10 @@ FileMatchesActions.propTypes = {
    * True iff actions are inactivated
    */
   disabled: PropTypes.bool,
+  /**
+   * Indicates remote file.
+   */
+  remote: PropTypes.bool,
   className: PropTypes.string,
 };
 

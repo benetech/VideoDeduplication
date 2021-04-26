@@ -26,9 +26,12 @@ def reprkey_resolver(config):
     storepath = path_resolver(config.sources.root)
     config_tag = get_config_tag(config)
 
-    def reprkey(path):
+    def reprkey(path, hash=None):
         """Get intermediate representation storage key."""
-        return ReprKey(path=storepath(path), hash=get_hash(path), tag=config_tag)
+        if hash is None:
+            hash = get_hash(path)
+
+        return ReprKey(path=storepath(path), hash=hash, tag=config_tag)
 
     return reprkey
 

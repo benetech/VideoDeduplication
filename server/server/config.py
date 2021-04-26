@@ -76,3 +76,5 @@ class Config:
         self.thumbnail_cache_cap = int(os.environ.get("THUMBNAIL_CACHE_CAP", 1000))
         self.task_log_directory = os.environ.get("TASK_LOG_DIRECTORY", "./task_logs")
         self.task_queue_type = QueueType.parse(os.environ.get("TASK_QUEUE_TYPE", QueueType.CELERY))
+        self.file_store_directory = os.environ.get("FILE_STORE_DIRECTORY", "./app_files")
+        self.max_upload_size = int(os.environ.get("MAX_UPLOAD_SIZE", 20 * 1024 * 1024))

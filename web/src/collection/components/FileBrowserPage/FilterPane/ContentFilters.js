@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { selectFileFilters } from "../../../state/selectors";
 import objectDiff from "../../../../common/helpers/objectDiff";
 import { defaultFilters } from "../../../state/fileList/initialState";
+import TemplateFilter from "./TemplateFilter";
 
 /**
  * Get i18n text
@@ -27,7 +28,7 @@ function useMessages() {
 function useActiveFilters() {
   const filters = useSelector(selectFileFilters);
   const diff = objectDiff(filters, defaultFilters);
-  return Number(diff.length);
+  return diff.length + diff.templates;
 }
 
 function ContentFilters(props) {
@@ -39,6 +40,11 @@ function ContentFilters(props) {
     setFilters,
   ]);
 
+  const handleTemplatesChange = useCallback(
+    (templates) => setFilters({ templates }),
+    [setFilters]
+  );
+
   return (
     <FilterList className={className}>
       <RangeFilter
@@ -46,6 +52,10 @@ function ContentFilters(props) {
         range={filters.length}
         onChange={handleLengthChange}
         minValue={0}
+      />
+      <TemplateFilter
+        value={filters.templates}
+        onChange={handleTemplatesChange}
       />
     </FilterList>
   );

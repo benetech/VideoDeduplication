@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import InfoButton from "./InfoButton";
+import InfoButton from "../../../../common/components/InfoButton";
 
 const useStyles = makeStyles((theme) => ({
   root: {

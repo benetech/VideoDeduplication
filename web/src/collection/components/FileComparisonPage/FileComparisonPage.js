@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -7,6 +7,7 @@ import MotherFile from "./MotherFile/MotherFile";
 import MatchFiles from "./MatchFiles/MatchFiles";
 import { useHistory, useParams } from "react-router-dom";
 import { routes } from "../../../routing/routes";
+import useFile from "../../hooks/useFile";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,6 +21,13 @@ function FileComparisonPage(props) {
   const history = useHistory();
   const { id: rawId, matchFileId } = useParams();
   const id = Number(rawId);
+  const { file: motherFile } = useFile(id);
+
+  useEffect(() => {
+    if (motherFile?.external) {
+      history.push(routes.collection.fileMatchesURL(id));
+    }
+  }, [motherFile]);
 
   const handleMatchFileChange = useCallback(
     (newMatchFileId) =>

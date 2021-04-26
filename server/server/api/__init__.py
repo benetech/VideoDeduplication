@@ -1,6 +1,19 @@
 # Disable flake8 issue F401 as we need these imports to configure api
 # but not going to re-export them from the __init__
-from . import scenes, matches, files, errors, videos, cluster, tasks, socket  # noqa: F401
+from . import (  # noqa: F401
+    scenes,
+    matches,
+    files,
+    errors,
+    videos,
+    cluster,
+    tasks,
+    socket,
+    templates,
+    examples,
+    template_matches,
+    file_filter_presets,
+)
 from .blueprint import api
 
 # Explicitly reexport api

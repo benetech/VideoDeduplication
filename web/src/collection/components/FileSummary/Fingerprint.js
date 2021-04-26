@@ -10,10 +10,7 @@ import { useIntl } from "react-intl";
 function useMessages() {
   const intl = useIntl();
   return {
-    filename: intl.formatMessage({ id: "file.attr.name" }),
     fingerprint: intl.formatMessage({ id: "file.attr.fingerprint" }),
-    quality: intl.formatMessage({ id: "file.attr.quality" }),
-    goBack: intl.formatMessage({ id: "actions.goBack" }),
   };
 }
 

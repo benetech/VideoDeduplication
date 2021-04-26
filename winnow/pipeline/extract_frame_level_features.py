@@ -1,21 +1,30 @@
 import logging
 import multiprocessing
 from typing import Collection
-
-from winnow.feature_extraction import IntermediateCnnExtractor, load_featurizer, default_model_path
+from winnow.feature_extraction import IntermediateCnnExtractor
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
-from winnow.utils.files import create_video_list
+from winnow.utils.files import create_video_list, get_hash
 
 
-def extract_frame_level_features(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
+def extract_frame_level_features(
+    files: Collection[str], pipeline: PipelineContext, hashes=None, progress=ProgressMonitor.NULL
+):
     """Extract frame-level features from dataset videos."""
 
     config = pipeline.config
     logger = logging.getLogger(__name__)
 
+    if hashes is None:
+        hashes = list(map(get_hash, files))
+
     files = tuple(files)
-    remaining_video_paths = tuple(missing_frame_features(files, pipeline))
+    remaining_data = [*missing_frame_features(files, pipeline, hashes)]
+
+    if not remaining_data:
+        remaining_video_paths, remaining_hashes = [], []
+    else:
+        remaining_video_paths, remaining_hashes = zip(*remaining_data)
 
     # Skip step if required results already exist
     if not remaining_video_paths:
@@ -28,11 +37,6 @@ def extract_frame_level_features(files: Collection[str], pipeline: PipelineConte
     # Save list of processed files
     video_list_file = create_video_list(remaining_video_paths, config.proc.video_list_filename)
     logger.info("Processed video list is saved: %s", video_list_file)
-
-    # Prepare feature extractor
-    model_path = default_model_path(config.proc.pretrained_model_local_path)
-    pretrained_model = load_featurizer(model_path)
-    logger.info("Pretrained model is loaded from: %s", model_path)
 
     progress.scale(total_work=len(remaining_video_paths))
 
@@ -48,7 +52,7 @@ def extract_frame_level_features(files: Collection[str], pipeline: PipelineConte
         videos=remaining_video_paths,
         on_extracted=save_features,
         frame_sampling=config.proc.frame_sampling,
-        model=pretrained_model,
+        model=pipeline.pretrained_model,
     )
 
     # Do extract frame-level features
@@ -57,14 +61,18 @@ def extract_frame_level_features(files: Collection[str], pipeline: PipelineConte
     progress.complete()
 
 
-def missing_frame_features(files, pipeline: PipelineContext):
+def missing_frame_features(files, pipeline: PipelineContext, hashes: Collection[str]):
     """Get file paths with missing frame-level features."""
     frame_features = pipeline.repr_storage.frame_level
-    for file_path in files:
-        if not frame_features.exists(pipeline.reprkey(file_path)):
-            yield file_path
+    for i, file_path in enumerate(files):
+        if not frame_features.exists(pipeline.reprkey(file_path, hash=hashes[i])):
+            yield file_path, hashes[i]
 
 
-def frame_features_exist(files, pipeline: PipelineContext):
+def frame_features_exist(files, pipeline: PipelineContext, hashes=None):
     """Check if all required frame-level features do exist."""
-    return not any(missing_frame_features(files, pipeline))
+
+    if hashes is None:
+        hashes = list(map(get_hash, files))
+
+    return not any(missing_frame_features(files, pipeline, hashes))

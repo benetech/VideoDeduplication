@@ -1,4 +1,5 @@
 import enum
+import itertools
 from datetime import datetime
 from typing import List, Optional, Iterator
 
@@ -6,8 +7,17 @@ from dataclasses import dataclass, field
 from sqlalchemy import or_, func, literal_column, tuple_
 from sqlalchemy.orm import aliased, Query, Session, joinedload
 
-from db.schema import Files, Matches, Exif, Contributor, Repository, Signature
-from winnow.utils.iterators import chunks
+from db.schema import Files, Matches, Exif, Contributor, Repository, Signature, TemplateMatches
+
+
+# TODO: Improve dependency management and get rid of duplicate code (#295)
+def _chunks(iterable, size=100):
+    """Split iterable into equal-sized chunks."""
+    iterator = iter(iterable)
+    chunk = list(itertools.islice(iterator, size))
+    while chunk:
+        yield chunk
+        chunk = list(itertools.islice(iterator, size))
 
 
 class FileMatchFilter(enum.Enum):
@@ -51,6 +61,7 @@ class ListFilesRequest:
     contributor: Optional[str] = None
     repository: Optional[str] = None
     sha256: str = None
+    templates: Optional[List[int]] = None
 
 
 @dataclass
@@ -255,14 +266,21 @@ class FilesDAO:
         return query
 
     @staticmethod
-    def _filter_contributor(req: ListFilesRequest, query: Query):
+    def _filter_contributor(req: ListFilesRequest, query: Query) -> Query:
         """Filter by contributor name (external files only)."""
         if req.contributor is not None:
             return query.filter(Files.contributor.has(Contributor.name == req.contributor))
         return query
 
     @staticmethod
-    def _filter_by_file_attributes(req: ListFilesRequest, query: Query):
+    def _filter_templates(req: ListFilesRequest, query: Query) -> Query:
+        """Filter files by matched template ids."""
+        if req.templates is not None and len(req.templates) > 0:
+            return query.filter(Files.template_matches.any(TemplateMatches.template_id.in_(tuple(req.templates))))
+        return query
+
+    @staticmethod
+    def _filter_by_file_attributes(req: ListFilesRequest, query: Query) -> Query:
         """Apply filters related to the properties of video file itself."""
         query = FilesDAO._filter_path(req, query)
         query = FilesDAO._filter_extensions(req, query)
@@ -274,6 +292,7 @@ class FilesDAO:
         query = FilesDAO._filter_remote(req, query)
         query = FilesDAO._filter_repository(req, query)
         query = FilesDAO._filter_contributor(req, query)
+        query = FilesDAO._filter_templates(req, query)
         return query
 
     @staticmethod
@@ -302,7 +321,7 @@ class FilesDAO:
     @staticmethod
     def select_missing_signatures(path_hash_pairs, session: Session, chunk_size=1000) -> Iterator[Files]:
         """Query files with missing signatures."""
-        for chunk in chunks(path_hash_pairs, size=chunk_size):
+        for chunk in _chunks(path_hash_pairs, size=chunk_size):
             query = session.query(Files).filter(Files.signature.has(Signature.signature != None))  # noqa: E711
             query = query.filter(tuple_(Files.file_path, Files.sha256).in_(chunk)).yield_per(chunk_size)
             have_signature = set((file.file_path, file.sha256) for file in query)

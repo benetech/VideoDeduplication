@@ -1,7 +1,31 @@
-import { randomObjects } from "../MockServer/fake-data/objects";
 import parse from "date-fns/parse";
+import TaskRequest from "../../collection/state/tasks/TaskRequest";
 
 const defaultDateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS";
+
+/**
+ * Mapping from DTO fields to task-request model
+ * fields as they are used in the application.
+ */
+const TaskRequests = {
+  [TaskRequest.DIRECTORY]: {
+    directory: "directory",
+    frame_sampling: "frameSampling",
+    match_distance: "matchDistance",
+    filter_dark: "filterDark",
+    dark_threshold: "darkThreshold",
+    min_duration: "minDuration",
+    extensions: "extensions",
+  },
+  [TaskRequest.MATCH_TEMPLATES]: {
+    frame_sampling: "frameSampling",
+    match_distance: "matchDistance",
+    filter_dark: "filterDark",
+    dark_threshold: "darkThreshold",
+    min_duration: "minDuration",
+    extensions: "extensions",
+  },
+};
 
 /**
  * Data-transfer object and internal data format may evolve independently, the
@@ -32,7 +56,9 @@ export default class Transform {
       metadata: {
         fileType: this.fileType(data),
         hasAudio: data.exif && !!data.exif.Audio_Format,
-        hasEXIF: data.exif != null,
+        // Always false, until exif is actually extracted
+        // TODO: https://github.com/benetech/VideoDeduplication/issues/313
+        hasEXIF: false,
         created: this.fileCreatedDate(data),
         ...meta,
       },
@@ -42,8 +68,9 @@ export default class Transform {
       preview: `/api/v1/files/${data.id}/thumbnail?time=0`,
       playbackURL: `/api/v1/files/${data.id}/watch`,
       scenes: this.fileScenes(data),
-      objects: [...randomObjects(10, meta.length)],
       matchesCount: data.matches_count,
+      external: data.contributor != null,
+      contributor: this.contributor(data.contributor),
     };
   }
 
@@ -72,7 +99,7 @@ export default class Transform {
     if (file.exif && file.exif.General_FileExtension) {
       return file.exif.General_FileExtension;
     }
-    const match = file.file_path.match(/\.([^/.]+)$/);
+    const match = file.file_path?.match(/\.([^/.]+)$/);
     if (match && match[1]) {
       return match[1];
     } else {
@@ -145,10 +172,44 @@ export default class Transform {
       submissionTime: this.utcDate(data.created),
       statusUpdateTime: this.utcDate(data.status_updated),
       status: data.status,
-      request: data.request,
+      request: this.fromTaskRequestDTO(data.request),
       progress: data.progress,
       error: this.taskError(data.error),
+      result: data.result,
     };
+  }
+
+  fromTaskRequestDTO(data) {
+    const request = { type: data.type };
+    const mapping = TaskRequests[request.type];
+    if (mapping) {
+      for (const [dtoProp, reqProp] of Object.entries(mapping)) {
+        if (Object.prototype.hasOwnProperty.call(data, dtoProp)) {
+          request[reqProp] = data[dtoProp];
+        }
+      }
+      return request;
+    } else {
+      console.warn("Don't know how to convert task request type", data.type);
+      return data;
+    }
+  }
+
+  toTaskRequestDTO(request) {
+    console.log("Converting to DTO", request);
+    const dto = { type: request.type };
+    const mapping = TaskRequests[request.type];
+    if (mapping) {
+      for (const [dtoProp, reqProp] of Object.entries(mapping)) {
+        if (Object.prototype.hasOwnProperty.call(request, reqProp)) {
+          dto[dtoProp] = request[reqProp];
+        }
+      }
+      return dto;
+    } else {
+      console.warn("Don't know how to convert task request type", request.type);
+      return request;
+    }
   }
 
   taskError(data) {
@@ -175,5 +236,144 @@ export default class Transform {
       utcDate.getMilliseconds()
     );
     return new Date(timestamp);
+  }
+
+  contributor(data) {
+    if (data == null) {
+      return undefined;
+    }
+    return {
+      id: data.id,
+      name: data.name,
+      repository: this.repository(data.repository),
+    };
+  }
+
+  repository(data) {
+    if (data == null) {
+      return undefined;
+    }
+    return {
+      id: data.id,
+      name: data.name,
+      address: data.address,
+      login: data.login,
+      type: data.type,
+    };
+  }
+
+  fetchTemplatesResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      templates: data.items.map((template) => this.template(template)),
+    };
+  }
+
+  fetchExamplesResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      examples: data.items.map((example) => this.templateExample(example)),
+    };
+  }
+
+  fetchTemplateMatchesResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      templateMatches: data.items.map((match) => this.templateMatch(match)),
+      files: (data.files || []).map((file) => this.videoFile(file)),
+      templates: (data.templates || []).map((template) =>
+        this.template(template)
+      ),
+    };
+  }
+
+  template(data) {
+    if (data == null) {
+      return undefined;
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      icon: {
+        kind: data.icon_type,
+        key: data.icon_key,
+      },
+      fileCount: data.file_count,
+      examples: (data.examples || []).map((example) =>
+        this.templateExample(example)
+      ),
+    };
+  }
+
+  templateExample(data) {
+    return {
+      id: data.id,
+      templateId: data.template_id,
+      template: this.template(data.template),
+      url: `/api/v1/examples/${data.id}/image`,
+    };
+  }
+
+  templateMatch(data) {
+    const match = {
+      id: data.id,
+      fileId: data.file_id,
+      templateId: data.template_id,
+      start: data.start_ms,
+      end: data.end_ms,
+      meanDistance: data.mean_distance_sequence,
+      minDistance: data.min_distance_video,
+      minDistanceTime: data.min_distance_ms,
+      position: data.start_ms,
+    };
+    if (data.template != null) {
+      match.template = this.template(data.template);
+    }
+    if (data.file != null) {
+      match.file = this.videoFile(data.file);
+    }
+    return match;
+  }
+
+  newTemplateDTO(template) {
+    return {
+      name: template.name,
+      icon_type: template.icon?.kind,
+      icon_key: template.icon?.key,
+    };
+  }
+
+  fetchPresetResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      presets: data.items.map((preset) => this.preset(preset)),
+    };
+  }
+
+  preset(data) {
+    return {
+      id: data.id,
+      name: data.name,
+      filters: data.filters,
+    };
+  }
+
+  newPresetDTO(preset) {
+    return {
+      name: preset.name,
+      filters: preset.filters,
+    };
+  }
+
+  updatePresetDTO(preset) {
+    return {
+      name: preset.name,
+      filters: preset.filters,
+    };
   }
 }

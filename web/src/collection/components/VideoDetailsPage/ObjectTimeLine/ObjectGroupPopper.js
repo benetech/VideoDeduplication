@@ -14,6 +14,8 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     padding: theme.spacing(1),
     boxShadow: "none",
+    maxHeight: 200,
+    overflow: "auto",
   },
   popper: {
     marginTop: theme.spacing(0.5),
@@ -29,6 +31,9 @@ const useStyles = makeStyles((theme) => ({
         borderColor: `transparent transparent ${theme.palette.background.paper} transparent`,
       },
     },
+  },
+  preview: {
+    marginBottom: theme.spacing(1),
   },
   arrow: {
     color: "#fff",
@@ -93,8 +98,9 @@ function ObjectGroupPopper(props) {
             <ObjectPreview
               object={object}
               onJump={onJump}
-              key={object.position}
+              key={object.id}
               autoFocus={index === focusIndex}
+              className={clsx(index < objects.length - 1 && classes.preview)}
             />
           ))}
         </Paper>

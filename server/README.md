@@ -45,6 +45,8 @@ Server honors the following environment variables:
  * `TASK_QUEUE_TYPE` - task queue backend. Possible values are `celery` or `fake` (default is `celery`) 
  * `CELERY_BROKER` - Celery message broker uri. Ignored if `TASK_QUEUE_TYPE` is not `celery` (default is `redis://localhost:6379/0`)
  * `CELERY_RESULT_BACKEND` - Celery result backend. Ignored if `TASK_QUEUE_TYPE` is not `celery` (default is `redis://localhost:6379/0`)
+ * `FILE_STORE_DIRECTORY` - Directory in which the application files (e.g. template examples) will be stored (default is `./app_files`)
+ * `MAX_UPLOAD_SIZE` - Maximal upload file size in bytes (default is `20971520`, i.e. 20MB)
 
 
 Server accepts the following command-line arguments:

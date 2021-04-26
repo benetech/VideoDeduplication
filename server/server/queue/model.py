@@ -1,9 +1,13 @@
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Dict
+from numbers import Number
+from typing import List, Optional, Dict, Union
 
 from server.queue import time_utils
+
+# Type hint for json-serializable data.
+JsonData = Union[List, Dict, Number, bool, str]
 
 
 @dataclass
@@ -53,6 +57,7 @@ class Task:
     request: Request
     error: Optional[TaskError] = None
     progress: Optional[float] = None
+    result: Optional[JsonData] = None
 
     def asdict(self):
         data = asdict(self)
@@ -70,6 +75,11 @@ class ProcessDirectory(Request):
     directory: str
     frame_sampling: Optional[int] = None
     save_frames: Optional[bool] = None
+    filter_dark: Optional[bool] = None
+    dark_threshold: Optional[Number] = None
+    extensions: Optional[List[str]] = None
+    match_distance: Optional[float] = None
+    min_duration: Optional[Number] = None
 
 
 @dataclass
@@ -79,6 +89,26 @@ class ProcessFileList(Request):
     files: List[str]
     frame_sampling: Optional[int] = None
     save_frames: Optional[bool] = None
+    filter_dark: Optional[bool] = None
+    dark_threshold: Optional[Number] = None
+    extensions: Optional[List[str]] = None
+    match_distance: Optional[float] = None
+    min_duration: Optional[Number] = None
+
+
+@dataclass
+class MatchTemplates(Request):
+    """Match all templates for all existing files."""
+
+    template_distance: Optional[float] = None
+    template_distance_min: Optional[float] = None
+    frame_sampling: Optional[int] = None
+    save_frames: Optional[bool] = None
+    filter_dark: Optional[bool] = None
+    dark_threshold: Optional[Number] = None
+    extensions: Optional[List[str]] = None
+    match_distance: Optional[float] = None
+    min_duration: Optional[Number] = None
 
 
 @dataclass
