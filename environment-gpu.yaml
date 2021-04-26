@@ -39,5 +39,6 @@ dependencies:
       - inquirer
       - pytimeparse
       - annoy
+      - youtube-dl
 
 prefix: C:\ProgramData\Anaconda3\envs\winnow
