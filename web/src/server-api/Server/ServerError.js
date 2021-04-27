@@ -71,6 +71,9 @@ export default class ServerError extends Error {
     this.code = errorCode(cause);
     this.data = cause?.response?.data;
     this.request = request;
+    if (cause?.stack != null) {
+      this.stack = cause.stack;
+    }
   }
 }
 
