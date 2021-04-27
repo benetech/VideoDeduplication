@@ -155,6 +155,23 @@ export default class Transform {
       id: match.id,
       distance: match.distance,
       file: this.videoFile(match.file),
+      falsePositive: match.false_positive,
+    };
+  }
+
+  match(match) {
+    return {
+      id: match.id,
+      distance: match.distance,
+      source: this.source,
+      target: this.target,
+      falsePositive: match.false_positive,
+    };
+  }
+
+  updateMatchDTO(match) {
+    return {
+      falsePositive: match.falsePositive,
     };
   }
 
