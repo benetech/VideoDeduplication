@@ -26,6 +26,7 @@ import {
   updateFileMatchesParams,
 } from "../../state/fileMatches/actions";
 import initialState from "../../state/fileMatches/initialState";
+import FilterPanel from "./FilterPanel";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,6 +54,9 @@ const useStyles = makeStyles((theme) => ({
   },
   match: {
     height: "100%",
+  },
+  filters: {
+    margin: theme.spacing(1),
   },
 }));
 
@@ -91,11 +95,15 @@ function FileMatchesPage(props) {
   const dispatch = useDispatch();
   const history = useHistory();
   const filters = fileMatches.params.filters;
+  const [showFilters, setShowFilters] = useState(false);
+
+  const handleToggleFilters = useCallback(() => setShowFilters(!showFilters), [
+    showFilters,
+  ]);
 
   useEffect(() => {
-    const newParams = lodash.merge({}, initialState.params, {
+    const newParams = lodash.merge({}, fileMatches.params, {
       fileId: id,
-      filters: { remote: true },
     });
     if (!lodash.isEqual(fileMatches.params, newParams)) {
       dispatch(updateFileMatchesParams(newParams));
@@ -152,10 +160,12 @@ function FileMatchesPage(props) {
           variant="outlined"
           className={classes.actionButton}
           aria-label={messages.searchMatches}
+          onClick={handleToggleFilters}
         >
           <TuneOutlinedIcon color="secondary" />
         </SquaredIconButton>
       </SectionSeparator>
+      {showFilters && <FilterPanel className={classes.filters} />}
       <div
         role="region"
         aria-label={messages.matched}
