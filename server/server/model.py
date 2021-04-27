@@ -129,6 +129,7 @@ class Transform:
         return {
             "id": match.id,
             "distance": match.distance,
+            "mother_file_id": file_id,
             "file": Transform.file(matched, meta=meta, signature=signature, scenes=scenes, exif=exif),
             "false_positive": match.false_positive,
         }

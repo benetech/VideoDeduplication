@@ -13,6 +13,8 @@ import { routes } from "../../../../routing/routes";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router-dom";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
+import MatchAPI from "../../../../application/match/MatchAPI";
+import FileMatchType from "../../../../application/match/prop-types/FileMatchType";
 
 /**
  * Get translated text
@@ -29,76 +31,74 @@ function useMessages() {
 /**
  * Get comparison action.
  */
-function useCompare({ matchFile, motherFile, messages }) {
+function useCompare({ match, motherFile, messages }) {
   const history = useHistory();
   return useMemo(
     () => ({
       title: messages.compare,
       handler: () =>
         history.push(
-          routes.collection.fileComparisonURL(motherFile?.id, matchFile?.id)
+          routes.collection.fileComparisonURL(motherFile?.id, match.file?.id)
         ),
     }),
-    [matchFile?.id, motherFile?.id]
+    [match.file?.id, motherFile?.id]
   );
 }
 
 /**
  * Get "Show Details" action.
  */
-function useShowDetails({ matchFile, messages }) {
+function useShowDetails({ match, messages }) {
   const history = useHistory();
   return useMemo(
     () => ({
       title: messages.showDetails,
-      handler: () => history.push(routes.collection.fileURL(matchFile?.id)),
+      handler: () => history.push(routes.collection.fileURL(match.file.id)),
     }),
-    [matchFile?.id]
+    [match.file.id]
   );
 }
 
-function useActions({ compare, showDetails, matchFile, motherFile }) {
-  return useMemo(() => {
+function useActions({ match, motherFile, messages }) {
+  const compare = useCompare({ match, motherFile, messages });
+  const showDetails = useShowDetails({ match, messages });
+  const list = useMemo(() => {
     if (motherFile?.external) {
       return [showDetails];
     }
     return [showDetails, compare];
-  }, [matchFile?.id, matchFile?.id]);
+  }, [match.file.id, motherFile?.id]);
+
+  return {
+    compare,
+    showDetails,
+    deleteMatch,
+    list,
+  };
 }
 
 function LocalMatchPreview(props) {
-  const {
-    motherFile,
-    matchFile,
-    distance,
-    highlight,
-    className,
-    ...other
-  } = props;
+  const { motherFile, match, highlight, className, ...other } = props;
   const messages = useMessages();
-  const compare = useCompare({ matchFile, motherFile, messages });
-  const showDetails = useShowDetails({ matchFile, messages });
-  const actions = useActions({ compare, showDetails, matchFile, motherFile });
+  const actions = useActions({ match, motherFile, messages });
 
-  const mainAction = motherFile?.external ? showDetails : compare;
+  const mainAction = motherFile?.external
+    ? actions.showDetails
+    : actions.compare;
 
   return (
-    <PreviewContainer
-      matchFile={matchFile}
-      className={clsx(className)}
-      {...other}
-    >
+    <PreviewContainer className={clsx(className)} {...other}>
       <PreviewHeader
-        text={matchFile.filename}
+        text={match.file.filename}
         highlight={highlight}
         caption={messages.caption}
         icon={VideocamOutlinedIcon}
-        actions={actions}
+        actions={actions.list}
       />
       <PreviewDivider />
-      <PreviewFileAttributes file={matchFile} attrs={localAttributes} />
+      <PreviewFileAttributes file={match.file} attrs={localAttributes} />
       <PreviewDivider />
-      <Distance value={distance} />
+      <Distance value={match.distance} />
       <PreviewDivider />
       <PreviewMainAction name={mainAction.title} onFire={mainAction.handler} />
     </PreviewContainer>
@@ -111,13 +111,9 @@ LocalMatchPreview.propTypes = {
    */
   motherFile: FileType.isRequired,
   /**
-   * Matched file
+   * Match details
    */
-  matchFile: FileType.isRequired,
-  /**
-   * Match distance
-   */
-  distance: PropTypes.number.isRequired,
+  match: FileMatchType.isRequired,
   /**
    * File name substring to highlight
    */

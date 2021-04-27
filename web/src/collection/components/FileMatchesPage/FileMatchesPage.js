@@ -156,8 +156,7 @@ function FileMatchesPage(props) {
             <Grid item xs={6} lg={3} key={match.id}>
               <MatchPreview
                 motherFile={file}
-                matchFile={match.file}
-                distance={match.distance}
+                match={match}
                 className={classes.match}
               />
             </Grid>

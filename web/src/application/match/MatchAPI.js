@@ -21,7 +21,7 @@ export default class MatchAPI {
     this.dispatch = dispatch;
   }
 
-  async update(updated, original) {
+  async updateFileMatch(updated, original) {
     if (updated.id !== original?.id) {
       throw new Error(
         `Original match has different id: ${updated.id} != ${original?.id}`

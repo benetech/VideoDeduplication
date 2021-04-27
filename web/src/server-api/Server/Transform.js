@@ -154,6 +154,7 @@ export default class Transform {
     return {
       id: match.id,
       distance: match.distance,
+      motherFileId: match.mother_file_id,
       file: this.videoFile(match.file),
       falsePositive: match.false_positive,
     };
