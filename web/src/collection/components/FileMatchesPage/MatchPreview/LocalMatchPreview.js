@@ -25,7 +25,25 @@ function useMessages() {
     caption: intl.formatMessage({ id: "file.attr.name" }),
     compare: intl.formatMessage({ id: "actions.compare" }),
     showDetails: intl.formatMessage({ id: "actions.showFileDetails" }),
+    delete: intl.formatMessage({ id: "actions.delete" }),
   };
+}
+
+/**
+ * Get delete action.
+ */
+function useDelete({ match, messages }) {
+  const matchAPI = MatchAPI.use();
+  return useMemo(
+    () => ({
+      title: messages.delete,
+      handler: async () => {
+        const updated = { ...match, falsePositive: true };
+        await matchAPI.updateFileMatch(updated, match);
+      },
+    }),
+    [matchAPI]
+  );
 }
 
 /**
@@ -62,11 +80,12 @@ function useShowDetails({ match, messages }) {
 function useActions({ match, motherFile, messages }) {
   const compare = useCompare({ match, motherFile, messages });
   const showDetails = useShowDetails({ match, messages });
+  const deleteMatch = useDelete({ match, messages });
   const list = useMemo(() => {
     if (motherFile?.external) {
       return [showDetails];
     }
-    return [showDetails, compare];
+    return [showDetails, deleteMatch, compare];
   }, [match.file.id, motherFile?.id]);
 
   return {

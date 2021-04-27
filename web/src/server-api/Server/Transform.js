@@ -172,7 +172,7 @@ export default class Transform {
 
   updateMatchDTO(match) {
     return {
-      falsePositive: match.falsePositive,
+      false_positive: match.falsePositive,
     };
   }
 
