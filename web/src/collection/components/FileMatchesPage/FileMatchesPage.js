@@ -25,7 +25,6 @@ import {
   fetchFileMatchesSlice,
   updateFileMatchesParams,
 } from "../../state/fileMatches/actions";
-import initialState from "../../state/fileMatches/initialState";
 import FilterPanel from "./FilterPanel";
 
 const useStyles = makeStyles((theme) => ({

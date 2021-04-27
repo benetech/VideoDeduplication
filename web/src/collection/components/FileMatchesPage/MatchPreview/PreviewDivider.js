@@ -3,14 +3,14 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   divider: {
     borderTop: "1px solid #F5F5F5",
   },
   dark: {
     borderTop: "1px solid #B7B7B7",
   },
-}));
+});
 
 function PreviewDivider(props) {
   const { dark = false, className, ...other } = props;
