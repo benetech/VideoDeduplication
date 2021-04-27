@@ -109,4 +109,45 @@ def update_match(match_id):
     except IntegrityError:
         abort(HTTPStatus.BAD_REQUEST.value, "Data integrity violation.")
 
-    return Transform.match(match)
+    return jsonify(Transform.match(match))
+
+
+@api.route("/files/<int:file_id>/matches/<int:match_id>", methods=["PATCH"])
+def update_file_match(file_id, match_id):
+    include_fields = parse_fields(request.args, "include", FILE_FIELDS)
+
+    file = database.session.query(Files).filter(Files.id == file_id).one_or_none()
+
+    # Handle file not found
+    if file is None:
+        abort(HTTPStatus.NOT_FOUND.value, f"File id not found: {file_id}")
+
+    # Fetch match from database
+    match = database.session.query(Matches).filter(Matches.id == match_id).one_or_none()
+
+    # Handle match not found
+    if match is None:
+        abort(HTTPStatus.NOT_FOUND.value, f"Match id not found: {match_id}")
+
+    # Get payload
+    request_payload = request.get_json()
+    if request_payload is None:
+        abort(HTTPStatus.BAD_REQUEST.value, "Expected valid 'application/json' payload.")
+
+    # Validate payload
+    error, fields = validate_update_match_dto(request_payload)
+    if error is not None:
+        return (
+            jsonify({"error": error, "code": HTTPStatus.BAD_REQUEST.value, "fields": fields}),
+            HTTPStatus.BAD_REQUEST.value,
+        )
+
+    match.false_positive = request_payload.get("false_positive", match.false_positive)
+
+    try:
+        database.session.commit()
+    except IntegrityError:
+        abort(HTTPStatus.BAD_REQUEST.value, "Data integrity violation.")
+
+    include_flags = {field.key: True for field in include_fields}
+    return jsonify(Transform.file_match(match, file_id, **include_flags))
