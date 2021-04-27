@@ -76,6 +76,7 @@
     "actions.cancel": "Cancel",
     "actions.create": "Create",
     "actions.update": "Update",
+    "actions.restore": "Restore",
     "actions.showLogs": "Show Logs",
     "actions.process": "Process {what}",
     "actions.copyHash": "Copy File SHA-256",

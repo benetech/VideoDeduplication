@@ -12,9 +12,18 @@ import PreviewMainAction from "./PreviewMainAction";
 import { routes } from "../../../../routing/routes";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router-dom";
+import InactiveIcon from "@material-ui/icons/NotInterestedOutlined";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import MatchAPI from "../../../../application/match/MatchAPI";
 import FileMatchType from "../../../../application/match/prop-types/FileMatchType";
+
+import { makeStyles } from "@material-ui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  falsePositive: {
+    backgroundColor: theme.palette.backgroundInactive,
+  },
+}));
 
 /**
  * Get translated text
@@ -26,23 +35,24 @@ function useMessages() {
     compare: intl.formatMessage({ id: "actions.compare" }),
     showDetails: intl.formatMessage({ id: "actions.showFileDetails" }),
     delete: intl.formatMessage({ id: "actions.delete" }),
+    restore: intl.formatMessage({ id: "actions.restore" }),
   };
 }
 
 /**
  * Get delete action.
  */
-function useDelete({ match, messages }) {
+function useToggleFalsePositive({ match, messages }) {
   const matchAPI = MatchAPI.use();
   return useMemo(
     () => ({
-      title: messages.delete,
+      title: match.falsePositive ? messages.restore : messages.delete,
       handler: async () => {
-        const updated = { ...match, falsePositive: true };
+        const updated = { ...match, falsePositive: !match.falsePositive };
         await matchAPI.updateFileMatch(updated, match);
       },
     }),
-    [matchAPI]
+    [matchAPI, match.id, match.falsePositive]
   );
 }
 
@@ -80,24 +90,25 @@ function useShowDetails({ match, messages }) {
 function useActions({ match, motherFile, messages }) {
   const compare = useCompare({ match, motherFile, messages });
   const showDetails = useShowDetails({ match, messages });
-  const deleteMatch = useDelete({ match, messages });
+  const toggleFalsePositive = useToggleFalsePositive({ match, messages });
   const list = useMemo(() => {
-    if (motherFile?.external) {
+    if (motherFile.external) {
       return [showDetails];
     }
-    return [showDetails, deleteMatch, compare];
-  }, [match.file.id, motherFile?.id]);
+    return [showDetails, toggleFalsePositive, compare];
+  }, [showDetails, toggleFalsePositive, compare, motherFile.external]);
 
   return {
     compare,
     showDetails,
-    deleteMatch,
+    toggleFalsePositive,
     list,
   };
 }
 
 function LocalMatchPreview(props) {
   const { motherFile, match, highlight, className, ...other } = props;
+  const classes = useStyles();
   const messages = useMessages();
   const actions = useActions({ match, motherFile, messages });
 
@@ -105,20 +116,25 @@ function LocalMatchPreview(props) {
     ? actions.showDetails
     : actions.compare;
 
+  const Icon = match.falsePositive ? InactiveIcon : VideocamOutlinedIcon;
+
   return (
-    <PreviewContainer className={clsx(className)} {...other}>
+    <PreviewContainer
+      className={clsx(match.falsePositive && classes.falsePositive, className)}
+      {...other}
+    >
       <PreviewHeader
         text={match.file.filename}
         highlight={highlight}
         caption={messages.caption}
-        icon={VideocamOutlinedIcon}
+        icon={Icon}
         actions={actions.list}
       />
-      <PreviewDivider />
+      <PreviewDivider dark={match.falsePositive} />
       <PreviewFileAttributes file={match.file} attrs={localAttributes} />
-      <PreviewDivider />
+      <PreviewDivider dark={match.falsePositive} />
       <Distance value={match.distance} />
-      <PreviewDivider />
+      <PreviewDivider dark={match.falsePositive} />
       <PreviewMainAction name={mainAction.title} onFire={mainAction.handler} />
     </PreviewContainer>
   );
