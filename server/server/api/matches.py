@@ -64,7 +64,7 @@ def validate_update_match_dto(data: Dict) -> Tuple[str, Dict[str, str]]:
 
     expected_fields = {"false_positive"}
     actual_fields = set(data.keys())
-    if not actual_fields < expected_fields:
+    if not actual_fields <= expected_fields:
         return f"Payload can include only the following fields: {expected_fields}", {}
 
     if "false_positive" in data:
