@@ -22,6 +22,7 @@ def list_file_matches(file_id):
     offset = parse_positive_int(request.args, "offset", 0)
     include_fields = parse_fields(request.args, "include", FILE_FIELDS)
     remote = parse_boolean(request.args, "remote")
+    false_positive = parse_boolean(request.args, "false_positive")
 
     file = database.session.query(Files).get(file_id)
 
@@ -36,6 +37,9 @@ def list_file_matches(file_id):
     if not remote:
         query = query.filter(Matches.match_video_file.has(Files.contributor == None))  # noqa: E711
         query = query.filter(Matches.query_video_file.has(Files.contributor == None))  # noqa: E711
+
+    if false_positive is not None:
+        query = query.filter(Matches.false_positive == false_positive)
 
     # Preload file fields
     query = FILE_FIELDS.preload(query, include_fields, Matches.match_video_file)

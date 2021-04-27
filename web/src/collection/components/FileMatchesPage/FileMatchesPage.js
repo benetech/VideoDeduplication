@@ -70,6 +70,15 @@ function useMessages(matchesCount) {
   };
 }
 
+/**
+ * Create match predicate from filters.
+ */
+function asPredicate(filters) {
+  const { falsePositive } = filters;
+  return (match) =>
+    falsePositive == null || match.falsePositive === falsePositive;
+}
+
 function FileMatchesPage(props) {
   const { className } = props;
   const classes = useStyles();
@@ -81,6 +90,7 @@ function FileMatchesPage(props) {
   const fileMatches = useSelector(selectFileMatches);
   const dispatch = useDispatch();
   const history = useHistory();
+  const filters = fileMatches.params.filters;
 
   useEffect(() => {
     const newParams = lodash.merge({}, initialState.params, {
@@ -152,7 +162,7 @@ function FileMatchesPage(props) {
         className={classes.matches}
       >
         <Grid container spacing={4} alignItems="stretch">
-          {fileMatches.matches.map((match) => (
+          {fileMatches.matches.filter(asPredicate(filters)).map((match) => (
             <Grid item xs={6} lg={3} key={match.id}>
               <MatchPreview
                 motherFile={file}

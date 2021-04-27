@@ -7,6 +7,7 @@ const initialState = {
     fileId: undefined,
     filters: {
       remote: false,
+      falsePositive: null,
     },
     fields: ["meta", "exif"],
   },
