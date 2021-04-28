@@ -47,9 +47,12 @@ def list_file_matches(file_id):
     items = query.offset(offset).limit(limit).all()
 
     include_flags = {field.key: True for field in include_fields}
+    mother_file = Transform.file(file, **include_flags)
+    mother_file["matches_count"] = FilesDAO.file_matches(file_id, database.session).count()
     return jsonify(
         {
             "items": [Transform.file_match(item, file_id, **include_flags) for item in items],
+            "mother_file": mother_file,
             "total": total,
             "offset": offset,
         }

@@ -6,7 +6,7 @@ import FileType from "../../../collection/prop-types/FileType";
  */
 const FileMatchType = PropTypes.shape({
   id: PropTypes.number.isRequired,
-  motherFileId: PropTypes.number.isRequired,
+  motherFile: FileType.isRequired,
   file: FileType.isRequired,
   distance: PropTypes.number.isRequired,
   falsePositive: PropTypes.bool.isRequired,

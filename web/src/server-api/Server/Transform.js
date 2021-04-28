@@ -150,11 +150,11 @@ export default class Transform {
     };
   }
 
-  fileMatch(match) {
+  fileMatch(match, motherFile) {
     return {
       id: match.id,
       distance: match.distance,
-      motherFileId: match.mother_file_id,
+      motherFile: { id: match.mother_file_id, ...motherFile },
       file: this.videoFile(match.file),
       falsePositive: match.false_positive,
     };
