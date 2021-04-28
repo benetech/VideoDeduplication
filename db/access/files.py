@@ -128,8 +128,12 @@ class FilesDAO:
         """Create a filter criteria to check if there is a match
         with distance lesser or equal to the given threshold."""
         return or_(
-            Files.source_matches.any(and_(Matches.distance <= threshold, Matches.false_positive == False)),
-            Files.target_matches.any(and_(Matches.distance <= threshold, Matches.false_positive == False)),
+            Files.source_matches.any(
+                and_(Matches.distance <= threshold, Matches.false_positive == False)  # noqa: E712
+            ),
+            Files.target_matches.any(
+                and_(Matches.distance <= threshold, Matches.false_positive == False)  # noqa: E712
+            ),
         )
 
     @staticmethod
