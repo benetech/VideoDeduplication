@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import FileType from "../../../prop-types/FileType";
 import PreviewHeader from "./PreviewHeader";
 import PreviewDivider from "./PreviewDivider";
 import PreviewFileAttributes from "./PreviewFileAttributes";
@@ -14,6 +13,7 @@ import CloudOutlinedIcon from "@material-ui/icons/CloudOutlined";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router-dom";
 import { routes } from "../../../../routing/routes";
+import FileMatchType from "../../../../application/match/prop-types/FileMatchType";
 
 const useStyles = makeStyles({
   root: {},
@@ -39,7 +39,7 @@ function useMessages() {
 /**
  * Get match actions.
  */
-function useActions(matchFile, handleCopy, messages) {
+function useActions(match, handleCopy, messages) {
   const history = useHistory();
 
   return useMemo(
@@ -47,48 +47,44 @@ function useActions(matchFile, handleCopy, messages) {
       {
         title: messages.showMatches,
         handler: () =>
-          history.push(routes.collection.fileMatchesURL(matchFile?.id)),
+          history.push(routes.collection.fileMatchesURL(match.file.id)),
       },
       {
         title: messages.copySHA,
         handler: handleCopy,
       },
     ],
-    [matchFile?.id]
+    [match.file.id]
   );
 }
 
 function RemoteMatchPreview(props) {
-  const { matchFile, distance, highlight, className, ...other } = props;
+  const { match, highlight, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
 
   const handleCopy = useCallback(() => {
     navigator.clipboard
-      .writeText(matchFile?.hash)
+      .writeText(match.file.hash)
       .then(null, (reason) => console.error("Copy hash failed", reason));
-  }, [matchFile?.id]);
+  }, [match.file.id]);
 
-  const actions = useActions(matchFile, handleCopy, messages);
+  const actions = useActions(match.file, handleCopy, messages);
 
   return (
-    <PreviewContainer
-      matchFile={matchFile}
-      className={clsx(classes.root, className)}
-      {...other}
-    >
+    <PreviewContainer className={clsx(classes.root, className)} {...other}>
       <PreviewHeader
-        text={matchFile.hash}
+        text={match.file.hash}
         highlight={highlight}
         caption={messages.caption}
         icon={CloudOutlinedIcon}
         actions={actions}
       />
       <PreviewDivider />
-      <PreviewFileAttributes file={matchFile} attrs={remoteAttributes} />
+      <PreviewFileAttributes file={match.file} attrs={remoteAttributes} />
       <div className={classes.spacer} />
       <PreviewDivider />
-      <Distance value={distance} />
+      <Distance value={match.distance} />
       <PreviewDivider />
       <PreviewMainAction
         name={messages.copySHA}
@@ -101,17 +97,9 @@ function RemoteMatchPreview(props) {
 
 RemoteMatchPreview.propTypes = {
   /**
-   * Mother file
+   * Match details
    */
-  motherFile: FileType.isRequired,
-  /**
-   * Matched file
-   */
-  matchFile: FileType.isRequired,
-  /**
-   * Match distance
-   */
-  distance: PropTypes.number.isRequired,
+  match: FileMatchType.isRequired,
   /**
    * File name substring to highlight
    */

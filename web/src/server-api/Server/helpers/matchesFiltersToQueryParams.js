@@ -9,5 +9,8 @@ export default function matchesFiltersToQueryParams({ fields, filters }) {
   if (filters?.remote != null) {
     params.remote = !!filters.remote;
   }
+  if (filters?.falsePositive != null) {
+    params.false_positive = !!filters.falsePositive;
+  }
   return params;
 }

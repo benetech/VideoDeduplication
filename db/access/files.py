@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List, Optional, Iterator
 
 from dataclasses import dataclass, field
-from sqlalchemy import or_, func, literal_column, tuple_
+from sqlalchemy import or_, and_, func, literal_column, tuple_
 from sqlalchemy.orm import aliased, Query, Session, joinedload
 
 from db.schema import Files, Matches, Exif, Contributor, Repository, Signature, TemplateMatches
@@ -128,16 +128,23 @@ class FilesDAO:
         """Create a filter criteria to check if there is a match
         with distance lesser or equal to the given threshold."""
         return or_(
-            Files.source_matches.any(Matches.distance <= threshold),
-            Files.target_matches.any(Matches.distance <= threshold),
+            Files.source_matches.any(
+                and_(Matches.distance <= threshold, Matches.false_positive == False)  # noqa: E712
+            ),
+            Files.target_matches.any(
+                and_(Matches.distance <= threshold, Matches.false_positive == False)  # noqa: E712
+            ),
         )
 
     @staticmethod
-    def file_matches(file_id, session: Session) -> Query:
+    def file_matches(file_id, session: Session, *, false_positive=False) -> Query:
         """Query for all file matches."""
-        return session.query(Matches).filter(
+        query = session.query(Matches).filter(
             or_(Matches.query_video_file_id == file_id, Matches.match_video_file_id == file_id)
         )
+        if false_positive is not None:
+            query = query.filter(Matches.false_positive == false_positive)
+        return query
 
     @staticmethod
     def _sortable_attributes(req: ListFilesRequest):

@@ -19,7 +19,7 @@ export const FileType = PropTypes.shape({
     hasAudio: PropTypes.bool,
     quality: PropTypes.number,
     flagged: PropTypes.bool,
-  }).isRequired,
+  }),
   hash: PropTypes.string,
   fingerprint: PropTypes.string,
   preview: PropTypes.string,

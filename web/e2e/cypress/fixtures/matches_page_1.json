@@ -2,6 +2,8 @@
   "items": [
     {
       "distance": 0.6257369509936613,
+      "mother_file_id": 1,
+      "false_positive": false,
       "file": {
         "created_date": 1606368488.387466,
         "exif": {
@@ -17,6 +19,8 @@
     },
     {
       "distance": 0.3456155024059317,
+      "mother_file_id": 1,
+      "false_positive": false,
       "file": {
         "created_date": 1606368488.387838,
         "exif": {
@@ -32,6 +36,8 @@
     },
     {
       "distance": 0.6787252191110131,
+      "mother_file_id": 1,
+      "false_positive": false,
       "file": {
         "created_date": 1606368488.387764,
         "exif": {
@@ -47,6 +53,8 @@
     },
     {
       "distance": 0.45654564969322314,
+      "mother_file_id": 1,
+      "false_positive": false,
       "file": {
         "created_date": 1606368488.388196,
         "exif": {
@@ -61,6 +69,23 @@
       "id": 135
     }
   ],
+  "mother_file": {
+    "created_date": 1606368488.388472,
+    "exif": {
+      "General_Duration": 42.0,
+      "General_FileExtension": "flv"
+    },
+    "file_path": "cba9fea2-6748-4119-a884-f7435e8558b0.flv",
+    "id": 1,
+    "matches_count": 14,
+    "meta": { "flagged": null, "gray_max": null, "video_dark_flag": null },
+    "scenes": [
+      { "duration": 1, "id": 69, "start_time": 0 },
+      { "duration": 2, "id": 70, "start_time": 1 }
+    ],
+    "sha256": "hash-of-cba9fea2-6748-4119-a884-f7435e8558b0.flv",
+    "signature": "c29tZS1zaWduYXR1cmU="
+  },
   "offset": 4,
   "total": 8
 }

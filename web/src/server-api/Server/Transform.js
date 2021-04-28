@@ -146,15 +146,35 @@ export default class Transform {
     return {
       offset: data.offset,
       total: data.total,
-      matches: data.items.map((match) => this.fileMatch(match)),
+      matches: data.items.map((match) =>
+        this.fileMatch(match, data.mother_file)
+      ),
     };
   }
 
-  fileMatch(match) {
+  fileMatch(match, motherFile) {
     return {
       id: match.id,
       distance: match.distance,
+      motherFile: { id: match.mother_file_id, ...motherFile },
       file: this.videoFile(match.file),
+      falsePositive: match.false_positive,
+    };
+  }
+
+  match(match) {
+    return {
+      id: match.id,
+      distance: match.distance,
+      source: this.source,
+      target: this.target,
+      falsePositive: match.false_positive,
+    };
+  }
+
+  updateMatchDTO(match) {
+    return {
+      false_positive: match.falsePositive,
     };
   }
 

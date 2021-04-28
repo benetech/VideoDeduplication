@@ -112,6 +112,23 @@ export default class Server {
     }
   }
 
+  async updateMatch(match) {
+    try {
+      const response = await this.axios.patch(
+        `/matches/${match.id}`,
+        JSON.stringify(this.transform.updateMatchDTO(match)),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return this.transform.match(response.data);
+    } catch (error) {
+      throw makeServerError("Update match error.", error, { match });
+    }
+  }
+
   async probeVideoFile({ id }) {
     try {
       await this.axios.head(`/files/${id}/watch`);

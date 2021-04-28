@@ -6,7 +6,8 @@ const initialState = {
   params: {
     fileId: undefined,
     filters: {
-      remote: false,
+      remote: true,
+      falsePositive: false,
     },
     fields: ["meta", "exif"],
   },
