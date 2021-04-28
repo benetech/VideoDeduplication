@@ -47,8 +47,11 @@ function useToggleFalsePositive({ match, messages }) {
     () => ({
       title: match.falsePositive ? messages.restore : messages.delete,
       handler: async () => {
-        const updated = { ...match, falsePositive: !match.falsePositive };
-        await matchAPI.updateFileMatch(updated, match);
+        if (match.falsePositive) {
+          await matchAPI.restoreMatch(match);
+        } else {
+          await matchAPI.deleteMatch(match);
+        }
       },
     }),
     [matchAPI, match.id, match.falsePositive]

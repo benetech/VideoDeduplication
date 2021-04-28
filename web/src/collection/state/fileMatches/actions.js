@@ -62,3 +62,15 @@ export const ACTION_UPDATE_MATCH = "coll.UPDATE_MATCH";
 export function updateMatch(match) {
   return { type: ACTION_UPDATE_MATCH, match };
 }
+
+export const ACTION_DELETE_FILE_MATCH = "coll.DELETE_FILE_MATCH";
+
+export function deleteFileMatch(match) {
+  return { type: ACTION_DELETE_FILE_MATCH, match };
+}
+
+export const ACTION_RESTORE_FILE_MATCH = "coll.RESTORE_FILE_MATCH";
+
+export function restoreFileMatch(match) {
+  return { type: ACTION_RESTORE_FILE_MATCH, match };
+}

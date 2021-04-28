@@ -1,7 +1,11 @@
 import { useServer } from "../../server-api/context";
 import { useDispatch } from "react-redux";
 import { useMemo } from "react";
-import { updateMatch } from "../../collection/state/fileMatches/actions";
+import {
+  deleteFileMatch,
+  restoreFileMatch,
+  updateMatch,
+} from "../../collection/state/fileMatches/actions";
 
 /**
  * This API implements integration between bare Server API
@@ -33,6 +37,26 @@ export default class MatchAPI {
       await this.server.updateMatch(updated);
     } catch (error) {
       this.dispatch(updateMatch(original));
+      throw error;
+    }
+  }
+
+  async deleteMatch(match) {
+    try {
+      this.dispatch(deleteFileMatch(match));
+      await this.server.updateMatch({ ...match, falsePositive: true });
+    } catch (error) {
+      this.dispatch(restoreFileMatch(match));
+      throw error;
+    }
+  }
+
+  async restoreMatch(match) {
+    try {
+      this.dispatch(restoreFileMatch(match));
+      await this.server.updateMatch({ ...match, falsePositive: false });
+    } catch (error) {
+      this.dispatch(deleteFileMatch(match));
       throw error;
     }
   }
