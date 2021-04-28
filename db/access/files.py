@@ -133,11 +133,14 @@ class FilesDAO:
         )
 
     @staticmethod
-    def file_matches(file_id, session: Session) -> Query:
+    def file_matches(file_id, session: Session, *, false_positive=False) -> Query:
         """Query for all file matches."""
-        return session.query(Matches).filter(
+        query = session.query(Matches).filter(
             or_(Matches.query_video_file_id == file_id, Matches.match_video_file_id == file_id)
         )
+        if false_positive is not None:
+            query = query.filter(Matches.false_positive == false_positive)
+        return query
 
     @staticmethod
     def _sortable_attributes(req: ListFilesRequest):
