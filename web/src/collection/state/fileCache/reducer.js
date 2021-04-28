@@ -1,5 +1,7 @@
+import lodash from "lodash";
 import initialState from "./initialState";
 import { ACTION_CACHE_FILE } from "./actions";
+import { ACTION_UPDATE_FILE } from "../fileList/actions";
 
 /**
  * Root reducer for file cache.
@@ -20,6 +22,15 @@ export default function fileCacheReducer(state = initialState, action) {
         delete files[evicted];
       }
       return { ...state, history, files };
+    }
+    case ACTION_UPDATE_FILE: {
+      const currentFile = state.files[action.file.id];
+      if (currentFile != null) {
+        const updatedFile = lodash.merge({}, currentFile, action.file);
+        const files = { ...state.files, [action.file.id]: updatedFile };
+        return { ...state, files };
+      }
+      return state;
     }
     default:
       return state;
