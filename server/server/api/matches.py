@@ -30,16 +30,13 @@ def list_file_matches(file_id):
     if file is None:
         abort(HTTPStatus.NOT_FOUND.value, f"File id not found: {file_id}")
 
-    query = FilesDAO.file_matches(file_id, database.session).options(
+    query = FilesDAO.file_matches(file_id, database.session, false_positive=false_positive).options(
         joinedload(Matches.match_video_file), joinedload(Matches.query_video_file)
     )
 
     if not remote:
         query = query.filter(Matches.match_video_file.has(Files.contributor == None))  # noqa: E711
         query = query.filter(Matches.query_video_file.has(Files.contributor == None))  # noqa: E711
-
-    if false_positive is not None:
-        query = query.filter(Matches.false_positive == false_positive)
 
     # Preload file fields
     query = FILE_FIELDS.preload(query, include_fields, Matches.match_video_file)
