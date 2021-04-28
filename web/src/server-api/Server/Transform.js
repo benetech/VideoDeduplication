@@ -146,7 +146,9 @@ export default class Transform {
     return {
       offset: data.offset,
       total: data.total,
-      matches: data.items.map((match) => this.fileMatch(match)),
+      matches: data.items.map((match) =>
+        this.fileMatch(match, data.mother_file)
+      ),
     };
   }
 

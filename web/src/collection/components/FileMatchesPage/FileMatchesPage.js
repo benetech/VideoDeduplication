@@ -79,7 +79,9 @@ function useMessages(matchesCount) {
 function asPredicate(filters) {
   const { falsePositive } = filters;
   return (match) =>
-    falsePositive == null || match.falsePositive === falsePositive;
+    falsePositive == null ||
+    (match.falsePositive == null && !falsePositive) || // treat falsePositive = null as false by default
+    match.falsePositive === falsePositive;
 }
 
 function FileMatchesPage(props) {

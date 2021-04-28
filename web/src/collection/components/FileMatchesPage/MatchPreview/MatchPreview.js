@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import FileType from "../../../prop-types/FileType";
 import BasicContainer from "./BasicContainer";
 import LocalMatchPreview from "./LocalMatchPreview";
 import RemoteMatchPreview from "./RemoteMatchPreview";
@@ -37,7 +36,7 @@ function MatchPreview(props) {
       match={match}
       aria-label={messages.ariaLabel}
       data-selector="MatchPreview"
-      data-file-id={match.file?.id}
+      data-file-id={match.file.id}
       {...other}
     />
   );
