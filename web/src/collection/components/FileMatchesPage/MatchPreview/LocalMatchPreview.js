@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import FileType from "../../../prop-types/FileType";
 import PreviewContainer from "./PreviewContainer";
 import PreviewHeader from "./PreviewHeader";
 import PreviewDivider from "./PreviewDivider";
@@ -59,17 +58,20 @@ function useToggleFalsePositive({ match, messages }) {
 /**
  * Get comparison action.
  */
-function useCompare({ match, motherFile, messages }) {
+function useCompare({ match, messages }) {
   const history = useHistory();
   return useMemo(
     () => ({
       title: messages.compare,
       handler: () =>
         history.push(
-          routes.collection.fileComparisonURL(motherFile?.id, match.file?.id)
+          routes.collection.fileComparisonURL(
+            match.motherFile.id,
+            match.file.id
+          )
         ),
     }),
-    [match.file?.id, motherFile?.id]
+    [match.file.id, match.motherFile.id]
   );
 }
 
@@ -87,16 +89,16 @@ function useShowDetails({ match, messages }) {
   );
 }
 
-function useActions({ match, motherFile, messages }) {
-  const compare = useCompare({ match, motherFile, messages });
+function useActions({ match, messages }) {
+  const compare = useCompare({ match, messages });
   const showDetails = useShowDetails({ match, messages });
   const toggleFalsePositive = useToggleFalsePositive({ match, messages });
   const list = useMemo(() => {
-    if (motherFile.external) {
+    if (match.motherFile.external) {
       return [showDetails];
     }
     return [showDetails, toggleFalsePositive, compare];
-  }, [showDetails, toggleFalsePositive, compare, motherFile.external]);
+  }, [showDetails, toggleFalsePositive, compare, match.motherFile.external]);
 
   return {
     compare,
@@ -107,12 +109,12 @@ function useActions({ match, motherFile, messages }) {
 }
 
 function LocalMatchPreview(props) {
-  const { motherFile, match, highlight, className, ...other } = props;
+  const { match, highlight, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const actions = useActions({ match, motherFile, messages });
+  const actions = useActions({ match, messages });
 
-  const mainAction = motherFile?.external
+  const mainAction = match.motherFile.external
     ? actions.showDetails
     : actions.compare;
 
@@ -141,10 +143,6 @@ function LocalMatchPreview(props) {
 }
 
 LocalMatchPreview.propTypes = {
-  /**
-   * Mother file
-   */
-  motherFile: FileType.isRequired,
   /**
    * Match details
    */

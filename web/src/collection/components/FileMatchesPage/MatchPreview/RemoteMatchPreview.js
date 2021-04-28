@@ -98,10 +98,6 @@ function RemoteMatchPreview(props) {
 
 RemoteMatchPreview.propTypes = {
   /**
-   * Mother file
-   */
-  motherFile: FileType.isRequired,
-  /**
    * Match details
    */
   match: FileMatchType.isRequired,

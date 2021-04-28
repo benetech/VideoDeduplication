@@ -173,11 +173,7 @@ function FileMatchesPage(props) {
         <Grid container spacing={4} alignItems="stretch">
           {fileMatches.matches.filter(asPredicate(filters)).map((match) => (
             <Grid item xs={6} lg={3} key={match.id}>
-              <MatchPreview
-                motherFile={file}
-                match={match}
-                className={classes.match}
-              />
+              <MatchPreview match={match} className={classes.match} />
             </Grid>
           ))}
           <Grid item xs={6} lg={3}>
