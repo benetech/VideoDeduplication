@@ -37,11 +37,11 @@ def generate_local_matches(
     # Hence we must always attempt to generate matches.
 
     # Ensure dependencies are satisfied
-    if not video_features_exist(files, pipeline, hashes) and config.proc.filter_dark_videos:
-        extract_video_level_features(files, pipeline, hashes, progress=progress.subtask(0.9))
+    if not video_features_exist(files, pipeline) and config.proc.filter_dark_videos:
+        extract_video_level_features(files, pipeline, progress=progress.subtask(0.9))
         progress = progress.subtask(0.1)
-    if not video_signatures_exist(files, pipeline, hashes):
-        extract_video_signatures(files, pipeline, hashes, progress=progress.subtask(0.7))
+    if not video_signatures_exist(files, pipeline):
+        extract_video_signatures(files, pipeline, progress=progress.subtask(0.7))
         progress = progress.subtask(0.3)
     if not database_signatures_exist(files, pipeline):
         store_database_signatures(files, pipeline, progress=progress.subtask(0.2))

@@ -3,6 +3,7 @@ import hashlib
 import os
 from glob import glob
 from pathlib import Path
+from functools import lru_cache
 
 
 def read_chunks(file_object, buffer_size=64 * 1024):
@@ -13,6 +14,7 @@ def read_chunks(file_object, buffer_size=64 * 1024):
         chunk = file_object.read(buffer_size)
 
 
+@lru_cache(maxsize=None)
 def get_hash(file_path, buffer_size=64 * 1024):
     """Get sha256 hash of the file."""
     sha256 = hashlib.sha256()
