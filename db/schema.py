@@ -165,9 +165,14 @@ class TemplateFileExclusion(Base):
     """File excluded from the Template scope."""
 
     __tablename__ = "template_file_exclusion"
+    __table_args__ = (UniqueConstraint("file_id", "template_id", name="_template_file_exclusion_uc"),)
+
     id = Column(Integer, autoincrement=True, primary_key=True)
     file_id = Column(Integer, ForeignKey("files.id"), nullable=True)
     template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
+
+    # Relationships
+
     file = relationship("Files", back_populates="template_exclusions")
     template = relationship("Template", back_populates="file_exclusions")
 
