@@ -8,7 +8,6 @@ from winnow.pipeline.extract_frame_level_features import (
 )
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
-from winnow.utils.files import get_hash
 
 # Default module logger
 logger = logging.getLogger(__name__)
