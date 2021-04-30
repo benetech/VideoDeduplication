@@ -2,21 +2,51 @@ import logging
 import os
 import shutil
 from glob import glob
-from typing import List
+from typing import List, Tuple, Iterable
 
 import numpy as np
 import pandas as pd
+from dataclasses import dataclass, astuple
 from scipy.spatial.distance import cdist
 
 from winnow.search_engine.model import Template
+from winnow.storage.repr_key import ReprKey
 from winnow.storage.repr_storage import ReprStorage
 from winnow.utils.network import download_file
 
 _logger = logging.getLogger(__name__)
 
 
+class BlackList:
+    """Template file black list."""
+
+    @dataclass
+    class Entry:
+        """Black list entry."""
+
+        template_name: str
+        file_path: str
+        file_hash: str
+
+    def __init__(self, file_exclusions: Iterable[Entry] = ()):
+        self._excluded = set()
+        for exclusion in file_exclusions:
+            self._excluded.add(astuple(exclusion))
+
+    def __len__(self):
+        return len(self._excluded)
+
+    def __contains__(self, item: Tuple[Template, ReprKey]):
+        template, key = item
+        return (template.name, key.path, key.hash) in self._excluded
+
+
 class SearchEngine:
-    def __init__(self, reprs: ReprStorage):
+    def __init__(
+        self,
+        reprs: ReprStorage,
+        black_list: BlackList = None,
+    ):
         self.reprs = reprs
         self.relevant_cols = [
             "path",
@@ -29,6 +59,7 @@ class SearchEngine:
             "min_distance_ms",
         ]
         self.results_cache = pd.DataFrame(columns=self.relevant_cols)
+        self.black_list = black_list or BlackList()
 
     def create_annotation_report(self, templates: List[Template], threshold=0.07, frame_sampling=1, distance_min=0.05):
         """Creates an annotation report suitable for annotation
@@ -69,6 +100,9 @@ class SearchEngine:
         # self.results_cache[query] = defaultdict()
         dfs = []
         for repr_key in self.reprs.frame_level.list():
+            # Skip files excluded from the template scope
+            if (template, repr_key) in self.black_list:
+                continue
             try:
                 sample = self.reprs.frame_level.read(repr_key)
 

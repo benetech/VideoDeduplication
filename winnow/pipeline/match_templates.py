@@ -2,10 +2,13 @@ import logging
 import os
 from typing import Collection, List
 
+from sqlalchemy.orm import joinedload
+
+from db.schema import TemplateFileExclusion
 from winnow.pipeline.extract_frame_level_features import frame_features_exist, extract_frame_level_features
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
-from winnow.search_engine import Template
+from winnow.search_engine import Template, BlackList
 from winnow.search_engine.template_matching import SearchEngine
 
 # Default module logger
@@ -31,8 +34,15 @@ def match_templates(files: Collection[str], pipeline: PipelineContext, progress=
     logger.info("Loaded %s templates", len(templates))
     if len(templates) == 0:
         logger.info("No templates found. Skipping template matching step...")
+        progress.complete()
+        return
 
-    se = SearchEngine(reprs=pipeline.repr_storage)
+    # Load file exclusions
+    file_black_list = load_black_list(pipeline)
+    if len(file_black_list) > 0:
+        logger.info("Found %s file exclusions", len(file_black_list))
+
+    se = SearchEngine(reprs=pipeline.repr_storage, black_list=file_black_list)
     template_matches = se.create_annotation_report(
         templates=templates,
         threshold=config.templates.distance,
@@ -76,3 +86,29 @@ def load_templates(pipeline: PipelineContext) -> List[Template]:
     else:
         logger.error("Neither database nor template source directory are not available")
         return []
+
+
+def load_black_list(pipeline: PipelineContext) -> BlackList:
+    """Get template file exclusions."""
+
+    # Load file exclusions
+    config = pipeline.config
+    file_exclusions = ()
+    if config.database.use:
+        with pipeline.database.session_scope(expunge=True) as session:
+            file_exclusions = (
+                session.query(TemplateFileExclusion)
+                .options(joinedload(TemplateFileExclusion.file))
+                .options(joinedload(TemplateFileExclusion.template))
+                .all()
+            )
+
+    # Create a template-file black list
+    return BlackList(
+        BlackList.Entry(
+            template_name=item.template.name,
+            file_path=item.file.file_path,
+            file_hash=item.file.sha256,
+        )
+        for item in file_exclusions
+    )
