@@ -10,6 +10,8 @@ import { useIntl } from "react-intl";
 import ContentFilters from "./ContentFilters";
 import MetadataFilters from "./MetadataFilters";
 import Presets from "./Presets";
+import SwitchComponent from "../../../../common/components/SwitchComponent/SwitchComponent";
+import Case from "../../../../common/components/SwitchComponent/Case";
 
 const useStyles = makeStyles((theme) => ({
   pane: {
@@ -51,22 +53,6 @@ function useMessages() {
 }
 
 /**
- * Get tab component type
- */
-function getTabComponent(tab) {
-  switch (tab) {
-    case Tab.content:
-      return ContentFilters;
-    case Tab.metadata:
-      return MetadataFilters;
-    case Tab.presets:
-      return Presets;
-    default:
-      throw new Error(`Unsupported tab: ${tab}`);
-  }
-}
-
-/**
  * Get total count of active filters managed by filter pane.
  */
 function useActiveFilters() {
@@ -81,8 +67,6 @@ function FilterPane(props) {
   const contentFilters = ContentFilters.useActiveFilters();
   const metadataFilters = MetadataFilters.useActiveFilters();
 
-  const TabComponent = getTabComponent(tab);
-
   return (
     <div className={clsx(classes.pane, className)} {...other}>
       <div className={classes.filters}>
@@ -91,7 +75,7 @@ function FilterPane(props) {
           value={tab}
           onChange={setTab}
           className={classes.tabs}
-          spacing={0}
+          spacing={0.5}
         >
           <SelectableTab
             label={messages.content}
@@ -107,7 +91,17 @@ function FilterPane(props) {
           />
           <SelectableTab label={messages.presets} value={Tab.presets} />
         </SelectableTabs>
-        <TabComponent className={classes.tabContent} />
+        <SwitchComponent value={tab}>
+          <Case match={Tab.content}>
+            <ContentFilters className={classes.tabContent} />
+          </Case>
+          <Case match={Tab.metadata}>
+            <MetadataFilters className={classes.tabContent} />
+          </Case>
+          <Case match={Tab.presets}>
+            <Presets className={classes.tabContent} />
+          </Case>
+        </SwitchComponent>
       </div>
     </div>
   );
