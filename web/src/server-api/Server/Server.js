@@ -15,6 +15,7 @@ import templateMatchFiltersToQueryParams from "./helpers/templateMatchFiltersToQ
 import AxiosRetry from "axios-retry";
 import presetFiltersToQueryParams from "./helpers/presetFiltersToQueryParams";
 import { makeServerError } from "./ServerError";
+import templateFileExclusionFiltersToQueryParams from "./helpers/templateFileExclusionFiltersToQueryParams";
 
 export default class Server {
   constructor({
@@ -482,6 +483,63 @@ export default class Server {
       await this.axios.delete(`/files/filter-presets/${preset.id}`);
     } catch (error) {
       throw makeServerError("Delete preset error.", error, { preset });
+    }
+  }
+
+  async createTemplateFileExclusion(exclusion) {
+    try {
+      const newExclusionDTO = this.transform.newTemplateFileExclusionDTO(
+        exclusion
+      );
+      const response = await this.axios.post(
+        "/template-file-exclusions/",
+        JSON.stringify(newExclusionDTO),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return this.transform.templateFileExclusion(response.data);
+    } catch (error) {
+      throw makeServerError("Create file exclusion error.", error, {
+        exclusion,
+      });
+    }
+  }
+
+  async fetchTemplateFileExclusions(options = {}) {
+    try {
+      const { limit = 1000, offset = 0, filters = {} } = options;
+      const response = await this.axios.get("/template-file-exclusions/", {
+        params: {
+          limit,
+          offset,
+          ...templateFileExclusionFiltersToQueryParams({ filters }),
+        },
+      });
+      return this.transform.fetchTemplateFileExclusionsResults(response.data);
+    } catch (error) {
+      throw makeServerError("Fetch file exclusions error.", error, { options });
+    }
+  }
+
+  async fetchTemplateFileExclusion(id) {
+    try {
+      const response = await this.axios.get(`/template-file-exclusions/${id}`);
+      return this.transform.templateFileExclusion(response.data);
+    } catch (error) {
+      throw makeServerError("Fetch file exclusion error.", error, { id });
+    }
+  }
+
+  async deleteTemplateFileExclusion(exclusion) {
+    try {
+      await this.axios.delete(`/template-file-exclusions/${exclusion.id}`);
+    } catch (error) {
+      throw makeServerError("Delete file exclusion error.", error, {
+        preset: exclusion,
+      });
     }
   }
 

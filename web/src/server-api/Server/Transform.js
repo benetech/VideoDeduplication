@@ -390,6 +390,31 @@ export default class Transform {
     };
   }
 
+  templateFileExclusion(data) {
+    return {
+      id: data.id,
+      file: this.videoFile(data.file),
+      template: this.template(data.template),
+    };
+  }
+
+  newTemplateFileExclusionDTO(exclusion) {
+    return {
+      file_id: exclusion.file.id,
+      template_id: exclusion.template.id,
+    };
+  }
+
+  fetchTemplateFileExclusionsResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      exclusions: data.items.map((exclusion) =>
+        this.templateFileExclusion(exclusion)
+      ),
+    };
+  }
+
   updatePresetDTO(preset) {
     return {
       name: preset.name,
