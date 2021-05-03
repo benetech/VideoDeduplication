@@ -26,16 +26,12 @@ function bindProps(currentValue) {
 }
 
 function SwitchComponent(props) {
-  const { value, children, className, ...other } = props;
+  const { value, children } = props;
 
   // Set required child properties
   const cases = React.Children.map(children, bindProps(value));
 
-  return (
-    <React.Fragment className={clsx(className)} {...other}>
-      {cases}
-    </React.Fragment>
-  );
+  return <React.Fragment>{cases}</React.Fragment>;
 }
 
 SwitchComponent.propTypes = {
@@ -50,7 +46,6 @@ SwitchComponent.propTypes = {
     PropTypes.arrayOf(PropTypes.element),
     PropTypes.element,
   ]),
-  className: PropTypes.string,
 };
 
 export default SwitchComponent;
