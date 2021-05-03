@@ -91,14 +91,16 @@ function FilterPaneHeader(props) {
 
       <div className={classes.title}>{messages.title}</div>
       <Tooltip title={messages.saveFilters}>
-        <IconButton
-          onClick={handleShowDialog}
-          size="small"
-          aria-label={messages.saveFilters}
-          disabled={!dirty}
-        >
-          <SaveOutlinedIcon />
-        </IconButton>
+        <div>
+          <IconButton
+            onClick={handleShowDialog}
+            size="small"
+            aria-label={messages.saveFilters}
+            disabled={!dirty}
+          >
+            <SaveOutlinedIcon />
+          </IconButton>
+        </div>
       </Tooltip>
       <IconButton
         onClick={onClose}
