@@ -53,7 +53,6 @@ def process_directory(
     # Resolve list of video files from the directory
     logger.info(f"Resolving video list for directory {directory}")
 
-
     absolute_root = os.path.abspath(config.sources.root)
     absolute_dir = os.path.abspath(os.path.join(absolute_root, directory))
     if Path(config.sources.root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:
@@ -70,7 +69,6 @@ def process_directory(
     )
     detect_scenes(files=videos, pipeline=pipeline_context, progress=monitor.subtask(0.01))
     extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.05))
-
 
     monitor.complete()
 
