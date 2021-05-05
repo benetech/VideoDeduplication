@@ -15,13 +15,17 @@ const useStyles = makeStyles(() => ({
 /**
  * Wrapper around MUI Button with appropriate styles.
  */
-function Button(props) {
+const Button = React.forwardRef((props, ref) => {
   const { className, ...otherProps } = props;
   const classes = useStyles();
   return (
-    <MuiButton {...otherProps} className={clsx(classes.button, className)} />
+    <MuiButton
+      {...otherProps}
+      ref={ref}
+      className={clsx(classes.button, className)}
+    />
   );
-}
+});
 
 /**
  * Button is a wrapper around MUI Button.
