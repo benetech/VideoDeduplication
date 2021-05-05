@@ -15,7 +15,7 @@ const useStyles = makeStyles(() => ({
 /**
  * Wrapper around MUI Button with appropriate styles.
  */
-const Button = React.forwardRef((props, ref) => {
+const ButtonComponent = React.forwardRef(function Button(props, ref) {
   const { className, ...otherProps } = props;
   const classes = useStyles();
   return (
@@ -31,7 +31,7 @@ const Button = React.forwardRef((props, ref) => {
  * Button is a wrapper around MUI Button.
  * These properties are simply passed to the underlying MUI Button component.
  */
-Button.propTypes = {
+ButtonComponent.propTypes = {
   classes: PropTypes.object,
   color: PropTypes.oneOf(["default", "inherit", "primary", "secondary"]),
   component: PropTypes.elementType,
@@ -54,4 +54,4 @@ Button.propTypes = {
   className: PropTypes.string,
 };
 
-export default Button;
+export default ButtonComponent;

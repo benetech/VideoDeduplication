@@ -1,7 +1,6 @@
 import { useServer } from "../../server-api/context";
-import sleep from "sleep-promise";
 import { useDispatch, useSelector } from "react-redux";
-import { useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   cacheTemplateFileExclusions,
   createTemplateFileExclusion,

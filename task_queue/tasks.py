@@ -51,10 +51,14 @@ def process_directory(
     config.database.use = True
 
     # Resolve list of video files from the directory
-    logger.info(f"Resolving video list for directory ")
+    logger.info(f"Resolving video list for directory {directory}")
 
     # logger.info(
-    #     f"Get hash cache Hits - {get_hash.cache_info()[0]} Misses {get_hash.cache_info()[1]} Max Size {get_hash.cache_info()[2]} Current SIze {get_hash.cache_info()[3]}"
+    #     f"Get hash cache "
+    #     f"Hits - {get_hash.cache_info()[0]} "
+    #     f"Misses {get_hash.cache_info()[1]} "
+    #     f"Max Size {get_hash.cache_info()[2]} "
+    #     f"Current SIze {get_hash.cache_info()[3]}"
     # )
 
     absolute_root = os.path.abspath(config.sources.root)
@@ -74,7 +78,11 @@ def process_directory(
     detect_scenes(files=videos, pipeline=pipeline_context, progress=monitor.subtask(0.01))
     extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.05))
     # logger.info(
-    #     f"Get hash cache (after running the whole pipeline) Hits - {get_hash.cache_info()[0]} Misses {get_hash.cache_info()[1]} Max Size {get_hash.cache_info()[2]} Current SIze {get_hash.cache_info()[3]}"
+    #     f"Get hash cache (after running the whole pipeline) "
+    #     f"Hits - {get_hash.cache_info()[0]} "
+    #     f"Misses {get_hash.cache_info()[1]} "
+    #     f"Max Size {get_hash.cache_info()[2]} "
+    #     f"Current SIze {get_hash.cache_info()[3]}"
     # )
 
     monitor.complete()

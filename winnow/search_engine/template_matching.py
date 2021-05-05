@@ -94,7 +94,9 @@ class SearchEngine:
             data,
         ]
 
-    def find(self, template: Template, threshold=0.07, plot=True, distance_min=0.05):
+    def find(  # noqa C901 TODO: Simplify method (https://github.com/benetech/VideoDeduplication/issues/378)
+        self, template: Template, threshold=0.07, plot=True, distance_min=0.05
+    ):
         feats = template.features
         _logger.info("Loaded query embeddings %s", feats.shape)
         # self.results_cache[query] = defaultdict()
