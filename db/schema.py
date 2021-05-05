@@ -177,6 +177,16 @@ class TemplateFileExclusion(Base):
     template = relationship("Template", back_populates="file_exclusions")
 
 
+@event.listens_for(TemplateFileExclusion, "after_insert")
+def on_file_exclusion_insert(mapper, connection, exclusion):
+    """Delete unwanted objects when (template, file) pair is added to black list."""
+    session = object_session(exclusion)
+    session.query(TemplateMatches).filter(
+        TemplateMatches.template_id == exclusion.template_id,
+        TemplateMatches.file_id == exclusion.file_id,
+    ).delete()
+
+
 @event.listens_for(Files.template_matches, "remove")
 def rem(state, item, initiator):
     sess = object_session(item)

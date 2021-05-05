@@ -1,5 +1,6 @@
 import initialState from "./initialState";
 import { ACTION_CACHE_OBJECTS } from "./actions";
+import { ACTION_CREATE_TEMPLATE_FILE_EXCLUSION } from "../../../application/file-exclusion/state/actions";
 
 /**
  * Root reducer for object cache.
@@ -17,6 +18,20 @@ export default function objectCacheReducer(state = initialState, action) {
         delete objects[evicted];
       }
       return { ...state, history, objects };
+    }
+    case ACTION_CREATE_TEMPLATE_FILE_EXCLUSION: {
+      const { exclusion } = action;
+      const objects = state.objects[exclusion.file.id];
+      if (objects == null) {
+        return state;
+      }
+      const updatedObjects = objects.filter(
+        (object) => object.templateId !== exclusion.template.id
+      );
+      return {
+        ...state,
+        objects: { ...state.objects, [exclusion.file.id]: updatedObjects },
+      };
     }
     default:
       return state;
