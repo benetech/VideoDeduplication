@@ -68,3 +68,9 @@ export const selectPresets = (state) => selectColl(state).presets;
  */
 export const selectPreset = ({ id }) => (state) =>
   selectPresets(state).presets.find((preset) => preset.id === id);
+
+/**
+ * Select file exclusions cache.
+ */
+export const selectFileExclusionsCache = (state) =>
+  selectColl(state).fileExclusions;
