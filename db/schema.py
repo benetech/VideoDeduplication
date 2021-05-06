@@ -15,6 +15,8 @@ from sqlalchemy import (
     event,
     CheckConstraint,
     Enum,
+    and_,
+    or_,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, object_session
@@ -51,6 +53,7 @@ class Files(Base):
     scenes = relationship("Scene", cascade="all,delete", back_populates="file")
     template_matches = relationship("TemplateMatches", back_populates="file", cascade="all, delete-orphan")
     template_exclusions = relationship("TemplateFileExclusion", back_populates="file", cascade="all, delete-orphan")
+    time_range_exclusions = relationship("TemplateTimeRangeExclusion", cascade="all,delete", back_populates="file")
     exif = relationship("Exif", cascade="all,delete", uselist=False, back_populates="file")
 
     # TODO: find a way to merge these two relationships
@@ -118,6 +121,7 @@ class Template(Base):
     examples = relationship("TemplateExample", cascade="all,delete", back_populates="template")
     matches = relationship("TemplateMatches", cascade="all,delete", back_populates="template")
     file_exclusions = relationship("TemplateFileExclusion", cascade="all,delete", back_populates="template")
+    time_range_exclusions = relationship("TemplateTimeRangeExclusion", cascade="all,delete", back_populates="template")
 
 
 class TemplateExample(Base):
@@ -178,13 +182,31 @@ class TemplateFileExclusion(Base):
 
 
 @event.listens_for(TemplateFileExclusion, "after_insert")
-def on_file_exclusion_insert(mapper, connection, exclusion):
+def on_file_exclusion_insert(mapper, connection, exclusion: TemplateFileExclusion):
     """Delete unwanted objects when (template, file) pair is added to black list."""
     session = object_session(exclusion)
     session.query(TemplateMatches).filter(
         TemplateMatches.template_id == exclusion.template_id,
         TemplateMatches.file_id == exclusion.file_id,
     ).delete()
+
+
+class TemplateTimeRangeExclusion(Base):
+    """Time range inside file excluded from the Template scope."""
+
+    __tablename__ = "template_time_range_exclusion"
+    __table_args__ = (CheckConstraint("start_ms < end_ms"),)
+
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    file_id = Column(Integer, ForeignKey("files.id"), nullable=True)
+    template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
+    start_ms = Column(Float, CheckConstraint("start_ms >= 0.0"))
+    end_ms = Column(Float)
+
+    # Relationships
+
+    file = relationship("Files", back_populates="time_range_exclusions")
+    template = relationship("Template", back_populates="time_range_exclusions")
 
 
 @event.listens_for(Files.template_matches, "remove")
