@@ -25,7 +25,7 @@ import {
   fetchFileMatchesSlice,
   updateFileMatchesParams,
 } from "../../state/fileMatches/actions";
-import initialState from "../../state/fileMatches/initialState";
+import FilterPanel from "./FilterPanel";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -54,6 +54,9 @@ const useStyles = makeStyles((theme) => ({
   match: {
     height: "100%",
   },
+  filters: {
+    margin: theme.spacing(1),
+  },
 }));
 
 /**
@@ -70,6 +73,17 @@ function useMessages(matchesCount) {
   };
 }
 
+/**
+ * Create match predicate from filters.
+ */
+function asPredicate(filters) {
+  const { falsePositive } = filters;
+  return (match) =>
+    falsePositive == null ||
+    (match.falsePositive == null && !falsePositive) || // treat falsePositive = null as false by default
+    match.falsePositive === falsePositive;
+}
+
 function FileMatchesPage(props) {
   const { className } = props;
   const classes = useStyles();
@@ -81,11 +95,16 @@ function FileMatchesPage(props) {
   const fileMatches = useSelector(selectFileMatches);
   const dispatch = useDispatch();
   const history = useHistory();
+  const filters = fileMatches.params.filters;
+  const [showFilters, setShowFilters] = useState(false);
+
+  const handleToggleFilters = useCallback(() => setShowFilters(!showFilters), [
+    showFilters,
+  ]);
 
   useEffect(() => {
-    const newParams = lodash.merge({}, initialState.params, {
+    const newParams = lodash.merge({}, fileMatches.params, {
       fileId: id,
-      filters: { remote: true },
     });
     if (!lodash.isEqual(fileMatches.params, newParams)) {
       dispatch(updateFileMatchesParams(newParams));
@@ -142,24 +161,21 @@ function FileMatchesPage(props) {
           variant="outlined"
           className={classes.actionButton}
           aria-label={messages.searchMatches}
+          onClick={handleToggleFilters}
         >
           <TuneOutlinedIcon color="secondary" />
         </SquaredIconButton>
       </SectionSeparator>
+      {showFilters && <FilterPanel className={classes.filters} />}
       <div
         role="region"
         aria-label={messages.matched}
         className={classes.matches}
       >
         <Grid container spacing={4} alignItems="stretch">
-          {fileMatches.matches.map((match) => (
+          {fileMatches.matches.filter(asPredicate(filters)).map((match) => (
             <Grid item xs={6} lg={3} key={match.id}>
-              <MatchPreview
-                motherFile={file}
-                matchFile={match.file}
-                distance={match.distance}
-                className={classes.match}
-              />
+              <MatchPreview match={match} className={classes.match} />
             </Grid>
           ))}
           <Grid item xs={6} lg={3}>

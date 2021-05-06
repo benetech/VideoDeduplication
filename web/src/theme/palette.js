@@ -6,6 +6,7 @@ const palette = {
   white,
   divider: "#979797",
   dividerLight: "#D8D8D8",
+  backgroundInactive: "#D8D8D8",
   success: {
     contrastText: white,
     dark: colors.green[900],

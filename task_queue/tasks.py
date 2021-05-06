@@ -51,7 +51,8 @@ def process_directory(
     config.database.use = True
 
     # Resolve list of video files from the directory
-    logger.info(f"Resolving video list for directory {directory}")
+    logger.info("Resolving video list for directory ")
+
     absolute_root = os.path.abspath(config.sources.root)
     absolute_dir = os.path.abspath(os.path.join(absolute_root, directory))
     if Path(config.sources.root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:

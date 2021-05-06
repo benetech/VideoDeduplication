@@ -187,6 +187,7 @@ class Matches(Base):
     match_video_file_id = Column(Integer, ForeignKey("files.id"), nullable=False)
     match_video_file = relationship("Files", back_populates="target_matches", foreign_keys=[match_video_file_id])
     distance = Column(Float, nullable=False)
+    false_positive = Column(Boolean, nullable=False, default=False)
 
 
 class Exif(Base):

@@ -53,3 +53,9 @@ export const ACTION_BLUR_FILES = "coll.BLUR_FILES";
 export function blurFiles(blur) {
   return { blur, type: ACTION_BLUR_FILES };
 }
+
+export const ACTION_UPDATE_FILE = "coll.UPDATE_FILE";
+
+export function updateFile(file) {
+  return { type: ACTION_UPDATE_FILE, file };
+}

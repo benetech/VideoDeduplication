@@ -4,7 +4,7 @@ from typing import Collection
 from winnow.feature_extraction import IntermediateCnnExtractor
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
-from winnow.utils.files import create_video_list, get_hash
+from winnow.utils.files import create_video_list
 
 
 def extract_frame_level_features(
@@ -15,16 +15,8 @@ def extract_frame_level_features(
     config = pipeline.config
     logger = logging.getLogger(__name__)
 
-    if hashes is None:
-        hashes = list(map(get_hash, files))
-
     files = tuple(files)
-    remaining_data = [*missing_frame_features(files, pipeline, hashes)]
-
-    if not remaining_data:
-        remaining_video_paths, remaining_hashes = [], []
-    else:
-        remaining_video_paths, remaining_hashes = zip(*remaining_data)
+    remaining_video_paths = [*missing_frame_features(files, pipeline)]
 
     # Skip step if required results already exist
     if not remaining_video_paths:
@@ -61,18 +53,15 @@ def extract_frame_level_features(
     progress.complete()
 
 
-def missing_frame_features(files, pipeline: PipelineContext, hashes: Collection[str]):
+def missing_frame_features(files, pipeline: PipelineContext):
     """Get file paths with missing frame-level features."""
     frame_features = pipeline.repr_storage.frame_level
     for i, file_path in enumerate(files):
-        if not frame_features.exists(pipeline.reprkey(file_path, hash=hashes[i])):
-            yield file_path, hashes[i]
+        if not frame_features.exists(pipeline.reprkey(file_path)):
+            yield file_path
 
 
-def frame_features_exist(files, pipeline: PipelineContext, hashes=None):
+def frame_features_exist(files, pipeline: PipelineContext):
     """Check if all required frame-level features do exist."""
 
-    if hashes is None:
-        hashes = list(map(get_hash, files))
-
-    return not any(missing_frame_features(files, pipeline, hashes))
+    return not any(missing_frame_features(files, pipeline))

@@ -115,7 +115,7 @@ def validate_update_template_dto(template, data: Dict) -> Tuple[str, Dict[str, s
 
     expected_fields = {"name", "icon_type", "icon_key"}
     actual_fields = set(data.keys())
-    if not actual_fields < expected_fields:
+    if not actual_fields <= expected_fields:
         return f"Payload can include only the following fields: {expected_fields}", {}
 
     if "icon_type" in data:

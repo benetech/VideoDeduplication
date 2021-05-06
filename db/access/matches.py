@@ -120,13 +120,15 @@ class MatchesDAO:
                 outgoing,
                 (outgoing.query_video_file_id == Files.id)
                 & (outgoing.distance >= req.min_distance)
-                & (outgoing.distance <= req.max_distance),
+                & (outgoing.distance <= req.max_distance)
+                & (outgoing.false_positive == False),  # noqa: E712
             )
             .outerjoin(
                 incoming,
                 (incoming.match_video_file_id == Files.id)
                 & (incoming.distance >= req.min_distance)
-                & (incoming.distance <= req.max_distance),
+                & (incoming.distance <= req.max_distance)
+                & (incoming.false_positive == False),  # noqa: E712
             )
             .options(contains_eager(Files.source_matches, alias=outgoing))
             .options(contains_eager(Files.target_matches, alias=incoming))

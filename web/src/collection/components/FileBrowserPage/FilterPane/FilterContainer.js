@@ -5,9 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import InfoButton from "../../../../common/components/InfoButton";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    marginBottom: theme.spacing(4),
-  },
+  root: {},
   header: {
     display: "flex",
   },
