@@ -209,6 +209,21 @@ class TemplateTimeRangeExclusion(Base):
     template = relationship("Template", back_populates="time_range_exclusions")
 
 
+@event.listens_for(TemplateTimeRangeExclusion, "after_insert")
+def on_time_range_exclusion_insert(mapper, connection, exclusion: TemplateTimeRangeExclusion):
+    """Delete unwanted objects when (template, file) pair is added to black list."""
+    session = object_session(exclusion)
+    session.query(TemplateMatches).filter(
+        TemplateMatches.template_id == exclusion.template_id,
+        TemplateMatches.file_id == exclusion.file_id,
+        or_(
+            and_(TemplateMatches.start_ms <= exclusion.start_ms, exclusion.start_ms <= TemplateMatches.end_ms),
+            and_(TemplateMatches.start_ms <= exclusion.end_ms, exclusion.end_ms <= TemplateMatches.end_ms),
+            and_(exclusion.start_ms <= TemplateMatches.start_ms, TemplateMatches.end_ms <= TemplateMatches.end_ms),
+        ),
+    ).delete()
+
+
 @event.listens_for(Files.template_matches, "remove")
 def rem(state, item, initiator):
     sess = object_session(item)
