@@ -16,6 +16,7 @@ import AxiosRetry from "axios-retry";
 import presetFiltersToQueryParams from "./helpers/presetFiltersToQueryParams";
 import { makeServerError } from "./ServerError";
 import templateFileExclusionFiltersToQueryParams from "./helpers/templateFileExclusionFiltersToQueryParams";
+import templateTimeExclusionFiltersToQueryParams from "./helpers/templateTimeExclusionFiltersToQueryParams";
 
 export default class Server {
   constructor({
@@ -538,6 +539,63 @@ export default class Server {
       await this.axios.delete(`/template-file-exclusions/${exclusion.id}`);
     } catch (error) {
       throw makeServerError("Delete file exclusion error.", error, {
+        preset: exclusion,
+      });
+    }
+  }
+
+  async createTemplateTimeExclusion(exclusion) {
+    try {
+      const newExclusionDTO = this.transform.newTemplateTimeExclusionDTO(
+        exclusion
+      );
+      const response = await this.axios.post(
+        "/template-time-exclusions/",
+        JSON.stringify(newExclusionDTO),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return this.transform.templateTimeExclusion(response.data);
+    } catch (error) {
+      throw makeServerError("Create time exclusion error.", error, {
+        exclusion,
+      });
+    }
+  }
+
+  async fetchTemplateTimeExclusions(options = {}) {
+    try {
+      const { limit = 1000, offset = 0, filters = {} } = options;
+      const response = await this.axios.get("/template-time-exclusions/", {
+        params: {
+          limit,
+          offset,
+          ...templateTimeExclusionFiltersToQueryParams({ filters }),
+        },
+      });
+      return this.transform.fetchTemplateTimeExclusionsResults(response.data);
+    } catch (error) {
+      throw makeServerError("Fetch time exclusions error.", error, { options });
+    }
+  }
+
+  async fetchTemplateTimeExclusion(id) {
+    try {
+      const response = await this.axios.get(`/template-time-exclusions/${id}`);
+      return this.transform.templateTimeExclusion(response.data);
+    } catch (error) {
+      throw makeServerError("Fetch time exclusion error.", error, { id });
+    }
+  }
+
+  async deleteTemplateTimeExclusion(exclusion) {
+    try {
+      await this.axios.delete(`/template-time-exclusions/${exclusion.id}`);
+    } catch (error) {
+      throw makeServerError("Delete time exclusion error.", error, {
         preset: exclusion,
       });
     }

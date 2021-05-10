@@ -390,6 +390,13 @@ export default class Transform {
     };
   }
 
+  updatePresetDTO(preset) {
+    return {
+      name: preset.name,
+      filters: preset.filters,
+    };
+  }
+
   templateFileExclusion(data) {
     return {
       id: data.id,
@@ -415,10 +422,32 @@ export default class Transform {
     };
   }
 
-  updatePresetDTO(preset) {
+  templateTimeExclusion(data) {
     return {
-      name: preset.name,
-      filters: preset.filters,
+      id: data.id,
+      file: this.videoFile(data.file),
+      template: this.template(data.template),
+      start: data.start_ms,
+      end: data.end_ms,
+    };
+  }
+
+  newTemplateTimeExclusionDTO(exclusion) {
+    return {
+      file_id: exclusion.file.id,
+      template_id: exclusion.template.id,
+      start_ms: exclusion.start,
+      end_ms: exclusion.end,
+    };
+  }
+
+  fetchTemplateTimeExclusionsResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      exclusions: data.items.map((exclusion) =>
+        this.templateFileExclusion(exclusion)
+      ),
     };
   }
 }
