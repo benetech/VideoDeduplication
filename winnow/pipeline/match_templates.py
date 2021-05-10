@@ -4,11 +4,12 @@ from typing import Collection, List
 
 from sqlalchemy.orm import joinedload
 
-from db.schema import TemplateFileExclusion
+from db.schema import TemplateFileExclusion, TemplateTimeRangeExclusion
 from winnow.pipeline.extract_frame_level_features import frame_features_exist, extract_frame_level_features
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
-from winnow.search_engine import Template, BlackList
+from winnow.search_engine import Template
+from winnow.search_engine.black_list import BlackList
 from winnow.search_engine.template_matching import SearchEngine
 
 # Default module logger
@@ -38,11 +39,14 @@ def match_templates(files: Collection[str], pipeline: PipelineContext, progress=
         return
 
     # Load file exclusions
-    file_black_list = load_black_list(pipeline)
-    if len(file_black_list) > 0:
-        logger.info("Found %s file exclusions", len(file_black_list))
+    black_list = load_black_list(pipeline)
+    logger.info(
+        "Found %s file exclusions and %s time exclusions",
+        black_list.file_exclusions_count,
+        black_list.time_exclusions_count,
+    )
 
-    se = SearchEngine(reprs=pipeline.repr_storage, black_list=file_black_list)
+    se = SearchEngine(reprs=pipeline.repr_storage, black_list=black_list)
     template_matches = se.create_annotation_report(
         templates=templates,
         threshold=config.templates.distance,
@@ -94,6 +98,7 @@ def load_black_list(pipeline: PipelineContext) -> BlackList:
     # Load file exclusions
     config = pipeline.config
     file_exclusions = ()
+    time_exclusions = ()
     if config.database.use:
         with pipeline.database.session_scope(expunge=True) as session:
             file_exclusions = (
@@ -102,13 +107,17 @@ def load_black_list(pipeline: PipelineContext) -> BlackList:
                 .options(joinedload(TemplateFileExclusion.template))
                 .all()
             )
+            time_exclusions = (
+                session.query(TemplateTimeRangeExclusion)
+                .options(joinedload(TemplateTimeRangeExclusion.file))
+                .options(joinedload(TemplateTimeRangeExclusion.template))
+                .all()
+            )
 
-    # Create a template-file black list
-    return BlackList(
-        BlackList.Entry(
-            template_name=item.template.name,
-            file_path=item.file.file_path,
-            file_hash=item.file.sha256,
-        )
-        for item in file_exclusions
-    )
+    # Populate black list
+    black_list = BlackList()
+    for file_exclusion in file_exclusions:
+        black_list.exclude_file(file_exclusion)
+    for time_exclusion in time_exclusions:
+        black_list.exclude_time_range(time_exclusion)
+    return black_list
