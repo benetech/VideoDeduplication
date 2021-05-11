@@ -349,6 +349,7 @@ export default class Transform {
       minDistance: data.min_distance_video,
       minDistanceTime: data.min_distance_ms,
       position: data.start_ms,
+      falsePositive: data.false_positive,
     };
     if (data.template != null) {
       match.template = this.template(data.template);

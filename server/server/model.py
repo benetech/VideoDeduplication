@@ -216,6 +216,7 @@ class Transform:
             "mean_distance_sequence": match.mean_distance_sequence,
             "min_distance_video": match.min_distance_video,
             "min_distance_ms": match.min_distance_ms,
+            "false_positive": match.false_positive,
         }
         if template:
             data["template"] = Transform.template(match.template, examples=False)
