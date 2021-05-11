@@ -11,7 +11,7 @@ import {
   SelectableTab,
   SelectableTabs,
 } from "../../../common/components/SelectableTabs";
-import useLoadFileObjects from "./useLoadFileObjects";
+import useLoadFileObjects from "../../../application/objects/useLoadFileObjects";
 
 const useStyles = makeStyles((theme) => ({
   root: {

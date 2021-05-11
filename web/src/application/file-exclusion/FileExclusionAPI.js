@@ -12,12 +12,12 @@ import OperationMutex from "../helpers/OperationMutex";
 import extendEntityList from "../../collection/state/helpers/extendEntityList";
 
 /**
- * This API implements integration between bare Server API
- * and the Application state (managed by Redux.js).
+ * This class provides API for React components to work
+ * with template file exclusions.
  */
 export default class FileExclusionAPI {
   /**
-   * React hook to obtain MatchAPI
+   * React hook to obtain FileExclusion API
    */
   static use() {
     const server = useServer();

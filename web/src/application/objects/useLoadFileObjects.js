@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
-import { selectCachedObjects } from "../../state/selectors";
+import { selectCachedObjects } from "../../collection/state/selectors";
 import { useEffect, useState } from "react";
-import { cacheObjects } from "../../state/objectCache/actions";
-import { useServer } from "../../../server-api/context";
+import { cacheObjects } from "./state/objectCache/actions";
+import { useServer } from "../../server-api/context";
 
 /**
  * Load video objects for the given file.

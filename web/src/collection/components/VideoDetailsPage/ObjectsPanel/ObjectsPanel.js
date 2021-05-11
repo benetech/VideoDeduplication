@@ -6,7 +6,7 @@ import ObjectGroupList from "./ObjectGroupList";
 import { groupObjects } from "../groupObjects";
 import ObjectGroupListItem from "./ObjectGroupListItem";
 import position from "../objectPosition";
-import ObjectType from "../../../prop-types/ObjectType";
+import ObjectType from "../../../../application/objects/prop-types/ObjectType";
 import SelectableTabs, {
   SelectableTab,
 } from "../../../../common/components/SelectableTabs";

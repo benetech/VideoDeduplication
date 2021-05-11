@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { TemplateType } from "./TemplateType";
+import { TemplateType } from "../../../collection/prop-types/TemplateType";
 
 /**
  * Recognized object (synonym for Template Match) schema.

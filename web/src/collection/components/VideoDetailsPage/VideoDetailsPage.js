@@ -14,7 +14,7 @@ import { useHistory, useParams } from "react-router-dom";
 import FileLoadingHeader from "../FileLoadingHeader";
 import useFile from "../../hooks/useFile";
 import { routes } from "../../../routing/routes";
-import useLoadFileObjects from "./useLoadFileObjects";
+import useLoadFileObjects from "../../../application/objects/useLoadFileObjects";
 
 const useStyles = makeStyles((theme) => ({
   root: {

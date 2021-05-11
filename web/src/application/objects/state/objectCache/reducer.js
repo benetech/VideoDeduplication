@@ -1,6 +1,6 @@
 import initialState from "./initialState";
 import { ACTION_CACHE_OBJECTS } from "./actions";
-import { ACTION_CREATE_TEMPLATE_FILE_EXCLUSION } from "../../../application/file-exclusion/state/actions";
+import { ACTION_CREATE_TEMPLATE_FILE_EXCLUSION } from "../../../file-exclusion/state/actions";
 
 /**
  * Root reducer for object cache.

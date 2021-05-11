@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles, withStyles } from "@material-ui/styles";
-import ObjectType from "../../../prop-types/ObjectType";
+import ObjectType from "../../../../application/objects/prop-types/ObjectType";
 import TimeCaption from "../TimeCaption";
 import SquaredIconButton from "../../../../common/components/SquaredIconButton";
 import Tooltip from "@material-ui/core/Tooltip";

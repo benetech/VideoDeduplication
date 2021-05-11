@@ -6,7 +6,7 @@ import { FileType } from "../../../prop-types/FileType";
 import ObjectGroup from "./ObjectGroup";
 import { groupObjects } from "../groupObjects";
 import { useIntl } from "react-intl";
-import ObjectType from "../../../prop-types/ObjectType";
+import ObjectType from "../../../../application/objects/prop-types/ObjectType";
 
 const useStyles = makeStyles(() => ({
   timeline: {

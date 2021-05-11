@@ -1,7 +1,7 @@
 import lodash from "lodash";
 import { useEffect, useMemo, useState } from "react";
-import useValue from "../../hooks/useValue";
-import { useServer } from "../../../server-api/context";
+import useValue from "../../collection/hooks/useValue";
+import { useServer } from "../../server-api/context";
 
 /**
  * Load video objects using bare server client.
