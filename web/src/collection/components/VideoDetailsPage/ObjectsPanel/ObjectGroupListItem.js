@@ -1,16 +1,15 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import { makeStyles, withStyles } from "@material-ui/styles";
+import { makeStyles } from "@material-ui/styles";
 import ObjectType from "../../../../application/objects/prop-types/ObjectType";
 import TimeCaption from "../TimeCaption";
-import SquaredIconButton from "../../../../common/components/SquaredIconButton";
-import Tooltip from "@material-ui/core/Tooltip";
 import { formatDuration } from "../../../../common/helpers/format";
 import { useIntl } from "react-intl";
 import { ButtonBase } from "@material-ui/core";
 import position from "../objectPosition";
-import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
+import ObjectPreview from "./ObjectPreview";
+import ObjectAPI from "../../../../application/objects/ObjectAPI";
 
 const useStyles = makeStyles((theme) => ({
   groupListItem: {
@@ -42,33 +41,19 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.primary.main,
     },
   },
+  objectWrapper: {
+    transform: "translate(0%, 0px)",
+  },
+  overlay: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    display: ({ show }) => (show ? "flex" : "none"),
+    width: 24,
+    height: 24,
+    minHeight: 24,
+  },
 }));
-
-/**
- * Tooltip to display object description
- */
-const ObjectTooltip = withStyles((theme) => ({
-  tooltip: {
-    backgroundColor: theme.palette.common.white,
-    color: theme.palette.action.textInactive,
-    boxShadow: "2px 2px 14px 2px rgba(0,0,0,0.18)",
-    fontFamily: "Roboto",
-    fontSize: 16,
-    letterSpacing: 0,
-    fontWeight: "normal",
-    lineHeight: "19px",
-    padding: theme.spacing(1),
-  },
-  arrow: {
-    color: theme.palette.common.white,
-  },
-}))(Tooltip);
-
-function description(object, intl) {
-  const name = object.template?.name;
-  const time = formatDuration(position(object), null, false);
-  return intl.formatMessage({ id: "object.description" }, { type: name, time });
-}
 
 /**
  * Start position of the object group
@@ -86,9 +71,9 @@ function captionLabel(objects, intl) {
 }
 
 function ObjectGroupListItem(props) {
-  const { objects, onJump, className } = props;
-  const classes = useStyles();
+  const { objects, onJump, onDelete, className } = props;
   const intl = useIntl();
+  const classes = useStyles();
 
   const position = startTime(objects);
 
@@ -105,22 +90,12 @@ function ObjectGroupListItem(props) {
       />
       <div className={classes.objects}>
         {objects.map((object) => (
-          <ObjectTooltip
-            arrow
-            title={description(object, intl)}
+          <ObjectPreview
+            object={object}
+            onJump={onJump}
+            onDelete={onDelete}
             key={object.id}
-          >
-            <SquaredIconButton
-              variant="text"
-              className={classes.object}
-              onClick={() => onJump(object)}
-              aria-label={description(object, intl)}
-              data-selector="ObjectListItemButton"
-              data-object-id={object.id}
-            >
-              <TemplateIcon icon={object.template?.icon} />
-            </SquaredIconButton>
-          </ObjectTooltip>
+          />
         ))}
       </div>
     </div>
@@ -135,7 +110,11 @@ ObjectGroupListItem.propTypes = {
   /**
    * Jump to a particular object
    */
-  onJump: PropTypes.func,
+  onJump: PropTypes.func.isRequired,
+  /**
+   * Handle delete a particular object
+   */
+  onDelete: PropTypes.func.isRequired,
   className: PropTypes.string,
 };
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -21,10 +21,14 @@ const useStyles = makeStyles(() => ({
  * Video file timeline with recognized objects.
  */
 function ObjectTimeLine(props) {
-  const { file, objects = [], onJump, className } = props;
+  const { file, objects: objectsProp = [], onJump, className } = props;
   const classes = useStyles();
   const intl = useIntl();
 
+  const objects = useMemo(
+    () => objectsProp.filter((object) => !object.falsePositive),
+    [objectsProp]
+  );
   const groups = groupObjects(objects, file.metadata.length * 0.02);
 
   return (
