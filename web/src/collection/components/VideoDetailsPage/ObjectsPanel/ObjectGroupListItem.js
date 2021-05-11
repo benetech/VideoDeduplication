@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -9,7 +9,6 @@ import { useIntl } from "react-intl";
 import { ButtonBase } from "@material-ui/core";
 import position from "../objectPosition";
 import ObjectPreview from "./ObjectPreview";
-import ObjectAPI from "../../../../application/objects/ObjectAPI";
 
 const useStyles = makeStyles((theme) => ({
   groupListItem: {
