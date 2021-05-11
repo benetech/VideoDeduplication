@@ -20,7 +20,6 @@ from db.schema import (
     TemplateMatches,
     FileFilterPreset,
     TemplateFileExclusion,
-    TemplateTimeRangeExclusion,
 )
 
 database = SQLAlchemy()
@@ -242,16 +241,4 @@ class Transform:
             "id": exclusion.id,
             "file": Transform.file(exclusion.file),
             "template": Transform.template(exclusion.template),
-        }
-
-    @staticmethod
-    @serializable
-    def template_time_exclusion(exclusion: TemplateTimeRangeExclusion) -> Dict:
-        """Get dict-data representation of the template-file exclusion."""
-        return {
-            "id": exclusion.id,
-            "file": Transform.file(exclusion.file),
-            "template": Transform.template(exclusion.template),
-            "start_ms": exclusion.start_ms,
-            "end_ms": exclusion.end_ms,
         }

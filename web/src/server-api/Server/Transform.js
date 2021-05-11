@@ -359,6 +359,12 @@ export default class Transform {
     return match;
   }
 
+  updateTemplateMatchDTO(match) {
+    return {
+      false_positive: match.falsePositive,
+    };
+  }
+
   newTemplateDTO(template) {
     return {
       name: template.name,
@@ -413,35 +419,6 @@ export default class Transform {
   }
 
   fetchTemplateFileExclusionsResults(data) {
-    return {
-      offset: data.offset,
-      total: data.total,
-      exclusions: data.items.map((exclusion) =>
-        this.templateFileExclusion(exclusion)
-      ),
-    };
-  }
-
-  templateTimeExclusion(data) {
-    return {
-      id: data.id,
-      file: this.videoFile(data.file),
-      template: this.template(data.template),
-      start: data.start_ms,
-      end: data.end_ms,
-    };
-  }
-
-  newTemplateTimeExclusionDTO(exclusion) {
-    return {
-      file_id: exclusion.file.id,
-      template_id: exclusion.template.id,
-      start_ms: exclusion.start,
-      end_ms: exclusion.end,
-    };
-  }
-
-  fetchTemplateTimeExclusionsResults(data) {
     return {
       offset: data.offset,
       total: data.total,

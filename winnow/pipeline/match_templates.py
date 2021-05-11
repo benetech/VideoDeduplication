@@ -4,7 +4,7 @@ from typing import Collection, List
 
 from sqlalchemy.orm import joinedload
 
-from db.schema import TemplateFileExclusion, TemplateTimeRangeExclusion
+from db.schema import TemplateFileExclusion, TemplateMatches
 from winnow.pipeline.extract_frame_level_features import frame_features_exist, extract_frame_level_features
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
@@ -108,9 +108,10 @@ def load_black_list(pipeline: PipelineContext) -> BlackList:
                 .all()
             )
             time_exclusions = (
-                session.query(TemplateTimeRangeExclusion)
-                .options(joinedload(TemplateTimeRangeExclusion.file))
-                .options(joinedload(TemplateTimeRangeExclusion.template))
+                session.query(TemplateMatches)
+                .options(joinedload(TemplateMatches.file))
+                .options(joinedload(TemplateMatches.template))
+                .filter(TemplateMatches.false_positive == True)  # noqa: E712
                 .all()
             )
 

@@ -1,4 +1,4 @@
-from db.schema import TemplateTimeRangeExclusion, TemplateFileExclusion
+from db.schema import TemplateFileExclusion, TemplateMatches
 from winnow.search_engine.model import Template
 from winnow.storage.repr_key import ReprKey
 
@@ -71,13 +71,13 @@ class BlackList:
         file = exclusion.file
         self._file_exclusions[exclusion.template.name].add((file.file_path, file.sha256))
 
-    def exclude_time_range(self, exclusion: TemplateTimeRangeExclusion):
+    def exclude_time_range(self, false_positive: TemplateMatches):
         """Exclude file's time range from the template scope."""
-        entry_key = (exclusion.template.name, exclusion.file.file_path, exclusion.file.sha256)
+        entry_key = (false_positive.template.name, false_positive.file.file_path, false_positive.file.sha256)
         if entry_key not in self._time_exclusions:
             self._time_exclusions[entry_key] = Cover()
         cover = self._time_exclusions[entry_key]
-        cover.add(start=exclusion.start_ms, end=exclusion.end_ms)
+        cover.add(start=false_positive.start_ms, end=false_positive.end_ms)
 
     def excluded_files(self, template: Template):
         return self._file_exclusions.get(template.name, ())

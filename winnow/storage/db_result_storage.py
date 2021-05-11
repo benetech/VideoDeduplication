@@ -358,6 +358,7 @@ class DBResultStorage:
         matches = session.query(TemplateMatches)
         matches = matches.filter(TemplateMatches.file_id.in_(tuple(file_ids)))
         matches = matches.filter(TemplateMatches.template_id.in_(tuple(template_ids)))
+        matches = matches.filter(TemplateMatches.false_positive == False)  # noqa: E712 Preserve black list
         matches.delete(synchronize_session=False)
 
         for file in files:
