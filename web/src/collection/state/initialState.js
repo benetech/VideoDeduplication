@@ -6,7 +6,7 @@ import tasksInitialState from "./tasks/initialState";
 import taskCacheInitialState from "./taskCache/initialState";
 import taskLogsInitialState from "./taskLogs/initialState";
 import templatesInitialState from "./templates/initialState";
-import objectCacheInitialState from "../../application/objects/state/objectCache/initialState";
+import objectCacheInitialState from "../../application/objects/state/initialState";
 import presetInitialState from "./presets/initialState";
 import fileExclusionInitialState from "../../application/file-exclusion/state/initialState";
 

@@ -374,12 +374,14 @@ export default class Server {
     }
   }
 
-  async fetchTemplateMatches({
-    limit = 1000,
-    offset = 0,
-    fields = ["template", "file"],
-    filters = {},
-  }) {
+  async fetchTemplateMatches(request) {
+    const {
+      limit = 1000,
+      offset = 0,
+      fields = ["template", "file"],
+      filters = {},
+    } = request;
+
     try {
       const response = await this.axios.get(`/template_matches/`, {
         params: {
@@ -388,24 +390,23 @@ export default class Server {
           ...templateMatchFiltersToQueryParams({ fields, filters }),
         },
       });
-      const data = this.transform.fetchTemplateMatchesResults(response.data);
-      return Response.ok(data);
+      return this.transform.fetchTemplateMatchesResults(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Get template-matches error.", error, request);
     }
   }
 
-  async fetchTemplateMatch({ id, fields = ["template", "file"] }) {
+  async fetchTemplateMatch(id, fields = ["template", "file"]) {
     try {
       const response = await this.axios.get(`/template_matches/${id}`, {
         params: {
           ...templateMatchFiltersToQueryParams({ fields }),
         },
       });
-      const data = this.transform.template(response.data);
-      return Response.ok(data);
+      return this.transform.template(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      const request = { id, fields };
+      throw makeServerError("Get template-match error.", error, request);
     }
   }
 
@@ -426,12 +427,11 @@ export default class Server {
     }
   }
 
-  async deleteTemplateMatch({ id }) {
+  async deleteTemplateMatch(match) {
     try {
-      const response = await this.axios.delete(`/template_matches/${id}`);
-      return Response.ok(response.data);
+      await this.axios.delete(`/template_matches/${match.id}`);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Delete object error.", error, { match });
     }
   }
 

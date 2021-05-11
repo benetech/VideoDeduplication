@@ -1,6 +1,7 @@
 import initialState from "./initialState";
-import { ACTION_CACHE_OBJECTS } from "./actions";
-import { ACTION_CREATE_TEMPLATE_FILE_EXCLUSION } from "../../../file-exclusion/state/actions";
+import lodash from "lodash";
+import { ACTION_CACHE_OBJECTS, ACTION_UPDATE_OBJECT } from "./actions";
+import { ACTION_CREATE_TEMPLATE_FILE_EXCLUSION } from "../../file-exclusion/state/actions";
 
 /**
  * Root reducer for object cache.
@@ -31,6 +32,30 @@ export default function objectCacheReducer(state = initialState, action) {
       return {
         ...state,
         objects: { ...state.objects, [exclusion.file.id]: updatedObjects },
+      };
+    }
+    case ACTION_UPDATE_OBJECT: {
+      const { object: updated } = action;
+      const cachedObjects = state.objects[updated.fileId];
+
+      // Do nothing if object is not present in cache
+      if (cachedObjects == null) {
+        return state;
+      }
+
+      const updatedObjects = cachedObjects.map((object) => {
+        if (object.id === updated.id) {
+          return lodash.merge({}, object, updated);
+        }
+        return object;
+      });
+
+      return {
+        ...state,
+        objects: {
+          ...state.objects,
+          [updated.fileId]: updatedObjects,
+        },
       };
     }
     default:

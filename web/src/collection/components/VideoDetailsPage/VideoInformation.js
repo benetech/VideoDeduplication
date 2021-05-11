@@ -11,7 +11,7 @@ import {
   SelectableTab,
   SelectableTabs,
 } from "../../../common/components/SelectableTabs";
-import useLoadFileObjects from "../../../application/objects/useLoadFileObjects";
+import ObjectAPI from "../../../application/objects/ObjectAPI";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -71,7 +71,8 @@ function VideoInformation(props) {
   const messages = useMessages();
   const [tab, setTab] = useState(Tab.info);
 
-  const { objects = [] } = useLoadFileObjects(file.id);
+  const objectsAPI = ObjectAPI.use();
+  const { objects = [] } = objectsAPI.useFileObjects(file.id);
   const styles = contentStyles(tab);
 
   return (
