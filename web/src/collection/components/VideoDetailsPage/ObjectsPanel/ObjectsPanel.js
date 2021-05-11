@@ -85,7 +85,7 @@ function ObjectsPanel(props) {
   const classes = useStyles();
   const messages = useMessages();
   const objectsAPI = ObjectAPI.use();
-  const [tab, setTab] = useState(Tab.blackList);
+  const [tab, setTab] = useState(Tab.found);
 
   const handleDelete = useCallback(
     async (object) => {
