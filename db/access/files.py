@@ -283,7 +283,14 @@ class FilesDAO:
     def _filter_templates(req: ListFilesRequest, query: Query) -> Query:
         """Filter files by matched template ids."""
         if req.templates is not None and len(req.templates) > 0:
-            return query.filter(Files.template_matches.any(TemplateMatches.template_id.in_(tuple(req.templates))))
+            return query.filter(
+                Files.template_matches.any(
+                    and_(
+                        TemplateMatches.template_id.in_(tuple(req.templates)),
+                        TemplateMatches.false_positive == False,  # noqa: E712
+                    )
+                )
+            )
         return query
 
     @staticmethod
