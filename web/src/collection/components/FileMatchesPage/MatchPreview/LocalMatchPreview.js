@@ -33,7 +33,7 @@ function useMessages() {
     caption: intl.formatMessage({ id: "file.attr.name" }),
     compare: intl.formatMessage({ id: "actions.compare" }),
     showDetails: intl.formatMessage({ id: "actions.showFileDetails" }),
-    delete: intl.formatMessage({ id: "actions.delete" }),
+    delete: intl.formatMessage({ id: "match.delete" }),
     restore: intl.formatMessage({ id: "actions.restore" }),
   };
 }
