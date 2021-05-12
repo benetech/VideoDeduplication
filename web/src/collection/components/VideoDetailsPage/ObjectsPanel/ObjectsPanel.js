@@ -118,6 +118,12 @@ function ObjectsPanel(props) {
   );
 
   useEffect(() => {
+    if (objects.length !== 0 && tab !== Tab.found) {
+      setTab(Tab.found);
+    }
+  }, [objectsProp.length]);
+
+  useEffect(() => {
     if (objects.length === 0 && tab === Tab.found) {
       setTab(Tab.blackList);
     }
