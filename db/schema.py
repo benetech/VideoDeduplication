@@ -50,6 +50,7 @@ class Files(Base):
     meta = relationship("VideoMetadata", cascade="all,delete", uselist=False, back_populates="file")
     scenes = relationship("Scene", cascade="all,delete", back_populates="file")
     template_matches = relationship("TemplateMatches", back_populates="file", cascade="all, delete-orphan")
+    template_exclusions = relationship("TemplateFileExclusion", back_populates="file", cascade="all, delete-orphan")
     exif = relationship("Exif", cascade="all,delete", uselist=False, back_populates="file")
 
     # TODO: find a way to merge these two relationships
@@ -116,6 +117,7 @@ class Template(Base):
 
     examples = relationship("TemplateExample", cascade="all,delete", back_populates="template")
     matches = relationship("TemplateMatches", cascade="all,delete", back_populates="template")
+    file_exclusions = relationship("TemplateFileExclusion", cascade="all,delete", back_populates="template")
 
 
 class TemplateExample(Base):
@@ -148,15 +150,39 @@ class TemplateMatches(Base):
     min_distance_video = Column(Float)
     # ms offset
     min_distance_ms = Column(Float)
-
-    # distance = Column(Float)
-    # closest_match = Column(Float)
-    # closest_match_time = Column(String)
+    # Mark the object as false-positive match.
+    false_positive = Column(Boolean, nullable=False, default=False)
 
     # Relationships
 
     file = relationship("Files", back_populates="template_matches")
     template = relationship("Template", back_populates="matches")
+
+
+class TemplateFileExclusion(Base):
+    """File excluded from the Template scope."""
+
+    __tablename__ = "template_file_exclusion"
+    __table_args__ = (UniqueConstraint("file_id", "template_id", name="_template_file_exclusion_uc"),)
+
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    file_id = Column(Integer, ForeignKey("files.id"), nullable=True)
+    template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
+
+    # Relationships
+
+    file = relationship("Files", back_populates="template_exclusions")
+    template = relationship("Template", back_populates="file_exclusions")
+
+
+@event.listens_for(TemplateFileExclusion, "after_insert")
+def on_file_exclusion_insert(mapper, connection, exclusion: TemplateFileExclusion):
+    """Delete unwanted objects when (template, file) pair is added to black list."""
+    session = object_session(exclusion)
+    session.query(TemplateMatches).filter(
+        TemplateMatches.template_id == exclusion.template_id,
+        TemplateMatches.file_id == exclusion.file_id,
+    ).delete()
 
 
 @event.listens_for(Files.template_matches, "remove")

@@ -1,6 +1,7 @@
 import logging
 import multiprocessing
 from typing import Collection
+
 from winnow.feature_extraction import IntermediateCnnExtractor
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor

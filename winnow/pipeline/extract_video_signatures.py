@@ -1,5 +1,6 @@
 import logging
 from typing import Collection, Dict
+
 from winnow.feature_extraction import SimilarityModel
 from winnow.pipeline.extract_video_level_features import video_features_exist, extract_video_level_features
 from winnow.pipeline.pipeline_context import PipelineContext

@@ -15,6 +15,7 @@ import templateMatchFiltersToQueryParams from "./helpers/templateMatchFiltersToQ
 import AxiosRetry from "axios-retry";
 import presetFiltersToQueryParams from "./helpers/presetFiltersToQueryParams";
 import { makeServerError } from "./ServerError";
+import templateFileExclusionFiltersToQueryParams from "./helpers/templateFileExclusionFiltersToQueryParams";
 
 export default class Server {
   constructor({
@@ -373,12 +374,14 @@ export default class Server {
     }
   }
 
-  async fetchTemplateMatches({
-    limit = 1000,
-    offset = 0,
-    fields = ["template", "file"],
-    filters = {},
-  }) {
+  async fetchTemplateMatches(request) {
+    const {
+      limit = 1000,
+      offset = 0,
+      fields = ["template", "file"],
+      filters = {},
+    } = request;
+
     try {
       const response = await this.axios.get(`/template_matches/`, {
         params: {
@@ -387,33 +390,48 @@ export default class Server {
           ...templateMatchFiltersToQueryParams({ fields, filters }),
         },
       });
-      const data = this.transform.fetchTemplateMatchesResults(response.data);
-      return Response.ok(data);
+      return this.transform.fetchTemplateMatchesResults(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Get template-matches error.", error, request);
     }
   }
 
-  async fetchTemplateMatch({ id, fields = ["template", "file"] }) {
+  async fetchTemplateMatch(id, fields = ["template", "file"]) {
     try {
       const response = await this.axios.get(`/template_matches/${id}`, {
         params: {
           ...templateMatchFiltersToQueryParams({ fields }),
         },
       });
-      const data = this.transform.template(response.data);
-      return Response.ok(data);
+      return this.transform.template(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      const request = { id, fields };
+      throw makeServerError("Get template-match error.", error, request);
     }
   }
 
-  async deleteTemplateMatch({ id }) {
+  async updateTemplateMatch(match) {
     try {
-      const response = await this.axios.delete(`/template_matches/${id}`);
-      return Response.ok(response.data);
+      const response = await this.axios.patch(
+        `/template_matches/${match.id}`,
+        JSON.stringify(this.transform.updateTemplateMatchDTO(match)),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return this.transform.templateMatch(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Update template-match error.", error, { match });
+    }
+  }
+
+  async deleteTemplateMatch(match) {
+    try {
+      await this.axios.delete(`/template_matches/${match.id}`);
+    } catch (error) {
+      throw makeServerError("Delete object error.", error, { match });
     }
   }
 
@@ -482,6 +500,63 @@ export default class Server {
       await this.axios.delete(`/files/filter-presets/${preset.id}`);
     } catch (error) {
       throw makeServerError("Delete preset error.", error, { preset });
+    }
+  }
+
+  async createTemplateFileExclusion(exclusion) {
+    try {
+      const newExclusionDTO = this.transform.newTemplateFileExclusionDTO(
+        exclusion
+      );
+      const response = await this.axios.post(
+        "/template-file-exclusions/",
+        JSON.stringify(newExclusionDTO),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return this.transform.templateFileExclusion(response.data);
+    } catch (error) {
+      throw makeServerError("Create file exclusion error.", error, {
+        exclusion,
+      });
+    }
+  }
+
+  async fetchTemplateFileExclusions(options = {}) {
+    try {
+      const { limit = 1000, offset = 0, filters = {} } = options;
+      const response = await this.axios.get("/template-file-exclusions/", {
+        params: {
+          limit,
+          offset,
+          ...templateFileExclusionFiltersToQueryParams({ filters }),
+        },
+      });
+      return this.transform.fetchTemplateFileExclusionsResults(response.data);
+    } catch (error) {
+      throw makeServerError("Fetch file exclusions error.", error, { options });
+    }
+  }
+
+  async fetchTemplateFileExclusion(id) {
+    try {
+      const response = await this.axios.get(`/template-file-exclusions/${id}`);
+      return this.transform.templateFileExclusion(response.data);
+    } catch (error) {
+      throw makeServerError("Fetch file exclusion error.", error, { id });
+    }
+  }
+
+  async deleteTemplateFileExclusion(exclusion) {
+    try {
+      await this.axios.delete(`/template-file-exclusions/${exclusion.id}`);
+    } catch (error) {
+      throw makeServerError("Delete file exclusion error.", error, {
+        preset: exclusion,
+      });
     }
   }
 

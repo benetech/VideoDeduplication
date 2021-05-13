@@ -2,10 +2,14 @@ import logging
 import os
 from typing import Collection, List
 
+from sqlalchemy.orm import joinedload
+
+from db.schema import TemplateFileExclusion, TemplateMatches
 from winnow.pipeline.extract_frame_level_features import frame_features_exist, extract_frame_level_features
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
 from winnow.search_engine import Template
+from winnow.search_engine.black_list import BlackList
 from winnow.search_engine.template_matching import SearchEngine
 
 # Default module logger
@@ -31,8 +35,18 @@ def match_templates(files: Collection[str], pipeline: PipelineContext, progress=
     logger.info("Loaded %s templates", len(templates))
     if len(templates) == 0:
         logger.info("No templates found. Skipping template matching step...")
+        progress.complete()
+        return
 
-    se = SearchEngine(reprs=pipeline.repr_storage)
+    # Load file exclusions
+    black_list = load_black_list(pipeline)
+    logger.info(
+        "Found %s file exclusions and %s time exclusions",
+        black_list.file_exclusions_count,
+        black_list.time_exclusions_count,
+    )
+
+    se = SearchEngine(reprs=pipeline.repr_storage, black_list=black_list)
     template_matches = se.create_annotation_report(
         templates=templates,
         threshold=config.templates.distance,
@@ -76,3 +90,35 @@ def load_templates(pipeline: PipelineContext) -> List[Template]:
     else:
         logger.error("Neither database nor template source directory are not available")
         return []
+
+
+def load_black_list(pipeline: PipelineContext) -> BlackList:
+    """Get template file exclusions."""
+
+    # Load file exclusions
+    config = pipeline.config
+    file_exclusions = ()
+    time_exclusions = ()
+    if config.database.use:
+        with pipeline.database.session_scope(expunge=True) as session:
+            file_exclusions = (
+                session.query(TemplateFileExclusion)
+                .options(joinedload(TemplateFileExclusion.file))
+                .options(joinedload(TemplateFileExclusion.template))
+                .all()
+            )
+            time_exclusions = (
+                session.query(TemplateMatches)
+                .options(joinedload(TemplateMatches.file))
+                .options(joinedload(TemplateMatches.template))
+                .filter(TemplateMatches.false_positive == True)  # noqa: E712
+                .all()
+            )
+
+    # Populate black list
+    black_list = BlackList()
+    for file_exclusion in file_exclusions:
+        black_list.exclude_file(file_exclusion)
+    for time_exclusion in time_exclusions:
+        black_list.exclude_time_range(time_exclusion)
+    return black_list

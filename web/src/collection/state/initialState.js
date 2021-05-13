@@ -6,8 +6,9 @@ import tasksInitialState from "./tasks/initialState";
 import taskCacheInitialState from "./taskCache/initialState";
 import taskLogsInitialState from "./taskLogs/initialState";
 import templatesInitialState from "./templates/initialState";
-import objectCacheInitialState from "./objectCache/initialState";
+import objectCacheInitialState from "../../application/objects/state/initialState";
 import presetInitialState from "./presets/initialState";
+import fileExclusionInitialState from "../../application/file-exclusion/state/initialState";
 
 /**
  * Initial State for file collection management.
@@ -54,6 +55,10 @@ const initialState = {
    * File filter presets.
    */
   presets: presetInitialState,
+  /**
+   * File exclusions cache.
+   */
+  fileExclusions: fileExclusionInitialState,
 };
 
 export default initialState;

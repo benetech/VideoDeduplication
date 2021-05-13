@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import ObjectType from "../../../prop-types/ObjectType";
+import ObjectType from "../../../../application/objects/prop-types/ObjectType";
 import usePopup from "../../../../common/hooks/usePopup";
 import ObjectGroupPopper from "./ObjectGroupPopper";
 import { ButtonBase } from "@material-ui/core";

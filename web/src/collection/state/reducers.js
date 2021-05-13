@@ -7,8 +7,9 @@ import taskReducer from "./tasks/reducer";
 import taskCacheReducer from "./taskCache/reducer";
 import taskLogsReducer from "./taskLogs/reducer";
 import templateReducer from "./templates/reducer";
-import objectCacheReducer from "./objectCache/reducer";
+import objectCacheReducer from "../../application/objects/state/reducer";
 import presetReducer from "./presets/reducer";
+import fileExclusionsCacheReducer from "../../application/file-exclusion/state/reducer";
 
 const collRootReducer = combineReducers({
   fileList: fileListReducer,
@@ -21,6 +22,7 @@ const collRootReducer = combineReducers({
   templates: templateReducer,
   objectCache: objectCacheReducer,
   presets: presetReducer,
+  fileExclusions: fileExclusionsCacheReducer,
 });
 
 export default collRootReducer;

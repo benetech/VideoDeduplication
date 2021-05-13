@@ -1,10 +1,13 @@
 from http import HTTPStatus
+from typing import Dict, Tuple
 
 from flask import jsonify, request, abort
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 
 from db.schema import Files, TemplateMatches
 from .blueprint import api
+from .constants import ValidationErrors
 from .helpers import (
     parse_positive_int,
     Fields,
@@ -126,6 +129,60 @@ def get_file_template_match(file_id, match_id):
 
     if match is None:
         abort(HTTPStatus.NOT_FOUND.value, f"Template match not found: id={match_id} file_id={file_id}")
+
+    include_flags = {field.key: True for field in include_fields}
+    return jsonify(Transform.template_match(match, **include_flags))
+
+
+def validate_update_template_match_dto(data: Dict) -> Tuple[str, Dict[str, str]]:
+    """Validate update-template-match DTO.
+
+    Returns:
+        error message and a dict of invalid fields -> error codes.
+    """
+
+    expected_fields = {"false_positive"}
+    actual_fields = set(data.keys())
+    if not actual_fields <= expected_fields:
+        return f"Payload can include only the following fields: {expected_fields}", {}
+
+    if not isinstance(data["false_positive"], bool):
+        return "false_positive must be a boolean value", {"false_positive": ValidationErrors.INVALID_VALUE.value}
+
+    return None, {}
+
+
+@api.route("/template_matches/<int:match_id>", methods=["PATCH"])
+def update_template_match(match_id):
+    include_fields = parse_fields(request.args, "include", TEMPLATE_MATCH_FIELDS)
+
+    # Fetch template examples
+    query = database.session.query(TemplateMatches)
+    query = query.filter(TemplateMatches.id == match_id)
+    TEMPLATE_MATCH_FIELDS.preload(query, include_fields)
+    match = query.one_or_none()
+
+    if match is None:
+        abort(HTTPStatus.NOT_FOUND.value, f"Template match not found: id={match_id}")
+
+    # Get payload
+    request_payload = request.get_json()
+    if request_payload is None:
+        abort(HTTPStatus.BAD_REQUEST.value, "Expected valid 'application/json' payload.")
+
+    error, fields = validate_update_template_match_dto(request_payload)
+    if error is not None:
+        return (
+            jsonify({"error": error, "code": HTTPStatus.BAD_REQUEST.value, "fields": fields}),
+            HTTPStatus.BAD_REQUEST.value,
+        )
+
+    match.false_positive = request_payload.get("false_positive", match.false_positive)
+
+    try:
+        database.session.commit()
+    except IntegrityError:
+        abort(HTTPStatus.BAD_REQUEST.value, "Data integrity violation.")
 
     include_flags = {field.key: True for field in include_fields}
     return jsonify(Transform.template_match(match, **include_flags))

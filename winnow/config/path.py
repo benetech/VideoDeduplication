@@ -24,9 +24,7 @@ def resolve_config_path(path=None):
         return os.path.abspath(path)
     if WINNOW_CONFIG_ENV in os.environ:
         return os.path.abspath(os.environ[WINNOW_CONFIG_ENV])
-    if os.path.isfile(DEFAULT_PATH):
-        return os.path.abspath(DEFAULT_PATH)
-    return None
+    return os.path.abspath(DEFAULT_PATH)
 
 
 def ensure_config_exists(config_path, default_config_path=DEFAULT_CONFIG_LOCATION):

@@ -92,6 +92,9 @@ class CeleryTaskQueue(TaskQueue):
         error = None
         if status == TaskStatus.FAILURE:
             error = self._construct_error(async_result)
+        result = async_result.result
+        if error is not None:
+            result = None
         return Task(
             id=winnow_meta.id,
             created=winnow_meta.created,
@@ -100,7 +103,7 @@ class CeleryTaskQueue(TaskQueue):
             status=status,
             error=error,
             progress=winnow_meta.progress,
-            result=async_result.result,
+            result=result,
         )
 
     def _get_task_meta(self, task_id, transaction=None) -> Optional[TaskMetadata]:

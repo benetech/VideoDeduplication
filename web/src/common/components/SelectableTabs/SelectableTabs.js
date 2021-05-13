@@ -8,6 +8,7 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    width: "min-content",
   },
 }));
 
@@ -15,10 +16,15 @@ const useStyles = makeStyles(() => ({
  * Set the following properties: selected, onSelect and value (if absent)
  */
 function bindProps(currentValue, onChange, size, spacing) {
-  return (tab, currentIndex) => {
+  let currentIndex = -1;
+
+  return (tab) => {
     if (!React.isValidElement(tab)) {
       return null;
     }
+
+    // Increment current index
+    currentIndex += 1;
 
     // Get value identifying the current tab
     const value =

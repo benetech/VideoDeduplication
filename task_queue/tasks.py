@@ -51,7 +51,7 @@ def process_directory(
     config.database.use = True
 
     # Resolve list of video files from the directory
-    logger.info("Resolving video list for directory ")
+    logger.info(f"Resolving video list for directory {directory}")
 
     absolute_root = os.path.abspath(config.sources.root)
     absolute_dir = os.path.abspath(os.path.join(absolute_root, directory))

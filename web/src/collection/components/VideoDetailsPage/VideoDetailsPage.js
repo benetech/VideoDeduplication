@@ -14,7 +14,7 @@ import { useHistory, useParams } from "react-router-dom";
 import FileLoadingHeader from "../FileLoadingHeader";
 import useFile from "../../hooks/useFile";
 import { routes } from "../../../routing/routes";
-import useLoadFileObjects from "./useLoadFileObjects";
+import ObjectAPI from "../../../application/objects/ObjectAPI";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -74,7 +74,8 @@ function VideoDetailsPage(props) {
   const history = useHistory();
 
   // Preload file objects
-  const { done: objectsLoaded } = useLoadFileObjects(id);
+  const objectsAPI = ObjectAPI.use();
+  const { done: objectsLoaded } = objectsAPI.useFileObjects(id);
 
   // There is nothing to show for external files.
   // Navigate to file matches if file is external.

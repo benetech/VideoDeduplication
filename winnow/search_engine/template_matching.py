@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
 
+from winnow.search_engine.black_list import BlackList
 from winnow.search_engine.model import Template
 from winnow.storage.repr_storage import ReprStorage
 from winnow.utils.network import download_file
@@ -16,7 +17,11 @@ _logger = logging.getLogger(__name__)
 
 
 class SearchEngine:
-    def __init__(self, reprs: ReprStorage):
+    def __init__(
+        self,
+        reprs: ReprStorage,
+        black_list: BlackList = None,
+    ):
         self.reprs = reprs
         self.relevant_cols = [
             "path",
@@ -29,6 +34,7 @@ class SearchEngine:
             "min_distance_ms",
         ]
         self.results_cache = pd.DataFrame(columns=self.relevant_cols)
+        self.black_list = black_list or BlackList()
 
     def create_annotation_report(self, templates: List[Template], threshold=0.07, frame_sampling=1, distance_min=0.05):
         """Creates an annotation report suitable for annotation
@@ -41,38 +47,33 @@ class SearchEngine:
         _logger.info("Searching for templates: %s", [template.name for template in templates])
 
         for template in templates:
-            self.find(template, threshold=threshold, distance_min=distance_min, plot=False)
+            self.find(template, threshold=threshold, distance_min=distance_min, frame_sampling=frame_sampling)
 
-        if self.results_cache is not None:
-
-            df = self.results_cache
-
-            df["start_ms"] = df["start_ms"].apply(lambda x: x * frame_sampling * 1000)
-            df["end_ms"] = df["end_ms"].apply(lambda x: x * frame_sampling * 1000)
-            df["min_distance_ms"] = df["min_distance_ms"].apply(lambda x: x * frame_sampling * 1000)
-            # df.drop(columns=["value"], inplace=True)
-
-            return df
+        return self.results_cache
 
     def distance_from_min(self, data, thr=0.05):
-
         inds = np.where(np.diff(((data / data.min()) < (1 + thr))))
         if len(inds[0]) > 0:
             return np.split(data, inds[0])
-        return [
-            data,
-        ]
+        return [data]
 
-    def find(self, template: Template, threshold=0.07, plot=True, distance_min=0.05):
-        feats = template.features
-        _logger.info("Loaded query embeddings %s", feats.shape)
+    def find(  # noqa C901 TODO: Simplify method (https://github.com/benetech/VideoDeduplication/issues/378)
+        self, template: Template, threshold=0.07, frame_sampling=1, distance_min=0.05
+    ):
+        template_features = template.features
+        _logger.info("Loaded query embeddings %s", template_features.shape)
         # self.results_cache[query] = defaultdict()
         dfs = []
+        excluded_files = self.black_list.excluded_files(template)
         for repr_key in self.reprs.frame_level.list():
+            # Skip files excluded from the template scope
+            if (repr_key.path, repr_key.hash) in excluded_files:
+                continue
+            excluded_time = self.black_list.excluded_time(template, repr_key)
             try:
                 sample = self.reprs.frame_level.read(repr_key)
 
-                distances = np.mean(cdist(feats, sample, metric="cosine"), axis=0)
+                distances = np.mean(cdist(template_features, sample, metric="cosine"), axis=0)
                 # np.save(f"dists{repr_key.path}_{query}.npy", distances)
                 # self.results_cache[query][(repr_key.path, repr_key.hash)] = list()
 
@@ -97,17 +98,21 @@ class SearchEngine:
                                 end = start + seq_len
 
                                 tseq = np.min(i) < (local_min * (1 + distance_min))
-                                if tseq:
+                                start_ms = self._time(frame=start, sampling=frame_sampling)
+                                end_ms = self._time(frame=end, sampling=frame_sampling)
+                                min_distance_ms = self._time(frame=local_min_idx, sampling=frame_sampling)
+
+                                if tseq and not excluded_time.overlaps(start_ms, end_ms):
                                     sequence_matches.append(
                                         [
                                             repr_key.path,
                                             repr_key.hash,
                                             template.name,
-                                            start,
-                                            end,
+                                            start_ms,
+                                            end_ms,
                                             np.mean(i),
                                             local_min,
-                                            local_min_idx,
+                                            min_distance_ms,
                                         ]
                                     )
 
@@ -117,6 +122,10 @@ class SearchEngine:
                 _logger.exception("Error occurred while matching template %s", template.name)
 
         self.results_cache = pd.concat([self.results_cache, *dfs], ignore_index=True)
+
+    def _time(self, frame, sampling):
+        """Convert frame number to time in milliseconds."""
+        return frame * sampling * 1000
 
 
 def download_sample_templates(TEMPLATES_PATH, URL="https://s3.amazonaws.com/winnowpretrainedmodels/templates.tar.gz"):

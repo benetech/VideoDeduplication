@@ -53,6 +53,11 @@ export const selectTaskLogs = (state) => selectColl(state).taskLogs;
 export const selectTemplates = (state) => selectColl(state).templates;
 
 /**
+ * Select object cache.
+ */
+export const selectObjectCache = (state) => selectColl(state).objectCache;
+
+/**
  * Select cached file objects.
  */
 export const selectCachedObjects = (fileId) => (state) =>
@@ -68,3 +73,9 @@ export const selectPresets = (state) => selectColl(state).presets;
  */
 export const selectPreset = ({ id }) => (state) =>
   selectPresets(state).presets.find((preset) => preset.id === id);
+
+/**
+ * Select file exclusions cache.
+ */
+export const selectFileExclusionsCache = (state) =>
+  selectColl(state).fileExclusions;

@@ -11,7 +11,7 @@ import {
   SelectableTab,
   SelectableTabs,
 } from "../../../common/components/SelectableTabs";
-import useLoadFileObjects from "./useLoadFileObjects";
+import ObjectAPI from "../../../application/objects/ObjectAPI";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -71,24 +71,28 @@ function VideoInformation(props) {
   const messages = useMessages();
   const [tab, setTab] = useState(Tab.info);
 
-  const { objects = [] } = useLoadFileObjects(file.id);
+  const objectsAPI = ObjectAPI.use();
+  const { objects = [] } = objectsAPI.useFileObjects(file.id);
   const styles = contentStyles(tab);
 
   return (
     <div className={clsx(classes.root, className)} {...other}>
       <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
         <SelectableTab label={messages.info} value={Tab.info} />
-        {objects.length > 0 && (
-          <SelectableTab
-            label={messages.objects}
-            value={Tab.objects}
-            data-selector="ObjectsTab"
-          />
-        )}
+        <SelectableTab
+          label={messages.objects}
+          value={Tab.objects}
+          data-selector="ObjectsTab"
+        />
         <SelectableTab label={messages.exif} value={Tab.exif} />
       </SelectableTabs>
       <FileInfoPanel file={file} style={styles.info} />
-      <ObjectsPanel objects={objects} style={styles.objects} onJump={onJump} />
+      <ObjectsPanel
+        file={file}
+        objects={objects}
+        style={styles.objects}
+        onJump={onJump}
+      />
       <ExifPanel file={file} style={styles.exif} />
     </div>
   );

@@ -349,6 +349,7 @@ export default class Transform {
       minDistance: data.min_distance_video,
       minDistanceTime: data.min_distance_ms,
       position: data.start_ms,
+      falsePositive: data.false_positive,
     };
     if (data.template != null) {
       match.template = this.template(data.template);
@@ -357,6 +358,12 @@ export default class Transform {
       match.file = this.videoFile(data.file);
     }
     return match;
+  }
+
+  updateTemplateMatchDTO(match) {
+    return {
+      false_positive: match.falsePositive,
+    };
   }
 
   newTemplateDTO(template) {
@@ -394,6 +401,31 @@ export default class Transform {
     return {
       name: preset.name,
       filters: preset.filters,
+    };
+  }
+
+  templateFileExclusion(data) {
+    return {
+      id: data.id,
+      file: this.videoFile(data.file),
+      template: this.template(data.template),
+    };
+  }
+
+  newTemplateFileExclusionDTO(exclusion) {
+    return {
+      file_id: exclusion.file.id,
+      template_id: exclusion.template.id,
+    };
+  }
+
+  fetchTemplateFileExclusionsResults(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      exclusions: data.items.map((exclusion) =>
+        this.templateFileExclusion(exclusion)
+      ),
     };
   }
 }

@@ -162,6 +162,9 @@
     "object.type.explosion": "Explosion",
     "object.type.car": "Car",
     "object.type.music": "Music",
+    "objects.found": "Found",
+    "objects.templateBlackList": "Black List",
+    "objects.falsePositive": "False Positive",
     "file.uploadedBy": "Uploaded by",
     "file.name": "File Name",
     "file.type": "File type",
@@ -309,6 +312,10 @@
     "presets.updatePreset.filters": "Update from current filters",
     "presets.deletePreset.title": "Delete Preset",
     "presets.deletePreset.description": "Are you sure you want to delete the \"{name}\" preset?",
-    "presets.name": "Preset Name"
+    "presets.name": "Preset Name",
+    "exclusion.load.error": "Error loading exclusions.",
+    "exclusion.addTemplateExclusion": "Exclude Template",
+    "exclusion.addTemplateExclusion.description": "Disallow templates to match this file.",
+    "exclusion.delete.description": "Delete Exclusion"
   }
 }

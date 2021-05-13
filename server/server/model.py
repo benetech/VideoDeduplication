@@ -19,6 +19,7 @@ from db.schema import (
     TemplateExample,
     TemplateMatches,
     FileFilterPreset,
+    TemplateFileExclusion,
 )
 
 database = SQLAlchemy()
@@ -215,6 +216,7 @@ class Transform:
             "mean_distance_sequence": match.mean_distance_sequence,
             "min_distance_video": match.min_distance_video,
             "min_distance_ms": match.min_distance_ms,
+            "false_positive": match.false_positive,
         }
         if template:
             data["template"] = Transform.template(match.template, examples=False)
@@ -230,4 +232,14 @@ class Transform:
             "id": preset.id,
             "name": preset.name,
             "filters": preset.filters,
+        }
+
+    @staticmethod
+    @serializable
+    def template_file_exclusion(exclusion: TemplateFileExclusion) -> Dict:
+        """Get dict-data representation of the template-file exclusion."""
+        return {
+            "id": exclusion.id,
+            "file": Transform.file(exclusion.file),
+            "template": Transform.template(exclusion.template),
         }
