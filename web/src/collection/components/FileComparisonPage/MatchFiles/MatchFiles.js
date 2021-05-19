@@ -135,10 +135,12 @@ function MatchFiles(props) {
     async (match) => {
       try {
         // Change displayed match if needed
-        if (selected + 1 < matches.length) {
-          onMatchFileChange(matches[selected + 1].file.id);
-        } else if (selected - 1 >= 0) {
-          onMatchFileChange(matches[selected - 1].file.id);
+        if (!options.showFalsePositive) {
+          if (selected + 1 < matches.length) {
+            onMatchFileChange(matches[selected + 1].file.id);
+          } else if (selected - 1 >= 0) {
+            onMatchFileChange(matches[selected - 1].file.id);
+          }
         }
 
         // Dismiss current match
@@ -147,7 +149,7 @@ function MatchFiles(props) {
         console.error("Error deleting match", error, { error, match });
       }
     },
-    [selected, matches, onMatchFileChange]
+    [selected, matches, onMatchFileChange, options]
   );
 
   const handleRestore = useCallback(async (match) => {
@@ -164,7 +166,7 @@ function MatchFiles(props) {
 
   useEffect(() => {
     // Change displayed match if needed
-    if (!options.showFalsePositive) {
+    if (!options.showFalsePositive && matches[selected]?.falsePositive) {
       if (selected + 1 < matches.length) {
         onMatchFileChange(matches[selected + 1].file.id);
       } else if (selected - 1 >= 0) {
