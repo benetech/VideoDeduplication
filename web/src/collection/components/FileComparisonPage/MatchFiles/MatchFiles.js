@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -11,8 +11,8 @@ import useFileMatches from "../../../hooks/useFileMatches";
 import MatchAPI from "../../../../application/match/MatchAPI";
 import MatchOptions, { DefaultMatchOptions } from "./MatchOptions";
 import { Collapse, Tooltip } from "@material-ui/core";
-import TuneIcon from "@material-ui/icons/Tune";
-import SquaredIconButton from "../../../../common/components/SquaredIconButton";
+import SettingsIcon from "@material-ui/icons/Settings";
+import IconButton from "@material-ui/core/IconButton";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -41,6 +41,13 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+  },
+  options: {
+    marginTop: 0,
+    margin: theme.spacing(2),
+  },
+  optionsButton: {
+    marginLeft: theme.spacing(1),
   },
 }));
 
@@ -98,9 +105,13 @@ function MatchFiles(props) {
     },
   });
 
-  const matches = loadedMatches
-    .sort(matchComparator)
-    .filter((match) => options.showFalsePositive || !match.falsePositive);
+  const matches = useMemo(
+    () =>
+      loadedMatches
+        .sort(matchComparator)
+        .filter((match) => options.showFalsePositive || !match.falsePositive),
+    [loadMatches, options]
+  );
 
   // Move to the first element when matches are loaded
   useEffect(() => {
@@ -116,7 +127,7 @@ function MatchFiles(props) {
     (index) => {
       onMatchFileChange(matches[index].file.id);
     },
-    [hasMore, onMatchFileChange, motherFileId]
+    [hasMore, onMatchFileChange, motherFileId, matches]
   );
 
   const matchAPI = MatchAPI.use();
@@ -179,17 +190,22 @@ function MatchFiles(props) {
       {...other}
     >
       <div className={classes.header}>
-        <div className={classes.title}>{messages.title}</div>
-        <Tooltip title={messages.showOptions}>
-          <SquaredIconButton
-            variant="outlined"
-            color="secondary"
-            aria-label={messages.showOptions}
-            onClick={handleToggleOptions}
-          >
-            <TuneIcon />
-          </SquaredIconButton>
-        </Tooltip>
+        <div className={classes.title}>
+          {messages.title}
+          <Tooltip title={messages.showOptions}>
+            <IconButton
+              size="small"
+              variant="outlined"
+              color="secondary"
+              aria-label={messages.showOptions}
+              onClick={handleToggleOptions}
+              className={classes.optionsButton}
+            >
+              <SettingsIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
+
         {!hasMore && (
           <MatchSelector
             matches={matches}
@@ -199,7 +215,11 @@ function MatchFiles(props) {
         )}
       </div>
       <Collapse in={showOptions}>
-        <MatchOptions options={options} onChange={setOptions} />
+        <MatchOptions
+          options={options}
+          onChange={setOptions}
+          className={classes.options}
+        />
       </Collapse>
       {content}
     </div>
