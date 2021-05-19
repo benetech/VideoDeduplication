@@ -110,7 +110,7 @@ function MatchFiles(props) {
       loadedMatches
         .sort(matchComparator)
         .filter((match) => options.showFalsePositive || !match.falsePositive),
-    [loadMatches, options]
+    [loadedMatches, options.showFalsePositive]
   );
 
   // Move to the first element when matches are loaded
@@ -150,9 +150,28 @@ function MatchFiles(props) {
     [selected, matches, onMatchFileChange]
   );
 
+  const handleRestore = useCallback(async (match) => {
+    try {
+      await matchAPI.restoreMatch(match);
+    } catch (error) {
+      console.error("Error restoring match", error, { error, match });
+    }
+  });
+
   const handleToggleOptions = useCallback(() => setShowOptions(!showOptions), [
     showOptions,
   ]);
+
+  useEffect(() => {
+    // Change displayed match if needed
+    if (!options.showFalsePositive) {
+      if (selected + 1 < matches.length) {
+        onMatchFileChange(matches[selected + 1].file.id);
+      } else if (selected - 1 >= 0) {
+        onMatchFileChange(matches[selected - 1].file.id);
+      }
+    }
+  }, [options.showFalsePositive]);
 
   let content;
   if (hasMore) {
@@ -170,6 +189,7 @@ function MatchFiles(props) {
       <div>
         <FileMatchHeader
           onDismiss={handleDismiss}
+          onRestore={handleRestore}
           match={matches[selected]}
           className={classes.fileHeader}
           data-selector="MatchHeader"

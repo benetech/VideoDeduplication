@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -11,6 +11,7 @@ import { Menu, MenuItem } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import useConfirmDialog from "./useConfirmDialog";
 import FileMatchType from "../../../../application/match/prop-types/FileMatchType";
+import DismissedIcon from "@material-ui/icons/NotInterested";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -34,6 +35,7 @@ const useStyles = makeStyles((theme) => ({
 function useMessages() {
   const intl = useIntl();
   return {
+    restore: intl.formatMessage({ id: "actions.restore" }),
     dismiss: intl.formatMessage({ id: "match.delete" }),
     description: intl.formatMessage({ id: "match.delete.confirm" }),
     confirm: intl.formatMessage({ id: "match.delete.short" }),
@@ -48,7 +50,7 @@ function menuAction(popup, handler) {
 }
 
 function FileMatchHeader(props) {
-  const { match, onDismiss, className, ...other } = props;
+  const { match, onDismiss, onRestore, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
   const { clickTrigger, popup } = usePopup("match-menu");
@@ -61,10 +63,16 @@ function FileMatchHeader(props) {
     [onDismiss, match]
   );
 
+  const handleRestore = useCallback(() => onRestore(match), [onRestore, match]);
+
+  const nameStyle = match.falsePositive
+    ? { color: "secondary", icon: DismissedIcon }
+    : {};
+
   return (
     <div className={clsx(classes.header, className)} {...other}>
       <FileSummary file={match.file} className={classes.name}>
-        <FileSummary.Name />
+        <FileSummary.Name {...nameStyle} />
         <Distance value={match.distance} dense className={classes.distance} />
         <IconButton className={classes.button} size="small" {...clickTrigger}>
           <MoreVertIcon />
@@ -77,9 +85,16 @@ function FileMatchHeader(props) {
         <FileSummary.HasExif />
       </FileSummary>
       <Menu {...popup}>
-        <MenuItem onClick={menuAction(popup, handleDismiss)}>
-          {messages.dismiss}
-        </MenuItem>
+        {!match.falsePositive && (
+          <MenuItem onClick={menuAction(popup, handleDismiss)}>
+            {messages.dismiss}
+          </MenuItem>
+        )}
+        {match.falsePositive && (
+          <MenuItem onClick={menuAction(popup, handleRestore)}>
+            {messages.restore}
+          </MenuItem>
+        )}
       </Menu>
       {dialog}
     </div>
@@ -95,6 +110,10 @@ FileMatchHeader.propTypes = {
    * Handle match dismissal
    */
   onDismiss: PropTypes.func.isRequired,
+  /**
+   * Handle match dismissal
+   */
+  onRestore: PropTypes.func.isRequired,
   className: PropTypes.string,
 };
 
