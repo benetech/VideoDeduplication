@@ -117,6 +117,9 @@ const mixins = {
     letterSpacing: 0,
     lineHeight: "21px",
   },
+  panel: {
+    boxShadow: "0 12px 18px 0 rgba(0,0,0,0.08)",
+  },
   /**
    * Disable text selection
    */
