@@ -166,11 +166,16 @@ function MatchFiles(props) {
 
   useEffect(() => {
     // Change displayed match if needed
-    if (!options.showFalsePositive && matches[selected]?.falsePositive) {
+    if (
+      matches[selected] == null ||
+      (!options.showFalsePositive && matches[selected]?.falsePositive)
+    ) {
       if (selected + 1 < matches.length) {
         onMatchFileChange(matches[selected + 1].file.id);
       } else if (selected - 1 >= 0) {
         onMatchFileChange(matches[selected - 1].file.id);
+      } else if (matches[selected] == null && matches.length > 0) {
+        onMatchFileChange(matches[0].file.id);
       }
     }
   }, [options.showFalsePositive]);
