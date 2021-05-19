@@ -8,6 +8,7 @@ import FileDetails from "../FileDetails";
 import FileMatchHeader from "./FileMatchHeader";
 import MatchSelector from "./MatchSelector";
 import useFileMatches from "../../../hooks/useFileMatches";
+import MatchAPI from "../../../../application/match/MatchAPI";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -85,9 +86,14 @@ function MatchFiles(props) {
   } = useFileMatches({
     fileId: motherFileId,
     fields: ["meta", "exif", "scenes"],
+    filters: {
+      falsePositive: null,
+    },
   });
 
-  const matches = loadedMatches.sort(matchComparator);
+  const matches = loadedMatches
+    .sort(matchComparator)
+    .filter((match) => !match.falsePositive);
 
   // Move to the first element when matches are loaded
   useEffect(() => {
@@ -106,6 +112,26 @@ function MatchFiles(props) {
     [hasMore, onMatchFileChange, motherFileId]
   );
 
+  const matchAPI = MatchAPI.use();
+  const handleDismiss = useCallback(
+    async (match) => {
+      try {
+        // Change displayed match if needed
+        if (selected + 1 < matches.length) {
+          onMatchFileChange(matches[selected + 1].file.id);
+        } else if (selected - 1 >= 0) {
+          onMatchFileChange(matches[selected - 1].file.id);
+        }
+
+        // Dismiss current match
+        await matchAPI.deleteMatch(match);
+      } catch (error) {
+        console.error("Error deleting match", error, { error, match });
+      }
+    },
+    [selected, matches, onMatchFileChange]
+  );
+
   let content;
   if (hasMore) {
     content = (
@@ -121,8 +147,8 @@ function MatchFiles(props) {
     content = (
       <div>
         <FileMatchHeader
-          distance={matches[selected].distance}
-          file={matches[selected].file}
+          onDismiss={handleDismiss}
+          match={matches[selected]}
           className={classes.fileHeader}
           data-selector="MatchHeader"
         />
