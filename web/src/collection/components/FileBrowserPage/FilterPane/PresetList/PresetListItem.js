@@ -14,16 +14,18 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     width: "100%",
-    padding: theme.spacing(2),
-    paddingLeft: theme.spacing(4),
-    borderBottomColor: theme.palette.dividerLight,
-    borderBottomWidth: 1,
-    borderBottomStyle: ({ divider }) => (divider ? "solid" : "none"),
+    padding: theme.spacing(1),
+    paddingLeft: theme.spacing(3),
+    borderRadius: theme.spacing(1),
+    borderColor: theme.palette.border.light,
+    borderWidth: 3,
+    borderStyle: "solid",
     "&:hover": {
       backgroundColor: theme.palette.action.hover,
     },
   },
   title: {
+    ...theme.mixins.title5,
     ...theme.mixins.textEllipsis,
   },
   button: {
@@ -43,17 +45,9 @@ function useMessages() {
 }
 
 function PresetListItem(props) {
-  const {
-    preset,
-    onClick,
-    onDelete,
-    onUpdate,
-    divider = false,
-    className,
-    ...other
-  } = props;
+  const { preset, onClick, onDelete, onUpdate, className, ...other } = props;
   const classes = useStyles();
-  const messages = useMessages({ divider });
+  const messages = useMessages();
 
   const handleDelete = useCallback(
     (event) => {
@@ -128,10 +122,6 @@ PresetListItem.propTypes = {
    * Handle preset click.
    */
   onClick: PropTypes.func.isRequired,
-  /**
-   * Render a divider below the list item.
-   */
-  divider: PropTypes.bool,
   className: PropTypes.string,
 };
 

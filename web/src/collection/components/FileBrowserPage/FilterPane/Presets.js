@@ -23,6 +23,9 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
   },
+  presets: {
+    margin: theme.spacing(1),
+  },
 }));
 
 /**
@@ -84,7 +87,6 @@ function Presets(props) {
             onClick={handleApply}
             onUpdate={handleShowUpdate}
             onDelete={handleShowDelete}
-            divider={index < presetList.presets.length - 1}
           />
         ))}
         <LoadTrigger
