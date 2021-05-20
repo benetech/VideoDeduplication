@@ -22,13 +22,13 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl: {
     width: 300,
-    marginLeft: theme.spacing(2),
   },
   button: {
     marginLeft: theme.spacing(1),
   },
   index: {
     ...theme.mixins.text,
+    marginRight: theme.spacing(2),
   },
 }));
 

@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 0,
   },
   iconContainer: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: ({ color }) => theme.palette[color].main,
     width: theme.spacing(4.5),
     height: theme.spacing(4.5),
     display: "flex",
@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 0,
   },
   icon: {
-    color: theme.palette.primary.contrastText,
+    color: ({ color }) => theme.palette[color].contrastText,
     width: theme.spacing(3.5),
     height: theme.spacing(3.5),
   },
@@ -34,8 +34,16 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function MainAttribute(props) {
-  const { name, value, icon: Icon, highlight, className, ...other } = props;
-  const classes = useStyles();
+  const {
+    name,
+    value,
+    icon: Icon,
+    highlight,
+    color = "primary",
+    className,
+    ...other
+  } = props;
+  const classes = useStyles({ color });
 
   return (
     <div className={clsx(classes.hashContainer, className)} {...other}>
@@ -71,6 +79,10 @@ MainAttribute.propTypes = {
    * Icon element type.
    */
   icon: PropTypes.elementType.isRequired,
+  /**
+   * Color variant
+   */
+  color: PropTypes.oneOf(["primary", "secondary"]),
   className: PropTypes.string,
 };
 

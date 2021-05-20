@@ -16,14 +16,22 @@ function useMessages() {
 }
 
 function Name(props) {
-  const { file, highlight, className, ...other } = props;
+  const {
+    file,
+    highlight,
+    color = "primary",
+    icon = VideocamOutlinedIcon,
+    className,
+    ...other
+  } = props;
   const messages = useMessages();
 
   return (
     <MainAttribute
       name={messages.filename}
       value={file.filename}
-      icon={VideocamOutlinedIcon}
+      icon={icon}
+      color={color}
       highlight={highlight}
       className={className}
       {...other}
@@ -40,6 +48,14 @@ Name.propTypes = {
    * Highlight substring.
    */
   highlight: PropTypes.string,
+  /**
+   * Color variant
+   */
+  color: PropTypes.oneOf(["primary", "secondary"]),
+  /**
+   * Icon to be displayed
+   */
+  icon: PropTypes.elementType,
   className: PropTypes.string,
 };
 

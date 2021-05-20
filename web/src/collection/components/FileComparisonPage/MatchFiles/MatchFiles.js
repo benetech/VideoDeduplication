@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -8,6 +8,11 @@ import FileDetails from "../FileDetails";
 import FileMatchHeader from "./FileMatchHeader";
 import MatchSelector from "./MatchSelector";
 import useFileMatches from "../../../hooks/useFileMatches";
+import MatchAPI from "../../../../application/match/MatchAPI";
+import MatchOptions, { DefaultMatchOptions } from "./MatchOptions";
+import { Collapse, Tooltip } from "@material-ui/core";
+import SettingsIcon from "@material-ui/icons/Settings";
+import IconButton from "@material-ui/core/IconButton";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -37,6 +42,13 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
   },
+  options: {
+    marginTop: 0,
+    margin: theme.spacing(2),
+  },
+  optionsButton: {
+    marginLeft: theme.spacing(1),
+  },
 }));
 
 /**
@@ -62,6 +74,7 @@ function useMessages() {
     loadError: intl.formatMessage({ id: "match.load.error" }),
     notMatch: intl.formatMessage({ id: "match.notMatch" }),
     noMatches: intl.formatMessage({ id: "match.noMatches" }),
+    showOptions: intl.formatMessage({ id: "actions.showOptions" }),
   };
 }
 
@@ -75,6 +88,8 @@ function MatchFiles(props) {
   } = props;
   const classes = useStyles();
   const messages = useMessages();
+  const [options, setOptions] = useState(DefaultMatchOptions);
+  const [showOptions, setShowOptions] = useState(false);
 
   const {
     matches: loadedMatches,
@@ -85,9 +100,18 @@ function MatchFiles(props) {
   } = useFileMatches({
     fileId: motherFileId,
     fields: ["meta", "exif", "scenes"],
+    filters: {
+      falsePositive: null,
+    },
   });
 
-  const matches = loadedMatches.sort(matchComparator);
+  const matches = useMemo(
+    () =>
+      loadedMatches
+        .sort(matchComparator)
+        .filter((match) => options.showFalsePositive || !match.falsePositive),
+    [loadedMatches, options.showFalsePositive]
+  );
 
   // Move to the first element when matches are loaded
   useEffect(() => {
@@ -103,8 +127,58 @@ function MatchFiles(props) {
     (index) => {
       onMatchFileChange(matches[index].file.id);
     },
-    [hasMore, onMatchFileChange, motherFileId]
+    [hasMore, onMatchFileChange, motherFileId, matches]
   );
+
+  const matchAPI = MatchAPI.use();
+  const handleDismiss = useCallback(
+    async (match) => {
+      try {
+        // Change displayed match if needed
+        if (!options.showFalsePositive) {
+          if (selected + 1 < matches.length) {
+            onMatchFileChange(matches[selected + 1].file.id);
+          } else if (selected - 1 >= 0) {
+            onMatchFileChange(matches[selected - 1].file.id);
+          }
+        }
+
+        // Dismiss current match
+        await matchAPI.deleteMatch(match);
+      } catch (error) {
+        console.error("Error deleting match", error, { error, match });
+      }
+    },
+    [selected, matches, onMatchFileChange, options]
+  );
+
+  const handleRestore = useCallback(async (match) => {
+    try {
+      await matchAPI.restoreMatch(match);
+    } catch (error) {
+      console.error("Error restoring match", error, { error, match });
+    }
+  });
+
+  const handleToggleOptions = useCallback(() => setShowOptions(!showOptions), [
+    showOptions,
+  ]);
+
+  useEffect(() => {
+    // Change displayed match if needed
+    if (
+      matches[selected] == null ||
+      (!options.showFalsePositive && matches[selected]?.falsePositive)
+    ) {
+      if (selected + 1 < matches.length) {
+        onMatchFileChange(matches[selected + 1].file.id);
+      } else if (selected - 1 >= 0) {
+        onMatchFileChange(matches[selected - 1].file.id);
+      } else if (matches[selected] == null && matches.length > 0) {
+        onMatchFileChange(matches[0].file.id);
+      }
+    }
+  }, [options.showFalsePositive]);
 
   let content;
   if (hasMore) {
@@ -121,8 +195,9 @@ function MatchFiles(props) {
     content = (
       <div>
         <FileMatchHeader
-          distance={matches[selected].distance}
-          file={matches[selected].file}
+          onDismiss={handleDismiss}
+          onRestore={handleRestore}
+          match={matches[selected]}
           className={classes.fileHeader}
           data-selector="MatchHeader"
         />
@@ -142,7 +217,22 @@ function MatchFiles(props) {
       {...other}
     >
       <div className={classes.header}>
-        <div className={classes.title}>{messages.title}</div>
+        <div className={classes.title}>
+          {messages.title}
+          <Tooltip title={messages.showOptions}>
+            <IconButton
+              size="small"
+              variant="outlined"
+              color="secondary"
+              aria-label={messages.showOptions}
+              onClick={handleToggleOptions}
+              className={classes.optionsButton}
+            >
+              <SettingsIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
+
         {!hasMore && (
           <MatchSelector
             matches={matches}
@@ -151,6 +241,13 @@ function MatchFiles(props) {
           />
         )}
       </div>
+      <Collapse in={showOptions}>
+        <MatchOptions
+          options={options}
+          onChange={setOptions}
+          className={classes.options}
+        />
+      </Collapse>
       {content}
     </div>
   );
