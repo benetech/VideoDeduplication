@@ -80,7 +80,7 @@ function Presets(props) {
   return (
     <div className={clsx(classes.root, className)}>
       <PresetList>
-        {presetList.presets.map((preset, index) => (
+        {presetList.presets.map((preset) => (
           <PresetList.Item
             key={preset.id}
             preset={preset}
