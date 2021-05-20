@@ -16,10 +16,10 @@ export default function fileFiltersToQueryParams(filters) {
     params.exif = String(!!filters.exif);
   }
   if (filters?.length?.lower != null) {
-    params.min_length = filters.length.lower * 60; // minutes to seconds
+    params.min_length = filters.length.lower * 60000; // minutes to milliseconds
   }
   if (filters?.length?.upper != null) {
-    params.max_length = filters.length.upper * 60; // minutes to seconds
+    params.max_length = filters.length.upper * 60000; // minutes to milliseconds
   }
   if (filters?.date?.lower != null) {
     params.date_from = formatDate(parseDate(filters.date.lower), "yyyy-MM-dd");
