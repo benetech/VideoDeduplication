@@ -1,9 +1,10 @@
+import enum
 import itertools
-from typing import List
+from typing import List, Optional
 
 from dataclasses import dataclass, field
 from sqlalchemy import Column, or_
-from sqlalchemy.orm import joinedload, aliased, contains_eager
+from sqlalchemy.orm import joinedload, aliased, contains_eager, Query
 
 from db.schema import Files, Matches
 
@@ -17,6 +18,19 @@ def _chunks(iterable, size=100):
         chunk = list(itertools.islice(iterator, size))
 
 
+class MatchSort(enum.Enum):
+    """Enum for result ordering."""
+
+    DISTANCE = "date"
+
+
+class MatchSortDirection(enum.Enum):
+    """Enum for sort direction."""
+
+    ASC = "asc"
+    DESC = "desc"
+
+
 @dataclass
 class FileMatchesRequest:
     """List single file's matches request."""
@@ -28,6 +42,16 @@ class FileMatchesRequest:
     min_distance: float = 0.0
     hops: int = 1
     preload: List[Column] = field(default_factory=list)
+    sort: Optional[MatchSort] = MatchSort.DISTANCE
+    direction: Optional[MatchSortDirection] = MatchSortDirection.ASC
+
+
+def _ordered(attr, direction: MatchSortDirection):
+    if direction == MatchSortDirection.ASC:
+        return attr.asc()
+    elif direction == MatchSortDirection.DESC:
+        return attr.desc()
+    raise ValueError(f"Unsupported direction: {direction}")
 
 
 @dataclass
@@ -75,6 +99,16 @@ class MatchesDAO:
         # Slice result set
         matches, files, total = MatchesDAO._slice_results(req.file, matches, offset=req.offset, limit=req.limit)
         return FileMatchesResult(files=files, matches=matches, total=total)
+
+    @staticmethod
+    def sort_matches(
+        query: Query,
+        sort: MatchSort = MatchSort.DISTANCE,
+        direction: MatchSortDirection = MatchSortDirection.ASC,
+    ) -> Query:
+        """Query matches in a particular order."""
+        if sort == MatchSort.DISTANCE:
+            return query.order_by(_ordered(Matches.distance, direction), Matches.id.asc())
 
     @staticmethod
     def _populate_next_step(file, seen, next_step):
