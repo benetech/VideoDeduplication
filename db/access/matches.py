@@ -21,7 +21,7 @@ def _chunks(iterable, size=100):
 class MatchSort(enum.Enum):
     """Enum for result ordering."""
 
-    DISTANCE = "date"
+    DISTANCE = "distance"
 
 
 class MatchSortDirection(enum.Enum):

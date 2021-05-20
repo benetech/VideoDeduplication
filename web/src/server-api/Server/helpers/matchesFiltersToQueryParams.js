@@ -12,5 +12,11 @@ export default function matchesFiltersToQueryParams({ fields, filters }) {
   if (filters?.falsePositive != null) {
     params.false_positive = !!filters.falsePositive;
   }
+  if (filters?.sort != null) {
+    params.sort = filters.sort;
+  }
+  if (filters?.sortDirection != null) {
+    params.sort_direction = filters.sortDirection;
+  }
   return params;
 }
