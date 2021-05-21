@@ -205,12 +205,14 @@ const VideoPlayer = function VideoPlayer(props) {
               },
             }}
           />
-          <div className={classes.search}>
-            <Button color="inherit" onClick={handleSearch}>
-              <SearchIcon />
-              <span>{messages.findFrame}</span>
-            </Button>
-          </div>
+          {onSearchFrame && (
+            <div className={classes.search}>
+              <Button color="inherit" onClick={handleSearch}>
+                <SearchIcon />
+                <span>{messages.findFrame}</span>
+              </Button>
+            </div>
+          )}
         </div>
       )}
       {watch && error != null && (
@@ -268,7 +270,7 @@ VideoPlayer.propTypes = {
    *   time:
    * }
    */
-  onSearchFrame: PropTypes.func.isRequired,
+  onSearchFrame: PropTypes.func,
   className: PropTypes.string,
 };
 
