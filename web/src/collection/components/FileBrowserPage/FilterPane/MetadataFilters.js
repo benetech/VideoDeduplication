@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
 import FileExtensionPicker from "./FileExtensionPicker";
 import { useExtensions } from "./useExtensions";
@@ -11,6 +11,10 @@ import { defaultFilters } from "../../../state/fileList/initialState";
 import objectDiff from "../../../../common/helpers/objectDiff";
 import { useSelector } from "react-redux";
 import { selectFileFilters } from "../../../state/selectors";
+import {
+  parseDateRange,
+  stringifyDateRange,
+} from "../../../../common/helpers/date-range";
 
 /**
  * Get i18n text.
@@ -45,15 +49,17 @@ function MetadataFilters(props) {
   const [filters, setFilters] = useFilters();
   const extensions = useExtensions();
   const messages = useMessages();
+  const dateRange = useMemo(() => parseDateRange(filters.date), [filters.date]);
 
   const handleUpdateExtensions = useCallback(
     (extensions) => setFilters({ extensions }),
     [setFilters]
   );
 
-  const handleDateChange = useCallback((date) => setFilters({ date }), [
-    setFilters,
-  ]);
+  const handleDateChange = useCallback(
+    (date) => setFilters({ date: stringifyDateRange(date) }),
+    [setFilters]
+  );
 
   const handleAudioChange = useCallback((audio) => setFilters({ audio }), [
     setFilters,
@@ -76,7 +82,7 @@ function MetadataFilters(props) {
       />
       <DateRangeFilter
         title={messages.date}
-        range={filters.date}
+        range={dateRange}
         onChange={handleDateChange}
         tooltip={messages.dateHelp}
       />

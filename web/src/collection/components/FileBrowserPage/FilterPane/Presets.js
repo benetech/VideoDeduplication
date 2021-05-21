@@ -23,6 +23,9 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
   },
+  presets: {
+    margin: theme.spacing(1),
+  },
 }));
 
 /**
@@ -77,14 +80,13 @@ function Presets(props) {
   return (
     <div className={clsx(classes.root, className)}>
       <PresetList>
-        {presetList.presets.map((preset, index) => (
+        {presetList.presets.map((preset) => (
           <PresetList.Item
             key={preset.id}
             preset={preset}
             onClick={handleApply}
             onUpdate={handleShowUpdate}
             onDelete={handleShowDelete}
-            divider={index < presetList.presets.length - 1}
           />
         ))}
         <LoadTrigger
