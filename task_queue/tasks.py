@@ -204,7 +204,6 @@ def find_frame_task(
     from winnow.utils.config import resolve_config
     from winnow.utils.files import scan_videos
     from winnow.pipeline.pipeline_context import PipelineContext
-    from winnow.utils.files import get_hash
     from winnow.pipeline.find_frame import find_frame
     from winnow.search_engine.model import Frame
 
@@ -233,7 +232,6 @@ def find_frame_task(
         raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
 
     videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
-    hashes = [get_hash(file) for file in videos]
 
     # Run pipeline
     monitor.update(0)
