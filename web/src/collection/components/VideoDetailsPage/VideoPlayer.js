@@ -13,6 +13,8 @@ import { useServer } from "../../../server-api/context";
 import { Status } from "../../../server-api/Response";
 import { useIntl } from "react-intl";
 import WarningOutlinedIcon from "@material-ui/icons/WarningOutlined";
+import SearchIcon from "@material-ui/icons/Search";
+import Button from "../../../common/components/Button";
 
 /**
  * Setup bundled flv.js.
@@ -50,6 +52,7 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "100%",
     backgroundColor: theme.palette.common.black,
+    transform: "translate(0%, 0px)",
   },
   preview: {
     width: "100%",
@@ -59,6 +62,15 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "100%",
     maxHeight: 300,
+  },
+  search: {
+    position: "absolute",
+    top: theme.spacing(2),
+    right: theme.spacing(2),
+    display: ({ search }) => (search ? "flex" : "none"),
+    borderRadius: theme.spacing(0.5),
+    color: theme.palette.common.white,
+    backgroundColor: "rgba(5,5,5,0.4)",
   },
   error: {
     display: "flex",
@@ -89,6 +101,7 @@ function useMessages() {
     notFoundError: intl.formatMessage({ id: "video.error.missing" }),
     loadError: intl.formatMessage({ id: "video.error.load" }),
     playbackError: intl.formatMessage({ id: "video.error.playback" }),
+    findFrame: intl.formatMessage({ id: "actions.findFrame" }),
   };
 }
 
@@ -98,16 +111,30 @@ const VideoPlayer = function VideoPlayer(props) {
     onReady,
     onProgress,
     suppressErrors = false,
+    onSearchFrame,
     className,
   } = props;
-  const classes = useStyles();
+
   const server = useServer();
   const messages = useMessages();
+  const [hover, setHover] = useState(false);
   const [watch, setWatch] = useState(false);
   const [player, setPlayer] = useState(null);
   const [error, setError] = useState(null);
+  const classes = useStyles({ search: hover && watch && !error });
 
-  const handleWatch = useCallback(() => setWatch(true), []);
+  const handleMouseOver = useCallback(() => setHover(true));
+  const handleMouseOut = useCallback(() => setHover(false));
+  const handleWatch = useCallback(() => {
+    setWatch(true);
+    setHover(true);
+  }, []);
+  const handleSearch = useCallback(() => {
+    if (player != null) {
+      onSearchFrame({ file, time: player.getCurrentTime() });
+    }
+  }, [player, file]);
+
   const controller = useMemo(() => new VideoController(player, setWatch), []);
   const previewActions = useMemo(() => makePreviewActions(handleWatch), []);
 
@@ -158,7 +185,11 @@ const VideoPlayer = function VideoPlayer(props) {
         />
       )}
       {watch && error == null && (
-        <div className={classes.container}>
+        <div
+          className={classes.container}
+          onMouseEnter={handleMouseOver}
+          onMouseLeave={handleMouseOut}
+        >
           <ReactPlayer
             playing
             ref={setPlayer}
@@ -174,6 +205,12 @@ const VideoPlayer = function VideoPlayer(props) {
               },
             }}
           />
+          <div className={classes.search}>
+            <Button color="inherit" onClick={handleSearch}>
+              <SearchIcon />
+              <span>{messages.findFrame}</span>
+            </Button>
+          </div>
         </div>
       )}
       {watch && error != null && (
@@ -222,6 +259,16 @@ VideoPlayer.propTypes = {
    * Suppress error logs.
    */
   suppressErrors: PropTypes.bool,
+  /**
+   * Handle search for current frame.
+   *
+   * Callback will receive event containing file and desired time (in seconds).
+   * e.g. {
+   *   file: {id: 1, ...},
+   *   time:
+   * }
+   */
+  onSearchFrame: PropTypes.func.isRequired,
   className: PropTypes.string,
 };
 

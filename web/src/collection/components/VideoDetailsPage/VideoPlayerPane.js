@@ -103,6 +103,7 @@ function VideoPlayerPane(props) {
             className={classes.player}
             onReady={callEach(setPlayer, onPlayerReady)}
             onProgress={setProgress}
+            onSearchFrame={console.log}
             suppressErrors
           />
           <LoadableObjectTimeLine
