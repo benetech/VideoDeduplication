@@ -7,7 +7,7 @@ from typing import Optional, List, Dict
 from celery.utils.log import get_task_logger
 
 from db.access.templates import TemplatesDAO
-from db.schema import Template
+from db.schema import Template, Files
 from .progress_monitor import make_progress_monitor
 from .winnow_task import winnow_task
 
@@ -185,6 +185,74 @@ def match_all_templates(
     monitor.complete()
 
     return {"file_counts": file_counts}
+
+
+@winnow_task(bind=True)
+def find_frame_task(
+    self,
+    file_id: int,
+    frame_time_sec: int,
+    directory: str = ".",
+    save_frames: Optional[int] = None,
+    frame_sampling: Optional[int] = None,
+    filter_dark: Optional[bool] = None,
+    dark_threshold: Optional[Number] = None,
+    extensions: Optional[List[str]] = None,
+    match_distance: Optional[float] = None,
+    min_duration: Optional[Number] = None,
+):
+    from winnow.utils.config import resolve_config
+    from winnow.utils.files import scan_videos
+    from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.utils.files import get_hash
+    from winnow.pipeline.find_frame import find_frame
+    from winnow.search_engine.model import Frame
+
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
+    # Load configuration file
+    logger.info("Loading config file")
+    config = resolve_config(
+        frame_sampling=frame_sampling,
+        save_frames=save_frames,
+        filter_dark=filter_dark,
+        dark_threshold=dark_threshold,
+        extensions=extensions,
+        match_distance=match_distance,
+        min_duration=min_duration,
+    )
+    config.database.use = True
+
+    # Resolve list of video files from the directory
+    logger.info(f"Resolving video list for directory {directory}")
+
+    absolute_root = os.path.abspath(config.sources.root)
+    absolute_dir = os.path.abspath(os.path.join(absolute_root, directory))
+    if Path(config.sources.root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:
+        raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
+
+    videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
+    hashes = [get_hash(file) for file in videos]
+
+    # Run pipeline
+    monitor.update(0)
+    pipeline_context = PipelineContext(config)
+
+    with pipeline_context.database.session_scope() as session:
+        file = session.query(Files).filter(Files.id == file_id).one()
+        storage_root = pipeline_context.config.sources.root
+        file_path = os.path.join(storage_root, file.file_path)
+
+    matches = find_frame(
+        frame=Frame(path=file_path, time=frame_time_sec),
+        files=videos,
+        pipeline=pipeline_context,
+        progress=monitor.subtask(work_amount=1.0),
+    )
+
+    monitor.complete()
+    return matches
 
 
 def fibo(n):
