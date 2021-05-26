@@ -206,6 +206,7 @@ def find_frame_task(
     from winnow.pipeline.pipeline_context import PipelineContext
     from winnow.pipeline.find_frame import find_frame
     from winnow.search_engine.model import Frame
+    from .frame_matches import get_frame_matches
 
     # Initialize a progress monitor
     monitor = make_progress_monitor(task=self, total_work=1.0)
@@ -250,7 +251,7 @@ def find_frame_task(
     )
 
     monitor.complete()
-    return matches
+    return get_frame_matches(matches, pipeline_context)
 
 
 def fibo(n):

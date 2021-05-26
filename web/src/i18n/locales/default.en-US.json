@@ -102,7 +102,7 @@
     "actions.deleteTemplate": "Delete template",
     "actions.showMatchedFiles": "Show matched files",
     "actions.createFilterPreset": "Create Filter Preset",
-    "actions.findFrame": "Find Frame",
+    "actions.findFrame": "Find Similar Frames",
     "sort.duration": "Duration",
     "sort.date": "Date",
     "sort.related": "Count of Related",

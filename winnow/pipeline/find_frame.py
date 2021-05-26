@@ -31,7 +31,7 @@ def find_frame(frame: Frame, files: Collection[str], pipeline: PipelineContext, 
     template = pipeline.template_loader.load_template_from_frame(frame)
     logger.info("Loaded temporary template: %s", template.name)
 
-    black_list = make_black_list(template, frame, pipeline)
+    black_list = make_black_list(template, frame)
     logger.info("Frame source file is excluded from the search scope.")
 
     se = SearchEngine(reprs=pipeline.repr_storage, black_list=black_list)
@@ -51,9 +51,8 @@ def find_frame(frame: Frame, files: Collection[str], pipeline: PipelineContext, 
     return tm_entries
 
 
-def make_black_list(template: Template, frame: Frame, pipeline: PipelineContext) -> BlackList:
+def make_black_list(template: Template, frame: Frame) -> BlackList:
     """Exclude the frame source from the template scope."""
     black_list = BlackList()
-    file_path = os.path.join(pipeline.config.sources.root, frame.path)
-    black_list.exclude_file(template_name=template.name, file_path=frame.path, file_hash=get_hash(file_path))
+    black_list.exclude_file(template_name=template.name, file_path=frame.path, file_hash=get_hash(frame.path))
     return black_list
