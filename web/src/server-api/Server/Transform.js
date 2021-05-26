@@ -1,39 +1,12 @@
-import parse from "date-fns/parse";
-import TaskRequest from "../../collection/state/tasks/TaskRequest";
-
-const defaultDateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS";
-
-/**
- * Mapping from DTO fields to task-request model
- * fields as they are used in the application.
- */
-const TaskRequests = {
-  [TaskRequest.DIRECTORY]: {
-    directory: "directory",
-    frame_sampling: "frameSampling",
-    match_distance: "matchDistance",
-    filter_dark: "filterDark",
-    dark_threshold: "darkThreshold",
-    min_duration: "minDuration",
-    extensions: "extensions",
-  },
-  [TaskRequest.MATCH_TEMPLATES]: {
-    frame_sampling: "frameSampling",
-    match_distance: "matchDistance",
-    filter_dark: "filterDark",
-    dark_threshold: "darkThreshold",
-    min_duration: "minDuration",
-    extensions: "extensions",
-  },
-};
+import TaskTransform from "./TaskTransform";
 
 /**
  * Data-transfer object and internal data format may evolve independently, the
  * Transform class decouples these two representations.
  */
 export default class Transform {
-  constructor(utcDateFormat = defaultDateFormat) {
-    this.utcDateFormat = utcDateFormat;
+  constructor(taskTransform = new TaskTransform()) {
+    this.taskTransform = taskTransform;
   }
 
   fetchFileResults(data) {
@@ -186,76 +159,12 @@ export default class Transform {
     };
   }
 
-  task(data) {
-    return {
-      id: data.id,
-      submissionTime: this.utcDate(data.created),
-      statusUpdateTime: this.utcDate(data.status_updated),
-      status: data.status,
-      request: this.fromTaskRequestDTO(data.request),
-      progress: data.progress,
-      error: this.taskError(data.error),
-      result: data.result,
-    };
-  }
-
-  fromTaskRequestDTO(data) {
-    const request = { type: data.type };
-    const mapping = TaskRequests[request.type];
-    if (mapping) {
-      for (const [dtoProp, reqProp] of Object.entries(mapping)) {
-        if (Object.prototype.hasOwnProperty.call(data, dtoProp)) {
-          request[reqProp] = data[dtoProp];
-        }
-      }
-      return request;
-    } else {
-      console.warn("Don't know how to convert task request type", data.type);
-      return data;
-    }
-  }
-
   toTaskRequestDTO(request) {
-    console.log("Converting to DTO", request);
-    const dto = { type: request.type };
-    const mapping = TaskRequests[request.type];
-    if (mapping) {
-      for (const [dtoProp, reqProp] of Object.entries(mapping)) {
-        if (Object.prototype.hasOwnProperty.call(request, reqProp)) {
-          dto[dtoProp] = request[reqProp];
-        }
-      }
-      return dto;
-    } else {
-      console.warn("Don't know how to convert task request type", request.type);
-      return request;
-    }
+    return this.taskTransform.toRequestDTO(request);
   }
 
-  taskError(data) {
-    if (data == null) {
-      return undefined;
-    }
-    return {
-      type: data.exc_type,
-      message: data.exc_message,
-      module: data.exc_module,
-      traceback: data.traceback,
-    };
-  }
-
-  utcDate(date) {
-    const utcDate = parse(date, this.utcDateFormat, new Date());
-    const timestamp = Date.UTC(
-      utcDate.getFullYear(),
-      utcDate.getMonth(),
-      utcDate.getDate(),
-      utcDate.getHours(),
-      utcDate.getMinutes(),
-      utcDate.getSeconds(),
-      utcDate.getMilliseconds()
-    );
-    return new Date(timestamp);
+  task(taskDTO) {
+    return this.taskTransform.task(taskDTO);
   }
 
   contributor(data) {

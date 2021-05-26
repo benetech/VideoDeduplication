@@ -10,12 +10,12 @@ function fileCounts(action) {
   if (action.task.request.type !== TaskRequest.MATCH_TEMPLATES) {
     return [];
   }
-  return action.task.result?.file_counts || [];
+  return action.task.result?.fileCounts || [];
 }
 
 function* updateTemplatesSaga(action) {
   try {
-    for (const { template: id, file_count: fileCount } of fileCounts(action)) {
+    for (const { templateId: id, fileCount } of fileCounts(action)) {
       yield put(updateTemplate({ id, fileCount }));
     }
   } catch (error) {

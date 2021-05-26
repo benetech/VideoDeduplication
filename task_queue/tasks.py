@@ -251,7 +251,7 @@ def find_frame_task(
     )
 
     monitor.complete()
-    return get_frame_matches(matches, pipeline_context)
+    return {"matches": get_frame_matches(matches, pipeline_context)}
 
 
 def fibo(n):

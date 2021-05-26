@@ -78,6 +78,7 @@ function useMessages() {
     showLogs: intl.formatMessage({ id: "actions.showLogs" }),
     dataset: intl.formatMessage({ id: "task.type.all" }),
     templates: intl.formatMessage({ id: "task.type.templates" }),
+    findFrame: intl.formatMessage({ id: "actions.findFrame" }),
     files(count) {
       const files = intl.formatMessage({
         id: count === 1 ? "file.one" : "file.many",
@@ -122,6 +123,8 @@ function getTextDescription(request, messages) {
       return messages.files(request.files.length);
     case TaskRequest.MATCH_TEMPLATES:
       return messages.templates;
+    case TaskRequest.FIND_FRAME:
+      return messages.findFrame;
     default:
       console.warn(`Unsupported task request type: ${request.type}`);
       return request.type;

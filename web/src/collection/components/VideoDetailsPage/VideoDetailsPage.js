@@ -18,6 +18,7 @@ import ObjectAPI from "../../../application/objects/ObjectAPI";
 import { updateTask } from "../../state/tasks/actions";
 import { useServer } from "../../../server-api/context";
 import { useDispatch } from "react-redux";
+import TaskRequest from "../../state/tasks/TaskRequest";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -78,7 +79,11 @@ function useSearchFrame() {
   return useCallback(({ file, time }) => {
     server
       .createTask({
-        request: { type: "FindFrame", file_id: file.id, frame_time_sec: time },
+        request: {
+          type: TaskRequest.FIND_FRAME,
+          fileId: file.id,
+          frameTimeSec: time,
+        },
       })
       .then((response) => {
         if (response.success) {
