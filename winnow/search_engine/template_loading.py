@@ -157,7 +157,7 @@ class TemplateLoader:
                 file_storage.delete(storage_key)
             raise
 
-    def load_template_from_frame(self, frame: Frame):
+    def load_template_from_frame(self, frame: Frame) -> Template:
         """Create temporary template from video-file frame."""
 
         with tempfile.TemporaryDirectory(prefix="frame-folder-") as directory:

@@ -1,14 +1,16 @@
 import logging
+import os
 from typing import Collection
 
 from winnow.pipeline.extract_frame_level_features import frame_features_exist, extract_frame_level_features
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
+from winnow.search_engine import SearchEngine, Template
+from winnow.search_engine.black_list import BlackList
+from winnow.search_engine.model import Frame
+from winnow.utils.files import get_hash
 
 # Default module logger
-from winnow.search_engine import SearchEngine
-from winnow.search_engine.model import Frame
-
 logger = logging.getLogger(__name__)
 
 
@@ -29,7 +31,10 @@ def find_frame(frame: Frame, files: Collection[str], pipeline: PipelineContext, 
     template = pipeline.template_loader.load_template_from_frame(frame)
     logger.info("Loaded temporary template: %s", template.name)
 
-    se = SearchEngine(reprs=pipeline.repr_storage)
+    black_list = make_black_list(template, frame, pipeline)
+    logger.info("Frame source file is excluded from the search scope.")
+
+    se = SearchEngine(reprs=pipeline.repr_storage, black_list=black_list)
     template_matches = se.create_annotation_report(
         templates=[template],
         threshold=config.templates.distance,
@@ -40,7 +45,15 @@ def find_frame(frame: Frame, files: Collection[str], pipeline: PipelineContext, 
     tm_entries = template_matches[["path", "hash"]]
     tm_entries["template_matches"] = template_matches.drop(columns=["path", "hash"]).to_dict("records")
 
-    logger.info("Found %s matches", len(tm_entries))
+    logger.info("Found %s frame matches", len(tm_entries))
     progress.complete()
 
     return tm_entries
+
+
+def make_black_list(template: Template, frame: Frame, pipeline: PipelineContext) -> BlackList:
+    """Exclude the frame source from the template scope."""
+    black_list = BlackList()
+    file_path = os.path.join(pipeline.config.sources.root, frame.path)
+    black_list.exclude_file(template_name=template.name, file_path=frame.path, file_hash=get_hash(file_path))
+    return black_list

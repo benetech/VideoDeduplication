@@ -64,12 +64,15 @@ class BlackList:
             result += len(exclusions)
         return result
 
-    def exclude_file(self, exclusion: TemplateFileExclusion):
+    def exclude_file_entity(self, exclusion: TemplateFileExclusion):
         """Exclude file from the template scope."""
-        if exclusion.template.name not in self._file_exclusions:
-            self._file_exclusions[exclusion.template.name] = set()
-        file = exclusion.file
-        self._file_exclusions[exclusion.template.name].add((file.file_path, file.sha256))
+        self.exclude_file(exclusion.template.name, exclusion.file.file_path, exclusion.file.sha256)
+
+    def exclude_file(self, template_name: str, file_path: str, file_hash: str):
+        """Exclude file from the template scope."""
+        if template_name not in self._file_exclusions:
+            self._file_exclusions[template_name] = set()
+        self._file_exclusions[template_name].add((file_path, file_hash))
 
     def exclude_time_range(self, false_positive: TemplateMatches):
         """Exclude file's time range from the template scope."""
