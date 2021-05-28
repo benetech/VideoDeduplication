@@ -4,14 +4,24 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import ReactJson from "react-json-view";
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+  root: {
+    maxHeight: "50vh",
+    overflowY: "auto",
+  },
+}));
 
 function RawRequest(props) {
   const { request, className, ...other } = props;
   const classes = useStyles();
   return (
-    <div className={clsx(className)} {...other}>
-      <ReactJson src={request} displayDataTypes={false} name={false} />
+    <div className={clsx(classes.root, className)} {...other}>
+      <ReactJson
+        src={request}
+        displayDataTypes={false}
+        name={false}
+        groupArraysAfterLength={20}
+      />
     </div>
   );
 }
