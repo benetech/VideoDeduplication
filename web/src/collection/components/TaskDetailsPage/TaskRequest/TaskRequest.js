@@ -7,6 +7,7 @@ import SelectableTabs, {
 } from "../../../../common/components/SelectableTabs";
 import resolveRequestViews from "./resolveRequestViews";
 import { useIntl } from "react-intl";
+import TaskType from "../../../prop-types/TaskType";
 
 const useStyles = makeStyles((theme) => ({
   tabs: {
@@ -18,10 +19,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function TaskRequest(props) {
-  const { request, className, ...other } = props;
+  const { task, className, ...other } = props;
   const classes = useStyles();
   const intl = useIntl();
-  const views = useMemo(() => resolveRequestViews(request), [request]);
+  const views = useMemo(() => resolveRequestViews(task), [task]);
   const [currentView, setView] = useState(views[0]);
   const Component = currentView.component;
 
@@ -41,7 +42,7 @@ function TaskRequest(props) {
         ))}
       </SelectableTabs>
       <div className={classes.content}>
-        <Component request={request} />
+        <Component task={task} />
       </div>
     </div>
   );
@@ -49,9 +50,9 @@ function TaskRequest(props) {
 
 TaskRequest.propTypes = {
   /**
-   * Request to be displayed.
+   * Task which request will be displayed.
    */
-  request: PropTypes.object.isRequired,
+  task: TaskType.isRequired,
   className: PropTypes.string,
 };
 

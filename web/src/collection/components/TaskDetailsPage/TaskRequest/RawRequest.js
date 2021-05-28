@@ -3,6 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import ReactJson from "react-json-view";
+import TaskType from "../../../prop-types/TaskType";
 
 const useStyles = makeStyles({
   root: {
@@ -12,12 +13,12 @@ const useStyles = makeStyles({
 });
 
 function RawRequest(props) {
-  const { request, className, ...other } = props;
+  const { task, className, ...other } = props;
   const classes = useStyles();
   return (
     <div className={clsx(classes.root, className)} {...other}>
       <ReactJson
-        src={request}
+        src={task.rawRequest}
         displayDataTypes={false}
         name={false}
         groupArraysAfterLength={20}
@@ -28,9 +29,9 @@ function RawRequest(props) {
 
 RawRequest.propTypes = {
   /**
-   * Request to be displayed.
+   * Task which request will be displayed.
    */
-  request: PropTypes.object.isRequired,
+  task: TaskType.isRequired,
   className: PropTypes.string,
 };
 

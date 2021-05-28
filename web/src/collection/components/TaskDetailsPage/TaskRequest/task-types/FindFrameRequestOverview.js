@@ -2,9 +2,11 @@ import React from "react";
 import PropTypes from "prop-types";
 import useFile from "../../../../hooks/useFile";
 import FrameView from "../../../FrameView/FrameView";
+import TaskType from "../../../../prop-types/TaskType";
 
 function FindFrameRequestOverview(props) {
-  const { request, className, ...other } = props;
+  const { task, className, ...other } = props;
+  const request = task.request;
   const { file } = useFile(request.fileId);
 
   if (file == null) {
@@ -23,9 +25,9 @@ function FindFrameRequestOverview(props) {
 
 FindFrameRequestOverview.propTypes = {
   /**
-   * Find-Frame Request to be displayed.
+   * Task which request will be displayed.
    */
-  request: PropTypes.object.isRequired,
+  task: TaskType.isRequired,
   className: PropTypes.string,
 };
 

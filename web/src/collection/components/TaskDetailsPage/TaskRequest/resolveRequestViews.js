@@ -45,8 +45,8 @@ const RequestViews = {
 /**
  * Get views appropriate to display the given request.
  */
-export default function resolveRequestViews(request) {
-  const views = RequestViews[request.type];
+export default function resolveRequestViews(task) {
+  const views = RequestViews[task.request.type];
   if (views != null && views.length > 0) {
     return views;
   }

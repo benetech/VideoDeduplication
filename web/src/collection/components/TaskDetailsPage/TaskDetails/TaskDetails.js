@@ -58,7 +58,7 @@ function TaskDetails(props) {
       </Paper>
       <Paper className={classes.pane}>
         <LabeledSection title={messages.request} collapsible>
-          <TaskRequest request={task.request} />
+          <TaskRequest task={task} />
         </LabeledSection>
       </Paper>
       <Paper className={classes.pane}>

@@ -3,13 +3,14 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import AttributeTable from "../../../../../common/components/AttributeTable";
 import { matchTemplatesAttributes } from "../requestAttributes";
+import TaskType from "../../../../prop-types/TaskType";
 
 function MatchTemplatesRequestAttrs(props) {
-  const { request, className, ...other } = props;
+  const { task, className, ...other } = props;
   return (
     <AttributeTable
       className={clsx(className)}
-      value={request}
+      value={task.request}
       attributes={matchTemplatesAttributes}
       {...other}
     />
@@ -18,9 +19,9 @@ function MatchTemplatesRequestAttrs(props) {
 
 MatchTemplatesRequestAttrs.propTypes = {
   /**
-   * Match-Templates Request to be displayed.
+   * Task which request will be displayed.
    */
-  request: PropTypes.object.isRequired,
+  task: TaskType.isRequired,
   className: PropTypes.string,
 };
 
