@@ -47,9 +47,11 @@ function MainAttribute(props) {
 
   return (
     <div className={clsx(classes.hashContainer, className)} {...other}>
-      <div className={classes.iconContainer}>
-        <Icon className={classes.icon} />
-      </div>
+      {Icon && (
+        <div className={classes.iconContainer}>
+          <Icon className={classes.icon} />
+        </div>
+      )}
       <AttributeText
         name={name}
         value={value}
@@ -78,7 +80,7 @@ MainAttribute.propTypes = {
   /**
    * Icon element type.
    */
-  icon: PropTypes.elementType.isRequired,
+  icon: PropTypes.elementType,
   /**
    * Color variant
    */
