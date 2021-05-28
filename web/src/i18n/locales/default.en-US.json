@@ -105,6 +105,8 @@
     "actions.findFrame": "Find Similar Frames",
     "actions.gotoFile": "Go to File",
     "actions.gotoFrame": "Show Frame",
+    "actions.blurFrames": "Blur frames",
+    "actions.blurFrames.help": "Blur all frames preview",
     "sort.duration": "Duration",
     "sort.date": "Date",
     "sort.related": "Count of Related",
