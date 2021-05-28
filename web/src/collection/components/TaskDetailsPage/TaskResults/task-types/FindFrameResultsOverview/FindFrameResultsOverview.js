@@ -7,6 +7,7 @@ import FrameMatch from "./FrameMatch";
 import LabeledSwitch from "../../../../../../common/components/LabeledSwitch";
 import { useIntl } from "react-intl";
 import LazyLoad from "react-lazyload";
+import useFrameDialog from "./useFrameDialog";
 
 const useStyles = makeStyles((theme) => ({
   matches: {
@@ -51,6 +52,7 @@ function FindFrameResultsOverview(props) {
   const [blur, setBlur] = useState(true);
   const messages = useMessages();
   const matches = task?.result?.matches || [];
+  const [showFrame, frameDialog] = useFrameDialog();
   const eagerMatches = useMemo(() => matches.slice(0, 5), [matches]);
   const lazyMatches = useMemo(() => matches.slice(5), [matches]);
 
@@ -72,14 +74,21 @@ function FindFrameResultsOverview(props) {
             className={classes.match}
             blur={blur}
             key={index}
+            onSelect={showFrame}
           />
         ))}
         {lazyMatches.map((match, index) => (
           <LazyLoad height={146} key={index} overflow>
-            <FrameMatch match={match} className={classes.match} blur={blur} />
+            <FrameMatch
+              match={match}
+              className={classes.match}
+              blur={blur}
+              onSelect={showFrame}
+            />
           </LazyLoad>
         ))}
       </div>
+      {frameDialog}
     </div>
   );
 }

@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
     borderStyle: "solid",
     borderColor: "rgba(0,0,0,0)",
     borderRadius: theme.spacing(0.5),
+    cursor: "pointer",
   },
   summary: {
     marginLeft: theme.spacing(2),
@@ -72,7 +73,7 @@ function FrameMatch(props) {
   return (
     <div className={clsx(classes.match, className)} {...other}>
       <MediaPreview
-        className={clsx(classes.frame)}
+        className={classes.frame}
         src={thumbnailURL(match.fileId, match.startMs)}
         alt="frame"
         caption={<TimeCaption time={match.startMs} />}
