@@ -5,17 +5,29 @@ import { Dialog } from "@material-ui/core";
 import useFile from "../../../../../hooks/useFile";
 import FrameView from "../../../../FrameView/FrameView";
 import FrameMatchType from "./FrameMatchType";
+import { makeStyles } from "@material-ui/styles";
+
+const useStyles = makeStyles({
+  noScroll: {
+    overflowY: "hidden",
+  },
+});
 
 function FrameDialog(props) {
   const { match, className, ...other } = props;
   const { file } = useFile(match.fileId);
+  const classes = useStyles();
 
   if (file == null) {
     return null;
   }
 
   return (
-    <Dialog className={clsx(className)} {...other}>
+    <Dialog
+      className={clsx(className)}
+      classes={{ paperScrollPaper: classes.noScroll }}
+      {...other}
+    >
       <FrameView file={file} timeMillis={match.startMs} />
     </Dialog>
   );
