@@ -12,6 +12,7 @@ import TaskStatus from "../../state/tasks/TaskStatus";
 import TaskSummaryHeader from "./TaskSummaryHeader";
 import useGetTask from "../../hooks/useGetTask";
 import TaskLoadingHeader from "./TaskLoadingHeader";
+import TaskDetails from "./TaskDetails";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -56,7 +57,7 @@ function TaskDetailsPage(props) {
       <div className={classes.content}>
         <Switch>
           <Route exact path={routes.processing.task}>
-            TBD: Task details...
+            <TaskDetails task={task} />
           </Route>
           <Route exact path={routes.processing.taskLogs}>
             <TaskLogs task={task} />
