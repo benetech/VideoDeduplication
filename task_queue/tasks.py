@@ -193,6 +193,8 @@ def find_frame_task(
     file_id: int,
     frame_time_sec: int,
     directory: str = ".",
+    template_distance: Optional[float] = None,
+    template_distance_min: Optional[float] = None,
     save_frames: Optional[int] = None,
     frame_sampling: Optional[int] = None,
     filter_dark: Optional[bool] = None,
@@ -221,6 +223,8 @@ def find_frame_task(
         extensions=extensions,
         match_distance=match_distance,
         min_duration=min_duration,
+        templates_distance=template_distance,
+        templates_distance_min=template_distance_min,
     )
     config.database.use = True
 

@@ -119,6 +119,8 @@ class FindFrame(Request):
     file_id: int
     frame_time_sec: int
     directory: str = "."
+    template_distance: Optional[float] = None
+    template_distance_min: Optional[float] = None
     frame_sampling: Optional[int] = None
     save_frames: Optional[bool] = None
     filter_dark: Optional[bool] = None

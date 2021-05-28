@@ -36,6 +36,8 @@ function mapProps(source, destination, mappings) {
  */
 function makeTaskTypeTransforms() {
   const transforms = new Map();
+
+  // Mappings for ProcessDirectory task
   transforms.set(TaskRequest.DIRECTORY, {
     requestProps: {
       ...CommonRequestProps,
@@ -44,6 +46,7 @@ function makeTaskTypeTransforms() {
     fromResultsDTO: lodash.identity,
   });
 
+  // Mappings for ProcessFiles task
   transforms.set(TaskRequest.FILE_LIST, {
     requestProps: {
       ...CommonRequestProps,
@@ -52,8 +55,13 @@ function makeTaskTypeTransforms() {
     fromResultsDTO: lodash.identity,
   });
 
+  // Mappings for MatchTemplates task
   transforms.set(TaskRequest.MATCH_TEMPLATES, {
-    requestProps: CommonRequestProps,
+    requestProps: {
+      ...CommonRequestProps,
+      template_distance: "templateDistance",
+      template_distance_min: "templateDistanceMin",
+    },
     fileCountProps: {
       template: "templateId",
       file_count: "fileCount",
@@ -67,9 +75,12 @@ function makeTaskTypeTransforms() {
     },
   });
 
+  // Mappings for FindFrame task
   transforms.set(TaskRequest.FIND_FRAME, {
     requestProps: {
       ...CommonRequestProps,
+      template_distance: "templateDistance",
+      template_distance_min: "templateDistanceMin",
       file_id: "fileId",
       frame_time_sec: "frameTimeSec",
       directory: "directory",
