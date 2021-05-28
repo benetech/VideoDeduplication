@@ -9,7 +9,6 @@ import thumbnailURL from "../../../../../../application/files/helpers/thumbnailU
 import useFile from "../../../../../hooks/useFile";
 import FileSummary from "../../../../FileSummary";
 import { CircularProgress } from "@material-ui/core";
-import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   match: {
@@ -38,21 +37,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-/**
- * Get translated text.
- */
-function useMessages() {
-  const intl = useIntl();
-  return {
-    startTime: intl.formatMessage({ id: "startTime" }),
-    endTime: intl.formatMessage({ id: "endTime" }),
-  };
-}
-
 function FrameMatch(props) {
   const { match, blur = true, className, ...other } = props;
   const classes = useStyles();
-  const messages = useMessages();
   const { file } = useFile(match.fileId);
 
   if (file == null) {

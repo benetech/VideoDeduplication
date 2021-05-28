@@ -15,7 +15,6 @@ import { useIntl } from "react-intl";
 import WarningOutlinedIcon from "@material-ui/icons/WarningOutlined";
 import SearchIcon from "@material-ui/icons/Search";
 import Button from "../../../common/components/Button";
-import thumbnailURL from "../../../application/files/helpers/thumbnailURL";
 import playerPreviewURL from "./playerPreviewURL";
 
 /**

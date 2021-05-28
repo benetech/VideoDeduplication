@@ -1,12 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
 import { formatDuration } from "../../../../../../common/helpers/format";
 import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
 import AttributeText from "../../../../../../common/components/AttributeText";
-
-const useStyles = makeStyles((theme) => ({}));
 
 /**
  * Get translated text.
@@ -20,7 +17,6 @@ function useMessages() {
 
 function FrameTime(props) {
   const { timeSec, className, ...other } = props;
-  const classes = useStyles();
   const messages = useMessages();
   const intl = useIntl();
 

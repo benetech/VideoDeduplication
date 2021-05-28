@@ -25,7 +25,11 @@ function ExtensionList(props) {
   return (
     <div className={clsx(classes.list, className)} {...other}>
       {extensions.map((extension) => (
-        <FileType className={classes.extension} type={extension} />
+        <FileType
+          className={classes.extension}
+          type={extension}
+          key={extension}
+        />
       ))}
     </div>
   );

@@ -5,12 +5,12 @@ import { makeStyles } from "@material-ui/styles";
 import ReactJson from "react-json-view";
 import TaskType from "../../../prop-types/TaskType";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   root: {
     maxHeight: "50vh",
     overflowY: "auto",
   },
-}));
+});
 
 function RawResults(props) {
   const { task, className, ...other } = props;

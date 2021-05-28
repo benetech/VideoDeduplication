@@ -4,12 +4,12 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import ReactJson from "react-json-view";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   root: {
     maxHeight: "50vh",
     overflowY: "auto",
   },
-}));
+});
 
 function RawRequest(props) {
   const { request, className, ...other } = props;

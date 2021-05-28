@@ -1,11 +1,8 @@
 import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/styles";
 import useFile from "../../../collection/hooks/useFile";
 import { useIntl } from "react-intl";
-
-const useStyles = makeStyles((theme) => ({}));
 
 /**
  * Get translated text.
@@ -19,7 +16,6 @@ function useMessages() {
 
 function FileRef(props) {
   const { fileId, className, ...other } = props;
-  const classes = useStyles();
   const messages = useMessages();
   const { file } = useFile(fileId);
 
