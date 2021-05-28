@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -38,9 +38,28 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function FrameMatch(props) {
-  const { match, blur = true, className, ...other } = props;
+  const { match, blur = true, onSelect, className, ...other } = props;
   const classes = useStyles();
   const { file } = useFile(match.fileId);
+
+  const handleSelect = useCallback(() => {
+    if (onSelect) {
+      onSelect(match);
+    }
+  }, [match, onSelect]);
+
+  /**
+   * Handle selection on keyboard actions
+   */
+  const handleKeyDown = useCallback(
+    (event) => {
+      const key = event.key;
+      if (key === " " || key === "Enter") {
+        handleSelect();
+      }
+    },
+    [handleSelect]
+  );
 
   if (file == null) {
     return (
@@ -57,8 +76,8 @@ function FrameMatch(props) {
         src={thumbnailURL(match.fileId, match.startMs)}
         alt="frame"
         caption={<TimeCaption time={match.startMs} />}
-        onClick={console.log}
-        onKeyDown={console.log}
+        onClick={handleSelect}
+        onKeyDown={handleKeyDown}
         blur={blur}
         tabIndex={0}
       />
@@ -78,6 +97,10 @@ FrameMatch.propTypes = {
    * Force blur state.
    */
   blur: PropTypes.bool,
+  /**
+   * Handle frame selection.
+   */
+  onSelect: PropTypes.func,
   className: PropTypes.string,
 };
 

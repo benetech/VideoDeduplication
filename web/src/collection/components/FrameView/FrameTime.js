@@ -1,9 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useIntl } from "react-intl";
-import { formatDuration } from "../../../../../../common/helpers/format";
+import { formatDuration } from "../../../common/helpers/format";
 import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
-import AttributeText from "../../../../../../common/components/AttributeText";
+import AttributeText from "../../../common/components/AttributeText";
 
 /**
  * Get translated text.

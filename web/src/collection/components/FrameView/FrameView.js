@@ -2,14 +2,14 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import useFile from "../../../../../hooks/useFile";
-import VideoPlayer from "../../../../VideoDetailsPage/VideoPlayer";
-import FileSummary from "../../../../FileSummary";
-import Button from "../../../../../../common/components/Button";
+import VideoPlayer from "../VideoDetailsPage/VideoPlayer";
+import FileSummary from "../FileSummary";
+import Button from "../../../common/components/Button";
 import { useHistory } from "react-router-dom";
-import { routes } from "../../../../../../routing/routes";
+import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
-import TimeAttr from "../../../../../../common/components/TimeAttr/TimeAttr";
+import TimeAttr from "../../../common/components/TimeAttr/TimeAttr";
+import FileType from "../../prop-types/FileType";
 
 const useStyles = makeStyles((theme) => ({
   summary: {
@@ -40,17 +40,17 @@ function useMessages() {
   };
 }
 
-function FindFrameRequestOverview(props) {
-  const { request, className, ...other } = props;
+function FrameView(props) {
+  const { file, timeMillis, className, ...other } = props;
   const classes = useStyles();
-  const { file } = useFile(request.fileId);
   const [player, setPlayer] = useState(null);
   const history = useHistory();
   const messages = useMessages();
 
   const handleShowFrame = useCallback(() => {
-    player?.seekTo(request.frameTimeSec, { units: "seconds" });
-  }, [player, request]);
+    player?.seekTo(timeMillis / 1000, { units: "seconds" });
+  }, [player, timeMillis]);
+
   const handleShowFile = useCallback(() => {
     history.push(routes.collection.fileURL(file.id));
   }, [file]);
@@ -63,10 +63,7 @@ function FindFrameRequestOverview(props) {
     <div className={clsx(className)} {...other}>
       <FileSummary file={file} className={classes.summary}>
         <FileSummary.Name />
-        <TimeAttr
-          time={request.frameTimeSec * 1000}
-          title={messages.frameTime}
-        />
+        <TimeAttr time={timeMillis} title={messages.frameTime} />
         <div className={classes.actions}>
           <Button
             variant="outlined"
@@ -90,7 +87,7 @@ function FindFrameRequestOverview(props) {
       </FileSummary>
       <VideoPlayer
         file={file}
-        seekTo={(request.frameTimeSec * 1000 + 1) / (file.metadata.length + 1)}
+        seekTo={(timeMillis + 1) / (file.metadata.length + 1)}
         className={classes.player}
         onReady={setPlayer}
       />
@@ -98,12 +95,16 @@ function FindFrameRequestOverview(props) {
   );
 }
 
-FindFrameRequestOverview.propTypes = {
+FrameView.propTypes = {
   /**
-   * Find-Frame Request to be displayed.
+   * File which frame will be displayed.
    */
-  request: PropTypes.object.isRequired,
+  file: FileType.isRequired,
+  /**
+   * Frame time position in video, in milli-seconds.
+   */
+  timeMillis: PropTypes.number.isRequired,
   className: PropTypes.string,
 };
 
-export default FindFrameRequestOverview;
+export default FrameView;
