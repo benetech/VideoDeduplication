@@ -34,8 +34,8 @@ export default class VideoController {
   /**
    * Seek to the given position and start playing.
    */
-  seekTo(position, options = { playing: true, units: "fraction" }) {
-    const { playing, units } = options;
+  seekTo(position, options = {}) {
+    const { playing = true, units = "fraction" } = options;
     if (playing) {
       this._setWatch(true);
     }

@@ -49,7 +49,7 @@ function FindFrameRequestOverview(props) {
   const messages = useMessages();
 
   const handleShowFrame = useCallback(() => {
-    player?.seekTo(request.frameTimeSec);
+    player?.seekTo(request.frameTimeSec, { units: "seconds" });
   }, [player, request]);
   const handleShowFile = useCallback(() => {
     history.push(routes.collection.fileURL(file.id));
