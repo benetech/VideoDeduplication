@@ -8,7 +8,6 @@ import Scene from "./Scene";
 import { useIntl } from "react-intl";
 import CollapseButton from "../../../../common/components/CollapseButton";
 import Collapse from "@material-ui/core/Collapse";
-import BlurSwitch from "./BlurSwitch";
 import LabeledSwitch from "../../../../common/components/LabeledSwitch";
 
 const useStyles = makeStyles((theme) => ({
