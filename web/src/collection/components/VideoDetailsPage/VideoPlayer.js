@@ -15,6 +15,8 @@ import { useIntl } from "react-intl";
 import WarningOutlinedIcon from "@material-ui/icons/WarningOutlined";
 import SearchIcon from "@material-ui/icons/Search";
 import Button from "../../../common/components/Button";
+import thumbnailURL from "../../../application/files/helpers/thumbnailURL";
+import playerPreviewURL from "./playerPreviewURL";
 
 /**
  * Setup bundled flv.js.
@@ -112,6 +114,8 @@ const VideoPlayer = function VideoPlayer(props) {
     onProgress,
     suppressErrors = false,
     onSearchFrame,
+    seekTo,
+    seekUnits = "fraction",
     className,
   } = props;
 
@@ -144,6 +148,9 @@ const VideoPlayer = function VideoPlayer(props) {
     setPlayer(null);
     setError(null);
     controller._setPlayer(null);
+    if (seekTo != null) {
+      controller.seekTo(seekTo, { playing: false, units: seekUnits });
+    }
   }, [file]);
 
   // Make sure flv.js is available
@@ -166,6 +173,13 @@ const VideoPlayer = function VideoPlayer(props) {
     });
   }, [server, file.id]);
 
+  // Seek to the requested position
+  useEffect(() => {
+    if (seekTo != null) {
+      controller.seekTo(seekTo, { playing: false, units: seekUnits });
+    }
+  }, [seekTo]);
+
   // Enable support for flv files.
   // See https://github.com/CookPete/react-player#config-prop
   const exifType = file?.exif?.General_FileExtension?.trim();
@@ -176,7 +190,7 @@ const VideoPlayer = function VideoPlayer(props) {
     <div className={clsx(className)}>
       {!watch && (
         <MediaPreview
-          src={file.preview}
+          src={playerPreviewURL(file, seekTo, seekUnits)}
           alt={file.filename}
           className={classes.preview}
           actions={previewActions}
@@ -237,6 +251,11 @@ VideoPlayer.propTypes = {
    * to the corresponding time position.
    */
   seekTo: PropTypes.number,
+
+  /**
+   * Seeking units.
+   */
+  seekUnits: PropTypes.oneOf(["seconds", "fraction"]),
 
   /**
    * Callback that receives imperative player API
