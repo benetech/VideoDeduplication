@@ -18,7 +18,7 @@ function RawResults(props) {
   return (
     <div className={clsx(classes.root, className)} {...other}>
       <ReactJson
-        src={task.rawResult || { result: null }}
+        src={task.raw.result || { result: null }}
         displayDataTypes={false}
         name={false}
         groupArraysAfterLength={20}

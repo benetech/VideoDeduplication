@@ -21,6 +21,7 @@ export const TaskType = PropTypes.shape({
     traceback: PropTypes.string,
   }),
   progress: PropTypes.number,
+  raw: PropTypes.object,
 });
 
 export default TaskType;

@@ -121,11 +121,10 @@ export default class TaskTransform {
       statusUpdateTime: utcDate(taskDTO.status_updated, this.utcDateFormat),
       status: taskDTO.status,
       request: request,
-      rawRequest: taskDTO.request,
       progress: taskDTO.progress,
       error: this._taskError(taskDTO.error),
       result: this._fromResultsDTO(taskDTO.result, request.type),
-      rawResult: taskDTO.result,
+      raw: taskDTO,
     };
   }
 

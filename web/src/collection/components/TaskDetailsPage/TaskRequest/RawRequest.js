@@ -18,7 +18,7 @@ function RawRequest(props) {
   return (
     <div className={clsx(classes.root, className)} {...other}>
       <ReactJson
-        src={task.rawRequest}
+        src={task.raw.request}
         displayDataTypes={false}
         name={false}
         groupArraysAfterLength={20}
