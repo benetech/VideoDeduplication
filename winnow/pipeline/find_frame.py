@@ -1,5 +1,4 @@
 import logging
-import os
 from typing import Collection
 
 from winnow.pipeline.extract_frame_level_features import frame_features_exist, extract_frame_level_features
