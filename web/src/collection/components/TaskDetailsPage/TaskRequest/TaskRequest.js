@@ -8,7 +8,14 @@ import SelectableTabs, {
 import resolveRequestViews from "./resolveRequestViews";
 import { useIntl } from "react-intl";
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+  tabs: {
+    marginLeft: theme.spacing(2),
+  },
+  content: {
+    marginTop: theme.spacing(4),
+  },
+}));
 
 function TaskRequest(props) {
   const { request, className, ...other } = props;
@@ -20,7 +27,11 @@ function TaskRequest(props) {
 
   return (
     <div className={clsx(className)} {...other}>
-      <SelectableTabs value={currentView} onChange={setView}>
+      <SelectableTabs
+        value={currentView}
+        onChange={setView}
+        className={classes.tabs}
+      >
         {views.map((view) => (
           <SelectableTab
             label={intl.formatMessage({ id: view.title })}
@@ -29,7 +40,7 @@ function TaskRequest(props) {
           />
         ))}
       </SelectableTabs>
-      <div>
+      <div className={classes.content}>
         <Component request={request} />
       </div>
     </div>

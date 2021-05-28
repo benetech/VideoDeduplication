@@ -7,6 +7,9 @@ import AttributeTable from "../../../../common/components/AttributeTable";
 import { taskAttributes } from "./taskAttributes";
 import TaskRequest from "../TaskRequest";
 import TaskResults from "../TaskResults";
+import { useIntl } from "react-intl";
+import { Paper } from "@material-ui/core";
+import LabeledSection from "../../../../common/components/LabeledSection";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,16 +25,47 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.textEllipsis,
     maxWidth: 300,
   },
+  pane: {
+    marginBottom: theme.spacing(4),
+    margin: theme.spacing(2),
+    boxShadow: "0 12px 18px 0 rgba(0,0,0,0.08)",
+  },
 }));
+
+/**
+ * Get translated text.
+ */
+function useMessages() {
+  const intl = useIntl();
+  return {
+    task: intl.formatMessage({ id: "task" }),
+    request: intl.formatMessage({ id: "task.request" }),
+    results: intl.formatMessage({ id: "task.results" }),
+  };
+}
 
 function TaskDetails(props) {
   const { task, className, ...other } = props;
   const classes = useStyles();
+  const messages = useMessages();
+
   return (
     <div className={clsx(classes.root, className)} {...other}>
-      <AttributeTable value={task} attributes={taskAttributes} />
-      <TaskRequest request={task.request} />
-      <TaskResults task={task} />
+      <Paper className={classes.pane}>
+        <LabeledSection title={messages.task} collapsible>
+          <AttributeTable value={task} attributes={taskAttributes} />
+        </LabeledSection>
+      </Paper>
+      <Paper className={classes.pane}>
+        <LabeledSection title={messages.request} collapsible>
+          <TaskRequest request={task.request} />
+        </LabeledSection>
+      </Paper>
+      <Paper className={classes.pane}>
+        <LabeledSection title={messages.results} collapsible>
+          <TaskResults task={task} />
+        </LabeledSection>
+      </Paper>
     </div>
   );
 }

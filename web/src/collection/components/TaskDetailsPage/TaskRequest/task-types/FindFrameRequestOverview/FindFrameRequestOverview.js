@@ -20,6 +20,7 @@ const useStyles = makeStyles((theme) => ({
   },
   actions: {
     display: "flex",
+    flexShrink: 0,
   },
   button: {
     flexShrink: 0,
@@ -42,7 +43,7 @@ function useMessages() {
 function FindFrameRequestOverview(props) {
   const { request, className, ...other } = props;
   const classes = useStyles();
-  const { file, error, loadFile } = useFile(request.fileId);
+  const { file } = useFile(request.fileId);
   const [player, setPlayer] = useState(null);
   const history = useHistory();
   const messages = useMessages();

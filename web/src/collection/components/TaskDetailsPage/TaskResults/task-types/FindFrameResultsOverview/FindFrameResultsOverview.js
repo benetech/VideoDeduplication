@@ -8,8 +8,22 @@ import LabeledSwitch from "../../../../../../common/components/LabeledSwitch";
 import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
+  matches: {
+    maxHeight: "50vh",
+    overflowY: "auto",
+  },
   match: {
-    margin: theme.spacing(1),
+    marginBottom: theme.spacing(2),
+  },
+  header: {
+    display: "flex",
+    margin: theme.spacing(2),
+    marginLeft: 0,
+  },
+  title: {
+    ...theme.mixins.title4,
+    fontWeight: "bold",
+    flexGrow: 2,
   },
 }));
 
@@ -21,6 +35,12 @@ function useMessages() {
   return {
     blur: intl.formatMessage({ id: "actions.blurFrames" }),
     blurHelp: intl.formatMessage({ id: "actions.blurFrames.help" }),
+    title(count) {
+      return intl.formatMessage(
+        { id: "task.frameMatches.description" },
+        { count }
+      );
+    },
   };
 }
 
@@ -33,13 +53,16 @@ function FindFrameResultsOverview(props) {
 
   return (
     <div className={clsx(className)} {...other}>
-      <LabeledSwitch
-        value={blur}
-        onChange={setBlur}
-        label={messages.blur}
-        tooltip={messages.blurHelp}
-      />
-      <div>
+      <div className={classes.header}>
+        <div className={classes.title}>{messages.title(matches.length)}</div>
+        <LabeledSwitch
+          value={blur}
+          onChange={setBlur}
+          label={messages.blur}
+          tooltip={messages.blurHelp}
+        />
+      </div>
+      <div className={classes.matches}>
         {matches.map((match) => (
           <FrameMatch
             match={match}

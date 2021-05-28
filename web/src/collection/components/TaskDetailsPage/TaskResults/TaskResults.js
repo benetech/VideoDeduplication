@@ -9,7 +9,14 @@ import SelectableTabs, {
   SelectableTab,
 } from "../../../../common/components/SelectableTabs";
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+  tabs: {
+    marginLeft: theme.spacing(2),
+  },
+  content: {
+    marginTop: theme.spacing(4),
+  },
+}));
 
 function TaskResults(props) {
   const { task, className, ...other } = props;
@@ -25,7 +32,11 @@ function TaskResults(props) {
 
   return (
     <div className={clsx(className)} {...other}>
-      <SelectableTabs value={currentView} onChange={setView}>
+      <SelectableTabs
+        value={currentView}
+        onChange={setView}
+        className={classes.tabs}
+      >
         {views.map((view) => (
           <SelectableTab
             label={intl.formatMessage({ id: view.title })}
@@ -34,7 +45,7 @@ function TaskResults(props) {
           />
         ))}
       </SelectableTabs>
-      <div>
+      <div className={classes.content}>
         <Component task={task} />
       </div>
     </div>
