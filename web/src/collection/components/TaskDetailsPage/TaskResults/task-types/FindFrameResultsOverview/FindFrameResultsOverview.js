@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -6,6 +6,7 @@ import TaskType from "../../../../../prop-types/TaskType";
 import FrameMatch from "./FrameMatch";
 import LabeledSwitch from "../../../../../../common/components/LabeledSwitch";
 import { useIntl } from "react-intl";
+import LazyLoad from "react-lazyload";
 
 const useStyles = makeStyles((theme) => ({
   matches: {
@@ -50,6 +51,8 @@ function FindFrameResultsOverview(props) {
   const [blur, setBlur] = useState(true);
   const messages = useMessages();
   const matches = task?.result?.matches || [];
+  const eagerMatches = useMemo(() => matches.slice(0, 5), [matches]);
+  const lazyMatches = useMemo(() => matches.slice(5), [matches]);
 
   return (
     <div className={clsx(className)} {...other}>
@@ -63,13 +66,18 @@ function FindFrameResultsOverview(props) {
         />
       </div>
       <div className={classes.matches}>
-        {matches.map((match) => (
+        {eagerMatches.map((match, index) => (
           <FrameMatch
             match={match}
             className={classes.match}
-            key={`${match.fileId}:${match.startMs}`}
             blur={blur}
+            key={index}
           />
+        ))}
+        {lazyMatches.map((match, index) => (
+          <LazyLoad height={146} key={index} overflow>
+            <FrameMatch match={match} className={classes.match} blur={blur} />
+          </LazyLoad>
         ))}
       </div>
     </div>
