@@ -20,7 +20,7 @@ def main(source, output):
 
     video_signatures_fp = np.array(glob(os.path.join(source, "**/*.npy"), recursive=True))
 
-    print(f"Number of compatible files fount at {source}: {len(video_signatures_fp)}")
+    print(f"Number of compatible files found at {source}: {len(video_signatures_fp)}")
 
     basename = [os.path.basename(x) for x in video_signatures_fp]
 
@@ -32,7 +32,6 @@ def main(source, output):
     if len(video_signatures.shape) > 2:
         video_signatures = np.array([x[0] for x in video_signatures])
 
-    print(len(video_signatures.shape))
     #
     match_df = get_summarized_matches(video_signatures, distance=0.75)
     match_df["query_video"] = original_filename[match_df["query"]]
