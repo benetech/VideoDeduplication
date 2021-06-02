@@ -11,18 +11,18 @@ import FileLinearList from "./FileLinearList/FileLinearList";
 import FileGridList from "./FileGridList";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  selectFileList,
   selectFileCounts,
   selectFileError,
-  selectFiles,
   selectFileFilters,
+  selectFileList,
   selectFileLoading,
+  selectFiles,
 } from "../../state/selectors";
 import Fab from "@material-ui/core/Fab";
 import Zoom from "@material-ui/core/Zoom";
 import VisibilitySensor from "react-visibility-sensor";
 import { scrollIntoView } from "../../../common/helpers/scroll";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
 import FileListType from "../../state/fileList/FileListType";
@@ -147,15 +147,13 @@ function FileBrowserPage(props) {
   const List = listComponent(view);
   const intl = useIntl();
   const showFiltersRef = useRef();
-  const location = useLocation();
-  const keepFilters = location.state?.keepFilters;
   const activeFilters = FilterPane.useActiveFilters();
 
   useEffect(() => {
-    if (!keepFilters || fileListState.neverLoaded) {
+    if (fileListState.neverLoaded) {
       dispatch(updateFilters(defaultFilters));
     }
-  }, [keepFilters, fileListState.neverLoaded]);
+  }, [fileListState.neverLoaded]);
 
   const handleFetchPage = useCallback(() => dispatch(fetchFiles()), []);
 
