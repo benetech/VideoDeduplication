@@ -49,6 +49,7 @@
     "aria.label.templates": "Templates",
     "actions.showFiltersPane": "Show Filters",
     "actions.hideFiltersPane": "Hide Filters",
+    "actions.restoreDefaults": "Restore Defaults",
     "actions.saveFilters": "Save Filters",
     "actions.addMedia": "Add Media",
     "actions.useListView": "List View",
