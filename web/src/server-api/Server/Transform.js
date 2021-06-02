@@ -341,10 +341,11 @@ export default class Transform {
 
   statistics(name, data) {
     switch (name) {
-      case Statistics.extensions:
+      case Statistics.extensions: {
         // No transformation required so far.
         const extensions = data.extensions;
         return extensions.map((extension) => extension.toUpperCase());
+      }
       default:
         console.warn(`Don't know how to transform statistics '${name}'`);
         return data;

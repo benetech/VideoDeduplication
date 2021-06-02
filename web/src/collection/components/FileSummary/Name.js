@@ -4,6 +4,20 @@ import { FileType } from "../../prop-types/FileType";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import { useIntl } from "react-intl";
 import MainAttribute from "./MainAttribute";
+import usePopup from "../../../common/hooks/usePopup";
+import { Popover } from "@material-ui/core";
+import FullName from "../../../common/components/FullName";
+import { makeStyles } from "@material-ui/styles";
+import clsx from "clsx";
+
+const useStyles = makeStyles((theme) => ({
+  name: {
+    cursor: "pointer",
+  },
+  fullName: {
+    margin: theme.spacing(1),
+  },
+}));
 
 /**
  * Get i18n text.
@@ -24,18 +38,26 @@ function Name(props) {
     className,
     ...other
   } = props;
+  const classes = useStyles();
   const messages = useMessages();
+  const { clickTrigger, popup } = usePopup("name-popup");
 
   return (
-    <MainAttribute
-      name={messages.filename}
-      value={file.filename}
-      icon={icon}
-      color={color}
-      highlight={highlight}
-      className={className}
-      {...other}
-    />
+    <>
+      <MainAttribute
+        name={messages.filename}
+        value={file.filename}
+        icon={icon}
+        color={color}
+        highlight={highlight}
+        className={clsx(classes.name, className)}
+        {...clickTrigger}
+        {...other}
+      />
+      <Popover {...popup}>
+        <FullName name={file.filename} className={classes.fullName} />
+      </Popover>
+    </>
   );
 }
 

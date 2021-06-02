@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function MainAttribute(props) {
+const MainAttribute = React.forwardRef(function MainAttribute(props, ref) {
   const {
     name,
     value,
@@ -46,7 +46,11 @@ function MainAttribute(props) {
   const classes = useStyles({ color });
 
   return (
-    <div className={clsx(classes.hashContainer, className)} {...other}>
+    <div
+      className={clsx(classes.hashContainer, className)}
+      ref={ref}
+      {...other}
+    >
       {Icon && (
         <div className={classes.iconContainer}>
           <Icon className={classes.icon} />
@@ -62,7 +66,7 @@ function MainAttribute(props) {
       />
     </div>
   );
-}
+});
 
 MainAttribute.propTypes = {
   /**

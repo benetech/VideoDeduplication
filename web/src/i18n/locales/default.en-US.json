@@ -82,6 +82,7 @@
     "actions.process": "Process {what}",
     "actions.copyHash": "Copy File SHA-256",
     "actions.copyHash.ack": "File SHA-256 is copied to the clipboard",
+    "actions.copyName": "Copy File Name",
     "actions.showDetails": "Show Details",
     "actions.showMatches": "Show Matches",
     "actions.showOptions": "Show Options",
