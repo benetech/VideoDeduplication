@@ -1,4 +1,5 @@
 import TaskTransform from "./TaskTransform";
+import Statistics from "../../application/stats/Statistics";
 
 /**
  * Data-transfer object and internal data format may evolve independently, the
@@ -336,5 +337,17 @@ export default class Transform {
         this.templateFileExclusion(exclusion)
       ),
     };
+  }
+
+  statistics(name, data) {
+    switch (name) {
+      case Statistics.extensions:
+        // No transformation required so far.
+        const extensions = data.extensions;
+        return extensions.map((extension) => extension.toUpperCase());
+      default:
+        console.warn(`Don't know how to transform statistics '${name}'`);
+        return data;
+    }
   }
 }

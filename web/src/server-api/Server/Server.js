@@ -561,6 +561,22 @@ export default class Server {
   }
 
   /**
+   * Get predefined application statistics by name.
+   * @param name statistics name.
+   *
+   * Available statistics names:
+   *  - **extensions** - list of the existing file extensions.
+   */
+  async fetchStats({ name }) {
+    try {
+      const response = await this.axios.get(`/stats/${name}`);
+      return this.transform.statistics(name, response.data);
+    } catch (error) {
+      throw makeServerError("Fetch file exclusion error.", error, { name });
+    }
+  }
+
+  /**
    * Open a new connection for dynamic messaging.
    */
   openMessageChannel() {
