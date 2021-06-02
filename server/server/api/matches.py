@@ -6,10 +6,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 
 from db.access.files import FilesDAO
+from db.access.matches import MatchSort, MatchSortDirection, MatchesDAO
 from db.schema import Matches, Files
 from .blueprint import api
 from .constants import ValidationErrors
-from .helpers import parse_positive_int, Fields, parse_fields, parse_boolean
+from .helpers import parse_positive_int, Fields, parse_fields, parse_boolean, parse_enum
 from ..model import Transform, database
 
 # Optional file fields
@@ -23,6 +24,8 @@ def list_file_matches(file_id):
     include_fields = parse_fields(request.args, "include", FILE_FIELDS)
     remote = parse_boolean(request.args, "remote")
     false_positive = parse_boolean(request.args, "false_positive")
+    match_sort = parse_enum(request.args, "sort", enum=MatchSort, default=MatchSort.DISTANCE)
+    sort_direction = parse_enum(request.args, "sort_direction", enum=MatchSortDirection, default=MatchSortDirection.ASC)
 
     file = database.session.query(Files).get(file_id)
 
@@ -37,6 +40,9 @@ def list_file_matches(file_id):
     if not remote:
         query = query.filter(Matches.match_video_file.has(Files.contributor == None))  # noqa: E711
         query = query.filter(Matches.query_video_file.has(Files.contributor == None))  # noqa: E711
+
+    # Sort matches
+    query = MatchesDAO.sort_matches(query, sort=match_sort, direction=sort_direction)
 
     # Preload file fields
     query = FILE_FIELDS.preload(query, include_fields, Matches.match_video_file)

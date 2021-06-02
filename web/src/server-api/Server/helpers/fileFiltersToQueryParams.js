@@ -1,4 +1,5 @@
 import { format as formatDate } from "date-fns";
+import parseDate from "../../../common/helpers/parseDate";
 
 /**
  * Convert file filters to axios request params.
@@ -15,16 +16,16 @@ export default function fileFiltersToQueryParams(filters) {
     params.exif = String(!!filters.exif);
   }
   if (filters?.length?.lower != null) {
-    params.min_length = filters.length.lower * 60; // minutes to seconds
+    params.min_length = filters.length.lower * 60000; // minutes to milliseconds
   }
   if (filters?.length?.upper != null) {
-    params.max_length = filters.length.upper * 60; // minutes to seconds
+    params.max_length = filters.length.upper * 60000; // minutes to milliseconds
   }
   if (filters?.date?.lower != null) {
-    params.date_from = formatDate(filters.date.lower, "yyyy-MM-dd");
+    params.date_from = formatDate(parseDate(filters.date.lower), "yyyy-MM-dd");
   }
   if (filters?.date?.upper != null) {
-    params.date_to = formatDate(filters.date.upper, "yyyy-MM-dd");
+    params.date_to = formatDate(parseDate(filters.date.upper), "yyyy-MM-dd");
   }
   if (filters?.extensions && filters?.extensions?.length > 0) {
     const extensions = filters.extensions
