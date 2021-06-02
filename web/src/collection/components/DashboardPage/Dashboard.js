@@ -9,12 +9,12 @@ import { useTheme } from "@material-ui/core";
 // import BackdropMenu from "./BackdropMenu";
 import StackedLineChart from "./StackedLineChart";
 import Grid from "@material-ui/core/Grid";
-import useMatchStats from "./useMatchStats";
 import { useDispatch } from "react-redux";
 import { updateFilters } from "../../state/fileList/actions";
 import { useHistory } from "react-router";
 import { routes } from "../../../routing/routes";
 import { MatchCategory } from "../../state/fileList/MatchCategory";
+import useMatchStats from "../../../application/stats/useMatchStats";
 // import useUniqueId from "../../../common/hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({

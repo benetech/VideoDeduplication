@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useServer } from "../../../server-api/context";
+import { useServer } from "../../server-api/context";
 
 /**
  * Hook for retrieving matches statistics.
