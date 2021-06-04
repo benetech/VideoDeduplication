@@ -47,6 +47,7 @@ Server honors the following environment variables:
  * `CELERY_RESULT_BACKEND` - Celery result backend. Ignored if `TASK_QUEUE_TYPE` is not `celery` (default is `redis://localhost:6379/0`)
  * `FILE_STORE_DIRECTORY` - Directory in which the application files (e.g. template examples) will be stored (default is `./app_files`)
  * `MAX_UPLOAD_SIZE` - Maximal upload file size in bytes (default is `20971520`, i.e. 20MB)
+ * `ALLOWED_ORIGINS` - Optional comma-separated list of allowed origins. 
 
 
 Server accepts the following command-line arguments:

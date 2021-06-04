@@ -1,6 +1,14 @@
 import enum
 import os
 from functools import cached_property
+from typing import List
+
+
+def parse_list(comma_separated_list: str, default=None, item_type=str, delimeter: str = ",") -> List:
+    """Parse a string representing a comma-separated list of values."""
+    if comma_separated_list is None or len(comma_separated_list.strip()) == 0:
+        return default
+    return [item_type(item_str.strip()) for item_str in comma_separated_list.split(delimeter)]
 
 
 class DatabaseConfig:
@@ -78,3 +86,12 @@ class Config:
         self.task_queue_type = QueueType.parse(os.environ.get("TASK_QUEUE_TYPE", QueueType.CELERY))
         self.file_store_directory = os.environ.get("FILE_STORE_DIRECTORY", "./app_files")
         self.max_upload_size = int(os.environ.get("MAX_UPLOAD_SIZE", 20 * 1024 * 1024))
+        self.allowed_origins = self.read_allowed_origins()
+
+    @staticmethod
+    def read_allowed_origins():
+        """Get allowed origins from the environment variables."""
+        allowed_origins = parse_list(os.environ.get("ALLOWED_ORIGINS"), default=None)
+        if allowed_origins is not None and len(allowed_origins) == 1:
+            return allowed_origins[0]
+        return allowed_origins
