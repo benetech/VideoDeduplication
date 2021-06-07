@@ -23,6 +23,8 @@ export default function getTaskTextDescription(request, intl) {
     }
     case TaskRequest.MATCH_TEMPLATES:
       return intl.formatMessage({ id: "task.type.templates" });
+    case TaskRequest.FIND_FRAME:
+      return intl.formatMessage({ id: "actions.findFrame" });
     default:
       console.warn(`Unsupported task request type: ${request.type}`);
       return request.type;

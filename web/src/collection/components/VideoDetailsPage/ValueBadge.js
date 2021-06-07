@@ -6,9 +6,9 @@ import { makeStyles } from "@material-ui/styles";
 const useStyles = makeStyles((theme) => ({
   type: {
     borderRadius: theme.spacing(0.25),
-    backgroundColor: theme.palette.primary.light,
+    backgroundColor: ({ color }) => theme.palette[color].light,
     ...theme.mixins.textSmall,
-    color: theme.palette.common.white,
+    color: ({ color }) => theme.palette[color].contrastText,
     textTransform: "uppercase",
     paddingTop: theme.spacing(0.5),
     paddingBottom: theme.spacing(0.5),
@@ -19,8 +19,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ValueBadge(props) {
-  const { value, className } = props;
-  const classes = useStyles();
+  const { value, color = "primary", className } = props;
+  const classes = useStyles({ color });
   return <div className={clsx(classes.type, className)}>{value}</div>;
 }
 
@@ -29,6 +29,14 @@ ValueBadge.propTypes = {
    * Value which will be displayed.
    */
   value: PropTypes.string,
+  color: PropTypes.oneOf([
+    "primary",
+    "secondary",
+    "success",
+    "info",
+    "warning",
+    "error",
+  ]),
   className: PropTypes.string,
 };
 

@@ -15,6 +15,10 @@ import FileLoadingHeader from "../FileLoadingHeader";
 import useFile from "../../hooks/useFile";
 import { routes } from "../../../routing/routes";
 import ObjectAPI from "../../../application/objects/ObjectAPI";
+import { updateTask } from "../../state/tasks/actions";
+import { useServer } from "../../../server-api/context";
+import { useDispatch } from "react-redux";
+import TaskRequest from "../../state/tasks/TaskRequest";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -64,6 +68,39 @@ function useMessages() {
   };
 }
 
+/**
+ * Handle search frame request.
+ */
+function useSearchFrame() {
+  const server = useServer();
+  const history = useHistory();
+  const dispatch = useDispatch();
+
+  return useCallback(({ file, time }) => {
+    server
+      .createTask({
+        request: {
+          type: TaskRequest.FIND_FRAME,
+          fileId: file.id,
+          frameTimeSec: time,
+        },
+      })
+      .then((response) => {
+        if (response.success) {
+          dispatch(updateTask(response.data));
+          history.push(routes.processing.taskURL(response.data.id));
+        }
+      })
+      .catch((error) => {
+        console.error("Find frame request failed", error, {
+          error,
+          file,
+          time,
+        });
+      });
+  });
+}
+
 function VideoDetailsPage(props) {
   const { className } = props;
   const { id } = useParams();
@@ -91,6 +128,7 @@ function VideoDetailsPage(props) {
   );
 
   const handleJump = useCallback(seekTo(player, file), [player, file]);
+  const searchFrame = useSearchFrame();
 
   if (file == null || !objectsLoaded) {
     return (
@@ -120,7 +158,11 @@ function VideoDetailsPage(props) {
       <div className={classes.dataContainer}>
         <Grid container spacing={5}>
           <Grid item xs={12} lg={6}>
-            <VideoPlayerPane file={file} onPlayerReady={setPlayer} />
+            <VideoPlayerPane
+              file={file}
+              onPlayerReady={setPlayer}
+              onSearchFrame={searchFrame}
+            />
           </Grid>
           <Grid item xs={12} lg={6}>
             <VideoInformationPane file={file} onJump={handleJump} />

@@ -11,10 +11,11 @@ from sqlalchemy.orm import eagerload
 from db import Database
 from db.schema import TemplateExample as DBTemplateExample, Template as DBTemplate
 from template_support.file_storage import FileStorage, LocalFileStorage
+from thumbnail.ffmpeg import extract_frame
 from winnow.config import TemplatesConfig
 from winnow.feature_extraction.model_tf import CNN_tf
 from winnow.feature_extraction.utils import load_image
-from winnow.search_engine.model import Template, TemplateExample
+from winnow.search_engine.model import Template, TemplateExample, Frame
 
 _logger = logging.getLogger(__name__)
 
@@ -155,6 +156,18 @@ class TemplateLoader:
             for storage_key in stored_example_keys:
                 file_storage.delete(storage_key)
             raise
+
+    def load_template_from_frame(self, frame: Frame) -> Template:
+        """Create temporary template from video-file frame."""
+
+        with tempfile.TemporaryDirectory(prefix="frame-folder-") as directory:
+            frame_path = os.path.join(directory, "frame.jpg")
+            extract_frame(source_path=frame.path, destination=frame_path, position=frame.time, width=self._image_size)
+            resized_images = np.array([load_image(frame_path, self._image_size)])
+            features = self._pretrained_model.extract(resized_images, batch_sz=10)
+
+        name = f"{os.path.basename(frame.path)} at {int(frame.time)} sec."
+        return Template(name=name, features=features, examples=[])
 
     def _load_db_template(self, db_template: DBTemplate, file_storage: FileStorage) -> Template:
         """Load template from the database."""

@@ -1,8 +1,9 @@
-from dataclasses import dataclass, asdict
 from datetime import datetime
 from enum import Enum
 from numbers import Number
 from typing import List, Optional, Dict, Union
+
+from dataclasses import dataclass, asdict
 
 from server.queue import time_utils
 
@@ -100,6 +101,24 @@ class ProcessFileList(Request):
 class MatchTemplates(Request):
     """Match all templates for all existing files."""
 
+    template_distance: Optional[float] = None
+    template_distance_min: Optional[float] = None
+    frame_sampling: Optional[int] = None
+    save_frames: Optional[bool] = None
+    filter_dark: Optional[bool] = None
+    dark_threshold: Optional[Number] = None
+    extensions: Optional[List[str]] = None
+    match_distance: Optional[float] = None
+    min_duration: Optional[Number] = None
+
+
+@dataclass
+class FindFrame(Request):
+    """Find frame matches in the given directory."""
+
+    file_id: int
+    frame_time_sec: int
+    directory: str = "."
     template_distance: Optional[float] = None
     template_distance_min: Optional[float] = None
     frame_sampling: Optional[int] = None

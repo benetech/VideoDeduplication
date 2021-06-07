@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
 import FileExtensionPicker from "./FileExtensionPicker";
-import { useExtensions } from "./useExtensions";
 import { useFilters } from "./useFilters";
 import FilterList from "./FilterList";
 import DateRangeFilter from "./DateRangeFilter";
@@ -11,6 +10,7 @@ import { defaultFilters } from "../../../state/fileList/initialState";
 import objectDiff from "../../../../common/helpers/objectDiff";
 import { useSelector } from "react-redux";
 import { selectFileFilters } from "../../../state/selectors";
+import useFileExtensions from "../../../../application/stats/useFileExtensions";
 import {
   parseDateRange,
   stringifyDateRange,
@@ -47,7 +47,7 @@ function useActiveFilters() {
 function MetadataFilters(props) {
   const { className, ...other } = props;
   const [filters, setFilters] = useFilters();
-  const extensions = useExtensions();
+  const extensions = useFileExtensions();
   const messages = useMessages();
   const dateRange = useMemo(() => parseDateRange(filters.date), [filters.date]);
 

@@ -84,6 +84,7 @@
     "react-image-crop": "^8.6.6",
     "react-image-gallery": "^1.0.9",
     "react-intl": "^5.4.0",
+    "react-json-view": "^1.21.3",
     "react-lazyload": "^3.2.0",
     "react-markdown": "^5.0.3",
     "react-player": "^2.6.0",

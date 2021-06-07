@@ -33,3 +33,11 @@ class Template:
     name: str
     features: np.ndarray  # Features that will be searched for in video files
     examples: List[TemplateExample] = field(default_factory=list)  # Example images
+
+
+@dataclass
+class Frame:
+    """Video file frame."""
+
+    path: str  # Video file path
+    time: float  # Offset in seconds

@@ -68,7 +68,13 @@ function useMessages() {
 }
 
 function VideoPlayerPane(props) {
-  const { file, onPlayerReady, collapsible = false, className } = props;
+  const {
+    file,
+    onPlayerReady,
+    collapsible = false,
+    onSearchFrame,
+    className,
+  } = props;
   const classes = useStyles();
   const messages = useMessages();
   const [player, setPlayer] = useState(null);
@@ -103,6 +109,7 @@ function VideoPlayerPane(props) {
             className={classes.player}
             onReady={callEach(setPlayer, onPlayerReady)}
             onProgress={setProgress}
+            onSearchFrame={onSearchFrame}
             suppressErrors
           />
           <LoadableObjectTimeLine
@@ -137,6 +144,16 @@ VideoPlayerPane.propTypes = {
    * Enable or disable pane collapse feature.
    */
   collapsible: PropTypes.bool,
+  /**
+   * Handle search for current frame.
+   *
+   * Callback will receive event containing file and desired time (in seconds).
+   * e.g. {
+   *   file: {id: 1, ...},
+   *   time:
+   * }
+   */
+  onSearchFrame: PropTypes.func,
   className: PropTypes.string,
 };
 

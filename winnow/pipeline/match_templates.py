@@ -118,7 +118,7 @@ def load_black_list(pipeline: PipelineContext) -> BlackList:
     # Populate black list
     black_list = BlackList()
     for file_exclusion in file_exclusions:
-        black_list.exclude_file(file_exclusion)
+        black_list.exclude_file_entity(file_exclusion)
     for time_exclusion in time_exclusions:
         black_list.exclude_time_range(time_exclusion)
     return black_list

@@ -5,7 +5,6 @@ import { makeStyles } from "@material-ui/styles";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import Tooltip from "@material-ui/core/Tooltip";
-import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   switch: {},
@@ -18,51 +17,50 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function useMessages() {
-  const intl = useIntl();
-  return {
-    blurDescription: intl.formatMessage({ id: "aria.label.blurAllScenes" }),
-    blurAction: intl.formatMessage({ id: "actions.blurScenes" }),
-  };
-}
-
-function BlurSwitch(props) {
-  const { blur, onBlurChange, className } = props;
-  const messages = useMessages();
+function LabeledSwitch(props) {
+  const { value, onChange, label, tooltip, className } = props;
   const classes = useStyles();
 
-  const handleChange = useCallback(() => onBlurChange(!blur), [blur]);
+  const handleChange = useCallback(() => onChange(!value), [value]);
 
   return (
-    <Tooltip title={messages.blurDescription} enterDelay={500}>
+    <Tooltip title={tooltip} enterDelay={500}>
       <FormControlLabel
         className={clsx(classes.switch, className)}
         control={
           <Switch
-            checked={blur}
+            checked={value}
             onChange={handleChange}
             color="default"
             size="small"
-            inputProps={{ "aria-label": messages.blurDescription }}
+            inputProps={{ "aria-label": tooltip }}
           />
         }
         labelPlacement="start"
-        label={<div className={classes.label}>{messages.blurAction}</div>}
+        label={<div className={classes.label}>{label}</div>}
       />
     </Tooltip>
   );
 }
 
-BlurSwitch.propTypes = {
+LabeledSwitch.propTypes = {
   /**
-   * Fires when blur changes.
+   * Fires when switch state changes.
    */
-  onBlurChange: PropTypes.func,
+  onChange: PropTypes.func.isRequired,
   /**
-   * Blur state
+   * Switch state
    */
-  blur: PropTypes.bool,
+  value: PropTypes.bool,
+  /**
+   * Switch label.
+   */
+  label: PropTypes.string.isRequired,
+  /**
+   * Switch tooltip text.
+   */
+  tooltip: PropTypes.string.isRequired,
   className: PropTypes.string,
 };
 
-export default BlurSwitch;
+export default LabeledSwitch;

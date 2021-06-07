@@ -1,5 +1,6 @@
-from server.queue.model import ProcessDirectory, ProcessFileList, TestTask, MatchTemplates
+from server.queue.model import ProcessDirectory, ProcessFileList, TestTask, MatchTemplates, FindFrame
 from server.queue.request_transformer import RequestTransformer
+from task_queue.tasks import find_frame_task
 
 
 def make_celery_task_queue(task_request_transformer: RequestTransformer):
@@ -17,6 +18,7 @@ def make_celery_task_queue(task_request_transformer: RequestTransformer):
             ProcessDirectory: process_directory,
             ProcessFileList: process_file_list,
             MatchTemplates: match_all_templates,
+            FindFrame: find_frame_task,
             TestTask: test_fibonacci,
         },
     )

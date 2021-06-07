@@ -9,6 +9,7 @@ from . import (  # noqa: F401
     cluster,
     tasks,
     socket,
+    stats,
     templates,
     examples,
     template_matches,

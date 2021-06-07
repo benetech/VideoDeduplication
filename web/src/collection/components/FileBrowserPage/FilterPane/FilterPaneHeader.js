@@ -10,10 +10,13 @@ import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import SquaredIconButton from "../../../../common/components/SquaredIconButton";
 import { useIntl } from "react-intl";
 import { Tooltip } from "@material-ui/core";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectFileFilters } from "../../../state/selectors";
 import PresetAPI from "./PresetAPI";
 import AddPresetDialog from "./AddPresetDialog";
+import SettingsBackupRestoreIcon from "@material-ui/icons/SettingsBackupRestore";
+import { updateFilters } from "../../../state/fileList/actions";
+import filesInitialState from "../../../state/fileList/initialState";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -41,6 +44,7 @@ function useMessages() {
     title: intl.formatMessage({ id: "filter.title" }),
     hideLabel: intl.formatMessage({ id: "actions.hideFiltersPane" }),
     saveFilters: intl.formatMessage({ id: "actions.saveFilters" }),
+    restoreDefaults: intl.formatMessage({ id: "actions.restoreDefaults" }),
   };
 }
 
@@ -59,6 +63,7 @@ function FilterPaneHeader(props) {
   const [showDialog, setShowDialog] = useState(false);
   const presetApi = PresetAPI.use();
   const currentFilters = useSelector(selectFileFilters);
+  const dispatch = useDispatch();
   const dirty = !lodash.isEqual(currentFilters, PresetAPI.DefaultFilters);
 
   const handleCreate = useCallback((preset) => presetApi.addPreset(preset), [
@@ -68,6 +73,10 @@ function FilterPaneHeader(props) {
   const handleCloseDialog = useCallback(() => setShowDialog(false));
 
   const handleShowDialog = useCallback(() => setShowDialog(true));
+
+  const handleRestoreDefaults = useCallback(() => {
+    dispatch(updateFilters(filesInitialState.filters));
+  }, []);
 
   useEffect(() => {
     if (autoFocus) {
@@ -102,14 +111,28 @@ function FilterPaneHeader(props) {
           </IconButton>
         </div>
       </Tooltip>
-      <IconButton
-        onClick={onClose}
-        size="small"
-        aria-label={messages.hideLabel}
-        aria-controls={ariaControls}
-      >
-        <CloseOutlinedIcon />
-      </IconButton>
+      <Tooltip title={messages.restoreDefaults}>
+        <div>
+          <IconButton
+            onClick={handleRestoreDefaults}
+            size="small"
+            aria-label={messages.restoreDefaults}
+            disabled={!dirty}
+          >
+            <SettingsBackupRestoreIcon />
+          </IconButton>
+        </div>
+      </Tooltip>
+      <Tooltip title={messages.hideLabel}>
+        <IconButton
+          onClick={onClose}
+          size="small"
+          aria-label={messages.hideLabel}
+          aria-controls={ariaControls}
+        >
+          <CloseOutlinedIcon />
+        </IconButton>
+      </Tooltip>
       <AddPresetDialog
         open={showDialog}
         onClose={handleCloseDialog}

@@ -17,7 +17,8 @@ export default class VideoController {
       try {
         // Rarely ReactPlayer's seekTo method
         // produces NPE, which should be handled
-        this._player.seekTo(this._position);
+        const { position, units } = this._position;
+        this._player.seekTo(position, units);
         this._position = null; // clear requested seek-to position on success
       } catch (error) {
         console.error(error);
@@ -33,9 +34,12 @@ export default class VideoController {
   /**
    * Seek to the given position and start playing.
    */
-  seekTo(position) {
-    this._setWatch(true);
-    this._position = position;
+  seekTo(position, options = {}) {
+    const { playing = true, units = "fraction" } = options;
+    if (playing) {
+      this._setWatch(true);
+    }
+    this._position = { position, units };
     this._trySeek();
   }
 }

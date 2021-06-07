@@ -8,7 +8,7 @@ import Scene from "./Scene";
 import { useIntl } from "react-intl";
 import CollapseButton from "../../../../common/components/CollapseButton";
 import Collapse from "@material-ui/core/Collapse";
-import BlurSwitch from "./BlurSwitch";
+import LabeledSwitch from "../../../../common/components/LabeledSwitch";
 
 const useStyles = makeStyles((theme) => ({
   sceneSelector: {
@@ -57,6 +57,8 @@ function useMessages() {
   const intl = useIntl();
   return {
     scenes: intl.formatMessage({ id: "file.scenes" }),
+    blurDescription: intl.formatMessage({ id: "aria.label.blurAllScenes" }),
+    blurAction: intl.formatMessage({ id: "actions.blurScenes" }),
   };
 }
 
@@ -93,7 +95,12 @@ function SceneSelector(props) {
         <div className={classes.title}>
           {scenes.length} {messages.scenes}
         </div>
-        <BlurSwitch blur={blur} onBlurChange={setBlur} />
+        <LabeledSwitch
+          value={blur}
+          onChange={setBlur}
+          label={messages.blurAction}
+          tooltip={messages.blurDescription}
+        />
         {collapsible && (
           <CollapseButton
             className={classes.collapseButton}
