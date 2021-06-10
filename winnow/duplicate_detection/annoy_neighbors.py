@@ -1,5 +1,6 @@
 from annoy import AnnoyIndex
 import numpy as np
+from tqdm import tqdm
 
 
 class AnnoyNNeighbors:
@@ -71,17 +72,16 @@ class AnnoyNNeighbors:
         if optimize:
 
             self.n_neighbors = self.__optimize__(data)
+        distances = []
+        indices = []
 
-        results = [
-            self.annoy_index.get_nns_by_vector(
+        for i, d in tqdm(enumerate(data), desc="Searching for matches", total=len(data)):
+
+            distance, indice = self.annoy_index.get_nns_by_vector(
                 data[i], self.n_neighbors, include_distances=True, search_k=self.search_k
             )
-            for i, d in enumerate(data)
-        ]
-        distances, indices = [], []
-        for d, i in results:
-            distances.append(d)
-            indices.append(i)
+            distances.append(distance)
+            indices.append(indice)
 
         if not return_distance:
 
