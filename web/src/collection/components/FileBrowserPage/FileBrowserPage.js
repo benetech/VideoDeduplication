@@ -170,6 +170,7 @@ function FileBrowserPage(props) {
   const eagerFiles = useMemo(() => files.slice(0, pageSize), [files]);
   const lazyPages = useMemo(() => getPages(files, pageSize, pageSize), [files]);
   const { height: pageHeight, ref: pageRef } = useResizeDetector();
+  const fileCountThreshold = 240;
 
   useEffect(() => {
     if (fileListState.neverLoaded) {
@@ -210,7 +211,10 @@ function FileBrowserPage(props) {
 
   const handleChangeBlur = useCallback((blur) => dispatch(blurFiles(blur)), []);
 
-  const scrollTop = useCallback(() => scrollIntoView(topRef), [topRef]);
+  const scrollTop = useCallback(
+    () => scrollIntoView(topRef, { smooth: files.length < fileCountThreshold }),
+    [topRef, files.length]
+  );
 
   const handleAddMedia = useCallback(
     () => history.push(routes.processing.home),
@@ -274,7 +278,11 @@ function FileBrowserPage(props) {
             ))}
           </List>
           {lazyPages.map((page, index) => (
-            <LazyLoad height={pageHeight} key={index} unmountIfInvisible>
+            <LazyLoad
+              key={index}
+              height={pageHeight}
+              unmountIfInvisible={files.length > fileCountThreshold}
+            >
               <List className={classes.data} dense={showFilters}>
                 {page.map((file) => (
                   <List.Item
