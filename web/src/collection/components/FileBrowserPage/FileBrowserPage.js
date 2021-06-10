@@ -277,27 +277,28 @@ function FileBrowserPage(props) {
               />
             ))}
           </List>
-          {lazyPages.map((page, index) => (
-            <LazyLoad
-              key={index}
-              height={pageHeight}
-              unmountIfInvisible={files.length > fileCountThreshold}
-            >
-              <List className={classes.data} dense={showFilters}>
-                {page.map((file) => (
-                  <List.Item
-                    file={file}
-                    button
-                    key={file.id}
-                    blur={blur}
-                    dense={showFilters}
-                    highlight={filters.query}
-                    onClick={handleClickVideo}
-                  />
-                ))}
-              </List>
-            </LazyLoad>
-          ))}
+          {pageHeight > 0 &&
+            lazyPages.map((page, index) => (
+              <LazyLoad
+                key={index}
+                height={pageHeight}
+                unmountIfInvisible={files.length > fileCountThreshold}
+              >
+                <List className={classes.data} dense={showFilters}>
+                  {page.map((file) => (
+                    <List.Item
+                      file={file}
+                      button
+                      key={file.id}
+                      blur={blur}
+                      dense={showFilters}
+                      highlight={filters.query}
+                      onClick={handleClickVideo}
+                    />
+                  ))}
+                </List>
+              </LazyLoad>
+            ))}
           <List className={classes.data} dense={showFilters}>
             <List.LoadTrigger
               error={error}
