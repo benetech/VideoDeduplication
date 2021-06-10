@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import Grid from "@material-ui/core/Grid";
 import FileGridListItem from "./FileGridListItem";
 import FileGridListLoadTrigger from "./FileGridListLoadTrigger";
 import { useResizeDetector } from "react-resize-detector";
+import composeRefs from "@seznam/compose-react-refs/composeRefs";
 
 /**
  * Set the following properties: selected, onSelect and value (if absent)
@@ -26,18 +27,23 @@ function useRow(minItemWidth, defaultRow = 3) {
   };
 }
 
-const FileGridList = React.forwardRef(function FileGridList(props, ref) {
+const FileGridList = React.forwardRef(function FileGridList(
+  props,
+  externalRef
+) {
   const { children, className, ...other } = props;
   const minItemWidth = 272;
   const { perRow, ref: gridRef } = useRow(minItemWidth);
   const items = React.Children.map(children, bindProps(perRow));
+  const ref = useMemo(() => composeRefs(gridRef, externalRef), [
+    gridRef,
+    externalRef,
+  ]);
 
   return (
-    <div ref={ref} className={className} {...other}>
-      <Grid container spacing={5} ref={gridRef}>
-        {items}
-      </Grid>
-    </div>
+    <Grid container spacing={5} ref={ref} className={className} {...other}>
+      {items}
+    </Grid>
   );
 });
 

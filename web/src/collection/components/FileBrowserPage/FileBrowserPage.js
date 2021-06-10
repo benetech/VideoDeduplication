@@ -264,14 +264,13 @@ function FileBrowserPage(props) {
             [classes.gridContainer]: view === FileListType.grid,
           })}
         >
-          <List className={classes.data} dense={showFilters} ref={pageRef}>
+          <List className={classes.data} ref={pageRef}>
             {eagerFiles.map((file) => (
               <List.Item
                 file={file}
                 button
                 key={file.id}
                 blur={blur}
-                dense={showFilters}
                 highlight={filters.query}
                 onClick={handleClickVideo}
               />
@@ -284,14 +283,13 @@ function FileBrowserPage(props) {
                 height={pageHeight}
                 unmountIfInvisible={files.length > fileCountThreshold}
               >
-                <List className={classes.data} dense={showFilters}>
+                <List className={classes.data}>
                   {page.map((file) => (
                     <List.Item
                       file={file}
                       button
                       key={file.id}
                       blur={blur}
-                      dense={showFilters}
                       highlight={filters.query}
                       onClick={handleClickVideo}
                     />
@@ -299,7 +297,7 @@ function FileBrowserPage(props) {
                 </List>
               </LazyLoad>
             ))}
-          <List className={classes.data} dense={showFilters}>
+          <List className={classes.data}>
             <List.LoadTrigger
               error={error}
               loading={loading}
