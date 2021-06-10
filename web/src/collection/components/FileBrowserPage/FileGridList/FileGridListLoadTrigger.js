@@ -45,7 +45,7 @@ function useMessages() {
 }
 
 function FileGridListLoadTrigger(props) {
-  const { loading, error, onLoad, hasMore, perRow, className } = props;
+  const { loading, error, onLoad, hasMore, perRow = 3, className } = props;
   const classes = useStyles();
   const messages = useMessages();
 
@@ -109,7 +109,7 @@ FileGridListLoadTrigger.propTypes = {
   /**
    * How many items will be displayed per row.
    */
-  perRow: PropTypes.number.isRequired,
+  perRow: PropTypes.number,
   className: PropTypes.string,
 };
 

@@ -18,10 +18,13 @@ function bindProps(perRow) {
   };
 }
 
-function useRow(minItemWidth) {
+function useRow(minItemWidth, defaultRow = 3) {
   const { width, ref } = useResizeDetector();
-  const perRow = Math.floor(width / minItemWidth);
-  return { perRow, ref };
+  let perRow = Math.floor(width / minItemWidth);
+  return {
+    ref,
+    perRow: isFinite(perRow) ? perRow : defaultRow,
+  };
 }
 
 function FileGridList(props) {
@@ -38,7 +41,9 @@ function FileGridList(props) {
 }
 
 FileGridList.propTypes = {
-  dense: PropTypes.bool,
+  /**
+   * List items.
+   */
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
