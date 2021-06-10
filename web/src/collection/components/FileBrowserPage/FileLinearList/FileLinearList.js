@@ -13,11 +13,15 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function FileLinearList(props) {
-  const { children, className } = props;
+const FileLinearList = React.forwardRef(function FileLinearList(props, ref) {
+  const { children, className, ...other } = props;
   const classes = useStyles();
-  return <div className={clsx(classes.list, className)}>{children}</div>;
-}
+  return (
+    <div className={clsx(classes.list, className)} ref={ref} {...other}>
+      {children}
+    </div>
+  );
+});
 
 FileLinearList.propTypes = {
   children: PropTypes.oneOfType([

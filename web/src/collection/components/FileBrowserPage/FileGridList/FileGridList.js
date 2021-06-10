@@ -1,5 +1,4 @@
 import React from "react";
-import clsx from "clsx";
 import PropTypes from "prop-types";
 import Grid from "@material-ui/core/Grid";
 import FileGridListItem from "./FileGridListItem";
@@ -27,18 +26,20 @@ function useRow(minItemWidth, defaultRow = 3) {
   };
 }
 
-function FileGridList(props) {
-  const { children, className } = props;
+const FileGridList = React.forwardRef(function FileGridList(props, ref) {
+  const { children, className, ...other } = props;
   const minItemWidth = 272;
-  const { perRow, ref } = useRow(minItemWidth);
+  const { perRow, ref: gridRef } = useRow(minItemWidth);
   const items = React.Children.map(children, bindProps(perRow));
 
   return (
-    <Grid container spacing={5} className={clsx(className)} ref={ref}>
-      {items}
-    </Grid>
+    <div ref={ref} className={className} {...other}>
+      <Grid container spacing={5} ref={gridRef}>
+        {items}
+      </Grid>
+    </div>
   );
-}
+});
 
 FileGridList.propTypes = {
   /**

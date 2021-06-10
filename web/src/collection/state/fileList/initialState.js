@@ -21,7 +21,7 @@ const initialState = {
   },
   fileListType: FileListType.grid,
   blur: true,
-  limit: 20,
+  limit: 96,
   counts: {
     all: 0,
     related: 0,

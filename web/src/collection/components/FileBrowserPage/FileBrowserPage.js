@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -33,6 +39,8 @@ import {
   updateFilters,
 } from "../../state/fileList/actions";
 import { defaultFilters } from "../../state/fileList/initialState";
+import LazyLoad from "react-lazyload";
+import { useResizeDetector } from "react-resize-detector";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -69,7 +77,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
   },
   data: {
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(2),
     transform: "translate(0%, 0px)",
   },
   grid: {
@@ -128,6 +136,16 @@ function listComponent(view) {
   }
 }
 
+function getPages(list, pageSize, offset = 0) {
+  const pages = [];
+  const totalCount = Math.max(list.length - offset);
+  const pageCount = Math.ceil(totalCount / pageSize);
+  for (let i = 0; i < pageCount; i++) {
+    pages.push(list.slice(offset + pageSize * i, offset + pageSize * (i + 1)));
+  }
+  return pages;
+}
+
 function FileBrowserPage(props) {
   const { className } = props;
   const classes = useStyles();
@@ -148,6 +166,10 @@ function FileBrowserPage(props) {
   const intl = useIntl();
   const showFiltersRef = useRef();
   const activeFilters = FilterPane.useActiveFilters();
+  const pageSize = 24;
+  const eagerFiles = useMemo(() => files.slice(0, pageSize), [files]);
+  const lazyPages = useMemo(() => getPages(files, pageSize, pageSize), [files]);
+  const { height: pageHeight, ref: pageRef } = useResizeDetector();
 
   useEffect(() => {
     if (fileListState.neverLoaded) {
@@ -238,14 +260,8 @@ function FileBrowserPage(props) {
             [classes.gridContainer]: view === FileListType.grid,
           })}
         >
-          <List
-            className={clsx(classes.data, {
-              [classes.grid]: view === FileListType.grid,
-              [classes.list]: view === FileListType.linear,
-            })}
-            dense={showFilters}
-          >
-            {files.map((file) => (
+          <List className={classes.data} dense={showFilters} ref={pageRef}>
+            {eagerFiles.map((file) => (
               <List.Item
                 file={file}
                 button
@@ -256,11 +272,29 @@ function FileBrowserPage(props) {
                 onClick={handleClickVideo}
               />
             ))}
+          </List>
+          {lazyPages.map((page, index) => (
+            <LazyLoad height={pageHeight} key={index} unmountIfInvisible>
+              <List className={classes.data} dense={showFilters}>
+                {page.map((file) => (
+                  <List.Item
+                    file={file}
+                    button
+                    key={file.id}
+                    blur={blur}
+                    dense={showFilters}
+                    highlight={filters.query}
+                    onClick={handleClickVideo}
+                  />
+                ))}
+              </List>
+            </LazyLoad>
+          ))}
+          <List className={classes.data} dense={showFilters}>
             <List.LoadTrigger
               error={error}
               loading={loading}
               onLoad={handleFetchPage}
-              dense={showFilters}
               hasMore={error || files.length < counts[filters.matches]}
             />
           </List>
@@ -290,3 +324,7 @@ FileBrowserPage.propTypes = {
 };
 
 export default FileBrowserPage;
+
+/*
+
+ */
