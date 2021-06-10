@@ -116,9 +116,9 @@ const RemoteFileGridListItem = React.memo(function FpRemoteFileGridListItem(
   const {
     file,
     button = false,
-    dense = false,
     highlight,
     onClick,
+    perRow = 4,
     className,
   } = props;
 
@@ -144,7 +144,7 @@ const RemoteFileGridListItem = React.memo(function FpRemoteFileGridListItem(
   return (
     <FileGridListItemContainer
       className={clsx(button && classes.asButton, className)}
-      dense={dense}
+      perRow={perRow}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
@@ -217,10 +217,6 @@ RemoteFileGridListItem.propTypes = {
    */
   button: PropTypes.bool,
   /**
-   * Use more compact layout.
-   */
-  dense: PropTypes.bool,
-  /**
    * Highlight name substring.
    */
   highlight: PropTypes.string,
@@ -232,6 +228,10 @@ RemoteFileGridListItem.propTypes = {
    * List item click handler.
    */
   onClick: PropTypes.func.isRequired,
+  /**
+   * How many items will be displayed per row.
+   */
+  perRow: PropTypes.number.isRequired,
   className: PropTypes.string,
 };
 

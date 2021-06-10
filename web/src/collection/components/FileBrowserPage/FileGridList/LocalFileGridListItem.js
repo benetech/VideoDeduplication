@@ -93,10 +93,10 @@ const LocalFileGridListItem = React.memo(function FpLocalFileGridListItem(
   const {
     file,
     button = false,
-    dense = false,
     highlight,
     onClick,
     blur = true,
+    perRow = 4,
     className,
   } = props;
 
@@ -122,7 +122,7 @@ const LocalFileGridListItem = React.memo(function FpLocalFileGridListItem(
   return (
     <FileGridListItemContainer
       className={clsx(button && classes.asButton, className)}
-      dense={dense}
+      perRow={perRow}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
@@ -228,6 +228,10 @@ LocalFileGridListItem.propTypes = {
    * List item click handler.
    */
   onClick: PropTypes.func.isRequired,
+  /**
+   * How many items will be displayed per row.
+   */
+  perRow: PropTypes.number.isRequired,
   className: PropTypes.string,
 };
 

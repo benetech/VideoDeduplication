@@ -45,7 +45,7 @@ function useMessages() {
 }
 
 function FileGridListLoadTrigger(props) {
-  const { loading, error, onLoad, hasMore, dense = false, className } = props;
+  const { loading, error, onLoad, hasMore, perRow, className } = props;
   const classes = useStyles();
   const messages = useMessages();
 
@@ -65,7 +65,7 @@ function FileGridListLoadTrigger(props) {
   return (
     <FPGridListItemContainer
       className={clsx(classes.trigger, className)}
-      dense={dense}
+      perRow={perRow}
     >
       {!loading && !error && (
         <VisibilitySensor onChange={handleVisibilityChange} partialVisibility>
@@ -106,6 +106,10 @@ FileGridListLoadTrigger.propTypes = {
    * Whether more files could be loaded
    */
   hasMore: PropTypes.bool.isRequired,
+  /**
+   * How many items will be displayed per row.
+   */
+  perRow: PropTypes.number.isRequired,
   className: PropTypes.string,
 };
 
