@@ -1,54 +1,56 @@
-import React from "react";
-import clsx from "clsx";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/styles";
 import Grid from "@material-ui/core/Grid";
-import { composition } from "./composition";
 import FileGridListItem from "./FileGridListItem";
 import FileGridListLoadTrigger from "./FileGridListLoadTrigger";
+import { useResizeDetector } from "react-resize-detector";
+import composeRefs from "@seznam/compose-react-refs/composeRefs";
 
-function items(breakpoint, dense) {
-  const decrease = dense ? 1 : 0;
-  return composition[breakpoint] - decrease;
+/**
+ * Set the following properties: selected, onSelect and value (if absent)
+ */
+function bindProps(perRow) {
+  return (listItem) => {
+    if (!React.isValidElement(listItem)) {
+      return null;
+    }
+    return React.cloneElement(listItem, { perRow, ...listItem.props });
+  };
 }
 
-const useStyles = makeStyles((theme) => ({
-  gridList: {
-    [theme.breakpoints.only("xs")]: {
-      minWidth: ({ dense }) =>
-        theme.dimensions.gridItem.width * items("xs", dense),
-    },
-    [theme.breakpoints.only("sm")]: {
-      minWidth: ({ dense }) =>
-        theme.dimensions.gridItem.width * items("sm", dense),
-    },
-    [theme.breakpoints.only("md")]: {
-      minWidth: ({ dense }) =>
-        theme.dimensions.gridItem.width * items("md", dense),
-    },
-    [theme.breakpoints.only("lg")]: {
-      minWidth: ({ dense }) =>
-        theme.dimensions.gridItem.width * items("lg", dense),
-    },
-    [theme.breakpoints.up("xl")]: {
-      minWidth: ({ dense }) =>
-        theme.dimensions.gridItem.width * items("xl", dense),
-    },
-  },
-}));
+function useRow(minItemWidth, defaultRow = 3) {
+  const { width, ref } = useResizeDetector();
+  let perRow = Math.floor(width / minItemWidth);
+  return {
+    ref,
+    perRow: isFinite(perRow) ? perRow : defaultRow,
+  };
+}
 
-function FileGridList(props) {
-  const { children, dense = false, className } = props;
-  const classes = useStyles({ dense });
+const FileGridList = React.forwardRef(function FileGridList(
+  props,
+  externalRef
+) {
+  const { children, className, ...other } = props;
+  const minItemWidth = 272;
+  const { perRow, ref: gridRef } = useRow(minItemWidth);
+  const items = React.Children.map(children, bindProps(perRow));
+  const ref = useMemo(() => composeRefs(gridRef, externalRef), [
+    gridRef,
+    externalRef,
+  ]);
+
   return (
-    <Grid container spacing={5} className={clsx(classes.gridList, className)}>
-      {children}
+    <Grid container spacing={5} ref={ref} className={className} {...other}>
+      {items}
     </Grid>
   );
-}
+});
 
 FileGridList.propTypes = {
-  dense: PropTypes.bool,
+  /**
+   * List items.
+   */
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,

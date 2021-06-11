@@ -6,6 +6,7 @@ import LocalFileLinearListItem from "./LocalFileLinearListItem";
 
 const FileLinearListItem = React.memo(function FpLinearListItem(props) {
   const { file, ...other } = props;
+  delete other["blur"];
 
   const ListItem = file?.external
     ? RemoteFileLinearListItem

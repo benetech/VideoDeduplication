@@ -40,11 +40,11 @@ function Marked(props) {
   const [before, marked, after] = split(text, mark);
 
   return (
-    <span className={className}>
+    <div className={className}>
       {before}
       <span className={classes.marked}>{marked}</span>
       {after}
-    </span>
+    </div>
   );
 }
 
