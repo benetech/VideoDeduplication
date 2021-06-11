@@ -47,23 +47,18 @@ const useStyles = makeStyles((theme) => ({
   },
   icon: {
     color: theme.palette.primary.contrastText,
-    width: theme.spacing(2),
-    height: theme.spacing(2),
-  },
-  iconContainer: {
     backgroundColor: theme.palette.primary.main,
     width: theme.spacing(3),
     height: theme.spacing(3),
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
     flexShrink: 0,
+    padding: theme.spacing(0.5),
     marginRight: theme.spacing(1),
   },
   attrRow: {
     display: "flex",
     alignItems: "center",
     padding: theme.spacing(1),
+    justifyContent: "space-between",
   },
   description: {
     display: "flex",
@@ -76,13 +71,6 @@ const useStyles = makeStyles((theme) => ({
   descriptionText: {
     marginRight: theme.spacing(1),
   },
-  dividerContainer: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-  },
   divider: {
     borderLeftStyle: "solid",
     borderLeftColor: theme.palette.border.light,
@@ -90,9 +78,9 @@ const useStyles = makeStyles((theme) => ({
     height: theme.spacing(4),
   },
   volume: {
-    color: theme.palette.action.textInactive,
     fontSize: 20,
-    flexGrow: 1,
+    color: theme.palette.action.textInactive,
+    marginRight: theme.spacing(1),
   },
 }));
 
@@ -159,12 +147,10 @@ const RemoteFileGridListItem = React.memo(function FpRemoteFileGridListItem(
         </div>
       </div>
       <div className={classes.nameContainer}>
-        <div className={classes.iconContainer}>
-          <VideocamOutlinedIcon className={classes.icon} />
-        </div>
-        <div className={classes.name}>
-          <Marked mark={highlight}>{file.hash}</Marked>
-        </div>
+        <VideocamOutlinedIcon className={classes.icon} />
+        <Marked mark={highlight} className={classes.name}>
+          {file.hash}
+        </Marked>
         <IconButton
           size="small"
           aria-label={intl.formatMessage({ id: "actions.showMoreOptions" })}
@@ -181,9 +167,7 @@ const RemoteFileGridListItem = React.memo(function FpRemoteFileGridListItem(
           variant="primary"
           size="small"
         />
-        <div className={classes.dividerContainer}>
-          <div className={classes.divider} />
-        </div>
+        <div className={classes.divider} />
         <AttributeText
           name={messages.attr.owner}
           value={file?.contributor?.name}

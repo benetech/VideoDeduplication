@@ -39,29 +39,18 @@ const useStyles = makeStyles((theme) => ({
   },
   icon: {
     color: theme.palette.primary.contrastText,
-    width: theme.spacing(2),
-    height: theme.spacing(2),
-  },
-  iconContainer: {
     backgroundColor: theme.palette.primary.main,
     width: theme.spacing(3),
     height: theme.spacing(3),
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
     flexShrink: 0,
+    padding: theme.spacing(0.5),
     marginRight: theme.spacing(1),
   },
   attrRow: {
     display: "flex",
     alignItems: "center",
     padding: theme.spacing(1),
-  },
-  dividerContainer: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexGrow: 1,
+    justifyContent: "space-between",
   },
   divider: {
     borderLeftStyle: "solid",
@@ -70,9 +59,9 @@ const useStyles = makeStyles((theme) => ({
     height: theme.spacing(4),
   },
   volume: {
-    color: theme.palette.action.textInactive,
     fontSize: 20,
-    flexGrow: 1,
+    color: theme.palette.action.textInactive,
+    marginRight: theme.spacing(1),
   },
 }));
 
@@ -137,12 +126,10 @@ const LocalFileGridListItem = React.memo(function FpLocalFileGridListItem(
         className={classes.preview}
       />
       <div className={classes.nameContainer}>
-        <div className={classes.iconContainer}>
-          <VideocamOutlinedIcon className={classes.icon} />
-        </div>
-        <div className={classes.name}>
-          <Marked mark={highlight}>{file.filename}</Marked>
-        </div>
+        <VideocamOutlinedIcon className={classes.icon} />
+        <Marked mark={highlight} className={classes.name}>
+          {file.filename}
+        </Marked>
         <IconButton
           size="small"
           aria-label={intl.formatMessage({ id: "actions.showMoreOptions" })}
@@ -157,9 +144,7 @@ const LocalFileGridListItem = React.memo(function FpLocalFileGridListItem(
           variant="primary"
           size="small"
         />
-        <div className={classes.dividerContainer}>
-          <div className={classes.divider} />
-        </div>
+        <div className={classes.divider} />
         <AttributeText
           name={messages.attr.quality}
           value={file.metadata.quality}
@@ -167,9 +152,7 @@ const LocalFileGridListItem = React.memo(function FpLocalFileGridListItem(
           variant="primary"
           size="small"
         />
-        <div className={classes.dividerContainer}>
-          <div className={classes.divider} />
-        </div>
+        <div className={classes.divider} />
         <AttributeText
           name={messages.attr.duration}
           value={formatDuration(file.metadata.length, intl)}
@@ -185,18 +168,14 @@ const LocalFileGridListItem = React.memo(function FpLocalFileGridListItem(
           defaultValue="Unknown"
           size="small"
         />
-        <div className={classes.dividerContainer}>
-          <div className={classes.divider} />
-        </div>
+        <div className={classes.divider} />
         <AttributeText
           value={formatBool(file.metadata.hasEXIF, intl)}
           icon={ExifIcon}
           variant="primary"
           size="small"
         />
-        <div className={classes.dividerContainer}>
-          <div className={classes.divider} />
-        </div>
+        <div className={classes.divider} />
         <VolumeOffOutlinedIcon className={classes.volume} />
       </div>
     </FileGridListItemContainer>
