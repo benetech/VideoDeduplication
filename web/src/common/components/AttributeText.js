@@ -77,24 +77,57 @@ function AttributeText(props) {
   const title =
     size === "medium" ? classes.valueTitle : classes.valueTitleSmall;
 
-  return (
-    <div className={clsx(classes.container, className)}>
-      {Icon != null && <Icon className={classes.icon} />}
-      <div className={classes.attribute}>
-        {name != null && <div className={classes.attrName}>{name}</div>}
-        <div
-          className={clsx({
-            [normal]: variant === "normal",
-            [title]: variant === "title",
-            [highlighted]: variant === "primary",
-            [classes.ellipsis]: ellipsis,
-          })}
-        >
-          <Marked mark={highlightedText}>{value || defaultValue}</Marked>
+  const valueClass = clsx({
+    [normal]: variant === "normal",
+    [title]: variant === "title",
+    [highlighted]: variant === "primary",
+    [classes.ellipsis]: ellipsis,
+  });
+
+  if (Icon != null) {
+    if (name != null) {
+      return (
+        <div className={clsx(classes.container, className)}>
+          <Icon className={classes.icon} />
+          <div className={classes.attribute}>
+            <div className={classes.attrName}>{name}</div>
+            <Marked mark={highlightedText} className={valueClass}>
+              {value || defaultValue}
+            </Marked>
+          </div>
         </div>
-      </div>
-    </div>
-  );
+      );
+    } else {
+      return (
+        <div className={clsx(classes.container, className)}>
+          <Icon className={classes.icon} />
+          <Marked
+            mark={highlightedText}
+            className={clsx(classes.attribute, valueClass)}
+          >
+            {value || defaultValue}
+          </Marked>
+        </div>
+      );
+    }
+  } else {
+    if (name != null) {
+      return (
+        <div className={clsx(className)}>
+          <div className={classes.attrName}>{name}</div>
+          <Marked mark={highlightedText} className={valueClass}>
+            {value || defaultValue}
+          </Marked>
+        </div>
+      );
+    } else {
+      return (
+        <Marked mark={highlightedText} className={clsx(valueClass, className)}>
+          {value || defaultValue}
+        </Marked>
+      );
+    }
+  }
 }
 
 AttributeText.propTypes = {
