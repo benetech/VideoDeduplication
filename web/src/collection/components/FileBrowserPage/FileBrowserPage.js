@@ -170,7 +170,7 @@ function FileBrowserPage(props) {
   const eagerFiles = useMemo(() => files.slice(0, pageSize), [files]);
   const lazyPages = useMemo(() => getPages(files, pageSize, pageSize), [files]);
   const { height: pageHeight, ref: pageRef } = useResizeDetector();
-  const fileCountThreshold = 240;
+  const fileCountThreshold = 96;
 
   useEffect(() => {
     if (fileListState.neverLoaded) {
