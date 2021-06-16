@@ -65,8 +65,8 @@ def main(source, output):
     match_df = match_df.drop_duplicates(subset=["unique_index"])
     match_df["query_video"] = original_filename[match_df["query"]]
     match_df["match_video"] = original_filename[match_df["match"]]
-    match_df["query_video_original_path"] = video_signatures_fp[match_df["query"]]
-    match_df["match_video_original_path"] = video_signatures_fp[match_df["match"]]
+    match_df["query_video_original_path"] = match_df["query"].apply(lambda x: video_signatures_fp[x])
+    match_df["match_video_original_path"] = match_df["match"].apply(lambda x: video_signatures_fp[x])
     match_df["self_match"] = match_df["query_video"] == match_df["match_video"]
     match_df = match_df.loc[~match_df["self_match"], :]
 
