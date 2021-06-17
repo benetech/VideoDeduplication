@@ -38,7 +38,7 @@ def extract_exif(config: Config, progress_monitor=ProgressMonitor.NULL):
 
     df = convert_to_df(metadata)
 
-    df_parsed = parse_and_filter_metadata_df(df)
+    df_parsed = parse_and_filter_metadata_df(df, metadata)
 
     assert len(metadata) == len(df_parsed)
 

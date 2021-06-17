@@ -459,7 +459,7 @@ class DBResultStorage:
         return existing_files + new_files
 
     @staticmethod
-    def _update_exif(entity, exif):
+    def _update_exif(entity: Exif, exif):
         entity.General_FileExtension = exif.get("General_FileExtension", entity.General_FileExtension)
         entity.General_Format_Commercial = exif.get("General_Format_Commercial", entity.General_Format_Commercial)
         entity.General_FileSize = exif.get("General_FileSize", entity.General_FileSize)
@@ -488,3 +488,4 @@ class DBResultStorage:
         entity.Audio_Duration = exif.get("Audio_Duration", entity.Audio_Duration)
         entity.Audio_Encoded_Date = exif.get("Audio_Encoded_Date", entity.Audio_Encoded_Date)
         entity.Audio_Tagged_Date = exif.get("Audio_Tagged_Date", entity.Audio_Tagged_Date)
+        entity.Json_full_exif = exif.get("Json_full_exif", None)
