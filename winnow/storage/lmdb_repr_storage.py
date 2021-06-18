@@ -111,8 +111,11 @@ class LMDBReprStorage(BaseReprStorage):
             feature_file_path = self._map(key.path)
             if not exists(dirname(feature_file_path)):
                 os.makedirs(dirname(feature_file_path))
-            self._save(feature_file_path, value)
-            self._write_metadata(key, txn)
+            try:
+                self._save(feature_file_path, value)
+                self._write_metadata(key, txn)
+            except Exception as e:
+                logger.exception(e)
 
     def delete(self, path):
         """Delete representation for the file."""

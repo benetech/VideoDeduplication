@@ -55,7 +55,10 @@ class PathReprStorage:
         feature_file_path = self._map(path, sha256)
         if not exists(dirname(feature_file_path)):
             os.makedirs(dirname(feature_file_path))
-        self._save(feature_file_path, value)
+        try:
+            self._save(feature_file_path, value)
+        except Exception as e:
+            logger.exception(e)
 
     def delete(self, path, sha256):
         """Delete representation for the file."""

@@ -39,6 +39,7 @@ def main(source, output):
             base = os.path.basename(file_path)
             original_fn = base.split(".npy")[0]
             video_signature = np.load(file_path)
+            assert video_signature.shape[0] == 500, "Bulk Video Signature file found and skipped"
             basename.append(base)
             original_filename.append(original_fn)
             video_signatures.append(video_signature)
