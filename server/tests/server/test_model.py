@@ -26,7 +26,7 @@ def test_transform_exif():
     assert data["General_Duration"] == exif.General_Duration
     assert data["General_OverallBitRate_Mode"] is None
 
-    exclude = {"id", "file_id", "file", "Json_full_exif"}
+    exclude = {"id", "file_id", "file"}
     assert set(data.keys()) == entity_fields(Exif) - exclude
 
 
