@@ -116,7 +116,7 @@ class Transform:
         if exif is None:
             return None
         fields = entity_fields(exif)
-        fields -= {"id", "file_id", "file", "Json_full_exif"}
+        fields -= {"id", "file_id", "file"}
         return {field: getattr(exif, field) for field in fields}
 
     @staticmethod
