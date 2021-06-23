@@ -120,7 +120,7 @@ function MetadataPane(props) {
       <div className={classes.content}>
         <Table>
           <TableBody>
-            {Object.entries(data).map(([sectionName, sectionData]) => (
+            {Object.entries(data || {}).map(([sectionName, sectionData]) => (
               <MetadataSection
                 key={sectionName}
                 name={sectionName}

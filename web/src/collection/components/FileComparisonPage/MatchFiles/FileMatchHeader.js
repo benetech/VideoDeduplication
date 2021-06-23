@@ -82,7 +82,6 @@ function FileMatchHeader(props) {
         <FileSummary.Fingerprint />
         <FileSummary.Duration />
         <FileSummary.CreationDate />
-        <FileSummary.HasExif />
       </FileSummary>
       <Menu {...popup}>
         {!match.falsePositive && (

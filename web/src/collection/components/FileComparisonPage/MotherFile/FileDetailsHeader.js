@@ -27,7 +27,6 @@ function FileDetailsHeader(props) {
         <FileSummary.Fingerprint />
         <FileSummary.Duration />
         <FileSummary.CreationDate />
-        <FileSummary.HasExif />
       </FileSummary>
     </div>
   );
