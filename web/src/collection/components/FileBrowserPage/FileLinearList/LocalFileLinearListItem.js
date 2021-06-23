@@ -87,7 +87,6 @@ const LocalFileLinearListItem = React.memo(function FpLocalFileLinearListItem(
         {medium && <FileSummary.Fingerprint />}
         <FileSummary.Duration />
         {large && !dense && <FileSummary.CreationDate />}
-        {large && !dense && <FileSummary.HasExif />}
         {large && !dense && <FileSummary.HasAudio />}
         <IconButton aria-label={messages.moreLabel}>
           <MoreHorizOutlinedIcon />

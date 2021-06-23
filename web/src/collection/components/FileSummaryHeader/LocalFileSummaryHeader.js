@@ -24,7 +24,6 @@ function LocalFileSummaryHeader(props) {
       <FileSummary.Fingerprint />
       <FileSummary.Duration />
       {!small && <FileSummary.CreationDate />}
-      {!small && <FileSummary.HasExif />}
       {!small && <FileSummary.HasAudio />}
     </BasicFileSummaryHeader>
   );
