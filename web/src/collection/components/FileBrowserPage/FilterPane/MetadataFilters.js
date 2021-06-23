@@ -26,8 +26,6 @@ function useMessages() {
     dateHelp: intl.formatMessage({ id: "filter.creationDate.help" }),
     audio: intl.formatMessage({ id: "filter.hasAudio" }),
     audioHelp: intl.formatMessage({ id: "filter.hasAudio.help" }),
-    exif: intl.formatMessage({ id: "filter.hasExif" }),
-    exifHelp: intl.formatMessage({ id: "filter.hasExif.help" }),
     origin: intl.formatMessage({ id: "filter.origin" }),
     originHelp: intl.formatMessage({ id: "filter.origin.help" }),
     originRemote: intl.formatMessage({ id: "filter.origin.remote" }),
@@ -41,7 +39,7 @@ function useMessages() {
 function useActiveFilters() {
   const filters = useSelector(selectFileFilters);
   const diff = objectDiff(filters, defaultFilters);
-  return diff.extensions + diff.date + diff.audio + diff.exif + diff.remote;
+  return diff.extensions + diff.date + diff.audio + diff.remote;
 }
 
 function MetadataFilters(props) {
@@ -62,10 +60,6 @@ function MetadataFilters(props) {
   );
 
   const handleAudioChange = useCallback((audio) => setFilters({ audio }), [
-    setFilters,
-  ]);
-
-  const handleExifChange = useCallback((exif) => setFilters({ exif }), [
     setFilters,
   ]);
 
@@ -91,12 +85,6 @@ function MetadataFilters(props) {
         value={filters.audio}
         onChange={handleAudioChange}
         tooltip={messages.audioHelp}
-      />
-      <BoolFilter
-        title={messages.exif}
-        value={filters.exif}
-        onChange={handleExifChange}
-        tooltip={messages.exifHelp}
       />
       <BoolFilter
         title={messages.origin}

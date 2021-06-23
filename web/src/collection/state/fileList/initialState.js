@@ -13,7 +13,6 @@ const initialState = {
     length: { lower: null, upper: null },
     date: { lower: null, upper: null },
     audio: null,
-    exif: null,
     matches: MatchCategory.all,
     sort: FileSort.date,
     remote: null,

@@ -34,7 +34,6 @@ def parse_params():
     result.limit = parse_positive_int(request.args, "limit", 20)
     result.offset = parse_positive_int(request.args, "offset", 0)
     result.path_query = request.args.get("path", "", type=str).strip()
-    result.exif = parse_boolean(request.args, "exif")
     result.audio = parse_boolean(request.args, "audio")
     result.min_length = parse_positive_int(request.args, "min_length")
     result.max_length = parse_positive_int(request.args, "max_length")
