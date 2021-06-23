@@ -191,17 +191,6 @@ class FilesDAO:
         return query
 
     @staticmethod
-    def _filter_exif(req: ListFilesRequest, query: Query) -> Query:
-        """Filter by EXIF data presence."""
-        if req.exif is not None:
-            has_exif = Files.exif.has()
-            if req.exif:
-                return query.filter(has_exif)
-            else:
-                return query.filter(~has_exif)
-        return query
-
-    @staticmethod
     def _filter_audio(req: ListFilesRequest, query: Query) -> Query:
         """Filter by audio presence."""
         if req.audio is not None:
@@ -298,7 +287,6 @@ class FilesDAO:
         """Apply filters related to the properties of video file itself."""
         query = FilesDAO._filter_path(req, query)
         query = FilesDAO._filter_extensions(req, query)
-        query = FilesDAO._filter_exif(req, query)
         query = FilesDAO._filter_audio(req, query)
         query = FilesDAO._filter_date(req, query)
         query = FilesDAO._filter_length(req, query)

@@ -10,6 +10,10 @@ import VideoInformation from "./VideoInformation";
 const useStyles = makeStyles({
   root: {
     boxShadow: "0 12px 18px 0 rgba(0,0,0,0.08)",
+    height: "100%",
+  },
+  info: {
+    height: "100%",
   },
 });
 
@@ -31,7 +35,7 @@ function VideoInformationPane(props) {
       role="region"
       aria-label={messages.ariaLabel}
     >
-      <VideoInformation file={file} onJump={onJump} />
+      <VideoInformation file={file} onJump={onJump} className={classes.info} />
     </Paper>
   );
 }

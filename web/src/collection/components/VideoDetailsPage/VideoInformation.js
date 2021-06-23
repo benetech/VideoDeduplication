@@ -5,13 +5,13 @@ import { makeStyles } from "@material-ui/styles";
 import { FileType } from "../../prop-types/FileType";
 import FileInfoPanel from "./FileInfoPanel";
 import ObjectsPanel from "./ObjectsPanel";
-import ExifPanel from "./ExifPanel";
 import { useIntl } from "react-intl";
 import {
   SelectableTab,
   SelectableTabs,
 } from "../../../common/components/SelectableTabs";
 import ObjectAPI from "../../../application/objects/ObjectAPI";
+import MetadataPane from "./MetadataPane";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,7 +22,9 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(3),
     width: "min-content",
   },
-  data: {},
+  metadata: {
+    height: "100%",
+  },
 }));
 
 /**
@@ -31,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
 const Tab = {
   info: "info",
   objects: "objects",
-  exif: "exif",
+  metadata: "metadata",
 };
 
 /**
@@ -52,7 +54,7 @@ function contentStyles(tab) {
   return {
     info: showIf(tab === Tab.info),
     objects: showIf(tab === Tab.objects),
-    exif: showIf(tab === Tab.exif),
+    metadata: showIf(tab === Tab.metadata),
   };
 }
 
@@ -61,7 +63,7 @@ function useMessages() {
   return {
     info: intl.formatMessage({ id: "file.tabInfo" }),
     objects: intl.formatMessage({ id: "file.tabObjects" }),
-    exif: intl.formatMessage({ id: "file.tabExif" }),
+    metadata: intl.formatMessage({ id: "metadata.title" }),
   };
 }
 
@@ -84,7 +86,7 @@ function VideoInformation(props) {
           value={Tab.objects}
           data-selector="ObjectsTab"
         />
-        <SelectableTab label={messages.exif} value={Tab.exif} />
+        <SelectableTab label={messages.metadata} value={Tab.metadata} />
       </SelectableTabs>
       <FileInfoPanel file={file} style={styles.info} />
       <ObjectsPanel
@@ -93,7 +95,11 @@ function VideoInformation(props) {
         style={styles.objects}
         onJump={onJump}
       />
-      <ExifPanel file={file} style={styles.exif} />
+      <MetadataPane
+        data={file?.exif?.Json_full_exif}
+        className={classes.metadata}
+        style={styles.metadata}
+      />
     </div>
   );
 }

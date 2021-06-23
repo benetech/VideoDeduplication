@@ -12,9 +12,6 @@ export default function fileFiltersToQueryParams(filters) {
   if (filters?.audio != null) {
     params.audio = String(!!filters.audio);
   }
-  if (filters?.exif != null) {
-    params.exif = String(!!filters.exif);
-  }
   if (filters?.length?.lower != null) {
     params.min_length = filters.length.lower * 60000; // minutes to milliseconds
   }

@@ -216,12 +216,13 @@ def parse_date_series(series):
     return parsed.astype(object).where(pd.notnull(parsed), other=None)
 
 
-def parse_and_filter_metadata_df(metadata_df):
+def parse_and_filter_metadata_df(metadata_df, full_metadata):
     all_columns = [column_name for column_name in CI if column_name in metadata_df.columns]
     numeric_columns = [column_name for column_name in NCI if column_name in metadata_df.columns]
     date_columns = [column_name for column_name in DCI if column_name in metadata_df.columns]
 
     filtered = metadata_df.loc[:, all_columns]
+    filtered["Json_full_exif"] = full_metadata
 
     # Parsing numerical fields
     filtered.loc[:, numeric_columns] = filtered.loc[:, numeric_columns].apply(

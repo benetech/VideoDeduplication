@@ -9,13 +9,8 @@ import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import AttributeText from "../../../../common/components/AttributeText";
 import { useIntl } from "react-intl";
-import {
-  formatBool,
-  formatDate,
-  formatDuration,
-} from "../../../../common/helpers/format";
+import { formatDate, formatDuration } from "../../../../common/helpers/format";
 import EventAvailableOutlinedIcon from "@material-ui/icons/EventAvailableOutlined";
-import ExifIcon from "../../../../common/components/icons/ExifIcon";
 import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
 import Marked from "../../../../common/components/Marked";
 import FileGridListItemContainer from "./FileGridListItemContainer";
@@ -166,13 +161,6 @@ const LocalFileGridListItem = React.memo(function FpLocalFileGridListItem(
           icon={EventAvailableOutlinedIcon}
           variant="normal"
           defaultValue="Unknown"
-          size="small"
-        />
-        <div className={classes.divider} />
-        <AttributeText
-          value={formatBool(file.metadata.hasEXIF, intl)}
-          icon={ExifIcon}
-          variant="primary"
           size="small"
         />
         <div className={classes.divider} />
