@@ -22,10 +22,10 @@ export default class FileExclusionAPI {
   static use() {
     const server = useServer();
     const dispatch = useDispatch();
-    return useMemo(() => new FileExclusionAPI(server, dispatch), [
-      server,
-      dispatch,
-    ]);
+    return useMemo(
+      () => new FileExclusionAPI(server, dispatch),
+      [server, dispatch]
+    );
   }
 
   constructor(server, dispatch, selectCache) {

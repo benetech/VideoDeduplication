@@ -79,13 +79,8 @@ function useMessages() {
 }
 
 function MatchFiles(props) {
-  const {
-    motherFileId,
-    matchFileId,
-    onMatchFileChange,
-    className,
-    ...other
-  } = props;
+  const { motherFileId, matchFileId, onMatchFileChange, className, ...other } =
+    props;
   const classes = useStyles();
   const messages = useMessages();
   const [options, setOptions] = useState(DefaultMatchOptions);
@@ -160,9 +155,10 @@ function MatchFiles(props) {
     }
   });
 
-  const handleToggleOptions = useCallback(() => setShowOptions(!showOptions), [
-    showOptions,
-  ]);
+  const handleToggleOptions = useCallback(
+    () => setShowOptions(!showOptions),
+    [showOptions]
+  );
 
   useEffect(() => {
     // Change displayed match if needed

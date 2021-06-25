@@ -59,9 +59,10 @@ function Presets(props) {
     [presetApi]
   );
 
-  const handleDelete = useCallback((preset) => presetApi.deletePreset(preset), [
-    presetApi,
-  ]);
+  const handleDelete = useCallback(
+    (preset) => presetApi.deletePreset(preset),
+    [presetApi]
+  );
 
   const handleShowUpdate = useCallback((preset) => {
     setPreset(preset);

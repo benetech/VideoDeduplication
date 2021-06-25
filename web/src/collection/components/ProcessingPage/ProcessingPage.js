@@ -57,9 +57,10 @@ function ProcessingPage(props) {
   const messages = useMessages();
   const [showTasks, setShowTasks] = useState(true);
 
-  const handleToggleTasks = useCallback(() => setShowTasks(!showTasks), [
-    showTasks,
-  ]);
+  const handleToggleTasks = useCallback(
+    () => setShowTasks(!showTasks),
+    [showTasks]
+  );
 
   const Icon = showTasks ? CloseOutlinedIcon : PlaylistAddCheckOutlinedIcon;
   const tooltip = showTasks ? messages.hideTasks : messages.showTasks;

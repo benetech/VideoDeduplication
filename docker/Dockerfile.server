@@ -1,4 +1,4 @@
-FROM node:14 as web
+FROM node:14.17.1 as web
 
 RUN mkdir /web
 ADD ["web", "/web"]

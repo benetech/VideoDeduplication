@@ -50,19 +50,20 @@ function MatchSelector(props) {
   const messages = useMessages();
   const labelId = useUniqueId("label");
 
-  const handleSelect = useCallback((event) => onChange(event.target.value), [
-    onChange,
-  ]);
+  const handleSelect = useCallback(
+    (event) => onChange(event.target.value),
+    [onChange]
+  );
 
   const handleNext = useCallback(
     () => onChange(Math.min(matches.length - 1, selected + 1)),
     [matches, selected]
   );
 
-  const handlePrev = useCallback(() => onChange(Math.max(0, selected - 1)), [
-    matches,
-    selected,
-  ]);
+  const handlePrev = useCallback(
+    () => onChange(Math.max(0, selected - 1)),
+    [matches, selected]
+  );
 
   const showSelected = matches.length > 0 && selected >= 0;
 

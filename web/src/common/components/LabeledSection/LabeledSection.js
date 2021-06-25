@@ -29,9 +29,10 @@ function LabeledSection(props) {
   const [collapsed, setCollapsed] = useState(false);
   const classes = useStyles();
 
-  const handleCollapse = useCallback(() => setCollapsed(!collapsed), [
-    collapsed,
-  ]);
+  const handleCollapse = useCallback(
+    () => setCollapsed(!collapsed),
+    [collapsed]
+  );
 
   return (
     <div className={clsx(className)} {...other}>

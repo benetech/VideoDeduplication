@@ -59,13 +59,15 @@ function MetadataFilters(props) {
     [setFilters]
   );
 
-  const handleAudioChange = useCallback((audio) => setFilters({ audio }), [
-    setFilters,
-  ]);
+  const handleAudioChange = useCallback(
+    (audio) => setFilters({ audio }),
+    [setFilters]
+  );
 
-  const handleRemoteChange = useCallback((remote) => setFilters({ remote }), [
-    setFilters,
-  ]);
+  const handleRemoteChange = useCallback(
+    (remote) => setFilters({ remote }),
+    [setFilters]
+  );
 
   return (
     <FilterList className={className} {...other}>

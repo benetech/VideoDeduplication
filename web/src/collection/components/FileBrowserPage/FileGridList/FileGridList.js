@@ -35,10 +35,10 @@ const FileGridList = React.forwardRef(function FileGridList(
   const minItemWidth = 272;
   const { perRow, ref: gridRef } = useRow(minItemWidth);
   const items = React.Children.map(children, bindProps(perRow));
-  const ref = useMemo(() => composeRefs(gridRef, externalRef), [
-    gridRef,
-    externalRef,
-  ]);
+  const ref = useMemo(
+    () => composeRefs(gridRef, externalRef),
+    [gridRef, externalRef]
+  );
 
   return (
     <Grid container spacing={5} ref={ref} className={className} {...other}>

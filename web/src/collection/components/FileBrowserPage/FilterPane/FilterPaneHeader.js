@@ -66,9 +66,10 @@ function FilterPaneHeader(props) {
   const dispatch = useDispatch();
   const dirty = !lodash.isEqual(currentFilters, PresetAPI.DefaultFilters);
 
-  const handleCreate = useCallback((preset) => presetApi.addPreset(preset), [
-    presetApi,
-  ]);
+  const handleCreate = useCallback(
+    (preset) => presetApi.addPreset(preset),
+    [presetApi]
+  );
 
   const handleCloseDialog = useCallback(() => setShowDialog(false));
 

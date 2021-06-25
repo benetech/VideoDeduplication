@@ -71,8 +71,10 @@ export const selectPresets = (state) => selectColl(state).presets;
 /**
  * Select preloaded preset if any.
  */
-export const selectPreset = ({ id }) => (state) =>
-  selectPresets(state).presets.find((preset) => preset.id === id);
+export const selectPreset =
+  ({ id }) =>
+  (state) =>
+    selectPresets(state).presets.find((preset) => preset.id === id);
 
 /**
  * Select file exclusions cache.

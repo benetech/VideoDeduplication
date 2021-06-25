@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/web"
+    target-branch: "development"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "pip"
+    directory: "/server"
+    target-branch: "development"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "pip"
+    directory: "/repo_admin"
+    target-branch: "development"
+    schedule:
+      interval: "weekly"

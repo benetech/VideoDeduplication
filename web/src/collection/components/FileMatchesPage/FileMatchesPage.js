@@ -98,9 +98,10 @@ function FileMatchesPage(props) {
   const filters = fileMatches.params.filters;
   const [showFilters, setShowFilters] = useState(false);
 
-  const handleToggleFilters = useCallback(() => setShowFilters(!showFilters), [
-    showFilters,
-  ]);
+  const handleToggleFilters = useCallback(
+    () => setShowFilters(!showFilters),
+    [showFilters]
+  );
 
   useEffect(() => {
     const newParams = lodash.merge({}, fileMatches.params, {

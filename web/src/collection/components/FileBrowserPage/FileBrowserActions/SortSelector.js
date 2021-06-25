@@ -31,9 +31,10 @@ function SortSelector(props) {
   const messages = useMessages();
   const classes = useStyles();
 
-  const handleChange = useCallback((event) => onChange(event.target.value), [
-    onChange,
-  ]);
+  const handleChange = useCallback(
+    (event) => onChange(event.target.value),
+    [onChange]
+  );
 
   return (
     <FormControl
