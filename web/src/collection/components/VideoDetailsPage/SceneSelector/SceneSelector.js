@@ -85,9 +85,10 @@ function SceneSelector(props) {
   const [collapsed, setCollapsed] = useState(false);
   const [blur, setBlur] = useState(true);
 
-  const handleCollapse = useCallback(() => setCollapsed(!collapsed), [
-    collapsed,
-  ]);
+  const handleCollapse = useCallback(
+    () => setCollapsed(!collapsed),
+    [collapsed]
+  );
 
   return (
     <div className={clsx(classes.sceneSelector, className)}>

@@ -38,10 +38,10 @@ const FileLinearList = React.forwardRef(function FileLinearList(
   const classes = useStyles();
   const { width, ref } = useResizeDetector();
   const items = React.Children.map(children, bindProps(width));
-  const composedRef = useMemo(() => composeRefs(ref, externalRef), [
-    ref,
-    externalRef,
-  ]);
+  const composedRef = useMemo(
+    () => composeRefs(ref, externalRef),
+    [ref, externalRef]
+  );
 
   return (
     <div className={clsx(classes.list, className)} ref={composedRef} {...other}>

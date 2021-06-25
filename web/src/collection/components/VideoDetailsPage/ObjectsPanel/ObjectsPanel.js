@@ -73,9 +73,10 @@ function useGroups(objectsProp) {
     () => objectsProp.filter((object) => object.falsePositive),
     [objectsProp]
   );
-  const falseGroups = useMemo(() => groupObjects(falsePositive, 10 * second), [
-    falsePositive,
-  ]);
+  const falseGroups = useMemo(
+    () => groupObjects(falsePositive, 10 * second),
+    [falsePositive]
+  );
 
   return { objects, groups, falsePositive, falseGroups };
 }
@@ -113,9 +114,8 @@ function ObjectsPanel(props) {
     [objectsAPI]
   );
 
-  const { objects, groups, falsePositive, falseGroups } = useGroups(
-    objectsProp
-  );
+  const { objects, groups, falsePositive, falseGroups } =
+    useGroups(objectsProp);
 
   useEffect(() => {
     if (objects.length !== 0 && tab !== Tab.found) {

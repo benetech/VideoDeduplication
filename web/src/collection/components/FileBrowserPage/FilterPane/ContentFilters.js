@@ -36,9 +36,10 @@ function ContentFilters(props) {
   const messages = useMessages();
   const [filters, setFilters] = useFilters();
 
-  const handleLengthChange = useCallback((length) => setFilters({ length }), [
-    setFilters,
-  ]);
+  const handleLengthChange = useCallback(
+    (length) => setFilters({ length }),
+    [setFilters]
+  );
 
   const handleTemplatesChange = useCallback(
     (templates) => setFilters({ templates }),

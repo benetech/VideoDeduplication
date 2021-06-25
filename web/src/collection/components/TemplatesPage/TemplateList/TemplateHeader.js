@@ -121,15 +121,15 @@ function TemplateHeader(props) {
   const { clickTrigger, popup } = usePopup("template-actions-");
   const actions = useActions({ messages, onShowMatches, onDelete, template });
   const handle = bindHandler(popup);
-  const handleShowMatches = useCallback(() => onShowMatches(template), [
-    onShowMatches,
-    template,
-  ]);
+  const handleShowMatches = useCallback(
+    () => onShowMatches(template),
+    [onShowMatches, template]
+  );
 
-  const handleExpand = useCallback(() => onExpandChange(!expanded), [
-    expanded,
-    onExpandChange,
-  ]);
+  const handleExpand = useCallback(
+    () => onExpandChange(!expanded),
+    [expanded, onExpandChange]
+  );
 
   const ExpandIcon = expanded
     ? ExpandMoreOutlinedIcon

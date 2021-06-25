@@ -154,13 +154,15 @@ function DateRangeFilter(props) {
     [values, onChange, range, minValid, maxValid]
   );
 
-  const handleLower = useCallback((lower) => handleUpdate({ lower }), [
-    handleUpdate,
-  ]);
+  const handleLower = useCallback(
+    (lower) => handleUpdate({ lower }),
+    [handleUpdate]
+  );
 
-  const handleUpper = useCallback((upper) => handleUpdate({ upper }), [
-    handleUpdate,
-  ]);
+  const handleUpper = useCallback(
+    (upper) => handleUpdate({ upper }),
+    [handleUpdate]
+  );
 
   return (
     <FilterContainer

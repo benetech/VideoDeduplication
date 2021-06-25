@@ -24,14 +24,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ButtonPanel(props) {
-  const {
-    onPeriodChange,
-    onExpand,
-    onTune,
-    period,
-    dateRange,
-    className,
-  } = props;
+  const { onPeriodChange, onExpand, onTune, period, dateRange, className } =
+    props;
 
   const classes = useStyles();
 

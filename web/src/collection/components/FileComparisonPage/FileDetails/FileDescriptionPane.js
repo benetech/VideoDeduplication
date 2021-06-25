@@ -47,9 +47,10 @@ function FileDescriptionPane(props) {
   const messages = useMessages();
   const [collapsed, setCollapsed] = useState(false);
 
-  const handleCollapse = useCallback(() => setCollapsed(!collapsed), [
-    collapsed,
-  ]);
+  const handleCollapse = useCallback(
+    () => setCollapsed(!collapsed),
+    [collapsed]
+  );
 
   return (
     <Paper className={clsx(classes.root, className)} {...other}>

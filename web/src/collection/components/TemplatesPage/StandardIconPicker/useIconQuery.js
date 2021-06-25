@@ -52,14 +52,16 @@ function useIconQuery(query) {
   const queryWords = useMemo(() => splitQuery(query), [query]);
 
   // Select lower-cased icon names matching query words
-  const selectedLower = useMemo(() => filterOptions(lowerCased, queryWords), [
-    query,
-  ]);
+  const selectedLower = useMemo(
+    () => filterOptions(lowerCased, queryWords),
+    [query]
+  );
 
   // Get original icon names from selected lower-cased names
-  return useMemo(() => selectedLower.map((lower) => origNames.get(lower)), [
-    selectedLower,
-  ]);
+  return useMemo(
+    () => selectedLower.map((lower) => origNames.get(lower)),
+    [selectedLower]
+  );
 }
 
 export default useIconQuery;

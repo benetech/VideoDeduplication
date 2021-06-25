@@ -82,9 +82,10 @@ function VideoPlayerPane(props) {
   const [collapsed, setCollapsed] = useState(false);
 
   const handleJump = useCallback(seekTo(player, file), [player, file]);
-  const handleCollapse = useCallback(() => setCollapsed(!collapsed), [
-    collapsed,
-  ]);
+  const handleCollapse = useCallback(
+    () => setCollapsed(!collapsed),
+    [collapsed]
+  );
 
   return (
     <Paper

@@ -505,9 +505,8 @@ export default class Server {
 
   async createTemplateFileExclusion(exclusion) {
     try {
-      const newExclusionDTO = this.transform.newTemplateFileExclusionDTO(
-        exclusion
-      );
+      const newExclusionDTO =
+        this.transform.newTemplateFileExclusionDTO(exclusion);
       const response = await this.axios.post(
         "/template-file-exclusions/",
         JSON.stringify(newExclusionDTO),

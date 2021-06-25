@@ -73,9 +73,10 @@ function TemplateFilter(props) {
     }
   }, []);
 
-  const handleChange = useCallback((event) => onChange(event.target.value), [
-    onChange,
-  ]);
+  const handleChange = useCallback(
+    (event) => onChange(event.target.value),
+    [onChange]
+  );
 
   const renderValue = useCallback(
     (selected) => {
