@@ -19,6 +19,7 @@ ADD ["server", "/server"]
 ADD ["db", "/server/db"]
 ADD ["task_queue", "/server/task_queue"]
 ADD ["template_support", "/server/template_support"]
+ADD ["thumbnail", "/server/thumbnail"]
 WORKDIR /server
 
 # Install ffmpeg
