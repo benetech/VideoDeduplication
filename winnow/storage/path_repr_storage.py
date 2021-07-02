@@ -5,6 +5,8 @@ from os.path import join, relpath, abspath, exists, dirname
 
 import numpy as np
 
+from winnow.storage.manifest import StorageManifest, StorageManifestFile
+
 # Logger used in representation-storage module
 logger = logging.getLogger(__name__)
 
@@ -17,13 +19,22 @@ class PathReprStorage:
     Original path and hash are encoded in the representation file path.
     """
 
+    MANIFEST = StorageManifest(type="simple", version=0)
+
     @staticmethod
-    def is_storage(directory):
-        """Check if directory contains path-based repr storage."""
+    def is_storage_heuristic(directory):
+        """Check if directory contains manifest-less path-based repr storage."""
         if not os.path.isdir(directory):
             return False
         storage = PathReprStorage(directory)
         return any(storage.list())
+
+    @staticmethod
+    def is_storage(directory):
+        manifest_file = StorageManifestFile(directory)
+        if manifest_file.exists():
+            return manifest_file.read().type == PathReprStorage.MANIFEST.type
+        return PathReprStorage.is_storage_heuristic(directory)
 
     def __init__(self, directory, save=np.save, load=np.load, suffix="_vgg_features.npy"):
         """Create a new ReprStorage instance.
@@ -41,6 +52,10 @@ class PathReprStorage:
         if not exists(self.directory):
             logger.info("Creating intermediate representations directory: %s", self.directory)
             os.makedirs(self.directory)
+
+        # Ensure directory contains compatible storage
+        manifest_file = StorageManifestFile(self.directory)
+        manifest_file.ensure(self.MANIFEST)
 
     def exists(self, path, sha256):
         """Check if the file has the representation."""

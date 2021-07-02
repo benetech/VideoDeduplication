@@ -10,6 +10,7 @@ import numpy as np
 from dataclasses import dataclass, asdict
 
 from winnow.storage.base_repr_storage import BaseReprStorage
+from winnow.storage.manifest import StorageManifest, StorageManifestFile
 from winnow.storage.repr_key import ReprKey
 
 # Logger used in representation-storage module
@@ -61,13 +62,25 @@ class LMDBReprStorage(BaseReprStorage):
     pipeline configurations have different key tags.
     """
 
+    # Storage manifest
+    MANIFEST = StorageManifest(type="lmdb", version=0)
+
     # LMDB directory name
     LMDB_DIR_NAME = "store.lmdb"
 
     @staticmethod
+    def is_storage_heuristic(directory):
+        """Check if the directory contains manifest-less LMDB repr storage."""
+        return os.path.isdir(os.path.join(directory, LMDBReprStorage.LMDB_DIR_NAME))
+
+    @staticmethod
     def is_storage(directory):
         """Check if the directory contains LMDB repr storage."""
-        return os.path.isdir(os.path.join(directory, LMDBReprStorage.LMDB_DIR_NAME))
+        manifest_file = StorageManifestFile(directory)
+        if manifest_file.exists():
+            existing = manifest_file.read()
+            return existing.type == LMDBReprStorage.MANIFEST.type
+        return LMDBReprStorage.is_storage_heuristic(directory)
 
     def __init__(self, directory, save=np.save, load=np.load, suffix=".npy"):
         """Create a new LMDBReprStorage instance.
@@ -85,6 +98,11 @@ class LMDBReprStorage(BaseReprStorage):
         if not exists(self.directory):
             logger.info("Creating intermediate representations directory: %s", self.directory)
             os.makedirs(self.directory)
+
+        # Ensure directory contains compatible storage
+        manifest_file = StorageManifestFile(self.directory)
+        manifest_file.ensure(self.MANIFEST)
+
         self._metadata_storage = lmdb.open(join(self.directory, self.LMDB_DIR_NAME))
 
     def exists(self, key: ReprKey) -> bool:

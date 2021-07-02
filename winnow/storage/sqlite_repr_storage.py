@@ -9,6 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from db import Database
 from winnow.storage.base_repr_storage import BaseReprStorage
+from winnow.storage.manifest import StorageManifest, StorageManifestFile
 from winnow.storage.repr_key import ReprKey
 
 # Logger used in representation-storage module
@@ -52,12 +53,24 @@ class SQLiteReprStorage(BaseReprStorage):
     pipeline configurations have different key tags.
     """
 
+    # Storage manifest
+    MANIFEST = StorageManifest(type="sqlite", version=0)
+
     # SQLite database file name
     DB_FILE_NAME = "repr.sqlite"
 
     @staticmethod
-    def is_storage(directory):
+    def is_storage_heuristic(directory):
+        """Check if the directory contains manifest-less SQlite repr storage."""
         return os.path.isfile(os.path.join(directory, SQLiteReprStorage.DB_FILE_NAME))
+
+    @staticmethod
+    def is_storage(directory):
+        """Check if the directory contains SQlite repr storage."""
+        manifest_file = StorageManifestFile(directory)
+        if manifest_file.exists():
+            return manifest_file.read().type == SQLiteReprStorage.MANIFEST.type
+        return SQLiteReprStorage.is_storage_heuristic(directory)
 
     # The storage is implemented as follows:
     #   * All information is stored in some user-specified directory.
@@ -82,6 +95,10 @@ class SQLiteReprStorage(BaseReprStorage):
         if not os.path.exists(directory):
             logger.info("Creating intermediate representation directory: %s", self.directory)
             os.makedirs(self.directory)
+
+        # Ensure directory contains compatible storage
+        manifest_file = StorageManifestFile(self.directory)
+        manifest_file.ensure(self.MANIFEST)
 
         self.db_file = os.path.join(self.directory, self.DB_FILE_NAME)
         self.database = Database(f"sqlite:///{self.db_file}", base=Base)
