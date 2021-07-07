@@ -20,9 +20,6 @@ def extract_label(fp):
         return "No label available"
 
 
-# "data/vcdb/video_level"
-
-
 def get_original_fp(source_video, path, start="data/"):
     return os.path.join(source_video, os.path.relpath(path, start=start).replace(".npy", ""))
 
