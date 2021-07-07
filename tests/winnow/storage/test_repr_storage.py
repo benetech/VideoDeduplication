@@ -6,10 +6,10 @@ import numpy as np
 import pytest
 from dataclasses import asdict
 
-from winnow.storage.lmdb_repr_storage import LMDBReprStorage
-from winnow.storage.repr_key import ReprKey
+from winnow.storage.legacy.lmdb_repr_storage import LMDBReprStorage
+from winnow.storage.legacy.repr_key import ReprKey
 from winnow.storage.repr_utils import bulk_read, bulk_write
-from winnow.storage.sqlite_repr_storage import SQLiteReprStorage
+from winnow.storage.legacy.sqlite_repr_storage import SQLiteReprStorage
 
 
 # NOTE: exactly the same tests are executed for each basic repr-storage type.

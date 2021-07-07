@@ -12,9 +12,9 @@ from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonito
 from winnow.remote import RepositoryClient
 from winnow.remote.helpers import file_to_local_fingerprint
 from winnow.remote.model import RemoteFingerprint, LocalFingerprint
-from winnow.storage.lmdb_repr_storage import LMDBReprStorage
+from winnow.storage.legacy.lmdb_repr_storage import LMDBReprStorage
 from winnow.storage.remote_signature_dao import RemoteSignatureReprDAO
-from winnow.storage.repr_key import ReprKey
+from winnow.storage.legacy.repr_key import ReprKey
 from winnow.utils.iterators import chunks
 
 

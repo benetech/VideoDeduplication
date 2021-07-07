@@ -10,7 +10,7 @@ from winnow.pipeline.extract_video_level_features import extract_video_level_fea
 from winnow.pipeline.extract_video_signatures import extract_video_signatures
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.store_database_signatures import store_database_signatures
-from winnow.storage.repr_key import ReprKey
+from winnow.storage.legacy.repr_key import ReprKey
 from winnow.storage.repr_utils import bulk_read
 from winnow.utils.config import resolve_config
 from winnow.utils.files import scan_videos

@@ -6,8 +6,8 @@ import numpy as np
 import pytest
 
 from winnow.config import Config
-from winnow.storage.lmdb_repr_storage import LMDBReprStorage
-from winnow.storage.path_repr_storage import PathReprStorage
+from winnow.storage.legacy.lmdb_repr_storage import LMDBReprStorage
+from winnow.storage.legacy.path_repr_storage import PathReprStorage
 from winnow.storage.repr_migrate import PathToLMDBMigration
 from winnow.storage.repr_storage import ReprStorage
 

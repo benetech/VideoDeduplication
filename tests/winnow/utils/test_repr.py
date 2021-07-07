@@ -6,10 +6,10 @@ import pytest
 
 from winnow.config import Config
 from winnow.config.config import StorageType
-from winnow.storage.lmdb_repr_storage import LMDBReprStorage
-from winnow.storage.repr_key import ReprKey
-from winnow.storage.simple_repr_storage import SimpleReprStorage
-from winnow.storage.sqlite_repr_storage import SQLiteReprStorage
+from winnow.storage.legacy.lmdb_repr_storage import LMDBReprStorage
+from winnow.storage.legacy.repr_key import ReprKey
+from winnow.storage.legacy.simple_repr_storage import SimpleReprStorage
+from winnow.storage.legacy.sqlite_repr_storage import SQLiteReprStorage
 from winnow.utils.repr import repr_storage_factory
 
 

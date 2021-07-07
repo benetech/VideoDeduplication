@@ -9,9 +9,9 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from db import Database
 from winnow.storage.atomic_file import atomic_file_open
-from winnow.storage.base_repr_storage import BaseReprStorage
+from winnow.storage.legacy.legacy_repr_storage import LegacyReprStorage
+from winnow.storage.legacy.repr_key import ReprKey
 from winnow.storage.manifest import StorageManifest, StorageManifestFile
-from winnow.storage.repr_key import ReprKey
 
 # Logger used in representation-storage module
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ class FeatureFile(Base):
         return ReprKey(path=self.source_path, hash=self.hash, tag=self.tag)
 
 
-class SQLiteReprStorage(BaseReprStorage):
+class SQLiteReprStorage(LegacyReprStorage):
     """SQLite-based persistent storage for intermediate representations.
 
     For each dataset file path there is a single entry in the storage.
@@ -105,15 +105,15 @@ class SQLiteReprStorage(BaseReprStorage):
         self.database = Database(f"sqlite:///{self.db_file}", base=Base)
         self.database.create_tables()
 
-    def exists(self, key: ReprKey):
+    def exists(self, key: ReprKey, check_tag: bool = True):
         """Check if the representation exists."""
         with self.database.session_scope() as session:
-            return self._exists(session, key)
+            return self._exists(session, key, check_tag)
 
-    def read(self, key: ReprKey):
+    def read(self, key: ReprKey, check_tag: bool = True):
         """Read file's representation."""
         with self.database.session_scope() as session:
-            record = self._record(session, key).one_or_none()
+            record = self._record(session, key, check_tag).one_or_none()
             if record is None:
                 raise KeyError(repr(key))
             feature_file_path = os.path.join(self.directory, record.feature_file_path)
@@ -157,27 +157,26 @@ class SQLiteReprStorage(BaseReprStorage):
     # Private methods
 
     @staticmethod
-    def _record(session, key: ReprKey):
+    def _record(session, key: ReprKey, check_tag: bool):
         """Shortcut for querying record for the given feature-file."""
-        return session.query(FeatureFile).filter(
+        query = session.query(FeatureFile).filter(
             FeatureFile.source_path == key.path,
             FeatureFile.hash == key.hash,
-            FeatureFile.tag == key.tag,
         )
+        if check_tag:
+            query = query.filter(FeatureFile.tag == key.tag)
+        return query
 
     @staticmethod
-    def _exists(session, key: ReprKey):
+    def _exists(session, key: ReprKey, check_tag: bool):
         """Shortcut for checking record presence."""
-        return (
-            session.query(FeatureFile.id)
-            .filter(
-                FeatureFile.source_path == key.path,
-                FeatureFile.hash == key.hash,
-                FeatureFile.tag == key.tag,
-            )
-            .scalar()
-            is not None
+        query = session.query(FeatureFile.id).filter(
+            FeatureFile.source_path == key.path,
+            FeatureFile.hash == key.hash,
         )
+        if check_tag:
+            query = query.filter(FeatureFile.tag == key.tag)
+        return query.scalar() is not None
 
     def _get_or_create(self, session, path):
         """Get feature-file record, create one with unique name if not exist."""

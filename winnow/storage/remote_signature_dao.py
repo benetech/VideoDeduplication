@@ -14,8 +14,8 @@ from db import Database
 from db.access.files import FilesDAO
 from db.schema import Matches
 from winnow.remote.model import RemoteFingerprint
-from winnow.storage.lmdb_repr_storage import LMDBReprStorage
-from winnow.storage.repr_key import ReprKey
+from winnow.storage.legacy.lmdb_repr_storage import LMDBReprStorage
+from winnow.storage.legacy.repr_key import ReprKey
 from winnow.utils.iterators import chunks
 
 # Default module logger

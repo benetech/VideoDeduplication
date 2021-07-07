@@ -1,6 +1,6 @@
 from os.path import join, abspath
 
-from .lmdb_repr_storage import LMDBReprStorage
+from winnow.storage.legacy.lmdb_repr_storage import LMDBReprStorage
 
 
 class ReprStorage:

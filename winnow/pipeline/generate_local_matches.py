@@ -13,7 +13,7 @@ from winnow.pipeline.extract_video_signatures import video_signatures_exist, ext
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
 from winnow.pipeline.store_database_signatures import database_signatures_exist, store_database_signatures
-from winnow.storage.repr_key import ReprKey
+from winnow.storage.legacy.repr_key import ReprKey
 from winnow.storage.repr_utils import bulk_read
 from winnow.utils.brightness import get_brightness_estimation
 from winnow.utils.files import get_hash

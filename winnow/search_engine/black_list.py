@@ -1,6 +1,6 @@
 from db.schema import TemplateFileExclusion, TemplateMatches
 from winnow.search_engine.model import Template
-from winnow.storage.repr_key import ReprKey
+from winnow.storage.legacy.repr_key import ReprKey
 
 
 class Cover:

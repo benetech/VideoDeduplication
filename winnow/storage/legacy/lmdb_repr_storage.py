@@ -10,9 +10,9 @@ import numpy as np
 from dataclasses import dataclass, asdict
 
 from winnow.storage.atomic_file import atomic_file_open
-from winnow.storage.base_repr_storage import BaseReprStorage
+from winnow.storage.legacy.legacy_repr_storage import LegacyReprStorage
+from winnow.storage.legacy.repr_key import ReprKey
 from winnow.storage.manifest import StorageManifest, StorageManifestFile
-from winnow.storage.repr_key import ReprKey
 
 # Logger used in representation-storage module
 logger = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ class Metadata:
         return Metadata(hash=key.hash, tag=key.tag)
 
 
-class LMDBReprStorage(BaseReprStorage):
+class LMDBReprStorage(LegacyReprStorage):
     """LMDB-based persistent storage for intermediate representations.
 
     For each dataset file path there is a single entry in the storage.
@@ -106,21 +106,23 @@ class LMDBReprStorage(BaseReprStorage):
 
         self._metadata_storage = lmdb.open(join(self.directory, self.LMDB_DIR_NAME))
 
-    def exists(self, key: ReprKey) -> bool:
+    def exists(self, key: ReprKey, check_tag: bool = True) -> bool:
         """Check if the representation exists."""
         try:
+            if not check_tag:
+                return exists(self._map(key.path))
+            # Otherwise match configuration tag
             with self._metadata_storage.begin(write=False) as txn:
                 metadata = self._read_metadata(key.path, txn)
                 return exists(self._map(key.path)) and metadata == Metadata.from_key(key)
         except Exception as e:
-
             logger.error(f"Error processing file:{key.path}")
             logger.error(e)
             return False
 
-    def read(self, key: ReprKey):
+    def read(self, key: ReprKey, check_tag: bool = True):
         """Read file's representation."""
-        if not self.exists(key):
+        if not self.exists(key, check_tag):
             raise KeyError(repr(key))
         return self._load(self._map(key.path))
 
