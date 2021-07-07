@@ -8,6 +8,7 @@ from sqlalchemy import Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 
 from db import Database
+from winnow.storage.atomic_file import atomic_file_open
 from winnow.storage.base_repr_storage import BaseReprStorage
 from winnow.storage.manifest import StorageManifest, StorageManifestFile
 from winnow.storage.repr_key import ReprKey
@@ -125,7 +126,8 @@ class SQLiteReprStorage(BaseReprStorage):
             record.hash = key.hash
             record.tag = key.tag
             feature_file_path = os.path.join(self.directory, record.feature_file_path)
-            self._save(feature_file_path, value)
+            with atomic_file_open(feature_file_path) as file:
+                self._save(file, value)
 
     def delete(self, path):
         """Delete representation for the file."""

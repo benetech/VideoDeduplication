@@ -2,13 +2,14 @@ import json
 import logging
 import os
 from glob import glob
-from os.path import join, relpath, abspath, exists, dirname
+from os.path import join, relpath, abspath, exists
 from typing import Iterator
 
 import lmdb
 import numpy as np
 from dataclasses import dataclass, asdict
 
+from winnow.storage.atomic_file import atomic_file_open
 from winnow.storage.base_repr_storage import BaseReprStorage
 from winnow.storage.manifest import StorageManifest, StorageManifestFile
 from winnow.storage.repr_key import ReprKey
@@ -127,9 +128,8 @@ class LMDBReprStorage(BaseReprStorage):
         """Write the representation for the given file."""
         with self._metadata_storage.begin(write=True) as txn:
             feature_file_path = self._map(key.path)
-            if not exists(dirname(feature_file_path)):
-                os.makedirs(dirname(feature_file_path))
-            self._save(feature_file_path, value)
+            with atomic_file_open(feature_file_path) as file:
+                self._save(file, value)
             self._write_metadata(key, txn)
 
     def delete(self, path):

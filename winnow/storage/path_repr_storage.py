@@ -1,10 +1,11 @@
 import logging
 import os
 from glob import glob
-from os.path import join, relpath, abspath, exists, dirname
+from os.path import join, relpath, abspath, exists
 
 import numpy as np
 
+from winnow.storage.atomic_file import atomic_file_open
 from winnow.storage.manifest import StorageManifest, StorageManifestFile
 
 # Logger used in representation-storage module
@@ -68,9 +69,8 @@ class PathReprStorage:
     def write(self, path, sha256, value):
         """Write the representation for the given file."""
         feature_file_path = self._map(path, sha256)
-        if not exists(dirname(feature_file_path)):
-            os.makedirs(dirname(feature_file_path))
-        self._save(feature_file_path, value)
+        with atomic_file_open(feature_file_path) as file:
+            self._save(file, value)
 
     def delete(self, path, sha256):
         """Delete representation for the file."""
