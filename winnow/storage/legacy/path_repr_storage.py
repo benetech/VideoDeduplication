@@ -46,6 +46,7 @@ class PathReprStorage:
             load (Function): Function to load representation value from file.
             suffix (String): A common suffix of intermediate representation files.
         """
+        logger.warning("Legacy PathReprStorage is deprecated. Use SimpleReprStorage instead.", DeprecationWarning)
         self.directory = abspath(directory)
         self.suffix = suffix
         self._save = save

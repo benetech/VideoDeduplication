@@ -88,6 +88,7 @@ class SQLiteReprStorage(LegacyReprStorage):
             save (Function): Function to write representation value to the file.
             load (Function): Function to load representation value from file.
         """
+        logger.warning("Legacy SQLiteReprStorage is deprecated. Use SimpleReprStorage instead.", DeprecationWarning)
         self.directory = os.path.abspath(directory)
         self._save = save
         self._load = load

@@ -12,6 +12,8 @@ class ReprKey:
     Configuration tag purpose is to guarantee that whenever pipeline
     configuration is changed the clint code must be able to detect that
     to update the stored representation value.
+
+    **DEPRECATED IN FAVOR OF FileKey**
     """
 
     path: str  # video file path relative to dataset root folder
