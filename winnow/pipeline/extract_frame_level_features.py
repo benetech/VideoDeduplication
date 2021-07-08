@@ -35,7 +35,7 @@ def extract_frame_level_features(
 
     def save_features(file_path, frames_tensor, frames_features):
         """Handle features extracted from a single video file."""
-        key = pipeline.reprkey(file_path)
+        key = pipeline.filekey(file_path)
         pipeline.repr_storage.frame_level.write(key, frames_features)
         if pipeline.config.proc.save_frames:
             pipeline.repr_storage.frames.write(key, frames_tensor)
@@ -58,7 +58,7 @@ def missing_frame_features(files, pipeline: PipelineContext):
     """Get file paths with missing frame-level features."""
     frame_features = pipeline.repr_storage.frame_level
     for i, file_path in enumerate(files):
-        if not frame_features.exists(pipeline.reprkey(file_path)):
+        if not frame_features.exists(pipeline.filekey(file_path)):
             yield file_path
 
 

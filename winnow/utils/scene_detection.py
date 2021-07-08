@@ -1,11 +1,15 @@
 import datetime
-from typing import List, Tuple
 import logging
+from typing import List, Tuple, Iterable
+
 import matplotlib.pyplot as plt
 import numpy as np
 from dataclasses import dataclass
 from scipy.spatial.distance import cosine
 from tqdm import tqdm
+
+from winnow.storage.base_repr_storage import BaseReprStorage
+from winnow.storage.file_key import FileKey
 
 logger = logging.getLogger(__name__)
 
@@ -129,41 +133,42 @@ def filter_short_scenes(scene_duration_list, min_duration=2):
     return adj
 
 
-def frame_iterator(keys, lmdb_repr):
+def frame_iterator(keys, repr_storage: BaseReprStorage):
     for key in keys:
-
         try:
-
             path = key.path
             file_hash = key.hash
-            features = lmdb_repr.read(key)
+            features = repr_storage.read(key)
             yield path, file_hash, features
-
         except Exception as e:
-
-            logger.error("Error processing:{} - {}".format(key, e))
+            logger.error("Error processing: %s - %s", key, e)
 
 
 def extract_scenes(
-    frame_level_reps, lmdb_repr, minimum_duration=10, upper_thresh=0.793878, min_dif=0.04, min_scene_duration=2
+    file_keys: Iterable[FileKey],
+    frame_features_storage: BaseReprStorage,
+    minimum_duration: int = 10,
+    upper_thresh: float = 0.793878,
+    min_dif: float = 0.04,
+    min_scene_duration: int = 2,
 ):
     """
-
     Extracts scenes from a list of files
 
     Args:
-        frame_features_dict (array): List of repr keys containing path to its frame-level features and hash.
-
-    Keyword Args:
-        minimum_duration (int): Minimum duration of video in seconds.
-        (default: {10})
+        file_keys (Iterable[FileKey]): List of repr keys containing path to its frame-level features and hash.
+        frame_features_storage (BaseReprStorage): Frame-level features repr storage.
+        minimum_duration (int): Minimum duration of video in seconds (default: {10})
+        upper_thresh (float):
+        min_dif (float):
+        min_scene_duration (int): minimal scene duration in seconds
 
     Returns:
         SceneExtractionResults: Data structure containing complete scene
         extraction results.
     """
     # Filter videos by duration
-    frame_level_iterator = frame_iterator(frame_level_reps, lmdb_repr)
+    frame_level_iterator = frame_iterator(file_keys, frame_features_storage)
 
     raw_scenes = []
     paths = []

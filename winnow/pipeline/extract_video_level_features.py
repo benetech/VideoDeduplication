@@ -40,7 +40,7 @@ def missing_video_features(files, pipeline: PipelineContext):
     """Get file paths with missing video-level features."""
     video_features = pipeline.repr_storage.video_level
     for i, file_path in enumerate(files):
-        if not video_features.exists(pipeline.reprkey(file_path)):
+        if not video_features.exists(pipeline.filekey(file_path)):
             yield file_path
 
 
@@ -52,7 +52,7 @@ def video_features_exist(files, pipeline: PipelineContext):
 def frame_to_global(files, pipeline: PipelineContext, progress=ProgressMonitor.NULL):
     """Calculate and save video-level feature vectors based on frame-level representation."""
     progress.scale(len(files))
-    for key in map(pipeline.reprkey, files):
+    for key in map(pipeline.filekey, files):
         try:
             frame_features = pipeline.repr_storage.frame_level.read(key)
             video_representation = global_vector(frame_features)

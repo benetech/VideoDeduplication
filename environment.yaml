@@ -42,5 +42,6 @@ dependencies:
       - annoy
       - youtube-dl
       - dacite
+      - deprecation
 
 prefix: C:\ProgramData\Anaconda3\envs\winnow

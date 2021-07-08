@@ -39,10 +39,10 @@ def detect_scenes(files: Collection[str], pipeline: PipelineContext, progress=Pr
 
     config = pipeline.config
     frame_features = pipeline.repr_storage.frame_level
-    repr_keys = tuple(map(pipeline.reprkey, remaining_video_paths))
+    file_keys = tuple(map(pipeline.filekey, remaining_video_paths))
 
     # Do extract scenes
-    scenes = extract_scenes(repr_keys, frame_features, min_scene_duration=config.proc.minimum_scene_duration)
+    scenes = extract_scenes(file_keys, frame_features, min_scene_duration=config.proc.minimum_scene_duration)
     scene_metadata = pd.DataFrame(asdict(scenes))
 
     if config.database.use:

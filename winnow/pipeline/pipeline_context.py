@@ -13,6 +13,8 @@ from winnow.remote.connect import RepoConnector, DatabaseConnector, ReprConnecto
 from winnow.remote.repository_dao import RepoDAO, RemoteRepoDatabaseDAO, RemoteRepoCsvDAO
 from winnow.security import SecureStorage
 from winnow.storage.db_result_storage import DBResultStorage
+from winnow.storage.file_key import FileKey
+from winnow.storage.metadata import FeaturesMetadata
 from winnow.storage.remote_signature_dao import (
     RemoteSignatureDatabaseDAO,
     RemoteSignatureReprDAO,
@@ -20,7 +22,7 @@ from winnow.storage.remote_signature_dao import (
 )
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import path_resolver
-from winnow.utils.repr import reprkey_resolver, repr_storage_factory
+from winnow.utils.repr import repr_storage_factory, filekey_resolver
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +44,7 @@ class PipelineContext:
         """Get representation storage."""
         return ReprStorage(
             directory=self.config.repr.directory,
-            storage_factory=repr_storage_factory(self.config),
+            storage_factory=repr_storage_factory(self.config.repr.storage_type),
         )
 
     @cached_property
@@ -53,9 +55,14 @@ class PipelineContext:
         return database
 
     @cached_property
-    def reprkey(self) -> Callable:
+    def filekey(self) -> Callable[[str], FileKey]:
         """Get representation key getter."""
-        return reprkey_resolver(self.config)
+        return filekey_resolver(self.config)
+
+    @cached_property
+    def features_metadata(self) -> FeaturesMetadata:
+        """Get features metadata."""
+        return FeaturesMetadata(frame_sampling=self.config.proc.frame_sampling)
 
     @cached_property
     def storepath(self) -> Callable:

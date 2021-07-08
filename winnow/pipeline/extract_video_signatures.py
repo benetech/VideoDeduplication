@@ -5,6 +5,7 @@ from winnow.feature_extraction import SimilarityModel
 from winnow.pipeline.extract_video_level_features import video_features_exist, extract_video_level_features
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
+from winnow.storage.file_key import FileKey
 from winnow.storage.legacy.repr_key import ReprKey
 from winnow.storage.repr_utils import bulk_read, bulk_write
 
@@ -46,7 +47,7 @@ def missing_video_signatures(files, pipeline: PipelineContext):
     signatures = pipeline.repr_storage.signature
 
     for i, file_path in enumerate(files):
-        if not signatures.exists(pipeline.reprkey(file_path)):
+        if not signatures.exists(pipeline.filekey(file_path)):
             yield file_path
 
 
@@ -56,10 +57,10 @@ def video_signatures_exist(files, pipeline: PipelineContext):
     return not any(missing_video_signatures(files, pipeline))
 
 
-def extract_signatures(files, pipeline: PipelineContext) -> Dict[ReprKey, Collection[float]]:
+def extract_signatures(files, pipeline: PipelineContext) -> Dict[FileKey, Collection[float]]:
     """Do extract signatures for the given video-files."""
     similarity_model = SimilarityModel()
-    file_keys = [pipeline.reprkey(file) for i, file in enumerate(files)]
+    file_keys = [pipeline.filekey(file) for i, file in enumerate(files)]
 
     video_features = bulk_read(pipeline.repr_storage.video_level, select=file_keys)
     return similarity_model.predict(video_features)

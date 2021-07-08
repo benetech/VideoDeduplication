@@ -123,6 +123,10 @@ class SimpleReprStorage(BaseReprStorage):
         metadata_file_path = self._map(key, self._metadata_suffix)
         return os.path.isfile(metadata_file_path)
 
+    def close(self):
+        """Dispose simple repr storage."""
+        pass  # Nothing to do ...
+
     # Private methods
 
     def _map(self, key: FileKey, suffix):

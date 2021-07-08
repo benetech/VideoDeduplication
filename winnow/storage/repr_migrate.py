@@ -2,12 +2,13 @@ import logging
 import os
 
 from winnow.config import Config
+from winnow.storage.legacy.helpers import get_config_tag
 from winnow.storage.legacy.lmdb_repr_storage import LMDBReprStorage
 from winnow.storage.legacy.path_repr_storage import PathReprStorage
 from winnow.storage.legacy.repr_key import ReprKey
-from winnow.utils.repr import get_config_tag
 
-logger = logging.getLogger(__name__)
+# Default module logger
+_logger = logging.getLogger(__name__)
 
 
 class PathToLMDBMigration:
@@ -26,7 +27,7 @@ class PathToLMDBMigration:
 
     def migrate_single_storage(self, source, destination, clean_source=False):
         """Migrate single PathReprStorage to LMDBReprStorage."""
-        logger.info("Migrating to lmdb storage:\n\tsrc=%s\n\tdst=%s", source, destination)
+        _logger.info("Migrating to lmdb storage:\n\tsrc=%s\n\tdst=%s", source, destination)
         config_tag = get_config_tag(self._config)
         path_storage = PathReprStorage(directory=source)
         lmdb_storage = LMDBReprStorage(directory=destination)

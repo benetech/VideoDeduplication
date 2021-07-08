@@ -1,85 +1,67 @@
 """The repr module offers high-level utility functions to work with intermediate representations."""
-import hashlib
-import json
 import logging
+from os import PathLike
+from typing import Callable
 
 from winnow.config import Config
 from winnow.config.config import StorageType
-from winnow.storage.legacy.lmdb_repr_storage import LMDBReprStorage
-from winnow.storage.legacy.repr_key import ReprKey
+from winnow.storage.base_repr_storage import BaseReprStorage
+from winnow.storage.file_key import FileKey
+from winnow.storage.legacy import LMDBReprStorage, SQLiteReprStorage
+from winnow.storage.legacy.wrapper import LegacyStorageWrapper
 from winnow.storage.repr_utils import path_resolver
-from winnow.storage.legacy.simple_repr_storage import SimpleReprStorage
-from winnow.storage.legacy.sqlite_repr_storage import SQLiteReprStorage
+from winnow.storage.simple_repr_storage import SimpleReprStorage
 from winnow.utils.files import get_hash
 
 # Default logger module
 logger = logging.getLogger(__name__)
 
 
-def reprkey_resolver(config):
-    """Create a function to get intermediate storage key and tags by the file path.
+def filekey_resolver(config: Config) -> Callable[[str], FileKey]:
+    """Create a function to generate video FileKey(storage-path, hash) from the path.
 
     Args:
-        config (winnow.config.Config): Pipeline configuration.
+        config (Config): Pipeline configuration.
     """
-
     storepath = path_resolver(config.sources.root)
-    config_tag = get_config_tag(config)
 
-    def reprkey(path, hash=None):
-        """Get intermediate representation storage key."""
+    def filekey(path: PathLike, hash: str = None) -> FileKey:
+        """Convert path and optional hash to the FileKey. Caclulate missing hashes."""
         if hash is None:
             hash = get_hash(path)
+        return FileKey(path=storepath(path), hash=hash)
 
-        return ReprKey(path=storepath(path), hash=hash, tag=config_tag)
-
-    return reprkey
-
-
-def get_config_tag(config):
-    """Get configuration tag.
-
-    Whenever configuration changes making the intermediate representation
-    incompatible the tag value will change as well.
-    """
-
-    # Configuration attributes that affect representation value
-    config_attributes = dict(frame_sampling=config.proc.frame_sampling)
-
-    sha256 = hashlib.sha256()
-    sha256.update(json.dumps(config_attributes).encode("utf-8"))
-    return sha256.hexdigest()[:40]
+    return filekey
 
 
-def repr_storage_factory(config: Config, default_factory=LMDBReprStorage):
+def repr_storage_factory(
+    storage_type: StorageType,
+    default_factory=SimpleReprStorage,
+) -> Callable[[int], BaseReprStorage]:
     """Get storage factory depending on the storage type from the config."""
 
     def detect_storage(directory):
         """Detect existing storage."""
         if LMDBReprStorage.is_storage(directory):
             logger.info("Detected LMDB repr-storage in %s", directory)
-            return LMDBReprStorage(directory)
+            return LegacyStorageWrapper(LMDBReprStorage(directory))
         elif SQLiteReprStorage.is_storage(directory):
             logger.info("Detected SQLite repr-storage in %s", directory)
-            return SQLiteReprStorage(directory)
+            return LegacyStorageWrapper(SQLiteReprStorage(directory))
         elif SimpleReprStorage.is_storage(directory):
             logger.info("Detected simple path-based repr-storage in %s", directory)
-            return SimpleReprStorage(directory, config_tag=get_config_tag(config))
+            return SimpleReprStorage(directory)
         else:
             logger.info("Cannot detect storage type in %s. Using default factory instead.", directory)
             return default_factory(directory)
 
-    storage_type = config.repr.storage_type
-
-    if storage_type is None:
-        return default_factory
+    if storage_type is StorageType.SIMPLE:
+        return SimpleReprStorage
     elif storage_type is StorageType.LMDB:
-        return LMDBReprStorage
-    elif storage_type is StorageType.SIMPLE:
-        return lambda directory: SimpleReprStorage(directory=directory, config_tag=get_config_tag(config))
+        return LegacyStorageWrapper.factory(LMDBReprStorage)
     elif storage_type is StorageType.SQLITE:
-        return SQLiteReprStorage
-    elif storage_type is StorageType.DETECT:
+        return LegacyStorageWrapper.factory(SQLiteReprStorage)
+    elif storage_type is StorageType.DETECT or storage_type is None:
         return detect_storage
     else:
-        raise ValueError(f"Unsupported repr-storage type: {storage_type}")
+        raise ValueError(f"Unrecognized repr-storage type: {storage_type}")

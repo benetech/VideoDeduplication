@@ -19,8 +19,24 @@ def _file_key(repr_key: ReprKey) -> FileKey:
 class LegacyStorageWrapper(BaseReprStorage):
     """Adapter of the legacy storage to the new API."""
 
+    @staticmethod
+    def factory(legacy_factory):
+        """Create a wrapped storage factory."""
+
+        def make_storage(*args, **kwargs):
+            """Do create a wrapped storage."""
+            legacy_storage = legacy_factory(*args, **kwargs)
+            return LegacyStorageWrapper(legacy_storage)
+
+        return make_storage
+
     def __init__(self, storage: LegacyReprStorage):
         self._storage = storage
+
+    @property
+    def wrapped(self):
+        """Get wrapped storage."""
+        return self._storage
 
     def exists(self, key: FileKey) -> bool:
         """Check if the representation exists."""

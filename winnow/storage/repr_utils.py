@@ -39,7 +39,7 @@ def bulk_read(store, select=None):
 
     Args:
         store: Representation store for a single representation type (e.g. LMBDBReprStorage)
-        select: Iterable over storage keys.
+        select: Iterable over file keys.
 
     Returns:
         Dictionary mapping storage keys to the loaded representation value.
