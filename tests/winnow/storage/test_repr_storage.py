@@ -6,37 +6,24 @@ import numpy as np
 import pytest
 from dataclasses import asdict
 
-from winnow.storage.legacy.lmdb_repr_storage import LMDBReprStorage
-from winnow.storage.legacy.repr_key import ReprKey
+from winnow.storage.base_repr_storage import BaseReprStorage
+from winnow.storage.file_key import FileKey
+from winnow.storage.metadata import FeaturesMetadata
 from winnow.storage.repr_utils import bulk_read, bulk_write
-from winnow.storage.legacy.sqlite_repr_storage import SQLiteReprStorage
+from winnow.storage.simple_repr_storage import SimpleReprStorage
 
 
-# NOTE: exactly the same tests are executed for each basic repr-storage type.
-
-
-# This is an indirect fixture that receives storage type as an argument.
-# Please see # https://docs.pytest.org/en/stable/example/parametrize.html#indirect-parametrization
 @pytest.fixture
-def store(request):
-    """
-    Create a new empty repr storage of the
-    requested type in a temporary directory.
-    """
-    store_type = request.param
+def storage():
+    """Create a new empty repr storage."""
     with tempfile.TemporaryDirectory(prefix="repr-store-") as directory:
-        yield store_type(directory=directory)
+        yield SimpleReprStorage(directory=directory)
 
 
-# Shortcut for pytest parametrize decorator.
-# Decorated test will be executed for all existing representation store types.
-use_store = pytest.mark.parametrize("store", [LMDBReprStorage, SQLiteReprStorage], indirect=True)
-
-
-def make_key():
-    """Make some repr storage key."""
+def make_key() -> FileKey:
+    """Make unique file key."""
     unique = uuid()
-    return ReprKey(path=f"some/path-{unique}", hash=f"some-hash-{unique}", tag=f"some-tag-{unique}")
+    return FileKey(path=f"some/path-{unique}", hash=f"some-hash-{unique}")
 
 
 def make_entry():
@@ -44,97 +31,122 @@ def make_entry():
     return make_key(), np.array([str(uuid())])
 
 
-def copy(key, **kwargs):
+def copy(key: FileKey, **kwargs) -> FileKey:
+    """Copy file key and optionally update some of the attributes."""
     args = asdict(key)
     args.update(kwargs)
-    return ReprKey(**args)
+    return FileKey(**args)
 
 
-@use_store
-def test_empty(store):
-    assert len(list(store.list())) == 0
+def test_empty(storage: BaseReprStorage):
+    assert len(list(storage.list())) == 0
 
 
-@use_store
-def test_exists(store):
+def test_exists(storage: BaseReprStorage):
     key, value = make_entry()
 
     # Doesn't exist before write
-    assert not store.exists(key)
+    assert not storage.exists(key)
 
     # Exists when written
-    store.write(key, value)
-    assert store.exists(key)
+    storage.write(key, value)
+    assert storage.exists(key)
 
     # Doesn't exist after deletion
-    store.delete(key.path)
-    assert not store.exists(key)
+    storage.delete(key)
+    assert not storage.exists(key)
 
 
-@use_store
-def test_read_write(store):
+def test_read_write(storage: BaseReprStorage):
     key, value, another_value = make_key(), np.array(["some-value"]), np.array(["another-value"])
 
-    store.write(key, value)
-    assert store.read(key) == value
+    storage.write(key, value)
+    assert storage.read(key) == value
 
-    store.write(key, another_value)
-    assert store.read(key) == another_value
+    storage.write(key, another_value)
+    assert storage.read(key) == another_value
 
     # Repeat write
-    store.write(key, another_value)
-    assert store.read(key) == another_value
+    storage.write(key, another_value)
+    assert storage.read(key) == another_value
 
     # Repeat read
-    assert store.read(key) == another_value
+    assert storage.read(key) == another_value
 
 
-@use_store
-def test_read_write_multiple(store):
+def test_read_write_multiple(storage: BaseReprStorage):
     key_1, value_1 = make_entry()
     key_2, value_2 = make_entry()
 
-    store.write(key_1, value_1)
-    store.write(key_2, value_2)
+    storage.write(key_1, value_1)
+    storage.write(key_2, value_2)
 
-    assert store.exists(key_1)
-    assert store.exists(key_2)
-    assert store.read(key_1) == value_1
-    assert store.read(key_2) == value_2
+    assert storage.exists(key_1)
+    assert storage.exists(key_2)
+    assert storage.read(key_1) == value_1
+    assert storage.read(key_2) == value_2
 
     # Mix up path and hash
     unknown = make_key()
-    assert not store.exists(unknown)
-    assert not store.exists(copy(key_1, hash=key_2.hash))
-    assert not store.exists(copy(key_1, tag=key_2.tag))
-    assert not store.exists(copy(key_2, hash=key_1.hash))
-    assert not store.exists(copy(key_2, tag=key_1.tag))
+    assert not storage.exists(unknown)
+    assert not storage.exists(copy(key_1, hash=key_2.hash))
+    assert not storage.exists(copy(key_2, hash=key_1.hash))
 
 
-@use_store
-def test_list(store):
-    assert list(store.list()) == []
+def test_list(storage: BaseReprStorage):
+    assert list(storage.list()) == []
 
     key_1, key_2 = make_key(), make_key()
 
-    store.write(key_1, np.array(["some-value"]))
-    assert set(store.list()) == {key_1}
+    storage.write(key_1, np.array(["some-value"]))
+    assert set(storage.list()) == {key_1}
 
-    store.write(key_2, np.array(["some-value"]))
-    assert set(store.list()) == {key_1, key_2}
+    storage.write(key_2, np.array(["some-value"]))
+    assert set(storage.list()) == {key_1, key_2}
 
-    store.delete(key_1.path)
-    assert set(store.list()) == {key_2}
+    storage.delete(key_1)
+    assert set(storage.list()) == {key_2}
 
 
-@use_store
-def test_bulk_read_write(store):
+def test_bulk_read_write(storage: BaseReprStorage):
     data_as_dict = dict(make_entry() for _ in range(100))
 
-    bulk_write(store, data_as_dict)
-    assert bulk_read(store) == data_as_dict
-    assert set(store.list()) == set(data_as_dict.keys())
+    bulk_write(storage, data_as_dict)
+    assert bulk_read(storage) == data_as_dict
+    assert set(storage.list()) == set(data_as_dict.keys())
 
     # Get half of the data
     subset = dict(islice(data_as_dict.items(), 0, int(len(data_as_dict) / 2)))
-    assert bulk_read(store, select=subset.keys()) == subset
+    assert bulk_read(storage, select=subset.keys()) == subset
+
+
+def test_write_metadata(storage: BaseReprStorage):
+    key, value = make_entry()
+    expected_metadata = FeaturesMetadata(frame_sampling=42)
+
+    storage.write(key, value, metadata=expected_metadata)
+
+    assert storage.has_metadata(key)
+    assert storage.read_metadata(key) == expected_metadata
+
+
+def test_no_metadata(storage: BaseReprStorage):
+    key, value = make_entry()
+
+    storage.write(key, value)
+
+    assert not storage.has_metadata(key)
+    assert storage.read_metadata(key) is None
+
+
+def test_missing_key_metadata(storage: BaseReprStorage):
+    key, value = make_entry()
+
+    with pytest.raises(KeyError):
+        storage.read_metadata(key)
+
+    storage.write(key, value, metadata=FeaturesMetadata(frame_sampling=42))
+    storage.delete(key)
+
+    with pytest.raises(KeyError):
+        storage.read_metadata(key)

@@ -143,5 +143,5 @@ class SimpleReprStorage(BaseReprStorage):
         if split_index < 0:
             return None
         path = path_hash[:split_index]
-        sha256 = path_hash[split_index + 1 :]
-        return path, sha256
+        hash = path_hash[split_index + 1 :]
+        return FileKey(path, hash)
