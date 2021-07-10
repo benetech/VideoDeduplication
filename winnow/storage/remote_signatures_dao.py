@@ -1,11 +1,13 @@
+import abc
 import logging
 import os
 import pickle
 from datetime import datetime
 from os import listdir
 from os.path import isdir
-from typing import Dict, Iterable, Union
+from typing import Dict, Iterable, Iterator
 
+import numpy as np
 import pandas as pd
 from sqlalchemy import tuple_
 from sqlalchemy.orm import Session
@@ -14,25 +16,58 @@ from db import Database
 from db.access.files import FilesDAO
 from db.schema import Matches
 from winnow.remote.model import RemoteFingerprint
+from winnow.storage.base_repr_storage import ReprStorageFactory
 from winnow.storage.legacy.lmdb_repr_storage import LMDBReprStorage
 from winnow.storage.legacy.repr_key import ReprKey
+from winnow.storage.simple_repr_storage import SimpleReprStorage
 from winnow.utils.iterators import chunks
 
 # Default module logger
 logger = logging.getLogger(__name__)
 
 
-class RemoteSignatureDatabaseDAO:
-    """Data access object for remote signatures stored in a database."""
+class RemoteSignaturesDAO(abc.ABC):
+    """Abstract data-access object that manages pulled remoted signatures in some local storage."""
+
+    @abc.abstractmethod
+    def query_signatures(
+        self,
+        repository_name: str = None,
+        contributor_name: str = None,
+        chunk_size: int = 1000,
+    ) -> Iterator[Dict[int, np.array]]:
+        """
+        Bulk iterator over remote signatures.
+
+        Yields dicts of the shape {remote_signature_id: remote_signature}
+        where size of each dict size is limited by 'chunk_size:int'.
+        """
+        pass
+
+    @abc.abstractmethod
+    def count(self, repository_name: str = None, contributor_name: str = None) -> int:
+        """Count remote signatures."""
+        pass
+
+    @abc.abstractmethod
+    def save_matches(self, matches):
+        """Save multiple matches of the form (remote_signature_id, local_file_repr_key, distance)."""
+        pass
+
+
+class DBRemoteSignaturesDAO(RemoteSignaturesDAO):
+    """Manages pulled remote signatures stored in a database."""
 
     def __init__(self, database: Database):
         self.database: Database = database
 
     def query_signatures(self, repository_name: str = None, contributor_name: str = None, chunk_size=1000):
-        """Bulk iterator over remote signatures.
+        """
+        Bulk iterator over remote signatures.
 
         Yields dicts of the shape {remote_signature_id: remote_signature}
-        where size of each dict is 'chunk_size' items at max."""
+        where size of each dict size is limited by 'chunk_size:int'.
+        """
         with self.database.session_scope() as session:
             remote_files = FilesDAO.query_remote_files(
                 session,
@@ -86,13 +121,13 @@ class RemoteSignatureDatabaseDAO:
         return {(match.query_video_file_id, match.match_video_file_id): match for match in existing_matches}
 
 
-class RemoteSignatureReprDAO:
-    """Data access object for remote signatures stored on a local file-system as a collection of repr-storages."""
+class ReprRemoteSignaturesDAO(RemoteSignaturesDAO):
+    """Manages pulled remote signatures stored in a composite repr-storage."""
 
-    def __init__(self, root_directory, output_directory, storage_factory=LMDBReprStorage):
+    def __init__(self, root_directory, output_directory, storage_factory: ReprStorageFactory = SimpleReprStorage):
         self._root_directory = os.path.abspath(root_directory)
-        self._output_directory = os.path.abspath(output_directory)
-        self._storage_factory = storage_factory
+        self._output_directory: str = os.path.abspath(output_directory)
+        self._storage_factory: ReprStorageFactory = storage_factory
 
         if not os.path.isdir(self._root_directory):
             logger.info("Creating remote signature storage root: %s", self._root_directory)
@@ -106,10 +141,12 @@ class RemoteSignatureReprDAO:
         self._storages = {}
 
     def query_signatures(self, repository_name: str = None, contributor_name: str = None, chunk_size=1000):
-        """Bulk iterator over remote signatures.
+        """
+        Bulk iterator over remote signatures.
 
         Yields dicts of the shape {remote_signature_id: remote_signature}
-        where size of each dict is 'chunk_size' items at max."""
+        where size of each dict size is limited by 'chunk_size:int'.
+        """
         remote_signatures = self._iter_signatures(repository_name, contributor_name)
         for chunk in chunks(remote_signatures, size=chunk_size):
             yield {(repo, contrib, hash): signature for repo, contrib, hash, signature in chunk}
@@ -189,7 +226,3 @@ class RemoteSignatureReprDAO:
                 storage = self._get_storage(repo, contributor)
                 for key in storage.list():
                     yield repo, contributor, key.hash, storage.read(key)
-
-
-# Type hint for remote signature DAO
-RemoteSignatureDAOType = Union[RemoteSignatureDatabaseDAO, RemoteSignatureReprDAO]
