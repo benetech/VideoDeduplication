@@ -1,6 +1,6 @@
 from db.schema import TemplateFileExclusion, TemplateMatches
 from winnow.search_engine.model import Template
-from winnow.storage.legacy.repr_key import ReprKey
+from winnow.storage.file_key import FileKey
 
 
 class Cover:
@@ -85,6 +85,6 @@ class BlackList:
     def excluded_files(self, template: Template):
         return self._file_exclusions.get(template.name, ())
 
-    def excluded_time(self, template: Template, file: ReprKey):
+    def excluded_time(self, template: Template, file: FileKey):
         entry_key = (template.name, file.path, file.hash)
         return self._time_exclusions.get(entry_key, Cover())
