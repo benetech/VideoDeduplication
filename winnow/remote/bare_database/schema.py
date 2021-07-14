@@ -6,6 +6,10 @@ As SQLAlchemy ORM framework doesnt support upsert support, the module relies on 
 import logging
 from contextlib import contextmanager
 
+import sqlalchemy.dialects.postgresql as psql
+import sqlalchemy.dialects.sqlite as sqlite
+import sqlalchemy.sql.expression as sql
+from cached_property import cached_property
 from sqlalchemy import (
     Table,
     Column,
@@ -37,11 +41,25 @@ fingerprints_table = Table(
 
 
 class RepoDatabase:
+    @staticmethod
+    def create_repo(url, **engine_args):
+        """Create repository and apply database schema. This is useful for testing purpose."""
+        repo = RepoDatabase(url, **engine_args)
+        _metadata.create_all(bind=repo.engine)
+        return repo
+
     def __init__(self, url, **engine_args):
         self.engine = create_engine(url, **engine_args)
-        dialect_name = self.engine.dialect.name
-        if dialect_name != "postgresql":
-            raise ValueError(f"Unsupported dialect: {dialect_name}. Expected: postgresql")
+
+    @cached_property
+    def dialect(self):
+        """Get appropriate dialect-specific sql statement factory."""
+        if isinstance(self.engine.dialect, psql.dialect):
+            return psql
+        elif isinstance(self.engine.dialect, sqlite.dialect):
+            return sqlite
+        else:
+            return sql
 
     @contextmanager
     def transaction(self):

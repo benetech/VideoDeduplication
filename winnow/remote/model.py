@@ -1,6 +1,6 @@
 """This module offers model classes for remote repository clients."""
-from abc import abstractmethod, ABC
-from typing import Iterable, List, Optional, Any
+import abc
+from typing import Iterable, List, Optional, Any, Sequence
 from urllib.parse import urlparse, quote
 
 from dataclasses import dataclass
@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from db.schema import RepositoryType
 
 
-@dataclass
+@dataclass(frozen=True)
 class RemoteRepository:
     """Represents remote repository."""
 
@@ -33,44 +33,55 @@ class RemoteRepository:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class LocalFingerprint:
     """Fingerprint data to be pushed to remote repository."""
 
     sha256: str
-    fingerprint: bytes
+    fingerprint: Sequence[float]
 
 
-@dataclass
+@dataclass(frozen=True)
 class RemoteFingerprint:
     """Fingerprint from remote repository."""
 
     id: int
     sha256: str
-    fingerprint: bytes
+    fingerprint: Sequence[float]
     contributor: str
+    repository: str
 
 
-class RepositoryClient(ABC):
+class RepositoryClient(abc.ABC):
     """Abstract base class for repository clients."""
 
-    @abstractmethod
+    @property
+    @abc.abstractmethod
+    def repository(self) -> RemoteRepository:
+        """Get the repository that the client communicates with."""
+        pass
+
+    @abc.abstractmethod
     def push(self, fingerprints: Iterable[LocalFingerprint]):
         """Push fingerprints to the remote repository."""
+        pass
 
-    @abstractmethod
-    def pull(self, start_from: int, limit: int = 1000) -> List[RemoteFingerprint]:
+    @abc.abstractmethod
+    def pull(self, start_from: int = 0, limit: int = 1000) -> List[RemoteFingerprint]:
         """Fetch fingerprints from the remote repository.
 
         Args:
             start_from (int): external fingerprint id (within remote repo) from which to start pulling.
             limit (int): maximal number of fingerprints to pull at once. Must be between 0 and 10000.
         """
+        pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def latest_contribution(self) -> Optional[LocalFingerprint]:
         """Get the latest local fingerprint pushed to this repository."""
+        pass
 
-    @abstractmethod
-    def count(self, start_from: int) -> int:
+    @abc.abstractmethod
+    def count(self, start_from: int = 0) -> int:
         """Get count of fingerprint with id greater than the given one."""
+        pass

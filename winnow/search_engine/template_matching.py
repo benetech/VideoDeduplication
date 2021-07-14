@@ -65,13 +65,13 @@ class SearchEngine:
         # self.results_cache[query] = defaultdict()
         dfs = []
         excluded_files = self.black_list.excluded_files(template)
-        for repr_key in self.reprs.frame_level.list():
+        for file_key in self.reprs.frame_level.list():
             # Skip files excluded from the template scope
-            if (repr_key.path, repr_key.hash) in excluded_files:
+            if (file_key.path, file_key.hash) in excluded_files:
                 continue
-            excluded_time = self.black_list.excluded_time(template, repr_key)
+            excluded_time = self.black_list.excluded_time(template, file_key)
             try:
-                sample = self.reprs.frame_level.read(repr_key)
+                sample = self.reprs.frame_level.read(file_key)
 
                 distances = np.mean(cdist(template_features, sample, metric="cosine"), axis=0)
                 # np.save(f"dists{repr_key.path}_{query}.npy", distances)
@@ -105,8 +105,8 @@ class SearchEngine:
                                 if tseq and not excluded_time.overlaps(start_ms, end_ms):
                                     sequence_matches.append(
                                         [
-                                            repr_key.path,
-                                            repr_key.hash,
+                                            file_key.path,
+                                            file_key.hash,
                                             template.name,
                                             start_ms,
                                             end_ms,

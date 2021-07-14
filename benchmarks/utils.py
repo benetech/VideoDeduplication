@@ -1,30 +1,27 @@
-import pandas as pd
-import numpy as np
-from collections import defaultdict
-import os
-import shutil
-from glob import glob
-from tqdm import tqdm
-import subprocess
-import shlex
 import json
-from functools import partial
-
-from winnow.feature_extraction.loading_utils import evaluate, calculate_similarities, global_vector
-from winnow.feature_extraction.utils import load_image
-from winnow.feature_extraction.extraction_routine import load_featurizer
-from winnow.feature_extraction import default_model_path
-from winnow.utils.network import download_file
-from winnow.feature_extraction import SimilarityModel
-from winnow.utils.files import scan_videos
-from winnow.feature_extraction.loading_utils import plot_pr_curve
-from winnow.utils.config import resolve_config
-from winnow.utils.repr import reprkey_resolver
-from winnow.storage.repr_storage import ReprStorage
-from datetime import datetime, timedelta
-from sklearn.metrics import homogeneity_completeness_v_measure
+import os
+import shlex
+import shutil
+import subprocess
 import time
+from collections import defaultdict
+from datetime import timedelta
+from functools import partial
+from glob import glob
+
+import numpy as np
+import pandas as pd
 from dataclasses import asdict
+from sklearn.metrics import homogeneity_completeness_v_measure
+from tqdm import tqdm
+
+from winnow.feature_extraction import SimilarityModel
+from winnow.feature_extraction import default_model_path
+from winnow.feature_extraction.extraction_routine import load_featurizer
+from winnow.feature_extraction.loading_utils import evaluate, calculate_similarities, global_vector
+from winnow.storage.repr_storage import ReprStorage
+from winnow.utils.files import scan_videos
+from winnow.utils.network import download_file
 from winnow.utils.scene_detection import extract_scenes, filter_short_scenes, seconds_to_time
 
 
@@ -504,7 +501,6 @@ def evaluate_scene_detection(config, force_download, overwrite, config_path):
 
         # config = resolve_config(config_path='config.yaml')
         reps = ReprStorage(config.repr.directory)
-        reprkey = reprkey_resolver(config)
 
         labels = process_labels()
         n = 25

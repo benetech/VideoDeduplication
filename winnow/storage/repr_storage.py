@@ -1,12 +1,12 @@
 from os.path import join, abspath
 
-from .lmdb_repr_storage import LMDBReprStorage
+from winnow.storage.simple_repr_storage import SimpleReprStorage
 
 
 class ReprStorage:
     """Persistent storage of various intermediate representations."""
 
-    def __init__(self, directory, storage_factory=LMDBReprStorage):
+    def __init__(self, directory, storage_factory=SimpleReprStorage):
         """Create new storage instance.
 
         Args:

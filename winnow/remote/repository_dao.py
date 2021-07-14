@@ -1,10 +1,11 @@
 """This module offers Data-Access-Objects for known remote repositories details."""
+import abc
 import logging
 import os
-from typing import List, Optional, Dict, Union
+from typing import List, Optional, Dict
 
 import pandas as pd
-from dataclasses import asdict
+from dataclasses import asdict, replace
 
 from db import Database
 from db.schema import Repository, RepositoryType
@@ -15,7 +16,31 @@ from winnow.security import SecureStorage, SecretNamespace
 logger = logging.getLogger(__name__)
 
 
-class RemoteRepoDatabaseDAO:
+class RemoteRepoDAO(abc.ABC):
+    """Manages known remote repository details."""
+
+    @abc.abstractmethod
+    def add(self, repository: RemoteRepository):
+        """Register a new fingerprint repository."""
+
+    @abc.abstractmethod
+    def get(self, name) -> Optional[RemoteRepository]:
+        """Get repository by name."""
+
+    @abc.abstractmethod
+    def rename(self, old_name: str, new_name: str):
+        """Rename remote fingerprint repository."""
+
+    @abc.abstractmethod
+    def remove(self, repository: RemoteRepository):
+        """Delete remote fingerprint repository."""
+
+    @abc.abstractmethod
+    def list(self, name=None, offset=0, limit=1000) -> List[RemoteRepository]:
+        """List known fingerprint repositories."""
+
+
+class DBRemoteRepoDAO(RemoteRepoDAO):
     """Data Access Object for remote repository details stored in a local database."""
 
     def __init__(self, database: Database, secret_storage: SecureStorage):
@@ -116,7 +141,7 @@ class RemoteRepoDatabaseDAO:
         )
 
 
-class RemoteRepoCsvDAO:
+class CsvRemoteRepoDAO(RemoteRepoDAO):
     """Data Access Object for remote repository details stored in a csv file."""
 
     def __init__(self, csv_file_path, secret_storage: SecureStorage):
@@ -166,8 +191,7 @@ class RemoteRepoCsvDAO:
             raise KeyError(f"Repository not found: {old_name}")
 
         self.remove(repository)
-        repository.name = new_name
-        self.add(repository)
+        self.add(replace(repository, name=new_name))
 
     def remove(self, repository: RemoteRepository):
         """Delete remote fingerprint repository."""
@@ -192,11 +216,9 @@ class RemoteRepoCsvDAO:
 
     def _from_row(self, row: Dict) -> RemoteRepository:
         """Convert dataframe row dictionary to RemoteRepository model."""
-        credentials = self._secret_storage.get_secret(SecretNamespace.REPOS, secret_name=row["name"])
-        repository = RemoteRepository(**row)
-        repository.credentials = credentials
-        repository.type = RepositoryType(repository.type)
-        return repository
+        row["credentials"] = self._secret_storage.get_secret(SecretNamespace.REPOS, secret_name=row["name"])
+        row["type"] = RepositoryType(row["type"])
+        return RemoteRepository(**row)
 
     def _to_row(self, repo: RemoteRepository) -> Dict:
         """Convert repository to a dataframe row as dict."""
@@ -214,6 +236,3 @@ class RemoteRepoCsvDAO:
     def _save(self, dataframe: pd.DataFrame):
         """Save DataFrame to csv file."""
         dataframe.to_csv(self._csv_file_path, index=False)
-
-
-RepoDAO = Union[RemoteRepoDatabaseDAO, RemoteRepoCsvDAO]

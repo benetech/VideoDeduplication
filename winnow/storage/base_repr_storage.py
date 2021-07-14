@@ -1,9 +1,9 @@
 """This module offers the abstract-base class describing repr-storage protocol."""
 
 import abc
-from typing import Any, Iterator
+from typing import Any, Iterator, Callable
 
-from winnow.storage.repr_key import ReprKey
+from winnow.storage.file_key import FileKey
 
 
 class BaseReprStorage(abc.ABC):
@@ -16,32 +16,43 @@ class BaseReprStorage(abc.ABC):
     file content changes the client must be able to detect that to update
     the stored representation value.
 
-    Configuration tag purpose is to guarantee that whenever pipeline
-    configuration is changed the clint code must be able to detect that
-    to update the stored representation value.
-
-    It is responsibility of client code to make sure that incompatible
-    pipeline configurations have different key tags.
+    Each storage entry may have optional metadata associated with it.
+    This is useful if we want to check algorithm options that were used
+    to calculate the intermediate representation.
     """
 
     @abc.abstractmethod
-    def exists(self, key: ReprKey) -> bool:
+    def exists(self, key: FileKey) -> bool:
         """Check if the representation exists."""
 
     @abc.abstractmethod
-    def read(self, key: ReprKey) -> Any:
+    def read(self, key: FileKey) -> Any:
         """Read file's representation."""
 
     @abc.abstractmethod
-    def write(self, key: ReprKey, value: Any):
-        """Write the representation for the given file."""
+    def write(self, key: FileKey, value: Any, metadata: Any = None):
+        """Write the representation for the given file.
+
+        Args:
+            key (FileKey): source video file path and hash.
+            value (Any): intermediate representation value.
+            metadata (Any): optional metadata.
+        """
+
+    @abc.abstractmethod
+    def read_metadata(self, key: FileKey):
+        """Get feature metadata (like frame sampling, etc.)."""
+
+    @abc.abstractmethod
+    def has_metadata(self, key: FileKey) -> bool:
+        """Check if the representation has metadata."""
 
     @abc.abstractmethod
     def delete(self, path: str):
         """Delete representation for the file."""
 
     @abc.abstractmethod
-    def list(self) -> Iterator[ReprKey]:
+    def list(self) -> Iterator[FileKey]:
         """Iterate over all storage keys."""
 
     @abc.abstractmethod
@@ -50,4 +61,8 @@ class BaseReprStorage(abc.ABC):
 
     @abc.abstractmethod
     def __len__(self) -> int:
-        """Count of storage entries."""
+        """Get storage entries count."""
+
+
+# Type hint for representation storage factory
+ReprStorageFactory = Callable[[str], BaseReprStorage]

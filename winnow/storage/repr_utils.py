@@ -39,17 +39,15 @@ def bulk_read(store, select=None):
 
     Args:
         store: Representation store for a single representation type (e.g. LMBDBReprStorage)
-        select: Iterable over storage keys.
+        select: Iterable over file keys.
 
     Returns:
         Dictionary mapping storage keys to the loaded representation value.
     """
     keys = select or store.list()
-
     loaded_mapping = dict()
 
     for key in keys:
-
         try:
             loaded_mapping[key] = store.read(key)
         except Exception as e:

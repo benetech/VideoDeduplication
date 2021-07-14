@@ -8,3 +8,7 @@ requests
 dataclasses
 psycopg2
 lmdb
+dacite
+pandas
+cached_property
+cryptography

@@ -12,9 +12,9 @@ from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonito
 from winnow.remote import RepositoryClient
 from winnow.remote.helpers import file_to_local_fingerprint
 from winnow.remote.model import RemoteFingerprint, LocalFingerprint
-from winnow.storage.lmdb_repr_storage import LMDBReprStorage
-from winnow.storage.remote_signature_dao import RemoteSignatureReprDAO
-from winnow.storage.repr_key import ReprKey
+from winnow.storage.base_repr_storage import BaseReprStorage
+from winnow.storage.file_key import FileKey
+from winnow.storage.remote_signatures_dao import ReprRemoteSignaturesDAO
 from winnow.utils.iterators import chunks
 
 
@@ -24,14 +24,13 @@ class DatabaseConnector:
     and pull all available fingerprints.
     """
 
-    def __init__(self, repo_name, database: Database, repo_client: RepositoryClient):
-        self.repo_name = repo_name
+    def __init__(self, database: Database, repo_client: RepositoryClient):
         self.database: Database = database
         self.client: RepositoryClient = repo_client
 
     def _repo(self, session) -> Repository:
         """Get repository entity."""
-        return session.query(Repository).filter(Repository.name == self.repo_name).one()
+        return session.query(Repository).filter(Repository.name == self.client.repository.name).one()
 
     def push_all(self, chunk_size=1000, progress: BaseProgressMonitor = ProgressMonitor.NULL):
         """Push all fingerprints from the given local database to the remote repository."""
@@ -130,15 +129,13 @@ class ReprConnector:
 
     def __init__(
         self,
-        repository_name: str,
-        remote_signature_dao: RemoteSignatureReprDAO,
-        signature_storage: LMDBReprStorage,
+        remote_signature_dao: ReprRemoteSignaturesDAO,
+        signature_storage: BaseReprStorage,
         repo_client: RepositoryClient,
     ):
-        self.repository_name: str = repository_name
         self.client: RepositoryClient = repo_client
         self._remote_signature_dao = remote_signature_dao
-        self._signature_storage = signature_storage
+        self._signature_storage: BaseReprStorage = signature_storage
 
     def push_all(self, chunk_size=1000, progress: BaseProgressMonitor = ProgressMonitor.NULL):
         """Push all fingerprints from the given local database to the remote repository."""
@@ -159,15 +156,13 @@ class ReprConnector:
         iterations_count = ceil(total_count / float(chunk_size))
         for _ in range(iterations_count):
             fingerprints = self.client.pull(start_from=latest_pulled, limit=chunk_size)
-            for entry in fingerprints:
-                entry.fingerprint = pickle.loads(entry.fingerprint)
-            self._remote_signature_dao.save_signatures(self.repository_name, fingerprints)
+            self._remote_signature_dao.save_signatures(fingerprints)
             latest_pulled = max(map(lambda fingerprint: fingerprint.id, fingerprints))
             progress.increase(len(fingerprints))
         progress.complete()
 
     @staticmethod
-    def to_local_fingerprints(keys: Iterable[ReprKey], storage: LMDBReprStorage) -> List[LocalFingerprint]:
+    def to_local_fingerprints(keys: Iterable[FileKey], storage: BaseReprStorage) -> List[LocalFingerprint]:
         return [LocalFingerprint(sha256=key.hash, fingerprint=pickle.dumps(storage.read(key))) for key in keys]
 
 

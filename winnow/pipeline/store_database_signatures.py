@@ -1,13 +1,14 @@
 import logging
 import os
 from pickle import dumps
-from typing import Collection, Tuple
+from typing import Collection
+
+from dataclasses import astuple
 
 from db.access.files import FilesDAO
 from winnow.pipeline.extract_video_signatures import extract_video_signatures, video_signatures_exist
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
-from winnow.storage.repr_key import ReprKey
 from winnow.storage.repr_utils import bulk_read
 
 logger = logging.getLogger(__name__)
@@ -37,8 +38,8 @@ def store_database_signatures(files: Collection[str], pipeline: PipelineContext,
 
     # Save signatures to database if needed
     logger.info("Saving signatures to the database for %s of %s files", len(remaining_video_paths), len(files))
-    repr_keys = map(pipeline.reprkey, remaining_video_paths)
-    signatures = bulk_read(pipeline.repr_storage.signature, select=repr_keys)
+    file_keys = map(pipeline.filekey, remaining_video_paths)
+    signatures = bulk_read(pipeline.repr_storage.signature, select=file_keys)
     pipeline.result_storage.add_signatures((key.path, key.hash, dumps(sig)) for key, sig in signatures.items())
 
     logger.info("Done saving %s signatures to database.", len(remaining_video_paths))
@@ -51,13 +52,9 @@ def missing_database_signatures(files, pipeline: PipelineContext):
     if not pipeline.config.database.use:
         return
 
-    def get_path_hash_pair(key: ReprKey) -> Tuple[str, str]:
-        """Convert ReprKey to (path,hash) pair."""
-        return key.path, key.hash
-
     with pipeline.database.session_scope() as session:
-        repr_keys = map(pipeline.reprkey, files)
-        path_hash_pairs = map(get_path_hash_pair, repr_keys)
+        file_keys = map(pipeline.filekey, files)
+        path_hash_pairs = map(astuple, file_keys)
         for (path, _) in FilesDAO.select_missing_signatures(path_hash_pairs, session):
             yield os.path.join(pipeline.config.sources.root, path)
 

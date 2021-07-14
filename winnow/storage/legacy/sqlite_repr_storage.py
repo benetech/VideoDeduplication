@@ -8,8 +8,10 @@ from sqlalchemy import Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 
 from db import Database
-from winnow.storage.base_repr_storage import BaseReprStorage
-from winnow.storage.repr_key import ReprKey
+from winnow.storage.atomic_file import atomic_file_open
+from winnow.storage.legacy.legacy_repr_storage import LegacyReprStorage
+from winnow.storage.legacy.repr_key import ReprKey
+from winnow.storage.manifest import StorageManifest, StorageManifestFile
 
 # Logger used in representation-storage module
 logger = logging.getLogger(__name__)
@@ -34,7 +36,7 @@ class FeatureFile(Base):
         return ReprKey(path=self.source_path, hash=self.hash, tag=self.tag)
 
 
-class SQLiteReprStorage(BaseReprStorage):
+class SQLiteReprStorage(LegacyReprStorage):
     """SQLite-based persistent storage for intermediate representations.
 
     For each dataset file path there is a single entry in the storage.
@@ -52,12 +54,24 @@ class SQLiteReprStorage(BaseReprStorage):
     pipeline configurations have different key tags.
     """
 
+    # Storage manifest
+    MANIFEST = StorageManifest(type="sqlite", version=0)
+
     # SQLite database file name
     DB_FILE_NAME = "repr.sqlite"
 
     @staticmethod
-    def is_storage(directory):
+    def is_storage_heuristic(directory):
+        """Check if the directory contains manifest-less SQlite repr storage."""
         return os.path.isfile(os.path.join(directory, SQLiteReprStorage.DB_FILE_NAME))
+
+    @staticmethod
+    def is_storage(directory):
+        """Check if the directory contains SQlite repr storage."""
+        manifest_file = StorageManifestFile(directory)
+        if manifest_file.exists():
+            return manifest_file.read().type == SQLiteReprStorage.MANIFEST.type
+        return SQLiteReprStorage.is_storage_heuristic(directory)
 
     # The storage is implemented as follows:
     #   * All information is stored in some user-specified directory.
@@ -74,6 +88,7 @@ class SQLiteReprStorage(BaseReprStorage):
             save (Function): Function to write representation value to the file.
             load (Function): Function to load representation value from file.
         """
+        logger.warning("Legacy SQLiteReprStorage is deprecated. Use SimpleReprStorage instead.", DeprecationWarning)
         self.directory = os.path.abspath(directory)
         self._save = save
         self._load = load
@@ -83,19 +98,23 @@ class SQLiteReprStorage(BaseReprStorage):
             logger.info("Creating intermediate representation directory: %s", self.directory)
             os.makedirs(self.directory)
 
+        # Ensure directory contains compatible storage
+        manifest_file = StorageManifestFile(self.directory)
+        manifest_file.ensure(self.MANIFEST)
+
         self.db_file = os.path.join(self.directory, self.DB_FILE_NAME)
         self.database = Database(f"sqlite:///{self.db_file}", base=Base)
         self.database.create_tables()
 
-    def exists(self, key: ReprKey):
+    def exists(self, key: ReprKey, check_tag: bool = True):
         """Check if the representation exists."""
         with self.database.session_scope() as session:
-            return self._exists(session, key)
+            return self._exists(session, key, check_tag)
 
-    def read(self, key: ReprKey):
+    def read(self, key: ReprKey, check_tag: bool = True):
         """Read file's representation."""
         with self.database.session_scope() as session:
-            record = self._record(session, key).one_or_none()
+            record = self._record(session, key, check_tag).one_or_none()
             if record is None:
                 raise KeyError(repr(key))
             feature_file_path = os.path.join(self.directory, record.feature_file_path)
@@ -108,7 +127,8 @@ class SQLiteReprStorage(BaseReprStorage):
             record.hash = key.hash
             record.tag = key.tag
             feature_file_path = os.path.join(self.directory, record.feature_file_path)
-            self._save(feature_file_path, value)
+            with atomic_file_open(feature_file_path) as file:
+                self._save(file, value)
 
     def delete(self, path):
         """Delete representation for the file."""
@@ -138,27 +158,26 @@ class SQLiteReprStorage(BaseReprStorage):
     # Private methods
 
     @staticmethod
-    def _record(session, key: ReprKey):
+    def _record(session, key: ReprKey, check_tag: bool):
         """Shortcut for querying record for the given feature-file."""
-        return session.query(FeatureFile).filter(
+        query = session.query(FeatureFile).filter(
             FeatureFile.source_path == key.path,
             FeatureFile.hash == key.hash,
-            FeatureFile.tag == key.tag,
         )
+        if check_tag:
+            query = query.filter(FeatureFile.tag == key.tag)
+        return query
 
     @staticmethod
-    def _exists(session, key: ReprKey):
+    def _exists(session, key: ReprKey, check_tag: bool):
         """Shortcut for checking record presence."""
-        return (
-            session.query(FeatureFile.id)
-            .filter(
-                FeatureFile.source_path == key.path,
-                FeatureFile.hash == key.hash,
-                FeatureFile.tag == key.tag,
-            )
-            .scalar()
-            is not None
+        query = session.query(FeatureFile.id).filter(
+            FeatureFile.source_path == key.path,
+            FeatureFile.hash == key.hash,
         )
+        if check_tag:
+            query = query.filter(FeatureFile.tag == key.tag)
+        return query.scalar() is not None
 
     def _get_or_create(self, session, path):
         """Get feature-file record, create one with unique name if not exist."""

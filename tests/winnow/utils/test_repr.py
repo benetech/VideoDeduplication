@@ -4,25 +4,17 @@ import tempfile
 import numpy as np
 import pytest
 
-from winnow.config import Config
+import winnow.storage.legacy as legacy
 from winnow.config.config import StorageType
-from winnow.storage.lmdb_repr_storage import LMDBReprStorage
-from winnow.storage.repr_key import ReprKey
+from winnow.storage.file_key import FileKey
+from winnow.storage.legacy.wrapper import LegacyStorageWrapper
 from winnow.storage.simple_repr_storage import SimpleReprStorage
-from winnow.storage.sqlite_repr_storage import SQLiteReprStorage
 from winnow.utils.repr import repr_storage_factory
-
-
-def config(storage: StorageType) -> Config:
-    """Create config."""
-    result = Config()
-    result.repr.storage_type = storage
-    return result
 
 
 def something():
     """Create some data."""
-    return ReprKey(path="some-path", hash="some-hash", tag="some-tag"), np.array([42])
+    return FileKey(path="some-path", hash="some-hash"), np.array([42])
 
 
 @pytest.fixture
@@ -34,7 +26,7 @@ def directory():
 
 def test_storage_factory_default(directory):
     default_type = SimpleReprStorage
-    storage_factory = repr_storage_factory(config(storage=None), default_factory=default_type)
+    storage_factory = repr_storage_factory(storage_type=None, default_factory=default_type)
 
     storage = storage_factory(directory)
 
@@ -42,59 +34,63 @@ def test_storage_factory_default(directory):
 
 
 def test_storage_factory_lmdb(directory):
-    storage_factory = repr_storage_factory(config(storage=StorageType.LMDB))
+    storage_factory = repr_storage_factory(StorageType.LMDB)
     storage = storage_factory(directory)
 
-    assert isinstance(storage, LMDBReprStorage)
+    assert isinstance(storage, LegacyStorageWrapper)
+    assert isinstance(storage.wrapped, legacy.LMDBReprStorage)
 
 
 def test_storage_factory_simple(directory):
-    storage_factory = repr_storage_factory(config(storage=StorageType.SIMPLE))
+    storage_factory = repr_storage_factory(StorageType.SIMPLE)
     storage = storage_factory(directory)
 
     assert isinstance(storage, SimpleReprStorage)
 
 
 def test_storage_factory_sqlite(directory):
-    storage_factory = repr_storage_factory(config(storage=StorageType.SQLITE))
+    storage_factory = repr_storage_factory(StorageType.SQLITE)
     storage = storage_factory(directory)
 
-    assert isinstance(storage, SQLiteReprStorage)
+    assert isinstance(storage, LegacyStorageWrapper)
+    assert isinstance(storage.wrapped, legacy.SQLiteReprStorage)
 
 
 def test_storage_factory_detect_lmdb(directory):
-    existing = LMDBReprStorage(directory)
+    existing = LegacyStorageWrapper(legacy.LMDBReprStorage(directory))
     existing.write(*something())
 
-    storage_factory = repr_storage_factory(config(storage=StorageType.DETECT))
+    storage_factory = repr_storage_factory(StorageType.DETECT)
     storage = storage_factory(directory)
 
-    assert isinstance(storage, LMDBReprStorage)
+    assert isinstance(storage, LegacyStorageWrapper)
+    assert isinstance(storage.wrapped, legacy.LMDBReprStorage)
 
 
 def test_storage_factory_detect_simple(directory):
     existing = SimpleReprStorage(directory)
     existing.write(*something())
 
-    storage_factory = repr_storage_factory(config(storage=StorageType.DETECT))
+    storage_factory = repr_storage_factory(StorageType.DETECT)
     storage = storage_factory(directory)
 
     assert isinstance(storage, SimpleReprStorage)
 
 
 def test_storage_factory_detect_sqlite(directory):
-    existing = SQLiteReprStorage(directory)
+    existing = LegacyStorageWrapper(legacy.SQLiteReprStorage(directory))
     existing.write(*something())
 
-    storage_factory = repr_storage_factory(config(storage=StorageType.DETECT))
+    storage_factory = repr_storage_factory(StorageType.DETECT)
     storage = storage_factory(directory)
 
-    assert isinstance(storage, SQLiteReprStorage)
+    assert isinstance(storage, LegacyStorageWrapper)
+    assert isinstance(storage.wrapped, legacy.SQLiteReprStorage)
 
 
 def test_storage_factory_detect_missing(directory):
     default_type = SimpleReprStorage
-    storage_factory = repr_storage_factory(config(storage=None), default_factory=default_type)
+    storage_factory = repr_storage_factory(storage_type=None, default_factory=default_type)
 
     missing_directory = os.path.join(directory, "missing")
     storage = storage_factory(missing_directory)
@@ -104,7 +100,7 @@ def test_storage_factory_detect_missing(directory):
 
 def test_storage_factory_detect_empty(directory):
     default_type = SimpleReprStorage
-    storage_factory = repr_storage_factory(config(storage=None), default_factory=default_type)
+    storage_factory = repr_storage_factory(storage_type=None, default_factory=default_type)
 
     storage = storage_factory(directory)
 
