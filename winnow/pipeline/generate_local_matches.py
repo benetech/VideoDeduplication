@@ -1,13 +1,13 @@
 import logging
 import os
 from time import time
-from typing import Collection, Dict
+from typing import Collection, Dict, Iterable, Set
 
 import pandas as pd
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from tqdm import tqdm
 
-from winnow.duplicate_detection.neighbors import NeighborMatcher
+from winnow.duplicate_detection.neighbors import NeighborMatcher, FeatureVector, DetectedMatch
 from winnow.pipeline.extract_video_level_features import video_features_exist, extract_video_level_features
 from winnow.pipeline.extract_video_signatures import video_signatures_exist, extract_video_signatures
 from winnow.pipeline.pipeline_context import PipelineContext
@@ -19,6 +19,8 @@ from winnow.utils.brightness import get_brightness_estimation
 from winnow.utils.files import get_hash
 
 # Default module logger
+from winnow.utils.neighbors import as_vectors
+
 logger = logging.getLogger(__name__)
 
 
@@ -54,8 +56,8 @@ def generate_local_matches(
 
     # Do find matches
     start_time = time()
-    neighbor_matcher = NeighborMatcher(haystack=all_signatures)
-    matches = neighbor_matcher.find_matches(needles=req_signatures, max_distance=config.proc.match_distance)
+    neighbor_matcher = NeighborMatcher(haystack=as_vectors(all_signatures))
+    matches = neighbor_matcher.find_matches(needles=as_vectors(req_signatures), max_distance=config.proc.match_distance)
     logger.info(f"Match detection took {time() - start_time:.3f} seconds")
     progress.increase(amount=0.5)
 
@@ -106,28 +108,27 @@ def _metadata(gray_max, threshold) -> Dict:
     return {"gray_max": gray_max, "video_dark_flag": video_dark_flag, "flagged": video_dark_flag}
 
 
-def _reject(matches, discarded):
+def _reject(detected_matches: Iterable[DetectedMatch], discarded: Set[FileKey]):
     """Reject discarded matches."""
-    for query, match, distance in matches:
-        if query not in discarded and match not in discarded:
-            query, match = _order_match(query, match)
-            yield query, match, distance
+    for match in detected_matches:
+        if match.needle_key not in discarded and match.haystack_key not in discarded:
+            yield _order_match(match)
 
 
-def _order_match(query_key: FileKey, match_key: FileKey):
+def _order_match(match: DetectedMatch):
     """Order match and query file keys"""
-    if query_key.path <= match_key.path:
-        return query_key, match_key
-    return match_key, query_key
+    if match.haystack_key.path <= match.needle_key.path:
+        return replace(match, haystack_key=match.needle_key, needle_key=match.haystack_key)
+    return match
 
 
-def _entry(match):
+def _entry(detected_match: DetectedMatch):
     """Flatten (query_key, match_key, dist) match entry."""
-    query, match, dist = match
-    return query.path, query.hash, match.path, match.hash, dist
+    query, match = detected_match.needle_key, detected_match.haystack_key
+    return query.path, query.hash, match.path, match.hash, detected_match.distance
 
 
-def _save_matches_csv(matches, path):
+def _save_matches_csv(matches: Iterable[DetectedMatch], path):
     """Save matches to csv file."""
     dataframe = pd.DataFrame(
         tuple(_entry(match) for match in matches),

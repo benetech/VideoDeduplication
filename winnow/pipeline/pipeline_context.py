@@ -10,15 +10,15 @@ from winnow import remote
 from winnow.config import Config
 from winnow.remote import RemoteRepository
 from winnow.remote.connect import RepoConnector, DatabaseConnector, ReprConnector
-from winnow.remote.repository_dao import RepoDAO, RemoteRepoDatabaseDAO, RemoteRepoCsvDAO
+from winnow.remote.repository_dao import DBRemoteRepoDAO, CsvRemoteRepoDAO, RemoteRepoDAO
 from winnow.security import SecureStorage
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.file_key import FileKey
 from winnow.storage.metadata import FeaturesMetadata
-from winnow.storage.remote_signature_dao import (
-    RemoteSignatureDatabaseDAO,
-    RemoteSignatureReprDAO,
-    RemoteSignatureDAOType,
+from winnow.storage.remote_signatures_dao import (
+    DBRemoteSignaturesDAO,
+    ReprRemoteSignaturesDAO,
+    RemoteSignaturesDAO,
 )
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import path_resolver
@@ -75,19 +75,19 @@ class PipelineContext:
         return DBResultStorage(database=self.database)
 
     @cached_property
-    def remote_signature_dao(self) -> RemoteSignatureDAOType:
+    def remote_signature_dao(self) -> RemoteSignaturesDAO:
         """Get remote signature DAO depending on the config."""
         if self.config.database.use:
-            return RemoteSignatureDatabaseDAO(self.database)
+            return DBRemoteSignaturesDAO(self.database)
         storage_root = os.path.join(self.config.repr.directory, "remote_signatures")
-        return RemoteSignatureReprDAO(root_directory=storage_root, output_directory=self.config.repr.directory)
+        return ReprRemoteSignaturesDAO(root_directory=storage_root, output_directory=self.config.repr.directory)
 
     @cached_property
-    def repository_dao(self) -> RepoDAO:
+    def repository_dao(self) -> RemoteRepoDAO:
         """Get repository Data-Access-Object."""
         if self.config.database.use:
-            return RemoteRepoDatabaseDAO(database=self.database, secret_storage=self.secure_storage)
-        return RemoteRepoCsvDAO(
+            return DBRemoteRepoDAO(database=self.database, secret_storage=self.secure_storage)
+        return CsvRemoteRepoDAO(
             csv_file_path=os.path.join(self.config.repr.directory, "repositories.csv"),
             secret_storage=self.secure_storage,
         )

@@ -2,7 +2,7 @@ import io
 import json
 from typing import Dict, Union
 
-from dacite import from_dict
+import dacite
 from dataclasses import asdict, dataclass
 
 
@@ -45,7 +45,7 @@ class DataLoader:
 
     def fromdict(self, data: Dict):
         """Restore dataclass object from dict."""
-        return from_dict(data_class=self.data_class, data=data)
+        return dacite.from_dict(data_class=self.data_class, data=data)
 
     @property
     def data_class(self):

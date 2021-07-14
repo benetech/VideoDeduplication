@@ -76,3 +76,7 @@ class LegacyStorageWrapper(BaseReprStorage):
     def close(self):
         """Dispose any storage-related resources: close database connections, etc."""
         self._storage.close()
+
+    def __len__(self):
+        """Get storage entries count."""
+        return len(self._storage)

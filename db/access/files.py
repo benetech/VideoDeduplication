@@ -308,7 +308,11 @@ class FilesDAO:
     def query_remote_files(session: Session, repository_name: str = None, contributor_name: str = None) -> Query:
         """Query remote signatures from database."""
         query = session.query(Files).filter(Files.contributor != None)  # noqa: E711
-        query = query.options(joinedload(Files.signature), joinedload(Files.contributor))
+        query = query.options(
+            joinedload(Files.signature),
+            joinedload(Files.contributor),
+            joinedload(Files.contributor, Contributor.repository),
+        )
 
         # Apply repository filters
         if repository_name is not None:
