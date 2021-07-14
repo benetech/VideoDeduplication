@@ -120,9 +120,8 @@ class PipelineContext:
         """Get remote repository connector."""
         client = remote.make_client(repo)
         if self.config.database.use:
-            return DatabaseConnector(repo_name=repo.name, database=self.database, repo_client=client)
+            return DatabaseConnector(database=self.database, repo_client=client)
         return ReprConnector(
-            repository_name=repo.name,
             remote_signature_dao=self.remote_signature_dao,
             signature_storage=self.repr_storage.signature,
             repo_client=client,
