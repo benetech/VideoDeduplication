@@ -128,7 +128,7 @@ def test_rename(dao: RemoteRepoDAO):
 
 
 @use_repo_dao
-def test_add_many(dao: RemoteRepoDAO):
+def test_add_list_many(dao: RemoteRepoDAO):
     coll_size = 10
     first_coll = make_repos(count=coll_size, name="first")
     second_coll = make_repos(count=coll_size, name="second")

@@ -80,7 +80,8 @@ class StorageManifestFile:
 
         If storage contains incompatible manifest type, then IncompatibleManifest is raised.
         If storage contains manifest version higher than requested, then IncompatibleManifest is raised.
-        if storage contains manifest version lower than requested, then manifest file is updated with a requested version.
+        if storage contains manifest version lower than requested, then manifest file is updated with a
+        requested version.
         if storage doesn't have a manifest, then requested manifest is created.
         """
         if not self.exists():

@@ -7,7 +7,7 @@ import pandas as pd
 from dataclasses import asdict, replace
 from tqdm import tqdm
 
-from winnow.duplicate_detection.neighbors import NeighborMatcher, FeatureVector, DetectedMatch
+from winnow.duplicate_detection.neighbors import NeighborMatcher, DetectedMatch
 from winnow.pipeline.extract_video_level_features import video_features_exist, extract_video_level_features
 from winnow.pipeline.extract_video_signatures import video_signatures_exist, extract_video_signatures
 from winnow.pipeline.pipeline_context import PipelineContext
@@ -17,10 +17,9 @@ from winnow.storage.file_key import FileKey
 from winnow.storage.repr_utils import bulk_read
 from winnow.utils.brightness import get_brightness_estimation
 from winnow.utils.files import get_hash
-
-# Default module logger
 from winnow.utils.neighbors import as_vectors
 
+# Default module logger
 logger = logging.getLogger(__name__)
 
 
