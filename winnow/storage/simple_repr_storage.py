@@ -1,7 +1,7 @@
 import logging
 import os
 from glob import glob
-from typing import Any
+from typing import Any, Iterator
 
 import numpy as np
 
@@ -68,7 +68,7 @@ class SimpleReprStorage(BaseReprStorage):
         """Check if the file has the representation."""
         return os.path.isfile(self._map(key, self._repr_suffix))
 
-    def read(self, key: FileKey):
+    def read(self, key: FileKey) -> Any:
         """Read file's representation."""
         return self._load(self._map(key, self._repr_suffix))
 
@@ -98,7 +98,7 @@ class SimpleReprStorage(BaseReprStorage):
             os.remove(self._map(key, self._metadata_suffix))
         os.remove(self._map(key, self._repr_suffix))
 
-    def list(self):
+    def list(self) -> Iterator[FileKey]:
         """Iterate over all (path,sha256) pairs that already have this representation."""
         path_pattern = os.path.join(self.directory, f"**/*{self._repr_suffix}")
         for repr_file_path in glob(path_pattern, recursive=True):
@@ -145,3 +145,10 @@ class SimpleReprStorage(BaseReprStorage):
         path = path_hash[:split_index]
         hash = path_hash[split_index + 1 :]
         return FileKey(path, hash)
+
+    def __len__(self) -> int:
+        """Get storage entries count."""
+        result = 0
+        for _ in self.list():
+            result += 1
+        return result

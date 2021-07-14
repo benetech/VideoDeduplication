@@ -1,7 +1,7 @@
 """This module offers the abstract-base class describing repr-storage protocol."""
 
 import abc
-from typing import Any, Iterator
+from typing import Any, Iterator, Callable
 
 from winnow.storage.file_key import FileKey
 
@@ -58,3 +58,11 @@ class BaseReprStorage(abc.ABC):
     @abc.abstractmethod
     def close(self):
         """Dispose any storage-related resources: close database connections, etc."""
+
+    @abc.abstractmethod
+    def __len__(self) -> int:
+        """Get storage entries count."""
+
+
+# Type hint for representation storage factory
+ReprStorageFactory = Callable[[str], BaseReprStorage]

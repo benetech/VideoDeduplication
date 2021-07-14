@@ -5,7 +5,7 @@ from typing import Callable
 
 from winnow.config import Config
 from winnow.config.config import StorageType
-from winnow.storage.base_repr_storage import BaseReprStorage
+from winnow.storage.base_repr_storage import ReprStorageFactory
 from winnow.storage.file_key import FileKey
 from winnow.storage.legacy import LMDBReprStorage, SQLiteReprStorage
 from winnow.storage.legacy.wrapper import LegacyStorageWrapper
@@ -36,8 +36,8 @@ def filekey_resolver(config: Config) -> Callable[[str], FileKey]:
 
 def repr_storage_factory(
     storage_type: StorageType,
-    default_factory=SimpleReprStorage,
-) -> Callable[[int], BaseReprStorage]:
+    default_factory: ReprStorageFactory = SimpleReprStorage,
+) -> ReprStorageFactory:
     """Get storage factory depending on the storage type from the config."""
 
     def detect_storage(directory):
