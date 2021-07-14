@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from db.schema import RepositoryType
 
 
-@dataclass
+@dataclass(frozen=True)
 class RemoteRepository:
     """Represents remote repository."""
 
@@ -33,7 +33,7 @@ class RemoteRepository:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class LocalFingerprint:
     """Fingerprint data to be pushed to remote repository."""
 
@@ -41,7 +41,7 @@ class LocalFingerprint:
     fingerprint: Sequence[float]
 
 
-@dataclass
+@dataclass(frozen=True)
 class RemoteFingerprint:
     """Fingerprint from remote repository."""
 
@@ -49,6 +49,7 @@ class RemoteFingerprint:
     sha256: str
     fingerprint: Sequence[float]
     contributor: str
+    repository: str
 
 
 class RepositoryClient(abc.ABC):
@@ -56,8 +57,8 @@ class RepositoryClient(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def contributor_name(self) -> str:
-        """Get contributor name."""
+    def repository(self) -> RemoteRepository:
+        """Get the repository that the client communicates with."""
         pass
 
     @abc.abstractmethod

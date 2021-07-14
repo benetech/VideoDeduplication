@@ -5,21 +5,28 @@ from uuid import uuid4 as uuid
 import pytest
 from dataclasses import astuple
 
+from db.schema import RepositoryType
 from winnow.remote.bare_database.client import BareDatabaseClient
 from winnow.remote.bare_database.schema import RepoDatabase
-from winnow.remote.model import RepositoryClient, LocalFingerprint, RemoteFingerprint
+from winnow.remote.model import RepositoryClient, LocalFingerprint, RemoteFingerprint, RemoteRepository
 
 
 @pytest.fixture
-def repo() -> RepoDatabase:
+def database() -> RepoDatabase:
     """Create repository bare database."""
     return RepoDatabase.create_repo(url="sqlite://")
 
 
-@pytest.fixture
-def client(repo: RepoDatabase) -> BareDatabaseClient:
-    """Create bare database client."""
-    return BareDatabaseClient(contributor_name="myself", repo_database=repo)
+def make_repo(user="myself") -> RemoteRepository:
+    """Create remote repository."""
+    unique_str = uuid()
+    return RemoteRepository(
+        name=f"remote-repo-{unique_str}",
+        address=f"remote-repo-addr-{unique_str}",
+        user=user or f"remote-user-{unique_str}",
+        type=RepositoryType.BARE_DATABASE,
+        credentials=f"repo-credentials-{unique_str}",
+    )
 
 
 def make_local_fingerprints(count=10) -> List[LocalFingerprint]:
@@ -32,14 +39,15 @@ def as_local(remote: RemoteFingerprint) -> LocalFingerprint:
     return LocalFingerprint(sha256=remote.sha256, fingerprint=remote.fingerprint)
 
 
-def test_empty(client: RepositoryClient):
+def test_empty(database: RepoDatabase):
+    client = BareDatabaseClient(repository=make_repo(), repo_database=database)
     assert client.count() == 0
     assert client.latest_contribution() is None
 
 
-def test_push_pull(repo: RepoDatabase):
-    first = BareDatabaseClient(contributor_name="first", repo_database=repo)
-    second = BareDatabaseClient(contributor_name="second", repo_database=repo)
+def test_push_pull(database: RepoDatabase):
+    first = BareDatabaseClient(repository=make_repo("first"), repo_database=database)
+    second = BareDatabaseClient(repository=make_repo("second"), repo_database=database)
 
     pushed_first = make_local_fingerprints(count=10)
     pushed_second = make_local_fingerprints(count=20)
@@ -55,19 +63,19 @@ def test_push_pull(repo: RepoDatabase):
     pulled_first = first.pull(limit=len(pushed_first) + len(pushed_second))
 
     assert len(pulled_first) == len(pushed_second)
-    assert all(remote.contributor == second.contributor_name for remote in pulled_first)
-    assert set(map(astuple, map(as_local, pulled_first))) == set(map(astuple, pushed_second))
+    assert all(remote.contributor == second.repository.user for remote in pulled_first)
+    assert set(map(as_local, pulled_first)) == set(pushed_second)
 
     pulled_second = second.pull(limit=len(pushed_first) + len(pushed_second))
 
     assert len(pulled_second) == len(pushed_first)
-    assert all(remote.contributor == first.contributor_name for remote in pulled_second)
-    assert set(map(astuple, map(as_local, pulled_second))) == set(map(astuple, pushed_first))
+    assert all(remote.contributor == first.repository.user for remote in pulled_second)
+    assert set(map(as_local, pulled_second)) == set(pushed_first)
 
 
-def test_push_parts(repo: RepoDatabase):
-    first = BareDatabaseClient(contributor_name="first", repo_database=repo)
-    second = BareDatabaseClient(contributor_name="second", repo_database=repo)
+def test_push_parts(database: RepoDatabase):
+    first = BareDatabaseClient(repository=make_repo("first"), repo_database=database)
+    second = BareDatabaseClient(repository=make_repo("second"), repo_database=database)
 
     pushed_first = make_local_fingerprints(count=10)
     first.push(fingerprints=pushed_first)
@@ -77,13 +85,13 @@ def test_push_parts(repo: RepoDatabase):
 
     assert len(first_part) == len(pushed_first) // 2
     assert len(second_part) == len(pushed_first) - len(first_part)
-    assert set(map(astuple, map(as_local, first_part))) == set(map(astuple, pushed_first[0 : len(pushed_first) // 2]))
-    assert set(map(astuple, map(as_local, second_part))) == set(map(astuple, pushed_first[len(pushed_first) // 2 :]))
+    assert set(map(as_local, first_part)) == set(pushed_first[0 : len(pushed_first) // 2])
+    assert set(map(as_local, second_part)) == set(pushed_first[len(pushed_first) // 2 :])
 
 
-def test_push_conflict(repo: RepoDatabase):
-    first = BareDatabaseClient(contributor_name="first", repo_database=repo)
-    second = BareDatabaseClient(contributor_name="second", repo_database=repo)
+def test_push_conflict(database: RepoDatabase):
+    first = BareDatabaseClient(repository=make_repo("first"), repo_database=database)
+    second = BareDatabaseClient(repository=make_repo("second"), repo_database=database)
 
     pushed_first = make_local_fingerprints(count=10)
     first.push(fingerprints=pushed_first)
@@ -92,4 +100,4 @@ def test_push_conflict(repo: RepoDatabase):
     pulled_second = second.pull(limit=len(pushed_first) * 2)
 
     assert len(pulled_second) == len(pushed_first)
-    assert set(map(astuple, map(as_local, pulled_second))) == set(map(astuple, pushed_first))
+    assert set(map(as_local, pulled_second)) == set(pushed_first)
