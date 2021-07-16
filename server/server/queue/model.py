@@ -131,6 +131,21 @@ class FindFrame(Request):
 
 
 @dataclass
+class ProcessOnlineVideo(Request):
+    """Process entire directory."""
+
+    urls: List[str]
+    destination_template: str = "%(title)s.%(ext)s"
+    frame_sampling: Optional[int] = None
+    save_frames: Optional[bool] = None
+    filter_dark: Optional[bool] = None
+    dark_threshold: Optional[Number] = None
+    extensions: Optional[List[str]] = None
+    match_distance: Optional[float] = None
+    min_duration: Optional[Number] = None
+
+
+@dataclass
 class TestTask(Request):
     """Example Fibonacci task for testing purpose."""
 

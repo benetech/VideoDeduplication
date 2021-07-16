@@ -258,6 +258,58 @@ def find_frame_task(
     return {"matches": get_frame_matches(matches, pipeline_context)}
 
 
+@winnow_task(bind=True)
+def process_online_video(
+    self,
+    urls: List[str],
+    destination_template: str,
+    save_frames: Optional[int] = None,
+    frame_sampling: Optional[int] = None,
+    filter_dark: Optional[bool] = None,
+    dark_threshold: Optional[Number] = None,
+    extensions: Optional[List[str]] = None,
+    match_distance: Optional[float] = None,
+    min_duration: Optional[Number] = None,
+):
+    from winnow.utils.config import resolve_config
+    from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.pipeline.process_urls import process_urls
+
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
+    # Load configuration file
+    logger.info("Loading config file")
+    config = resolve_config(
+        frame_sampling=frame_sampling,
+        save_frames=save_frames,
+        filter_dark=filter_dark,
+        dark_threshold=dark_threshold,
+        extensions=extensions,
+        match_distance=match_distance,
+        min_duration=min_duration,
+    )
+    config.database.use = True
+
+    # Run pipeline
+    monitor.update(0)
+    pipeline_context = PipelineContext(config)
+    file_paths = process_urls(
+        urls=urls,
+        destination_template=destination_template,
+        pipeline=pipeline_context,
+        progress=monitor,
+    )
+
+    with pipeline_context.database.session_scope() as session:
+        store_paths = tuple(pipeline_context.storepath(path) for path in file_paths)
+        files = session.query(Files).filter(Files.file_path.in_(store_paths)).all()
+        result = {"files": [{"id": file.id, "path": file.file_path} for file in files]}
+
+    monitor.complete()
+    return result
+
+
 def fibo(n):
     """A very inefficient Fibonacci numbers generator."""
     if n <= 2:
