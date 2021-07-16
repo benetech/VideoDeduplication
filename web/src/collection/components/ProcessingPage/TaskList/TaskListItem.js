@@ -8,7 +8,6 @@ import HeightOutlinedIcon from "@material-ui/icons/HeightOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import { formatDistance } from "date-fns";
 import { IconButton } from "@material-ui/core";
-import TaskRequest from "../../../state/tasks/TaskRequest";
 import { useIntl } from "react-intl";
 import TaskProgress from "./TaskProgress";
 import usePopup from "../../../../common/hooks/usePopup";

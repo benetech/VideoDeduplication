@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -12,7 +12,11 @@ import BoolInput from "../../../../../common/components/BoolInput";
 import { useHandler, useNumber, useUpdate } from "./hooks";
 import { nonNegative, positive } from "./validation";
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles({
+  input: {
+    width: "100%",
+  },
+});
 
 /**
  * Get translated text.
@@ -71,7 +75,7 @@ function ConfigurationForm(props) {
       >
         <Autocomplete
           multiple
-          options={[]}
+          options={knownExtensions}
           defaultValue={["mp4"]}
           value={config.extensions || []}
           onChange={handleExtChange}

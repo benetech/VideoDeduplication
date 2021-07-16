@@ -4,6 +4,7 @@ import RawRequest from "./RawRequest";
 import MatchTemplatesRequestAttrs from "./task-types/MatchTemplatesRequestAttrs";
 import FindFrameRequestAttrs from "./task-types/FindFrameRequestAttrs";
 import FindFrameRequestOverview from "./task-types/FindFrameRequestOverview";
+import ProcessOnlineVideoRequestAttrs from "./task-types/ProcessOnlineVideoRequestAttrs";
 
 const RequestViews = {
   [TaskRequest.DIRECTORY]: [
@@ -34,6 +35,16 @@ const RequestViews = {
     {
       title: "view.attributes",
       component: FindFrameRequestAttrs,
+    },
+    {
+      title: "view.raw",
+      component: RawRequest,
+    },
+  ],
+  [TaskRequest.PROCESS_ONLINE_VIDEO]: [
+    {
+      title: "view.attributes",
+      component: ProcessOnlineVideoRequestAttrs,
     },
     {
       title: "view.raw",

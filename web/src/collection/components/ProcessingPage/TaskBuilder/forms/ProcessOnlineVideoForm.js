@@ -66,7 +66,7 @@ function split(urls) {
 }
 
 function ProcessOnlineVideoForm(props) {
-  const { request, onChange, valid, onValidated, className, ...other } = props;
+  const { request, onChange, onValidated, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
 

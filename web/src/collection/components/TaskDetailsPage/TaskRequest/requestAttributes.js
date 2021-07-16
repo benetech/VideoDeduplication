@@ -3,6 +3,7 @@ import Bool from "../../../../common/components/Bool";
 import { formatDuration } from "../../../../common/helpers/format";
 import ExtensionList from "./ExtensionList";
 import FileRef from "../../../../common/components/FileRef";
+import LinkList from "./LinkList";
 
 export const commonRequestAttributes = [
   {
@@ -88,4 +89,19 @@ export const findFrameAttributes = [
     value: (request) => request.templateDistanceMin,
   },
   ...commonRequestAttributes,
+];
+
+/**
+ * Process online request attributes.
+ */
+export const processOnlineVideoAttributes = [
+  {
+    title: "task.attr.onlineVideoURLs",
+    // eslint-disable-next-line react/display-name
+    value: (request) => <LinkList links={request.urls} />,
+  },
+  {
+    title: "task.attr.onlineDestination",
+    value: (request) => request.destinationTemplate,
+  },
 ];
