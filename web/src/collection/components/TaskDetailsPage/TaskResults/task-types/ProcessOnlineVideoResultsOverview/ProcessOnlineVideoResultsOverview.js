@@ -36,8 +36,8 @@ const useStyles = makeStyles((theme) => ({
 function useMessages() {
   const intl = useIntl();
   return {
-    blur: intl.formatMessage({ id: "actions.blurFrames" }),
-    blurHelp: intl.formatMessage({ id: "actions.blurFrames.help" }),
+    blur: intl.formatMessage({ id: "actions.blurVideos" }),
+    blurHelp: intl.formatMessage({ id: "actions.blurVideos.help" }),
     title(count) {
       return intl.formatMessage(
         { id: "task.onlineFiles.description" },

@@ -72,6 +72,7 @@
     "actions.showFileDetails": "Show File Details",
     "actions.goBack": "Go Back",
     "actions.blurVideos": "Blur videos",
+    "actions.blurVideos.help": "Blur all displayed videos.",
     "actions.blurScenes": "Blur scenes",
     "actions.seekToTheObject": "Seek video to the {object} at {time}",
     "actions.delete": "Delete",
