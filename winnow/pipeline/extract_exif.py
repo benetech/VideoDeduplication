@@ -2,7 +2,6 @@ import logging
 from os.path import join
 from typing import Iterable
 
-from db import Database
 from db.schema import Files
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
