@@ -2,16 +2,16 @@ import React, { useEffect } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import InputContainer from "./InputContainer";
+import InputContainer from "../InputContainer";
 import { TextField } from "@material-ui/core";
 import { useIntl } from "react-intl";
-import TaskRequestType from "../../../prop-types/TaskRequestType";
-import TaskRequest from "../../../state/tasks/TaskRequest";
-import Section from "./Section";
-import Description from "./Description";
-import { validateTaskConfig } from "./forms/validation";
-import ConfigurationForm from "./forms/ConfigurationForm";
-import { useHandler } from "./forms/hooks";
+import TaskRequestType from "../../../../prop-types/TaskRequestType";
+import TaskRequest from "../../../../state/tasks/TaskRequest";
+import Section from "../Section";
+import Description from "../Description";
+import { validateTaskConfig } from "./validation";
+import ConfigurationForm from "./ConfigurationForm";
+import { useHandler } from "./hooks";
 
 const useStyles = makeStyles((theme) => ({
   input: {
