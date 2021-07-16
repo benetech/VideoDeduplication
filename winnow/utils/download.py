@@ -3,12 +3,16 @@ import os
 import sys
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Iterable, List
 
 import youtube_dl
 from tqdm import tqdm
+from youtube_dl.utils import YoutubeDLError
 
-from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor, BaseProgressMonitor
+
+# Default module logger
+_logger = logging.getLogger(__name__)
 
 
 class YDLLogger(object):
@@ -101,25 +105,22 @@ class YDLProgressTracker:
             self._started = False
 
 
-def download_video_url(
+def download_video(
     video_url: str,
-    pipeline: PipelineContext,
-    destination="%(title)s.%(ext)s",
+    output_template: str,
+    root_directory: str,
     progress=ProgressMonitor.NULL,
-):
-    """Download a single video from the ."""
+    logger: logging.Logger = _logger,
+) -> str:
+    """Download a single video from by URL."""
 
-    config = pipeline.config
-    logger = logging.getLogger(__name__)
-    logger.info("Starting video download from URL: %s", video_url)
+    # Resolve output template
+    output_template = _complete_template(root_directory, output_template)
+    logger.info("Starting video download URL=%s destination=%s", video_url, output_template)
 
     # Setup progress-tracking
     progress.scale(total_work=1.0)
     progress_tracker = YDLProgressTracker(show_progress_bar=True)
-
-    # Resolve destination path template
-    output_template = complete_template(config.sources.root, destination)
-    logger.info("Output template: %s", output_template)
 
     ydl_opts = {
         "format": "mp4",
@@ -142,10 +143,44 @@ def download_video_url(
     return file_name
 
 
-def complete_template(dataset_directory: str, template: str) -> str:
+def download_videos(
+    urls: Iterable[str],
+    output_template: str,
+    root_directory: str,
+    progress=ProgressMonitor.NULL,
+    logger: logging.Logger = _logger,
+    suppress_errors: bool = False,
+) -> List[str]:
+    """Download multiple videos by URLs."""
+
+    file_paths = []
+    progress.scale(total_work=1.0)
+    for video_url in urls:
+        subtask = progress.subtask(work_amount=progress.total / len(urls))
+        try:
+
+            file_path = download_video(
+                video_url,
+                output_template=output_template,
+                root_directory=root_directory,
+                progress=subtask,
+                logger=logger,
+            )
+            file_paths.append(file_path)
+        except YoutubeDLError as error:
+            _logger.error("Error downloading video URL %s", video_url, error)
+            if not suppress_errors:
+                raise
+        finally:
+            subtask.complete()
+    progress.complete()
+    return file_paths
+
+
+def _complete_template(root_directory: str, template: str) -> str:
     """Complete the destination template."""
-    dataset_directory = os.path.abspath(dataset_directory)
-    result = os.path.normpath(os.path.join(dataset_directory, template))
-    if Path(dataset_directory) not in Path(result).parents:
+    root_directory = os.path.abspath(root_directory)
+    result = os.path.normpath(os.path.join(root_directory, template))
+    if Path(root_directory) not in Path(result).parents:
         raise ValueError(f"Template '{template}' points outside of the dataset dataset directory.")
     return result

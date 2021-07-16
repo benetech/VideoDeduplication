@@ -1,3 +1,4 @@
+import abc
 import math
 import pickle
 from math import ceil
@@ -11,11 +12,30 @@ from db.schema import Repository, Files, Contributor, Signature
 from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonitor
 from winnow.remote import RepositoryClient
 from winnow.remote.helpers import file_to_local_fingerprint
-from winnow.remote.model import RemoteFingerprint, LocalFingerprint
+from winnow.remote.model import RemoteFingerprint, LocalFingerprint, RemoteRepository
 from winnow.storage.base_repr_storage import BaseReprStorage
 from winnow.storage.file_key import FileKey
 from winnow.storage.remote_signatures_dao import ReprRemoteSignaturesDAO
 from winnow.utils.iterators import chunks
+
+
+class RemoteConnector(abc.ABC):
+    """Connector communicates with remote repository and stores all the acquired fingerprints to the local storage."""
+
+    @property
+    @abc.abstractmethod
+    def repository(self) -> RemoteRepository:
+        """Get the corresponding remote repository."""
+        pass
+
+    @abc.abstractmethod
+    def push_all(self, chunk_size: int = 1000, progress: BaseProgressMonitor = ProgressMonitor.NULL):
+        """Push all existing files to the remote repository."""
+        pass
+
+    @abc.abstractmethod
+    def pull_all(self, chunk_size=1000, progress: BaseProgressMonitor = ProgressMonitor.NULL):
+        """Pull all available fingerprints form the remote repository and save them locally."""
 
 
 class DatabaseConnector:
@@ -133,7 +153,7 @@ class ReprConnector:
         signature_storage: BaseReprStorage,
         repo_client: RepositoryClient,
     ):
-        self.client: RepositoryClient = repo_client
+        self._client: RepositoryClient = repo_client
         self._remote_signature_dao = remote_signature_dao
         self._signature_storage: BaseReprStorage = signature_storage
 
@@ -143,19 +163,19 @@ class ReprConnector:
         progress.scale(total_work=total_count)
         for chunk in chunks(self._signature_storage.list(), size=chunk_size):
             fingerprints = self.to_local_fingerprints(keys=chunk, storage=self._signature_storage)
-            self.client.push(fingerprints)
+            self._client.push(fingerprints)
             progress.increase(amount=len(chunk))
         progress.complete()
 
     def pull_all(self, chunk_size=1000, progress: BaseProgressMonitor = ProgressMonitor.NULL):
         """Pull fingerprints from remote repository and store them in a local database."""
         latest_pulled = 0
-        total_count = self.client.count(start_from=latest_pulled)
+        total_count = self._client.count(start_from=latest_pulled)
         progress.scale(total_work=total_count)
 
         iterations_count = ceil(total_count / float(chunk_size))
         for _ in range(iterations_count):
-            fingerprints = self.client.pull(start_from=latest_pulled, limit=chunk_size)
+            fingerprints = self._client.pull(start_from=latest_pulled, limit=chunk_size)
             self._remote_signature_dao.save_signatures(fingerprints)
             latest_pulled = max(map(lambda fingerprint: fingerprint.id, fingerprints))
             progress.increase(len(fingerprints))

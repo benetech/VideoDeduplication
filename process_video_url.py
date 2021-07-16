@@ -3,7 +3,7 @@ import os
 import click
 
 from winnow.pipeline.pipeline_context import PipelineContext
-from winnow.pipeline.process_url import process_url
+from winnow.pipeline.process_urls import process_urls
 from winnow.utils.config import resolve_config
 from winnow.utils.logging import configure_logging_cli
 
@@ -36,7 +36,7 @@ def main(url, output, config, frame_sampling, save_frames):
     config = resolve_config(config_path=config, frame_sampling=frame_sampling, save_frames=save_frames)
 
     pipeline = PipelineContext(config)
-    process_url(video_url=url, destination=output, pipeline=pipeline)
+    process_urls(urls=[url], destination_template=output, pipeline=pipeline)
 
 
 if __name__ == "__main__":
