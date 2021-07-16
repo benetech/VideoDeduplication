@@ -1,6 +1,12 @@
-from server.queue.model import ProcessDirectory, ProcessFileList, TestTask, MatchTemplates, FindFrame
+from server.queue.model import (
+    ProcessDirectory,
+    ProcessFileList,
+    TestTask,
+    MatchTemplates,
+    FindFrame,
+    ProcessOnlineVideo,
+)
 from server.queue.request_transformer import RequestTransformer
-from task_queue.tasks import find_frame_task
 
 
 def make_celery_task_queue(task_request_transformer: RequestTransformer):
@@ -8,7 +14,14 @@ def make_celery_task_queue(task_request_transformer: RequestTransformer):
     from server.queue.celery.backend import resolve_backend
     from server.queue.celery.task_queue import CeleryTaskQueue
     from task_queue.application import celery_application
-    from task_queue.tasks import test_fibonacci, process_file_list, process_directory, match_all_templates
+    from task_queue.tasks import (
+        test_fibonacci,
+        process_file_list,
+        process_directory,
+        match_all_templates,
+        find_frame_task,
+        process_online_video,
+    )
 
     return CeleryTaskQueue(
         app=celery_application,
@@ -19,6 +32,7 @@ def make_celery_task_queue(task_request_transformer: RequestTransformer):
             ProcessFileList: process_file_list,
             MatchTemplates: match_all_templates,
             FindFrame: find_frame_task,
+            ProcessOnlineVideo: process_online_video,
             TestTask: test_fibonacci,
         },
     )

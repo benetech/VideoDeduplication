@@ -72,6 +72,7 @@
     "actions.showFileDetails": "Show File Details",
     "actions.goBack": "Go Back",
     "actions.blurVideos": "Blur videos",
+    "actions.blurVideos.help": "Blur all displayed videos.",
     "actions.blurScenes": "Blur scenes",
     "actions.seekToTheObject": "Seek video to the {object} at {time}",
     "actions.delete": "Delete",
@@ -232,6 +233,8 @@
     "task.type.templates.description": "This task will search for template matches in all processed video files.",
     "task.type.directory": "Process Directory",
     "task.type.directory.description": "This task will run complete video-processing pipeline on a specified directory. The task will search for video-files satisfying filtering criteria (such as file extension and duration) recursively in the specified directory. For each video it will extract frame-level features, calculate fingerprint, detect scenes and find duplicates among other dataset videos",
+    "task.type.processOnline": "Process Online Video",
+    "task.type.processOnline.description": "This task will run complete video-processing pipeline on a specified set of video URLs from the web. The task will attempt to download videos from their host if video is active and hosted on a supported platform. For each video it will extract frame-level features, calculate fingerprint, detect scenes and find duplicates among other dataset videos.",
     "task.status.pending": "Scheduled",
     "task.status.running": "Started",
     "task.status.success": "OK",
@@ -261,6 +264,7 @@
     "task.results": "Results",
     "task.request": "Request",
     "task.frameMatches.description": "Found {count} frame matches.",
+    "task.onlineFiles.description": "Downloaded and processed {count} files.",
     "task.attr.directory": "Directory",
     "task.attr.directory.help": "Choose directory to recursively process video files",
     "task.attr.frameSampling": "Frame Sampling",
@@ -280,6 +284,12 @@
     "task.attr.templateDistance.help": "Distance threshold used to detect matches.",
     "task.attr.templateDistanceMin": "Min Template Distance",
     "task.attr.templateDistanceMin.help": "Distance threshold used to combine consequent similar frames into single match.",
+    "task.attr.onlineVideoURLs": "Video URLs",
+    "task.attr.onlineVideoURLs.short": "URLs (one per line)",
+    "task.attr.onlineVideoURLs.help": "A list of video URLs from (one per line).",
+    "task.attr.onlineDestination": "Destination Template",
+    "task.attr.onlineDestination.short": "Template",
+    "task.attr.onlineDestination.help": "Template for download paths.",
     "task.attr.frameTime": "Frame",
     "task.attr.frameTime.help": "Frame time position in the video, in seconds.",
     "task.attr.file": "File",
@@ -319,6 +329,7 @@
     "request": "Request",
     "error": "Error",
     "startTime": "Start",
-    "endTime": "End"
+    "endTime": "End",
+    "config": "Configuration"
   }
 }

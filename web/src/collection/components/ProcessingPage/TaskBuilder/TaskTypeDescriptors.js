@@ -1,7 +1,8 @@
 import PropTypes from "prop-types";
-import MatchTemplatesForm from "./MatchTemplatesForm";
-import ProcessDirectoryForm from "./ProcessDirectoryForm";
 import TaskRequest from "../../../state/tasks/TaskRequest";
+import MatchTemplatesForm from "./forms/MatchTemplatesForm";
+import ProcessDirectoryForm from "./forms/ProcessDirectoryForm";
+import ProcessOnlineVideoForm from "./forms/ProcessOnlineVideoForm";
 
 const TaskTypeDescriptors = [
   {
@@ -13,6 +14,11 @@ const TaskTypeDescriptors = [
     type: TaskRequest.MATCH_TEMPLATES,
     title: "task.type.templates",
     component: MatchTemplatesForm,
+  },
+  {
+    type: TaskRequest.PROCESS_ONLINE_VIDEO,
+    title: "task.type.processOnline",
+    component: ProcessOnlineVideoForm,
   },
 ];
 

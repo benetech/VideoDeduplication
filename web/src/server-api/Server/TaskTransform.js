@@ -99,6 +99,16 @@ function makeTaskTypeTransforms() {
     },
   });
 
+  // Mapping for ProcessOnlineVideo
+  transforms.set(TaskRequest.PROCESS_ONLINE_VIDEO, {
+    requestProps: {
+      ...CommonRequestProps,
+      urls: "urls",
+      destination_template: "destinationTemplate",
+    },
+    fromResultsDTO: lodash.identity,
+  });
+
   return transforms;
 }
 

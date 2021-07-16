@@ -25,6 +25,8 @@ export default function getTaskTextDescription(request, intl) {
       return intl.formatMessage({ id: "task.type.templates" });
     case TaskRequest.FIND_FRAME:
       return intl.formatMessage({ id: "actions.findFrame" });
+    case TaskRequest.PROCESS_ONLINE_VIDEO:
+      return intl.formatMessage({ id: "task.type.processOnline" });
     default:
       console.warn(`Unsupported task request type: ${request.type}`);
       return request.type;

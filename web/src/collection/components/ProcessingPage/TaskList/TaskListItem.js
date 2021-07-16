@@ -8,7 +8,6 @@ import HeightOutlinedIcon from "@material-ui/icons/HeightOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import { formatDistance } from "date-fns";
 import { IconButton } from "@material-ui/core";
-import TaskRequest from "../../../state/tasks/TaskRequest";
 import { useIntl } from "react-intl";
 import TaskProgress from "./TaskProgress";
 import usePopup from "../../../../common/hooks/usePopup";
@@ -19,6 +18,7 @@ import { useHistory } from "react-router";
 import getStatusIcon from "../../TaskDetailsPage/TaskSummary/helpers/getStatusIcon";
 import useCancelTask from "../../../hooks/useCancelTask";
 import useDeleteTask from "../../../hooks/useDeleteTask";
+import getTaskTextDescription from "../../TaskDetailsPage/TaskSummary/helpers/getTaskTextDescription";
 
 const useStyles = makeStyles((theme) => ({
   task: {
@@ -73,6 +73,7 @@ const useStyles = makeStyles((theme) => ({
 function useMessages() {
   const intl = useIntl();
   return {
+    intl,
     delete: intl.formatMessage({ id: "actions.delete" }),
     cancel: intl.formatMessage({ id: "actions.cancel" }),
     showLogs: intl.formatMessage({ id: "actions.showLogs" }),
@@ -111,31 +112,11 @@ function useMessages() {
   };
 }
 
-function getTextDescription(request, messages) {
-  switch (request.type) {
-    case TaskRequest.DIRECTORY:
-      if (request.directory === ".") {
-        return messages.dataset;
-      } else {
-        return request.directory;
-      }
-    case TaskRequest.FILE_LIST:
-      return messages.files(request.files.length);
-    case TaskRequest.MATCH_TEMPLATES:
-      return messages.templates;
-    case TaskRequest.FIND_FRAME:
-      return messages.findFrame;
-    default:
-      console.warn(`Unsupported task request type: ${request.type}`);
-      return request.type;
-  }
-}
-
 function TaskListItem(props) {
   const { task, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const description = getTextDescription(task.request, messages);
+  const description = getTaskTextDescription(task.request, messages.intl);
   const Icon = getStatusIcon(task.status);
   const running = task.status === TaskStatus.RUNNING;
   const { clickTrigger, popup } = usePopup("task-menu-");

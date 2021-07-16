@@ -68,10 +68,12 @@ function TaskBuilder(props) {
       .then((response) => {
         if (response.success) {
           dispatch(updateTask(response.data));
+        } else {
+          console.error(`Failed to create task`, response.error);
         }
       })
       .finally(() => setLoading(false));
-  });
+  }, [req]);
 
   const TaskForm = taskType.component;
 
