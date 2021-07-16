@@ -263,6 +263,7 @@
     "task.results": "Results",
     "task.request": "Request",
     "task.frameMatches.description": "Found {count} frame matches.",
+    "task.onlineFiles.description": "Downloaded and processed {count} files.",
     "task.attr.directory": "Directory",
     "task.attr.directory.help": "Choose directory to recursively process video files",
     "task.attr.frameSampling": "Frame Sampling",

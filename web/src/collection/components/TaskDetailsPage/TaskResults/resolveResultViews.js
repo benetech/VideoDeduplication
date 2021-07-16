@@ -1,12 +1,23 @@
 import TaskRequest from "../../../state/tasks/TaskRequest";
 import RawResults from "./RawResults";
 import FindFrameResultsOverview from "./task-types/FindFrameResultsOverview";
+import ProcessOnlineVideoResultsOverview from "./task-types/ProcessOnlineVideoResultsOverview";
 
 const RequestViews = {
   [TaskRequest.FIND_FRAME]: [
     {
       title: "view.overview",
       component: FindFrameResultsOverview,
+    },
+    {
+      title: "view.raw",
+      component: RawResults,
+    },
+  ],
+  [TaskRequest.PROCESS_ONLINE_VIDEO]: [
+    {
+      title: "view.overview",
+      component: ProcessOnlineVideoResultsOverview,
     },
     {
       title: "view.raw",
