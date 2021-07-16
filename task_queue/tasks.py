@@ -68,7 +68,7 @@ def process_directory(
         files=videos, pipeline=pipeline_context, hashes=hashes, progress=monitor.subtask(work_amount=0.9)
     )
     detect_scenes(files=videos, pipeline=pipeline_context, progress=monitor.subtask(0.01))
-    extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.05))
+    extract_exif(videos, pipeline_context, progress_monitor=monitor.subtask(work_amount=0.05))
 
     monitor.complete()
 
@@ -114,7 +114,7 @@ def process_file_list(
     hashes = [get_hash(file) for file in files]
     generate_local_matches(files, pipeline=pipeline_context, hashes=hashes, progress=monitor.subtask(work_amount=0.9))
     detect_scenes(files, pipeline=pipeline_context, progress=monitor.subtask(0.01))
-    extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.05))
+    extract_exif(files, pipeline_context, progress_monitor=monitor.subtask(work_amount=0.05))
 
     monitor.complete()
 
@@ -172,7 +172,7 @@ def match_all_templates(
     # Run pipeline
     monitor.update(0)
     pipeline_context = PipelineContext(config)
-    extract_exif(config, progress_monitor=monitor.subtask(work_amount=0.1))
+    extract_exif(videos, pipeline_context, progress_monitor=monitor.subtask(work_amount=0.1))
     match_templates(videos, pipeline_context, progress=monitor.subtask(work_amount=0.9))
 
     # Fetch matched file counts

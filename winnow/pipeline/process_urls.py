@@ -1,6 +1,7 @@
 import logging
 
 from winnow.pipeline.detect_scenes import detect_scenes
+from winnow.pipeline.extract_exif import extract_exif
 from winnow.pipeline.generate_local_matches import generate_local_matches
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor
@@ -29,6 +30,7 @@ def process_urls(
     )
 
     generate_local_matches(files=file_paths, pipeline=pipeline, progress=progress.subtask(0.7))
-    detect_scenes(files=file_paths, pipeline=pipeline, progress=progress.subtask(0.1))
+    detect_scenes(files=file_paths, pipeline=pipeline, progress=progress.subtask(0.05))
+    extract_exif(videos=file_paths, pipeline=pipeline, progress_monitor=progress.subtask(0.05))
 
     return file_paths
