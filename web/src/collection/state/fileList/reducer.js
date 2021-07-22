@@ -10,7 +10,7 @@ import {
   ACTION_UPDATE_FILTERS_SUCCESS,
 } from "./actions";
 import lodash from "lodash";
-import extendEntityList from "../helpers/extendEntityList";
+import extendEntityList from "../../../application/common/helpers/extendEntityList";
 import FileListType from "./FileListType";
 import initialState from "./initialState";
 import {

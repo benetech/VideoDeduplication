@@ -9,7 +9,7 @@ import {
 import { selectFileExclusionsCache } from "../../collection/state/selectors";
 import { selectFileExclusions } from "./state/selectors";
 import OperationMutex from "../common/helpers/OperationMutex";
-import extendEntityList from "../../collection/state/helpers/extendEntityList";
+import extendEntityList from "../common/helpers/extendEntityList";
 
 /**
  * This class provides API for React components to work

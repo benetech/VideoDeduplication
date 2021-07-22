@@ -8,7 +8,7 @@ import {
   ACTION_SET_TEMPLATES,
   ACTION_UPDATE_TEMPLATE,
 } from "./actions";
-import extendEntityList from "../helpers/extendEntityList";
+import extendEntityList from "../../../application/common/helpers/extendEntityList";
 
 function templateReducer(state = initialState, action) {
   switch (action.type) {

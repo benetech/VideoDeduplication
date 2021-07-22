@@ -4,7 +4,7 @@ import {
   ACTION_CREATE_TEMPLATE_FILE_EXCLUSION,
   ACTION_DELETE_TEMPLATE_FILE_EXCLUSION,
 } from "./actions";
-import extendEntityList from "../../../collection/state/helpers/extendEntityList";
+import extendEntityList from "../../common/helpers/extendEntityList";
 import compareFileExclusions from "../helpers/compareFileExclusions";
 
 /**
