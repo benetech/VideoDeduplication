@@ -1,6 +1,8 @@
 /**
  * Export entire collection state.
  */
+import { getEntity } from "../../application/common/entityCache/initialState";
+
 export const selectColl = (state) => state.coll;
 
 export const selectFileList = (state) => selectColl(state).fileList;
@@ -19,7 +21,7 @@ export const selectFileError = (state) => selectFileList(state).error;
  * Select cached file by id.
  */
 export const selectCachedFile = (id) => (state) =>
-  selectColl(state).fileCache.files[id];
+  getEntity(selectColl(state).fileCache, id);
 
 /**
  * Select file matches.

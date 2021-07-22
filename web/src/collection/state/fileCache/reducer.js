@@ -1,23 +1,28 @@
-import lodash from "lodash";
-import initialState from "./initialState";
+import initialState from "../../../application/common/entityCache/initialState";
 import { ACTION_CACHE_FILE } from "./actions";
 import { ACTION_UPDATE_FILE } from "../fileList/actions";
 import {
   ACTION_DELETE_FILE_MATCH,
   ACTION_RESTORE_FILE_MATCH,
 } from "../fileMatches/actions";
+import {
+  cacheEntity,
+  entityCacheReducer,
+  updateEntity,
+  updateFunc,
+} from "../../../application/common/entityCache";
 
-function updateMatchCount(files, fileId, func) {
-  const currentFile = files[fileId];
-  if (currentFile?.matchesCount != null) {
-    const updatedFile = {
-      ...currentFile,
-      matchesCount: func(currentFile.matchesCount),
-    };
-    return { ...files, [fileId]: updatedFile };
-  }
-  return files;
-}
+// Increment match count
+const incMatchCount = (file) => ({
+  ...file,
+  matchesCount: file.matchesCount + 1,
+});
+
+// Decrement match count
+const decMatchCount = (file) => ({
+  ...file,
+  matchesCount: file.matchesCount - 1,
+});
 
 /**
  * Root reducer for file cache.
@@ -28,39 +33,28 @@ function updateMatchCount(files, fileId, func) {
 export default function fileCacheReducer(state = initialState, action) {
   switch (action.type) {
     case ACTION_CACHE_FILE: {
-      const files = { ...state.files, [action.file.id]: action.file };
-      const history = [
-        action.file.id,
-        ...state.history.filter((id) => id !== action.file.id),
-      ];
-      if (history.length > state.maxSize) {
-        const evicted = history.pop();
-        delete files[evicted];
-      }
-      return { ...state, history, files };
+      return entityCacheReducer(
+        state,
+        cacheEntity(action.file.id, action.file)
+      );
     }
     case ACTION_UPDATE_FILE: {
-      const currentFile = state.files[action.file.id];
-      if (currentFile != null) {
-        const updatedFile = lodash.merge({}, currentFile, action.file);
-        const files = { ...state.files, [action.file.id]: updatedFile };
-        return { ...state, files };
-      }
-      return state;
+      return entityCacheReducer(
+        state,
+        updateEntity(action.file.id, action.file)
+      );
     }
     case ACTION_DELETE_FILE_MATCH: {
       const { file: matchFile, motherFile } = action.match;
-      let files = state.files;
-      files = updateMatchCount(files, matchFile.id, (count) => count - 1);
-      files = updateMatchCount(files, motherFile.id, (count) => count - 1);
-      return { ...state, files };
+      state = updateFunc(state, matchFile.id, decMatchCount);
+      state = updateFunc(state, motherFile.id, decMatchCount);
+      return state;
     }
     case ACTION_RESTORE_FILE_MATCH: {
       const { file: matchFile, motherFile } = action.match;
-      let files = state.files;
-      files = updateMatchCount(files, matchFile.id, (count) => count + 1);
-      files = updateMatchCount(files, motherFile.id, (count) => count + 1);
-      return { ...state, files };
+      state = updateFunc(state, matchFile.id, incMatchCount);
+      state = updateFunc(state, motherFile.id, incMatchCount);
+      return state;
     }
     default:
       return state;
