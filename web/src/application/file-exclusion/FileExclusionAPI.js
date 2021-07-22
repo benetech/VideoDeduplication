@@ -8,7 +8,7 @@ import {
 } from "./state/actions";
 import { selectFileExclusionsCache } from "../../collection/state/selectors";
 import { selectFileExclusions } from "./state/selectors";
-import OperationMutex from "../helpers/OperationMutex";
+import OperationMutex from "../common/helpers/OperationMutex";
 import extendEntityList from "../../collection/state/helpers/extendEntityList";
 
 /**
