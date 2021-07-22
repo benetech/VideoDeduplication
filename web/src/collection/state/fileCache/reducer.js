@@ -1,4 +1,4 @@
-import initialState from "../../../application/common/entityCache/initialState";
+import initialState from "./initialState";
 import { ACTION_CACHE_FILE } from "./actions";
 import { ACTION_UPDATE_FILE } from "../fileList/actions";
 import {

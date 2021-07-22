@@ -42,7 +42,7 @@ export const selectTasks = (state) => selectColl(state).tasks;
  * Select cached task.
  */
 export const selectCachedTask = (id) => (state) =>
-  selectColl(state).taskCache.tasks[id];
+  getEntity(selectColl(state).taskCache, id);
 
 /**
  * Select task logs.
