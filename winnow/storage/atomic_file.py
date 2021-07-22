@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import tempfile
 from contextlib import contextmanager
 from os import PathLike
@@ -40,7 +41,7 @@ def atomic_file_path(destination_path: PathLike, tmp_prefix: str = None, tmp_suf
     try:
         yield temporary_path
         _ensure_directory_exists(os.path.dirname(destination_path))
-        os.rename(temporary_path, destination_path)
+        shutil.move(temporary_path, destination_path)
     finally:
         if os.path.exists(temporary_path):
             os.remove(temporary_path)
