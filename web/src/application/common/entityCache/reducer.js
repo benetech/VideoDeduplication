@@ -4,24 +4,25 @@ import {
   ACTION_CACHE_ENTITY,
   ACTION_DELETE_ENTITY,
   ACTION_UPDATE_ENTITY,
-  updateEntity,
+  cacheEntity,
 } from "./actions";
 
 /**
  * Update cache entry using the function.
  * @param {{items: {}, maxSize: number, history: string[]}} state - The initial state.
  * @param {string} key key of the entity that will be updated
- * @param {function} updater update function
+ * @param {function} update function that transforms entity
  * @return {{items: {}, maxSize: number, history: string[]}}
  */
-export function updateFunc(state, key, updater) {
+export function updateFunc(state, key, update) {
   // Do nothing if the key is not cached.
   if (!hasEntity(state, key)) {
     return state;
   }
 
   const entity = getEntity(state, key);
-  return entityCacheReducer(state, updateEntity(key, updater(entity)));
+  const updated = update(entity);
+  return entityCacheReducer(state, cacheEntity(key, updated));
 }
 
 /**
