@@ -1,3 +1,4 @@
+import lodash from "lodash";
 import initialState from "./initialState";
 import {
   ACTION_CACHE_TEMPLATE_FILE_EXCLUSIONS,
@@ -6,6 +7,16 @@ import {
 } from "./actions";
 import extendEntityList from "../../common/helpers/extendEntityList";
 import compareFileExclusions from "../helpers/compareFileExclusions";
+import {
+  cacheEntity,
+  entityCacheReducer,
+  updateFunc,
+} from "../../common/entityCache";
+import { hasEntity } from "../../common/entityCache/initialState";
+
+// Insert new exclusion into the list
+const insertExclusion = (exclusion) => (exclusions) =>
+  extendEntityList(exclusions, [exclusion]).sort(compareFileExclusions);
 
 /**
  * Root reducer for file-exclusions cache.
@@ -15,50 +26,24 @@ export default function fileExclusionsCacheReducer(
   action
 ) {
   switch (action.type) {
-    case ACTION_CACHE_TEMPLATE_FILE_EXCLUSIONS: {
-      const exclusions = {
-        ...state.exclusions,
-        [action.fileId]: action.exclusions,
-      };
-      const history = [
-        action.fileId,
-        ...state.history.filter((id) => id !== action.fileId),
-      ];
-      if (history.length > state.maxSize) {
-        const evicted = history.pop();
-        delete exclusions[evicted];
-      }
-      return { ...state, history, exclusions };
-    }
-    case ACTION_CREATE_TEMPLATE_FILE_EXCLUSION: {
-      const { exclusion } = action;
-      const cacheEntry = state.exclusions[exclusion.file.id];
-      if (cacheEntry == null) {
-        return state;
-      }
-      const updatedEntry = extendEntityList(cacheEntry, [exclusion]).sort(
-        compareFileExclusions
+    case ACTION_CACHE_TEMPLATE_FILE_EXCLUSIONS:
+      return entityCacheReducer(
+        state,
+        cacheEntity(action.fileId, action.exclusions)
       );
-      const exclusions = {
-        ...state.exclusions,
-        [exclusion.file.id]: updatedEntry,
-      };
-      return { ...state, exclusions };
+    case ACTION_CREATE_TEMPLATE_FILE_EXCLUSION: {
+      const created = action.exclusion;
+      const file = created.file;
+      if (hasEntity(state, file.id)) {
+        return updateFunc(state, file.id, insertExclusion(created));
+      }
+      return entityCacheReducer(state, cacheEntity(file.id, [created]));
     }
     case ACTION_DELETE_TEMPLATE_FILE_EXCLUSION: {
-      const { exclusion: deleted } = action;
-      const cacheEntry = state.exclusions[deleted.file.id];
-      if (cacheEntry == null) {
-        return state;
-      }
-      const updatedEntry = cacheEntry.filter(
-        (exclusion) => exclusion.id !== deleted.id
+      const deleted = action.exclusion;
+      return updateFunc(state, deleted.file.id, (exclusions) =>
+        lodash.reject(exclusions, (exclusion) => exclusion.id === deleted.id)
       );
-      const exclusions = {
-        ...state.exclusions,
-        [deleted.file.id]: updatedEntry,
-      };
-      return { ...state, exclusions };
     }
     default:
       return state;
