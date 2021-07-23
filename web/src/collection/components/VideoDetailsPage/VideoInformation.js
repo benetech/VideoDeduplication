@@ -12,6 +12,7 @@ import {
 } from "../../../common/components/SelectableTabs";
 import ObjectAPI from "../../../application/objects/ObjectAPI";
 import MetadataPane from "./MetadataPane";
+import FileExclusionAPI from "../../../application/file-exclusion/FileExclusionAPI";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -75,13 +76,15 @@ function VideoInformation(props) {
 
   const objectsAPI = ObjectAPI.use();
   const { objects = [] } = objectsAPI.useFileObjects(file.id);
+  const exclusionAPI = FileExclusionAPI.use();
+  const { exclusions } = exclusionAPI.useExclusions(file.id);
   const styles = contentStyles(tab);
 
   return (
     <div className={clsx(classes.root, className)} {...other}>
       <SelectableTabs value={tab} onChange={setTab} className={classes.tabs}>
         <SelectableTab label={messages.info} value={Tab.info} />
-        {objects.length > 0 && (
+        {(objects.length > 0 || exclusions.length > 0) && (
           <SelectableTab
             label={messages.objects}
             value={Tab.objects}
