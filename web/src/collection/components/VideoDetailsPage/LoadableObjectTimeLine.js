@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { FileType } from "../../prop-types/FileType";
 import { LinearProgress } from "@material-ui/core";
 import ObjectTimeLine from "./ObjectTimeLine";
-import ObjectAPI from "../../../application/objects/ObjectAPI";
+import ObjectAPI from "../../../application/api/objects/ObjectAPI";
 
 function LoadableObjectTimeLine(props) {
   const { file, onJump, className, ...other } = props;

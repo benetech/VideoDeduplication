@@ -10,7 +10,7 @@ import { defaultFilters } from "../../../../application/state/files/fileList/ini
 import objectDiff from "../../../../common/helpers/objectDiff";
 import { useSelector } from "react-redux";
 import { selectFileFilters } from "../../../../application/state/root/selectors";
-import useFileExtensions from "../../../../application/stats/useFileExtensions";
+import useFileExtensions from "../../../../application/api/stats/useFileExtensions";
 import {
   parseDateRange,
   stringifyDateRange,

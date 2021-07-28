@@ -10,7 +10,7 @@ import usePopup from "../../../../common/hooks/usePopup";
 import { Menu, MenuItem } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import useConfirmDialog from "./useConfirmDialog";
-import FileMatchType from "../../../../application/match/prop-types/FileMatchType";
+import FileMatchType from "../../../prop-types/FileMatchType";
 import DismissedIcon from "@material-ui/icons/NotInterested";
 
 const useStyles = makeStyles((theme) => ({

@@ -6,7 +6,7 @@ import {
   ACTION_DELETE_TEMPLATE_FILE_EXCLUSION,
 } from "./actions";
 import extendEntityList from "../../common/helpers/extendEntityList";
-import compareFileExclusions from "../helpers/compareFileExclusions";
+import compareFileExclusions from "./helpers/compareFileExclusions";
 import { cacheValue, entityCacheReducer, updateFunc } from "../../common/cache";
 import { hasEntry } from "../../common/cache/initialState";
 

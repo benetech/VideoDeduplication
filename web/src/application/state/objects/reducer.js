@@ -1,7 +1,7 @@
 import lodash from "lodash";
 import initialState from "./initialState";
 import { ACTION_CACHE_OBJECTS, ACTION_UPDATE_OBJECT } from "./actions";
-import { ACTION_CREATE_TEMPLATE_FILE_EXCLUSION } from "../../file-exclusion/state/actions";
+import { ACTION_CREATE_TEMPLATE_FILE_EXCLUSION } from "../file-exclusions/actions";
 import updateEntityList from "../../common/helpers/updateEntityList";
 import { cacheValue, entityCacheReducer, updateFunc } from "../../common/cache";
 

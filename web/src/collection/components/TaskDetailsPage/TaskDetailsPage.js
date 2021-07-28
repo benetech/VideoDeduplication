@@ -10,7 +10,7 @@ import { useParams } from "react-router";
 import { randomTask } from "../../../server-api/MockServer/fake-data/tasks";
 import TaskStatus from "../../../application/state/tasks/TaskStatus";
 import TaskSummaryHeader from "./TaskSummaryHeader";
-import useGetTask from "../../hooks/useGetTask";
+import useGetTask from "../../../application/api/tasks/useGetTask";
 import TaskLoadingHeader from "./TaskLoadingHeader";
 import TaskDetails from "./TaskDetails";
 

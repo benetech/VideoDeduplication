@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
-import FileType from "../../../collection/prop-types/FileType";
-import { TemplateType } from "../../../collection/prop-types/TemplateType";
+import FileType from "./FileType";
+import { TemplateType } from "./TemplateType";
 
 /**
  * Prop-type for a black-listed (file, template) pair.

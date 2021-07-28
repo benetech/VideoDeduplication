@@ -8,7 +8,7 @@ import FileDetails from "../FileDetails";
 import FileMatchHeader from "./FileMatchHeader";
 import MatchSelector from "./MatchSelector";
 import useFileMatches from "../../../hooks/useFileMatches";
-import MatchAPI from "../../../../application/match/MatchAPI";
+import MatchAPI from "../../../../application/api/matches/MatchAPI";
 import MatchOptions, { DefaultMatchOptions } from "./MatchOptions";
 import { Collapse, Tooltip } from "@material-ui/core";
 import SettingsIcon from "@material-ui/icons/Settings";

@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import FileType from "../../../collection/prop-types/FileType";
+import FileType from "./FileType";
 
 /**
  * Prop-type for a match in the context of the given mother file.

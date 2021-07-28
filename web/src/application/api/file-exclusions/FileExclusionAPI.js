@@ -1,15 +1,15 @@
-import { useServer } from "../../server-api/context";
+import { useServer } from "../../../server-api/context";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   cacheTemplateFileExclusions,
   createTemplateFileExclusion,
   deleteTemplateFileExclusion,
-} from "./state/actions";
-import { selectFileExclusionsCache } from "../state/root/selectors";
-import { selectFileExclusions } from "./state/selectors";
-import OperationMutex from "../common/helpers/OperationMutex";
-import extendEntityList from "../common/helpers/extendEntityList";
+} from "../../state/file-exclusions/actions";
+import { selectFileExclusionsCache } from "../../state/root/selectors";
+import { selectFileExclusions } from "../../state/file-exclusions/selectors";
+import OperationMutex from "../../common/helpers/OperationMutex";
+import extendEntityList from "../../common/helpers/extendEntityList";
 
 /**
  * This class provides API for React components to work

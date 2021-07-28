@@ -1,5 +1,5 @@
 import TaskTransform from "./TaskTransform";
-import Statistics from "../../application/stats/Statistics";
+import Statistics from "../../application/api/stats/Statistics";
 
 /**
  * Data-transfer object and internal data format may evolve independently, the

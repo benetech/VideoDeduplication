@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import BasicContainer from "./BasicContainer";
 import LocalMatchPreview from "./LocalMatchPreview";
 import RemoteMatchPreview from "./RemoteMatchPreview";
-import FileMatchType from "../../../../application/match/prop-types/FileMatchType";
+import FileMatchType from "../../../prop-types/FileMatchType";
 import { useIntl } from "react-intl";
 
 /**

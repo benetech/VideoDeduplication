@@ -1,4 +1,4 @@
-import { useServer } from "../../server-api/context";
+import { useServer } from "../../../server-api/context";
 import { useEffect, useState } from "react";
 import Statistics from "./Statistics";
 

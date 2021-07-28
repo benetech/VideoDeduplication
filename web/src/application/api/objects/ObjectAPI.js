@@ -1,10 +1,10 @@
-import { useServer } from "../../server-api/context";
+import { useServer } from "../../../server-api/context";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useMemo, useState } from "react";
-import { selectObjectCache } from "../state/root/selectors";
-import { cacheObjects, updateObject } from "./state/actions";
-import { selectFileObjects } from "./state/selectors";
-import { updateMatch } from "../state/fileMatches/actions";
+import { selectObjectCache } from "../../state/root/selectors";
+import { cacheObjects, updateObject } from "../../state/objects/actions";
+import { selectFileObjects } from "../../state/objects/selectors";
+import { updateMatch } from "../../state/fileMatches/actions";
 
 /**
  * This class provides API for React components to consistently

@@ -10,9 +10,9 @@ import {
   SelectableTab,
   SelectableTabs,
 } from "../../../common/components/SelectableTabs";
-import ObjectAPI from "../../../application/objects/ObjectAPI";
+import ObjectAPI from "../../../application/api/objects/ObjectAPI";
 import MetadataPane from "./MetadataPane";
-import FileExclusionAPI from "../../../application/file-exclusion/FileExclusionAPI";
+import FileExclusionAPI from "../../../application/api/file-exclusions/FileExclusionAPI";
 
 const useStyles = makeStyles((theme) => ({
   root: {

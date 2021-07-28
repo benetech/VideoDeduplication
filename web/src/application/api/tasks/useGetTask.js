@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectCachedTask } from "../../application/state/root/selectors";
-import { useServer } from "../../server-api/context";
-import { Status } from "../../server-api/Response";
-import { cacheTask } from "../../application/state/taskCache/actions";
+import { selectCachedTask } from "../../state/root/selectors";
+import { useServer } from "../../../server-api/context";
+import { Status } from "../../../server-api/Response";
+import { cacheTask } from "../../state/taskCache/actions";
 
 /**
  * Fetch task by id.

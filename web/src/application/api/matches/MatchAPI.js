@@ -1,11 +1,11 @@
-import { useServer } from "../../server-api/context";
+import { useServer } from "../../../server-api/context";
 import { useDispatch } from "react-redux";
 import { useMemo } from "react";
 import {
   deleteFileMatch,
   restoreFileMatch,
   updateMatch,
-} from "../state/fileMatches/actions";
+} from "../../state/fileMatches/actions";
 
 /**
  * This API implements integration between bare Server API

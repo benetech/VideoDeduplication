@@ -14,7 +14,7 @@ import { updateFilters } from "../../../application/state/files/fileList/actions
 import { useHistory } from "react-router";
 import { routes } from "../../../routing/routes";
 import { MatchCategory } from "../../../application/state/files/fileList/MatchCategory";
-import useMatchStats from "../../../application/stats/useMatchStats";
+import useMatchStats from "../../../application/api/stats/useMatchStats";
 // import useUniqueId from "../../../common/hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({

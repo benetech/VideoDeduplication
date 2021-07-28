@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import { updateTask } from "../../application/state/tasks/actions";
+import { updateTask } from "../../state/tasks/actions";
 import { useDispatch } from "react-redux";
-import { useServer } from "../../server-api/context";
+import { useServer } from "../../../server-api/context";
 
 /**
  * Reusable hook to cancel task.

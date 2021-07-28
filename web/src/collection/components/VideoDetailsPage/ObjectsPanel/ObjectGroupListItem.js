@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import ObjectType from "../../../../application/objects/prop-types/ObjectType";
+import ObjectType from "../../../prop-types/ObjectType";
 import TimeCaption from "../TimeCaption";
 import { formatDuration } from "../../../../common/helpers/format";
 import { useIntl } from "react-intl";

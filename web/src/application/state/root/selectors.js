@@ -1,9 +1,6 @@
 import { getEntry } from "../../common/cache/initialState";
 
-/**
- * Export entire collection state.
- */
-export const selectFileList = (state) => state.fileList;
+export const selectFileList = (state) => state.files.fileList;
 
 export const selectFiles = (state) => selectFileList(state).files;
 
@@ -19,7 +16,7 @@ export const selectFileError = (state) => selectFileList(state).error;
  * Select cached file by id.
  */
 export const selectCachedFile = (id) => (state) =>
-  getEntry(state.fileCache, id);
+  getEntry(state.files.cache, id);
 
 /**
  * Select file matches.

@@ -15,8 +15,8 @@ import usePopup from "../../../../common/hooks/usePopup";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import TaskStatus from "../../../../application/state/tasks/TaskStatus";
-import useCancelTask from "../../../hooks/useCancelTask";
-import useDeleteTask from "../../../hooks/useDeleteTask";
+import useCancelTask from "../../../../application/api/tasks/useCancelTask";
+import useDeleteTask from "../../../../application/api/tasks/useDeleteTask";
 
 const useStyles = makeStyles((theme) => ({
   header: {

@@ -1,27 +1,22 @@
-import fileListInitialState from "../files/fileList/initialState";
-import fileCacheInitialState from "../files/fileCache/initialState";
+import filesInitialState from "../files/root/initialState";
 import fileClusterInitialState from "../fileCluster/initialState";
 import fileMatchesInitialState from "../fileMatches/initialState";
 import tasksInitialState from "../tasks/initialState";
 import taskCacheInitialState from "../taskCache/initialState";
 import taskLogsInitialState from "../taskLogs/initialState";
 import templatesInitialState from "../templates/initialState";
-import objectCacheInitialState from "../../objects/state/initialState";
+import objectCacheInitialState from "../objects/initialState";
 import presetInitialState from "../presets/initialState";
-import fileExclusionInitialState from "../../file-exclusion/state/initialState";
+import fileExclusionInitialState from "../file-exclusions/initialState";
 
 /**
  * Application initial state.
  */
 const initialState = {
   /**
-   * Files loaded and displayed on the file browser page ('My Collection').
+   * Files initial state.
    */
-  fileList: fileListInitialState,
-  /**
-   * Cached individual files with fully-loaded data.
-   */
-  fileCache: fileCacheInitialState,
+  files: filesInitialState,
   /**
    * Single file neighboring cluster (closely-connected files).
    */

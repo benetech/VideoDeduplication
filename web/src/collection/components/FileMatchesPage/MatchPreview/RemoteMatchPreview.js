@@ -13,7 +13,7 @@ import CloudOutlinedIcon from "@material-ui/icons/CloudOutlined";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router-dom";
 import { routes } from "../../../../routing/routes";
-import FileMatchType from "../../../../application/match/prop-types/FileMatchType";
+import FileMatchType from "../../../prop-types/FileMatchType";
 
 const useStyles = makeStyles({
   root: {},

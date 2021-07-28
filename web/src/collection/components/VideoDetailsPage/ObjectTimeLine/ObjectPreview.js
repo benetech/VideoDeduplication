@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import ObjectType from "../../../../application/objects/prop-types/ObjectType";
+import ObjectType from "../../../prop-types/ObjectType";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import { useIntl } from "react-intl";
 import { objectTime } from "./helpers";

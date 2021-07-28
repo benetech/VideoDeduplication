@@ -16,8 +16,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 import { routes } from "../../../../routing/routes";
 import { useHistory } from "react-router";
 import getStatusIcon from "../../TaskDetailsPage/TaskSummary/helpers/getStatusIcon";
-import useCancelTask from "../../../hooks/useCancelTask";
-import useDeleteTask from "../../../hooks/useDeleteTask";
+import useCancelTask from "../../../../application/api/tasks/useCancelTask";
+import useDeleteTask from "../../../../application/api/tasks/useDeleteTask";
 import getTaskTextDescription from "../../TaskDetailsPage/TaskSummary/helpers/getTaskTextDescription";
 
 const useStyles = makeStyles((theme) => ({
