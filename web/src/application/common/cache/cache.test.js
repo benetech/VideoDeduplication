@@ -1,6 +1,11 @@
 import cacheReducer, { updateFunc } from "./reducer";
 import initialState, { getEntry, hasEntry } from "./initialState";
-import { cacheValue, deleteEntry, updateValue } from "./actions";
+import {
+  cacheValue,
+  deleteEntry,
+  invalidateCache,
+  updateValue,
+} from "./actions";
 
 export function randomId() {
   return Math.random().toString(36).substring(2, 10);
@@ -93,6 +98,19 @@ describe(cacheReducer, () => {
         expect(hasEntry(cache, entity.key)).toBe(false);
         expect(getEntry(cache, entity.key)).toBe(undefined);
       }
+    });
+
+    test("Invalidate cache", () => {
+      const firstKey = 1;
+      const secondKey = 2;
+      let cache = initialState;
+
+      cache = cacheReducer(cache, cacheValue(firstKey, "some-value"));
+      cache = cacheReducer(cache, cacheValue(secondKey, "other-value"));
+      cache = cacheReducer(cache, invalidateCache());
+
+      expect(hasEntry(cache, firstKey)).toBe(false);
+      expect(hasEntry(cache, secondKey)).toBe(false);
     });
   });
 

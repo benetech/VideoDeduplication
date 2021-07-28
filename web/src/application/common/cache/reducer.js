@@ -3,6 +3,7 @@ import initialState, { getEntry, hasEntry } from "./initialState";
 import {
   ACTION_CACHE_VALUE,
   ACTION_DELETE_ENTRY,
+  ACTION_INVALIDATE_CACHE,
   ACTION_UPDATE_VALUE,
   cacheValue,
 } from "./actions";
@@ -67,6 +68,8 @@ export default function cacheReducer(state = initialState, action) {
       const history = state.history.filter((key) => key !== action.key);
       return { ...state, items, history };
     }
+    case ACTION_INVALIDATE_CACHE:
+      return { ...initialState, maxSize: state.maxSize };
     default:
       return state;
   }

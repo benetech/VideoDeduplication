@@ -39,3 +39,9 @@ export const ACTION_DELETE_ENTRY = "cache.DELETE_ENTRY";
 export function deleteEntry(key) {
   return { type: ACTION_DELETE_ENTRY, key };
 }
+
+export const ACTION_INVALIDATE_CACHE = "cache.INVALIDATE_CACHE";
+
+export function invalidateCache() {
+  return { type: ACTION_INVALIDATE_CACHE };
+}
