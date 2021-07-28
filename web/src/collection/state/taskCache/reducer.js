@@ -2,10 +2,10 @@ import initialState from "./initialState";
 import { ACTION_CACHE_TASK } from "./actions";
 import { ACTION_UPDATE_TASK } from "../tasks/actions";
 import {
-  cacheEntity,
+  cacheValue,
   entityCacheReducer,
-  updateEntity,
-} from "../../../application/common/entityCache";
+  updateValue,
+} from "../../../application/common/cache";
 
 /**
  * Root reducer for task cache.
@@ -13,15 +13,12 @@ import {
 export default function taskCacheReducer(state = initialState, action) {
   switch (action.type) {
     case ACTION_CACHE_TASK: {
-      return entityCacheReducer(
-        state,
-        cacheEntity(action.task.id, action.task)
-      );
+      return entityCacheReducer(state, cacheValue(action.task.id, action.task));
     }
     case ACTION_UPDATE_TASK: {
       return entityCacheReducer(
         state,
-        updateEntity(action.task.id, action.task)
+        updateValue(action.task.id, action.task)
       );
     }
     default:

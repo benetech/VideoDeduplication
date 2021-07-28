@@ -7,12 +7,8 @@ import {
 } from "./actions";
 import extendEntityList from "../../common/helpers/extendEntityList";
 import compareFileExclusions from "../helpers/compareFileExclusions";
-import {
-  cacheEntity,
-  entityCacheReducer,
-  updateFunc,
-} from "../../common/entityCache";
-import { hasEntity } from "../../common/entityCache/initialState";
+import { cacheValue, entityCacheReducer, updateFunc } from "../../common/cache";
+import { hasEntry } from "../../common/cache/initialState";
 
 // Insert new exclusion into the list
 const insertExclusion = (exclusion) => (exclusions) =>
@@ -29,15 +25,15 @@ export default function fileExclusionsCacheReducer(
     case ACTION_CACHE_TEMPLATE_FILE_EXCLUSIONS:
       return entityCacheReducer(
         state,
-        cacheEntity(action.fileId, action.exclusions)
+        cacheValue(action.fileId, action.exclusions)
       );
     case ACTION_CREATE_TEMPLATE_FILE_EXCLUSION: {
       const created = action.exclusion;
       const file = created.file;
-      if (hasEntity(state, file.id)) {
+      if (hasEntry(state, file.id)) {
         return updateFunc(state, file.id, insertExclusion(created));
       }
-      return entityCacheReducer(state, cacheEntity(file.id, [created]));
+      return entityCacheReducer(state, cacheValue(file.id, [created]));
     }
     case ACTION_DELETE_TEMPLATE_FILE_EXCLUSION: {
       const deleted = action.exclusion;

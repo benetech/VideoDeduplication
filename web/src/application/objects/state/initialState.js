@@ -1,1 +1,1 @@
-export { initialState as default } from "../../common/entityCache";
+export { initialState as default } from "../../common/cache";

@@ -1,6 +1,6 @@
-import entityCacheReducer, { updateFunc } from "./reducer";
-import initialState, { getEntity, hasEntity } from "./initialState";
-import { cacheEntity, deleteEntity, updateEntity } from "./actions";
+import cacheReducer, { updateFunc } from "./reducer";
+import initialState, { getEntry, hasEntry } from "./initialState";
+import { cacheValue, deleteEntry, updateValue } from "./actions";
 
 export function randomId() {
   return Math.random().toString(36).substring(2, 10);
@@ -19,9 +19,9 @@ function makeEntities(count = 10) {
   return entities;
 }
 
-describe(entityCacheReducer, () => {
+describe(cacheReducer, () => {
   test("Ignores unknown actions", () => {
-    const result = entityCacheReducer(initialState, { type: "unknown" });
+    const result = cacheReducer(initialState, { type: "unknown" });
     expect(result).toEqual(initialState);
   });
 
@@ -30,10 +30,10 @@ describe(entityCacheReducer, () => {
       const key = "some-key";
       const entity = { property: "some-value" };
 
-      const result = entityCacheReducer(initialState, cacheEntity(key, entity));
+      const result = cacheReducer(initialState, cacheValue(key, entity));
 
-      expect(hasEntity(result, key)).toBe(true);
-      expect(getEntity(result, key)).toEqual(entity);
+      expect(hasEntry(result, key)).toBe(true);
+      expect(getEntry(result, key)).toEqual(entity);
     });
 
     test("Overrides existing entities", () => {
@@ -42,11 +42,11 @@ describe(entityCacheReducer, () => {
       const newOne = { property: "new-value" };
 
       let cache = initialState;
-      cache = entityCacheReducer(cache, cacheEntity(key, oldOne));
-      cache = entityCacheReducer(cache, cacheEntity(key, newOne));
+      cache = cacheReducer(cache, cacheValue(key, oldOne));
+      cache = cacheReducer(cache, cacheValue(key, newOne));
 
-      expect(hasEntity(cache, key)).toBe(true);
-      expect(getEntity(cache, key)).toEqual(newOne);
+      expect(hasEntry(cache, key)).toBe(true);
+      expect(getEntry(cache, key)).toEqual(newOne);
     });
 
     test("Evicts extra items", () => {
@@ -57,41 +57,41 @@ describe(entityCacheReducer, () => {
       // Cache max number of items
       let cache = { ...initialState, maxSize };
       for (let entity of oldEntities) {
-        cache = entityCacheReducer(cache, cacheEntity(entity.key, entity));
+        cache = cacheReducer(cache, cacheValue(entity.key, entity));
       }
 
       // Check all items are cached
       for (let entity of oldEntities) {
-        expect(hasEntity(cache, entity.key)).toBe(true);
-        expect(getEntity(cache, entity.key)).toEqual(entity);
+        expect(hasEntry(cache, entity.key)).toBe(true);
+        expect(getEntry(cache, entity.key)).toEqual(entity);
       }
 
       // Cache extra items and check old ones are evicted one by one
       for (let i = 0; i < newEntities.length; i++) {
         const newOne = newEntities[i];
         const evicted = oldEntities[i];
-        cache = entityCacheReducer(cache, cacheEntity(newOne.key, newOne));
+        cache = cacheReducer(cache, cacheValue(newOne.key, newOne));
 
-        expect(hasEntity(cache, newOne.key)).toBe(true);
-        expect(getEntity(cache, newOne.key)).toEqual(newOne);
-        expect(hasEntity(cache, evicted.key)).toBe(false);
+        expect(hasEntry(cache, newOne.key)).toBe(true);
+        expect(getEntry(cache, newOne.key)).toEqual(newOne);
+        expect(hasEntry(cache, evicted.key)).toBe(false);
         for (let j = i + 1; j < oldEntities.length; j++) {
           const oldOne = oldEntities[j];
-          expect(hasEntity(cache, oldOne.key)).toBe(true);
-          expect(getEntity(cache, oldOne.key)).toEqual(oldOne);
+          expect(hasEntry(cache, oldOne.key)).toBe(true);
+          expect(getEntry(cache, oldOne.key)).toEqual(oldOne);
         }
       }
 
       // Check all new items are cached
       for (let entity of newEntities) {
-        expect(hasEntity(cache, entity.key)).toBe(true);
-        expect(getEntity(cache, entity.key)).toEqual(entity);
+        expect(hasEntry(cache, entity.key)).toBe(true);
+        expect(getEntry(cache, entity.key)).toEqual(entity);
       }
 
       // Check all old items are evicted
       for (let entity of oldEntities) {
-        expect(hasEntity(cache, entity.key)).toBe(false);
-        expect(getEntity(cache, entity.key)).toBe(undefined);
+        expect(hasEntry(cache, entity.key)).toBe(false);
+        expect(getEntry(cache, entity.key)).toBe(undefined);
       }
     });
   });
@@ -104,11 +104,11 @@ describe(entityCacheReducer, () => {
       const updated = { foo: { bar: "new" }, baz: "old" };
 
       let cache = initialState;
-      cache = entityCacheReducer(cache, cacheEntity(key, orig));
-      cache = entityCacheReducer(cache, updateEntity(key, updates));
+      cache = cacheReducer(cache, cacheValue(key, orig));
+      cache = cacheReducer(cache, updateValue(key, updates));
 
-      expect(hasEntity(cache, key)).toBe(true);
-      expect(getEntity(cache, key)).toEqual(updated);
+      expect(hasEntry(cache, key)).toBe(true);
+      expect(getEntry(cache, key)).toEqual(updated);
     });
 
     test("Ignores missing key updates", () => {
@@ -116,10 +116,10 @@ describe(entityCacheReducer, () => {
 
       const missingKey = "missing-key";
       const updates = { some: "updates" };
-      cache = entityCacheReducer(cache, updateEntity(missingKey, updates));
+      cache = cacheReducer(cache, updateValue(missingKey, updates));
 
-      expect(hasEntity(cache, missingKey)).toBe(false);
-      expect(getEntity(cache, missingKey)).toBe(undefined);
+      expect(hasEntry(cache, missingKey)).toBe(false);
+      expect(getEntry(cache, missingKey)).toBe(undefined);
     });
   });
 
@@ -129,11 +129,11 @@ describe(entityCacheReducer, () => {
       const entity = { property: "some-value" };
 
       let cache = initialState;
-      cache = entityCacheReducer(cache, cacheEntity(key, entity));
-      cache = entityCacheReducer(cache, deleteEntity(key));
+      cache = cacheReducer(cache, cacheValue(key, entity));
+      cache = cacheReducer(cache, deleteEntry(key));
 
-      expect(hasEntity(cache, key)).toBe(false);
-      expect(getEntity(cache, key)).toEqual(undefined);
+      expect(hasEntry(cache, key)).toBe(false);
+      expect(getEntry(cache, key)).toEqual(undefined);
     });
 
     test("Ignores missing keys", () => {
@@ -141,8 +141,8 @@ describe(entityCacheReducer, () => {
       const missingKey = "missing-key";
       const entity = { property: "some-value" };
 
-      let initial = entityCacheReducer(initialState, cacheEntity(key, entity));
-      let result = entityCacheReducer(initial, deleteEntity(missingKey));
+      let initial = cacheReducer(initialState, cacheValue(key, entity));
+      let result = cacheReducer(initial, deleteEntry(missingKey));
 
       expect(result).toEqual(initial);
     });
@@ -156,12 +156,12 @@ describe(updateFunc, () => {
     const increment = (entity) => ({ ...entity, count: entity.count + 1 });
 
     let cache = initialState;
-    cache = entityCacheReducer(cache, cacheEntity(key, original));
+    cache = cacheReducer(cache, cacheValue(key, original));
     cache = updateFunc(cache, key, increment);
     cache = updateFunc(cache, key, increment);
 
-    expect(hasEntity(cache, key)).toBe(true);
-    expect(getEntity(cache, key)).toEqual({
+    expect(hasEntry(cache, key)).toBe(true);
+    expect(getEntry(cache, key)).toEqual({
       count: original.count + 2,
       other: original.other,
     });

@@ -6,11 +6,11 @@ import {
   ACTION_RESTORE_FILE_MATCH,
 } from "../fileMatches/actions";
 import {
-  cacheEntity,
+  cacheValue,
   entityCacheReducer,
-  updateEntity,
+  updateValue,
   updateFunc,
-} from "../../../application/common/entityCache";
+} from "../../../application/common/cache";
 
 // Increment match count
 const incMatchCount = (file) => ({
@@ -33,15 +33,12 @@ const decMatchCount = (file) => ({
 export default function fileCacheReducer(state = initialState, action) {
   switch (action.type) {
     case ACTION_CACHE_FILE: {
-      return entityCacheReducer(
-        state,
-        cacheEntity(action.file.id, action.file)
-      );
+      return entityCacheReducer(state, cacheValue(action.file.id, action.file));
     }
     case ACTION_UPDATE_FILE: {
       return entityCacheReducer(
         state,
-        updateEntity(action.file.id, action.file)
+        updateValue(action.file.id, action.file)
       );
     }
     case ACTION_DELETE_FILE_MATCH: {

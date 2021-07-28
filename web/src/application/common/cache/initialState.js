@@ -1,11 +1,11 @@
 /**
- * Entity cache initial state.
+ * Cache initial state.
  * @type {{items: {}, maxSize: number, history: [string]}}
  */
 const initialState = {
   maxSize: 1000,
   /**
-   * key => entity mapping
+   * key => value mapping
    */
   items: {},
   /**
@@ -17,12 +17,12 @@ const initialState = {
 export default initialState;
 
 /**
- * Get entity from cache if present.
+ * Get entry from cache if present.
  * @param {{items: {}, maxSize: number, history: [string]}} cache
  * @param {string} key
  * @return {*}
  */
-export function getEntity(cache, key) {
+export function getEntry(cache, key) {
   return cache.items[key];
 }
 
@@ -32,6 +32,6 @@ export function getEntity(cache, key) {
  * @param {string} key
  * @return {boolean}
  */
-export function hasEntity(cache, key) {
-  return getEntity(cache, key) != null;
+export function hasEntry(cache, key) {
+  return getEntry(cache, key) != null;
 }

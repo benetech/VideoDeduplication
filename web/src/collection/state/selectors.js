@@ -1,7 +1,7 @@
 /**
  * Export entire collection state.
  */
-import { getEntity } from "../../application/common/entityCache/initialState";
+import { getEntry } from "../../application/common/cache/initialState";
 
 export const selectColl = (state) => state.coll;
 
@@ -21,7 +21,7 @@ export const selectFileError = (state) => selectFileList(state).error;
  * Select cached file by id.
  */
 export const selectCachedFile = (id) => (state) =>
-  getEntity(selectColl(state).fileCache, id);
+  getEntry(selectColl(state).fileCache, id);
 
 /**
  * Select file matches.
@@ -42,7 +42,7 @@ export const selectTasks = (state) => selectColl(state).tasks;
  * Select cached task.
  */
 export const selectCachedTask = (id) => (state) =>
-  getEntity(selectColl(state).taskCache, id);
+  getEntry(selectColl(state).taskCache, id);
 
 /**
  * Select task logs.

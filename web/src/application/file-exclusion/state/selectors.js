@@ -1,8 +1,8 @@
 /**
  * Get cached file exclusions.
  */
-import { getEntity } from "../../common/entityCache/initialState";
+import { getEntry } from "../../common/cache/initialState";
 
 export function selectFileExclusions(cacheSelector, fileId) {
-  return (state) => getEntity(cacheSelector(state), fileId);
+  return (state) => getEntry(cacheSelector(state), fileId);
 }

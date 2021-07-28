@@ -3,11 +3,7 @@ import initialState from "./initialState";
 import { ACTION_CACHE_OBJECTS, ACTION_UPDATE_OBJECT } from "./actions";
 import { ACTION_CREATE_TEMPLATE_FILE_EXCLUSION } from "../../file-exclusion/state/actions";
 import updateEntityList from "../../common/helpers/updateEntityList";
-import {
-  cacheEntity,
-  entityCacheReducer,
-  updateFunc,
-} from "../../common/entityCache";
+import { cacheValue, entityCacheReducer, updateFunc } from "../../common/cache";
 
 /**
  * Root reducer for object cache.
@@ -17,7 +13,7 @@ export default function objectCacheReducer(state = initialState, action) {
     case ACTION_CACHE_OBJECTS:
       return entityCacheReducer(
         state,
-        cacheEntity(action.fileId, action.objects)
+        cacheValue(action.fileId, action.objects)
       );
     case ACTION_CREATE_TEMPLATE_FILE_EXCLUSION: {
       const { exclusion } = action;

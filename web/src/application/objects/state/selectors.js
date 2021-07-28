@@ -1,9 +1,9 @@
 import { selectObjectCache } from "../../../collection/state/selectors";
-import { getEntity } from "../../common/entityCache/initialState";
+import { getEntry } from "../../common/cache/initialState";
 
 /**
  * Get cached file objects.
  */
 export function selectFileObjects(fileId, cacheSelector = selectObjectCache()) {
-  return (state) => getEntity(cacheSelector(state), fileId);
+  return (state) => getEntry(cacheSelector(state), fileId);
 }
