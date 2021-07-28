@@ -2,9 +2,9 @@ import lodash from "lodash";
 
 /**
  * Update a single entity from the list.
- * @param {{id}[]} entities The existing mapping that should be updated.
- * @param {{id}} updates The new entities that should be added.
- * @returns {{id}[]} The updated mapping.
+ * @param {Entity[]} entities The existing mapping that should be updated.
+ * @param {Entity} updates The new entities that should be added.
+ * @returns {Entity[]} The updated mapping.
  */
 export default function updateEntityList(entities, updates) {
   return entities.map((entity) => {
