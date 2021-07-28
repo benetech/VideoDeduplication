@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import TaskType from "../../../prop-types/TaskType";
-import TaskStatus from "../../../state/tasks/TaskStatus";
+import TaskStatus from "../../../../application/state/tasks/TaskStatus";
 import HeightOutlinedIcon from "@material-ui/icons/HeightOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import { formatDistance } from "date-fns";

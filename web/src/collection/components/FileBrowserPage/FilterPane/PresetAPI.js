@@ -6,9 +6,9 @@ import {
   addPresets,
   deletePreset,
   updatePreset,
-} from "../../../state/presets/actions";
-import { selectPresets } from "../../../state/selectors";
-import initialState from "../../../state/fileList/initialState";
+} from "../../../../application/state/presets/actions";
+import { selectPresets } from "../../../../application/state/root/selectors";
+import initialState from "../../../../application/state/files/fileList/initialState";
 
 /**
  * This API implements integration between bare Server API

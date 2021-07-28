@@ -10,13 +10,13 @@ import {
   ACTION_UPDATE_FILTERS_SUCCESS,
 } from "./actions";
 import lodash from "lodash";
-import extendEntityList from "../../../application/common/helpers/extendEntityList";
+import extendEntityList from "../../../common/helpers/extendEntityList";
 import FileListType from "./FileListType";
 import initialState from "./initialState";
 import {
   ACTION_DELETE_FILE_MATCH,
   ACTION_RESTORE_FILE_MATCH,
-} from "../fileMatches/actions";
+} from "../../fileMatches/actions";
 
 export default function fileListReducer(state = initialState, action) {
   switch (action.type) {

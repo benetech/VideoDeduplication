@@ -4,13 +4,13 @@ import { ACTION_UPDATE_FILE } from "../fileList/actions";
 import {
   ACTION_DELETE_FILE_MATCH,
   ACTION_RESTORE_FILE_MATCH,
-} from "../fileMatches/actions";
+} from "../../fileMatches/actions";
 import {
   cacheValue,
   entityCacheReducer,
   updateValue,
   updateFunc,
-} from "../../../application/common/cache";
+} from "../../../common/cache";
 
 // Increment match count
 const incMatchCount = (file) => ({

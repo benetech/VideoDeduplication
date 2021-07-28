@@ -12,7 +12,7 @@ import {
 import { useIntl } from "react-intl";
 import Button from "../../../../common/components/Button";
 import { useSelector } from "react-redux";
-import { selectFileFilters } from "../../../state/selectors";
+import { selectFileFilters } from "../../../../application/state/root/selectors";
 import { ValidationError } from "../../../../server-api/Server/ServerError";
 import nameErrorMessage from "../../TemplatesPage/nameErrorMessage";
 

@@ -5,7 +5,7 @@ import {
   cacheValue,
   entityCacheReducer,
   updateValue,
-} from "../../../application/common/cache";
+} from "../../common/cache";
 
 /**
  * Root reducer for task cache.

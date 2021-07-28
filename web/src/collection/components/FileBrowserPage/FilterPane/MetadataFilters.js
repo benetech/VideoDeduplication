@@ -6,10 +6,10 @@ import FilterList from "./FilterList";
 import DateRangeFilter from "./DateRangeFilter";
 import BoolFilter from "./BoolFilter";
 import { useIntl } from "react-intl";
-import { defaultFilters } from "../../../state/fileList/initialState";
+import { defaultFilters } from "../../../../application/state/files/fileList/initialState";
 import objectDiff from "../../../../common/helpers/objectDiff";
 import { useSelector } from "react-redux";
-import { selectFileFilters } from "../../../state/selectors";
+import { selectFileFilters } from "../../../../application/state/root/selectors";
 import useFileExtensions from "../../../../application/stats/useFileExtensions";
 import {
   parseDateRange,

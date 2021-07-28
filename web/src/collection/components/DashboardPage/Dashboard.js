@@ -10,10 +10,10 @@ import { useTheme } from "@material-ui/core";
 import StackedLineChart from "./StackedLineChart";
 import Grid from "@material-ui/core/Grid";
 import { useDispatch } from "react-redux";
-import { updateFilters } from "../../state/fileList/actions";
+import { updateFilters } from "../../../application/state/files/fileList/actions";
 import { useHistory } from "react-router";
 import { routes } from "../../../routing/routes";
-import { MatchCategory } from "../../state/fileList/MatchCategory";
+import { MatchCategory } from "../../../application/state/files/fileList/MatchCategory";
 import useMatchStats from "../../../application/stats/useMatchStats";
 // import useUniqueId from "../../../common/hooks/useUniqueId";
 

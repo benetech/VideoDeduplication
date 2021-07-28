@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import Button from "../../../common/components/Button";
 import { useServer } from "../../../server-api/context";
 import { useDispatch } from "react-redux";
-import { updateTask } from "../../state/tasks/actions";
+import { updateTask } from "../../../application/state/tasks/actions";
 
 const useStyles = makeStyles(() => ({
   selector: {

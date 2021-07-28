@@ -1,11 +1,9 @@
+import { getEntry } from "../../common/cache/initialState";
+
 /**
  * Export entire collection state.
  */
-import { getEntry } from "../../application/common/cache/initialState";
-
-export const selectColl = (state) => state.coll;
-
-export const selectFileList = (state) => selectColl(state).fileList;
+export const selectFileList = (state) => state.fileList;
 
 export const selectFiles = (state) => selectFileList(state).files;
 
@@ -21,54 +19,54 @@ export const selectFileError = (state) => selectFileList(state).error;
  * Select cached file by id.
  */
 export const selectCachedFile = (id) => (state) =>
-  getEntry(selectColl(state).fileCache, id);
+  getEntry(state.fileCache, id);
 
 /**
  * Select file matches.
  */
-export const selectFileMatches = (state) => selectColl(state).fileMatches;
+export const selectFileMatches = (state) => state.fileMatches;
 
 /**
  * Select file cluster.
  */
-export const selectFileCluster = (state) => selectColl(state).fileCluster;
+export const selectFileCluster = (state) => state.fileCluster;
 
 /**
  * Select background tasks state.
  */
-export const selectTasks = (state) => selectColl(state).tasks;
+export const selectTasks = (state) => state.tasks;
 
 /**
  * Select cached task.
  */
 export const selectCachedTask = (id) => (state) =>
-  getEntry(selectColl(state).taskCache, id);
+  getEntry(state.taskCache, id);
 
 /**
  * Select task logs.
  */
-export const selectTaskLogs = (state) => selectColl(state).taskLogs;
+export const selectTaskLogs = (state) => state.taskLogs;
 
 /**
  * Select templates.
  */
-export const selectTemplates = (state) => selectColl(state).templates;
+export const selectTemplates = (state) => state.templates;
 
 /**
  * Select object cache.
  */
-export const selectObjectCache = (state) => selectColl(state).objectCache;
+export const selectObjectCache = (state) => state.objectCache;
 
 /**
  * Select cached file objects.
  */
 export const selectCachedObjects = (fileId) => (state) =>
-  selectColl(state).objectCache.objects[fileId];
+  state.objectCache.objects[fileId];
 
 /**
  * Select loaded presets state.
  */
-export const selectPresets = (state) => selectColl(state).presets;
+export const selectPresets = (state) => state.presets;
 
 /**
  * Select preloaded preset if any.
@@ -81,5 +79,4 @@ export const selectPreset =
 /**
  * Select file exclusions cache.
  */
-export const selectFileExclusionsCache = (state) =>
-  selectColl(state).fileExclusions;
+export const selectFileExclusionsCache = (state) => state.fileExclusions;

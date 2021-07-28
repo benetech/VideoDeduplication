@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import IconKind from "../state/templates/IconKind";
+import IconKind from "../../application/state/templates/IconKind";
 
 export const TemplateIconType = PropTypes.shape({
   kind: PropTypes.oneOf([IconKind.PREDEFINED, IconKind.CUSTOM]).isRequired,

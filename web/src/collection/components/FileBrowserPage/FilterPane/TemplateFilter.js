@@ -5,9 +5,9 @@ import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
 import FilterContainer from "./FilterContainer";
 import { useDispatch, useSelector } from "react-redux";
-import { selectTemplates } from "../../../state/selectors";
+import { selectTemplates } from "../../../../application/state/root/selectors";
 import loadTemplates from "../../TemplatesPage/loadTemplates";
-import { setTemplates } from "../../../state/templates/actions";
+import { setTemplates } from "../../../../application/state/templates/actions";
 import { useServer } from "../../../../server-api/context";
 import FormControl from "@material-ui/core/FormControl";
 import {

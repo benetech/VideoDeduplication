@@ -1,4 +1,4 @@
-import TaskStatus from "../../../../state/tasks/TaskStatus";
+import TaskStatus from "../../../../../application/state/tasks/TaskStatus";
 
 export default function getTaskStatusColorScheme(status) {
   switch (status) {

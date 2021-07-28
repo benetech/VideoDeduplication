@@ -23,7 +23,7 @@ import {
   selectFileList,
   selectFileLoading,
   selectFiles,
-} from "../../state/selectors";
+} from "../../../application/state/root/selectors";
 import Fab from "@material-ui/core/Fab";
 import Zoom from "@material-ui/core/Zoom";
 import VisibilitySensor from "react-visibility-sensor";
@@ -31,14 +31,14 @@ import { scrollIntoView } from "../../../common/helpers/scroll";
 import { useHistory } from "react-router-dom";
 import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
-import FileListType from "../../state/fileList/FileListType";
+import FileListType from "../../../application/state/files/fileList/FileListType";
 import {
   blurFiles,
   changeFileListView,
   fetchFiles,
   updateFilters,
-} from "../../state/fileList/actions";
-import { defaultFilters } from "../../state/fileList/initialState";
+} from "../../../application/state/files/fileList/actions";
+import { defaultFilters } from "../../../application/state/files/fileList/initialState";
 import LazyLoad from "react-lazyload";
 import { useResizeDetector } from "react-resize-detector";
 

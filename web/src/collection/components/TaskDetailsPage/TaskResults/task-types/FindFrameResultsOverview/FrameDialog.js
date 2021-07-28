@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { Dialog } from "@material-ui/core";
-import useFile from "../../../../../hooks/useFile";
+import useFile from "../../../../../../application/api/files/useFile";
 import FrameView from "../../../../FrameView/FrameView";
 import FrameMatchType from "./FrameMatchType";
 import { makeStyles } from "@material-ui/styles";

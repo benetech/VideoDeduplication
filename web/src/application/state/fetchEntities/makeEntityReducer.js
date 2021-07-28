@@ -1,5 +1,5 @@
 import lodash from "lodash";
-import extendEntityList from "../../../application/common/helpers/extendEntityList";
+import extendEntityList from "../../common/helpers/extendEntityList";
 
 export default function makeEntityReducer({
   updateParams,

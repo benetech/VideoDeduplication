@@ -1,17 +1,17 @@
-import fileCacheInitialState from "./fileCache/initialState";
-import fileClusterInitialState from "./fileCluster/initialState";
-import fileMatchesInitialState from "./fileMatches/initialState";
-import fileListInitialState from "./fileList/initialState";
-import tasksInitialState from "./tasks/initialState";
-import taskCacheInitialState from "./taskCache/initialState";
-import taskLogsInitialState from "./taskLogs/initialState";
-import templatesInitialState from "./templates/initialState";
-import objectCacheInitialState from "../../application/objects/state/initialState";
-import presetInitialState from "./presets/initialState";
-import fileExclusionInitialState from "../../application/file-exclusion/state/initialState";
+import fileListInitialState from "../files/fileList/initialState";
+import fileCacheInitialState from "../files/fileCache/initialState";
+import fileClusterInitialState from "../fileCluster/initialState";
+import fileMatchesInitialState from "../fileMatches/initialState";
+import tasksInitialState from "../tasks/initialState";
+import taskCacheInitialState from "../taskCache/initialState";
+import taskLogsInitialState from "../taskLogs/initialState";
+import templatesInitialState from "../templates/initialState";
+import objectCacheInitialState from "../../objects/state/initialState";
+import presetInitialState from "../presets/initialState";
+import fileExclusionInitialState from "../../file-exclusion/state/initialState";
 
 /**
- * Initial State for file collection management.
+ * Application initial state.
  */
 const initialState = {
   /**

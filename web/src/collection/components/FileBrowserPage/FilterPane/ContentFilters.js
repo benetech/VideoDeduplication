@@ -5,9 +5,9 @@ import { useFilters } from "./useFilters";
 import { useIntl } from "react-intl";
 import RangeFilter from "./RangeFilter";
 import { useSelector } from "react-redux";
-import { selectFileFilters } from "../../../state/selectors";
+import { selectFileFilters } from "../../../../application/state/root/selectors";
 import objectDiff from "../../../../common/helpers/objectDiff";
-import { defaultFilters } from "../../../state/fileList/initialState";
+import { defaultFilters } from "../../../../application/state/files/fileList/initialState";
 import TemplateFilter from "./TemplateFilter";
 
 /**

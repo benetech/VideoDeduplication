@@ -6,9 +6,9 @@ import TaskSidebarHeader from "./TaskSidebarHeader";
 import TaskList from "../TaskList";
 import { Tab } from "./tabs";
 import { useDispatch, useSelector } from "react-redux";
-import { selectTasks } from "../../../state/selectors";
+import { selectTasks } from "../../../../application/state/root/selectors";
 import LoadTrigger from "../../../../common/components/LoadingTrigger/LoadTrigger";
-import { fetchTaskSlice } from "../../../state/tasks/actions";
+import { fetchTaskSlice } from "../../../../application/state/tasks/actions";
 import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({

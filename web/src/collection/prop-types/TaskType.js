@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import TaskStatus from "../state/tasks/TaskStatus";
+import TaskStatus from "../../application/state/tasks/TaskStatus";
 import TaskRequestType from "./TaskRequestType";
 
 export const TaskType = PropTypes.shape({

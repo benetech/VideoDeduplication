@@ -7,7 +7,7 @@ import {
   deleteExample,
   deleteTemplate,
   updateTemplate,
-} from "../../state/templates/actions";
+} from "../../../application/state/templates/actions";
 
 /**
  * Get template actions handler.

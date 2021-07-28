@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import loadTemplates from "../../TemplatesPage/loadTemplates";
-import { setTemplates } from "../../../state/templates/actions";
+import { setTemplates } from "../../../../application/state/templates/actions";
 import { useDispatch, useSelector } from "react-redux";
-import { selectTemplates } from "../../../state/selectors";
+import { selectTemplates } from "../../../../application/state/root/selectors";
 import { useServer } from "../../../../server-api/context";
 
 /**

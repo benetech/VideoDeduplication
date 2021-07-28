@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import TaskRequest from "../../../state/tasks/TaskRequest";
+import TaskRequest from "../../../../application/state/tasks/TaskRequest";
 import MatchTemplatesForm from "./forms/MatchTemplatesForm";
 import ProcessDirectoryForm from "./forms/ProcessDirectoryForm";
 import ProcessOnlineVideoForm from "./forms/ProcessOnlineVideoForm";

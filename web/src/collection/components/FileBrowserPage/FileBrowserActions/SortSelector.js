@@ -7,7 +7,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import { useIntl } from "react-intl";
-import { FileSort } from "../../../state/fileList/FileSort";
+import { FileSort } from "../../../../application/state/files/fileList/FileSort";
 
 const useStyles = makeStyles(() => ({
   select: {

@@ -8,7 +8,7 @@ import { routes } from "../../../routing/routes";
 import TaskLogs from "./TaskLogs";
 import { useParams } from "react-router";
 import { randomTask } from "../../../server-api/MockServer/fake-data/tasks";
-import TaskStatus from "../../state/tasks/TaskStatus";
+import TaskStatus from "../../../application/state/tasks/TaskStatus";
 import TaskSummaryHeader from "./TaskSummaryHeader";
 import useGetTask from "../../hooks/useGetTask";
 import TaskLoadingHeader from "./TaskLoadingHeader";

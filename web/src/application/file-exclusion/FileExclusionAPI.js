@@ -6,7 +6,7 @@ import {
   createTemplateFileExclusion,
   deleteTemplateFileExclusion,
 } from "./state/actions";
-import { selectFileExclusionsCache } from "../../collection/state/selectors";
+import { selectFileExclusionsCache } from "../state/root/selectors";
 import { selectFileExclusions } from "./state/selectors";
 import OperationMutex from "../common/helpers/OperationMutex";
 import extendEntityList from "../common/helpers/extendEntityList";

@@ -9,10 +9,10 @@ import {
   setTaskLogs,
   subscribeForTaskLogs,
   unsubscribeFromTaskLogs,
-} from "../../state/taskLogs/actions";
-import { selectTaskLogs } from "../../state/selectors";
+} from "../../../application/state/taskLogs/actions";
+import { selectTaskLogs } from "../../../application/state/root/selectors";
 import TaskType from "../../prop-types/TaskType";
-import TaskStatus from "../../state/tasks/TaskStatus";
+import TaskStatus from "../../../application/state/tasks/TaskStatus";
 
 const useStyles = makeStyles((theme) => ({
   logsContainer: {

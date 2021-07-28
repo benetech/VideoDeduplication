@@ -5,8 +5,8 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import BoolFilter from "../FileBrowserPage/FilterPane/BoolFilter";
 import { useDispatch, useSelector } from "react-redux";
-import { selectFileMatches } from "../../state/selectors";
-import { updateFileMatchesParams } from "../../state/fileMatches/actions";
+import { selectFileMatches } from "../../../application/state/root/selectors";
+import { updateFileMatchesParams } from "../../../application/state/fileMatches/actions";
 import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({

@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import FileActionHeader from "../FileActionsHeader";
 import FileSummaryHeader from "../FileSummaryHeader";
 import { useParams } from "react-router-dom";
-import useFile from "../../hooks/useFile";
+import useFile from "../../../application/api/files/useFile";
 import FileLoadingHeader from "../FileLoadingHeader";
 import MatchGraph from "../MatchGraph";
 import { useIntl } from "react-intl";

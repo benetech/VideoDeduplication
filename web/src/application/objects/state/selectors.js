@@ -1,4 +1,4 @@
-import { selectObjectCache } from "../../../collection/state/selectors";
+import { selectObjectCache } from "../../state/root/selectors";
 import { getEntry } from "../../common/cache/initialState";
 
 /**

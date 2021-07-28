@@ -15,7 +15,7 @@ import {
   appRootReducer,
   appRootSaga,
   initialState as defaultInitialState,
-} from "../../state";
+} from "../../state/root";
 
 function makeStore(initialState, server) {
   const sagaMiddleware = createSagaMiddleware();

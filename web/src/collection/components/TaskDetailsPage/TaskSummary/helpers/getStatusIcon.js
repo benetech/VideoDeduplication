@@ -1,4 +1,4 @@
-import TaskStatus from "../../../../state/tasks/TaskStatus";
+import TaskStatus from "../../../../../application/state/tasks/TaskStatus";
 import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
 import PlayCircleFilledWhiteOutlinedIcon from "@material-ui/icons/PlayCircleFilledWhiteOutlined";
 import CheckOutlinedIcon from "@material-ui/icons/CheckOutlined";

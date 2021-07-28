@@ -1,8 +1,8 @@
 import { isEqual, mergeWith, isArray } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
-import { selectFileFilters } from "../../../state/selectors";
+import { selectFileFilters } from "../../../../application/state/root/selectors";
 import { useCallback, useEffect, useState } from "react";
-import { updateFilters } from "../../../state/fileList/actions";
+import { updateFilters } from "../../../../application/state/files/fileList/actions";
 
 /**
  * Filters merge customizer.

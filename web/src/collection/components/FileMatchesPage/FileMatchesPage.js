@@ -15,16 +15,16 @@ import SquaredIconButton from "../../../common/components/SquaredIconButton";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 import TuneOutlinedIcon from "@material-ui/icons/TuneOutlined";
 import { useHistory, useParams } from "react-router-dom";
-import useFile from "../../hooks/useFile";
+import useFile from "../../../application/api/files/useFile";
 import FileLoadingHeader from "../FileLoadingHeader";
 import { useDispatch, useSelector } from "react-redux";
-import { selectFileMatches } from "../../state/selectors";
+import { selectFileMatches } from "../../../application/state/root/selectors";
 import LoadTrigger from "../../../common/components/LoadingTrigger/LoadTrigger";
 import { routes } from "../../../routing/routes";
 import {
   fetchFileMatchesSlice,
   updateFileMatchesParams,
-} from "../../state/fileMatches/actions";
+} from "../../../application/state/fileMatches/actions";
 import FilterPanel from "./FilterPanel";
 
 const useStyles = makeStyles((theme) => ({

@@ -5,8 +5,8 @@ import { makeStyles } from "@material-ui/styles";
 import FrameMatchType from "./FrameMatchType";
 import TimeCaption from "../../../../VideoDetailsPage/TimeCaption";
 import MediaPreview from "../../../../../../common/components/MediaPreview";
-import thumbnailURL from "../../../../../../application/files/helpers/thumbnailURL";
-import useFile from "../../../../../hooks/useFile";
+import thumbnailURL from "../../../../../../application/state/files/helpers/thumbnailURL";
+import useFile from "../../../../../../application/api/files/useFile";
 import FileSummary from "../../../../FileSummary";
 import { CircularProgress } from "@material-ui/core";
 

@@ -7,7 +7,7 @@ import PlayArrowOutlinedIcon from "@material-ui/icons/PlayArrowOutlined";
 import { useIntl } from "react-intl";
 import TaskTypeDescriptors from "./TaskTypeDescriptors";
 import TypeSelector from "./TypeSelector";
-import { updateTask } from "../../../state/tasks/actions";
+import { updateTask } from "../../../../application/state/tasks/actions";
 import { useServer } from "../../../../server-api/context";
 import { useDispatch } from "react-redux";
 

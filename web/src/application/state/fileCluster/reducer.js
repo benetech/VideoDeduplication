@@ -6,7 +6,7 @@ import {
   ACTION_UPDATE_FILE_CLUSTER_PARAMS,
 } from "./actions";
 import makeEntityReducer from "../fetchEntities/makeEntityReducer";
-import extendEntityMap from "../../../application/common/helpers/extendEntityMap";
+import extendEntityMap from "../../common/helpers/extendEntityMap";
 
 const defaultReducer = makeEntityReducer({
   updateParams: ACTION_UPDATE_FILE_CLUSTER_PARAMS,

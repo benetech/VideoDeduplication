@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
-import useFile from "../../../hooks/useFile";
+import useFile from "../../../../application/api/files/useFile";
 import LoadingHeader from "../LoadingHeader";
 import FileDetails from "../FileDetails";
 import FileDetailsHeader from "./FileDetailsHeader";

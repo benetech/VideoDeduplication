@@ -1,4 +1,4 @@
-import TaskRequest from "../../../state/tasks/TaskRequest";
+import TaskRequest from "../../../../application/state/tasks/TaskRequest";
 import ProcessDirectoryRequestAttrs from "./task-types/ProcessDirectoryRequestAttrs";
 import RawRequest from "./RawRequest";
 import MatchTemplatesRequestAttrs from "./task-types/MatchTemplatesRequestAttrs";

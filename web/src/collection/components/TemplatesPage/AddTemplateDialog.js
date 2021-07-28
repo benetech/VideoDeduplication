@@ -11,11 +11,11 @@ import {
 } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import Button from "../../../common/components/Button";
-import IconKind from "../../state/templates/IconKind";
+import IconKind from "../../../application/state/templates/IconKind";
 import TemplateIconPreview from "./TemplateList/TemplateIconPreview";
 import { useServer } from "../../../server-api/context";
 import { useDispatch } from "react-redux";
-import { addTemplates } from "../../state/templates/actions";
+import { addTemplates } from "../../../application/state/templates/actions";
 import nameErrorMessage from "./nameErrorMessage";
 
 const useStyles = makeStyles((theme) => ({

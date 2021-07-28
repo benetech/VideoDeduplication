@@ -1,5 +1,5 @@
 import initialState from "./initialState";
-import extendEntityList from "../../../application/common/helpers/extendEntityList";
+import extendEntityList from "../../common/helpers/extendEntityList";
 import lodash from "lodash";
 import {
   ACTION_ADD_PRESET,

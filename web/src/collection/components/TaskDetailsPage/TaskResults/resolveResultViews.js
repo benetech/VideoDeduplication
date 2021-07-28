@@ -1,4 +1,4 @@
-import TaskRequest from "../../../state/tasks/TaskRequest";
+import TaskRequest from "../../../../application/state/tasks/TaskRequest";
 import RawResults from "./RawResults";
 import FindFrameResultsOverview from "./task-types/FindFrameResultsOverview";
 import ProcessOnlineVideoResultsOverview from "./task-types/ProcessOnlineVideoResultsOverview";

@@ -16,7 +16,7 @@ import {
   ACTION_UNSUBSCRIBE_FROM_TASK_LOGS,
   appendTaskLogs,
 } from "../taskLogs/actions";
-import { selectTaskLogs } from "../selectors";
+import { selectTaskLogs } from "../root/selectors";
 
 function makeTaskChannel(socket) {
   return eventChannel((emit) => {

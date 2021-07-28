@@ -12,13 +12,13 @@ import FileSummaryHeader from "../FileSummaryHeader";
 import FileActionHeader from "../FileActionsHeader";
 import { useHistory, useParams } from "react-router-dom";
 import FileLoadingHeader from "../FileLoadingHeader";
-import useFile from "../../hooks/useFile";
+import useFile from "../../../application/api/files/useFile";
 import { routes } from "../../../routing/routes";
 import ObjectAPI from "../../../application/objects/ObjectAPI";
-import { updateTask } from "../../state/tasks/actions";
+import { updateTask } from "../../../application/state/tasks/actions";
 import { useServer } from "../../../server-api/context";
 import { useDispatch } from "react-redux";
-import TaskRequest from "../../state/tasks/TaskRequest";
+import TaskRequest from "../../../application/state/tasks/TaskRequest";
 
 const useStyles = makeStyles((theme) => ({
   root: {

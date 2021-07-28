@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { TemplateIconType } from "../../../prop-types/TemplateType";
-import IconKind from "../../../state/templates/IconKind";
+import IconKind from "../../../../application/state/templates/IconKind";
 import StandardIcon from "../StandardIcon";
 import CustomIcon from "./CustomIcon";
 

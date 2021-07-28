@@ -1,4 +1,4 @@
-import TaskRequest from "../../../../state/tasks/TaskRequest";
+import TaskRequest from "../../../../../application/state/tasks/TaskRequest";
 
 /**
  * Get Task text description.

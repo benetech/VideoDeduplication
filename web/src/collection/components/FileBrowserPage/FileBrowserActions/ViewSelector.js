@@ -4,7 +4,7 @@ import ListIcon from "@material-ui/icons/ViewStream";
 import GridIcon from "@material-ui/icons/ViewModule";
 import { useIntl } from "react-intl";
 import IconSelect from "../../../../common/components/IconSelect";
-import FileListType from "../../../state/fileList/FileListType";
+import FileListType from "../../../../application/state/files/fileList/FileListType";
 
 function useMessages() {
   const intl = useIntl();

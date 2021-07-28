@@ -1,5 +1,5 @@
 import lodash from "lodash";
-import TaskRequest from "../../collection/state/tasks/TaskRequest";
+import TaskRequest from "../../application/state/tasks/TaskRequest";
 import utcDate, { defaultDateFormat } from "./helpers/utcDate";
 
 /**

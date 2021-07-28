@@ -1,7 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import useFile from "../../../collection/hooks/useFile";
+import useFile from "../../../application/api/files/useFile";
 import { useIntl } from "react-intl";
 
 /**
