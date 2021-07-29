@@ -38,7 +38,11 @@ export default class Server {
 
   /**
    * Fetch file list.
-   * @param {{limit:number, offset:number, filters:Object }} options query options
+   * @param {{
+   *   limit:number,
+   *   offset:number,
+   *   filters:Object
+   * }} options query options
    * @returns {Promise<{counts, files}>}
    */
   async fetchFiles(options = {}) {
@@ -71,14 +75,20 @@ export default class Server {
     }
   }
 
-  async fetchFileCluster({
-    fileId,
-    limit = 20,
-    offset = 0,
-    fields = [],
-    filters,
-  }) {
+  /**
+   * Query file's neighbors.
+   * @param {{
+   *   fieldId:number,
+   *   limit:number,
+   *   offset:number,
+   *   fields:string[],
+   *   filters:Object
+   * }} options query options.
+   * @returns {Promise<{total, files, matches}>}
+   */
+  async fetchFileCluster(options = {}) {
     try {
+      const { fileId, limit = 20, offset = 0, fields = [], filters } = options;
       const response = await this.axios.get(`/files/${fileId}/cluster`, {
         params: {
           limit,
@@ -86,23 +96,34 @@ export default class Server {
           ...clusterFiltersToQueryParams({ filters, fields }),
         },
       });
-      const data = this.transform.fetchFileClusterResults(response.data);
-      return Response.ok(data);
+      return this.transform.fetchFileClusterResults(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Fetch file cluster error.", error, { options });
     }
   }
 
-  async fetchFileMatches({
-    fileId,
-    limit = 20,
-    offset = 0,
-    fields = ["meta", "exif", "scenes"],
-    filters = {
-      remote: false,
-    },
-  }) {
+  /**
+   * List file matches.
+   * @param {{
+   *   fieldId,
+   *   limit: number,
+   *   offset: number,
+   *   fields: string[],
+   *   filters: Object,
+   * }} options query options
+   * @returns {Promise<{total, offset, matches}>}
+   */
+  async fetchFileMatches(options = {}) {
     try {
+      const {
+        fileId,
+        limit = 20,
+        offset = 0,
+        fields = ["meta", "exif", "scenes"],
+        filters = {
+          remote: false,
+        },
+      } = options;
       const response = await this.axios.get(`/files/${fileId}/matches`, {
         params: {
           limit,
@@ -110,10 +131,9 @@ export default class Server {
           ...matchesFiltersToQueryParams({ filters, fields }),
         },
       });
-      const data = this.transform.fetchFileMatchesResults(response.data);
-      return Response.ok(data);
+      return this.transform.fetchFileMatchesResults(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Fetch file matches error.", error, { options });
     }
   }
 

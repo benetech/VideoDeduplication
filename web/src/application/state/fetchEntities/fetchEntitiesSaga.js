@@ -54,22 +54,10 @@ export default function* fetchEntitiesSaga({
     const args = getArgs(state, resourceName);
 
     // Send request to permanent storage
-    const resp = yield call(requestResource, args);
-
-    // Handle error
-    if (resp.failure) {
-      console.error(`Error fetching ${resourceName}`, {
-        args,
-        state,
-        requestResource,
-        error: resp.error,
-      });
-      yield put(failure({ error: resp.error, params: getParams(state) }));
-      return;
-    }
+    const data = yield call(requestResource, args);
 
     // Update state
-    yield put(success({ data: resp.data, params: getParams(state) }));
+    yield put(success({ data, params: getParams(state) }));
   } catch (error) {
     console.error(error);
     yield put(failure({ error, params: getParams(state) }));
