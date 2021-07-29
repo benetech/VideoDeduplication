@@ -1,10 +1,10 @@
-import makeFetchEntitiesHook from "../../application/state/fetchEntities/makeFetchEntitiesHook";
-import { selectFileMatches } from "../../application/state/root/selectors";
+import makeFetchEntitiesHook from "../../state/fetchEntities/makeFetchEntitiesHook";
+import { selectFileMatches } from "../../state/root/selectors";
 import {
   fetchFileMatchesSlice,
   updateFileMatchesParams,
-} from "../../application/state/fileMatches/actions";
-import initialState from "../../application/state/fileMatches/initialState";
+} from "../../state/fileMatches/actions";
+import initialState from "../../state/fileMatches/initialState";
 
 const useFetchFileMatches = makeFetchEntitiesHook({
   stateSelector: selectFileMatches,

@@ -10,7 +10,7 @@ import FileLoadingHeader from "../FileLoadingHeader";
 import MatchGraph from "../MatchGraph";
 import { useIntl } from "react-intl";
 import Loading from "../../../common/components/Loading";
-import useFileCluster from "../../hooks/useFileCluster";
+import useFileCluster from "../../../application/api/file-cluster/useFileCluster";
 
 const useStyles = makeStyles((theme) => ({
   root: {
