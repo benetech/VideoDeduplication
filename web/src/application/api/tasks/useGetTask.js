@@ -18,19 +18,13 @@ export function useGetTask(id) {
   const loadTask = useCallback(() => {
     const doLoad = async () => {
       setError(null);
-      const response = await server.fetchTask({ id });
-      if (response.success) {
-        const task = response.data;
-        dispatch(cacheTask(task));
-      } else {
-        console.error(response.error);
-        setError({ status: response.status });
-      }
+      const task = await server.fetchTask(id);
+      dispatch(cacheTask(task));
     };
 
     doLoad().catch((error) => {
       console.error(error);
-      setError({ status: Status.CLIENT_ERROR });
+      setError({ status: error.code });
     });
   }, [id]);
 

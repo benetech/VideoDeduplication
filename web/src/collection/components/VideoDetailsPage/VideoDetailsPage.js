@@ -79,25 +79,15 @@ function useSearchFrame() {
   return useCallback(({ file, time }) => {
     server
       .createTask({
-        request: {
-          type: TaskRequest.FIND_FRAME,
-          fileId: file.id,
-          frameTimeSec: time,
-        },
+        type: TaskRequest.FIND_FRAME,
+        fileId: file.id,
+        frameTimeSec: time,
       })
-      .then((response) => {
-        if (response.success) {
-          dispatch(updateTask(response.data));
-          history.push(routes.processing.taskURL(response.data.id));
-        }
+      .then((task) => {
+        dispatch(updateTask(task));
+        history.push(routes.processing.taskURL(task.id));
       })
-      .catch((error) => {
-        console.error("Find frame request failed", error, {
-          error,
-          file,
-          time,
-        });
-      });
+      .catch(console.error);
   });
 }
 

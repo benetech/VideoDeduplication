@@ -162,8 +162,18 @@ export default class Server {
     }
   }
 
-  async fetchTasks({ limit = 1000, offset = 0, filters = {} }) {
+  /**
+   * Query task list.
+   * @param {{
+   *   limit: number,
+   *   offset: number,
+   *   filters: Object,
+   * }} options query options
+   * @returns {Promise<{total, offset, tasks}>}
+   */
+  async fetchTasks(options = {}) {
     try {
+      const { limit = 1000, offset = 0, filters = {} } = options;
       const response = await this.axios.get(`/tasks/`, {
         params: {
           limit,
@@ -171,46 +181,44 @@ export default class Server {
           ...taskFiltersToQueryParams({ filters }),
         },
       });
-      const data = this.transform.fetchTasksResults(response.data);
-      return Response.ok(data);
+      return this.transform.fetchTasksResults(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Fetch tasks error.", error, { options });
     }
   }
 
-  async fetchTask({ id }) {
+  async fetchTask(id) {
     try {
       const response = await this.axios.get(`/tasks/${id}`, {
         params: {},
       });
-      const data = this.transform.task(response.data);
-      return Response.ok(data);
+      return this.transform.task(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Fetch task error.", error, { id });
     }
   }
 
-  async fetchLogs({ id }) {
+  async fetchLogs(id) {
     try {
       const response = await this.axios.get(`/tasks/${id}/logs`, {
         params: {},
       });
-      return Response.ok(response.data);
+      return response.data;
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Fetch logs error.", error, { id });
     }
   }
 
-  async deleteTask({ id }) {
+  async deleteTask(id) {
     try {
       const response = await this.axios.delete(`/tasks/${id}`);
-      return Response.ok(response.data);
+      return response.data;
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Delete task error.", error, { id });
     }
   }
 
-  async cancelTask({ id }) {
+  async cancelTask(id) {
     try {
       const response = await this.axios.patch(
         `/tasks/${id}`,
@@ -221,13 +229,13 @@ export default class Server {
           },
         }
       );
-      return Response.ok(this.transform.task(response.data));
+      return this.transform.task(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Cancel task error.", error, { id });
     }
   }
 
-  async createTask({ request }) {
+  async createTask(request) {
     try {
       const response = await this.axios.post(
         `/tasks/`,
@@ -238,9 +246,9 @@ export default class Server {
           },
         }
       );
-      return Response.ok(this.transform.task(response.data));
+      return this.transform.task(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Create task error.", error, { request });
     }
   }
 

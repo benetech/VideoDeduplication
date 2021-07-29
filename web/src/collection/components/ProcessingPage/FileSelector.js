@@ -27,14 +27,8 @@ function FileSelector(props) {
   const handleProcess = useCallback(() => {
     setLoading(true);
     server
-      .createTask({
-        request: { type: "ProcessDirectory", directory: "." },
-      })
-      .then((response) => {
-        if (response.success) {
-          dispatch(updateTask(response.data));
-        }
-      })
+      .createTask({ type: "ProcessDirectory", directory: "." })
+      .then((task) => dispatch(updateTask(task)))
       .finally(() => setLoading(false));
   });
 

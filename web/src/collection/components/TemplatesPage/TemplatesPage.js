@@ -180,14 +180,9 @@ function ProcessingPage(props) {
   const handleProcess = useCallback(() => {
     setLoading(true);
     server
-      .createTask({
-        request: { type: "MatchTemplates" },
-      })
-      .then((response) => {
-        if (response.success) {
-          dispatch(updateTask(response.data));
-        }
-      })
+      .createTask({ type: "MatchTemplates" })
+      .then((task) => dispatch(updateTask(task)))
+      .catch(console.error)
       .finally(() => setLoading(false));
   });
 

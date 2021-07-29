@@ -14,15 +14,14 @@ export default function useDeleteTask({ id, onTrigger, onSuccess }) {
     if (onTrigger != null) {
       onTrigger();
     }
-    server.deleteTask({ id }).then((response) => {
-      if (response.success) {
+    server
+      .deleteTask(id)
+      .then(() => {
         dispatch(deleteTask(id));
         if (onSuccess != null) {
           onSuccess(id);
         }
-      } else {
-        console.log(`Error delete task: ${id}`, response.error);
-      }
-    });
+      })
+      .catch(console.error);
   }, [id, onTrigger]);
 }

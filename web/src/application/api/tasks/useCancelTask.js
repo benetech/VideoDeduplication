@@ -14,12 +14,11 @@ export default function useCancelTask({ id, onTrigger }) {
     if (onTrigger != null) {
       onTrigger();
     }
-    server.cancelTask({ id }).then((response) => {
-      if (response.success) {
-        dispatch(updateTask(response.data));
-      } else {
-        console.error(`Error cancel task: ${id}`, response.error);
-      }
-    });
+    server
+      .cancelTask(id)
+      .then((task) => {
+        dispatch(updateTask(task));
+      })
+      .catch(console.error);
   }, [id, onTrigger]);
 }
