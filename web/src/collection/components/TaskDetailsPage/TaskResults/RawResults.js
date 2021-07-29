@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import ReactJson from "react-json-view";
-import TaskType from "../../../prop-types/TaskType";
+import TaskType from "../../../../prop-types/TaskType";
 
 const useStyles = makeStyles({
   root: {

@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { TemplateIconType } from "../../../prop-types/TemplateType";
+import { TemplateIconType } from "../../../../prop-types/TemplateType";
 import TemplateIcon from "../TemplateIcon/TemplateIcon";
 import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 import Fab from "@material-ui/core/Fab";

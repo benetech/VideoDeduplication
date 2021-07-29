@@ -1,7 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import { FileType } from "../../prop-types/FileType";
+import { FileType } from "../../../prop-types/FileType";
 import { LinearProgress } from "@material-ui/core";
 import ObjectTimeLine from "./ObjectTimeLine";
 import ObjectAPI from "../../../application/api/objects/ObjectAPI";

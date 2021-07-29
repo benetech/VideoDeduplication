@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import TaskType from "../../../prop-types/TaskType";
+import TaskType from "../../../../prop-types/TaskType";
 import { useIntl } from "react-intl";
 import getTaskTextDescription from "./helpers/getTaskTextDescription";
 import { format } from "date-fns";

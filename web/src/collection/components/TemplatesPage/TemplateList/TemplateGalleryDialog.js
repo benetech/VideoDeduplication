@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import {
   TemplateExampleType,
   TemplateType,
-} from "../../../prop-types/TemplateType";
+} from "../../../../prop-types/TemplateType";
 import { Dialog } from "@material-ui/core";
 import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";

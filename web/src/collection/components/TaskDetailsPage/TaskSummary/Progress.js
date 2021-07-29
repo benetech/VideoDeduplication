@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import TaskType from "../../../prop-types/TaskType";
+import TaskType from "../../../../prop-types/TaskType";
 import TaskStatus from "../../../../application/state/tasks/TaskStatus";
 import Box from "@material-ui/core/Box";
 import { CircularProgress } from "@material-ui/core";

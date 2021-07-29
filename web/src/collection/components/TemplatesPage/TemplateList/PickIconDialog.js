@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { TemplateIconType } from "../../../prop-types/TemplateType";
+import { TemplateIconType } from "../../../../prop-types/TemplateType";
 import { Dialog, DialogActions, DialogContent } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import IconPicker from "../IconPicker";

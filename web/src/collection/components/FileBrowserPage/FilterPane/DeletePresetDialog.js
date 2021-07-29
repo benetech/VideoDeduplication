@@ -10,7 +10,7 @@ import {
 } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import Button from "../../../../common/components/Button";
-import PresetType from "../../../prop-types/PresetType";
+import PresetType from "../../../../prop-types/PresetType";
 
 /**
  * Get translated text.

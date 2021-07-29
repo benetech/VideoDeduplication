@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import AttributeText from "../../../common/components/AttributeText";
-import { FileType } from "../../prop-types/FileType";
+import { FileType } from "../../../prop-types/FileType";
 import { useIntl } from "react-intl";
 
 /**

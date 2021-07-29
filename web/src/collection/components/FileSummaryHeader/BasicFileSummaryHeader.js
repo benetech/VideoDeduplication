@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Paper from "@material-ui/core/Paper";
-import { FileType } from "../../prop-types/FileType";
+import { FileType } from "../../../prop-types/FileType";
 import IconButton from "@material-ui/core/IconButton";
 import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
 import { useIntl } from "react-intl";

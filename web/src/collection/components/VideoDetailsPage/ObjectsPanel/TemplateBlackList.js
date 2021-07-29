@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import FileType from "../../../prop-types/FileType";
+import FileType from "../../../../prop-types/FileType";
 import FileExclusionAPI from "../../../../application/api/file-exclusions/FileExclusionAPI";
 import Loading from "../../../../common/components/Loading";
 import { useIntl } from "react-intl";

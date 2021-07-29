@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FileType } from "../../prop-types/FileType";
+import { FileType } from "../../../prop-types/FileType";
 import CloudOutlinedIcon from "@material-ui/icons/CloudOutlined";
 import { useIntl } from "react-intl";
 import MainAttribute from "./MainAttribute";

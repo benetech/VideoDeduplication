@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Distance from "../../../common/components/Distance";
 import Paper from "@material-ui/core/Paper";
-import FileType from "../../prop-types/FileType";
+import FileType from "../../../prop-types/FileType";
 import FileTooltip from "./tooltip/FileTooltip";
 
 const useStyles = makeStyles((theme) => ({

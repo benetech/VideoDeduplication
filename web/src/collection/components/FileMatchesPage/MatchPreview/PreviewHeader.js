@@ -5,7 +5,7 @@ import Marked from "../../../../common/components/Marked";
 import IconButton from "@material-ui/core/IconButton";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import { useIntl } from "react-intl";
-import ActionType from "../../../prop-types/ActionType";
+import ActionType from "../../../../prop-types/ActionType";
 import usePopup from "../../../../common/hooks/usePopup";
 import { Menu, MenuItem } from "@material-ui/core";
 import clsx from "clsx";

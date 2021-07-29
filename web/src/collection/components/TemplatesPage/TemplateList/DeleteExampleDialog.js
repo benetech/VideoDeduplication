@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
-import { TemplateExampleType } from "../../../prop-types/TemplateType";
+import { TemplateExampleType } from "../../../../prop-types/TemplateType";
 import {
   Dialog,
   DialogActions,

@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
-import FileType from "../../../prop-types/FileType";
+import FileType from "../../../../prop-types/FileType";
 
 const useStyles = makeStyles((theme) => ({
   attrName: {

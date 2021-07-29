@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import TaskRequestType from "../../../../prop-types/TaskRequestType";
+import TaskRequestType from "../../../../../prop-types/TaskRequestType";
 import { useIntl } from "react-intl";
 import Description from "./../Description";
 import TaskRequest from "../../../../../application/state/tasks/TaskRequest";

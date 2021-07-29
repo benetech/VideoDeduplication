@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import FileExclusionType from "../../../prop-types/FileExclusionType";
+import FileExclusionType from "../../../../prop-types/FileExclusionType";
 import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
 import Spacer from "../../../../common/components/Spacer";
 import IconButton from "@material-ui/core/IconButton";

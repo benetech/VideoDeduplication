@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { formatDuration } from "../../../../common/helpers/format";
 import { useIntl } from "react-intl";
-import FileType from "../../../prop-types/FileType";
+import FileType from "../../../../prop-types/FileType";
 import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({

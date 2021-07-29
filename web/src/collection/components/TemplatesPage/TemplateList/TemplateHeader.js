@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { TemplateType } from "../../../prop-types/TemplateType";
+import { TemplateType } from "../../../../prop-types/TemplateType";
 import { useIntl } from "react-intl";
 import ExpandMoreOutlinedIcon from "@material-ui/icons/ExpandMoreOutlined";
 import ChevronRightOutlinedIcon from "@material-ui/icons/ChevronRightOutlined";

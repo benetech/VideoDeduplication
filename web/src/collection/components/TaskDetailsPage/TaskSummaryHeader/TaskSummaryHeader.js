@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import TaskType from "../../../prop-types/TaskType";
+import TaskType from "../../../../prop-types/TaskType";
 import TaskSummary from "../TaskSummary";
 import { Paper } from "@material-ui/core";
 import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";

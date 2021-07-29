@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import TaskType from "../../../prop-types/TaskType";
+import TaskType from "../../../../prop-types/TaskType";
 import AttributeTable from "../../../../common/components/AttributeTable";
 import { taskAttributes } from "./taskAttributes";
 import TaskRequest from "../TaskRequest";

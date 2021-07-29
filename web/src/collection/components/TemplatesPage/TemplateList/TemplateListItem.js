@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { TemplateType } from "../../../prop-types/TemplateType";
+import { TemplateType } from "../../../../prop-types/TemplateType";
 import { Collapse } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import TemplateHeader from "./TemplateHeader";

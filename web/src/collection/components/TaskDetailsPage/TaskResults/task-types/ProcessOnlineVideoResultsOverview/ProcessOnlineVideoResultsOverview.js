@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import TaskType from "../../../../../prop-types/TaskType";
+import TaskType from "../../../../../../prop-types/TaskType";
 import ProcessedFile from "./ProcessedFile";
 import LabeledSwitch from "../../../../../../common/components/LabeledSwitch";
 import { useIntl } from "react-intl";

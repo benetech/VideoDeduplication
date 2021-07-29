@@ -6,13 +6,13 @@ import ObjectGroupList from "./ObjectGroupList";
 import { groupObjects } from "../groupObjects";
 import ObjectGroupListItem from "./ObjectGroupListItem";
 import position from "../objectPosition";
-import ObjectType from "../../../prop-types/ObjectType";
+import ObjectType from "../../../../prop-types/ObjectType";
 import SelectableTabs, {
   SelectableTab,
 } from "../../../../common/components/SelectableTabs";
 import SwitchComponent from "../../../../common/components/SwitchComponent/SwitchComponent";
 import Case from "../../../../common/components/SwitchComponent/Case";
-import FileType from "../../../prop-types/FileType";
+import FileType from "../../../../prop-types/FileType";
 import TemplateBlackList from "./TemplateBlackList";
 import { useIntl } from "react-intl";
 import ObjectAPI from "../../../../application/api/objects/ObjectAPI";

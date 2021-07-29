@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FileType } from "../../prop-types/FileType";
+import { FileType } from "../../../prop-types/FileType";
 import FileSummary from "../FileSummary";
 import useTheme from "@material-ui/styles/useTheme";
 import { useMediaQuery } from "@material-ui/core";

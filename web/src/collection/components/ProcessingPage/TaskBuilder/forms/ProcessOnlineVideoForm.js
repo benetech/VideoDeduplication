@@ -6,7 +6,7 @@ import { useIntl } from "react-intl";
 import Description from "../Description";
 import ConfigurationForm from "./ConfigurationForm";
 import Section from "../Section";
-import TaskRequestType from "../../../../prop-types/TaskRequestType";
+import TaskRequestType from "../../../../../prop-types/TaskRequestType";
 import TaskRequest from "../../../../../application/state/tasks/TaskRequest";
 import { validateTaskConfig } from "./validation";
 import { TextField } from "@material-ui/core";

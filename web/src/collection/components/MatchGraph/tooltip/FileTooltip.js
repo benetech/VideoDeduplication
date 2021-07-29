@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import { basename } from "../../../../common/helpers/paths";
 import CloudOutlinedIcon from "@material-ui/icons/CloudOutlined";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
-import FileType from "../../../prop-types/FileType";
+import FileType from "../../../../prop-types/FileType";
 import Partner from "./Partner";
 import Duration from "./Duration";
 

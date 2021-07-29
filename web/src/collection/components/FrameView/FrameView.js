@@ -9,7 +9,7 @@ import { useHistory } from "react-router-dom";
 import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
 import TimeAttr from "../../../common/components/TimeAttr/TimeAttr";
-import FileType from "../../prop-types/FileType";
+import FileType from "../../../prop-types/FileType";
 
 const useStyles = makeStyles((theme) => ({
   summary: {

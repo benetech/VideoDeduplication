@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { formatDate } from "../../../common/helpers/format";
 import EventAvailableOutlinedIcon from "@material-ui/icons/EventAvailableOutlined";
 import AttributeText from "../../../common/components/AttributeText";
-import { FileType } from "../../prop-types/FileType";
+import { FileType } from "../../../prop-types/FileType";
 import { useIntl } from "react-intl";
 
 function CreationDate(props) {

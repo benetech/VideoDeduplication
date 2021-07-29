@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import InputContainer from "../InputContainer";
 import { TextField } from "@material-ui/core";
 import { useIntl } from "react-intl";
-import TaskRequestType from "../../../../prop-types/TaskRequestType";
+import TaskRequestType from "../../../../../prop-types/TaskRequestType";
 import TaskRequest from "../../../../../application/state/tasks/TaskRequest";
 import Section from "../Section";
 import Description from "../Description";

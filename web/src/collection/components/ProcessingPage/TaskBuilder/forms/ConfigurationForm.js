@@ -6,7 +6,7 @@ import { Autocomplete } from "@material-ui/lab";
 import { Chip, TextField } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import { useIntl } from "react-intl";
-import TaskConfigType from "../../../../prop-types/TaskConfigType";
+import TaskConfigType from "../../../../../prop-types/TaskConfigType";
 import InputContainer from "../InputContainer";
 import BoolInput from "../../../../../common/components/BoolInput";
 import { useHandler, useNumber, useUpdate } from "./hooks";

@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import AttributeTable from "../../../../../common/components/AttributeTable";
 import { processDirectoryAttributes } from "../requestAttributes";
-import TaskType from "../../../../prop-types/TaskType";
+import TaskType from "../../../../../prop-types/TaskType";
 
 function ProcessDirectoryRequestAttrs(props) {
   const { task, className, ...other } = props;

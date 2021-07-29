@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
 import TaskStatus from "../../../../application/state/tasks/TaskStatus";
-import TaskType from "../../../prop-types/TaskType";
+import TaskType from "../../../../prop-types/TaskType";
 
 const useStyles = makeStyles((theme) => ({
   status: {

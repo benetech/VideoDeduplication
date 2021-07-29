@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import AttributeTable from "../../../../../common/components/AttributeTable";
 import { processOnlineVideoAttributes } from "../requestAttributes";
-import TaskType from "../../../../prop-types/TaskType";
+import TaskType from "../../../../../prop-types/TaskType";
 
 function ProcessOnlineVideoRequestAttrs(props) {
   const { task, className, ...other } = props;

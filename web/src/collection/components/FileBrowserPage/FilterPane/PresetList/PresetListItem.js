@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import { ButtonBase, IconButton, Tooltip } from "@material-ui/core";
 import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 import DeleteOutlinedIcon from "@material-ui/icons/DeleteOutlined";
-import PresetType from "../../../../prop-types/PresetType";
+import PresetType from "../../../../../prop-types/PresetType";
 import { useIntl } from "react-intl";
 import Spacer from "../../../../../common/components/Spacer";
 

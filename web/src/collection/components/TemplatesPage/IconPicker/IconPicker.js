@@ -7,7 +7,7 @@ import SelectableTabs, {
 import IconKind from "../../../../application/state/templates/IconKind";
 import { useIntl } from "react-intl";
 import StandardIconPicker from "../StandardIconPicker";
-import { TemplateIconType } from "../../../prop-types/TemplateType";
+import { TemplateIconType } from "../../../../prop-types/TemplateType";
 import clsx from "clsx";
 import IconUploader from "../IconUploader";
 import TemplateIcon from "../TemplateIcon/TemplateIcon";

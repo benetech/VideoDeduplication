@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { FileType } from "../../../prop-types/FileType";
+import { FileType } from "../../../../prop-types/FileType";
 import MediaPreview from "../../../../common/components/MediaPreview";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";

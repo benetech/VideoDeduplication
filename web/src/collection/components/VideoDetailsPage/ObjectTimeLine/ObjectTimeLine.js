@@ -2,11 +2,11 @@ import React, { useMemo } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { FileType } from "../../../prop-types/FileType";
+import { FileType } from "../../../../prop-types/FileType";
 import ObjectGroup from "./ObjectGroup";
 import { groupObjects } from "../groupObjects";
 import { useIntl } from "react-intl";
-import ObjectType from "../../../prop-types/ObjectType";
+import ObjectType from "../../../../prop-types/ObjectType";
 
 const useStyles = makeStyles(() => ({
   timeline: {

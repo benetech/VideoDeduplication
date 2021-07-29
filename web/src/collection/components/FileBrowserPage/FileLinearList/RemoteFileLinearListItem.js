@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { FileType } from "../../../prop-types/FileType";
+import { FileType } from "../../../../prop-types/FileType";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import { useIntl } from "react-intl";

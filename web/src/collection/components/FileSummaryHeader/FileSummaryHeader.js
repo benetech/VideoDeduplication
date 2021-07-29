@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FileType } from "../../prop-types/FileType";
+import { FileType } from "../../../prop-types/FileType";
 import RemoteFileSummaryHeader from "./RemoteFileSummaryHeader";
 import LocalFileSummaryHeader from "./LocalFileSummaryHeader";
 

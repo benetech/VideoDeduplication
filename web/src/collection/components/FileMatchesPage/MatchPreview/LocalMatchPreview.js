@@ -14,7 +14,7 @@ import { useHistory } from "react-router-dom";
 import InactiveIcon from "@material-ui/icons/NotInterestedOutlined";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import MatchAPI from "../../../../application/api/matches/MatchAPI";
-import FileMatchType from "../../../prop-types/FileMatchType";
+import FileMatchType from "../../../../prop-types/FileMatchType";
 
 import { makeStyles } from "@material-ui/styles";
 

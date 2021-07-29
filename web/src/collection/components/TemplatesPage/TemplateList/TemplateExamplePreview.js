@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { TemplateExampleType } from "../../../prop-types/TemplateType";
+import { TemplateExampleType } from "../../../../prop-types/TemplateType";
 import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import Fab from "@material-ui/core/Fab";
 import DeleteExampleDialog from "./DeleteExampleDialog";

@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles, withStyles } from "@material-ui/styles";
-import ObjectType from "../../../prop-types/ObjectType";
+import ObjectType from "../../../../prop-types/ObjectType";
 import Tooltip from "@material-ui/core/Tooltip";
 import { formatDuration } from "../../../../common/helpers/format";
 import position from "../objectPosition";

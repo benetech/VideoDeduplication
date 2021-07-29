@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Name from "./Name";
-import { FileType } from "../../prop-types/FileType";
+import { FileType } from "../../../prop-types/FileType";
 import Fingerprint from "./Fingerprint";
 import Duration from "./Duration";
 import CreationDate from "./CreationDate";

@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import useFile from "../../../../../application/api/files/useFile";
 import FrameView from "../../../FrameView/FrameView";
-import TaskType from "../../../../prop-types/TaskType";
+import TaskType from "../../../../../prop-types/TaskType";
 
 function FindFrameRequestOverview(props) {
   const { task, className, ...other } = props;

@@ -18,7 +18,7 @@ import { useSelector } from "react-redux";
 import { selectFileFilters } from "../../../../application/state/root/selectors";
 import { ValidationError } from "../../../../server-api/Server/ServerError";
 import nameErrorMessage from "../../TemplatesPage/nameErrorMessage";
-import PresetType from "../../../prop-types/PresetType";
+import PresetType from "../../../../prop-types/PresetType";
 import PresetAPI from "./PresetAPI";
 
 /**

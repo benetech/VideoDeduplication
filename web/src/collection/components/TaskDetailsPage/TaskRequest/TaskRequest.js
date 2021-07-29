@@ -7,7 +7,7 @@ import SelectableTabs, {
 } from "../../../../common/components/SelectableTabs";
 import resolveRequestViews from "./resolveRequestViews";
 import { useIntl } from "react-intl";
-import TaskType from "../../../prop-types/TaskType";
+import TaskType from "../../../../prop-types/TaskType";
 
 const useStyles = makeStyles((theme) => ({
   tabs: {
