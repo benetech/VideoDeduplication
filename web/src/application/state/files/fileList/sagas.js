@@ -32,21 +32,13 @@ function* fetchFilesSaga(server, selectFileList, action) {
     const offset = loadedFiles.length;
 
     // Send request to the server
-    const resp = yield call([server, server.fetchFiles], {
+    const { counts, files } = yield call([server, server.fetchFiles], {
       limit,
       offset,
       filters,
     });
 
-    // Handle error
-    if (resp.failure) {
-      console.error("Fetch files error", resp.error);
-      yield put(failure(resp.error));
-      return;
-    }
-
     // Update state
-    const { counts, files } = resp.data;
     yield put(success(files, counts));
   } catch (error) {
     console.error(error);

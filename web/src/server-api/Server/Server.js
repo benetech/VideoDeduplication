@@ -36,8 +36,14 @@ export default class Server {
     this.transform = new Transform();
   }
 
-  async fetchFiles({ limit, offset, filters }) {
+  /**
+   * Fetch file list.
+   * @param {{limit:number, offset:number, filters:Object }} options query options
+   * @returns {Promise<{counts, files}>}
+   */
+  async fetchFiles(options = {}) {
     try {
+      const { limit = 100, offset = 0, filters = {} } = options;
       const response = await this.axios.get("/files/", {
         params: {
           offset,
@@ -46,24 +52,22 @@ export default class Server {
           ...fileFiltersToQueryParams(filters),
         },
       });
-      const data = this.transform.fetchFileResults(response.data);
-      return Response.ok(data);
+      return this.transform.fetchFileResults(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Fetch files error.", error, { options });
     }
   }
 
-  async fetchFile({ id }) {
+  async fetchFile(id) {
     try {
       const response = await this.axios.get(`/files/${id}`, {
         params: {
           include: ["signature", "meta", "scenes", "exif"].join(","),
         },
       });
-      const data = this.transform.videoFile(response.data);
-      return Response.ok(data);
+      return this.transform.videoFile(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Fetch file error.", error, { id });
     }
   }
 

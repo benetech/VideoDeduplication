@@ -4,6 +4,7 @@ import { selectCachedFile } from "../../state/root/selectors";
 import { useServer } from "../../../server-api/context";
 import { cacheFile } from "../../state/files/fileCache/actions";
 import { Status } from "../../../server-api/Response";
+import ServerError from "../../../server-api/Server/ServerError";
 
 /**
  * Fetch file by id.
@@ -18,19 +19,13 @@ export function useFile(id) {
   const loadFile = useCallback(() => {
     const doLoad = async () => {
       setError(null);
-      const response = await server.fetchFile({ id });
-      if (response.success) {
-        const file = response.data;
-        dispatch(cacheFile(file));
-      } else {
-        console.error(response.error);
-        setError({ status: response.status });
-      }
+      const file = await server.fetchFile(id);
+      dispatch(cacheFile(file));
     };
 
     doLoad().catch((error) => {
       console.error(error);
-      setError({ status: Status.CLIENT_ERROR });
+      setError({ status: error.code || ServerError.CLIENT_ERROR });
     });
   }, [id]);
 
