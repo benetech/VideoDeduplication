@@ -10,12 +10,12 @@ import flvjs from "flv.js";
 import TimeCaption from "./TimeCaption";
 import VideoController from "./VideoController";
 import { useServer } from "../../../server-api/context";
-import { Status } from "../../../server-api/Response";
 import { useIntl } from "react-intl";
 import WarningOutlinedIcon from "@material-ui/icons/WarningOutlined";
 import SearchIcon from "@material-ui/icons/Search";
 import Button from "../../../common/components/Button";
 import playerPreviewURL from "./playerPreviewURL";
+import ServerError from "../../../server-api/Server/ServerError";
 
 /**
  * Setup bundled flv.js.
@@ -163,10 +163,10 @@ const VideoPlayer = function VideoPlayer(props) {
 
   // Check if video is available
   useEffect(() => {
-    server.probeVideoFile({ id: file.id }).then((response) => {
-      if (response.status === Status.NOT_FOUND) {
+    server.probeVideoFile(file.id).catch((error) => {
+      if (error.code === ServerError.NOT_FOUND) {
         setError(messages.notFoundError);
-      } else if (response.status !== Status.OK) {
+      } else {
         setError(messages.loadError);
       }
     });

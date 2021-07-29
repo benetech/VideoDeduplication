@@ -154,12 +154,11 @@ export default class Server {
     }
   }
 
-  async probeVideoFile({ id }) {
+  async probeVideoFile(id) {
     try {
       await this.axios.head(`/files/${id}/watch`);
-      return Response.ok(null);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Probe video error.", error, { id });
     }
   }
 

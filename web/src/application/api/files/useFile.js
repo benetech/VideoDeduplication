@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectCachedFile } from "../../state/root/selectors";
 import { useServer } from "../../../server-api/context";
 import { cacheFile } from "../../state/files/fileCache/actions";
-import { Status } from "../../../server-api/Response";
 import ServerError from "../../../server-api/Server/ServerError";
 
 /**
