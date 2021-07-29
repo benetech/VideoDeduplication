@@ -8,7 +8,7 @@ import IconButton from "@material-ui/core/IconButton";
 import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
 import { useHistory } from "react-router";
 import { ButtonBase } from "@material-ui/core";
-import { Status } from "../../../server-api/Response";
+import ServerError from "../../../server-api/Server/ServerError";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -83,7 +83,7 @@ function FileLoadingHeader(props) {
   }
 
   let content;
-  if (error.status === Status.NOT_FOUND) {
+  if (error.status === ServerError.NOT_FOUND) {
     content = <div className={classes.errorMessage}>{messages.notFound}</div>;
   } else {
     content = (

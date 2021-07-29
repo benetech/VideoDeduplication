@@ -83,18 +83,17 @@ function AddTemplateDialog(props) {
 
   const handleCreate = useCallback(() => {
     setLoading(true);
+    const template = { name, icon };
     server
-      .createTemplate({ template: { name, icon } })
-      .then((response) => {
-        if (response.success) {
-          dispatch(addTemplates([response.data]));
-          onClose();
-        } else {
-          setNameError(messages.nameError(response?.data?.fields?.name));
-          console.error("Creating template failed", response);
-        }
+      .createTemplate(template)
+      .then((created) => {
+        dispatch(addTemplates([created]));
+        onClose();
       })
-      .catch((error) => console.error("Error creating template", error))
+      .catch((error) => {
+        setNameError(messages.nameError(error.data?.fields?.name));
+        console.error(error);
+      })
       .finally(() => {
         setLoading(false);
       });

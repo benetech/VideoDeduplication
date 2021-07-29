@@ -1,8 +1,6 @@
 import axios from "axios";
-import * as HttpStatus from "http-status-codes";
 import io from "socket.io-client";
 import Transform from "./Transform";
-import { Response } from "../Response";
 import fileFiltersToQueryParams from "./helpers/fileFiltersToQueryParams";
 import clusterFiltersToQueryParams from "./helpers/clusterFiltersToQueryParams";
 import matchesFiltersToQueryParams from "./helpers/matchesFiltersToQueryParams";
@@ -252,7 +250,7 @@ export default class Server {
     }
   }
 
-  async createTemplate({ template }) {
+  async createTemplate(template) {
     try {
       const newTemplateDTO = this.transform.newTemplateDTO(template);
       const response = await this.axios.post(
@@ -264,19 +262,30 @@ export default class Server {
           },
         }
       );
-      return Response.ok(this.transform.template(response.data));
+      return this.transform.template(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Create template error.", error, { template });
     }
   }
 
-  async fetchTemplates({
-    limit = 1000,
-    offset = 0,
-    fields = ["examples", "file_count"],
-    filters = {},
-  }) {
+  /**
+   * Query templates list.
+   * @param {{
+   *   limit: number,
+   *   offset: number,
+   *   fields: string[],
+   *   filters: Object,
+   * }} options query options
+   * @return {Promise<{total: number, offset: number, templates: [*]}>}
+   */
+  async fetchTemplates(options = {}) {
     try {
+      const {
+        limit = 1000,
+        offset = 0,
+        fields = ["examples", "file_count"],
+        filters = {},
+      } = options;
       const response = await this.axios.get(`/templates/`, {
         params: {
           limit,
@@ -284,28 +293,33 @@ export default class Server {
           ...templateFiltersToQueryParams({ fields, filters }),
         },
       });
-      const data = this.transform.fetchTemplatesResults(response.data);
-      return Response.ok(data);
+      return this.transform.fetchTemplatesResults(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Fetch templates error.", error, { options });
     }
   }
 
-  async fetchTemplate({ id, fields = ["examples"] }) {
+  /**
+   * Fetch single template by id.
+   * @param id template id
+   * @param {{fields: string[]}} options fetch options.
+   * @return {Promise}
+   */
+  async fetchTemplate(id, options = {}) {
     try {
+      const { fields = ["examples"] } = options;
       const response = await this.axios.get(`/templates/${id}`, {
         params: {
           ...templateFiltersToQueryParams({ fields }),
         },
       });
-      const data = this.transform.template(response.data);
-      return Response.ok(data);
+      return this.transform.template(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Fetch template error.", error, { id, options });
     }
   }
 
-  async updateTemplate({ template }) {
+  async updateTemplate(template) {
     try {
       const response = await this.axios.patch(
         `/templates/${template.id}`,
@@ -320,28 +334,39 @@ export default class Server {
           },
         }
       );
-      return Response.ok(this.transform.template(response.data));
+      return this.transform.template(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Update template error.", error, { template });
     }
   }
 
-  async deleteTemplate({ id }) {
+  async deleteTemplate(id) {
     try {
       const response = await this.axios.delete(`/templates/${id}`);
-      return Response.ok(response.data);
+      return response.data;
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Delete template error.", error, { id });
     }
   }
 
-  async fetchExamples({
-    limit = 1000,
-    offset = 0,
-    fields = ["template"],
-    filters = {},
-  }) {
+  /**
+   * Query examples list.
+   * @param {{
+   *   limit: number,
+   *   offset: number,
+   *   fields: string[],
+   *   filters: Object,
+   * }} options query options
+   * @return {Promise<{total, offset, examples}>}
+   */
+  async fetchExamples(options = {}) {
     try {
+      const {
+        limit = 1000,
+        offset = 0,
+        fields = ["template"],
+        filters = {},
+      } = options;
       const response = await this.axios.get(`/examples/`, {
         params: {
           limit,
@@ -349,28 +374,33 @@ export default class Server {
           ...exampleFiltersToQueryParams({ fields, filters }),
         },
       });
-      const data = this.transform.fetchExamplesResults(response.data);
-      return Response.ok(data);
+      return this.transform.fetchExamplesResults(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Fetch examples error.", error, { options });
     }
   }
 
-  async fetchExample({ id, fields = ["template"] }) {
+  /**
+   * Fetch a single template example by id.
+   * @param id example id
+   * @param {{fields: string[]}} options fetch options
+   * @return {Promise}
+   */
+  async fetchExample(id, options = {}) {
     try {
+      const { fields = ["template"] } = options;
       const response = await this.axios.get(`/examples/${id}`, {
         params: {
           ...exampleFiltersToQueryParams({ fields }),
         },
       });
-      const data = this.transform.template(response.data);
-      return Response.ok(data);
+      return this.transform.template(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Fetch examples error.", error, { id, options });
     }
   }
 
-  async uploadExample({ templateId, file }) {
+  async uploadExample(templateId, file) {
     try {
       let formData = new FormData();
       formData.append("file", file);
@@ -389,19 +419,21 @@ export default class Server {
           },
         }
       );
-      const data = this.transform.templateExample(response.data);
-      return Response.ok(data);
+      return this.transform.templateExample(response.data);
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Upload example error.", error, {
+        templateId,
+        file,
+      });
     }
   }
 
-  async deleteExample({ id }) {
+  async deleteExample(id) {
     try {
       const response = await this.axios.delete(`/examples/${id}`);
-      return Response.ok(response.data);
+      return response.data;
     } catch (error) {
-      return this.errorResponse(error);
+      throw makeServerError("Delete example error.", error, { id });
     }
   }
 
@@ -617,22 +649,5 @@ export default class Server {
       socket: socketio,
       transform: this.transform,
     });
-  }
-
-  errorResponse(error) {
-    if (error.response == null) {
-      return Response.clientError(error);
-    }
-    const response = error.response;
-    switch (response.status) {
-      case HttpStatus.BAD_REQUEST:
-        return Response.invalid(error);
-      case HttpStatus.UNAUTHORIZED:
-        return Response.unauthorized(error);
-      case HttpStatus.NOT_FOUND:
-        return Response.notFound(error);
-      default:
-        return Response.clientError(error);
-    }
   }
 }

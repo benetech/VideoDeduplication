@@ -9,7 +9,7 @@ import { useIntl } from "react-intl";
 import Button from "../../../../common/components/Button";
 import { ListItemText, Menu, MenuItem, Tooltip } from "@material-ui/core";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
-import useLoadTemplates from "./useLoadTemplates";
+import useLoadTemplates from "../../../../application/api/templates/useLoadTemplates";
 import usePopup from "../../../../common/hooks/usePopup";
 import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
 import ExcludedTemplate from "./ExcludedTemplate";

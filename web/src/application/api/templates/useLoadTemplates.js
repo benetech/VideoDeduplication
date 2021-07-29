@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import loadTemplates from "../../TemplatesPage/loadTemplates";
-import { setTemplates } from "../../../../application/state/templates/actions";
+import loadTemplates from "./loadTemplates";
+import { setTemplates } from "../../state/templates/actions";
 import { useDispatch, useSelector } from "react-redux";
-import { selectTemplates } from "../../../../application/state/root/selectors";
-import { useServer } from "../../../../server-api/context";
+import { selectTemplates } from "../../state/root/selectors";
+import { useServer } from "../../../server-api/context";
 
 /**
  * Hook to load all defined templates.

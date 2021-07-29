@@ -8,7 +8,7 @@ import IconButton from "@material-ui/core/IconButton";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router";
 import { routes } from "../../../../routing/routes";
-import { Status } from "../../../../server-api/Response";
+import ServerError from "../../../../server-api/Server/ServerError";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -61,7 +61,7 @@ function TaskLoadingHeader(props) {
   let content;
   if (!error) {
     content = <CircularProgress color="primary" />;
-  } else if (error.status === Status.NOT_FOUND) {
+  } else if (error.status === ServerError.NOT_FOUND) {
     content = <div className={classes.errorMessage}>{messages.notFound}</div>;
   } else {
     content = (
