@@ -1,5 +1,5 @@
 import { format as formatDate } from "date-fns";
-import parseDate from "../../../common/helpers/parseDate";
+import parseDate from "../../../lib/helpers/parseDate";
 
 /**
  * Convert file filters to axios request params.

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect } from "react";
-import useValue from "../../../collection/hooks/useValue";
+import useValue from "../../../lib/hooks/useValue";
 import lodash from "lodash";
 
 /**
