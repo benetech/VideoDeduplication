@@ -13,8 +13,8 @@ import FileBrowserActions from "./FileBrowserActions";
 import FilterPane from "./FilterPane";
 import SearchTextInput from "./SearchTextInput";
 import CategorySelector from "./CategorySelector";
-import FileLinearList from "./FileLinearList/FileLinearList";
-import FileGridList from "./FileGridList";
+import FileLinearList from "../../components/files/FileLinearList/FileLinearList";
+import FileGridList from "../../components/files/FileGridList";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectFileCounts,

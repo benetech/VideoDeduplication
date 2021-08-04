@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import TaskSidebarHeader from "./TaskSidebarHeader";
-import TaskList from "../TaskList";
+import TaskList from "../../../components/tasks/TaskList";
 import { Tab } from "./tabs";
 import { useDispatch, useSelector } from "react-redux";
 import { selectTasks } from "../../../application/state/root/selectors";

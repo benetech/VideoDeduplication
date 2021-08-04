@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import Distance from "../../basic/Distance";
+import Distance from "../Distance";
 import Paper from "@material-ui/core/Paper";
 import FileType from "../../../prop-types/FileType";
 import FileTooltip from "./tooltip/FileTooltip";

@@ -10,7 +10,7 @@ import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import PlaylistAddCheckOutlinedIcon from "@material-ui/icons/PlaylistAddCheckOutlined";
 import { IconButton, Tooltip } from "@material-ui/core";
 import Spacer from "../../components/basic/Spacer";
-import TaskBuilder from "./TaskBuilder";
+import TaskBuilder from "../../components/tasks/TaskBuilder";
 
 const useStyles = makeStyles((theme) => ({
   root: {

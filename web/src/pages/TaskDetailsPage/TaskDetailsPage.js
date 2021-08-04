@@ -9,10 +9,10 @@ import TaskLogs from "./TaskLogs";
 import { useParams } from "react-router";
 import { randomTask } from "../../server-api/MockServer/fake-data/tasks";
 import TaskStatus from "../../application/state/tasks/TaskStatus";
-import TaskSummaryHeader from "./TaskSummaryHeader";
+import TaskSummaryHeader from "../../components/tasks/TaskSummaryHeader";
 import useGetTask from "../../application/api/tasks/useGetTask";
-import TaskLoadingHeader from "./TaskLoadingHeader";
-import TaskDetails from "./TaskDetails";
+import TaskLoadingHeader from "../../components/tasks/TaskLoadingHeader";
+import TaskDetails from "../../components/tasks/TaskDetails";
 
 const useStyles = makeStyles((theme) => ({
   root: {

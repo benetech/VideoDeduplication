@@ -10,7 +10,7 @@ import FileSummaryHeader from "../../components/files/FileSummaryHeader";
 import SectionSeparator from "./SectionSeparator";
 import { useIntl } from "react-intl";
 import Grid from "@material-ui/core/Grid";
-import MatchPreview from "./MatchPreview";
+import MatchPreview from "../../components/matches/MatchPreview";
 import SquaredIconButton from "../../components/basic/SquaredIconButton";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 import TuneOutlinedIcon from "@material-ui/icons/TuneOutlined";

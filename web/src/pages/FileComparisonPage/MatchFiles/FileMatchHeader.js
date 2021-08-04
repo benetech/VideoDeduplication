@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import FileSummary from "../../../components/files/FileSummary/FileSummary";
-import Distance from "../../../components/basic/Distance";
+import Distance from "../../../components/matches/Distance";
 import IconButton from "@material-ui/core/IconButton";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import usePopup from "../../../lib/hooks/usePopup";
