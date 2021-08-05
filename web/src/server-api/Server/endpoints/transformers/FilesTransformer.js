@@ -11,8 +11,8 @@ export default class FilesTransformer {
    * Convert file list filters to query parameters.
    *
    *  @typedef {{
-   *   query: string,
-   *   extensions: string[],
+   *   query: string|undefined,
+   *   extensions: string[]|undefined,
    *   length: { lower: null|number, upper: null|number },
    *   date: { lower: null|number, upper: null|number },
    *   audio: null|boolean,

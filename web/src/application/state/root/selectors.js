@@ -12,6 +12,8 @@ export const selectFileLoading = (state) => selectFileList(state).loading;
 
 export const selectFileError = (state) => selectFileList(state).error;
 
+export const selectFilesColl = (state) => state.files.coll;
+
 /**
  * Select cached file by id.
  */
