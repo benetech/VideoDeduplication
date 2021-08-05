@@ -1,4 +1,5 @@
 import { getEntry } from "../../common/cache/initialState";
+import { getQuery } from "../../common/queryCache";
 
 export const selectFileList = (state) => state.files.fileList;
 
@@ -13,6 +14,9 @@ export const selectFileLoading = (state) => selectFileList(state).loading;
 export const selectFileError = (state) => selectFileList(state).error;
 
 export const selectFilesColl = (state) => state.files.coll;
+
+export const selectFilesQuery = (params) => (state) =>
+  getQuery(state.files.queries, params);
 
 /**
  * Select cached file by id.
