@@ -5,6 +5,7 @@ import {
   setCollBlur,
   setCollListType,
   setCollParams,
+  updateCollParams,
 } from "../../state/files/coll/actions";
 
 /**
@@ -14,6 +15,7 @@ import {
  *   blur: boolean,
  *   listType: string,
  *   setParams: function,
+ *   updateParams: function,
  *   setBlur: function,
  *   setListType: function,
  * }}
@@ -21,8 +23,11 @@ import {
 export default function useFilesColl() {
   const dispatch = useDispatch();
   const coll = useSelector(selectFilesColl);
-  const setParams = useCallback((params) => dispatch(setCollParams(params)));
   const setBlur = useCallback((blur) => dispatch(setCollBlur(blur)));
+  const setParams = useCallback((params) => dispatch(setCollParams(params)));
+  const updateParams = useCallback((params) =>
+    dispatch(updateCollParams(params))
+  );
   const setListType = useCallback((listType) =>
     dispatch(setCollListType(listType))
   );
@@ -30,6 +35,7 @@ export default function useFilesColl() {
   return {
     ...coll,
     setParams,
+    updateParams,
     setBlur,
     setListType,
   };

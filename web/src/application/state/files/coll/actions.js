@@ -9,6 +9,20 @@ export function setCollParams(params) {
   return { type: ACTION_SET_COLL_PARAMS, params };
 }
 
+export const ACTION_UPDATE_COLL_PARAMS = "filesColl.UPDATE_COLL_PARAMS";
+
+/**
+ * Update collection params.
+ *
+ * Parameters will be merged with the existing ones.
+ *
+ * @param {FileFilters} params
+ * @return {{type: string, params: FileFilters}}
+ */
+export function updateCollParams(params) {
+  return { type: ACTION_UPDATE_COLL_PARAMS, params };
+}
+
 export const ACTION_SET_COLL_BLUR = "filesColl.SET_COLL_BLUR";
 
 /**
