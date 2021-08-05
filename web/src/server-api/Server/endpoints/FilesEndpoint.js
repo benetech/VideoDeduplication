@@ -1,5 +1,5 @@
 import { makeServerError } from "../ServerError";
-import FilesTransformer from "./FilesTransformer";
+import FilesTransformer from "./transformers/FilesTransformer";
 
 /**
  * Client for file API endpoint.

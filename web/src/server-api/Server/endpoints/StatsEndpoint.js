@@ -1,7 +1,7 @@
 /**
  * Client for statistics API endpoint.
  */
-import StatsTransformer from "./StatsTransformer";
+import StatsTransformer from "./transformers/StatsTransformer";
 import { makeServerError } from "../ServerError";
 
 export default class StatsEndpoint {

@@ -1,5 +1,5 @@
 import { makeServerError } from "../ServerError";
-import TemplateExclusionsTransformer from "./TemplateExclusionsTransformer";
+import TemplateExclusionsTransformer from "./transformers/TemplateExclusionsTransformer";
 import getEntityId from "../helpers/getEntityId";
 
 /**

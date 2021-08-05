@@ -1,4 +1,4 @@
-import TemplatesTransformer from "./TemplatesTransformer";
+import TemplatesTransformer from "./transformers/TemplatesTransformer";
 import { makeServerError } from "../ServerError";
 import getEntityId from "../helpers/getEntityId";
 

@@ -1,4 +1,4 @@
-import Statistics from "../../../application/api/stats/Statistics";
+import Statistics from "../../../../application/api/stats/Statistics";
 
 /**
  * Statistics API request & response transformer.

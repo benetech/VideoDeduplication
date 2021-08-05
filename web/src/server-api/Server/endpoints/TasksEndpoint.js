@@ -1,5 +1,5 @@
 import { makeServerError } from "../ServerError";
-import TasksTransformer from "./TasksTransformer";
+import TasksTransformer from "./transformers/TasksTransformer";
 import getEntityId from "../helpers/getEntityId";
 
 /**

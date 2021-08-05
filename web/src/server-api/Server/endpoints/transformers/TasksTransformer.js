@@ -1,6 +1,6 @@
 import lodash from "lodash";
-import TaskRequest from "../../../application/state/tasks/TaskRequest";
-import utcDate, { defaultDateFormat } from "../helpers/utcDate";
+import TaskRequest from "../../../../application/state/tasks/TaskRequest";
+import utcDate, { defaultDateFormat } from "../../helpers/utcDate";
 
 /**
  * Common Request DTO props => Request Model props.

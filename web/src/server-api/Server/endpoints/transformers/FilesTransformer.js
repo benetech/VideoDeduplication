@@ -1,5 +1,5 @@
 import { format as formatDate } from "date-fns";
-import parseDate from "../../../lib/helpers/parseDate";
+import parseDate from "../../../../lib/helpers/parseDate";
 
 /**
  * Argument and result transformer for file API endpoint.

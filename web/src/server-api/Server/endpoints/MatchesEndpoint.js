@@ -1,5 +1,5 @@
 import { makeServerError } from "../ServerError";
-import MatchesTransformer from "./MatchesTransformer";
+import MatchesTransformer from "./transformers/MatchesTransformer";
 
 /**
  * Client for matches API endpoint.

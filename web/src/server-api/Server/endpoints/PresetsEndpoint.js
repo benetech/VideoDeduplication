@@ -1,5 +1,5 @@
 import { makeServerError } from "../ServerError";
-import PresetsTransformer from "./PresetsTransformer";
+import PresetsTransformer from "./transformers/PresetsTransformer";
 import getEntityId from "../helpers/getEntityId";
 
 /**
