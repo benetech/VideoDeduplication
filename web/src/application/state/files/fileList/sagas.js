@@ -21,8 +21,11 @@ function resolveReportActions(fetchAction) {
 
 /**
  * Fetch next page of files.
+ * @param {Server} server
+ * @param {function} selectFileList
+ * @param {{type}} action
  */
-function* fetchFilesSaga(server, selectFileList, action) {
+const fetchFilesSaga = function* (server, selectFileList, action) {
   // Determine report-result actions
   const [success, failure] = resolveReportActions(action);
 
@@ -32,7 +35,7 @@ function* fetchFilesSaga(server, selectFileList, action) {
     const offset = loadedFiles.length;
 
     // Send request to the server
-    const { counts, files } = yield call([server, server.fetchFiles], {
+    const { counts, files } = yield call([server.files, server.files.list], {
       limit,
       offset,
       filters,
@@ -44,7 +47,7 @@ function* fetchFilesSaga(server, selectFileList, action) {
     console.error(error);
     yield put(failure(error));
   }
-}
+};
 
 /**
  * Initialize collection-related sagas...

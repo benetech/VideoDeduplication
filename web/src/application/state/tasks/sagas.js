@@ -83,6 +83,9 @@ function* handleTaskUpdatesSaga(server) {
 
 /**
  * Fetch the next slice of background tasks collection.
+ * @param {Server} server
+ * @param {function} selectTasks
+ * @param {{type}} action
  */
 function* fetchTaskSliceSaga(server, selectTasks, action) {
   // Handling update-params is required to cancel the previous request.
@@ -90,7 +93,7 @@ function* fetchTaskSliceSaga(server, selectTasks, action) {
     return;
   }
   yield* fetchEntitiesSaga({
-    requestResource: [server, server.fetchTasks],
+    requestResource: [server.tasks, server.tasks.list],
     stateSelector: selectTasks,
     success: fetchTaskSliceSuccess,
     failure: fetchTaskSliceFailure,

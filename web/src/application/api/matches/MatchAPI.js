@@ -21,6 +21,10 @@ export default class MatchAPI {
     return useMemo(() => new MatchAPI(server, dispatch), [server, dispatch]);
   }
 
+  /**
+   * @param {Server} server
+   * @param {function} dispatch
+   */
   constructor(server, dispatch) {
     this.server = server;
     this.dispatch = dispatch;
@@ -34,7 +38,7 @@ export default class MatchAPI {
     }
     try {
       this.dispatch(updateMatch(updated));
-      await this.server.updateMatch(updated);
+      await this.server.matches.update(updated);
     } catch (error) {
       this.dispatch(updateMatch(original));
       throw error;
@@ -44,7 +48,7 @@ export default class MatchAPI {
   async deleteMatch(match) {
     try {
       this.dispatch(deleteFileMatch(match));
-      await this.server.updateMatch({ ...match, falsePositive: true });
+      await this.server.matches.update({ ...match, falsePositive: true });
     } catch (error) {
       this.dispatch(restoreFileMatch(match));
       throw error;
@@ -54,7 +58,7 @@ export default class MatchAPI {
   async restoreMatch(match) {
     try {
       this.dispatch(restoreFileMatch(match));
-      await this.server.updateMatch({ ...match, falsePositive: false });
+      await this.server.matches.update({ ...match, falsePositive: false });
     } catch (error) {
       this.dispatch(deleteFileMatch(match));
       throw error;

@@ -19,7 +19,7 @@ export default function useTemplateAPI() {
   const handleDeleteExample = useCallback(async (example) => {
     dispatch(deleteExample(example.id));
     try {
-      await server.deleteExample(example.id);
+      await server.examples.delete(example.id);
     } catch (error) {
       dispatch(addExample(example));
       throw error;
@@ -29,7 +29,7 @@ export default function useTemplateAPI() {
   const handleUploadExample = useCallback(async (files, template) => {
     for (const file of files) {
       try {
-        const example = await server.uploadExample(template.id, file);
+        const example = await server.examples.upload(template.id, file);
         dispatch(addExample(example));
       } catch (error) {
         console.error(error);
@@ -40,7 +40,7 @@ export default function useTemplateAPI() {
   const handleUpdateTemplate = useCallback(async (updates, original) => {
     dispatch(updateTemplate(updates));
     try {
-      return await server.updateTemplate(updates);
+      return await server.templates.update(updates);
     } catch (error) {
       dispatch(updateTemplate(original));
       throw error;
@@ -50,7 +50,7 @@ export default function useTemplateAPI() {
   const handleDeleteTemplate = useCallback(async (template) => {
     dispatch(deleteTemplate(template.id));
     try {
-      await server.deleteTemplate(template.id);
+      await server.templates.delete(template);
     } catch (error) {
       dispatch(addTemplates([template]));
       throw error;
@@ -58,7 +58,7 @@ export default function useTemplateAPI() {
   });
 
   const handleCreateTemplate = useCallback(async ({ name, icon }) => {
-    const template = await server.createTemplate({ name, icon });
+    const template = await server.templates.create({ name, icon });
     dispatch(addTemplates([template]));
     return template;
   });

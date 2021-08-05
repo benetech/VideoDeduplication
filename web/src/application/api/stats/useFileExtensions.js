@@ -21,8 +21,8 @@ export default function useFileExtensions(initial) {
   const [extensions, setExtensions] = useState(initial || defaultExtensions);
 
   useEffect(() => {
-    server
-      .fetchStats({ name: Statistics.extensions })
+    server.stats
+      .get({ name: Statistics.extensions })
       .then((results) => {
         setExtensions(results);
       })

@@ -1,6 +1,6 @@
 import lodash from "lodash";
-import TaskRequest from "../../application/state/tasks/TaskRequest";
-import utcDate, { defaultDateFormat } from "./helpers/utcDate";
+import TaskRequest from "../../../application/state/tasks/TaskRequest";
+import utcDate, { defaultDateFormat } from "../helpers/utcDate";
 
 /**
  * Common Request DTO props => Request Model props.
@@ -114,7 +114,10 @@ function makeTaskTypeTransforms() {
 
 export const DefaultTaskTypeTransforms = makeTaskTypeTransforms();
 
-export default class TaskTransform {
+/**
+ * Tasks API endpoint argument & results transformer.
+ */
+export default class TasksTransformer {
   constructor(
     utcDateFormat = defaultDateFormat,
     typeTransforms = DefaultTaskTypeTransforms
@@ -123,6 +126,24 @@ export default class TaskTransform {
     this.typeTransforms = typeTransforms;
   }
 
+  /**
+   * Convert list tasks results.
+   * @param data server response
+   * @return {{total, offset, tasks}}
+   */
+  tasks(data) {
+    return {
+      offset: data.offset,
+      total: data.total,
+      tasks: data.items.map((task) => this.task(task)),
+    };
+  }
+
+  /**
+   * Convert task DTO to task object.
+   * @param {{}} taskDTO
+   * @return {Task}
+   */
   task(taskDTO) {
     const request = this.fromRequestDTO(taskDTO.request);
     return {
@@ -135,18 +156,6 @@ export default class TaskTransform {
       error: this._taskError(taskDTO.error),
       result: this._fromResultsDTO(taskDTO.result, request.type),
       raw: taskDTO,
-    };
-  }
-
-  _taskError(data) {
-    if (data == null) {
-      return undefined;
-    }
-    return {
-      type: data.exc_type,
-      message: data.exc_message,
-      module: data.exc_module,
-      traceback: data.traceback,
     };
   }
 
@@ -185,6 +194,35 @@ export default class TaskTransform {
       console.warn("Don't know how to convert task request", request.type);
       return request;
     }
+  }
+
+  /**
+   * Convert task list filters to query parameters.
+   *
+   * @typedef {{
+   *   status: string[],
+   * }} TaskFilters
+   * @param {TaskFilters} filters
+   * @return {{}}
+   */
+  listParams(filters) {
+    const params = {};
+    if (filters?.status?.length > 0) {
+      params.status = filters.status.join(",");
+    }
+    return params;
+  }
+
+  _taskError(data) {
+    if (data == null) {
+      return undefined;
+    }
+    return {
+      type: data.exc_type,
+      message: data.exc_message,
+      module: data.exc_module,
+      traceback: data.traceback,
+    };
   }
 
   /**

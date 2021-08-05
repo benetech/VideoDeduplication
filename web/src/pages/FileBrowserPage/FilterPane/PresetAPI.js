@@ -29,6 +29,10 @@ export default class PresetAPI {
     return useMemo(() => new PresetAPI(server, dispatch), [server, dispatch]);
   }
 
+  /**
+   * @param {Server} server
+   * @param {function} dispatch
+   */
   constructor(server, dispatch) {
     this.server = server;
     this.dispatch = dispatch;
@@ -37,7 +41,7 @@ export default class PresetAPI {
   async deletePreset(preset) {
     this.dispatch(deletePreset(preset));
     try {
-      await this.server.deletePreset(preset);
+      await this.server.presets.delete(preset);
     } catch (error) {
       this.dispatch(addPreset(preset));
       throw error;
@@ -45,7 +49,7 @@ export default class PresetAPI {
   }
 
   async addPreset(preset) {
-    const created = await this.server.createPreset(preset);
+    const created = await this.server.presets.create(preset);
     this.dispatch(addPreset(created));
   }
 
@@ -57,7 +61,7 @@ export default class PresetAPI {
     }
     try {
       this.dispatch(updatePreset(updated));
-      await this.server.updatePreset(updated);
+      await this.server.presets.update(updated);
     } catch (error) {
       this.dispatch(updatePreset(original));
       throw error;
@@ -82,12 +86,13 @@ export default class PresetAPI {
         setLoading(true);
         setError(false);
         try {
-          const fetched = await this.server.fetchPresets({
+          const fetched = await this.server.presets.list({
             limit,
             offset: presets.length,
           });
           this.dispatch(addPresets(fetched.presets, fetched.total));
         } catch (error) {
+          console.error(error);
           setError(true);
         } finally {
           setLoading(false);

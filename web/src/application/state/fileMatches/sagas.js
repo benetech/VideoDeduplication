@@ -9,6 +9,9 @@ import fetchEntitiesSaga from "../fetchEntities/fetchEntitiesSaga";
 
 /**
  * Fetch the next slice of file matches.
+ * @param {Server} server
+ * @param {function} selectFileMatches
+ * @param {{type}} action
  */
 function* fetchFileMatchesSliceSaga(server, selectFileMatches, action) {
   // Handling update-params is required to cancel the previous request.
@@ -16,7 +19,7 @@ function* fetchFileMatchesSliceSaga(server, selectFileMatches, action) {
     return;
   }
   yield* fetchEntitiesSaga({
-    requestResource: [server, server.fetchFileMatches],
+    requestResource: [server.files, server.files.matches],
     stateSelector: selectFileMatches,
     success: fetchFileMatchesSliceSuccess,
     failure: fetchFileMatchesSliceFailure,

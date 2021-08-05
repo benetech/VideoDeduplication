@@ -53,7 +53,7 @@ function TaskLogs(props) {
       return () => dispatch(unsubscribeFromTaskLogs(task.id));
     } else if (taskLogs.taskId !== task.id || taskLogs.more) {
       dispatch(setTaskLogs({ id: task.id, logs: null, more: true }));
-      server.fetchLogs(task.id).then((data) => {
+      server.tasks.logs(task.id).then((data) => {
         dispatch(setTaskLogs({ id: task.id, logs: [data], more: false }));
       });
     }

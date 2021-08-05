@@ -77,8 +77,8 @@ function useSearchFrame() {
   const dispatch = useDispatch();
 
   return useCallback(({ file, time }) => {
-    server
-      .createTask({
+    server.tasks
+      .create({
         type: TaskRequest.FIND_FRAME,
         fileId: file.id,
         frameTimeSec: time,

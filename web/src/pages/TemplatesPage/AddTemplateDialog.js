@@ -84,8 +84,8 @@ function AddTemplateDialog(props) {
   const handleCreate = useCallback(() => {
     setLoading(true);
     const template = { name, icon };
-    server
-      .createTemplate(template)
+    server.templates
+      .create(template)
       .then((created) => {
         dispatch(addTemplates([created]));
         onClose();

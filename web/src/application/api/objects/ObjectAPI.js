@@ -20,6 +20,11 @@ export default class ObjectAPI {
     return useMemo(() => new ObjectAPI(server, dispatch), [server, dispatch]);
   }
 
+  /**
+   * @param {Server} server
+   * @param {function} dispatch
+   * @param {function} selectCache
+   */
   constructor(server, dispatch, selectCache) {
     this.selectCache = selectCache || selectObjectCache;
     this.server = server;
@@ -37,7 +42,7 @@ export default class ObjectAPI {
     }
     try {
       this.dispatch(updateObject(updated));
-      await this.server.updateTemplateMatch(updated);
+      await this.server.templateMatches.update(updated);
     } catch (error) {
       this.dispatch(updateMatch(original));
       throw error;
@@ -73,7 +78,7 @@ export default class ObjectAPI {
         let hasMore = true;
         while (!cancel && hasMore) {
           // Fetch next slice of objects
-          const response = await this.server.fetchTemplateMatches({
+          const response = await this.server.templateMatches.list({
             offset: currentObjects.length,
             filters: { fileId },
             fields: ["template"],

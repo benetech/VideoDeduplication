@@ -9,6 +9,9 @@ import fetchEntitiesSaga from "../fetchEntities/fetchEntitiesSaga";
 
 /**
  * Fetch the next slice of file cluster items.
+ * @param {Server} server
+ * @param {function} selectFileCluster
+ * @param {{type}} action
  */
 function* fetchFileClusterSliceSaga(server, selectFileCluster, action) {
   // Handling update-params is required to cancel the previous request.
@@ -16,7 +19,7 @@ function* fetchFileClusterSliceSaga(server, selectFileCluster, action) {
     return;
   }
   yield* fetchEntitiesSaga({
-    requestResource: [server, server.fetchFileCluster],
+    requestResource: [server.files, server.files.cluster],
     stateSelector: selectFileCluster,
     success: fetchFileClusterSliceSuccess,
     failure: fetchFileClusterSliceFailure,

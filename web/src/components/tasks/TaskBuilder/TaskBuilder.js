@@ -61,8 +61,8 @@ function TaskBuilder(props) {
 
   const handleProcess = useCallback(() => {
     setLoading(true);
-    server
-      .createTask(req)
+    server.tasks
+      .create(req)
       .then((task) => dispatch(updateTask(task)))
       .catch(console.error)
       .finally(() => setLoading(false));

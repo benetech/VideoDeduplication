@@ -17,7 +17,7 @@ export function useGetTask(id) {
   const loadTask = useCallback(() => {
     const doLoad = async () => {
       setError(null);
-      const task = await server.fetchTask(id);
+      const task = await server.tasks.get(id);
       dispatch(cacheTask(task));
     };
 

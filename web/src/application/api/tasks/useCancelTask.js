@@ -14,8 +14,8 @@ export default function useCancelTask({ id, onTrigger }) {
     if (onTrigger != null) {
       onTrigger();
     }
-    server
-      .cancelTask(id)
+    server.tasks
+      .cancel(id)
       .then((task) => {
         dispatch(updateTask(task));
       })

@@ -9,7 +9,7 @@ export default function useMatchStats() {
   const [stats, setStats] = useState({ unique: 0, related: 0, duplicates: 0 });
 
   useEffect(() => {
-    server.fetchFiles({ limit: 0 }).then(({ counts }) => {
+    server.files.list({ limit: 0 }).then(({ counts }) => {
       setStats({
         unique: counts.unique,
         related: counts.related,

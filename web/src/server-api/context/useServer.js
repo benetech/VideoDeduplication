@@ -2,7 +2,8 @@ import { useContext } from "react";
 import ServerContext from "./ServerContext";
 
 /**
- * Hook to obtain Server API object.
+ * Hook to obtain Server API client.
+ * @return {Server} server API client
  */
 export default function useServer() {
   const server = useContext(ServerContext);

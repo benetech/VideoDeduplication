@@ -18,7 +18,7 @@ export function useFile(id) {
   const loadFile = useCallback(() => {
     const doLoad = async () => {
       setError(null);
-      const file = await server.fetchFile(id);
+      const file = await server.files.get(id);
       dispatch(cacheFile(file));
     };
 

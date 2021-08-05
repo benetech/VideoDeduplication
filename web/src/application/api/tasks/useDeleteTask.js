@@ -14,8 +14,8 @@ export default function useDeleteTask({ id, onTrigger, onSuccess }) {
     if (onTrigger != null) {
       onTrigger();
     }
-    server
-      .deleteTask(id)
+    server.tasks
+      .delete(id)
       .then(() => {
         dispatch(deleteTask(id));
         if (onSuccess != null) {

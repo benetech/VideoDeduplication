@@ -28,6 +28,11 @@ export default class FileExclusionAPI {
     );
   }
 
+  /**
+   * @param {Server} server
+   * @param {function} dispatch
+   * @param {function} selectCache
+   */
   constructor(server, dispatch, selectCache) {
     this.selectCache = selectCache || selectFileExclusionsCache;
     this.server = server;
@@ -35,14 +40,14 @@ export default class FileExclusionAPI {
   }
 
   async createExclusion(exclusion) {
-    const created = await this.server.createTemplateFileExclusion(exclusion);
+    const created = await this.server.templateExclusions.create(exclusion);
     this.dispatch(createTemplateFileExclusion(created));
   }
 
   async deleteExclusion(exclusion) {
     try {
       this.dispatch(deleteTemplateFileExclusion(exclusion));
-      await this.server.deleteTemplateFileExclusion(exclusion);
+      await this.server.templateExclusions.delete(exclusion);
     } catch (error) {
       this.dispatch(createTemplateFileExclusion(exclusion));
       throw error;
@@ -84,7 +89,7 @@ export default class FileExclusionAPI {
         let hasMore = true;
         while (!cancelled && hasMore) {
           // Fetch next slice of exclusions
-          const response = await this.server.fetchTemplateFileExclusions({
+          const response = await this.server.templateExclusions.list({
             offset: currentExclusions.length,
             filters: { fileId },
           });

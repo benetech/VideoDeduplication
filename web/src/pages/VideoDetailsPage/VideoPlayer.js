@@ -163,7 +163,7 @@ const VideoPlayer = function VideoPlayer(props) {
 
   // Check if video is available
   useEffect(() => {
-    server.probeVideoFile(file.id).catch((error) => {
+    server.files.probeVideo(file.id).catch((error) => {
       if (error.code === ServerError.NOT_FOUND) {
         setError(messages.notFoundError);
       } else {
