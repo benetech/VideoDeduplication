@@ -1,11 +1,13 @@
 /**
  * @typedef {{
- *    total: number,
+ *    total: number|undefined,
  *    references: number,
  *    validUntil: number,
  *    params,
  *    items: Entity[],
  *    data,
+ *    request: string|null,
+ *    requestError: boolean,
  *  }} CachedQuery
  *
  * @typedef {{
@@ -75,6 +77,14 @@ export function makeQuery(params, items = []) {
      * Any additional data associated with the query.
      */
     data: undefined,
+    /**
+     * Current loading request id.
+     */
+    request: null,
+    /**
+     * True if the previous request failed.
+     */
+    requestError: false,
   };
 }
 

@@ -1,3 +1,5 @@
+import { v4 as uuid } from "uuid";
+
 export const ACTION_USE_QUERY = "queryCache.USE_QUERY";
 
 /**
@@ -36,8 +38,47 @@ export const ACTION_UPDATE_QUERY = "queryCache.UPDATE_QUERY";
  * @param {[{id}]} items fetched entities
  * @param {number} total total amount of items corresponding to the query
  * @param {*} data any additional data associated with the query
+ * @param {boolean} loaded
  * @return {{total:number, type: string, params: Object, items: [{id}], data}}
  */
-export function updateQuery(params, items, total, data) {
-  return { type: ACTION_UPDATE_QUERY, params, items, total, data };
+export function updateQuery({ params, items, total, data, request = null }) {
+  return { type: ACTION_UPDATE_QUERY, params, items, total, data, request };
+}
+
+export const ACTION_INVALIDATE_CACHE = "queryCache.INVALIDATE_CACHE";
+
+/**
+ * Invalidate query cache.
+ *
+ * Orphaned queries will be dismissed.
+ * Non-orphaned queries will be truncated to zero.
+ *
+ * @return {{type: string}}
+ */
+export function invalidateCache() {
+  return { type: ACTION_INVALIDATE_CACHE };
+}
+
+export const ACTION_QUERY_ITEMS = "queryCache.QUERY_ITEMS";
+
+/**
+ * Mark query as being loaded.
+ * @param {{}} params
+ * @param {string|undefined} request request id
+ * @return {{request: string, type: string, params}}
+ */
+export function queryItems(params, request) {
+  return { type: ACTION_QUERY_ITEMS, params, request: request || uuid() };
+}
+
+export const ACTION_QUERY_FAILED = "queryCache.QUERY_FAILED";
+
+/**
+ * Mark query request as failed.
+ * @param {Object} params query parameters
+ * @param {string} request query request id.
+ * @return {{request: string, type: string, params: Object}}
+ */
+export function queryFailed(params, request) {
+  return { type: ACTION_QUERY_FAILED, params, request };
 }

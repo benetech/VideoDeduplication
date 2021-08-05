@@ -1,5 +1,8 @@
 import initialState, { makeQuery } from "./initialState";
 import {
+  ACTION_INVALIDATE_CACHE,
+  ACTION_QUERY_FAILED,
+  ACTION_QUERY_ITEMS,
   ACTION_RELEASE_QUERY,
   ACTION_UPDATE_QUERY,
   ACTION_USE_QUERY,
@@ -18,6 +21,7 @@ function incRefs(query) {
     ...query,
     references: query.references + 1,
     validUntil: undefined,
+    requestError: false,
   };
 }
 
@@ -62,6 +66,8 @@ function applyUpdates(query, updates, truncateSize) {
     items,
     total: updates.total,
     data: updates.data,
+    request: null,
+    requestError: false,
   };
 }
 
@@ -122,6 +128,48 @@ function replaceQueryFunc(queries, params, replace) {
 }
 
 /**
+ * Truncate query to zero length and set loading to false.
+ * @param {CachedQuery} query cached query
+ * @return {CachedQuery}
+ */
+function invalidateQuery(query) {
+  return {
+    ...query,
+    items: [],
+    total: undefined,
+    request: null,
+    requestError: false,
+  };
+}
+
+/**
+ * Set active request on query.
+ * @param {CachedQuery} query
+ * @param {string} request
+ * @return {CachedQuery}
+ */
+function beginRequest(query, request) {
+  return {
+    ...query,
+    request: request,
+    requestError: false,
+  };
+}
+
+/**
+ * Mark current request as failed.
+ * @param {CachedQuery} query
+ * @return {CachedQuery}
+ */
+function failRequest(query) {
+  return {
+    ...query,
+    request: null,
+    requestError: true,
+  };
+}
+
+/**
  * Query cache reducer.
  * @param {QueryCache} state query cache state
  * @param {{params}} action query cache action
@@ -146,12 +194,41 @@ export default function queryCacheReducer(state = initialState, action) {
     }
     case ACTION_UPDATE_QUERY: {
       const [query, others] = popQuery(state.queries, action.params);
+      // Dismiss inactive requests
+      if (action.request !== query?.request) {
+        return state;
+      }
       if (query != null) {
         const updated = applyUpdates(query, action, state.truncateSize);
         const updatedQueries = evict([updated, ...others]);
         return { ...state, queries: updatedQueries };
       }
       return state;
+    }
+    case ACTION_QUERY_ITEMS: {
+      const [query, others] = popQuery(state.queries, action.params, makeQuery);
+      // Dismiss new requests until previous is finished
+      if (query.request != null) {
+        return state;
+      }
+      const updated = beginRequest(query, action.request);
+      const updatedQueries = [updated, ...others];
+      return { ...state, queries: updatedQueries };
+    }
+    case ACTION_QUERY_FAILED: {
+      const [query, others] = popQuery(state.queries, action.params);
+      // Dismiss inactive requests
+      if (action.request !== query?.request) {
+        return state;
+      }
+      const updated = failRequest(query);
+      const updatedQueries = evict([updated, ...others]);
+      return { ...state, queries: updatedQueries };
+    }
+    case ACTION_INVALIDATE_CACHE: {
+      const nonOrphaned = state.queries.filter((query) => query.references > 0);
+      const invalidated = nonOrphaned.map(invalidateQuery);
+      return { ...state, queries: invalidated };
     }
     default:
       return state;

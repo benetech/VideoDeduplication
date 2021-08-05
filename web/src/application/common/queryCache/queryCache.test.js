@@ -21,7 +21,12 @@ function someUpdate(params, { itemsCount = 2, startId = 0, total = 100 } = {}) {
   }
 
   const data = { value: randomString() };
-  return updateQuery(params, items, Math.max(itemsCount, total), data);
+  return updateQuery({
+    params,
+    items,
+    total: Math.max(itemsCount, total),
+    data,
+  });
 }
 
 describe("Query Cache", () => {
