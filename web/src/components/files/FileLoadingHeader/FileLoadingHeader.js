@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -6,7 +6,6 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { useIntl } from "react-intl";
 import IconButton from "@material-ui/core/IconButton";
 import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
-import { useHistory } from "react-router";
 import { ButtonBase } from "@material-ui/core";
 import ServerError from "../../../server-api/Server/ServerError";
 
@@ -58,20 +57,15 @@ function useMessages() {
 }
 
 function FileLoadingHeader(props) {
-  const { error, onRetry, className } = props;
+  const { error, onRetry, onBack, className } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const history = useHistory();
-
-  const handleBack = useCallback(() => history.goBack(), [history]);
-
-  const back = history.length > 0;
 
   if (!error) {
     return (
       <div className={clsx(classes.header, className)}>
-        {back && (
-          <IconButton onClick={handleBack} aria-label={messages.goBack}>
+        {onBack && (
+          <IconButton onClick={onBack} aria-label={messages.goBack}>
             <ArrowBackOutlinedIcon />
           </IconButton>
         )}
@@ -103,8 +97,8 @@ function FileLoadingHeader(props) {
 
   return (
     <div className={clsx(classes.header, className)}>
-      {back && (
-        <IconButton onClick={handleBack} aria-label={messages.goBack}>
+      {onBack && (
+        <IconButton onClick={onBack} aria-label={messages.goBack}>
           <ArrowBackOutlinedIcon />
         </IconButton>
       )}
@@ -125,6 +119,10 @@ FileLoadingHeader.propTypes = {
    * Fires on retry.
    */
   onRetry: PropTypes.func.isRequired,
+  /**
+   * Handle go-back action.
+   */
+  onBack: PropTypes.func,
   className: PropTypes.string,
 };
 

@@ -19,6 +19,7 @@ import { updateTask } from "../../application/state/tasks/actions";
 import { useServer } from "../../server-api/context";
 import { useDispatch } from "react-redux";
 import TaskRequest from "../../application/state/tasks/TaskRequest";
+import { useShowCollection } from "../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -99,6 +100,7 @@ function VideoDetailsPage(props) {
   const [player, setPlayer] = useState(null);
   const classes = useStyles();
   const history = useHistory();
+  const showCollection = useShowCollection();
 
   // Preload file objects
   const objectsAPI = ObjectAPI.use();
@@ -131,6 +133,7 @@ function VideoDetailsPage(props) {
         <FileLoadingHeader
           error={error}
           onRetry={loadFile}
+          onBack={showCollection}
           className={classes.summaryHeader}
         />
       </div>
@@ -144,7 +147,11 @@ function VideoDetailsPage(props) {
           {messages.compare}
         </Button>
       </FileActionHeader>
-      <FileSummaryHeader file={file} className={classes.summaryHeader} />
+      <FileSummaryHeader
+        file={file}
+        onBack={showCollection}
+        className={classes.summaryHeader}
+      />
       <div className={classes.dataContainer}>
         <Grid container spacing={5}>
           <Grid item xs={12} lg={6}>

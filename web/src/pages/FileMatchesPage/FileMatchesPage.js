@@ -26,6 +26,7 @@ import {
   updateFileMatchesParams,
 } from "../../application/state/fileMatches/actions";
 import FilterPanel from "./FilterPanel";
+import { useShowCollection } from "../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -97,6 +98,7 @@ function FileMatchesPage(props) {
   const history = useHistory();
   const filters = fileMatches.params.filters;
   const [showFilters, setShowFilters] = useState(false);
+  const showCollection = useShowCollection();
 
   const handleToggleFilters = useCallback(
     () => setShowFilters(!showFilters),
@@ -129,6 +131,7 @@ function FileMatchesPage(props) {
         <FileLoadingHeader
           error={error}
           onRetry={loadFile}
+          onBack={showCollection}
           className={classes.summaryHeader}
         />
       </div>
@@ -149,7 +152,11 @@ function FileMatchesPage(props) {
           remote={file?.external}
         />
       </FileActionHeader>
-      <FileSummaryHeader file={file} className={classes.summaryHeader} />
+      <FileSummaryHeader
+        file={file}
+        onBack={showCollection}
+        className={classes.summaryHeader}
+      />
       <SectionSeparator title={messages.matched} className={classes.separator}>
         <SquaredIconButton
           variant="outlined"

@@ -8,6 +8,7 @@ import ServerError from "../../../server-api/Server/ServerError";
 /**
  * Fetch file by id.
  * @param id
+ * @return {{file, error, loadFile: function}}
  */
 export function useFile(id) {
   const file = useSelector(selectCachedFile(id));

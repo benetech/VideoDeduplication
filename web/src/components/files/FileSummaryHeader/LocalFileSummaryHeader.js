@@ -34,6 +34,10 @@ LocalFileSummaryHeader.propTypes = {
    * Video file to be displayed
    */
   file: FileType.isRequired,
+  /**
+   * Handle go-back action.
+   */
+  onBack: PropTypes.func,
   className: PropTypes.string,
 };
 

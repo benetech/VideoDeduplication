@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -7,9 +7,7 @@ import { FileType } from "../../../prop-types/FileType";
 import IconButton from "@material-ui/core/IconButton";
 import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
 import { useIntl } from "react-intl";
-import { useHistory } from "react-router";
 import FileSummary from "../FileSummary";
-import { routes } from "../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -36,16 +34,10 @@ function getMessages(intl) {
 }
 
 function BasicFileSummaryHeader(props) {
-  const { file, children, className, ...other } = props;
+  const { file, onBack, children, className, ...other } = props;
   const classes = useStyles();
-  const history = useHistory();
   const intl = useIntl();
   const messages = getMessages(intl);
-
-  const handleBack = useCallback(
-    () => history.push(routes.collection.fingerprints, { keepFilters: true }),
-    [history]
-  );
 
   return (
     <Paper
@@ -53,9 +45,11 @@ function BasicFileSummaryHeader(props) {
       data-selector="FileSummaryHeader"
       {...other}
     >
-      <IconButton onClick={handleBack} aria-label={messages.goBack}>
-        <ArrowBackOutlinedIcon />
-      </IconButton>
+      {onBack && (
+        <IconButton onClick={onBack} aria-label={messages.goBack}>
+          <ArrowBackOutlinedIcon />
+        </IconButton>
+      )}
       <FileSummary file={file} divider className={classes.summary}>
         {children}
       </FileSummary>
@@ -68,6 +62,10 @@ BasicFileSummaryHeader.propTypes = {
    * Video file to be displayed
    */
   file: FileType.isRequired,
+  /**
+   * Handle go-back action.
+   */
+  onBack: PropTypes.func,
   /**
    * Summary attributes.
    */

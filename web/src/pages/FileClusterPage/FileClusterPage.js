@@ -11,6 +11,7 @@ import MatchGraph from "../../components/matches/MatchGraph";
 import { useIntl } from "react-intl";
 import Loading from "../../components/basic/Loading";
 import useFileCluster from "../../application/api/file-cluster/useFileCluster";
+import { useShowCollection } from "../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,6 +48,7 @@ function FileClusterPage(props) {
   const classes = useStyles();
   const { id } = useParams();
   const messages = useMessages();
+  const showCollection = useShowCollection();
   const { file, error, loadFile } = useFile(id);
 
   const {
@@ -70,6 +72,7 @@ function FileClusterPage(props) {
         <FileLoadingHeader
           error={error}
           onRetry={handleLoadFile}
+          onBack={showCollection}
           className={classes.summaryHeader}
         />
       </div>
@@ -106,7 +109,11 @@ function FileClusterPage(props) {
         matches={file.matchesCount}
         remote={file?.external}
       />
-      <FileSummaryHeader file={file} className={classes.summaryHeader} />
+      <FileSummaryHeader
+        file={file}
+        onBack={showCollection}
+        className={classes.summaryHeader}
+      />
       {content}
     </div>
   );
