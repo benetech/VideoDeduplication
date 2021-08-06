@@ -19,7 +19,10 @@ export const defaultFileFilters = {
 };
 
 /**
- * Files collection initial state.
+ * Files main collection initial state.
+ *
+ * Main collection is a list of files displayed on the "Collection" root page.
+ *
  * @typedef {{
  *   params: FileFilters,
  *   listType: string,

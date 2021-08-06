@@ -1,3 +1,7 @@
+/**
+ * @file Defines actions to manage main files collection displayed on the "Collection" root page.
+ */
+
 export const ACTION_SET_COLL_PARAMS = "filesColl.SET_COLL_PARAMS";
 
 /**

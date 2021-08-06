@@ -9,7 +9,10 @@ import {
 } from "../../state/files/coll/actions";
 
 /**
- * Hook to access files collection API.
+ * Hook to access files main collection API.
+ *
+ * The main collection is a list of files displayed on the "Collection" root page.
+ *
  * @return {{
  *   params: FileFilters,
  *   blur: boolean,

@@ -8,7 +8,10 @@ import {
 } from "./actions";
 
 /**
- * Files collection reducer.
+ * Files main collection reducer.
+ *
+ * Main collection is a list of files displayed on the "Collection" root page.
+ *
  * @param {CollState} state
  * @param {{type:string}} action
  * @return {CollState}
