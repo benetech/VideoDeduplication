@@ -5,7 +5,6 @@ import PropTypes from "prop-types";
 import { DefaultFilters } from "../../../application/state/files/coll/initialState";
 import { makeStyles } from "@material-ui/styles";
 import PresetList from "../../../components/presets/PresetList";
-import { useDispatch } from "react-redux";
 import LoadTrigger from "../../../components/basic/LoadingTrigger/LoadTrigger";
 import { useIntl } from "react-intl";
 import PresetAPI from "../../../application/api/presets/PresetAPI";

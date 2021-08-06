@@ -22,9 +22,8 @@ import { selectTemplates } from "../../application/state/root/selectors";
 import { setTemplates } from "../../application/state/templates/actions";
 import AddTemplateDialog from "./AddTemplateDialog";
 import useTemplateAPI from "../../application/api/templates/useTemplateAPI";
-import { updateFilters } from "../../application/state/files/fileList/actions";
-import { routes } from "../../routing/routes";
-import { useHistory } from "react-router-dom";
+import useFilesColl from "../../application/api/files/useFilesColl";
+import { useShowCollection } from "../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -146,7 +145,6 @@ function ProcessingPage(props) {
   const classes = useStyles();
   const messages = useMessages();
   const server = useServer();
-  const history = useHistory();
   const dispatch = useDispatch();
   const [showNewTemplateDialog, setShowNewTemplateDialog] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -155,6 +153,8 @@ function ProcessingPage(props) {
   const handleHideTasks = useCallback(() => setShowTasks(false));
   const templates = useSelector(selectTemplates).templates;
   const TemplateAPI = useTemplateAPI();
+  const collection = useFilesColl();
+  const showCollection = useShowCollection();
 
   useEffect(() => {
     if (templates.length === 0) {
@@ -173,8 +173,8 @@ function ProcessingPage(props) {
   );
 
   const showMatches = useCallback((template) => {
-    dispatch(updateFilters({ templates: [template.id] }));
-    history.push(routes.collection.fingerprints, { keepFilters: true });
+    collection.updateParams({ templates: [template.id] });
+    showCollection();
   });
 
   const handleProcess = useCallback(() => {

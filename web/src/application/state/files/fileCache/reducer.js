@@ -1,6 +1,5 @@
 import initialState from "./initialState";
-import { ACTION_CACHE_FILE } from "./actions";
-import { ACTION_UPDATE_FILE } from "../fileList/actions";
+import { ACTION_CACHE_FILE, ACTION_UPDATE_FILE } from "./actions";
 import {
   ACTION_DELETE_FILE_MATCH,
   ACTION_RESTORE_FILE_MATCH,

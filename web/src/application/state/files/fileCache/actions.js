@@ -18,3 +18,9 @@ export const ACTION_CACHE_FILE = "coll.CACHE_FILE";
 export function cacheFile(file) {
   return { file, type: ACTION_CACHE_FILE };
 }
+
+export const ACTION_UPDATE_FILE = "coll.UPDATE_FILE";
+
+export function updateFile(file) {
+  return { type: ACTION_UPDATE_FILE, file };
+}

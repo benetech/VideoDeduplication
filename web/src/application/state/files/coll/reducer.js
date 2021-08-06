@@ -8,6 +8,15 @@ import {
 } from "./actions";
 
 /**
+ * Array merge customizer which simply replaces array with a new one.
+ */
+function replaceArrays(objValue, srcValue) {
+  if (lodash.isArray(objValue)) {
+    return srcValue;
+  }
+}
+
+/**
  * Files main collection reducer.
  *
  * Main collection is a list of files displayed on the "Collection" root page.
@@ -21,7 +30,12 @@ export default function collReducer(state = initialState, action) {
     case ACTION_SET_COLL_PARAMS:
       return { ...state, params: action.params };
     case ACTION_UPDATE_COLL_PARAMS: {
-      const updatedParams = lodash.merge({}, state.params, action.params);
+      const updatedParams = lodash.mergeWith(
+        {},
+        state.params,
+        action.params,
+        replaceArrays
+      );
       return { ...state, params: updatedParams };
     }
     case ACTION_SET_COLL_BLUR:

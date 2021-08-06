@@ -4,8 +4,6 @@ import FilterList from "./FilterList";
 import { useFilters } from "../../../application/api/files/useFilters";
 import { useIntl } from "react-intl";
 import RangeFilter from "./RangeFilter";
-import { useSelector } from "react-redux";
-import { selectFileFilters } from "../../../application/state/root/selectors";
 import objectDiff from "../../../lib/helpers/objectDiff";
 import { DefaultFilters } from "../../../application/state/files/coll/initialState";
 import TemplateFilter from "./TemplateFilter";

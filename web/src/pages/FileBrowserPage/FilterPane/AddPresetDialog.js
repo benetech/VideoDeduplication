@@ -11,8 +11,6 @@ import {
 } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import Button from "../../../components/basic/Button";
-import { useSelector } from "react-redux";
-import { selectFileFilters } from "../../../application/state/root/selectors";
 import { ValidationError } from "../../../server-api/Server/ServerError";
 import nameErrorMessage from "../../TemplatesPage/nameErrorMessage";
 import useFilesColl from "../../../application/api/files/useFilesColl";

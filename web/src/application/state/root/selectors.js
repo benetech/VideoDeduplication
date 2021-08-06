@@ -3,16 +3,6 @@ import { getQuery } from "../../common/queryCache";
 
 export const selectFileList = (state) => state.files.fileList;
 
-export const selectFiles = (state) => selectFileList(state).files;
-
-export const selectFileFilters = (state) => selectFileList(state).filters;
-
-export const selectFileCounts = (state) => selectFileList(state).counts;
-
-export const selectFileLoading = (state) => selectFileList(state).loading;
-
-export const selectFileError = (state) => selectFileList(state).error;
-
 export const selectFilesColl = (state) => state.files.coll;
 
 export const selectFilesQuery = (params) => (state) =>

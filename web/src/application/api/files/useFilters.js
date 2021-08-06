@@ -25,7 +25,7 @@ export function useFilters() {
   const saveChanges = useCallback(() => {
     const updated = Object.assign({}, filters, changes);
     if (!isEqual(updated, filters)) {
-      collection.setParams(updated);
+      collection.updateParams(changes);
       setChanges({});
     }
   }, [changes, filters]);

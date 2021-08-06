@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import FileListType from "../../../application/state/files/fileList/FileListType";
+import FileListType from "../../../application/state/files/coll/FileListType";
 import FileLinearList from "../../../components/files/FileLinearList";
 import FileGridList from "../../../components/files/FileGridList";
 import useFilesColl from "../../../application/api/files/useFilesColl";

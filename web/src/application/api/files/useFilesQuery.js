@@ -6,8 +6,7 @@ import {
   queryFiles,
   releaseFilesQuery,
 } from "../../state/files/queries/actions";
-import FileMatchType from "../../../prop-types/FileMatchType";
-import { MatchCategory } from "../../state/files/fileList/MatchCategory";
+import { MatchCategory } from "../../state/files/queries/MatchCategory";
 
 /**
  * Use lazy files query.

@@ -9,7 +9,6 @@ import CategorySelector from "./CategorySelector";
 import useFilesColl from "../../application/api/files/useFilesColl";
 import useFilesQuery from "../../application/api/files/useFilesQuery";
 import FilesCollection from "./FilesCollection";
-import FilterContainer from "./FilterPane/FilterContainer";
 
 const useStyles = makeStyles((theme) => ({
   container: {
