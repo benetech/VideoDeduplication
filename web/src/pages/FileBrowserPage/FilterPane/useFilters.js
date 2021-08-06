@@ -1,8 +1,6 @@
-import { isEqual, mergeWith, isArray } from "lodash";
-import { useDispatch, useSelector } from "react-redux";
-import { selectFileFilters } from "../../../application/state/root/selectors";
+import { isArray, isEqual, mergeWith } from "lodash";
 import { useCallback, useEffect, useState } from "react";
-import { updateFilters } from "../../../application/state/files/fileList/actions";
+import useFilesColl from "../../../application/api/files/useFilesColl";
 
 /**
  * Filters merge customizer.
@@ -18,8 +16,8 @@ function replaceArrays(objValue, srcValue) {
  */
 export function useFilters() {
   // Access current redux state
-  const filters = useSelector(selectFileFilters);
-  const dispatch = useDispatch();
+  const collection = useFilesColl();
+  const filters = collection.params;
 
   const [changes, setChanges] = useState({}); // unsaved changes
   const [saveHandle, setSaveHandle] = useState(null); // timeout handle
@@ -27,7 +25,7 @@ export function useFilters() {
   const saveChanges = useCallback(() => {
     const updated = Object.assign({}, filters, changes);
     if (!isEqual(updated, filters)) {
-      dispatch(updateFilters(changes));
+      collection.setParams(updated);
       setChanges({});
     }
   }, [changes, filters]);

@@ -7,8 +7,9 @@ import RangeFilter from "./RangeFilter";
 import { useSelector } from "react-redux";
 import { selectFileFilters } from "../../../application/state/root/selectors";
 import objectDiff from "../../../lib/helpers/objectDiff";
-import { defaultFilters } from "../../../application/state/files/fileList/initialState";
+import { DefaultFilters } from "../../../application/state/files/coll/initialState";
 import TemplateFilter from "./TemplateFilter";
+import useFilesColl from "../../../application/api/files/useFilesColl";
 
 /**
  * Get i18n text
@@ -26,8 +27,8 @@ function useMessages() {
  * Get count of active filters.
  */
 function useActiveFilters() {
-  const filters = useSelector(selectFileFilters);
-  const diff = objectDiff(filters, defaultFilters);
+  const filters = useFilesColl().params;
+  const diff = objectDiff(filters, DefaultFilters);
   return diff.length + diff.templates;
 }
 

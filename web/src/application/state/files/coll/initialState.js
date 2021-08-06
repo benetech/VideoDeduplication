@@ -6,7 +6,7 @@ import FileListType from "../fileList/FileListType";
  * Default files query parameters;
  * @type {FileFilters}
  */
-export const defaultFileFilters = {
+export const DefaultFilters = {
   query: "",
   extensions: [],
   length: { lower: null, upper: null },
@@ -31,7 +31,7 @@ export const defaultFileFilters = {
  * @type {CollState}
  */
 const initialState = {
-  params: defaultFileFilters,
+  params: DefaultFilters,
   listType: FileListType.grid,
   blur: true,
 };

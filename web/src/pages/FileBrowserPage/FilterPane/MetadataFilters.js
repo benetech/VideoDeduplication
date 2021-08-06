@@ -6,15 +6,14 @@ import FilterList from "./FilterList";
 import DateRangeFilter from "./DateRangeFilter";
 import BoolFilter from "./BoolFilter";
 import { useIntl } from "react-intl";
-import { defaultFilters } from "../../../application/state/files/fileList/initialState";
+import { DefaultFilters } from "../../../application/state/files/coll/initialState";
 import objectDiff from "../../../lib/helpers/objectDiff";
-import { useSelector } from "react-redux";
-import { selectFileFilters } from "../../../application/state/root/selectors";
 import useFileExtensions from "../../../application/api/stats/useFileExtensions";
 import {
   parseDateRange,
   stringifyDateRange,
 } from "../../../lib/helpers/date-range";
+import useFilesColl from "../../../application/api/files/useFilesColl";
 
 /**
  * Get i18n text.
@@ -37,8 +36,8 @@ function useMessages() {
  * Get count of active filters.
  */
 function useActiveFilters() {
-  const filters = useSelector(selectFileFilters);
-  const diff = objectDiff(filters, defaultFilters);
+  const filters = useFilesColl().params;
+  const diff = objectDiff(filters, DefaultFilters);
   return diff.extensions + diff.date + diff.audio + diff.remote;
 }
 

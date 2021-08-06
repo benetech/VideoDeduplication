@@ -6,6 +6,8 @@ import {
   queryFiles,
   releaseFilesQuery,
 } from "../../state/files/queries/actions";
+import FileMatchType from "../../../prop-types/FileMatchType";
+import { MatchCategory } from "../../state/files/fileList/MatchCategory";
 
 /**
  * Use lazy files query.
@@ -43,7 +45,12 @@ export default function useFilesQuery(params) {
 
   return {
     files: query?.items || [],
-    counts: query?.data?.counts || {},
+    counts: query?.data?.counts || {
+      [MatchCategory.all]: 0,
+      [MatchCategory.duplicates]: 0,
+      [MatchCategory.related]: 0,
+      [MatchCategory.unique]: 0,
+    },
     error: query != null && query.requestError,
     loading: query?.request != null,
     hasMore,

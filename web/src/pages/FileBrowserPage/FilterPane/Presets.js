@@ -2,16 +2,16 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import lodash from "lodash";
 import PropTypes from "prop-types";
-import initialState from "../../../application/state/files/fileList/initialState";
+import { DefaultFilters } from "../../../application/state/files/coll/initialState";
 import { makeStyles } from "@material-ui/styles";
-import PresetList from "./PresetList";
+import PresetList from "../../../components/presets/PresetList";
 import { useDispatch } from "react-redux";
-import { updateFilters } from "../../../application/state/files/fileList/actions";
 import LoadTrigger from "../../../components/basic/LoadingTrigger/LoadTrigger";
 import { useIntl } from "react-intl";
-import PresetAPI from "./PresetAPI";
+import PresetAPI from "../../../application/api/presets/PresetAPI";
 import UpdatePresetDialog from "./UpdatePresetDialog";
 import DeletePresetDialog from "./DeletePresetDialog";
+import useFilesColl from "../../../application/api/files/useFilesColl";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,17 +41,18 @@ function useMessages() {
 function Presets(props) {
   const { className } = props;
   const classes = useStyles();
-  const dispatch = useDispatch();
   const messages = useMessages();
   const [preset, setPreset] = useState(null);
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const presetApi = PresetAPI.use();
   const presetList = presetApi.useLazyPresetList();
+  const collection = useFilesColl();
 
   const handleApply = useCallback((preset) => {
-    const filters = lodash.merge({}, initialState.filters, preset.filters);
-    dispatch(updateFilters(filters));
+    const filters = lodash.merge({}, DefaultFilters, preset.filters);
+    console.log("Applying", { preset, filters });
+    collection.setParams(filters);
   });
 
   const handleUpdate = useCallback(

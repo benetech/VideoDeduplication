@@ -49,6 +49,7 @@ function useMessages() {
     content: intl.formatMessage({ id: "filter.content" }),
     metadata: intl.formatMessage({ id: "filter.metadata" }),
     presets: intl.formatMessage({ id: "filter.presets" }),
+    label: intl.formatMessage({ id: "aria.label.filterPane" }),
   };
 }
 
@@ -68,7 +69,11 @@ function FilterPane(props) {
   const metadataFilters = MetadataFilters.useActiveFilters();
 
   return (
-    <div className={clsx(classes.pane, className)} {...other}>
+    <div
+      className={clsx(classes.pane, className)}
+      aria-label={messages.label}
+      {...other}
+    >
       <div className={classes.filters}>
         <FilterPaneHeader onClose={onClose} autoFocus={true} />
         <SelectableTabs

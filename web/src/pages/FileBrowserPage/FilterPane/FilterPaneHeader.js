@@ -12,11 +12,12 @@ import { useIntl } from "react-intl";
 import { Tooltip } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileFilters } from "../../../application/state/root/selectors";
-import PresetAPI from "./PresetAPI";
+import PresetAPI from "../../../application/api/presets/PresetAPI";
 import AddPresetDialog from "./AddPresetDialog";
 import SettingsBackupRestoreIcon from "@material-ui/icons/SettingsBackupRestore";
 import { updateFilters } from "../../../application/state/files/fileList/actions";
-import filesInitialState from "../../../application/state/files/fileList/initialState";
+import { DefaultFilters } from "../../../application/state/files/coll/initialState";
+import useFilesColl from "../../../application/api/files/useFilesColl";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -62,9 +63,9 @@ function FilterPaneHeader(props) {
   const buttonRef = useRef();
   const [showDialog, setShowDialog] = useState(false);
   const presetApi = PresetAPI.use();
-  const currentFilters = useSelector(selectFileFilters);
-  const dispatch = useDispatch();
-  const dirty = !lodash.isEqual(currentFilters, PresetAPI.DefaultFilters);
+  const coll = useFilesColl();
+  const currentFilters = coll.params;
+  const dirty = !lodash.isEqual(currentFilters, DefaultFilters);
 
   const handleCreate = useCallback(
     (preset) => presetApi.addPreset(preset),
@@ -74,10 +75,6 @@ function FilterPaneHeader(props) {
   const handleCloseDialog = useCallback(() => setShowDialog(false));
 
   const handleShowDialog = useCallback(() => setShowDialog(true));
-
-  const handleRestoreDefaults = useCallback(() => {
-    dispatch(updateFilters(filesInitialState.filters));
-  }, []);
 
   useEffect(() => {
     if (autoFocus) {
@@ -115,7 +112,7 @@ function FilterPaneHeader(props) {
       <Tooltip title={messages.restoreDefaults}>
         <div>
           <IconButton
-            onClick={handleRestoreDefaults}
+            onClick={coll.restoreDefaults}
             size="small"
             aria-label={messages.restoreDefaults}
             disabled={!dirty}

@@ -200,7 +200,7 @@ export default function queryCacheReducer(state = initialState, action) {
       }
       if (query != null) {
         const updated = applyUpdates(query, action, state.truncateSize);
-        const updatedQueries = evict([updated, ...others]);
+        const updatedQueries = evict([updated, ...others], state.maxQueries);
         return { ...state, queries: updatedQueries };
       }
       return state;
@@ -212,7 +212,7 @@ export default function queryCacheReducer(state = initialState, action) {
         return state;
       }
       const updated = beginRequest(query, action.request);
-      const updatedQueries = [updated, ...others];
+      const updatedQueries = evict([updated, ...others], state.maxQueries);
       return { ...state, queries: updatedQueries };
     }
     case ACTION_QUERY_FAILED: {
@@ -222,7 +222,7 @@ export default function queryCacheReducer(state = initialState, action) {
         return state;
       }
       const updated = failRequest(query);
-      const updatedQueries = evict([updated, ...others]);
+      const updatedQueries = evict([updated, ...others], state.maxQueries);
       return { ...state, queries: updatedQueries };
     }
     case ACTION_INVALIDATE_CACHE: {

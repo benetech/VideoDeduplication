@@ -14,6 +14,8 @@ import FileListType from "../../../application/state/files/fileList/FileListType
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Tooltip from "@material-ui/core/Tooltip";
+import useFilesColl from "../../../application/api/files/useFilesColl";
+import { useShowProcessing } from "../../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -58,25 +60,21 @@ const FileBrowserActions = React.forwardRef(function FingerprintViewActions(
   ref
 ) {
   const {
-    onAddMedia,
-    view,
-    onViewChange,
-    sort,
-    onSortChange,
     showFilters = true,
     onToggleFilters,
     showFiltersControls,
     showFiltersRef,
     activeFilters,
-    blur,
-    onBlurChange,
     className,
     ...other
   } = props;
   const classes = useStyles();
   const messages = useMessages();
+  const coll = useFilesColl();
+  const showProcessing = useShowProcessing();
 
-  const handleBlurChange = useCallback(() => onBlurChange(!blur), [blur]);
+  const updateBlur = useCallback(() => coll.setBlur(!coll.blur), [coll.blur]);
+  const updateSort = useCallback((sort) => coll.updateParams({ sort }));
 
   return (
     <div className={clsx(classes.actions, className)} ref={ref} {...other}>
@@ -85,8 +83,8 @@ const FileBrowserActions = React.forwardRef(function FingerprintViewActions(
           className={classes.switch}
           control={
             <Switch
-              checked={blur}
-              onChange={handleBlurChange}
+              checked={coll.blur}
+              onChange={updateBlur}
               color="primary"
               inputProps={{ "aria-label": messages.blurDescription }}
             />
@@ -97,20 +95,20 @@ const FileBrowserActions = React.forwardRef(function FingerprintViewActions(
       </Tooltip>
       <div className={classes.spacer} />
       <AddMediaButton
-        onClick={onAddMedia}
+        onClick={showProcessing}
         variant="contained"
         color="primary"
         className={classes.action}
       />
       <SortSelector
-        value={sort}
-        onChange={onSortChange}
+        value={coll.params.sort}
+        onChange={updateSort}
         className={classes.action}
       />
       <ViewSelector
-        view={view}
+        view={coll.listType}
         className={classes.action}
-        onChange={onViewChange}
+        onChange={coll.setListType}
       />
       {showFilters && (
         <Badge badgeContent={activeFilters} color="primary">

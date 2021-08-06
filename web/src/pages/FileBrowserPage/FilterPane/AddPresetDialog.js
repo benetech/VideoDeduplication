@@ -15,6 +15,7 @@ import { useSelector } from "react-redux";
 import { selectFileFilters } from "../../../application/state/root/selectors";
 import { ValidationError } from "../../../server-api/Server/ServerError";
 import nameErrorMessage from "../../TemplatesPage/nameErrorMessage";
+import useFilesColl from "../../../application/api/files/useFilesColl";
 
 /**
  * Get translated text.
@@ -34,7 +35,7 @@ function useMessages() {
 function AddPresetDialog(props) {
   const { onCreate, open, onClose, className, ...other } = props;
   const messages = useMessages();
-  const filters = useSelector(selectFileFilters);
+  const filters = useFilesColl().params;
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState("");

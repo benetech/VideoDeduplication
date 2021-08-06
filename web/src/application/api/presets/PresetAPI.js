@@ -6,20 +6,14 @@ import {
   addPresets,
   deletePreset,
   updatePreset,
-} from "../../../application/state/presets/actions";
-import { selectPresets } from "../../../application/state/root/selectors";
-import initialState from "../../../application/state/files/fileList/initialState";
+} from "../../state/presets/actions";
+import { selectPresets } from "../../state/root/selectors";
 
 /**
  * This API implements integration between bare Server API
  * and the Application state (managed by Redux.js).
  */
 export default class PresetAPI {
-  /**
-   * Default file filters.
-   */
-  static DefaultFilters = initialState.filters;
-
   /**
    * React hook to obtain PresetAPI
    */

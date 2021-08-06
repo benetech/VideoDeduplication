@@ -106,5 +106,5 @@ export function useShowCollection() {
  */
 export function useShowProcessing() {
   const history = useHistory();
-  return useCallback(() => history.push(routes.collection.home));
+  return useCallback(() => history.push(routes.processing.home));
 }

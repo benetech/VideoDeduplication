@@ -7,6 +7,7 @@ import {
   setCollParams,
   updateCollParams,
 } from "../../state/files/coll/actions";
+import { DefaultFilters } from "../../state/files/coll/initialState";
 
 /**
  * Hook to access files main collection API.
@@ -21,6 +22,7 @@ import {
  *   updateParams: function,
  *   setBlur: function,
  *   setListType: function,
+ *   restoreDefaults: function
  * }}
  */
 export default function useFilesColl() {
@@ -28,6 +30,9 @@ export default function useFilesColl() {
   const coll = useSelector(selectFilesColl);
   const setBlur = useCallback((blur) => dispatch(setCollBlur(blur)));
   const setParams = useCallback((params) => dispatch(setCollParams(params)));
+  const restoreDefaults = useCallback(() =>
+    dispatch(setCollParams(DefaultFilters))
+  );
   const updateParams = useCallback((params) =>
     dispatch(updateCollParams(params))
   );
@@ -36,10 +41,13 @@ export default function useFilesColl() {
   );
 
   return {
-    ...coll,
+    params: coll.params,
+    blur: coll.blur,
+    listType: coll.listType,
     setParams,
     updateParams,
     setBlur,
     setListType,
+    restoreDefaults,
   };
 }

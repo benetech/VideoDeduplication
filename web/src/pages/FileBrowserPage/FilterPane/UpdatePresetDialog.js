@@ -19,7 +19,9 @@ import { selectFileFilters } from "../../../application/state/root/selectors";
 import { ValidationError } from "../../../server-api/Server/ServerError";
 import nameErrorMessage from "../../TemplatesPage/nameErrorMessage";
 import PresetType from "../../../prop-types/PresetType";
-import PresetAPI from "./PresetAPI";
+import PresetAPI from "../../../application/api/presets/PresetAPI";
+import useFilesColl from "../../../application/api/files/useFilesColl";
+import { DefaultFilters } from "../../../application/state/files/coll/initialState";
 
 /**
  * Get translated text.
@@ -40,7 +42,7 @@ function useMessages() {
 function UpdatePresetDialog(props) {
   const { preset, onUpdate, open, onClose, className, ...other } = props;
   const messages = useMessages();
-  const currentFilters = useSelector(selectFileFilters);
+  const currentFilters = useFilesColl().params;
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState(preset.name);
   const [nameError, setNameError] = useState("");
@@ -89,10 +91,7 @@ function UpdatePresetDialog(props) {
   }, [open, preset]);
 
   // Check filers could be updated
-  const canUpdateFilters = !lodash.isEqual(
-    currentFilters,
-    PresetAPI.DefaultFilters
-  );
+  const canUpdateFilters = !lodash.isEqual(currentFilters, DefaultFilters);
 
   // Check if the update is possible
   const canUpdate =
