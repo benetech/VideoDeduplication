@@ -1,6 +1,6 @@
 import { isArray, isEqual, mergeWith } from "lodash";
 import { useCallback, useEffect, useState } from "react";
-import useFilesColl from "../../../application/api/files/useFilesColl";
+import useFilesColl from "./useFilesColl";
 
 /**
  * Filters merge customizer.
@@ -12,7 +12,7 @@ function replaceArrays(objValue, srcValue) {
 }
 
 /**
- * Hook to smoothly update hooks
+ * Hook to smoothly update main file collection filters.
  */
 export function useFilters() {
   // Access current redux state

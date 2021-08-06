@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
 import FileExtensionPicker from "./FileExtensionPicker";
-import { useFilters } from "./useFilters";
+import { useFilters } from "../../../application/api/files/useFilters";
 import FilterList from "./FilterList";
 import DateRangeFilter from "./DateRangeFilter";
 import BoolFilter from "./BoolFilter";

@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import FilterList from "./FilterList";
-import { useFilters } from "./useFilters";
+import { useFilters } from "../../../application/api/files/useFilters";
 import { useIntl } from "react-intl";
 import RangeFilter from "./RangeFilter";
 import { useSelector } from "react-redux";
