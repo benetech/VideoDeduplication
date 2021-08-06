@@ -5,7 +5,7 @@ import {
   updateFilesQuery,
 } from "./actions";
 import { selectFilesQuery } from "../../root/selectors";
-import sleep from "sleep-promise";
+
 /**
  * Do load files from the backend.
  * @param {Server} server server API
@@ -26,8 +26,6 @@ function* loadFilesSaga(server, action) {
       offset: query.items.length,
       filters: action.params,
     });
-
-    yield call(sleep, 2000);
 
     // Update query
     yield put(
