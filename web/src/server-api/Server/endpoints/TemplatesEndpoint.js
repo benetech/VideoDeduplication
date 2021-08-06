@@ -1,6 +1,6 @@
 import { makeServerError } from "../ServerError";
 import TemplatesTransformer from "./transformers/TemplatesTransformer";
-import getEntityId from "../helpers/getEntityId";
+import getEntityId from "../../../lib/helpers/getEntityId";
 
 /**
  * Client for templates API endpoint.

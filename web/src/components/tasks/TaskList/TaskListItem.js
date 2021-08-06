@@ -13,7 +13,7 @@ import TaskProgress from "./TaskProgress";
 import usePopup from "../../../lib/hooks/usePopup";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import { routes } from "../../../pages/routes";
+import { routes } from "../../../routing/routes";
 import { useHistory } from "react-router";
 import getStatusIcon from "../TaskSummary/helpers/getStatusIcon";
 import useCancelTask from "../../../application/api/tasks/useCancelTask";

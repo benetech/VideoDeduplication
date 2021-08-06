@@ -12,9 +12,11 @@ import Grid from "@material-ui/core/Grid";
 import { useDispatch } from "react-redux";
 import { updateFilters } from "../../application/state/files/fileList/actions";
 import { useHistory } from "react-router";
-import { routes } from "../routes";
+import { routes } from "../../routing/routes";
 import { MatchCategory } from "../../application/state/files/fileList/MatchCategory";
 import useMatchStats from "../../application/api/stats/useMatchStats";
+import useFilesColl from "../../application/api/files/useFilesColl";
+import { useShowCollection } from "../../routing/hooks";
 // import useUniqueId from "../../../common/hooks/useUniqueId";
 
 const useStyles = makeStyles((theme) => ({
@@ -102,22 +104,22 @@ const dbMatches = (theme) => ({
 function usePieChartStats() {
   const stats = useMatchStats();
   const theme = useTheme();
-  const dispatch = useDispatch();
-  const history = useHistory();
+  const { updateParams } = useFilesColl();
+  const showCollection = useShowCollection();
 
   const showDuplicates = useCallback(() => {
-    dispatch(updateFilters({ matches: MatchCategory.duplicates }));
-    history.push(routes.collection.fingerprints, { keepFilters: true });
+    updateParams({ matches: MatchCategory.duplicates });
+    showCollection();
   }, []);
 
   const showRelated = useCallback(() => {
-    dispatch(updateFilters({ matches: MatchCategory.related }));
-    history.push(routes.collection.fingerprints, { keepFilters: true });
+    updateParams({ matches: MatchCategory.related });
+    showCollection();
   }, []);
 
   const showUnique = useCallback(() => {
-    dispatch(updateFilters({ matches: MatchCategory.unique }));
-    history.push(routes.collection.fingerprints, { keepFilters: true });
+    updateParams({ matches: MatchCategory.unique });
+    showCollection();
   }, []);
 
   return {

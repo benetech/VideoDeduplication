@@ -12,7 +12,7 @@ import CompareOutlinedIcon from "@material-ui/icons/CompareOutlined";
 import BarChartOutlinedIcon from "@material-ui/icons/BarChartOutlined";
 import AppMenuHeader from "./AppMenuHeader";
 import { useIntl } from "react-intl";
-import { routes } from "../../../pages/routes";
+import { routes } from "../../../routing/routes";
 import { useHistory, useLocation } from "react-router-dom";
 import useUniqueId from "../../../lib/hooks/useUniqueId";
 

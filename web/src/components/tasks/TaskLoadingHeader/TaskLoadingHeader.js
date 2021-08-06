@@ -7,7 +7,7 @@ import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router";
-import { routes } from "../../../pages/routes";
+import { routes } from "../../../routing/routes";
 import ServerError from "../../../server-api/Server/ServerError";
 
 const useStyles = makeStyles((theme) => ({

@@ -8,7 +8,7 @@ import LabeledSwitch from "../../../../basic/LabeledSwitch";
 import { useIntl } from "react-intl";
 import LazyLoad from "react-lazyload";
 import { useHistory } from "react-router-dom";
-import { routes } from "../../../../../pages/routes";
+import { routes } from "../../../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   matches: {

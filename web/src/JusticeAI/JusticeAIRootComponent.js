@@ -8,7 +8,7 @@ import {
   Switch,
 } from "react-router-dom";
 import AppMenu from "../components/app/AppMenu";
-import { routes } from "../pages/routes";
+import { routes } from "../routing/routes";
 import DashboardPage from "../pages/DashboardPage";
 import CollectionRootPage from "../pages/CollectionRootPage";
 import AppPage from "../components/app/AppPage";

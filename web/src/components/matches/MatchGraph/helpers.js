@@ -1,4 +1,4 @@
-import { routes } from "../../../pages/routes";
+import { routes } from "../../../routing/routes";
 
 /**
  * Get comparison page url for the given link.

@@ -23,7 +23,7 @@ import { setTemplates } from "../../application/state/templates/actions";
 import AddTemplateDialog from "./AddTemplateDialog";
 import useTemplateAPI from "../../application/api/templates/useTemplateAPI";
 import { updateFilters } from "../../application/state/files/fileList/actions";
-import { routes } from "../routes";
+import { routes } from "../../routing/routes";
 import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({

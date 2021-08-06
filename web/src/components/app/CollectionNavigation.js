@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
 import { useHistory, useLocation } from "react-router-dom";
 import NavLinkListAdaptive from "../basic/NavLinkListAdaptive";
-import { routes } from "../../pages/routes";
+import { routes } from "../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   container: {

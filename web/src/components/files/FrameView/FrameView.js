@@ -6,7 +6,7 @@ import VideoPlayer from "../../../pages/VideoDetailsPage/VideoPlayer";
 import FileSummary from "../FileSummary";
 import Button from "../../basic/Button";
 import { useHistory } from "react-router-dom";
-import { routes } from "../../../pages/routes";
+import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
 import TimeAttr from "../../basic/TimeAttr/TimeAttr";
 import FileType from "../../../prop-types/FileType";

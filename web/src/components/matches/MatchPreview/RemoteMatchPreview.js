@@ -12,7 +12,7 @@ import PreviewContainer from "./PreviewContainer";
 import CloudOutlinedIcon from "@material-ui/icons/CloudOutlined";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router-dom";
-import { routes } from "../../../pages/routes";
+import { routes } from "../../../routing/routes";
 import FileMatchType from "../../../prop-types/FileMatchType";
 
 const useStyles = makeStyles({

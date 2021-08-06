@@ -10,7 +10,7 @@ import MoreVertOutlinedIcon from "@material-ui/icons/MoreVertOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router";
-import { routes } from "../../../pages/routes";
+import { routes } from "../../../routing/routes";
 import usePopup from "../../../lib/hooks/usePopup";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";

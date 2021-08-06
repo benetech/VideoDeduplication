@@ -6,7 +6,7 @@ import Grid from "@material-ui/core/Grid";
 import MotherFile from "./MotherFile/MotherFile";
 import MatchFiles from "./MatchFiles/MatchFiles";
 import { useHistory, useParams } from "react-router-dom";
-import { routes } from "../routes";
+import { routes } from "../../routing/routes";
 import useFile from "../../application/api/files/useFile";
 
 const useStyles = makeStyles((theme) => ({

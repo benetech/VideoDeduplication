@@ -6,7 +6,7 @@ import D3Graph from "./D3Graph";
 import MatchType from "../../../prop-types/MatchType";
 import FileType from "../../../prop-types/FileType";
 import { useHistory } from "react-router-dom";
-import { routes } from "../../../pages/routes";
+import { routes } from "../../../routing/routes";
 import prepareGraph from "./prepareGraph";
 import useTooltip from "./useTooltip";
 import NodeTooltip from "./NodeTooltip";

@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useHistory, useParams, useRouteMatch } from "react-router-dom";
-import { routes } from "../routes";
+import { routes } from "../../routing/routes";
 import { useIntl } from "react-intl";
 import {
   SelectableTab,

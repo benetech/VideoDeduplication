@@ -13,7 +13,7 @@ import FileActionHeader from "../../components/files/FileActionsHeader";
 import { useHistory, useParams } from "react-router-dom";
 import FileLoadingHeader from "../../components/files/FileLoadingHeader";
 import useFile from "../../application/api/files/useFile";
-import { routes } from "../routes";
+import { routes } from "../../routing/routes";
 import ObjectAPI from "../../application/api/objects/ObjectAPI";
 import { updateTask } from "../../application/state/tasks/actions";
 import { useServer } from "../../server-api/context";

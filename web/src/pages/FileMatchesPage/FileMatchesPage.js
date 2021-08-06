@@ -20,7 +20,7 @@ import FileLoadingHeader from "../../components/files/FileLoadingHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileMatches } from "../../application/state/root/selectors";
 import LoadTrigger from "../../components/basic/LoadingTrigger/LoadTrigger";
-import { routes } from "../routes";
+import { routes } from "../../routing/routes";
 import {
   fetchFileMatchesSlice,
   updateFileMatchesParams,

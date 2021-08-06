@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { useIntl } from "react-intl";
 import { useHistory, useRouteMatch } from "react-router-dom";
-import { routes } from "../../../pages/routes";
+import { routes } from "../../../routing/routes";
 import SelectableTabs, { SelectableTab } from "../../basic/SelectableTabs";
 
 /**

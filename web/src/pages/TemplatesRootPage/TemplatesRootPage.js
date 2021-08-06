@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import AppPage from "../../components/app/AppPage";
 import { useIntl } from "react-intl";
 import { Route, Switch } from "react-router-dom";
-import { routes } from "../routes";
+import { routes } from "../../routing/routes";
 import TemplatesPage from "../TemplatesPage";
 
 const useStyles = makeStyles(() => ({

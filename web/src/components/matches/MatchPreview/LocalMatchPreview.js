@@ -8,7 +8,7 @@ import PreviewFileAttributes from "./PreviewFileAttributes";
 import Distance from "../Distance";
 import { localAttributes } from "./attributes";
 import PreviewMainAction from "./PreviewMainAction";
-import { routes } from "../../../pages/routes";
+import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router-dom";
 import InactiveIcon from "@material-ui/icons/NotInterestedOutlined";

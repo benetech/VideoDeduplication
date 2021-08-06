@@ -9,7 +9,7 @@ import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router";
 import FileSummary from "../FileSummary";
-import { routes } from "../../../pages/routes";
+import { routes } from "../../../routing/routes";
 
 const useStyles = makeStyles((theme) => ({
   header: {

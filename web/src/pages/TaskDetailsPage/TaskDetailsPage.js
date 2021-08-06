@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import TaskPageTabs from "./TaskPageTabs";
 import { Route, Switch } from "react-router-dom";
-import { routes } from "../routes";
+import { routes } from "../../routing/routes";
 import TaskLogs from "./TaskLogs";
 import { useParams } from "react-router";
 import { randomTask } from "../../server-api/MockServer/fake-data/tasks";

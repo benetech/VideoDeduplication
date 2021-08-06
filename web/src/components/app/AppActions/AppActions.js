@@ -10,7 +10,7 @@ import PlusButton from "./PlusButton";
 import ProfileMenuButton from "./ProfileMenuButton";
 import { useIntl } from "react-intl";
 import { useHistory } from "react-router-dom";
-import { routes } from "../../../pages/routes";
+import { routes } from "../../../routing/routes";
 import WikiLink from "./WikiLink";
 
 const useStyles = makeStyles((theme) => ({
