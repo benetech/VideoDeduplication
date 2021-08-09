@@ -1,4 +1,4 @@
-import IconKind from "../../../collection/state/templates/IconKind";
+import IconKind from "../../../application/state/templates/IconKind";
 import { pickRandom, randomId } from "./helpers";
 import faker from "faker";
 import * as GameIcons from "react-icons/gi";

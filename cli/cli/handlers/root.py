@@ -7,7 +7,6 @@ from .database import DatabaseCli
 from .db_getter import DBGetterCli
 from .errors import handle_errors
 from .finder import FinderCli
-from .migration import MigrationCli
 from .pipeline import PipelineCli
 from .repo import RepoCli
 from ..platform.arguments import get_repo_connector
@@ -29,7 +28,6 @@ class RootCli:
         self.get = DBGetterCli(self._config)
         self.repo = RepoCli(self._config)
         self.process = PipelineCli(self._config)
-        self.migrate = MigrationCli(self._config)
         self.find = FinderCli(self._pipeline)
 
     @handle_errors

@@ -93,7 +93,7 @@ class CeleryTaskQueue(TaskQueue):
         if status == TaskStatus.FAILURE:
             error = self._construct_error(async_result)
         result = async_result.result
-        if error is not None:
+        if error is not None or status == TaskStatus.REVOKED:
             result = None
         return Task(
             id=winnow_meta.id,

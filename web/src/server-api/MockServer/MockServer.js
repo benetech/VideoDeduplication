@@ -1,5 +1,4 @@
 import { fakeFiles } from "./fake-data/files";
-import { Response } from "../Response";
 
 export default class MockServer {
   constructor() {}
@@ -13,6 +12,6 @@ export default class MockServer {
       related: 0,
       unique: fakeFiles.length,
     };
-    return Response.ok({ files, counts });
+    return { files, counts };
   }
 }

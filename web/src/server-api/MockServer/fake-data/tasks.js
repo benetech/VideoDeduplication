@@ -1,5 +1,5 @@
 import { pickRandom } from "./helpers";
-import TaskRequest from "../../../collection/state/tasks/TaskRequest";
+import TaskRequest from "../../../application/state/tasks/TaskRequest";
 import { randomName } from "./files";
 
 function randomRequest() {

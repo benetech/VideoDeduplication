@@ -26,8 +26,8 @@ def get_hash(file_path, buffer_size=64 * 1024):
 
 def filter_extensions(files, extensions):
     """Filter files by extensions."""
-    extensions = {f".{ext}" for ext in extensions}
-    return [x for x in files if Path(x).suffix in extensions]
+    extensions = {f".{ext}".lower() for ext in extensions}
+    return [x for x in files if Path(x).suffix.lower() in extensions]
 
 
 def scan_videos(path, wildcard, extensions=()):

@@ -1,22 +1,21 @@
 import axios from "axios";
-import * as HttpStatus from "http-status-codes";
 import io from "socket.io-client";
-import Transform from "./Transform";
-import { Response } from "../Response";
-import fileFiltersToQueryParams from "./helpers/fileFiltersToQueryParams";
-import clusterFiltersToQueryParams from "./helpers/clusterFiltersToQueryParams";
-import matchesFiltersToQueryParams from "./helpers/matchesFiltersToQueryParams";
-import taskFiltersToQueryParams from "./helpers/taskFiltersToQueryParams";
 import { SocketNamespace, socketPath } from "./constants";
 import Socket from "./Socket";
-import templateFiltersToQueryParams from "./helpers/templateFiltersToQueryParams";
-import exampleFiltersToQueryParams from "./helpers/exampleFiltersToQueryParams";
-import templateMatchFiltersToQueryParams from "./helpers/templateMatchFiltersToQueryParams";
 import AxiosRetry from "axios-retry";
-import presetFiltersToQueryParams from "./helpers/presetFiltersToQueryParams";
-import { makeServerError } from "./ServerError";
-import templateFileExclusionFiltersToQueryParams from "./helpers/templateFileExclusionFiltersToQueryParams";
+import FilesEndpoint from "./endpoints/FilesEndpoint";
+import TasksEndpoint from "./endpoints/TasksEndpoint";
+import MatchesEndpoint from "./endpoints/MatchesEndpoint";
+import TemplatesEndpoint from "./endpoints/TemplatesEndpoint";
+import ExamplesEndpoint from "./endpoints/ExamplesEndpoint";
+import TemplateMatchesEndpoint from "./endpoints/TemplateMatchesEndpoint";
+import PresetsEndpoint from "./endpoints/PresetsEndpoint";
+import TemplateExclusionsEndpoint from "./endpoints/TemplateExclusionsEndpoint";
+import StatsEndpoint from "./endpoints/StatsEndpoint";
 
+/**
+ * Server API client.
+ */
 export default class Server {
   constructor({
     baseURL = "/api/v1",
@@ -33,546 +32,87 @@ export default class Server {
       retries,
       retryDelay: AxiosRetry.exponentialDelay,
     });
-    this.transform = new Transform();
-  }
-
-  async fetchFiles({ limit, offset, filters }) {
-    try {
-      const response = await this.axios.get("/files/", {
-        params: {
-          offset,
-          limit,
-          include: ["signature", "meta", "exif"].join(","),
-          ...fileFiltersToQueryParams(filters),
-        },
-      });
-      const data = this.transform.fetchFileResults(response.data);
-      return Response.ok(data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async fetchFile({ id }) {
-    try {
-      const response = await this.axios.get(`/files/${id}`, {
-        params: {
-          include: ["signature", "meta", "scenes", "exif"].join(","),
-        },
-      });
-      const data = this.transform.videoFile(response.data);
-      return Response.ok(data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async fetchFileCluster({
-    fileId,
-    limit = 20,
-    offset = 0,
-    fields = [],
-    filters,
-  }) {
-    try {
-      const response = await this.axios.get(`/files/${fileId}/cluster`, {
-        params: {
-          limit,
-          offset,
-          ...clusterFiltersToQueryParams({ filters, fields }),
-        },
-      });
-      const data = this.transform.fetchFileClusterResults(response.data);
-      return Response.ok(data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async fetchFileMatches({
-    fileId,
-    limit = 20,
-    offset = 0,
-    fields = ["meta", "exif", "scenes"],
-    filters = {
-      remote: false,
-    },
-  }) {
-    try {
-      const response = await this.axios.get(`/files/${fileId}/matches`, {
-        params: {
-          limit,
-          offset,
-          ...matchesFiltersToQueryParams({ filters, fields }),
-        },
-      });
-      const data = this.transform.fetchFileMatchesResults(response.data);
-      return Response.ok(data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async updateMatch(match) {
-    try {
-      const response = await this.axios.patch(
-        `/matches/${match.id}`,
-        JSON.stringify(this.transform.updateMatchDTO(match)),
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return this.transform.match(response.data);
-    } catch (error) {
-      throw makeServerError("Update match error.", error, { match });
-    }
-  }
-
-  async probeVideoFile({ id }) {
-    try {
-      await this.axios.head(`/files/${id}/watch`);
-      return Response.ok(null);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async fetchTasks({ limit = 1000, offset = 0, filters = {} }) {
-    try {
-      const response = await this.axios.get(`/tasks/`, {
-        params: {
-          limit,
-          offset,
-          ...taskFiltersToQueryParams({ filters }),
-        },
-      });
-      const data = this.transform.fetchTasksResults(response.data);
-      return Response.ok(data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async fetchTask({ id }) {
-    try {
-      const response = await this.axios.get(`/tasks/${id}`, {
-        params: {},
-      });
-      const data = this.transform.task(response.data);
-      return Response.ok(data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async fetchLogs({ id }) {
-    try {
-      const response = await this.axios.get(`/tasks/${id}/logs`, {
-        params: {},
-      });
-      return Response.ok(response.data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async deleteTask({ id }) {
-    try {
-      const response = await this.axios.delete(`/tasks/${id}`);
-      return Response.ok(response.data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async cancelTask({ id }) {
-    try {
-      const response = await this.axios.patch(
-        `/tasks/${id}`,
-        JSON.stringify({ status: "REVOKED" }),
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return Response.ok(this.transform.task(response.data));
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async createTask({ request }) {
-    try {
-      const response = await this.axios.post(
-        `/tasks/`,
-        JSON.stringify(this.transform.toTaskRequestDTO(request)),
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return Response.ok(this.transform.task(response.data));
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async createTemplate({ template }) {
-    try {
-      const newTemplateDTO = this.transform.newTemplateDTO(template);
-      const response = await this.axios.post(
-        `/templates/`,
-        JSON.stringify(newTemplateDTO),
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return Response.ok(this.transform.template(response.data));
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async fetchTemplates({
-    limit = 1000,
-    offset = 0,
-    fields = ["examples", "file_count"],
-    filters = {},
-  }) {
-    try {
-      const response = await this.axios.get(`/templates/`, {
-        params: {
-          limit,
-          offset,
-          ...templateFiltersToQueryParams({ fields, filters }),
-        },
-      });
-      const data = this.transform.fetchTemplatesResults(response.data);
-      return Response.ok(data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async fetchTemplate({ id, fields = ["examples"] }) {
-    try {
-      const response = await this.axios.get(`/templates/${id}`, {
-        params: {
-          ...templateFiltersToQueryParams({ fields }),
-        },
-      });
-      const data = this.transform.template(response.data);
-      return Response.ok(data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async updateTemplate({ template }) {
-    try {
-      const response = await this.axios.patch(
-        `/templates/${template.id}`,
-        JSON.stringify({
-          name: template.name,
-          icon_type: template.icon?.kind,
-          icon_key: template.icon?.key,
-        }),
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return Response.ok(this.transform.template(response.data));
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async deleteTemplate({ id }) {
-    try {
-      const response = await this.axios.delete(`/templates/${id}`);
-      return Response.ok(response.data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async fetchExamples({
-    limit = 1000,
-    offset = 0,
-    fields = ["template"],
-    filters = {},
-  }) {
-    try {
-      const response = await this.axios.get(`/examples/`, {
-        params: {
-          limit,
-          offset,
-          ...exampleFiltersToQueryParams({ fields, filters }),
-        },
-      });
-      const data = this.transform.fetchExamplesResults(response.data);
-      return Response.ok(data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async fetchExample({ id, fields = ["template"] }) {
-    try {
-      const response = await this.axios.get(`/examples/${id}`, {
-        params: {
-          ...exampleFiltersToQueryParams({ fields }),
-        },
-      });
-      const data = this.transform.template(response.data);
-      return Response.ok(data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async uploadExample({ templateId, file }) {
-    try {
-      let formData = new FormData();
-      formData.append("file", file);
-
-      const response = await this.axios.post(
-        `/templates/${templateId}/examples/`,
-        formData,
-        {
-          onUploadProgress: (progressEvent) => {
-            let percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            console.log(
-              `${file.name} uploading completed on ${percentCompleted}%`
-            );
-          },
-        }
-      );
-      const data = this.transform.templateExample(response.data);
-      return Response.ok(data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async deleteExample({ id }) {
-    try {
-      const response = await this.axios.delete(`/examples/${id}`);
-      return Response.ok(response.data);
-    } catch (error) {
-      return this.errorResponse(error);
-    }
-  }
-
-  async fetchTemplateMatches(request) {
-    const {
-      limit = 1000,
-      offset = 0,
-      fields = ["template", "file"],
-      filters = {},
-    } = request;
-
-    try {
-      const response = await this.axios.get(`/template_matches/`, {
-        params: {
-          limit,
-          offset,
-          ...templateMatchFiltersToQueryParams({ fields, filters }),
-        },
-      });
-      return this.transform.fetchTemplateMatchesResults(response.data);
-    } catch (error) {
-      throw makeServerError("Get template-matches error.", error, request);
-    }
-  }
-
-  async fetchTemplateMatch(id, fields = ["template", "file"]) {
-    try {
-      const response = await this.axios.get(`/template_matches/${id}`, {
-        params: {
-          ...templateMatchFiltersToQueryParams({ fields }),
-        },
-      });
-      return this.transform.template(response.data);
-    } catch (error) {
-      const request = { id, fields };
-      throw makeServerError("Get template-match error.", error, request);
-    }
-  }
-
-  async updateTemplateMatch(match) {
-    try {
-      const response = await this.axios.patch(
-        `/template_matches/${match.id}`,
-        JSON.stringify(this.transform.updateTemplateMatchDTO(match)),
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return this.transform.templateMatch(response.data);
-    } catch (error) {
-      throw makeServerError("Update template-match error.", error, { match });
-    }
-  }
-
-  async deleteTemplateMatch(match) {
-    try {
-      await this.axios.delete(`/template_matches/${match.id}`);
-    } catch (error) {
-      throw makeServerError("Delete object error.", error, { match });
-    }
-  }
-
-  async createPreset(preset) {
-    try {
-      const newPresetDTO = this.transform.newPresetDTO(preset);
-      const response = await this.axios.post(
-        "/files/filter-presets/",
-        JSON.stringify(newPresetDTO),
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return this.transform.preset(response.data);
-    } catch (error) {
-      throw makeServerError("Create preset error.", error, { preset });
-    }
-  }
-
-  async fetchPresets(options = {}) {
-    try {
-      const { limit = 1000, offset = 0, filters = {} } = options;
-      const response = await this.axios.get("/files/filter-presets/", {
-        params: {
-          limit,
-          offset,
-          ...presetFiltersToQueryParams({ filters }),
-        },
-      });
-      return this.transform.fetchPresetResults(response.data);
-    } catch (error) {
-      throw makeServerError("Fetch presets error.", error, { options });
-    }
-  }
-
-  async fetchPreset(id) {
-    try {
-      const response = await this.axios.get(`/files/filter-presets/${id}`);
-      return this.transform.preset(response.data);
-    } catch (error) {
-      throw makeServerError("Fetch preset error.", error, { id });
-    }
-  }
-
-  async updatePreset(preset) {
-    try {
-      const response = await this.axios.patch(
-        `/files/filter-presets/${preset.id}`,
-        JSON.stringify(this.transform.updatePresetDTO(preset)),
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return this.transform.preset(response.data);
-    } catch (error) {
-      throw makeServerError("Update preset error.", error, { preset });
-    }
-  }
-
-  async deletePreset(preset) {
-    try {
-      await this.axios.delete(`/files/filter-presets/${preset.id}`);
-    } catch (error) {
-      throw makeServerError("Delete preset error.", error, { preset });
-    }
-  }
-
-  async createTemplateFileExclusion(exclusion) {
-    try {
-      const newExclusionDTO =
-        this.transform.newTemplateFileExclusionDTO(exclusion);
-      const response = await this.axios.post(
-        "/template-file-exclusions/",
-        JSON.stringify(newExclusionDTO),
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return this.transform.templateFileExclusion(response.data);
-    } catch (error) {
-      throw makeServerError("Create file exclusion error.", error, {
-        exclusion,
-      });
-    }
-  }
-
-  async fetchTemplateFileExclusions(options = {}) {
-    try {
-      const { limit = 1000, offset = 0, filters = {} } = options;
-      const response = await this.axios.get("/template-file-exclusions/", {
-        params: {
-          limit,
-          offset,
-          ...templateFileExclusionFiltersToQueryParams({ filters }),
-        },
-      });
-      return this.transform.fetchTemplateFileExclusionsResults(response.data);
-    } catch (error) {
-      throw makeServerError("Fetch file exclusions error.", error, { options });
-    }
-  }
-
-  async fetchTemplateFileExclusion(id) {
-    try {
-      const response = await this.axios.get(`/template-file-exclusions/${id}`);
-      return this.transform.templateFileExclusion(response.data);
-    } catch (error) {
-      throw makeServerError("Fetch file exclusion error.", error, { id });
-    }
-  }
-
-  async deleteTemplateFileExclusion(exclusion) {
-    try {
-      await this.axios.delete(`/template-file-exclusions/${exclusion.id}`);
-    } catch (error) {
-      throw makeServerError("Delete file exclusion error.", error, {
-        preset: exclusion,
-      });
-    }
+    this._filesEndpoint = new FilesEndpoint(this.axios);
+    this._tasksEndpoint = new TasksEndpoint(this.axios);
+    this._matcheEndpoint = new MatchesEndpoint(this.axios);
+    this._templatesEndpoint = new TemplatesEndpoint(this.axios);
+    this._examplesEndpoint = new ExamplesEndpoint(this.axios);
+    this._templateMatchesEndpoint = new TemplateMatchesEndpoint(this.axios);
+    this._templateExclusions = new TemplateExclusionsEndpoint(this.axios);
+    this._presetsEndpoint = new PresetsEndpoint(this.axios);
+    this._statsEndpoint = new StatsEndpoint(this.axios);
   }
 
   /**
-   * Get predefined application statistics by name.
-   * @param name statistics name.
-   *
-   * Available statistics names:
-   *  - **extensions** - list of the existing file extensions.
+   * Files endpoint.
+   * @return {FilesEndpoint}
    */
-  async fetchStats({ name }) {
-    try {
-      const response = await this.axios.get(`/stats/${name}`);
-      return this.transform.statistics(name, response.data);
-    } catch (error) {
-      throw makeServerError("Fetch file exclusion error.", error, { name });
-    }
+  get files() {
+    return this._filesEndpoint;
+  }
+
+  /**
+   * Tasks endpoint.
+   * @return {TasksEndpoint}
+   */
+  get tasks() {
+    return this._tasksEndpoint;
+  }
+
+  /**
+   * Matches endpoint.
+   * @return {MatchesEndpoint}
+   */
+  get matches() {
+    return this._matcheEndpoint;
+  }
+
+  /**
+   * Templates endpoint.
+   * @return {TemplatesEndpoint}
+   */
+  get templates() {
+    return this._templatesEndpoint;
+  }
+
+  /**
+   * Examples endpoint.
+   * @return {ExamplesEndpoint}
+   */
+  get examples() {
+    return this._examplesEndpoint;
+  }
+
+  /**
+   * Template matches endpoint.
+   * @return {TemplateMatchesEndpoint}
+   */
+  get templateMatches() {
+    return this._templateMatchesEndpoint;
+  }
+
+  /**
+   * Template exclusions endpoint.
+   * @return {TemplateExclusionsEndpoint}
+   */
+  get templateExclusions() {
+    return this._templateExclusions;
+  }
+
+  /**
+   * Presets endpoint.
+   * @return {PresetsEndpoint}
+   */
+  get presets() {
+    return this._presetsEndpoint;
+  }
+
+  /**
+   * Statistics endpoint.
+   * @return {StatsEndpoint}
+   */
+  get stats() {
+    return this._statsEndpoint;
   }
 
   /**
@@ -584,24 +124,7 @@ export default class Server {
     });
     return new Socket({
       socket: socketio,
-      transform: this.transform,
+      transform: this.tasks.transform,
     });
-  }
-
-  errorResponse(error) {
-    if (error.response == null) {
-      return Response.clientError(error);
-    }
-    const response = error.response;
-    switch (response.status) {
-      case HttpStatus.BAD_REQUEST:
-        return Response.invalid(error);
-      case HttpStatus.UNAUTHORIZED:
-        return Response.unauthorized(error);
-      case HttpStatus.NOT_FOUND:
-        return Response.notFound(error);
-      default:
-        return Response.clientError(error);
-    }
   }
 }
