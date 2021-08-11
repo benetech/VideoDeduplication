@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -9,14 +9,13 @@ import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
 import MoreVertOutlinedIcon from "@material-ui/icons/MoreVertOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import { useIntl } from "react-intl";
-import { useHistory } from "react-router";
-import { routes } from "../../../routing/routes";
 import usePopup from "../../../lib/hooks/usePopup";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import TaskStatus from "../../../application/state/tasks/TaskStatus";
 import useCancelTask from "../../../application/api/tasks/useCancelTask";
 import useDeleteTask from "../../../application/api/tasks/useDeleteTask";
+import { useShowProcessing } from "../../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -57,14 +56,9 @@ function TaskSummaryHeader(props) {
   const { task, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const history = useHistory();
   const isActive = isActiveTask(task);
   const { clickTrigger, popup } = usePopup("task-menu-");
-
-  const handleBack = useCallback(
-    () => history.push(routes.processing.home),
-    []
-  );
+  const handleBack = useShowProcessing();
 
   const handleCancel = useCancelTask({
     id: task.id,

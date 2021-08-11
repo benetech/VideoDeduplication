@@ -14,19 +14,18 @@ import MatchPreview from "../../components/matches/MatchPreview";
 import SquaredIconButton from "../../components/basic/SquaredIconButton";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 import TuneOutlinedIcon from "@material-ui/icons/TuneOutlined";
-import { useHistory, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import useFile from "../../application/api/files/useFile";
 import FileLoadingHeader from "../../components/files/FileLoadingHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { selectFileMatches } from "../../application/state/root/selectors";
 import LoadTrigger from "../../components/basic/LoadingTrigger/LoadTrigger";
-import { routes } from "../../routing/routes";
 import {
   fetchFileMatchesSlice,
   updateFileMatchesParams,
 } from "../../application/state/fileMatches/actions";
 import FilterPanel from "./FilterPanel";
-import { useShowCollection } from "../../routing/hooks";
+import { useCompareFiles, useShowCollection } from "../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -95,7 +94,6 @@ function FileMatchesPage(props) {
   const [view, setView] = useState(View.grid);
   const fileMatches = useSelector(selectFileMatches);
   const dispatch = useDispatch();
-  const history = useHistory();
   const filters = fileMatches.params.filters;
   const [showFilters, setShowFilters] = useState(false);
   const showCollection = useShowCollection();
@@ -115,11 +113,7 @@ function FileMatchesPage(props) {
     }
   }, [id, fileMatches]);
 
-  const handleCompare = useCallback(
-    () => history.push(routes.collection.fileComparisonURL(id)),
-    [id]
-  );
-
+  const handleCompare = useCompareFiles(id, [id]);
   const handleLoad = useCallback(() => dispatch(fetchFileMatchesSlice()), []);
 
   if (file == null) {

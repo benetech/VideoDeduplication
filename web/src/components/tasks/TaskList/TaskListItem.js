@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -13,12 +13,11 @@ import TaskProgress from "./TaskProgress";
 import usePopup from "../../../lib/hooks/usePopup";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import { routes } from "../../../routing/routes";
-import { useHistory } from "react-router";
 import getStatusIcon from "../TaskSummary/helpers/getStatusIcon";
 import useCancelTask from "../../../application/api/tasks/useCancelTask";
 import useDeleteTask from "../../../application/api/tasks/useDeleteTask";
 import getTaskTextDescription from "../TaskSummary/helpers/getTaskTextDescription";
+import { useShowLogs, useShowTask } from "../../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   task: {
@@ -120,17 +119,9 @@ function TaskListItem(props) {
   const Icon = getStatusIcon(task.status);
   const running = task.status === TaskStatus.RUNNING;
   const { clickTrigger, popup } = usePopup("task-menu-");
-  const history = useHistory();
 
-  const handleShowLogs = useCallback(
-    () => history.push(routes.processing.taskLogsURL(task.id)),
-    [task.id]
-  );
-
-  const handleExpand = useCallback(
-    () => history.push(routes.processing.taskURL(task.id)),
-    [task.id]
-  );
+  const showLogs = useShowLogs(task, [task]);
+  const showTask = useShowTask(task, [task]);
 
   const handleCancel = useCancelTask({
     id: task.id,
@@ -148,7 +139,7 @@ function TaskListItem(props) {
         <div className={classes.attributes}>
           <div className={classes.topAttributes}>
             <div className={classes.timeCaption}>{messages.time(task)}</div>
-            <IconButton size="small" onClick={handleExpand}>
+            <IconButton size="small" onClick={showTask}>
               <HeightOutlinedIcon
                 className={classes.expandIcon}
                 fontSize="small"
@@ -168,7 +159,7 @@ function TaskListItem(props) {
         <TaskProgress value={task.progress} className={classes.progress} />
       )}
       <Menu {...popup}>
-        <MenuItem onClick={handleShowLogs}>{messages.showLogs}</MenuItem>
+        <MenuItem onClick={showLogs}>{messages.showLogs}</MenuItem>
         <MenuItem onClick={handleCancel}>{messages.cancel}</MenuItem>
         <MenuItem onClick={handleDelete}>{messages.delete}</MenuItem>
       </Menu>

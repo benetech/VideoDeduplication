@@ -49,6 +49,24 @@ export function useShowFile(override, deps) {
   );
 }
 
+export function useCompareFiles(override, deps) {
+  const history = useHistory();
+  return useCallback((value) => {
+    const target = resolveTarget(value, override);
+    if (lodash.isArray(target)) {
+      const [motherFile, matchFile] = target;
+      history.push(
+        routes.collection.fileComparisonURL(
+          getEntityId(motherFile),
+          getEntityId(matchFile || "")
+        )
+      );
+    } else {
+      history.push(routes.collection.fileComparisonURL(getEntityId(target)));
+    }
+  }, deps);
+}
+
 /**
  * Get function to navigate to file matches page.
  * @param {function|Object|undefined} override
