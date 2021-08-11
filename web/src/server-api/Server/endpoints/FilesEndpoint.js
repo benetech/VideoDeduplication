@@ -8,7 +8,6 @@ export default class FilesEndpoint {
   constructor(axios, transform) {
     this.axios = axios;
     this.transform = transform || new FilesTransformer();
-    console.log("Got transformer", this);
   }
 
   /**
