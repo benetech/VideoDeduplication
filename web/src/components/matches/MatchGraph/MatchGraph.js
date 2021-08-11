@@ -37,8 +37,7 @@ const useStyles = makeStyles((theme) => ({
 function MatchGraph(props) {
   const { source, matches, files, className } = props;
   const classes = useStyles();
-  const ref = useRef(null);
-  const [graph, setGraph] = useState(null);
+  const [graphParent, setGraphParent] = useState(null);
   const nodeTooltip = useTooltip();
   const linkTooltip = useTooltip();
 
@@ -50,15 +49,12 @@ function MatchGraph(props) {
   );
 
   useEffect(() => {
-    if (ref.current != null) {
-      if (graph != null) {
-        graph.cleanup();
-      }
+    if (graphParent != null) {
       const { nodes, links } = prepareGraph(source, matches, files);
-      const newGraph = new D3Graph({
+      const graph = new D3Graph({
         links,
         nodes,
-        container: ref.current,
+        container: graphParent,
         classes: { content: classes.content, tooltip: classes.tooltip },
         onClickNode: handleClickFile,
         onClickEdge: handleClickMatch,
@@ -70,14 +66,16 @@ function MatchGraph(props) {
           highlightHover: true,
         },
       });
-      newGraph.display();
-      setGraph(newGraph);
+      graph.display();
+      return () => {
+        graph.cleanup();
+      };
     }
-  }, [ref.current, source.id]);
+  }, [graphParent, source.id]);
 
   return (
     <div className={clsx(classes.root, className)}>
-      <svg ref={ref} />
+      <svg ref={setGraphParent} className={classes.content} />
       {nodeTooltip.show && (
         <NodeTooltip
           file={nodeTooltip.data.file}
