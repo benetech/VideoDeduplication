@@ -10,6 +10,10 @@ import {
 import popQuery from "./helpers/popQuery";
 import extendEntityList from "../helpers/extendEntityList";
 import lodash from "lodash";
+import { idComparator } from "../../../lib/helpers/comparators";
+import addQueryEntity from "./helpers/addQueryEntity";
+import deleteQueryEntity from "./helpers/deleteQueryEntity";
+import updateQueryEntity from "./helpers/updateQueryEntity";
 
 /**
  * Create new cached query with incremented reference counter.
@@ -233,4 +237,112 @@ export default function queryCacheReducer(state = initialState, action) {
     default:
       return state;
   }
+}
+
+/**
+ * Add entity to appropriate cached queries.
+ * @param {QueryCache} cache
+ * @param {Entity} entity
+ * @param {function} checkFilters
+ * @param {function} comparatorFactory function that takes query params and returns sort comparator
+ */
+export function addEntity(
+  cache,
+  entity,
+  checkFilters,
+  comparatorFactory = () => idComparator
+) {
+  // Flag required to prevent unnecessary updates
+  let changed = false;
+
+  // Add entity to appropriate queries
+  const updatedQueries = cache.queries.map((query) => {
+    if (!checkFilters(query, entity)) {
+      return query;
+    }
+    changed = true;
+    const comparator = comparatorFactory(query.params);
+    return addQueryEntity(query, entity, checkFilters, comparator);
+  });
+
+  // Don't change cache if queries are the same
+  if (!changed) {
+    return cache;
+  }
+
+  return {
+    ...cache,
+    queries: updatedQueries,
+  };
+}
+
+/**
+ * Remove entity from cached queries.
+ * @param {QueryCache} cache
+ * @param {Entity} entity
+ * @return {QueryCache}
+ */
+export function deleteEntity(cache, entity) {
+  // Flag to prevent unnecessary updates
+  let changed = false;
+
+  const updatedQueries = cache.queries.map((query) => {
+    const updatedQuery = deleteQueryEntity(query, entity);
+    changed ||= updatedQuery !== query;
+    return updatedQuery;
+  });
+
+  // Don't update cache if queries are the same
+  if (!changed) {
+    return cache;
+  }
+
+  return {
+    ...cache,
+    queries: updatedQueries,
+  };
+}
+
+/**
+ * Update entity in cached queries.
+ * @param {QueryCache} cache
+ * @param {Entity} entity
+ * @param {function} updater takes current entity and produce the updated entity
+ * @param {function} checkFilters check if the updated entity satisfies query params
+ * @param {function} comparatorFactory create sort comparator from query params
+ * @return {QueryCache}
+ */
+function updatedEntity(
+  cache,
+  entity,
+  updater,
+  checkFilters,
+  comparatorFactory = () => idComparator
+) {
+  // Flag to prevent unnecessary cache updates
+  let changed = false;
+
+  // Update entity in cached queries
+  const updatedQueries = cache.queries.map((query) => {
+    const comparator = comparatorFactory(query.params);
+    const updatedQuery = updateQueryEntity(
+      query,
+      entity,
+      updater,
+      checkFilters,
+      comparator
+    );
+    changed ||= updatedQuery !== query;
+    return updatedQuery;
+  });
+
+  // Don't update cache if queries are the same
+  if (!changed) {
+    return cache;
+  }
+
+  return {
+    ...cache,
+    queries: updatedQueries,
+  };
 }
