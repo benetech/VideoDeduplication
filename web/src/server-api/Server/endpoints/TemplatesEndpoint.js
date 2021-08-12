@@ -14,7 +14,7 @@ export default class TemplatesEndpoint {
   /**
    * Create new template.
    * @param template template object to be created.
-   * @return {Promise<Template>}
+   * @return {Promise<TemplateType>}
    */
   async create(template) {
     try {
@@ -42,7 +42,7 @@ export default class TemplatesEndpoint {
    *   fields: string[],
    *   filters: TemplateFilters,
    * }} options query options
-   * @return {Promise<{total: number, offset: number, templates: [*]}>}
+   * @return {Promise<{total: number, offset: number, templates: TemplateType[]}>}
    */
   async list(options = {}) {
     try {
@@ -69,7 +69,7 @@ export default class TemplatesEndpoint {
    * Fetch single template by id.
    * @param id template id
    * @param {{fields: string[]}} options fetch options.
-   * @return {Promise}
+   * @return {Promise<TemplateType>}
    */
   async get(id, options = {}) {
     try {
@@ -87,8 +87,8 @@ export default class TemplatesEndpoint {
 
   /**
    * Update template.
-   * @param template
-   * @return {Promise<Template>}
+   * @param {TemplateType} template
+   * @return {Promise<TemplateType>}
    */
   async update(template) {
     try {
@@ -113,7 +113,7 @@ export default class TemplatesEndpoint {
 
   /**
    * Delete template by id
-   * @param {number|string|Template} template template to be deleted
+   * @param {number|string|TemplateType} template template to be deleted
    * @return {Promise<void>}
    */
   async delete(template) {

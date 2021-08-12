@@ -2,7 +2,20 @@ import PropTypes from "prop-types";
 import { TemplateType } from "./TemplateType";
 
 /**
- * Recognized object (synonym for Template Match) schema.
+ * Recognized object (synonym for Template Match) prop-type.
+ *
+ * @typedef {{
+ *   id: string|number,
+ *   fileId: string|number,
+ *   templateId: string|number,
+ *   start: number,
+ *   end: number,
+ *   meanDistance: number,
+ *   minDistance: number,
+ *   minDistanceTime: number,
+ *   template: TemplateType|undefined|null,
+ *   falsePositive: boolean|undefined,
+ * }} ObjectType
  */
 const ObjectType = PropTypes.shape({
   /**
@@ -41,6 +54,10 @@ const ObjectType = PropTypes.shape({
    * Template data.
    */
   template: TemplateType,
+  /**
+   * Indicates whether the object is false-positive match.
+   */
+  falsePositive: PropTypes.bool,
 });
 
 export default ObjectType;

@@ -10,13 +10,18 @@ export default class TemplatesTransformer {
 
   /**
    * Convert template filters to templates query parameters
-   * @typedef {{}} TemplateFilters
+   * @typedef {{
+   *   name: string
+   * }} TemplateFilters
    * @param {TemplateFilters} filters
    * @param {string[]} fields
    * @return {{}} templates query parameters
    */
   listParams(filters, fields) {
     const params = {};
+    if (filters?.name != null && filters.name.length > 0) {
+      params.name = filters.name;
+    }
     if (fields != null && fields.length > 0) {
       params.include = fields.join(",");
     }
@@ -26,7 +31,7 @@ export default class TemplatesTransformer {
   /**
    * Convert template list results.
    * @param data server response
-   * @return {{total, offset, templates}}
+   * @return {{total:number, offset:number, templates: TemplateType[]}}
    */
   templates(data) {
     return {
@@ -39,7 +44,7 @@ export default class TemplatesTransformer {
   /**
    * Convert template DTO to template object.
    * @param data template DTO
-   * @return {Template}
+   * @return {TemplateType}
    */
   template(data) {
     if (data == null) {
@@ -60,7 +65,7 @@ export default class TemplatesTransformer {
 
   /**
    * Make new-template DTO.
-   * @param {Template} template template object to be created
+   * @param {TemplateType} template template object to be created
    * @return {{}}
    */
   newTemplateDTO(template) {
@@ -95,7 +100,7 @@ export default class TemplatesTransformer {
   /**
    * Convert list examples results.
    * @param data server response
-   * @return {{total, offset, examples}}
+   * @return {{total:number, offset:number, examples:TemplateExampleType[]}}
    */
   examples(data) {
     return {
@@ -108,7 +113,7 @@ export default class TemplatesTransformer {
   /**
    * Convert example DTO to example object.
    * @param data example DTO
-   * @return {Example}
+   * @return {TemplateExampleType}
    */
   example(data) {
     return {
@@ -146,7 +151,7 @@ export default class TemplatesTransformer {
   /**
    * Convert list template matches results
    * @param data server response
-   * @return {{total, offset, templateMatches, templates: Template[], files: *[]}}
+   * @return {{total, offset, templateMatches: ObjectType[], templates: TemplateType[], files: FileType[]}}
    */
   matches(data) {
     return {
@@ -162,8 +167,8 @@ export default class TemplatesTransformer {
 
   /**
    * Convert match DTO to match object.
-   * @param data match DTO
-   * @return {TemplateMatch}
+   * @param {{}} data match DTO
+   * @return {ObjectType}
    */
   match(data) {
     const match = {

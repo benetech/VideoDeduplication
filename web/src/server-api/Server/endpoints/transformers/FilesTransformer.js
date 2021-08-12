@@ -1,11 +1,17 @@
 import { format as formatDate } from "date-fns";
 import parseDate from "../../../../lib/helpers/parseDate";
+import MatchesTransformer from "./MatchesTransformer";
 
 /**
  * Argument and result transformer for file API endpoint.
  */
 export default class FilesTransformer {
-  constructor() {}
+  /**
+   * @param {MatchesTransformer|null} matchTransform
+   */
+  constructor(matchTransform = null) {
+    this.matchTransform = matchTransform || new MatchesTransformer();
+  }
 
   /**
    * Convert file list filters to query parameters.
@@ -135,7 +141,7 @@ export default class FilesTransformer {
   /**
    * Transform list files results.
    * @param data server response
-   * @return {{files: [*], counts}} list files results
+   * @return {{files: FileType[], counts}} list files results
    */
   files(data) {
     const counts = {
@@ -152,7 +158,7 @@ export default class FilesTransformer {
   /**
    * Transform file DTO to file object.
    * @param data file DTO as object
-   * @return {any} transformed file
+   * @return {FileType} transformed file
    */
   file(data) {
     const meta = this._metadata(data);
@@ -182,8 +188,8 @@ export default class FilesTransformer {
 
   /**
    * Transform file neighbors cluster.
-   * @param data server response.
-   * @return {{total, files, matches}}
+   * @param {{}} data server response.
+   * @return {{total:number, files: FileType[], matches: MatchType[]}}
    */
   cluster(data) {
     return {
@@ -195,8 +201,8 @@ export default class FilesTransformer {
 
   /**
    * Transform list file matches results.
-   * @param data server response
-   * @return {{total, offset, matches}}
+   * @param {{}} data server response
+   * @return {{total:number, offset:number, matches: FileMatchType[]}}
    */
   matches(data) {
     return {
@@ -210,13 +216,13 @@ export default class FilesTransformer {
    * Transform file match DTO to file match object.
    * @param match file match DTO
    * @param motherFile file DTO
-   * @return {{}} file match object
+   * @return {FileMatchType} file match object
    */
   match(match, motherFile) {
     return {
       id: match.id,
       distance: match.distance,
-      motherFile: { id: match.mother_file_id, ...motherFile },
+      motherFile: this.file({ id: match.mother_file_id, ...motherFile }),
       file: this.file(match.file),
       falsePositive: match.false_positive,
     };
@@ -278,8 +284,13 @@ export default class FilesTransformer {
     return scenes;
   }
 
+  /**
+   * @param match
+   * @return {MatchType}
+   * @private
+   */
   _clusterMatch(match) {
-    return { ...match }; // No difference at the moment
+    return this.matchTransform.match(match);
   }
 
   _contributor(data) {

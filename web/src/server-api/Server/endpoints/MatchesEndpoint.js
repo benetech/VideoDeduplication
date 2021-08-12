@@ -13,7 +13,7 @@ export default class MatchesEndpoint {
   /**
    * Update match.
    * @param match match object with updated attributes.
-   * @return {Promise<Match>}
+   * @return {Promise<MatchType>}
    */
   async update(match) {
     try {

@@ -10,27 +10,27 @@ import {
 
 /**
  * Update cache entry using the function.
- * @param {{items: {}, maxSize: number, history: string[]}} state - The initial state.
+ * @param {ValueCache} cache - The initial state.
  * @param {string} key cache key which value will be updated
- * @param {function} update function that transforms cached value
- * @return {{items: {}, maxSize: number, history: string[]}}
+ * @param {function} updater function that transforms cached value
+ * @return {ValueCache}
  */
-export function updateFunc(state, key, update) {
+export function updateFunc(cache, key, updater) {
   // Do nothing if the key is not cached.
-  if (!hasEntry(state, key)) {
-    return state;
+  if (!hasEntry(cache, key)) {
+    return cache;
   }
 
-  const value = getEntry(state, key);
-  const updated = update(value);
-  return cacheReducer(state, cacheValue(key, updated));
+  const value = getEntry(cache, key);
+  const updated = updater(value);
+  return cacheReducer(cache, cacheValue(key, updated));
 }
 
 /**
  * Root reducer for simple key->value cache.
- * @param {{items: {}, maxSize: number, history: string[]}} state - The initial state that will be modified.
- * @param {{type: string: key: string, ?value}} action - Action that must be executed.
- * @return {{items: {}, maxSize: number, history: string[]}} The new state.
+ * @param {ValueCache} state - The initial state that will be modified.
+ * @param {{type: string: key: string, value}} action - Action that must be executed.
+ * @return {ValueCache} The new state.
  */
 export default function cacheReducer(state = initialState, action) {
   switch (action.type) {
