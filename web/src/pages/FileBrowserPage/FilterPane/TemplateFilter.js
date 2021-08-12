@@ -1,14 +1,9 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
 import FilterContainer from "./FilterContainer";
-import { useDispatch, useSelector } from "react-redux";
-import { selectTemplates } from "../../../application/state/root/selectors";
-import loadTemplates from "../../../application/api/templates/loadTemplates";
-import { setTemplates } from "../../../application/state/templates/actions";
-import { useServer } from "../../../server-api/context";
 import FormControl from "@material-ui/core/FormControl";
 import {
   Checkbox,
@@ -20,6 +15,7 @@ import {
 } from "@material-ui/core";
 import useUniqueId from "../../../lib/hooks/useUniqueId";
 import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
+import useLoadAllTemplates from "../../../application/api/templates/useLoadAllTemplates";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -59,19 +55,9 @@ function description(template) {
 function TemplateFilter(props) {
   const { value = [], onChange, className, ...other } = props;
   const classes = useStyles();
-  const dispatch = useDispatch();
   const messages = useMessages();
-  const templates = useSelector(selectTemplates).templates;
-  const server = useServer();
   const labelId = useUniqueId("template-label-");
-
-  useEffect(() => {
-    if (templates.length === 0) {
-      loadTemplates(server).then((templates) =>
-        dispatch(setTemplates(templates))
-      );
-    }
-  }, []);
+  const { templates } = useLoadAllTemplates();
 
   const handleChange = useCallback(
     (event) => onChange(event.target.value),

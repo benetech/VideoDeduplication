@@ -30,6 +30,15 @@ export function deleteTask(id) {
 
 export const ACTION_UPDATE_TASK = "coll.UPDATE_TASK";
 
+/**
+ * Update task.
+ *
+ * Task will be created if missing.
+ *
+ * @typedef {{task: TaskType, type: string }} UpdateTaskAction
+ * @param {TaskType} task
+ * @return {UpdateTaskAction}
+ */
 export function updateTask(task) {
   return { task, type: ACTION_UPDATE_TASK };
 }

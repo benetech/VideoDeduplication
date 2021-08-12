@@ -9,10 +9,10 @@ import { useIntl } from "react-intl";
 import Button from "../../../components/basic/Button";
 import { ListItemText, Menu, MenuItem, Tooltip } from "@material-ui/core";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
-import useLoadTemplates from "../../../application/api/templates/useLoadTemplates";
 import usePopup from "../../../lib/hooks/usePopup";
 import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
 import ExcludedTemplate from "./ExcludedTemplate";
+import useLoadAllTemplates from "../../../application/api/templates/useLoadAllTemplates";
 
 const useStyles = makeStyles((theme) => ({
   blackList: {
@@ -66,7 +66,7 @@ function TemplateBlackList(props) {
   const { clickTrigger, popup } = usePopup("exclude-templates");
 
   // Load templates
-  const templates = useLoadTemplates();
+  const { templates } = useLoadAllTemplates();
 
   // Load exclusions
   const exclusionList = exclusionAPI.useExclusions(file.id);

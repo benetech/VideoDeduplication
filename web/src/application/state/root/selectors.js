@@ -43,7 +43,8 @@ export const selectTaskLogs = (state) => state.taskLogs;
 /**
  * Select templates.
  */
-export const selectTemplates = (state) => state.templates;
+export const selectTemplatesQuery = (params) => (state) =>
+  getQuery(state.templates.queries, params);
 
 /**
  * Select object cache.

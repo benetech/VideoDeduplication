@@ -5,10 +5,10 @@ import fileMatchesReducer from "../fileMatches/reducer";
 import taskReducer from "../tasks/reducer";
 import taskCacheReducer from "../taskCache/reducer";
 import taskLogsReducer from "../taskLogs/reducer";
-import templateReducer from "../templates/reducer";
 import objectCacheReducer from "../objects/reducer";
 import presetReducer from "../presets/reducer";
 import fileExclusionsCacheReducer from "../file-exclusions/reducer";
+import templatesRootReducer from "../templates/root/reducer";
 
 const appRootReducer = combineReducers({
   files: filesRootReducer,
@@ -17,7 +17,7 @@ const appRootReducer = combineReducers({
   tasks: taskReducer,
   taskCache: taskCacheReducer,
   taskLogs: taskLogsReducer,
-  templates: templateReducer,
+  templates: templatesRootReducer,
   objectCache: objectCacheReducer,
   presets: presetReducer,
   fileExclusions: fileExclusionsCacheReducer,

@@ -312,7 +312,7 @@ export function deleteEntity(cache, entity) {
  * @param {function} comparatorFactory create sort comparator from query params
  * @return {QueryCache}
  */
-function updatedEntity(
+export function updateEntity(
   cache,
   entity,
   updater,

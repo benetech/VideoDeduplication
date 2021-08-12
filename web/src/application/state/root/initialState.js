@@ -4,7 +4,7 @@ import fileMatchesInitialState from "../fileMatches/initialState";
 import tasksInitialState from "../tasks/initialState";
 import taskCacheInitialState from "../taskCache/initialState";
 import taskLogsInitialState from "../taskLogs/initialState";
-import templatesInitialState from "../templates/initialState";
+import templatesRootInitialState from "../templates/root/initialState";
 import objectCacheInitialState from "../objects/initialState";
 import presetInitialState from "../presets/initialState";
 import fileExclusionInitialState from "../file-exclusions/initialState";
@@ -41,7 +41,7 @@ const initialState = {
   /**
    * Object templates.
    */
-  templates: templatesInitialState,
+  templates: templatesRootInitialState,
   /**
    * Cache of recognized objects per file.
    */
