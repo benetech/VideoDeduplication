@@ -47,7 +47,10 @@ function checkFilters(params, template) {
  * @return {number}
  */
 function nameComparator(templateA, templateB) {
-  return stringComparator(templateA.name, templateB.name);
+  return stringComparator(
+    templateA.name.toLowerCase(),
+    templateB.name.toLowerCase()
+  );
 }
 
 /**

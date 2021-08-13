@@ -1,23 +1,18 @@
-import { call, fork, put, select, take, takeLatest } from "redux-saga/effects";
 import { eventChannel } from "redux-saga";
-import {
-  ACTION_FETCH_TASK_SLICE,
-  ACTION_SOCKET_CONNECTED,
-  ACTION_UPDATE_TASKS_PARAMS,
-  deleteTask,
-  fetchTaskSliceFailure,
-  fetchTaskSliceSuccess,
-  socketConnected,
-  updateTask,
-} from "./actions";
-import fetchEntitiesSaga from "../fetchEntities/fetchEntitiesSaga";
 import {
   ACTION_SUBSCRIBE_FOR_TASK_LOGS,
   ACTION_UNSUBSCRIBE_FROM_TASK_LOGS,
   appendTaskLogs,
 } from "../taskLogs/actions";
+import { call, fork, put, select, take } from "redux-saga/effects";
 import { selectTaskLogs } from "../root/selectors";
+import { ACTION_SOCKET_CONNECTED, socketConnected } from "./actions";
+import { deleteTask, updateTask } from "../tasks/common/actions";
 
+/**
+ * Create event channel to handle socket messages.
+ * @param {Socket} socket
+ */
 function makeTaskChannel(socket) {
   return eventChannel((emit) => {
     // Handle task updates...
@@ -39,6 +34,10 @@ function makeTaskChannel(socket) {
   });
 }
 
+/**
+ * Handle task log subscriptions
+ * @param {Socket} socket
+ */
 function* logSubscriptionSaga(socket) {
   while (true) {
     const action = yield take([
@@ -66,7 +65,11 @@ function* logSubscriptionSaga(socket) {
   }
 }
 
-function* handleTaskUpdatesSaga(server) {
+/**
+ * Handle socket messages.
+ * @param {Server} server backend API Client
+ */
+function* handleMessagesSaga(server) {
   try {
     const socket = server.openMessageChannel();
     const channel = yield call(makeTaskChannel, socket);
@@ -82,37 +85,9 @@ function* handleTaskUpdatesSaga(server) {
 }
 
 /**
- * Fetch the next slice of background tasks collection.
- * @param {Server} server
- * @param {function} selectTasks
- * @param {{type}} action
+ * Initialize socket-related sagas.
+ * @param {Server} server backend API Client
  */
-function* fetchTaskSliceSaga(server, selectTasks, action) {
-  // Handling update-params is required to cancel the previous request.
-  if (action.type === ACTION_UPDATE_TASKS_PARAMS) {
-    return;
-  }
-  yield* fetchEntitiesSaga({
-    requestResource: [server.tasks, server.tasks.list],
-    stateSelector: selectTasks,
-    success: fetchTaskSliceSuccess,
-    failure: fetchTaskSliceFailure,
-    resourceName: "tasks",
-  });
-}
-
-/**
- * Initialize task-related sagas...
- */
-export default function* taskRootSaga(server, selectTasks) {
-  // Handle task updates
-  yield fork(handleTaskUpdatesSaga, server);
-
-  // Handle every slice fetch.
-  yield takeLatest(
-    [ACTION_FETCH_TASK_SLICE, ACTION_UPDATE_TASKS_PARAMS],
-    fetchTaskSliceSaga,
-    server,
-    selectTasks
-  );
+export default function* socketRootSaga(server) {
+  yield fork(handleMessagesSaga, server);
 }

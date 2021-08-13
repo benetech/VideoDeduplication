@@ -9,8 +9,6 @@ import {
 } from "../../state/templates/queries/actions";
 
 /**
- * Use lazy templates query.
- *
  * @typedef {{
  *   templates: TemplateEntity[],
  *   total: number|undefined,
@@ -20,6 +18,10 @@ import {
  *   canLoad: boolean,
  *   load: function,
  * }} SingleTemplatesQueryAPI
+ */
+
+/**
+ * Use lazy templates query.
  *
  * @param {TemplateFilters} params query filters
  * @return {SingleTemplatesQueryAPI} files query.

@@ -117,6 +117,7 @@ export default class Server {
 
   /**
    * Open a new connection for dynamic messaging.
+   * @return {Socket}
    */
   openMessageChannel() {
     const socketio = io(SocketNamespace.TASKS, {

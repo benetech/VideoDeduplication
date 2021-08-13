@@ -3,18 +3,20 @@ import TaskStatus from "./TaskStatus";
 import TaskRequestType from "./TaskRequestType";
 
 /**
- * Prop-type for background task.
- *
  * @typedef {{
  *   id: string|number,
  *   submissionTime: Date,
  *   statusUpdateTime: Date,
  *   status: string,
- *   request: TaskRequestTypes,
+ *   request: TaskRequest,
  *   error: {type: string, module:string, message: string, traceback: string}|undefined,
  *   progress: number|undefined,
  *   raw: Object,
  * }} TaskEntity
+ */
+
+/**
+ * Prop-type for background task.
  */
 export const TaskType = PropTypes.shape({
   id: PropTypes.string.isRequired,

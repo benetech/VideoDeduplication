@@ -1,11 +1,11 @@
 import initialState from "./initialState";
 import { ACTION_CACHE_TASK } from "./actions";
-import { ACTION_UPDATE_TASK } from "../tasks/actions";
 import {
   cacheValue,
   entityCacheReducer,
   updateValue,
-} from "../../common/cache";
+} from "../../../common/cache";
+import { ACTION_UPDATE_TASK } from "../common/actions";
 
 /**
  * Root reducer for task cache.

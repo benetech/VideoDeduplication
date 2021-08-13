@@ -10,7 +10,7 @@ import { useParams } from "react-router";
 import { randomTask } from "../../server-api/MockServer/fake-data/tasks";
 import TaskStatus from "../../prop-types/TaskStatus";
 import TaskSummaryHeader from "../../components/tasks/TaskSummaryHeader";
-import useGetTask from "../../application/api/tasks/useGetTask";
+import useTask from "../../application/api/tasks/useTask";
 import TaskLoadingHeader from "../../components/tasks/TaskLoadingHeader";
 import TaskDetails from "../../components/tasks/TaskDetails";
 
@@ -34,7 +34,7 @@ function TaskDetailsPage(props) {
   const { className, ...other } = props;
   const { id } = useParams();
   const classes = useStyles();
-  const { task, error, loadTask } = useGetTask(id);
+  const { task, error, loadTask } = useTask(id);
   const dummyTask = randomTask({ id, status: TaskStatus.RUNNING });
 
   if (task == null) {

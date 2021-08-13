@@ -2,8 +2,8 @@ import { put, takeEvery } from "redux-saga/effects";
 import { ACTION_QUERY_TEMPLATES } from "../queries/actions";
 import { loadTemplatesSaga } from "../queries/sagas";
 import TaskRequestTypes from "../../../../prop-types/TaskRequestTypes";
-import { ACTION_UPDATE_TASK } from "../../tasks/actions";
 import { updateTemplate } from "../common/actions";
+import { ACTION_UPDATE_TASK } from "../../tasks/common/actions";
 
 /**
  * Check if the action is the match-templates task results.
@@ -33,7 +33,7 @@ function* updateTemplatesSaga(action) {
 }
 
 /**
- * Templates query cache sage.
+ * Templates root saga.
  * @param {Server} server server API
  */
 export default function* templatesRootSaga(server) {

@@ -25,13 +25,10 @@ export const selectFileCluster = (state) => state.fileCluster;
 /**
  * Select background tasks state.
  */
-export const selectTasks = (state) => state.tasks;
-
-/**
- * Select cached task.
- */
+export const selectTaskQuery = (params) => (state) =>
+  getQuery(state.tasks.queries, params);
 export const selectCachedTask = (id) => (state) =>
-  getEntry(state.taskCache, id);
+  getEntry(state.tasks.cache, id);
 
 /**
  * Select task logs.

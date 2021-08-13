@@ -198,7 +198,8 @@ export default class TasksTransformer {
 
   /**
    * @typedef {{
-   *   status: string[],
+   *   status: TaskStatus[],
+   *   type: TaskRequestTypes[],
    * }} TaskFilters
    */
 
@@ -212,6 +213,9 @@ export default class TasksTransformer {
     const params = {};
     if (filters?.status?.length > 0) {
       params.status = filters.status.join(",");
+    }
+    if (filters?.type?.length > 0) {
+      params.type = filters.type.join(",");
     }
     return params;
   }

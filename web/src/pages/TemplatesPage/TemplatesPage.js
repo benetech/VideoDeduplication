@@ -15,13 +15,13 @@ import NavigateNextOutlinedIcon from "@material-ui/icons/NavigateNextOutlined";
 import TemplateList from "./TemplateList";
 import { useServer } from "../../server-api/context";
 import { useDispatch } from "react-redux";
-import { updateTask } from "../../application/state/tasks/actions";
 import TaskRequestTypes from "../../prop-types/TaskRequestTypes";
 import AddTemplateDialog from "./AddTemplateDialog";
 import useFilesColl from "../../application/api/files/useFilesColl";
 import { useShowCollection } from "../../routing/hooks";
 import useLoadAllTemplates from "../../application/api/templates/useLoadAllTemplates";
 import useTemplateAPI from "../../application/api/templates/useTemplateAPI";
+import { updateTask } from "../../application/state/tasks/common/actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {

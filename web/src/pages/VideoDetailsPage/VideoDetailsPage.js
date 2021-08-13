@@ -14,7 +14,6 @@ import { useParams } from "react-router-dom";
 import FileLoadingHeader from "../../components/files/FileLoadingHeader";
 import useFile from "../../application/api/files/useFile";
 import ObjectAPI from "../../application/api/objects/ObjectAPI";
-import { updateTask } from "../../application/state/tasks/actions";
 import { useServer } from "../../server-api/context";
 import { useDispatch } from "react-redux";
 import TaskRequestTypes from "../../prop-types/TaskRequestTypes";
@@ -24,6 +23,7 @@ import {
   useShowMatches,
   useShowTask,
 } from "../../routing/hooks";
+import { updateTask } from "../../application/state/tasks/common/actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
