@@ -8,18 +8,7 @@ import {
   deleteTemplate,
   updateTemplate,
 } from "../../state/templates/common/actions";
-
-/**
- * Handle error helper.
- * @param {boolean} raise indicates whether the error should be thrown.
- * @param {Error} error caught error
- */
-function handleError(raise, error) {
-  if (raise) {
-    throw error;
-  }
-  console.log(error);
-}
+import handleError from "../../../lib/helpers/handleError";
 
 /**
  * Get a callback to upload images as template-examples.

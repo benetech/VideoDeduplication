@@ -1,4 +1,5 @@
 import initialState from "./initialState";
+import { ACTION_CACHE_TEMPLATE } from "./actions";
 import {
   ACTION_ADD_EXAMPLE,
   ACTION_ADD_TEMPLATE,
@@ -24,6 +25,7 @@ import getEntityId from "../../../../lib/helpers/getEntityId";
  */
 export default function templateCacheReducer(state = initialState, action) {
   switch (action.type) {
+    case ACTION_CACHE_TEMPLATE:
     case ACTION_ADD_TEMPLATE: {
       const template = action.template;
       return entityCacheReducer(state, cacheValue(template.id, template));

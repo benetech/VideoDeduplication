@@ -1,8 +1,6 @@
 import { getEntry } from "../../common/cache/initialState";
 import { getQuery } from "../../common/queryCache";
 
-export const selectFileList = (state) => state.files.fileList;
-
 export const selectFilesColl = (state) => state.files.coll;
 
 export const selectFilesQuery = (params) => (state) =>
@@ -46,6 +44,8 @@ export const selectTaskLogs = (state) => state.taskLogs;
 export const selectTemplatesQuery = (params) => (state) =>
   getQuery(state.templates.queries, params);
 
+export const selectCachedTemplate = (id) => (state) =>
+  getEntry(state.templates.cache, id);
 /**
  * Select object cache.
  */
