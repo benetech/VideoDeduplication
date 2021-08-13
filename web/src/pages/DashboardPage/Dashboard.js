@@ -9,7 +9,7 @@ import { useTheme } from "@material-ui/core";
 // import BackdropMenu from "./BackdropMenu";
 import StackedLineChart from "./StackedLineChart";
 import Grid from "@material-ui/core/Grid";
-import { MatchCategory } from "../../application/state/files/queries/MatchCategory";
+import { MatchCategory } from "../../prop-types/MatchCategory";
 import useMatchStats from "../../application/api/stats/useMatchStats";
 import useFilesColl from "../../application/api/files/useFilesColl";
 import { useShowCollection } from "../../routing/hooks";

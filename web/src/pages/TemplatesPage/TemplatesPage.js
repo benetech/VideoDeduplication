@@ -16,7 +16,7 @@ import TemplateList from "./TemplateList";
 import { useServer } from "../../server-api/context";
 import { useDispatch } from "react-redux";
 import { updateTask } from "../../application/state/tasks/actions";
-import TaskRequest from "../../application/state/tasks/TaskRequest";
+import TaskRequestTypes from "../../prop-types/TaskRequestTypes";
 import AddTemplateDialog from "./AddTemplateDialog";
 import useFilesColl from "../../application/api/files/useFilesColl";
 import { useShowCollection } from "../../routing/hooks";
@@ -159,7 +159,7 @@ function ProcessingPage(props) {
   const hideTemplateDialog = useCallback(() => setShowNewTemplateDialog(false));
 
   const filterTemplateTasks = useCallback(
-    (task) => task?.request?.type === TaskRequest.MATCH_TEMPLATES,
+    (task) => task?.request?.type === TaskRequestTypes.MATCH_TEMPLATES,
     []
   );
 

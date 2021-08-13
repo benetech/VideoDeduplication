@@ -12,7 +12,7 @@ import {
 } from "../../application/state/taskLogs/actions";
 import { selectTaskLogs } from "../../application/state/root/selectors";
 import TaskType from "../../prop-types/TaskType";
-import TaskStatus from "../../application/state/tasks/TaskStatus";
+import TaskStatus from "../../prop-types/TaskStatus";
 
 const useStyles = makeStyles((theme) => ({
   logsContainer: {

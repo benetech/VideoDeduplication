@@ -1,5 +1,6 @@
 /**
  * Enum for tasks statuses.
+ * @enum {string}
  */
 export const TaskStatus = {
   PENDING: "PENDING",

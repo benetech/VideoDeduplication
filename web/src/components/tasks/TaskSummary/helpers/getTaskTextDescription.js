@@ -1,17 +1,17 @@
-import TaskRequest from "../../../../application/state/tasks/TaskRequest";
+import TaskRequestTypes from "../../../../prop-types/TaskRequestTypes";
 
 /**
  * Get Task text description.
  */
 export default function getTaskTextDescription(request, intl) {
   switch (request.type) {
-    case TaskRequest.DIRECTORY:
+    case TaskRequestTypes.DIRECTORY:
       if (request.directory === ".") {
         return intl.formatMessage({ id: "task.type.all" });
       } else {
         return request.directory;
       }
-    case TaskRequest.FILE_LIST: {
+    case TaskRequestTypes.FILE_LIST: {
       const count = request.files.length;
       const files = intl.formatMessage({
         id: count === 1 ? "file.one" : "file.many",
@@ -21,11 +21,11 @@ export default function getTaskTextDescription(request, intl) {
         { what: `${count} ${files}` }
       );
     }
-    case TaskRequest.MATCH_TEMPLATES:
+    case TaskRequestTypes.MATCH_TEMPLATES:
       return intl.formatMessage({ id: "task.type.templates" });
-    case TaskRequest.FIND_FRAME:
+    case TaskRequestTypes.FIND_FRAME:
       return intl.formatMessage({ id: "actions.findFrame" });
-    case TaskRequest.PROCESS_ONLINE_VIDEO:
+    case TaskRequestTypes.PROCESS_ONLINE_VIDEO:
       return intl.formatMessage({ id: "task.type.processOnline" });
     default:
       console.warn(`Unsupported task request type: ${request.type}`);

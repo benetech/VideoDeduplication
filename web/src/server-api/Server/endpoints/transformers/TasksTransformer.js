@@ -1,5 +1,5 @@
 import lodash from "lodash";
-import TaskRequest from "../../../../application/state/tasks/TaskRequest";
+import TaskRequestTypes from "../../../../prop-types/TaskRequestTypes";
 import utcDate, { defaultDateFormat } from "../../helpers/utcDate";
 
 /**
@@ -38,7 +38,7 @@ function makeTaskTypeTransforms() {
   const transforms = new Map();
 
   // Mappings for ProcessDirectory task
-  transforms.set(TaskRequest.DIRECTORY, {
+  transforms.set(TaskRequestTypes.DIRECTORY, {
     requestProps: {
       ...CommonRequestProps,
       directory: "directory",
@@ -47,7 +47,7 @@ function makeTaskTypeTransforms() {
   });
 
   // Mappings for ProcessFiles task
-  transforms.set(TaskRequest.FILE_LIST, {
+  transforms.set(TaskRequestTypes.FILE_LIST, {
     requestProps: {
       ...CommonRequestProps,
       files: "files",
@@ -56,7 +56,7 @@ function makeTaskTypeTransforms() {
   });
 
   // Mappings for MatchTemplates task
-  transforms.set(TaskRequest.MATCH_TEMPLATES, {
+  transforms.set(TaskRequestTypes.MATCH_TEMPLATES, {
     requestProps: {
       ...CommonRequestProps,
       template_distance: "templateDistance",
@@ -76,7 +76,7 @@ function makeTaskTypeTransforms() {
   });
 
   // Mappings for FindFrame task
-  transforms.set(TaskRequest.FIND_FRAME, {
+  transforms.set(TaskRequestTypes.FIND_FRAME, {
     requestProps: {
       ...CommonRequestProps,
       template_distance: "templateDistance",
@@ -100,7 +100,7 @@ function makeTaskTypeTransforms() {
   });
 
   // Mapping for ProcessOnlineVideo
-  transforms.set(TaskRequest.PROCESS_ONLINE_VIDEO, {
+  transforms.set(TaskRequestTypes.PROCESS_ONLINE_VIDEO, {
     requestProps: {
       ...CommonRequestProps,
       urls: "urls",
@@ -162,7 +162,7 @@ export default class TasksTransformer {
   /**
    * Convert request DTO to request model object.
    * @param requestDTO
-   * @returns {TaskRequest} request model object
+   * @returns {TaskRequestTypes} request model object
    */
   fromRequestDTO(requestDTO) {
     const mapping = this.typeTransforms.get(requestDTO.type).requestProps;

@@ -1,7 +1,8 @@
 /**
  * Enum for task request type.
+ * @enum {string}
  */
-export const TaskRequest = {
+export const TaskRequestTypes = {
   DIRECTORY: "ProcessDirectory",
   FILE_LIST: "ProcessFileList",
   MATCH_TEMPLATES: "MatchTemplates",
@@ -9,4 +10,4 @@ export const TaskRequest = {
   PROCESS_ONLINE_VIDEO: "ProcessOnlineVideo",
 };
 
-export default TaskRequest;
+export default TaskRequestTypes;

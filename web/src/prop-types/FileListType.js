@@ -1,5 +1,6 @@
 /**
  * Enum for file list types.
+ * @enum {string}
  */
 const FileListType = {
   grid: "grid",

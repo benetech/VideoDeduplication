@@ -12,7 +12,7 @@ import { useIntl } from "react-intl";
 import usePopup from "../../../lib/hooks/usePopup";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
-import TaskStatus from "../../../application/state/tasks/TaskStatus";
+import TaskStatus from "../../../prop-types/TaskStatus";
 import useCancelTask from "../../../application/api/tasks/useCancelTask";
 import useDeleteTask from "../../../application/api/tasks/useDeleteTask";
 import { useShowProcessing } from "../../../routing/hooks";

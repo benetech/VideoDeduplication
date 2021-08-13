@@ -17,7 +17,7 @@ import ObjectAPI from "../../application/api/objects/ObjectAPI";
 import { updateTask } from "../../application/state/tasks/actions";
 import { useServer } from "../../server-api/context";
 import { useDispatch } from "react-redux";
-import TaskRequest from "../../application/state/tasks/TaskRequest";
+import TaskRequestTypes from "../../prop-types/TaskRequestTypes";
 import {
   useCompareFiles,
   useShowCollection,
@@ -84,7 +84,7 @@ function useSearchFrame() {
   return useCallback(({ file, time }) => {
     server.tasks
       .create({
-        type: TaskRequest.FIND_FRAME,
+        type: TaskRequestTypes.FIND_FRAME,
         fileId: file.id,
         frameTimeSec: time,
       })

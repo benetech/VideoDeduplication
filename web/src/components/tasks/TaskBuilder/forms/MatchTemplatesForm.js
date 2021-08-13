@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import TaskRequestType from "../../../../prop-types/TaskRequestType";
 import { useIntl } from "react-intl";
 import Description from "../Description";
-import TaskRequest from "../../../../application/state/tasks/TaskRequest";
+import TaskRequestTypes from "../../../../prop-types/TaskRequestTypes";
 
 const useStyles = makeStyles((theme) => ({
   description: {
@@ -30,7 +30,7 @@ function MatchTemplatesForm(props) {
   const classes = useStyles();
 
   // Initialize state
-  useEffect(() => onChange({ type: TaskRequest.MATCH_TEMPLATES }), []);
+  useEffect(() => onChange({ type: TaskRequestTypes.MATCH_TEMPLATES }), []);
   useEffect(() => onValidated(true), []);
 
   return (

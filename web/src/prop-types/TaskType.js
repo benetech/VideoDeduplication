@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import TaskStatus from "../application/state/tasks/TaskStatus";
+import TaskStatus from "./TaskStatus";
 import TaskRequestType from "./TaskRequestType";
 
 /**
@@ -10,7 +10,7 @@ import TaskRequestType from "./TaskRequestType";
  *   submissionTime: Date,
  *   statusUpdateTime: Date,
  *   status: string,
- *   request: TaskRequest,
+ *   request: TaskRequestTypes,
  *   error: {type: string, module:string, message: string, traceback: string}|undefined,
  *   progress: number|undefined,
  *   raw: Object,
