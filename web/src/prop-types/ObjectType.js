@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import { TemplateType } from "./TemplateType";
 
 /**
- * Recognized object (synonym for Template Match) prop-type.
- *
  * @typedef {{
  *   id: string|number,
  *   fileId: string|number,
@@ -16,6 +14,10 @@ import { TemplateType } from "./TemplateType";
  *   template: TemplateEntity|undefined|null,
  *   falsePositive: boolean|undefined,
  * }} ObjectEntity
+ */
+
+/**
+ * Recognized object (synonym for Template Match) prop-type.
  */
 const ObjectType = PropTypes.shape({
   /**

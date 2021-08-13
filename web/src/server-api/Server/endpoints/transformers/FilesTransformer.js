@@ -14,9 +14,7 @@ export default class FilesTransformer {
   }
 
   /**
-   * Convert file list filters to query parameters.
-   *
-   *  @typedef {{
+   * @typedef {{
    *   query: string|undefined,
    *   extensions: string[]|undefined,
    *   length: { lower: null|number, upper: null|number },
@@ -27,6 +25,11 @@ export default class FilesTransformer {
    *   remote: null|boolean,
    *   templates: number[],
    * }} FileFilters
+   */
+
+  /**
+   * Convert file list filters to query parameters.
+   *
    * @param {FileFilters} filters file filters
    * @return {{}} query parameters as object
    */
@@ -77,13 +80,16 @@ export default class FilesTransformer {
   }
 
   /**
-   * Convert cluster filters to query params.
-   *
    * @typedef {{
    *   hops: number|undefined,
    *   minDistance: number|undefined,
    *   maxDistance: number|undefined,
    * }} ClusterFilters
+   */
+
+  /**
+   * Convert cluster filters to query params.
+   *
    * @param {ClusterFilters} filters
    * @param {string[]} fields
    * @return {{}} cluster query parameters
@@ -106,14 +112,17 @@ export default class FilesTransformer {
   }
 
   /**
-   * Convert file matches filters to query params.
-   *
    * @typedef {{
    *   remote: boolean|null,
    *   falsePositive: boolean|null,
    *   sort: string,
    *   sortDirection: string,
    * }} FileMatchFilters
+   */
+
+  /**
+   * Convert file matches filters to query params.
+   *
    * @param {FileMatchFilters} filters
    * @param {string[]} fields
    * @return {{}} file matches query parameters

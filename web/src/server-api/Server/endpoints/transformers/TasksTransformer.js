@@ -197,11 +197,14 @@ export default class TasksTransformer {
   }
 
   /**
-   * Convert task list filters to query parameters.
-   *
    * @typedef {{
    *   status: string[],
    * }} TaskFilters
+   */
+
+  /**
+   * Convert task list filters to query parameters.
+   *
    * @param {TaskFilters} filters
    * @return {{}}
    */

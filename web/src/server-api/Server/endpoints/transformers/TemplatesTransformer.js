@@ -9,10 +9,14 @@ export default class TemplatesTransformer {
   }
 
   /**
-   * Convert template filters to templates query parameters
    * @typedef {{
    *   name: string
    * }} TemplateFilters
+   */
+
+  /**
+   * Convert template filters to templates query parameters
+   *
    * @param {TemplateFilters} filters
    * @param {string[]} fields
    * @return {{}} templates query parameters
@@ -77,11 +81,14 @@ export default class TemplatesTransformer {
   }
 
   /**
-   * Convert list-example filters to query parameters.
-   *
    * @typedef {{
    *   templateId: number|string,
    * }} ExampleFilters
+   */
+
+  /**
+   * Convert list-example filters to query parameters.
+   *
    * @param {ExampleFilters} filters
    * @param {string[]} fields
    * @return {{}} examples query parameters.
@@ -125,11 +132,15 @@ export default class TemplatesTransformer {
   }
 
   /**
-   * Template matches filters to query parameters.
    * @typedef {{
    *   templateId: string|number|undefined,
    *   fileId: string|number|undefined,
    * }} TemplateMatchFilters
+   */
+
+  /**
+   * Template matches filters to query parameters.
+   *
    * @param {TemplateMatchFilters} filters
    * @param {string[]} fields
    * @return {{}} template matches query parameters

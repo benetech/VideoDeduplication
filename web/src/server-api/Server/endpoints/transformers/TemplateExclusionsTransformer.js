@@ -15,12 +15,15 @@ export default class TemplateExclusionsTransformer {
   }
 
   /**
-   * Convert list template exclusions filters to query parameters.
-   *
    * @typedef {{
    *   templateId: number|string|undefined,
    *   fileId: number|string|undefined,
    * }} TemplateExclusionFilters
+   */
+
+  /**
+   * Convert list template exclusions filters to query parameters.
+   *
    * @param {TemplateExclusionFilters} filters
    * @return {{}} query parameters as object
    */

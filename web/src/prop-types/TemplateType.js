@@ -33,12 +33,6 @@ export const TemplateExampleType = PropTypes.shape({
 });
 
 /**
- * Prop type for template.
- *
- * Template is collection of example-images which visually represents some
- * object or situation which the application will be able to find in the
- * existing files.
- *
  * @typedef {{
  *   id: string|number,
  *   name: string,
@@ -46,6 +40,14 @@ export const TemplateExampleType = PropTypes.shape({
  *   examples: TemplateExampleEntity[],
  *   fileCount: number|undefined,
  * }} TemplateEntity
+ */
+
+/**
+ * Prop type for template.
+ *
+ * Template is collection of example-images which visually represents some
+ * object or situation which the application will be able to find in the
+ * existing files.
  */
 export const TemplateType = PropTypes.shape({
   id: PropTypes.any.isRequired,
