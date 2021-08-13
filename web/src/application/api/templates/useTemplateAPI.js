@@ -21,6 +21,11 @@ function handleError(raise, error) {
   console.log(error);
 }
 
+/**
+ * Get a callback to upload images as template-examples.
+ * @param {boolean} raise if false, will not throw errors
+ * @return {(function(File[], TemplateType): Promise<void>)}
+ */
 export function useUploadExamples(raise = false) {
   const dispatch = useDispatch();
   const server = useServer();
@@ -36,6 +41,11 @@ export function useUploadExamples(raise = false) {
   });
 }
 
+/**
+ * Get a callback to delete template-example.
+ * @param {boolean} raise if false, will not throw errors
+ * @return {(function(TemplateExampleType): Promise<void>)|*}
+ */
 export function useDeleteExample(raise = true) {
   const dispatch = useDispatch();
   const server = useServer();
@@ -50,6 +60,11 @@ export function useDeleteExample(raise = true) {
   });
 }
 
+/**
+ * Get a callback to update template.
+ * @param {boolean} raise if false, will not throw errors
+ * @return {(function(*=, *=): Promise<*|undefined>)|*}
+ */
 export function useUpdateTemplate(raise = true) {
   const dispatch = useDispatch();
   const server = useServer();
@@ -64,6 +79,11 @@ export function useUpdateTemplate(raise = true) {
   });
 }
 
+/**
+ * Get a callback to delete template.
+ * @param raise if false, will not throw errors
+ * @return {(function(TemplateType): Promise<void>)}
+ */
 export function useDeleteTemplate(raise = true) {
   const dispatch = useDispatch();
   const server = useServer();
@@ -78,6 +98,11 @@ export function useDeleteTemplate(raise = true) {
   });
 }
 
+/**
+ * Get a callback to create a new template.
+ * @param raise if false, will not throw errors
+ * @return {(function({name: *, icon: *}): Promise<TemplateType>)}
+ */
 export function useAddTemplate(raise = true) {
   const dispatch = useDispatch();
   const server = useServer();
@@ -92,6 +117,10 @@ export function useAddTemplate(raise = true) {
   });
 }
 
+/**
+ * Get callbacks for template CRUD operations.
+ * @param raise if false, will not throw errors
+ */
 export default function useTemplateAPI(raise = true) {
   return {
     createTemplate: useAddTemplate(raise),

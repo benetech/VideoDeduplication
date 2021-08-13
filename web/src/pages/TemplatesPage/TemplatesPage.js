@@ -21,7 +21,7 @@ import AddTemplateDialog from "./AddTemplateDialog";
 import useFilesColl from "../../application/api/files/useFilesColl";
 import { useShowCollection } from "../../routing/hooks";
 import useLoadAllTemplates from "../../application/api/templates/useLoadAllTemplates";
-import useTemplateAPI from "../../application/api/templates/templateAPI";
+import useTemplateAPI from "../../application/api/templates/useTemplateAPI";
 
 const useStyles = makeStyles((theme) => ({
   root: {

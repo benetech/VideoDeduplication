@@ -14,7 +14,7 @@ import Button from "../../components/basic/Button";
 import IconKind from "../../application/state/templates/IconKind";
 import TemplateIconPreview from "./TemplateList/TemplateIconPreview";
 import nameErrorMessage from "./nameErrorMessage";
-import { useAddTemplate } from "../../application/api/templates/templateAPI";
+import { useAddTemplate } from "../../application/api/templates/useTemplateAPI";
 
 const useStyles = makeStyles((theme) => ({
   content: {
