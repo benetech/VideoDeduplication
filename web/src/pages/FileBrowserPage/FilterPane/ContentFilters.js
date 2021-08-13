@@ -41,7 +41,7 @@ function ContentFilters(props) {
   );
 
   const handleTemplatesChange = useCallback(
-    (templates) => setFilters({ templates }),
+    (templates) => setFilters({ templates: templates.sort() }),
     [setFilters]
   );
 
