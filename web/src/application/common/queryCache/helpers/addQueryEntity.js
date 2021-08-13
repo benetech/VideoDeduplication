@@ -35,7 +35,7 @@ export default function addQueryEntity(
 
   const updatedQuery = { ...query, items: updatedItems };
   if (wasAdded) {
-    query.total += 1;
+    updatedQuery.total += 1;
   }
 
   return updatedQuery;

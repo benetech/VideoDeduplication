@@ -269,7 +269,7 @@ export function addEntity(
 
   // Add entity to appropriate queries
   const updatedQueries = cache.queries.map((query) => {
-    if (!checkFilters(query, entity)) {
+    if (!checkFilters(query.params, entity)) {
       return query;
     }
     changed = true;
