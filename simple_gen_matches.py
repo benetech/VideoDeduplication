@@ -13,7 +13,19 @@ from winnow.utils.matches import get_summarized_matches, unique
     default="data/representations/video_signatures",
 )
 @click.option("--output", "-o", help="path to the output folder where the files will be saved", default="data/")
-def main(source, output):
+@click.option(
+    "--metric",
+    "-m",
+    help="distance metric (euclidean / cosine)",
+    default="cosine",
+)
+@click.option(
+    "--metric-threshold",
+    "-mt",
+    help="distance metric threshold",
+    default=0.7,
+)
+def main(source, output, metric, metric_threshold):
 
     assert os.path.exists(source), "Source folder does not exist"
     assert os.path.exists(output), "Output folder does not exist"
@@ -33,7 +45,8 @@ def main(source, output):
         video_signatures = np.array([x[0] for x in video_signatures])
 
     #
-    match_df = get_summarized_matches(video_signatures, distance=0.75)
+    match_df = get_summarized_matches(video_signatures, distance=float(metric_threshold), metric=metric)
+
     match_df["query_video"] = original_filename[match_df["query"]]
     match_df["match_video"] = original_filename[match_df["match"]]
     match_df["query_video_original_path"] = video_signatures_fp[match_df["query"]]
