@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -59,16 +59,23 @@ function TaskSummaryHeader(props) {
   const isActive = isActiveTask(task);
   const { clickTrigger, popup } = usePopup("task-menu-");
   const handleBack = useShowProcessing();
+  const deleteTask = useDeleteTask(task, [task]);
+  const cancelTask = useCancelTask(task, [task]);
 
-  const handleCancel = useCancelTask({
-    id: task.id,
-    onTrigger: () => popup.onClose(),
-  });
-  const handleDelete = useDeleteTask({
-    id: task.id,
-    onTrigger: () => popup.onClose(),
-    onSuccess: handleBack,
-  });
+  const handleCancel = useCallback(() => {
+    popup.onClose();
+    cancelTask().catch(console.error);
+  }, [cancelTask]);
+
+  const handleDelete = useCallback(async () => {
+    try {
+      popup.onClose();
+      await deleteTask();
+      handleBack();
+    } catch (error) {
+      console.log(error);
+    }
+  }, [deleteTask]);
 
   return (
     <Paper className={clsx(classes.header, className)} {...other}>

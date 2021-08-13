@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -119,18 +119,21 @@ function TaskListItem(props) {
   const Icon = getStatusIcon(task.status);
   const running = task.status === TaskStatus.RUNNING;
   const { clickTrigger, popup } = usePopup("task-menu-");
+  const deleteTask = useDeleteTask(task, [task]);
+  const cancelTask = useCancelTask(task, [task]);
 
   const showLogs = useShowLogs(task, [task]);
   const showTask = useShowTask(task, [task]);
 
-  const handleCancel = useCancelTask({
-    id: task.id,
-    onTrigger: () => popup.onClose(),
-  });
-  const handleDelete = useDeleteTask({
-    id: task.id,
-    onTrigger: () => popup.onClose(),
-  });
+  const handleCancel = useCallback(() => {
+    popup.onClose();
+    cancelTask().catch(console.error);
+  }, [cancelTask]);
+
+  const handleDelete = useCallback(() => {
+    popup.onClose();
+    deleteTask().catch(console.error);
+  }, [deleteTask]);
 
   return (
     <div className={clsx(classes.task, className)} {...other}>
