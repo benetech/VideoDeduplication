@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
  *
  * @typedef {{
  *   type: string,
- * }} TaskRequestType
+ * }} TaskRequest
  */
 const TaskRequestType = PropTypes.shape({
   type: PropTypes.string.isRequired,

@@ -4,11 +4,17 @@ import { TemplateType } from "./TemplateType";
 
 /**
  * Prop-type for a black-listed (file, template) pair.
+ *
+ * @typedef {{
+ *   id: string|number,
+ *   file: FileEntity,
+ *   template: TemplateEntity,
+ * }} TemplateExclusionEntity
  */
-const FileExclusionType = PropTypes.shape({
+const TemplateExclusionType = PropTypes.shape({
   id: PropTypes.number.isRequired,
   file: FileType.isRequired,
   template: TemplateType.isRequired,
 });
 
-export default FileExclusionType;
+export default TemplateExclusionType;

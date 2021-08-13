@@ -31,7 +31,7 @@ export default class TemplatesTransformer {
   /**
    * Convert template list results.
    * @param data server response
-   * @return {{total:number, offset:number, templates: TemplateType[]}}
+   * @return {{total:number, offset:number, templates: TemplateEntity[]}}
    */
   templates(data) {
     return {
@@ -44,7 +44,7 @@ export default class TemplatesTransformer {
   /**
    * Convert template DTO to template object.
    * @param data template DTO
-   * @return {TemplateType}
+   * @return {TemplateEntity}
    */
   template(data) {
     if (data == null) {
@@ -65,7 +65,7 @@ export default class TemplatesTransformer {
 
   /**
    * Make new-template DTO.
-   * @param {TemplateType} template template object to be created
+   * @param {TemplateEntity} template template object to be created
    * @return {{}}
    */
   newTemplateDTO(template) {
@@ -100,7 +100,7 @@ export default class TemplatesTransformer {
   /**
    * Convert list examples results.
    * @param data server response
-   * @return {{total:number, offset:number, examples:TemplateExampleType[]}}
+   * @return {{total:number, offset:number, examples:TemplateExampleEntity[]}}
    */
   examples(data) {
     return {
@@ -113,7 +113,7 @@ export default class TemplatesTransformer {
   /**
    * Convert example DTO to example object.
    * @param data example DTO
-   * @return {TemplateExampleType}
+   * @return {TemplateExampleEntity}
    */
   example(data) {
     return {
@@ -151,7 +151,7 @@ export default class TemplatesTransformer {
   /**
    * Convert list template matches results
    * @param data server response
-   * @return {{total, offset, templateMatches: ObjectType[], templates: TemplateType[], files: FileType[]}}
+   * @return {{total, offset, templateMatches: ObjectEntity[], templates: TemplateEntity[], files: FileEntity[]}}
    */
   matches(data) {
     return {
@@ -168,7 +168,7 @@ export default class TemplatesTransformer {
   /**
    * Convert match DTO to match object.
    * @param {{}} data match DTO
-   * @return {ObjectType}
+   * @return {ObjectEntity}
    */
   match(data) {
     const match = {

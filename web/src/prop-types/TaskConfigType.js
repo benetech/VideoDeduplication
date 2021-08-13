@@ -10,7 +10,7 @@ import PropTypes from "prop-types";
  *   darkThreshold: number|undefined,
  *   minDuration: number|undefined,
  *   extensions: string[]|undefined,
- * }} TaskConfigType
+ * }} TaskConfig
  */
 const TaskConfigType = PropTypes.shape({
   frameSampling: PropTypes.number,

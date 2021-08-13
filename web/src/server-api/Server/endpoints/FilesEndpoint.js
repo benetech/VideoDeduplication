@@ -18,7 +18,7 @@ export default class FilesEndpoint {
    *   offset: number,
    *   filters: FileFilters,
    * }} options query options
-   * @returns {Promise<{counts, files: FileType[]}>}
+   * @returns {Promise<{counts, files: FileEntity[]}>}
    */
   async list(options = {}) {
     try {
@@ -40,7 +40,7 @@ export default class FilesEndpoint {
   /**
    * Get single file by id.
    * @param id file id
-   * @return {Promise<FileType>}
+   * @return {Promise<FileEntity>}
    */
   async get(id) {
     try {
@@ -65,7 +65,7 @@ export default class FilesEndpoint {
    *   fields:string[],
    *   filters:ClusterFilters
    * }} options query options.
-   * @returns {Promise<{total:number, files: FileType[], matches: MatchType[]}>}
+   * @returns {Promise<{total:number, files: FileEntity[], matches: MatchEntity[]}>}
    */
   async cluster(options = {}) {
     try {
@@ -92,7 +92,7 @@ export default class FilesEndpoint {
    *   fields: string[],
    *   filters: Object,
    * }} options query options
-   * @returns {Promise<{total:number, offset:number, matches:FileMatchType[]}>}
+   * @returns {Promise<{total:number, offset:number, matches:FileMatchEntity[]}>}
    */
   async matches(options = {}) {
     try {

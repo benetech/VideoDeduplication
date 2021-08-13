@@ -7,8 +7,8 @@ import RepoType from "./RepoType";
  * @typedef {{
  *   id: string|number,
  *   name: string,
- *   repository: RepoType|undefined,
- * }} ContributorType
+ *   repository: RepoEntity|undefined,
+ * }} ContributorEntity
  */
 export const ContributorType = PropTypes.shape({
   id: PropTypes.any.isRequired,

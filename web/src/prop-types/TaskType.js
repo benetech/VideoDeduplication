@@ -10,11 +10,11 @@ import TaskRequestType from "./TaskRequestType";
  *   submissionTime: Date,
  *   statusUpdateTime: Date,
  *   status: string,
- *   request: TaskRequestType,
+ *   request: TaskRequest,
  *   error: {type: string, module:string, message: string, traceback: string}|undefined,
  *   progress: number|undefined,
  *   raw: Object,
- * }} TaskType
+ * }} TaskEntity
  */
 export const TaskType = PropTypes.shape({
   id: PropTypes.string.isRequired,

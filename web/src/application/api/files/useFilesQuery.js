@@ -12,7 +12,7 @@ import { MatchCategory } from "../../state/files/queries/MatchCategory";
  * Use lazy files query.
  * @param {FileFilters} params query filters
  * @return {{
- *   files: FileType[],
+ *   files: FileEntity[],
  *   counts: {
  *     all: number,
  *     related: number,

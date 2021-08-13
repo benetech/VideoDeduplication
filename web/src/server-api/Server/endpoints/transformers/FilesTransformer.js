@@ -141,7 +141,7 @@ export default class FilesTransformer {
   /**
    * Transform list files results.
    * @param data server response
-   * @return {{files: FileType[], counts}} list files results
+   * @return {{files: FileEntity[], counts}} list files results
    */
   files(data) {
     const counts = {
@@ -158,7 +158,7 @@ export default class FilesTransformer {
   /**
    * Transform file DTO to file object.
    * @param data file DTO as object
-   * @return {FileType} transformed file
+   * @return {FileEntity} transformed file
    */
   file(data) {
     const meta = this._metadata(data);
@@ -166,7 +166,7 @@ export default class FilesTransformer {
       id: data.id,
       filename: data.file_path,
       metadata: {
-        fileType: this._type(data),
+        FileEntity: this._type(data),
         hasAudio: data.exif && !!data.exif.Audio_Format,
         // Always false, until exif is actually extracted
         // TODO: https://github.com/benetech/VideoDeduplication/issues/313
@@ -189,7 +189,7 @@ export default class FilesTransformer {
   /**
    * Transform file neighbors cluster.
    * @param {{}} data server response.
-   * @return {{total:number, files: FileType[], matches: MatchType[]}}
+   * @return {{total:number, files: FileEntity[], matches: MatchEntity[]}}
    */
   cluster(data) {
     return {
@@ -202,7 +202,7 @@ export default class FilesTransformer {
   /**
    * Transform list file matches results.
    * @param {{}} data server response
-   * @return {{total:number, offset:number, matches: FileMatchType[]}}
+   * @return {{total:number, offset:number, matches: FileMatchEntity[]}}
    */
   matches(data) {
     return {
@@ -216,7 +216,7 @@ export default class FilesTransformer {
    * Transform file match DTO to file match object.
    * @param match file match DTO
    * @param motherFile file DTO
-   * @return {FileMatchType} file match object
+   * @return {FileMatchEntity} file match object
    */
   match(match, motherFile) {
     return {
@@ -286,7 +286,7 @@ export default class FilesTransformer {
 
   /**
    * @param match
-   * @return {MatchType}
+   * @return {MatchEntity}
    * @private
    */
   _clusterMatch(match) {

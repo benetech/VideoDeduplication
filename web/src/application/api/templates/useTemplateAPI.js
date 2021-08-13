@@ -24,7 +24,7 @@ function handleError(raise, error) {
 /**
  * Get a callback to upload images as template-examples.
  * @param {boolean} raise if false, will not throw errors
- * @return {(function(File[], TemplateType): Promise<void>)}
+ * @return {(function(File[], TemplateEntity): Promise<void>)}
  */
 export function useUploadExamples(raise = false) {
   const dispatch = useDispatch();
@@ -44,7 +44,7 @@ export function useUploadExamples(raise = false) {
 /**
  * Get a callback to delete template-example.
  * @param {boolean} raise if false, will not throw errors
- * @return {(function(TemplateExampleType): Promise<void>)|*}
+ * @return {(function(TemplateExampleEntity): Promise<void>)|*}
  */
 export function useDeleteExample(raise = true) {
   const dispatch = useDispatch();
@@ -82,7 +82,7 @@ export function useUpdateTemplate(raise = true) {
 /**
  * Get a callback to delete template.
  * @param raise if false, will not throw errors
- * @return {(function(TemplateType): Promise<void>)}
+ * @return {(function(TemplateEntity): Promise<void>)}
  */
 export function useDeleteTemplate(raise = true) {
   const dispatch = useDispatch();
@@ -101,7 +101,7 @@ export function useDeleteTemplate(raise = true) {
 /**
  * Get a callback to create a new template.
  * @param raise if false, will not throw errors
- * @return {(function({name: *, icon: *}): Promise<TemplateType>)}
+ * @return {(function({name: *, icon: *}): Promise<TemplateEntity>)}
  */
 export function useAddTemplate(raise = true) {
   const dispatch = useDispatch();

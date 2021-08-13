@@ -19,20 +19,20 @@ import ContributorType from "./ContributorType";
  *   hasAudio: boolean|undefined,
  *   quality: number|undefined,
  *   flagged: boolean|undefined,
- * }} FileMetadataType
+ * }} FileMetadata
  *
  *  @typedef {{
  *    id: string|number,
  *    filename: string,
- *    metadata: FileMetadataType|undefined,
+ *    metadata: FileMetadata|undefined,
  *    hash: string,
  *    fingerprint: string,
  *    preview: string,
  *    playbackURL: string,
  *    exif: Object,
  *    external: boolean,
- *    contributor: ContributorType|undefined,
- *  }} FileType
+ *    contributor: ContributorEntity|undefined,
+ *  }} FileEntity
  */
 export const FileType = PropTypes.shape({
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

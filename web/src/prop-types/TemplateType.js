@@ -7,7 +7,7 @@ import IconKind from "../application/state/templates/IconKind";
  * @typedef {{
  *   kind: string,
  *   key: string
- * }} TemplateIconType
+ * }} TemplateIcon
  */
 export const TemplateIconType = PropTypes.shape({
   kind: PropTypes.oneOf([IconKind.PREDEFINED, IconKind.CUSTOM]).isRequired,
@@ -24,7 +24,7 @@ export const TemplateIconType = PropTypes.shape({
  *   id: string|number,
  *   url: string,
  *   templateId: string|number,
- * }} TemplateExampleType
+ * }} TemplateExampleEntity
  */
 export const TemplateExampleType = PropTypes.shape({
   id: PropTypes.any.isRequired,
@@ -42,10 +42,10 @@ export const TemplateExampleType = PropTypes.shape({
  * @typedef {{
  *   id: string|number,
  *   name: string,
- *   icon: TemplateIconType,
- *   examples: TemplateExampleType[],
+ *   icon: TemplateIcon,
+ *   examples: TemplateExampleEntity[],
  *   fileCount: number|undefined,
- * }} TemplateType
+ * }} TemplateEntity
  */
 export const TemplateType = PropTypes.shape({
   id: PropTypes.any.isRequired,

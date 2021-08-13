@@ -12,7 +12,7 @@ import {
  * Use lazy templates query.
  *
  * @typedef {{
- *   templates: TemplateType[],
+ *   templates: TemplateEntity[],
  *   total: number|undefined,
  *   error: boolean,
  *   loading: boolean,

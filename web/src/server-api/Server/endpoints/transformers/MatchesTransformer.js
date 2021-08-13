@@ -7,7 +7,7 @@ export default class MatchesTransformer {
   /**
    * Convert match DTO to match object.
    * @param match match DTO
-   * @return {MatchType}
+   * @return {MatchEntity}
    */
   match(match) {
     return {

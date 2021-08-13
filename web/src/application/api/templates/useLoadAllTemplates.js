@@ -21,7 +21,7 @@ function progress(query) {
  *
  * @param {TemplateFilters} params
  * @return {{
- *   templates: TemplateType[],
+ *   templates: TemplateEntity[],
  *   total: number|undefined,
  *   progress: number,
  *   done: boolean,

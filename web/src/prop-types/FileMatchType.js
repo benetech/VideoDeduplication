@@ -6,11 +6,11 @@ import FileType from "./FileType";
  *
  * @typedef {{
  *   id: string|number,
- *   motherFile: FileType|null,
- *   file: FileType,
+ *   motherFile: FileEntity|null,
+ *   file: FileEntity,
  *   distance: number,
  *   falsePositive: boolean,
- * }} FileMatchType
+ * }} FileMatchEntity
  */
 const FileMatchType = PropTypes.shape({
   id: PropTypes.number.isRequired,

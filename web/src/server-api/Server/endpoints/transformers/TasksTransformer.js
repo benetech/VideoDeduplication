@@ -129,7 +129,7 @@ export default class TasksTransformer {
   /**
    * Convert list tasks results.
    * @param data server response
-   * @return {{total:number, offset:number, tasks: TaskType[]}}
+   * @return {{total:number, offset:number, tasks: TaskEntity[]}}
    */
   tasks(data) {
     return {
@@ -142,7 +142,7 @@ export default class TasksTransformer {
   /**
    * Convert task DTO to task object.
    * @param {{}} taskDTO
-   * @return {TaskType}
+   * @return {TaskEntity}
    */
   task(taskDTO) {
     const request = this.fromRequestDTO(taskDTO.request);
@@ -162,7 +162,7 @@ export default class TasksTransformer {
   /**
    * Convert request DTO to request model object.
    * @param requestDTO
-   * @returns {TaskRequestType} request model object
+   * @returns {TaskRequest} request model object
    */
   fromRequestDTO(requestDTO) {
     const mapping = this.typeTransforms.get(requestDTO.type).requestProps;

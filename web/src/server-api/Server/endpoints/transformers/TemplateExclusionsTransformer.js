@@ -38,7 +38,7 @@ export default class TemplateExclusionsTransformer {
   /**
    * Convert list template results.
    * @param data server response.
-   * @return {{total, offset, exclusions: TemplateExclusion[]}}
+   * @return {{total, offset, exclusions: TemplateExclusionEntity[]}}
    */
   exclusions(data) {
     return {
@@ -51,7 +51,7 @@ export default class TemplateExclusionsTransformer {
   /**
    * Convert template exclusion DTO to template exclusion object.
    * @param data template exclusion DTO
-   * @return {TemplateExclusion}
+   * @return {TemplateExclusionEntity}
    */
   exclusion(data) {
     return {
@@ -63,7 +63,7 @@ export default class TemplateExclusionsTransformer {
 
   /**
    * Make new-exclusion DTO from exclusion object.
-   * @param {TemplateExclusion} exclusion
+   * @param {TemplateExclusionEntity} exclusion
    * @return {{}} new-exclusion DTO
    */
   newExclusionDTO(exclusion) {

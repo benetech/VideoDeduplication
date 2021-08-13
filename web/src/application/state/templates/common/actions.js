@@ -3,8 +3,8 @@ export const ACTION_ADD_TEMPLATE = "templates.ADD_TEMPLATE";
 /**
  * @typedef {{
  *   type: string,
- *   template: TemplateType|string|number|undefined,
- *   example: TemplateExampleType|undefined
+ *   template: TemplateEntity|string|number|undefined,
+ *   example: TemplateExampleEntity|undefined
  * }} TemplateAction
  */
 
@@ -13,7 +13,7 @@ export const ACTION_ADD_TEMPLATE = "templates.ADD_TEMPLATE";
  *
  * The template must be added to all appropriate queries and caches.
  *
- * @param {TemplateType|string|number} template
+ * @param {TemplateEntity|string|number} template
  * @return {TemplateAction}
  */
 export function addTemplate(template) {
@@ -27,7 +27,7 @@ export const ACTION_DELETE_TEMPLATE = "templates.DELETE_TEMPLATE";
  *
  * The template will be deleted from all queries and caches.
  *
- * @param {string|number|TemplateType} template
+ * @param {string|number|TemplateEntity} template
  * @return {TemplateAction}
  */
 export function deleteTemplate(template) {
@@ -41,7 +41,7 @@ export const ACTION_UPDATE_TEMPLATE = "templates.UPDATE_TEMPLATE";
  *
  * Template will be updated in all queries and caches.
  *
- * @param {TemplateType} template
+ * @param {TemplateEntity} template
  * @return {TemplateAction}
  */
 export function updateTemplate(template) {
@@ -55,7 +55,7 @@ export const ACTION_ADD_EXAMPLE = "templates.ADD_EXAMPLE";
  *
  * The corresponding template will be updated in all queries and cache.
  *
- * @param {TemplateExampleType} example
+ * @param {TemplateExampleEntity} example
  * @return {TemplateAction}
  */
 export function addExample(example) {
@@ -69,7 +69,7 @@ export const ACTION_DELETE_EXAMPLE = "templates.DELETE_EXAMPLE";
  *
  * The corresponding template will be updated in all queries and cache.
  *
- * @param {TemplateExampleType} example
+ * @param {TemplateExampleEntity} example
  * @return {TemplateAction}
  */
 export function deleteExample(example) {

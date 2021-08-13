@@ -3,9 +3,9 @@ import deleteEntityFromList from "../../../common/helpers/deleteEntityFromList";
 
 /**
  * Add example to template.
- * @param {TemplateType} template
- * @param {TemplateExampleType} example
- * @return {TemplateType}
+ * @param {TemplateEntity} template
+ * @param {TemplateExampleEntity} example
+ * @return {TemplateEntity}
  */
 export function addExample(template, example) {
   return {
@@ -16,9 +16,9 @@ export function addExample(template, example) {
 
 /**
  * Delete example from the template.
- * @param {TemplateType} template
- * @param {TemplateExampleType} example
- * @return {TemplateType}
+ * @param {TemplateEntity} template
+ * @param {TemplateExampleEntity} example
+ * @return {TemplateEntity}
  */
 export function delExample(template, example) {
   return {

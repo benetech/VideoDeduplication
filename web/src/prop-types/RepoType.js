@@ -9,7 +9,7 @@ import PropTypes from "prop-types";
  *   address: string,
  *   login: string,
  *   type: string,
- * }} RepoType
+ * }} RepoEntity
  */
 export const RepoType = PropTypes.shape({
   id: PropTypes.any.isRequired,

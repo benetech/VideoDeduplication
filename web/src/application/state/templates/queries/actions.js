@@ -7,7 +7,7 @@ export const ACTION_QUERY_TEMPLATES = "templatesQuery.QUERY_TEMPLATES";
  *   type: string,
  *   params: TemplateFilters,
  *   request: string|undefined|null,
- *   templates: TemplateType[]|undefined,
+ *   templates: TemplateEntity[]|undefined,
  *   total: number|undefined,
  * }} TemplatesQueryAction
  */
@@ -28,7 +28,7 @@ export const ACTION_UPDATE_TEMPLATES_QUERY =
  * Update templates query.
  *
  * @param {TemplateFilters} params
- * @param {TemplateType[]} templates
+ * @param {TemplateEntity[]} templates
  * @param {number} total
  * @param {string|null} request
  * @return {TemplatesQueryAction}

@@ -13,9 +13,9 @@ import { TemplateType } from "./TemplateType";
  *   meanDistance: number,
  *   minDistance: number,
  *   minDistanceTime: number,
- *   template: TemplateType|undefined|null,
+ *   template: TemplateEntity|undefined|null,
  *   falsePositive: boolean|undefined,
- * }} ObjectType
+ * }} ObjectEntity
  */
 const ObjectType = PropTypes.shape({
   /**

@@ -33,7 +33,7 @@ import { addExample, delExample } from "../common/updaters";
 /**
  * Check if the template satisfies query params.
  * @param {TemplateFilters} params
- * @param {TemplateType} template
+ * @param {TemplateEntity} template
  * @return {boolean}
  */
 function checkFilters(params, template) {
@@ -42,8 +42,8 @@ function checkFilters(params, template) {
 
 /**
  * Compare template by names.
- * @param {TemplateType} templateA
- * @param {TemplateType} templateB
+ * @param {TemplateEntity} templateA
+ * @param {TemplateEntity} templateB
  * @return {number}
  */
 function nameComparator(templateA, templateB) {

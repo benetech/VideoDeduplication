@@ -35,8 +35,8 @@ export const ACTION_UPDATE_TASK = "coll.UPDATE_TASK";
  *
  * Task will be created if missing.
  *
- * @typedef {{task: TaskType, type: string }} UpdateTaskAction
- * @param {TaskType} task
+ * @typedef {{task: TaskEntity, type: string }} UpdateTaskAction
+ * @param {TaskEntity} task
  * @return {UpdateTaskAction}
  */
 export function updateTask(task) {

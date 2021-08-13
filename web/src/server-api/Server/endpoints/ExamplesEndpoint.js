@@ -19,7 +19,7 @@ export default class ExamplesEndpoint {
    *   fields: string[],
    *   filters: ExampleFilters,
    * }} options query options
-   * @return {Promise<{total:number, offset:number, examples:TemplateExampleType[]}>}
+   * @return {Promise<{total:number, offset:number, examples:TemplateExampleEntity[]}>}
    */
   async list(options = {}) {
     try {
@@ -46,7 +46,7 @@ export default class ExamplesEndpoint {
    * Fetch a single template example by id.
    * @param id example id
    * @param {{fields: string[]}} options fetch options
-   * @return {Promise<TemplateExampleType>}
+   * @return {Promise<TemplateExampleEntity>}
    */
   async get(id, options = {}) {
     try {
@@ -64,9 +64,9 @@ export default class ExamplesEndpoint {
 
   /**
    * Upload a new template example.
-   * @param {TemplateType|string|number} template
+   * @param {TemplateEntity|string|number} template
    * @param file
-   * @return {Promise<TemplateExampleType>}
+   * @return {Promise<TemplateExampleEntity>}
    */
   async upload(template, file) {
     try {
@@ -98,7 +98,7 @@ export default class ExamplesEndpoint {
 
   /**
    * Delete template example by id.
-   * @param {number|string|TemplateExampleType} example template example or example id
+   * @param {number|string|TemplateExampleEntity} example template example or example id
    * @return {Promise<void>}
    */
   async delete(example) {

@@ -9,7 +9,7 @@ import PropTypes from "prop-types";
  *   target: string|number,
  *   distance: number,
  *   falsePositive: boolean,
- * }} MatchType
+ * }} MatchEntity
  */
 export const MatchType = PropTypes.shape({
   id: PropTypes.number.isRequired,
