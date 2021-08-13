@@ -30,6 +30,15 @@ function incRefs(query) {
 }
 
 /**
+ * Get query due time.
+ * @param {number} ttl time to live in milliseconds
+ * @return {number} due time
+ */
+function dueTime(ttl) {
+  return Date.now() + ttl;
+}
+
+/**
  * Create new cached query, with decremented reference counter.
  * @param {CachedQuery} query original query.
  * @param {number} truncateSize max item count in non-referenced cache entry.
@@ -44,7 +53,7 @@ function decRefs(query, truncateSize, ttl) {
   const references = query.references - 1;
   const truncate = references === 0 && query.items.length > truncateSize;
   const items = truncate ? query.items.slice(0, truncateSize) : query.items;
-  const validUntil = references === 0 ? Date.now() + ttl : undefined;
+  const validUntil = references === 0 ? dueTime(ttl) : undefined;
   return {
     ...query,
     references,
@@ -216,6 +225,9 @@ export default function queryCacheReducer(state = initialState, action) {
         return state;
       }
       const updated = beginRequest(query, action.request);
+      if (updated.references === 0) {
+        updated.validUntil = dueTime(state.ttl);
+      }
       const updatedQueries = evict([updated, ...others], state.maxQueries);
       return { ...state, queries: updatedQueries };
     }

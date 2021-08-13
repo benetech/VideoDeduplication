@@ -1,7 +1,7 @@
 import sleep from "sleep-promise";
 import queryCacheReducer from "./reducer";
 import initialState, { getQuery, hasQuery } from "./initialState";
-import { releaseQuery, updateQuery, useQuery } from "./actions";
+import { queryItems, releaseQuery, updateQuery, useQuery } from "./actions";
 
 export function randomString() {
   return Math.random().toString(36).substring(2, 10);
@@ -316,6 +316,25 @@ describe("Query Cache", () => {
 
       expect(hasQuery(cache, leastRecentlyUpdated)).toBe(false);
       expect(hasQuery(cache, mostRecentlyUpdated)).toBe(true);
+    });
+  });
+
+  describe("Request handling", () => {
+    test("New request creates query if missing", () => {
+      const params = someParams();
+      const action = queryItems(params);
+
+      let cache = initialState;
+      cache = queryCacheReducer(cache, action);
+
+      const query = getQuery(cache, params);
+      expect(hasQuery(cache, params)).toBe(true);
+      expect(query.params).toEqual(params);
+      expect(query.items).toEqual([]);
+      expect(query.total).toBeUndefined();
+      expect(query.validUntil).toBeGreaterThan(Date.now());
+      expect(query.references).toEqual(0);
+      expect(query.request).toEqual(action.request);
     });
   });
 });
