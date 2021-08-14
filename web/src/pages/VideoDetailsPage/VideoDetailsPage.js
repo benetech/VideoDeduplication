@@ -24,6 +24,7 @@ import {
   useShowTask,
 } from "../../routing/hooks";
 import { updateTask } from "../../application/state/tasks/common/actions";
+import useSearchFrame from "../../application/api/templates/useSearchFrame";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -71,29 +72,6 @@ function useMessages() {
   return {
     compare: intl.formatMessage({ id: "actions.compare" }),
   };
-}
-
-/**
- * Handle search frame request.
- */
-function useSearchFrame() {
-  const showTask = useShowTask();
-  const server = useServer();
-  const dispatch = useDispatch();
-
-  return useCallback(({ file, time }) => {
-    server.tasks
-      .create({
-        type: TaskRequestTypes.FIND_FRAME,
-        fileId: file.id,
-        frameTimeSec: time,
-      })
-      .then((task) => {
-        dispatch(updateTask(task));
-        showTask(task);
-      })
-      .catch(console.error);
-  });
 }
 
 function VideoDetailsPage(props) {

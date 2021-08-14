@@ -13,15 +13,13 @@ import AddOutlinedIcon from "@material-ui/icons/AddOutlined";
 import TaskSidebar from "../ProcessingPage/TaskSidebar";
 import NavigateNextOutlinedIcon from "@material-ui/icons/NavigateNextOutlined";
 import TemplateList from "./TemplateList";
-import { useServer } from "../../server-api/context";
-import { useDispatch } from "react-redux";
 import TaskRequestTypes from "../../prop-types/TaskRequestTypes";
 import AddTemplateDialog from "./AddTemplateDialog";
 import useFilesColl from "../../application/api/files/useFilesColl";
 import { useShowCollection } from "../../routing/hooks";
 import useLoadAllTemplates from "../../application/api/templates/useLoadAllTemplates";
 import useTemplateAPI from "../../application/api/templates/useTemplateAPI";
-import { updateTask } from "../../application/state/tasks/common/actions";
+import useRunTask from "../../application/api/tasks/useRunTask";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -142,8 +140,6 @@ function ProcessingPage(props) {
   const { className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const server = useServer();
-  const dispatch = useDispatch();
   const [showNewTemplateDialog, setShowNewTemplateDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showTasks, setShowTasks] = useState(true);
@@ -154,6 +150,7 @@ function ProcessingPage(props) {
   const query = useLoadAllTemplates();
   const templates = query.templates;
   const api = useTemplateAPI();
+  const matchTemplates = useRunTask({ type: TaskRequestTypes.MATCH_TEMPLATES });
 
   const showTemplateDialog = useCallback(() => setShowNewTemplateDialog(true));
   const hideTemplateDialog = useCallback(() => setShowNewTemplateDialog(false));
@@ -170,9 +167,7 @@ function ProcessingPage(props) {
 
   const handleProcess = useCallback(() => {
     setLoading(true);
-    server.tasks
-      .create({ type: "MatchTemplates" })
-      .then((task) => dispatch(updateTask(task)))
+    matchTemplates()
       .catch(console.error)
       .finally(() => setLoading(false));
   });
