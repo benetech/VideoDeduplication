@@ -3,7 +3,7 @@ import {
   ACTION_SUBSCRIBE_FOR_TASK_LOGS,
   ACTION_UNSUBSCRIBE_FROM_TASK_LOGS,
   appendTaskLogs,
-} from "../taskLogs/actions";
+} from "../tasks/logs/actions";
 import { call, fork, put, select, take } from "redux-saga/effects";
 import { selectTaskLogs } from "../root/selectors";
 import { ACTION_SOCKET_CONNECTED, socketConnected } from "./actions";

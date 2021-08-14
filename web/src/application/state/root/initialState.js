@@ -2,7 +2,6 @@ import filesInitialState from "../files/root/initialState";
 import fileClusterInitialState from "../fileCluster/initialState";
 import fileMatchesInitialState from "../fileMatches/initialState";
 import tasksRootInitialState from "../tasks/root/initialState";
-import taskLogsInitialState from "../taskLogs/initialState";
 import templatesRootInitialState from "../templates/root/initialState";
 import objectCacheInitialState from "../objects/initialState";
 import presetInitialState from "../presets/initialState";
@@ -29,10 +28,6 @@ const initialState = {
    * Background tasks.
    */
   tasks: tasksRootInitialState,
-  /**
-   * Background task logs.
-   */
-  taskLogs: taskLogsInitialState,
   /**
    * Object templates.
    */

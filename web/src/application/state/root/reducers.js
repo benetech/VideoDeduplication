@@ -2,7 +2,6 @@ import { combineReducers } from "redux";
 import filesRootReducer from "../files/root/reducer";
 import fileClusterReducer from "../fileCluster/reducer";
 import fileMatchesReducer from "../fileMatches/reducer";
-import taskLogsReducer from "../taskLogs/reducer";
 import objectCacheReducer from "../objects/reducer";
 import presetReducer from "../presets/reducer";
 import fileExclusionsCacheReducer from "../file-exclusions/reducer";
@@ -14,7 +13,6 @@ const appRootReducer = combineReducers({
   fileCluster: fileClusterReducer,
   fileMatches: fileMatchesReducer,
   tasks: tasksRootReducer,
-  taskLogs: taskLogsReducer,
   templates: templatesRootReducer,
   objectCache: objectCacheReducer,
   presets: presetReducer,

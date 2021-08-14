@@ -29,11 +29,7 @@ export const selectTaskQuery = (params) => (state) =>
   getQuery(state.tasks.queries, params);
 export const selectCachedTask = (id) => (state) =>
   getEntry(state.tasks.cache, id);
-
-/**
- * Select task logs.
- */
-export const selectTaskLogs = (state) => state.taskLogs;
+export const selectTaskLogs = (state) => state.tasks.logs;
 
 /**
  * Select templates.
