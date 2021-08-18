@@ -3,9 +3,9 @@ import fileClusterInitialState from "../fileCluster/initialState";
 import fileMatchesInitialState from "../fileMatches/initialState";
 import tasksRootInitialState from "../tasks/root/initialState";
 import templatesRootInitialState from "../templates/root/initialState";
-import objectCacheInitialState from "../objects/initialState";
 import presetInitialState from "../presets/initialState";
 import fileExclusionInitialState from "../file-exclusions/initialState";
+import objectsInitialState from "../objects/root/initialState";
 
 /**
  * Application initial state.
@@ -33,9 +33,9 @@ const initialState = {
    */
   templates: templatesRootInitialState,
   /**
-   * Cache of recognized objects per file.
+   * Objects initial state.
    */
-  objectCache: objectCacheInitialState,
+  objects: objectsInitialState,
   /**
    * File filter presets.
    */

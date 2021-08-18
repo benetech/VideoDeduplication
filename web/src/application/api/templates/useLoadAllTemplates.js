@@ -1,21 +1,8 @@
 import { DefaultTemplateFilters } from "../../state/templates/queries/initialState";
 import useTemplatesQuery from "./useTemplatesQuery";
 import { useEffect } from "react";
-
-/**
- * Get current progress.
- * @param {SingleTemplatesQueryAPI} query
- * @return {number} loading progress from [0, 1]
- */
-function progress(query) {
-  if (query.total == null) {
-    return 0;
-  }
-  if (query.total === query.templates.length) {
-    return 1;
-  }
-  return query.templates.length / query.total;
-}
+import queryProgress from "../../../lib/helpers/queryProgress";
+import useValue from "../../../lib/hooks/useValue";
 
 /**
  *
@@ -30,6 +17,7 @@ function progress(query) {
  * }}
  */
 export default function useLoadAllTemplates(params = DefaultTemplateFilters) {
+  params = useValue(params);
   const query = useTemplatesQuery(params);
 
   const shouldAutoload = !query.error && query.canLoad;
@@ -42,8 +30,8 @@ export default function useLoadAllTemplates(params = DefaultTemplateFilters) {
   const result = {
     templates: query.templates,
     total: query.total,
-    done: query.total === query.templates.length,
-    progress: progress(query),
+    done: query.total <= query.templates.length,
+    progress: queryProgress(query.total, query.templates),
     loading: query.loading,
   };
 

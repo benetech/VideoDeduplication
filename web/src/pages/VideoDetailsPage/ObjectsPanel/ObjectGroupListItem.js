@@ -9,6 +9,7 @@ import { useIntl } from "react-intl";
 import { ButtonBase } from "@material-ui/core";
 import position from "../objectPosition";
 import ObjectPreview from "./ObjectPreview";
+import useTemplateIndex from "../../../application/api/templates/useTemplateIndex";
 
 const useStyles = makeStyles((theme) => ({
   groupListItem: {
@@ -75,6 +76,7 @@ function ObjectGroupListItem(props) {
   const classes = useStyles();
 
   const position = startTime(objects);
+  const templates = useTemplateIndex();
 
   return (
     <div className={clsx(classes.groupListItem, className)}>
@@ -91,6 +93,7 @@ function ObjectGroupListItem(props) {
         {objects.map((object) => (
           <ObjectPreview
             object={object}
+            template={templates.get(object.templateId)}
             onJump={onJump}
             onDelete={onDelete}
             key={object.id}

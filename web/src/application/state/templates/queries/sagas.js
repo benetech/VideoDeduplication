@@ -8,14 +8,14 @@ import { selectTemplatesQuery } from "../../root/selectors";
  * @param {TemplatesQueryAction} action query files action
  */
 export function* loadTemplatesSaga(server, action) {
-  const query = yield select(selectTemplatesQuery(action.params));
-
-  // Skip dismissed requests
-  if (query?.request !== action.request) {
-    return;
-  }
-
   try {
+    const query = yield select(selectTemplatesQuery(action.params));
+
+    // Skip dismissed requests
+    if (query?.request !== action.request) {
+      return;
+    }
+
     // Send request to the server
     const { total, templates } = yield call(
       [server.templates, server.templates.list],

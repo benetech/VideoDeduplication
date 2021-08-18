@@ -12,14 +12,14 @@ import { selectFilesQuery } from "../../root/selectors";
  * @param {{type, request, params}} action query files action
  */
 function* loadFilesSaga(server, action) {
-  const query = yield select(selectFilesQuery(action.params));
-
-  // Skip dismissed requests
-  if (query?.request !== action.request) {
-    return;
-  }
-
   try {
+    const query = yield select(selectFilesQuery(action.params));
+
+    // Skip dismissed requests
+    if (query?.request !== action.request) {
+      return;
+    }
+
     // Send request to the server
     const { counts, files } = yield call([server.files, server.files.list], {
       limit: 96,

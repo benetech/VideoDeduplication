@@ -13,18 +13,14 @@ import FileActionHeader from "../../components/files/FileActionsHeader";
 import { useParams } from "react-router-dom";
 import FileLoadingHeader from "../../components/files/FileLoadingHeader";
 import useFile from "../../application/api/files/useFile";
-import ObjectAPI from "../../application/api/objects/ObjectAPI";
-import { useServer } from "../../server-api/context";
-import { useDispatch } from "react-redux";
-import TaskRequestTypes from "../../prop-types/TaskRequestTypes";
 import {
   useCompareFiles,
   useShowCollection,
   useShowMatches,
-  useShowTask,
 } from "../../routing/hooks";
-import { updateTask } from "../../application/state/tasks/common/actions";
 import useSearchFrame from "../../application/api/templates/useSearchFrame";
+import useLoadAllObjects from "../../application/api/objects/useLoadAllObjects";
+import useLoadAllTemplates from "../../application/api/templates/useLoadAllTemplates";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -85,9 +81,9 @@ function VideoDetailsPage(props) {
   const compareFile = useCompareFiles(id, [id]);
   const showMatches = useShowMatches(id, [id]);
 
-  // Preload file objects
-  const objectsAPI = ObjectAPI.use();
-  const { done: objectsLoaded } = objectsAPI.useFileObjects(id);
+  // Preload file objects and templates
+  const { done: objectsLoaded } = useLoadAllObjects({ fileId: id });
+  const { done: templatesLoaded } = useLoadAllTemplates();
 
   // There is nothing to show for external files.
   // Navigate to file matches if file is external.
@@ -100,7 +96,7 @@ function VideoDetailsPage(props) {
   const handleJump = useCallback(seekTo(player, file), [player, file]);
   const searchFrame = useSearchFrame();
 
-  if (file == null || !objectsLoaded) {
+  if (file == null || !objectsLoaded || !templatesLoaded) {
     return (
       <div className={clsx(classes.root, className)}>
         <FileActionHeader id={id}>

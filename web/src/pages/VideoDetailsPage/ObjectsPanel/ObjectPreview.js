@@ -11,6 +11,7 @@ import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
 import Fab from "@material-ui/core/Fab";
 import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import { useIntl } from "react-intl";
+import { TemplateType } from "../../../prop-types/TemplateType";
 
 const useStyles = makeStyles((theme) => ({
   object: {
@@ -64,7 +65,7 @@ function description(object, intl) {
 }
 
 function ObjectPreview(props) {
-  const { object, onJump, onDelete, className, ...other } = props;
+  const { object, template, onJump, onDelete, className, ...other } = props;
   const [hover, setHover] = useState(false);
   const classes = useStyles({ hover });
   const intl = useIntl();
@@ -94,7 +95,7 @@ function ObjectPreview(props) {
           data-selector="ObjectListItemButton"
           data-object-id={object.id}
         >
-          <TemplateIcon icon={object.template?.icon} />
+          <TemplateIcon icon={template?.icon} />
         </SquaredIconButton>
         <Fab
           onClick={handleDelete}
@@ -114,6 +115,10 @@ ObjectPreview.propTypes = {
    * Object to be displayed
    */
   object: ObjectType.isRequired,
+  /**
+   * Template associated with the object.
+   */
+  template: TemplateType.isRequired,
   /**
    * Jump to a particular object
    */

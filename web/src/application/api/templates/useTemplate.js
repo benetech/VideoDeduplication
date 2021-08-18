@@ -25,8 +25,9 @@ export default function useTemplate(id, raise = false) {
   const load = useCallback(async () => {
     try {
       setError(null);
-      const template = server.templates.get(id);
+      const template = await server.templates.get(id);
       dispatch(cacheTemplate(template));
+      return template;
     } catch (error) {
       setError({ status: error.code || ServerError.CLIENT_ERROR });
       handleError(raise, error);

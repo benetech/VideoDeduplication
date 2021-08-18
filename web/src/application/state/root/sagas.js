@@ -6,6 +6,7 @@ import filesQuerySaga from "../files/queries/sagas";
 import templatesRootSaga from "../templates/root/sagas";
 import tasksRootSaga from "../tasks/root/sagas";
 import socketRootSaga from "../socket/sagas";
+import objectsRootSaga from "../objects/root/sagas";
 
 /**
  * Initialize collection-related sagas...
@@ -18,4 +19,5 @@ export default function* appRootSaga(server) {
   yield fork(templatesRootSaga, server);
   yield fork(tasksRootSaga, server);
   yield fork(socketRootSaga, server);
+  yield fork(objectsRootSaga, server);
 }
