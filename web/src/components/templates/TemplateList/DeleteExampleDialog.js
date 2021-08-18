@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@material-ui/core";
-import Button from "../../../components/basic/Button";
+import Button from "../../basic/Button";
 
 const useStyles = makeStyles((theme) => ({
   content: {

@@ -14,7 +14,7 @@ import {
   Select,
 } from "@material-ui/core";
 import useUniqueId from "../../../lib/hooks/useUniqueId";
-import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
+import TemplateIcon from "../../../components/templates/TemplateIcon/TemplateIcon";
 import useLoadAllTemplates from "../../../application/api/templates/useLoadAllTemplates";
 
 const useStyles = makeStyles((theme) => ({

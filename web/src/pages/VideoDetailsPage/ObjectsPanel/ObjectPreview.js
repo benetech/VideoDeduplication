@@ -7,7 +7,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 import { formatDuration } from "../../../lib/helpers/format";
 import position from "../objectPosition";
 import SquaredIconButton from "../../../components/basic/SquaredIconButton";
-import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
+import TemplateIcon from "../../../components/templates/TemplateIcon/TemplateIcon";
 import Fab from "@material-ui/core/Fab";
 import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import { useIntl } from "react-intl";

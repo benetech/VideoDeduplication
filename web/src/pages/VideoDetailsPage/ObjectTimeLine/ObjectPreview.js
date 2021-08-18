@@ -6,7 +6,7 @@ import ObjectType from "../../../prop-types/ObjectType";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import { useIntl } from "react-intl";
 import { objectTime } from "./helpers";
-import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
+import TemplateIcon from "../../../components/templates/TemplateIcon/TemplateIcon";
 import { TemplateType } from "../../../prop-types/TemplateType";
 
 const useStyles = makeStyles((theme) => ({

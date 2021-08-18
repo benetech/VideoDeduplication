@@ -12,7 +12,7 @@ import {
 import { useIntl } from "react-intl";
 import Button from "../../components/basic/Button";
 import IconKind from "../../application/state/templates/IconKind";
-import TemplateIconPreview from "./TemplateList/TemplateIconPreview";
+import TemplateIconPreview from "../../components/templates/TemplateList/TemplateIconPreview";
 import nameErrorMessage from "./nameErrorMessage";
 import { useAddTemplate } from "../../application/api/templates/useTemplateAPI";
 

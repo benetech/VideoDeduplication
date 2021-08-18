@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import TemplateExclusionType from "../../../prop-types/TemplateExclusionType";
-import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
+import TemplateIcon from "../../../components/templates/TemplateIcon/TemplateIcon";
 import Spacer from "../../../components/basic/Spacer";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";

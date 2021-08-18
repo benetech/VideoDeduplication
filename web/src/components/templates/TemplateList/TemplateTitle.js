@@ -7,7 +7,7 @@ import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 import DoneOutlinedIcon from "@material-ui/icons/DoneOutlined";
 import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
 import { TextField } from "@material-ui/core";
-import nameErrorMessage from "../nameErrorMessage";
+import nameErrorMessage from "../../../pages/TemplatesPage/nameErrorMessage";
 import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({

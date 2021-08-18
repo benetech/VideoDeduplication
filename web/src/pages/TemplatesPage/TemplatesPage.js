@@ -12,7 +12,7 @@ import Button from "../../components/basic/Button";
 import AddOutlinedIcon from "@material-ui/icons/AddOutlined";
 import TaskSidebar from "../ProcessingPage/TaskSidebar";
 import NavigateNextOutlinedIcon from "@material-ui/icons/NavigateNextOutlined";
-import TemplateList from "./TemplateList";
+import TemplateList from "../../components/templates/TemplateList";
 import TaskRequestTypes from "../../prop-types/TaskRequestTypes";
 import AddTemplateDialog from "./AddTemplateDialog";
 import useFilesColl from "../../application/api/files/useFilesColl";

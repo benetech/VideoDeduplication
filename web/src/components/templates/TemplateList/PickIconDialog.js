@@ -6,7 +6,7 @@ import { TemplateIconType } from "../../../prop-types/TemplateType";
 import { Dialog, DialogActions, DialogContent } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import IconPicker from "../IconPicker";
-import Button from "../../../components/basic/Button";
+import Button from "../../basic/Button";
 
 const useStyles = makeStyles((theme) => ({
   content: {

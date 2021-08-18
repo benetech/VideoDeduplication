@@ -10,7 +10,7 @@ import Button from "../../../components/basic/Button";
 import { ListItemText, Menu, MenuItem, Tooltip } from "@material-ui/core";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import usePopup from "../../../lib/hooks/usePopup";
-import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
+import TemplateIcon from "../../../components/templates/TemplateIcon/TemplateIcon";
 import ExcludedTemplate from "./ExcludedTemplate";
 import useLoadAllTemplates from "../../../application/api/templates/useLoadAllTemplates";
 
