@@ -126,7 +126,7 @@ TemplateTitle.propTypes = {
   /**
    * Handle name change.
    */
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   className: PropTypes.string,
 };
 

@@ -2,6 +2,7 @@ import TaskRequestTypes from "../../../prop-types/TaskRequestTypes";
 import RawResults from "./RawResults";
 import FindFrameResultsOverview from "./task-types/FindFrameResultsOverview";
 import ProcessOnlineVideoResultsOverview from "./task-types/ProcessOnlineVideoResultsOverview";
+import MatchTemplatesResultsOverview from "./task-types/MatchTemplatesResultsOverview";
 
 const RequestViews = {
   [TaskRequestTypes.FIND_FRAME]: [
@@ -18,6 +19,16 @@ const RequestViews = {
     {
       title: "view.overview",
       component: ProcessOnlineVideoResultsOverview,
+    },
+    {
+      title: "view.raw",
+      component: RawResults,
+    },
+  ],
+  [TaskRequestTypes.MATCH_TEMPLATES]: [
+    {
+      title: "view.overview",
+      component: MatchTemplatesResultsOverview,
     },
     {
       title: "view.raw",
