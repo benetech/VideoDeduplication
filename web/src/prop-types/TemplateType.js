@@ -2,12 +2,14 @@ import PropTypes from "prop-types";
 import IconKind from "../application/state/templates/IconKind";
 
 /**
- * Template icon prop-type.
- *
  * @typedef {{
  *   kind: string,
  *   key: string
  * }} TemplateIcon
+ */
+
+/**
+ * Template icon prop-type.
  */
 export const TemplateIconType = PropTypes.shape({
   kind: PropTypes.oneOf([IconKind.PREDEFINED, IconKind.CUSTOM]).isRequired,
@@ -15,16 +17,18 @@ export const TemplateIconType = PropTypes.shape({
 });
 
 /**
- * Template example prop-type.
- *
- * Template example is an image associate with a template which visually
- * exemplifies some object or situation represented by the template.
- *
  * @typedef {{
  *   id: string|number,
  *   url: string,
  *   templateId: string|number,
  * }} TemplateExampleEntity
+ */
+
+/**
+ * Template example prop-type.
+ *
+ * Template example is an image associate with a template which visually
+ * exemplifies some object or situation represented by the template.
  */
 export const TemplateExampleType = PropTypes.shape({
   id: PropTypes.any.isRequired,

@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import ContributorType from "./ContributorType";
 
 /**
- * Prop type for a file processed by the application.
- *
  * @typedef {{
  *   uploadedBy: string|undefined,
  *   updatedDate: number|undefined,
@@ -33,6 +31,10 @@ import ContributorType from "./ContributorType";
  *    external: boolean,
  *    contributor: ContributorEntity|undefined,
  *  }} FileEntity
+ */
+
+/**
+ * Prop type for a file processed by the application.
  */
 export const FileType = PropTypes.shape({
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

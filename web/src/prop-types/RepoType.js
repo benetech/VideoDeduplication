@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 
 /**
- * Prop-type for remote fingerprint repository.
- *
  * @typedef {{
  *   id: string|number,
  *   name: string,
@@ -10,6 +8,10 @@ import PropTypes from "prop-types";
  *   login: string,
  *   type: string,
  * }} RepoEntity
+ */
+
+/**
+ * Prop-type for remote fingerprint repository.
  */
 export const RepoType = PropTypes.shape({
   id: PropTypes.any.isRequired,

@@ -2,8 +2,6 @@ import PropTypes from "prop-types";
 import FileType from "./FileType";
 
 /**
- * Prop-type for a match in the context of the given mother file.
- *
  * @typedef {{
  *   id: string|number,
  *   motherFile: FileEntity|null,
@@ -11,6 +9,10 @@ import FileType from "./FileType";
  *   distance: number,
  *   falsePositive: boolean,
  * }} FileMatchEntity
+ */
+
+/**
+ * Prop-type for a match in the context of the given mother file.
  */
 const FileMatchType = PropTypes.shape({
   id: PropTypes.number.isRequired,
