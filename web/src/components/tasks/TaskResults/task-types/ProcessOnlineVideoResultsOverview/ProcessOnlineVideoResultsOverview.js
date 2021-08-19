@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -7,8 +7,7 @@ import ProcessedFile from "./ProcessedFile";
 import LabeledSwitch from "../../../../basic/LabeledSwitch";
 import { useIntl } from "react-intl";
 import LazyLoad from "react-lazyload";
-import { useHistory } from "react-router-dom";
-import { routes } from "../../../../../routing/routes";
+import { useShowFile } from "../../../../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   matches: {
@@ -55,11 +54,7 @@ function ProcessOnlineVideoResultsOverview(props) {
   const files = task?.result?.files || [];
   const eagerFiles = useMemo(() => files.slice(0, 5), [files]);
   const lazyFiles = useMemo(() => files.slice(5), [files]);
-  const history = useHistory();
-
-  const showFile = useCallback((file) =>
-    history.push(routes.collection.fileURL(file.id))
-  );
+  const showFile = useShowFile();
 
   return (
     <div className={clsx(className)} {...other}>

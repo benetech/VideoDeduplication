@@ -7,9 +7,7 @@ import PlayArrowOutlinedIcon from "@material-ui/icons/PlayArrowOutlined";
 import { useIntl } from "react-intl";
 import TaskTypeDescriptors from "./TaskTypeDescriptors";
 import TypeSelector from "./TypeSelector";
-import { updateTask } from "../../../application/state/tasks/actions";
-import { useServer } from "../../../server-api/context";
-import { useDispatch } from "react-redux";
+import useRunTask from "../../../application/api/tasks/useRunTask";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -56,16 +54,11 @@ function TaskBuilder(props) {
   const [req, setReq] = useState({ type: taskType.type });
   const [valid, setValid] = useState(true);
   const [loading, setLoading] = useState(false);
-  const server = useServer();
-  const dispatch = useDispatch();
+  const runTask = useRunTask();
 
   const handleProcess = useCallback(() => {
     setLoading(true);
-    server.tasks
-      .create(req)
-      .then((task) => dispatch(updateTask(task)))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    runTask(req).catch(console.error).finally(setLoading(false));
   }, [req]);
 
   const TaskForm = taskType.component;

@@ -5,11 +5,10 @@ import { makeStyles } from "@material-ui/styles";
 import VideoPlayer from "../../../pages/VideoDetailsPage/VideoPlayer";
 import FileSummary from "../FileSummary";
 import Button from "../../basic/Button";
-import { useHistory } from "react-router-dom";
-import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
 import TimeAttr from "../../basic/TimeAttr/TimeAttr";
 import FileType from "../../../prop-types/FileType";
+import { useShowFile } from "../../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   summary: {
@@ -44,16 +43,13 @@ function FrameView(props) {
   const { file, timeMillis, className, ...other } = props;
   const classes = useStyles();
   const [player, setPlayer] = useState(null);
-  const history = useHistory();
   const messages = useMessages();
 
   const handleShowFrame = useCallback(() => {
     player?.seekTo(timeMillis / 1000, { units: "seconds" });
   }, [player, timeMillis]);
 
-  const handleShowFile = useCallback(() => {
-    history.push(routes.collection.fileURL(file.id));
-  }, [file]);
+  const handleShowFile = useShowFile(file, [file]);
 
   if (!file) {
     return null;

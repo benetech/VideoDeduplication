@@ -3,22 +3,7 @@ import { useHistory } from "react-router-dom";
 import { useCallback } from "react";
 import { routes } from "./routes";
 import getEntityId from "../lib/helpers/getEntityId";
-
-/**
- * Resolve routing target entity.
- * @param {*} value
- * @param {function|Object|undefined} override
- * @return {Entity|string|number}
- */
-function resolveTarget(value, override) {
-  if (override == null) {
-    return value;
-  } else if (lodash.isFunction(override)) {
-    return override(value);
-  } else {
-    return override;
-  }
-}
+import resolveValue from "../lib/helpers/resolveValue";
 
 /**
  * Create generic routing callback.
@@ -30,7 +15,7 @@ function resolveTarget(value, override) {
 function useShowEntityPage(getURL, override, deps) {
   const history = useHistory();
   return useCallback((value) => {
-    const targetEntity = resolveTarget(value, override);
+    const targetEntity = resolveValue(value, override);
     history.push(getURL(getEntityId(targetEntity)));
   }, deps);
 }
@@ -47,6 +32,24 @@ export function useShowFile(override, deps) {
     override,
     deps
   );
+}
+
+export function useCompareFiles(override, deps) {
+  const history = useHistory();
+  return useCallback((value) => {
+    const target = resolveValue(value, override);
+    if (lodash.isArray(target)) {
+      const [motherFile, matchFile] = target;
+      history.push(
+        routes.collection.fileComparisonURL(
+          getEntityId(motherFile),
+          getEntityId(matchFile || "")
+        )
+      );
+    } else {
+      history.push(routes.collection.fileComparisonURL(getEntityId(target)));
+    }
+  }, deps);
 }
 
 /**

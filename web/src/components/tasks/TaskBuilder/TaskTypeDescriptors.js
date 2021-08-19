@@ -1,22 +1,22 @@
 import PropTypes from "prop-types";
-import TaskRequest from "../../../application/state/tasks/TaskRequest";
+import TaskRequestTypes from "../../../prop-types/TaskRequestTypes";
 import MatchTemplatesForm from "./forms/MatchTemplatesForm";
 import ProcessDirectoryForm from "./forms/ProcessDirectoryForm";
 import ProcessOnlineVideoForm from "./forms/ProcessOnlineVideoForm";
 
 const TaskTypeDescriptors = [
   {
-    type: TaskRequest.DIRECTORY,
+    type: TaskRequestTypes.DIRECTORY,
     title: "task.type.directory",
     component: ProcessDirectoryForm,
   },
   {
-    type: TaskRequest.MATCH_TEMPLATES,
+    type: TaskRequestTypes.MATCH_TEMPLATES,
     title: "task.type.templates",
     component: MatchTemplatesForm,
   },
   {
-    type: TaskRequest.PROCESS_ONLINE_VIDEO,
+    type: TaskRequestTypes.PROCESS_ONLINE_VIDEO,
     title: "task.type.processOnline",
     component: ProcessOnlineVideoForm,
   },

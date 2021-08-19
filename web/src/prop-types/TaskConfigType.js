@@ -1,6 +1,17 @@
 import PropTypes from "prop-types";
 
 /**
+ * @typedef {{
+ *   frameSampling: number|undefined,
+ *   matchDistance: number|undefined,
+ *   filterDark: boolean|undefined,
+ *   darkThreshold: number|undefined,
+ *   minDuration: number|undefined,
+ *   extensions: string[]|undefined,
+ * }} TaskConfig
+ */
+
+/**
  * Prop-Type for common background task configuration.
  */
 const TaskConfigType = PropTypes.shape({

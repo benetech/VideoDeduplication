@@ -13,7 +13,7 @@ import SquaredIconButton from "../../../components/basic/SquaredIconButton";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import { Tooltip } from "@material-ui/core";
 import { useIntl } from "react-intl";
-import useStaging from "./useStaging";
+import useStaging from "../../../lib/hooks/useStaging";
 import TableBody from "@material-ui/core/TableBody";
 
 const useStyles = makeStyles((theme) => ({

@@ -181,11 +181,8 @@ export default class D3Graph {
     this.updateSize = () => {
       this.width = this.container?.clientWidth;
       this.height = this.container?.clientHeight;
-      svg
-        .attr("width", this.width)
-        .attr("height", this.height)
-        .attr("viewBox", [0, 0, this.width, this.height])
-        .classed(this.classes.content, true);
+      const svg = d3.select(this.container);
+      svg.attr("viewBox", [0, 0, this.width, this.height]);
       this.simulation.force(
         "center",
         d3.forceCenter(this.width / 2, this.height / 2)

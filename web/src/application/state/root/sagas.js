@@ -1,18 +1,23 @@
 import { fork } from "redux-saga/effects";
-import { selectFileCluster, selectFileMatches, selectTasks } from "./selectors";
+import { selectFileCluster, selectFileMatches } from "./selectors";
 import fileMatchRootSaga from "../fileMatches/sagas";
 import fileClusterRootSaga from "../fileCluster/sagas";
-import taskRootSaga from "../tasks/sagas";
-import templateRootSaga from "../templates/sagas";
 import filesQuerySaga from "../files/queries/sagas";
+import templatesRootSaga from "../templates/root/sagas";
+import tasksRootSaga from "../tasks/root/sagas";
+import socketRootSaga from "../socket/sagas";
+import objectsRootSaga from "../objects/root/sagas";
 
 /**
  * Initialize collection-related sagas...
+ * @param {Server} server
  */
 export default function* appRootSaga(server) {
   yield fork(fileMatchRootSaga, server, selectFileMatches);
   yield fork(fileClusterRootSaga, server, selectFileCluster);
-  yield fork(taskRootSaga, server, selectTasks);
-  yield fork(templateRootSaga);
   yield fork(filesQuerySaga, server);
+  yield fork(templatesRootSaga, server);
+  yield fork(tasksRootSaga, server);
+  yield fork(socketRootSaga, server);
+  yield fork(objectsRootSaga, server);
 }

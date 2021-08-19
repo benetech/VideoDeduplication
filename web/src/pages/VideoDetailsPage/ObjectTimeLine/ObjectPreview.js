@@ -6,7 +6,8 @@ import ObjectType from "../../../prop-types/ObjectType";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import { useIntl } from "react-intl";
 import { objectTime } from "./helpers";
-import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
+import TemplateIcon from "../../../components/templates/TemplateIcon/TemplateIcon";
+import { TemplateType } from "../../../prop-types/TemplateType";
 
 const useStyles = makeStyles((theme) => ({
   preview: {
@@ -43,7 +44,7 @@ function useMessages(object) {
  * A small preview for recognized object. Allows to jump to the object location.
  */
 function ObjectPreview(props) {
-  const { object, onJump, autoFocus = false, className } = props;
+  const { object, template, onJump, autoFocus = false, className } = props;
   const classes = useStyles();
   const messages = useMessages(object);
   const time = objectTime(object);
@@ -63,7 +64,7 @@ function ObjectPreview(props) {
       aria-label={messages.label}
       ref={ref}
     >
-      <TemplateIcon icon={object.template?.icon} className={classes.icon} />
+      <TemplateIcon icon={template?.icon} className={classes.icon} />
       <div className={classes.time}>{time}</div>
     </ButtonBase>
   );
@@ -74,6 +75,10 @@ ObjectPreview.propTypes = {
    * Recognized object
    */
   object: ObjectType.isRequired,
+  /**
+   * Template associated with the object.
+   */
+  template: TemplateType.isRequired,
   /**
    * Handle click on object
    */

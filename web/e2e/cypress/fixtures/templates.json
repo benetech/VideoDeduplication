@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "icon_type": "predefined",
+      "icon_key": "GiPoliceOfficerHead",
+      "name": "Police Officer"
+    }
+  ],
+  "offset": 0,
+  "total": 1
+}

@@ -7,7 +7,7 @@ import Description from "../Description";
 import ConfigurationForm from "./ConfigurationForm";
 import Section from "../Section";
 import TaskRequestType from "../../../../prop-types/TaskRequestType";
-import TaskRequest from "../../../../application/state/tasks/TaskRequest";
+import TaskRequestTypes from "../../../../prop-types/TaskRequestTypes";
 import { validateTaskConfig } from "./validation";
 import { TextField } from "@material-ui/core";
 import InputContainer from "../InputContainer";
@@ -74,7 +74,7 @@ function ProcessOnlineVideoForm(props) {
   useEffect(
     () =>
       onChange({
-        type: TaskRequest.PROCESS_ONLINE_VIDEO,
+        type: TaskRequestTypes.PROCESS_ONLINE_VIDEO,
         urls: [],
         destinationTemplate: "%(title)s.%(ext)s",
       }),

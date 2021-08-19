@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -12,18 +12,14 @@ import Button from "../../components/basic/Button";
 import AddOutlinedIcon from "@material-ui/icons/AddOutlined";
 import TaskSidebar from "../ProcessingPage/TaskSidebar";
 import NavigateNextOutlinedIcon from "@material-ui/icons/NavigateNextOutlined";
-import TemplateList from "./TemplateList";
-import { useServer } from "../../server-api/context";
-import { useDispatch, useSelector } from "react-redux";
-import { updateTask } from "../../application/state/tasks/actions";
-import TaskRequest from "../../application/state/tasks/TaskRequest";
-import loadTemplates from "../../application/api/templates/loadTemplates";
-import { selectTemplates } from "../../application/state/root/selectors";
-import { setTemplates } from "../../application/state/templates/actions";
+import TemplateList from "../../components/templates/TemplateList";
+import TaskRequestTypes from "../../prop-types/TaskRequestTypes";
 import AddTemplateDialog from "./AddTemplateDialog";
-import useTemplateAPI from "../../application/api/templates/useTemplateAPI";
 import useFilesColl from "../../application/api/files/useFilesColl";
 import { useShowCollection } from "../../routing/hooks";
+import useLoadAllTemplates from "../../application/api/templates/useLoadAllTemplates";
+import useTemplateAPI from "../../application/api/templates/useTemplateAPI";
+import useRunTask from "../../application/api/tasks/useRunTask";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -144,33 +140,28 @@ function ProcessingPage(props) {
   const { className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const server = useServer();
-  const dispatch = useDispatch();
   const [showNewTemplateDialog, setShowNewTemplateDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showTasks, setShowTasks] = useState(true);
   const handleShowTasks = useCallback(() => setShowTasks(true));
   const handleHideTasks = useCallback(() => setShowTasks(false));
-  const templates = useSelector(selectTemplates).templates;
-  const TemplateAPI = useTemplateAPI();
   const collection = useFilesColl();
   const showCollection = useShowCollection();
-
-  useEffect(() => {
-    if (templates.length === 0) {
-      loadTemplates(server).then((templates) =>
-        dispatch(setTemplates(templates))
-      );
-    }
-  }, []);
+  const query = useLoadAllTemplates();
+  const templates = query.templates;
+  const api = useTemplateAPI();
+  const matchTemplates = useRunTask({ type: TaskRequestTypes.MATCH_TEMPLATES });
 
   const showTemplateDialog = useCallback(() => setShowNewTemplateDialog(true));
   const hideTemplateDialog = useCallback(() => setShowNewTemplateDialog(false));
 
-  const filterTemplateTasks = useCallback(
-    (task) => task?.request?.type === TaskRequest.MATCH_TEMPLATES,
-    []
-  );
+  const filterTemplateTasks = useCallback((task) => {
+    const type = task?.request?.type;
+    return (
+      type === TaskRequestTypes.MATCH_TEMPLATES ||
+      type === TaskRequestTypes.FIND_FRAME
+    );
+  }, []);
 
   const showMatches = useCallback((template) => {
     collection.updateParams({ templates: [template.id] });
@@ -179,16 +170,10 @@ function ProcessingPage(props) {
 
   const handleProcess = useCallback(() => {
     setLoading(true);
-    server.tasks
-      .create({ type: "MatchTemplates" })
-      .then((task) => dispatch(updateTask(task)))
+    matchTemplates()
       .catch(console.error)
       .finally(() => setLoading(false));
   });
-
-  useEffect(() => {
-    loadTemplates(server).then(setTemplates);
-  }, []);
 
   return (
     <div className={clsx(classes.root, className)} {...other}>
@@ -203,10 +188,10 @@ function ProcessingPage(props) {
             <TemplateList.Item
               key={template.id}
               template={template}
-              onChange={TemplateAPI.updateTemplate}
-              onAddExamples={TemplateAPI.uploadExample}
-              onDeleteExample={TemplateAPI.deleteExample}
-              onDelete={TemplateAPI.deleteTemplate}
+              onChange={api.updateTemplate}
+              onAddExamples={api.uploadExample}
+              onDeleteExample={api.deleteExample}
+              onDelete={api.deleteTemplate}
               onShowMatches={showMatches}
             />
           ))}

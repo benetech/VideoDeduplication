@@ -9,14 +9,13 @@ import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
 import MoreVertOutlinedIcon from "@material-ui/icons/MoreVertOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import { useIntl } from "react-intl";
-import { useHistory } from "react-router";
-import { routes } from "../../../routing/routes";
 import usePopup from "../../../lib/hooks/usePopup";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
-import TaskStatus from "../../../application/state/tasks/TaskStatus";
+import TaskStatus from "../../../prop-types/TaskStatus";
 import useCancelTask from "../../../application/api/tasks/useCancelTask";
 import useDeleteTask from "../../../application/api/tasks/useDeleteTask";
+import { useShowProcessing } from "../../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -57,24 +56,26 @@ function TaskSummaryHeader(props) {
   const { task, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const history = useHistory();
   const isActive = isActiveTask(task);
   const { clickTrigger, popup } = usePopup("task-menu-");
+  const handleBack = useShowProcessing();
+  const deleteTask = useDeleteTask(task, [task]);
+  const cancelTask = useCancelTask(task, [task]);
 
-  const handleBack = useCallback(
-    () => history.push(routes.processing.home),
-    []
-  );
+  const handleCancel = useCallback(() => {
+    popup.onClose();
+    cancelTask().catch(console.error);
+  }, [cancelTask]);
 
-  const handleCancel = useCancelTask({
-    id: task.id,
-    onTrigger: () => popup.onClose(),
-  });
-  const handleDelete = useDeleteTask({
-    id: task.id,
-    onTrigger: () => popup.onClose(),
-    onSuccess: handleBack,
-  });
+  const handleDelete = useCallback(async () => {
+    try {
+      popup.onClose();
+      await deleteTask();
+      handleBack();
+    } catch (error) {
+      console.log(error);
+    }
+  }, [deleteTask]);
 
   return (
     <Paper className={clsx(classes.header, className)} {...other}>

@@ -7,8 +7,8 @@ import {
 import {
   cacheValue,
   entityCacheReducer,
-  updateValue,
   updateFunc,
+  updateValue,
 } from "../../../common/cache";
 
 // Increment match count
@@ -35,10 +35,8 @@ export default function fileCacheReducer(state = initialState, action) {
       return entityCacheReducer(state, cacheValue(action.file.id, action.file));
     }
     case ACTION_UPDATE_FILE: {
-      return entityCacheReducer(
-        state,
-        updateValue(action.file.id, action.file)
-      );
+      const file = action.file;
+      return entityCacheReducer(state, updateValue(file.id, file));
     }
     case ACTION_DELETE_FILE_MATCH: {
       const { file: matchFile, motherFile } = action.match;

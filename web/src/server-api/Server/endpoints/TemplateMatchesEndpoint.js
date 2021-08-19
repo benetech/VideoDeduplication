@@ -16,7 +16,7 @@ export default class TemplateMatchesEndpoint {
    *   fields: string[],
    *   filters: TemplateMatchFilters
    * }} options
-   * @return {Promise<{total, offset, templateMatches, templates: Template[], files: *[]}>}
+   * @return {Promise<{total:number, offset:number, templateMatches:ObjectEntity[], templates: TemplateEntity[], files: FileEntity[]}>}
    */
   async list(options = {}) {
     const {
@@ -46,7 +46,7 @@ export default class TemplateMatchesEndpoint {
    * @param {{
    *   fields: string[],
    * }} options
-   * @return {Promise<TemplateMatch>}
+   * @return {Promise<ObjectEntity>}
    */
   async get(id, options = {}) {
     try {
@@ -67,8 +67,8 @@ export default class TemplateMatchesEndpoint {
 
   /**
    * Update template match.
-   * @param {TemplateMatch} match template match object
-   * @return {Promise<TemplateMatch>}
+   * @param {ObjectEntity} match template match object
+   * @return {Promise<ObjectEntity>}
    */
   async update(match) {
     try {
@@ -89,7 +89,7 @@ export default class TemplateMatchesEndpoint {
 
   /**
    * Delete template match.
-   * @param {number|string|TemplateMatch} match template match or id.
+   * @param {number|string|ObjectEntity} match template match or id.
    * @return {Promise<void>}
    */
   async delete(match) {

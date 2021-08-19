@@ -8,7 +8,6 @@ export default class FilesEndpoint {
   constructor(axios, transform) {
     this.axios = axios;
     this.transform = transform || new FilesTransformer();
-    console.log("Got transformer", this);
   }
 
   /**
@@ -19,7 +18,7 @@ export default class FilesEndpoint {
    *   offset: number,
    *   filters: FileFilters,
    * }} options query options
-   * @returns {Promise<{counts, files}>}
+   * @returns {Promise<{counts, files: FileEntity[]}>}
    */
   async list(options = {}) {
     try {
@@ -41,7 +40,7 @@ export default class FilesEndpoint {
   /**
    * Get single file by id.
    * @param id file id
-   * @return {Promise<File>}
+   * @return {Promise<FileEntity>}
    */
   async get(id) {
     try {
@@ -66,7 +65,7 @@ export default class FilesEndpoint {
    *   fields:string[],
    *   filters:ClusterFilters
    * }} options query options.
-   * @returns {Promise<{total, files, matches}>}
+   * @returns {Promise<{total:number, files: FileEntity[], matches: MatchEntity[]}>}
    */
   async cluster(options = {}) {
     try {
@@ -93,7 +92,7 @@ export default class FilesEndpoint {
    *   fields: string[],
    *   filters: Object,
    * }} options query options
-   * @returns {Promise<{total, offset, matches}>}
+   * @returns {Promise<{total:number, offset:number, matches:FileMatchEntity[]}>}
    */
   async matches(options = {}) {
     try {

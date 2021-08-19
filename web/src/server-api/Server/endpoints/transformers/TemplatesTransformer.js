@@ -9,14 +9,23 @@ export default class TemplatesTransformer {
   }
 
   /**
+   * @typedef {{
+   *   name: string
+   * }} TemplateFilters
+   */
+
+  /**
    * Convert template filters to templates query parameters
-   * @typedef {{}} TemplateFilters
+   *
    * @param {TemplateFilters} filters
    * @param {string[]} fields
    * @return {{}} templates query parameters
    */
   listParams(filters, fields) {
     const params = {};
+    if (filters?.name != null && filters.name.length > 0) {
+      params.name = filters.name;
+    }
     if (fields != null && fields.length > 0) {
       params.include = fields.join(",");
     }
@@ -26,7 +35,7 @@ export default class TemplatesTransformer {
   /**
    * Convert template list results.
    * @param data server response
-   * @return {{total, offset, templates}}
+   * @return {{total:number, offset:number, templates: TemplateEntity[]}}
    */
   templates(data) {
     return {
@@ -39,7 +48,7 @@ export default class TemplatesTransformer {
   /**
    * Convert template DTO to template object.
    * @param data template DTO
-   * @return {Template}
+   * @return {TemplateEntity}
    */
   template(data) {
     if (data == null) {
@@ -60,7 +69,7 @@ export default class TemplatesTransformer {
 
   /**
    * Make new-template DTO.
-   * @param {Template} template template object to be created
+   * @param {TemplateEntity} template template object to be created
    * @return {{}}
    */
   newTemplateDTO(template) {
@@ -72,11 +81,14 @@ export default class TemplatesTransformer {
   }
 
   /**
-   * Convert list-example filters to query parameters.
-   *
    * @typedef {{
    *   templateId: number|string,
    * }} ExampleFilters
+   */
+
+  /**
+   * Convert list-example filters to query parameters.
+   *
    * @param {ExampleFilters} filters
    * @param {string[]} fields
    * @return {{}} examples query parameters.
@@ -95,7 +107,7 @@ export default class TemplatesTransformer {
   /**
    * Convert list examples results.
    * @param data server response
-   * @return {{total, offset, examples}}
+   * @return {{total:number, offset:number, examples:TemplateExampleEntity[]}}
    */
   examples(data) {
     return {
@@ -108,7 +120,7 @@ export default class TemplatesTransformer {
   /**
    * Convert example DTO to example object.
    * @param data example DTO
-   * @return {Example}
+   * @return {TemplateExampleEntity}
    */
   example(data) {
     return {
@@ -120,11 +132,15 @@ export default class TemplatesTransformer {
   }
 
   /**
-   * Template matches filters to query parameters.
    * @typedef {{
    *   templateId: string|number|undefined,
    *   fileId: string|number|undefined,
    * }} TemplateMatchFilters
+   */
+
+  /**
+   * Template matches filters to query parameters.
+   *
    * @param {TemplateMatchFilters} filters
    * @param {string[]} fields
    * @return {{}} template matches query parameters
@@ -146,7 +162,7 @@ export default class TemplatesTransformer {
   /**
    * Convert list template matches results
    * @param data server response
-   * @return {{total, offset, templateMatches, templates: Template[], files: *[]}}
+   * @return {{total, offset, templateMatches: ObjectEntity[], templates: TemplateEntity[], files: FileEntity[]}}
    */
   matches(data) {
     return {
@@ -162,8 +178,8 @@ export default class TemplatesTransformer {
 
   /**
    * Convert match DTO to match object.
-   * @param data match DTO
-   * @return {TemplateMatch}
+   * @param {{}} data match DTO
+   * @return {ObjectEntity}
    */
   match(data) {
     const match = {

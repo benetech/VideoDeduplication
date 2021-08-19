@@ -12,11 +12,9 @@ import {
 import { useIntl } from "react-intl";
 import Button from "../../components/basic/Button";
 import IconKind from "../../application/state/templates/IconKind";
-import TemplateIconPreview from "./TemplateList/TemplateIconPreview";
-import { useServer } from "../../server-api/context";
-import { useDispatch } from "react-redux";
-import { addTemplates } from "../../application/state/templates/actions";
+import TemplateIconPreview from "../../components/templates/TemplateList/TemplateIconPreview";
 import nameErrorMessage from "./nameErrorMessage";
+import { useAddTemplate } from "../../application/api/templates/useTemplateAPI";
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -58,14 +56,14 @@ const defaultIcon = {
 
 function AddTemplateDialog(props) {
   const { open, onClose, className, ...other } = props;
-  const server = useServer();
   const classes = useStyles();
-  const dispatch = useDispatch();
   const messages = useMessages();
   const [icon, setIcon] = useState(defaultIcon);
   const [name, setName] = useState(messages.defaultName);
   const [loading, setLoading] = useState(false);
   const [nameError, setNameError] = useState("");
+  const createTemplate = useAddTemplate();
+
   const handleNameChange = useCallback((event) => {
     setName(event.target.value);
     setNameError("");
@@ -81,22 +79,17 @@ function AddTemplateDialog(props) {
     }
   }, [open]);
 
-  const handleCreate = useCallback(() => {
+  const handleCreate = useCallback(async () => {
     setLoading(true);
-    const template = { name, icon };
-    server.templates
-      .create(template)
-      .then((created) => {
-        dispatch(addTemplates([created]));
-        onClose();
-      })
-      .catch((error) => {
-        setNameError(messages.nameError(error.data?.fields?.name));
-        console.error(error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      await createTemplate({ name, icon });
+      onClose();
+    } catch (error) {
+      setNameError(messages.nameError(error.data?.fields?.name));
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }, [name, icon]);
 
   return (

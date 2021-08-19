@@ -2,8 +2,8 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import FileExclusionType from "../../../prop-types/FileExclusionType";
-import TemplateIcon from "../../TemplatesPage/TemplateIcon/TemplateIcon";
+import TemplateExclusionType from "../../../prop-types/TemplateExclusionType";
+import TemplateIcon from "../../../components/templates/TemplateIcon/TemplateIcon";
 import Spacer from "../../../components/basic/Spacer";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
@@ -69,7 +69,7 @@ ExcludedTemplate.propTypes = {
   /**
    * Template exclusion for the given file.
    */
-  exclusion: FileExclusionType.isRequired,
+  exclusion: TemplateExclusionType.isRequired,
   /**
    * Handle deletion of exclusion.
    */

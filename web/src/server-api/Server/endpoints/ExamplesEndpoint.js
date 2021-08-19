@@ -1,5 +1,6 @@
 import TemplatesTransformer from "./transformers/TemplatesTransformer";
 import { makeServerError } from "../ServerError";
+import getEntityId from "../../../lib/helpers/getEntityId";
 
 /**
  * Client for examples API endpoint.
@@ -18,7 +19,7 @@ export default class ExamplesEndpoint {
    *   fields: string[],
    *   filters: ExampleFilters,
    * }} options query options
-   * @return {Promise<{total, offset, examples}>}
+   * @return {Promise<{total:number, offset:number, examples:TemplateExampleEntity[]}>}
    */
   async list(options = {}) {
     try {
@@ -45,7 +46,7 @@ export default class ExamplesEndpoint {
    * Fetch a single template example by id.
    * @param id example id
    * @param {{fields: string[]}} options fetch options
-   * @return {Promise}
+   * @return {Promise<TemplateExampleEntity>}
    */
   async get(id, options = {}) {
     try {
@@ -63,17 +64,17 @@ export default class ExamplesEndpoint {
 
   /**
    * Upload a new template example.
-   * @param templateId
+   * @param {TemplateEntity|string|number} template
    * @param file
-   * @return {Promise}
+   * @return {Promise<TemplateExampleEntity>}
    */
-  async upload(templateId, file) {
+  async upload(template, file) {
     try {
       let formData = new FormData();
       formData.append("file", file);
 
       const response = await this.axios.post(
-        `/templates/${templateId}/examples/`,
+        `/templates/${getEntityId(template)}/examples/`,
         formData,
         {
           onUploadProgress: (progressEvent) => {
@@ -89,7 +90,7 @@ export default class ExamplesEndpoint {
       return this.transform.example(response.data);
     } catch (error) {
       throw makeServerError("Upload example error.", error, {
-        templateId,
+        templateId: template,
         file,
       });
     }
@@ -97,12 +98,12 @@ export default class ExamplesEndpoint {
 
   /**
    * Delete template example by id.
-   * @param {number|string|Example} example template example or example id
+   * @param {number|string|TemplateExampleEntity} example template example or example id
    * @return {Promise<void>}
    */
   async delete(example) {
     try {
-      await this.axios.delete(`/examples/${example}`);
+      await this.axios.delete(`/examples/${getEntityId(example)}`);
     } catch (error) {
       throw makeServerError("Delete example error.", error, { example });
     }

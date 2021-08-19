@@ -18,7 +18,7 @@ export default class TasksEndpoint {
    *   offset: number,
    *   filters: TaskFilters,
    * }} options query options
-   * @returns {Promise<{total, offset, tasks}>}
+   * @returns {Promise<{total: number, offset: number, tasks: TaskEntity[]}>}
    */
   async list(options = {}) {
     try {
@@ -36,6 +36,11 @@ export default class TasksEndpoint {
     }
   }
 
+  /**
+   * Get single task by id.
+   * @param {string|number} id
+   * @return {Promise<TaskEntity>}
+   */
   async get(id) {
     try {
       const response = await this.axios.get(`/tasks/${id}`, {
@@ -49,7 +54,7 @@ export default class TasksEndpoint {
 
   /**
    * Get task logs.
-   * @param {number|string|Task} task task object or task id.
+   * @param {number|string|TaskEntity} task task object or task id.
    * @return {Promise<*>}
    */
   async logs(task) {
@@ -68,7 +73,7 @@ export default class TasksEndpoint {
 
   /**
    * Delete task.
-   * @param {number|string|Task} task task or task id.
+   * @param {number|string|TaskEntity} task task or task id.
    * @return {Promise<void>}
    */
   async delete(task) {
@@ -81,8 +86,8 @@ export default class TasksEndpoint {
 
   /**
    * Cancel existing task.
-   * @param {number|string|Task} task task or task id
-   * @return {Promise<Task>}
+   * @param {number|string|TaskEntity} task task or task id
+   * @return {Promise<TaskEntity>}
    */
   async cancel(task) {
     try {
@@ -103,8 +108,8 @@ export default class TasksEndpoint {
 
   /**
    * Create and run a new task.
-   * @param request
-   * @return {Promise<Task>}
+   * @param {TaskRequest} request
+   * @return {Promise<TaskEntity>}
    */
   async create(request) {
     try {

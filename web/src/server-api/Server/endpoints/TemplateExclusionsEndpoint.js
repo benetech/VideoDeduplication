@@ -13,8 +13,8 @@ export default class TemplateExclusionsEndpoint {
 
   /**
    * Create new template exclusion.
-   * @param {TemplateExclusion} exclusion template-exclusion object to be created.
-   * @return {Promise<TemplateExclusion>}
+   * @param {TemplateExclusionEntity} exclusion template-exclusion object to be created.
+   * @return {Promise<TemplateExclusionEntity>}
    */
   async create(exclusion) {
     try {
@@ -43,7 +43,7 @@ export default class TemplateExclusionsEndpoint {
    *   offset: number|undefined,
    *   filters: TemplateExclusionFilters,
    * }} options
-   * @return {Promise<{total, offset, exclusions: TemplateExclusion[]}>}
+   * @return {Promise<{total, offset, exclusions: TemplateExclusionEntity[]}>}
    */
   async list(options = {}) {
     try {
@@ -64,7 +64,7 @@ export default class TemplateExclusionsEndpoint {
   /**
    * Get template-exclusion by id.
    * @param {number|string} id template exclusion id.
-   * @return {Promise<TemplateExclusion>}
+   * @return {Promise<TemplateExclusionEntity>}
    */
   async get(id) {
     try {
@@ -77,7 +77,7 @@ export default class TemplateExclusionsEndpoint {
 
   /**
    * Delete template exclusion.
-   * @param {number|string|TemplateExclusion} exclusion id or exclusion to be deleted
+   * @param {number|string|TemplateExclusionEntity} exclusion id or exclusion to be deleted
    * @return {Promise<void>}
    */
   async delete(exclusion) {

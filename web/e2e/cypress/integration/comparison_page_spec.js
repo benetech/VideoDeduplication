@@ -130,6 +130,14 @@ describe("The File Comparison Page", () => {
       },
       { fixture: "matches_page_1.json" }
     ).as("getMatches(page=next)");
+
+    cy.intercept(
+      {
+        pathname: `/api/v1/templates/`,
+        query: { offset: "0" },
+      },
+      { fixture: "templates.json" }
+    ).as("getTemplates");
   });
 
   it("displays mother file and all matches", () => {

@@ -1,60 +1,44 @@
 import { getEntry } from "../../common/cache/initialState";
 import { getQuery } from "../../common/queryCache";
 
-export const selectFileList = (state) => state.files.fileList;
+// File selectors
+
+export const selectCachedFile = (id) => (state) =>
+  getEntry(state.files.cache, id);
 
 export const selectFilesColl = (state) => state.files.coll;
 
 export const selectFilesQuery = (params) => (state) =>
   getQuery(state.files.queries, params);
 
-/**
- * Select cached file by id.
- */
-export const selectCachedFile = (id) => (state) =>
-  getEntry(state.files.cache, id);
+// File match selectors
 
-/**
- * Select file matches.
- */
 export const selectFileMatches = (state) => state.fileMatches;
 
-/**
- * Select file cluster.
- */
 export const selectFileCluster = (state) => state.fileCluster;
 
-/**
- * Select background tasks state.
- */
-export const selectTasks = (state) => state.tasks;
+// Background task selectors
 
-/**
- * Select cached task.
- */
+export const selectTaskQuery = (params) => (state) =>
+  getQuery(state.tasks.queries, params);
+
 export const selectCachedTask = (id) => (state) =>
-  getEntry(state.taskCache, id);
+  getEntry(state.tasks.cache, id);
 
-/**
- * Select task logs.
- */
-export const selectTaskLogs = (state) => state.taskLogs;
+export const selectTaskLogs = (state) => state.tasks.logs;
 
-/**
- * Select templates.
- */
-export const selectTemplates = (state) => state.templates;
+// Template selectors
 
-/**
- * Select object cache.
- */
-export const selectObjectCache = (state) => state.objectCache;
+export const selectTemplatesQuery = (params) => (state) =>
+  getQuery(state.templates.queries, params);
 
-/**
- * Select cached file objects.
- */
-export const selectCachedObjects = (fileId) => (state) =>
-  state.objectCache.objects[fileId];
+export const selectCachedTemplate = (id) => (state) =>
+  getEntry(state.templates.cache, id);
+
+// Template-match (object) selectors.
+
+export const selectObjectsQuery = (params) => (state) =>
+  getQuery(state.objects.queries, params);
 
 /**
  * Select loaded presets state.

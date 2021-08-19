@@ -3,16 +3,9 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { useServer } from "../../server-api/context";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  setTaskLogs,
-  subscribeForTaskLogs,
-  unsubscribeFromTaskLogs,
-} from "../../application/state/taskLogs/actions";
-import { selectTaskLogs } from "../../application/state/root/selectors";
 import TaskType from "../../prop-types/TaskType";
-import TaskStatus from "../../application/state/tasks/TaskStatus";
+import useTaskLogs from "../../application/api/tasks/useTaskLogs";
+import isActiveTask from "../../application/api/tasks/helpers/isActiveTask";
 
 const useStyles = makeStyles((theme) => ({
   logsContainer: {
@@ -30,34 +23,13 @@ const useStyles = makeStyles((theme) => ({
   progress: {},
 }));
 
-function isActive(task) {
-  return (
-    task.status === TaskStatus.PENDING || task.status === TaskStatus.RUNNING
-  );
-}
-
 function TaskLogs(props) {
   const { task, className, ...other } = props;
   const classes = useStyles();
-  const server = useServer();
-  const active = isActive(task);
-  const dispatch = useDispatch();
-  const taskLogs = useSelector(selectTaskLogs);
+  const active = isActiveTask(task);
+  const taskLogs = useTaskLogs(task);
   const [follow, setFollow] = useState(true);
   const containerRef = useRef();
-
-  // Fetch available logs
-  useEffect(() => {
-    if (active) {
-      dispatch(subscribeForTaskLogs(task.id));
-      return () => dispatch(unsubscribeFromTaskLogs(task.id));
-    } else if (taskLogs.taskId !== task.id || taskLogs.more) {
-      dispatch(setTaskLogs({ id: task.id, logs: null, more: true }));
-      server.tasks.logs(task.id).then((data) => {
-        dispatch(setTaskLogs({ id: task.id, logs: [data], more: false }));
-      });
-    }
-  }, [task.id]);
 
   // Follow logs
   useEffect(() => {

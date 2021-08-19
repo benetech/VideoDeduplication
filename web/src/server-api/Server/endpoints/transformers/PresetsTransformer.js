@@ -5,10 +5,13 @@ export default class PresetsTransformer {
   constructor() {}
 
   /**
-   * Convert list-presets filters
    * @typedef {{
    *   name: string|undefined,
    * }} PresetFilters
+   */
+
+  /**
+   * Convert list-presets filters
    * @param {PresetFilters} filters
    * @return {{}}
    */

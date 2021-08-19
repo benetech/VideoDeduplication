@@ -6,7 +6,7 @@ import InputContainer from "../InputContainer";
 import { TextField } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import TaskRequestType from "../../../../prop-types/TaskRequestType";
-import TaskRequest from "../../../../application/state/tasks/TaskRequest";
+import TaskRequestTypes from "../../../../prop-types/TaskRequestTypes";
 import Section from "../Section";
 import Description from "../Description";
 import { validateTaskConfig } from "./validation";
@@ -50,7 +50,7 @@ function ProcessDirectoryForm(props) {
 
   // Initialize request
   useEffect(
-    () => onChange({ type: TaskRequest.DIRECTORY, directory: "." }),
+    () => onChange({ type: TaskRequestTypes.DIRECTORY, directory: "." }),
     []
   );
 

@@ -27,7 +27,7 @@ function TaskProgress(props) {
     <div className={clsx(classes.taskProgress, className)} {...other}>
       <LinearProgress
         variant={variant}
-        value={hasValue && value * 100}
+        value={hasValue ? value * 100 : 0}
         className={classes.progress}
       />
       {hasValue && (

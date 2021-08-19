@@ -1,6 +1,6 @@
-import { MatchCategory } from "../queries/MatchCategory";
-import { FileSort } from "../queries/FileSort";
-import FileListType from "./FileListType";
+import { MatchCategory } from "../../../../prop-types/MatchCategory";
+import { FileSort } from "../../../../prop-types/FileSort";
+import FileListType from "../../../../prop-types/FileListType";
 
 /**
  * Default files query parameters;

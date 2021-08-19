@@ -1,15 +1,13 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import TaskSidebarHeader from "./TaskSidebarHeader";
 import TaskList from "../../../components/tasks/TaskList";
 import { Tab } from "./tabs";
-import { useDispatch, useSelector } from "react-redux";
-import { selectTasks } from "../../../application/state/root/selectors";
 import LoadTrigger from "../../../components/basic/LoadingTrigger/LoadTrigger";
-import { fetchTaskSlice } from "../../../application/state/tasks/actions";
 import { useIntl } from "react-intl";
+import useTaskQuery from "../../../application/api/tasks/useTaskQuery";
 
 const useStyles = makeStyles((theme) => ({
   container: {},
@@ -47,20 +45,12 @@ function TaskSidebar(props) {
   const classes = useStyles();
   const [tab, setTab] = useState(Tab.ALL);
   const messages = useMessages();
-  const dispatch = useDispatch();
-  const taskState = useSelector(selectTasks);
-  const tasks = [...taskState.tasks].sort(byDate);
-
-  // Load next slice of task collection
-  const handleLoad = useCallback(() => dispatch(fetchTaskSlice()), []);
+  const query = useTaskQuery();
+  const tasks = [...query.tasks].sort(byDate);
 
   return (
     <div className={clsx(classes.container, className)} {...other}>
-      <TaskSidebarHeader
-        count={taskState.total}
-        tab={tab}
-        onTabChange={setTab}
-      />
+      <TaskSidebarHeader count={query.total} tab={tab} onTabChange={setTab} />
       <TaskList className={classes.tasks}>
         {tasks
           .filter(tab.filter)
@@ -69,12 +59,12 @@ function TaskSidebar(props) {
             <TaskList.Item task={task} key={task.id} />
           ))}
         <LoadTrigger
-          loading={taskState.loading}
-          onLoad={handleLoad}
-          hasMore={taskState.total == null || tasks.length < taskState.total}
+          loading={query.loading}
+          onLoad={query.load}
+          hasMore={query.hasMore}
           container={TaskList.ItemContainer}
           errorMessage={messages.loadError}
-          error={taskState.error}
+          error={query.error}
         />
       </TaskList>
     </div>

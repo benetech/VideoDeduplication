@@ -1,4 +1,4 @@
-import TaskRequest from "../../../application/state/tasks/TaskRequest";
+import TaskRequestTypes from "../../../prop-types/TaskRequestTypes";
 import ProcessDirectoryRequestAttrs from "./task-types/ProcessDirectoryRequestAttrs";
 import RawRequest from "./RawRequest";
 import MatchTemplatesRequestAttrs from "./task-types/MatchTemplatesRequestAttrs";
@@ -7,7 +7,7 @@ import FindFrameRequestOverview from "./task-types/FindFrameRequestOverview";
 import ProcessOnlineVideoRequestAttrs from "./task-types/ProcessOnlineVideoRequestAttrs";
 
 const RequestViews = {
-  [TaskRequest.DIRECTORY]: [
+  [TaskRequestTypes.DIRECTORY]: [
     {
       title: "view.attributes",
       component: ProcessDirectoryRequestAttrs,
@@ -17,7 +17,7 @@ const RequestViews = {
       component: RawRequest,
     },
   ],
-  [TaskRequest.MATCH_TEMPLATES]: [
+  [TaskRequestTypes.MATCH_TEMPLATES]: [
     {
       title: "view.attributes",
       component: MatchTemplatesRequestAttrs,
@@ -27,7 +27,7 @@ const RequestViews = {
       component: RawRequest,
     },
   ],
-  [TaskRequest.FIND_FRAME]: [
+  [TaskRequestTypes.FIND_FRAME]: [
     {
       title: "view.overview",
       component: FindFrameRequestOverview,
@@ -41,7 +41,7 @@ const RequestViews = {
       component: RawRequest,
     },
   ],
-  [TaskRequest.PROCESS_ONLINE_VIDEO]: [
+  [TaskRequestTypes.PROCESS_ONLINE_VIDEO]: [
     {
       title: "view.attributes",
       component: ProcessOnlineVideoRequestAttrs,

@@ -1,15 +1,15 @@
 import { pickRandom } from "./helpers";
-import TaskRequest from "../../../application/state/tasks/TaskRequest";
+import TaskRequestTypes from "../../../prop-types/TaskRequestTypes";
 import { randomName } from "./files";
 
 function randomRequest() {
   const request = {
-    type: pickRandom([TaskRequest.DIRECTORY, TaskRequest.FILE_LIST]),
+    type: pickRandom([TaskRequestTypes.DIRECTORY, TaskRequestTypes.FILE_LIST]),
   };
 
-  if (request.type === TaskRequest.DIRECTORY) {
+  if (request.type === TaskRequestTypes.DIRECTORY) {
     request.directory = `yt2020/collection-${Math.floor(Math.random() * 100)}`;
-  } else if (request.type === TaskRequest.FILE_LIST) {
+  } else if (request.type === TaskRequestTypes.FILE_LIST) {
     const count = Math.floor(500 * Math.random());
     const files = [];
     for (let i = 0; i < count; i++) {

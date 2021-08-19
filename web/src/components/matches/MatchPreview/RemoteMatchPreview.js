@@ -11,9 +11,8 @@ import PreviewMainAction from "./PreviewMainAction";
 import PreviewContainer from "./PreviewContainer";
 import CloudOutlinedIcon from "@material-ui/icons/CloudOutlined";
 import { useIntl } from "react-intl";
-import { useHistory } from "react-router-dom";
-import { routes } from "../../../routing/routes";
 import FileMatchType from "../../../prop-types/FileMatchType";
+import { useShowMatches } from "../../../routing/hooks";
 
 const useStyles = makeStyles({
   root: {},
@@ -40,14 +39,13 @@ function useMessages() {
  * Get match actions.
  */
 function useActions(match, handleCopy, messages) {
-  const history = useHistory();
+  const showMatches = useShowMatches(match.file, [match.file.id]);
 
   return useMemo(
     () => [
       {
         title: messages.showMatches,
-        handler: () =>
-          history.push(routes.collection.fileMatchesURL(match.file.id)),
+        handler: showMatches,
       },
       {
         title: messages.copySHA,

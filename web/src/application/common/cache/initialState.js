@@ -1,6 +1,13 @@
 /**
  * Cache initial state.
- * @type {{items: {}, maxSize: number, history: [string]}}
+ *
+ * @typedef {{
+ *   items: {},
+ *   maxSize: number,
+ *   history: string[],
+ * }} ValueCache
+ *
+ * @type ValueCache
  */
 const initialState = {
   maxSize: 1000,

@@ -8,15 +8,14 @@ import PreviewFileAttributes from "./PreviewFileAttributes";
 import Distance from "../Distance";
 import { localAttributes } from "./attributes";
 import PreviewMainAction from "./PreviewMainAction";
-import { routes } from "../../../routing/routes";
 import { useIntl } from "react-intl";
-import { useHistory } from "react-router-dom";
 import InactiveIcon from "@material-ui/icons/NotInterestedOutlined";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import MatchAPI from "../../../application/api/matches/MatchAPI";
 import FileMatchType from "../../../prop-types/FileMatchType";
 
 import { makeStyles } from "@material-ui/styles";
+import { useCompareFiles, useShowFile } from "../../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   falsePositive: {
@@ -62,17 +61,11 @@ function useToggleFalsePositive({ match, messages }) {
  * Get comparison action.
  */
 function useCompare({ match, messages }) {
-  const history = useHistory();
+  const compareFiles = useCompareFiles([match.motherFile, match.file], [match]);
   return useMemo(
     () => ({
       title: messages.compare,
-      handler: () =>
-        history.push(
-          routes.collection.fileComparisonURL(
-            match.motherFile.id,
-            match.file.id
-          )
-        ),
+      handler: compareFiles,
     }),
     [match.file.id, match.motherFile.id]
   );
@@ -82,11 +75,11 @@ function useCompare({ match, messages }) {
  * Get "Show Details" action.
  */
 function useShowDetails({ match, messages }) {
-  const history = useHistory();
+  const showFile = useShowFile(match.file, [match]);
   return useMemo(
     () => ({
       title: messages.showDetails,
-      handler: () => history.push(routes.collection.fileURL(match.file.id)),
+      handler: showFile,
     }),
     [match.file.id]
   );

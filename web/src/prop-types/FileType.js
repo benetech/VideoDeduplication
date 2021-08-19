@@ -1,6 +1,41 @@
 import PropTypes from "prop-types";
 import ContributorType from "./ContributorType";
 
+/**
+ * @typedef {{
+ *   uploadedBy: string|undefined,
+ *   updatedDate: number|undefined,
+ *   fileType: string|undefined,
+ *   length: number|undefined,
+ *   frames: number|undefined,
+ *   codec: string|undefined,
+ *   grayMax: number|undefined,
+ *   grayStd: number|undefined,
+ *   stdAverage: number|undefined,
+ *   maxDiff: number|undefined,
+ *   hasEXIF: boolean|undefined,
+ *   hasAudio: boolean|undefined,
+ *   quality: number|undefined,
+ *   flagged: boolean|undefined,
+ * }} FileMetadata
+ *
+ *  @typedef {{
+ *    id: string|number,
+ *    filename: string,
+ *    metadata: FileMetadata|undefined,
+ *    hash: string,
+ *    fingerprint: string,
+ *    preview: string,
+ *    playbackURL: string,
+ *    exif: Object,
+ *    external: boolean,
+ *    contributor: ContributorEntity|undefined,
+ *  }} FileEntity
+ */
+
+/**
+ * Prop type for a file processed by the application.
+ */
 export const FileType = PropTypes.shape({
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   filename: PropTypes.string,

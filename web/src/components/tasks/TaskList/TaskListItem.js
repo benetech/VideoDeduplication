@@ -3,7 +3,7 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import TaskType from "../../../prop-types/TaskType";
-import TaskStatus from "../../../application/state/tasks/TaskStatus";
+import TaskStatus from "../../../prop-types/TaskStatus";
 import HeightOutlinedIcon from "@material-ui/icons/HeightOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import { formatDistance } from "date-fns";
@@ -13,12 +13,11 @@ import TaskProgress from "./TaskProgress";
 import usePopup from "../../../lib/hooks/usePopup";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import { routes } from "../../../routing/routes";
-import { useHistory } from "react-router";
 import getStatusIcon from "../TaskSummary/helpers/getStatusIcon";
 import useCancelTask from "../../../application/api/tasks/useCancelTask";
 import useDeleteTask from "../../../application/api/tasks/useDeleteTask";
 import getTaskTextDescription from "../TaskSummary/helpers/getTaskTextDescription";
+import { useShowLogs, useShowTask } from "../../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   task: {
@@ -120,26 +119,21 @@ function TaskListItem(props) {
   const Icon = getStatusIcon(task.status);
   const running = task.status === TaskStatus.RUNNING;
   const { clickTrigger, popup } = usePopup("task-menu-");
-  const history = useHistory();
+  const deleteTask = useDeleteTask(task, [task]);
+  const cancelTask = useCancelTask(task, [task]);
 
-  const handleShowLogs = useCallback(
-    () => history.push(routes.processing.taskLogsURL(task.id)),
-    [task.id]
-  );
+  const showLogs = useShowLogs(task, [task]);
+  const showTask = useShowTask(task, [task]);
 
-  const handleExpand = useCallback(
-    () => history.push(routes.processing.taskURL(task.id)),
-    [task.id]
-  );
+  const handleCancel = useCallback(() => {
+    popup.onClose();
+    cancelTask().catch(console.error);
+  }, [cancelTask]);
 
-  const handleCancel = useCancelTask({
-    id: task.id,
-    onTrigger: () => popup.onClose(),
-  });
-  const handleDelete = useDeleteTask({
-    id: task.id,
-    onTrigger: () => popup.onClose(),
-  });
+  const handleDelete = useCallback(() => {
+    popup.onClose();
+    deleteTask().catch(console.error);
+  }, [deleteTask]);
 
   return (
     <div className={clsx(classes.task, className)} {...other}>
@@ -148,7 +142,7 @@ function TaskListItem(props) {
         <div className={classes.attributes}>
           <div className={classes.topAttributes}>
             <div className={classes.timeCaption}>{messages.time(task)}</div>
-            <IconButton size="small" onClick={handleExpand}>
+            <IconButton size="small" onClick={showTask}>
               <HeightOutlinedIcon
                 className={classes.expandIcon}
                 fontSize="small"
@@ -168,7 +162,7 @@ function TaskListItem(props) {
         <TaskProgress value={task.progress} className={classes.progress} />
       )}
       <Menu {...popup}>
-        <MenuItem onClick={handleShowLogs}>{messages.showLogs}</MenuItem>
+        <MenuItem onClick={showLogs}>{messages.showLogs}</MenuItem>
         <MenuItem onClick={handleCancel}>{messages.cancel}</MenuItem>
         <MenuItem onClick={handleDelete}>{messages.delete}</MenuItem>
       </Menu>

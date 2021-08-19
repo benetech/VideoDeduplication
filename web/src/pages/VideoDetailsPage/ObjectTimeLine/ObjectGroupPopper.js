@@ -7,6 +7,7 @@ import Popper from "@material-ui/core/Popper";
 import Paper from "@material-ui/core/Paper";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import ObjectPreview from "./ObjectPreview";
+import useTemplateIndex from "../../../application/api/templates/useTemplateIndex";
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -56,6 +57,8 @@ function ObjectGroupPopper(props) {
   const { objects, onClose, onJump, className, onKeyClose, ...other } = props;
   const classes = useStyles();
 
+  const templates = useTemplateIndex();
+
   const [focusIndex, setFocusIndex] = useState(0);
   const [arrowRef, setArrowRef] = useState(null);
 
@@ -97,6 +100,7 @@ function ObjectGroupPopper(props) {
           {objects.map((object, index) => (
             <ObjectPreview
               object={object}
+              template={templates.get(object.templateId)}
               onJump={onJump}
               key={object.id}
               autoFocus={index === focusIndex}

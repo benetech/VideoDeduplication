@@ -6,13 +6,12 @@ import {
   queryFiles,
   releaseFilesQuery,
 } from "../../state/files/queries/actions";
-import { MatchCategory } from "../../state/files/queries/MatchCategory";
+import { MatchCategory } from "../../../prop-types/MatchCategory";
+import useValue from "../../../lib/hooks/useValue";
 
 /**
- * Use lazy files query.
- * @param {FileFilters} params query filters
- * @return {{
- *   files: [*],
+ * @typedef {{
+ *   files: FileEntity[],
  *   counts: {
  *     all: number,
  *     related: number,
@@ -24,9 +23,17 @@ import { MatchCategory } from "../../state/files/queries/MatchCategory";
  *   hasMore: boolean,
  *   canLoad: boolean,
  *   load: function,
- * }} files query.
+ *   params: FileFilters,
+ * }} FileQueryAPI
+ */
+
+/**
+ * Use lazy files query.
+ * @param {FileFilters} params query filters
+ * @return {FileQueryAPI} files query.
  */
 export default function useFilesQuery(params) {
+  params = useValue(params);
   const dispatch = useDispatch();
   const query = useSelector(selectFilesQuery(params));
 
@@ -55,5 +62,6 @@ export default function useFilesQuery(params) {
     hasMore,
     canLoad,
     load,
+    params,
   };
 }

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -6,9 +6,8 @@ import { ButtonBase, CircularProgress, Paper } from "@material-ui/core";
 import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import { useIntl } from "react-intl";
-import { useHistory } from "react-router";
-import { routes } from "../../../routing/routes";
 import ServerError from "../../../server-api/Server/ServerError";
+import { useShowProcessing } from "../../../routing/hooks";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -51,12 +50,7 @@ function TaskLoadingHeader(props) {
   const { error, onRetry, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const history = useHistory();
-
-  const handleBack = useCallback(
-    () => history.push(routes.processing.home),
-    []
-  );
+  const handleBack = useShowProcessing();
 
   let content;
   if (!error) {

@@ -61,11 +61,13 @@ function TaskDetails(props) {
           <TaskRequest task={task} />
         </LabeledSection>
       </Paper>
-      <Paper className={classes.pane}>
-        <LabeledSection title={messages.results} collapsible>
-          <TaskResults task={task} />
-        </LabeledSection>
-      </Paper>
+      {task.result != null && (
+        <Paper className={classes.pane}>
+          <LabeledSection title={messages.results} collapsible>
+            <TaskResults task={task} />
+          </LabeledSection>
+        </Paper>
+      )}
     </div>
   );
 }

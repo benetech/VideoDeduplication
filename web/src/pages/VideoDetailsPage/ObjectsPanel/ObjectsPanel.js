@@ -15,7 +15,7 @@ import Case from "../../../components/basic/SwitchComponent/Case";
 import FileType from "../../../prop-types/FileType";
 import TemplateBlackList from "./TemplateBlackList";
 import { useIntl } from "react-intl";
-import ObjectAPI from "../../../application/api/objects/ObjectAPI";
+import useUpdateObject from "../../../application/api/objects/useUpdateObject";
 
 const useStyles = makeStyles((theme) => ({
   objectPane: {
@@ -61,6 +61,7 @@ function useMessages() {
 
 /**
  * Split objects into groups.
+ * @param {ObjectEntity[]} objectsProp
  */
 function useGroups(objectsProp) {
   const objects = useMemo(
@@ -85,33 +86,31 @@ function ObjectsPanel(props) {
   const { file, objects: objectsProp, onJump, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const objectsAPI = ObjectAPI.use();
+  const updateObject = useUpdateObject();
   const [tab, setTab] = useState(Tab.found);
 
   const handleDelete = useCallback(
     async (object) => {
-      const updates = { ...object, falsePositive: true };
       try {
-        await objectsAPI.updateObject(updates, object);
+        const updates = { ...object, falsePositive: true };
+        await updateObject(updates, object);
       } catch (error) {
-        console.error("Error occurred while deleting object", error, { error });
+        console.error("Error deleting object", error, { error });
       }
     },
-    [objectsAPI]
+    [updateObject]
   );
 
   const handleRestore = useCallback(
     async (object) => {
-      const updates = { ...object, falsePositive: false };
       try {
-        await objectsAPI.updateObject(updates, object);
+        const updates = { ...object, falsePositive: false };
+        await updateObject(updates, object);
       } catch (error) {
-        console.error("Error occurred while restoring object", error, {
-          error,
-        });
+        console.error("Error restoring object", error, { error });
       }
     },
-    [objectsAPI]
+    [updateObject]
   );
 
   const { objects, groups, falsePositive, falseGroups } =

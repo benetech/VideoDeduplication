@@ -10,16 +10,17 @@ import VideoInformationPane from "./VideoInformationPane";
 import { seekTo } from "./seekTo";
 import FileSummaryHeader from "../../components/files/FileSummaryHeader";
 import FileActionHeader from "../../components/files/FileActionsHeader";
-import { useHistory, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import FileLoadingHeader from "../../components/files/FileLoadingHeader";
 import useFile from "../../application/api/files/useFile";
-import { routes } from "../../routing/routes";
-import ObjectAPI from "../../application/api/objects/ObjectAPI";
-import { updateTask } from "../../application/state/tasks/actions";
-import { useServer } from "../../server-api/context";
-import { useDispatch } from "react-redux";
-import TaskRequest from "../../application/state/tasks/TaskRequest";
-import { useShowCollection } from "../../routing/hooks";
+import {
+  useCompareFiles,
+  useShowCollection,
+  useShowMatches,
+} from "../../routing/hooks";
+import useSearchFrame from "../../application/api/templates/useSearchFrame";
+import useLoadAllObjects from "../../application/api/objects/useLoadAllObjects";
+import useLoadAllTemplates from "../../application/api/templates/useLoadAllTemplates";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -69,29 +70,6 @@ function useMessages() {
   };
 }
 
-/**
- * Handle search frame request.
- */
-function useSearchFrame() {
-  const server = useServer();
-  const history = useHistory();
-  const dispatch = useDispatch();
-
-  return useCallback(({ file, time }) => {
-    server.tasks
-      .create({
-        type: TaskRequest.FIND_FRAME,
-        fileId: file.id,
-        frameTimeSec: time,
-      })
-      .then((task) => {
-        dispatch(updateTask(task));
-        history.push(routes.processing.taskURL(task.id));
-      })
-      .catch(console.error);
-  });
-}
-
 function VideoDetailsPage(props) {
   const { className } = props;
   const { id } = useParams();
@@ -99,30 +77,26 @@ function VideoDetailsPage(props) {
   const { file, error, loadFile } = useFile(id);
   const [player, setPlayer] = useState(null);
   const classes = useStyles();
-  const history = useHistory();
   const showCollection = useShowCollection();
+  const compareFile = useCompareFiles(id, [id]);
+  const showMatches = useShowMatches(id, [id]);
 
-  // Preload file objects
-  const objectsAPI = ObjectAPI.use();
-  const { done: objectsLoaded } = objectsAPI.useFileObjects(id);
+  // Preload file objects and templates
+  const { done: objectsLoaded } = useLoadAllObjects({ fileId: id });
+  const { done: templatesLoaded } = useLoadAllTemplates();
 
   // There is nothing to show for external files.
   // Navigate to file matches if file is external.
   useEffect(() => {
     if (file?.external) {
-      history.replace(routes.collection.fileMatchesURL(file.id));
+      showMatches();
     }
   }, [file]);
-
-  const handleCompare = useCallback(
-    () => history.push(routes.collection.fileComparisonURL(id)),
-    [id]
-  );
 
   const handleJump = useCallback(seekTo(player, file), [player, file]);
   const searchFrame = useSearchFrame();
 
-  if (file == null || !objectsLoaded) {
+  if (file == null || !objectsLoaded || !templatesLoaded) {
     return (
       <div className={clsx(classes.root, className)}>
         <FileActionHeader id={id}>
@@ -143,7 +117,7 @@ function VideoDetailsPage(props) {
   return (
     <div className={clsx(classes.root, className)}>
       <FileActionHeader id={file.id} matches={file.matchesCount}>
-        <Button color="primary" variant="contained" onClick={handleCompare}>
+        <Button color="primary" variant="contained" onClick={compareFile}>
           {messages.compare}
         </Button>
       </FileActionHeader>
