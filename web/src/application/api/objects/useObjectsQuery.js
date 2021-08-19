@@ -17,6 +17,7 @@ import useValue from "../../../lib/hooks/useValue";
  *   hasMore: boolean,
  *   canLoad: boolean,
  *   load: function,
+ *   params: TemplateMatchFilters,
  * }} ObjectsQueryAPI
  */
 
@@ -51,5 +52,6 @@ export default function useObjectsQuery(params) {
     hasMore,
     canLoad,
     load,
+    params,
   };
 }

@@ -7,6 +7,7 @@ import {
   queryTemplates,
   releaseTemplatesQuery,
 } from "../../state/templates/queries/actions";
+import useValue from "../../../lib/hooks/useValue";
 
 /**
  * @typedef {{
@@ -17,6 +18,7 @@ import {
  *   hasMore: boolean,
  *   canLoad: boolean,
  *   load: function,
+ *   params: TemplateFilters,
  * }} SingleTemplatesQueryAPI
  */
 
@@ -27,6 +29,7 @@ import {
  * @return {SingleTemplatesQueryAPI} files query.
  */
 export default function useTemplatesQuery(params = DefaultTemplateFilters) {
+  params = useValue(params);
   const dispatch = useDispatch();
   const query = useSelector(selectTemplatesQuery(params));
 
@@ -50,5 +53,6 @@ export default function useTemplatesQuery(params = DefaultTemplateFilters) {
     hasMore,
     canLoad,
     load,
+    params,
   };
 }

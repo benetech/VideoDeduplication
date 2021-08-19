@@ -26,7 +26,7 @@ export default function useLoadAllObjects(params) {
     if (shouldAutoload) {
       query.load();
     }
-  }, [shouldAutoload]);
+  }, [shouldAutoload, query.params]);
 
   const result = {
     objects: query.objects,

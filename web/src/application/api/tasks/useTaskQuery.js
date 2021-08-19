@@ -7,6 +7,7 @@ import {
   queryTasks,
   releaseTaskQuery,
 } from "../../state/tasks/queries/actions";
+import useValue from "../../../lib/hooks/useValue";
 
 /**
  * @typedef {{
@@ -17,6 +18,7 @@ import {
  *   hasMore: boolean,
  *   canLoad: boolean,
  *   load: function,
+ *   params: TaskFilters,
  * }} TaskQueryAPI
  */
 
@@ -27,6 +29,7 @@ import {
  * @return {TaskQueryAPI} files query.
  */
 export default function useTaskQuery(params = DefaultTaskFilters) {
+  params = useValue(params);
   const dispatch = useDispatch();
   const query = useSelector(selectTaskQuery(params));
 
@@ -50,5 +53,6 @@ export default function useTaskQuery(params = DefaultTaskFilters) {
     hasMore,
     canLoad,
     load,
+    params,
   };
 }

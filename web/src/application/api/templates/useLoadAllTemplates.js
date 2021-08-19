@@ -2,7 +2,6 @@ import { DefaultTemplateFilters } from "../../state/templates/queries/initialSta
 import useTemplatesQuery from "./useTemplatesQuery";
 import { useEffect } from "react";
 import queryProgress from "../../../lib/helpers/queryProgress";
-import useValue from "../../../lib/hooks/useValue";
 
 /**
  *
@@ -17,7 +16,6 @@ import useValue from "../../../lib/hooks/useValue";
  * }}
  */
 export default function useLoadAllTemplates(params = DefaultTemplateFilters) {
-  params = useValue(params);
   const query = useTemplatesQuery(params);
 
   const shouldAutoload = !query.error && query.canLoad;
@@ -25,7 +23,7 @@ export default function useLoadAllTemplates(params = DefaultTemplateFilters) {
     if (shouldAutoload) {
       query.load();
     }
-  }, [shouldAutoload]);
+  }, [shouldAutoload, query.params]);
 
   const result = {
     templates: query.templates,
