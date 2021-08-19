@@ -155,10 +155,13 @@ function ProcessingPage(props) {
   const showTemplateDialog = useCallback(() => setShowNewTemplateDialog(true));
   const hideTemplateDialog = useCallback(() => setShowNewTemplateDialog(false));
 
-  const filterTemplateTasks = useCallback(
-    (task) => task?.request?.type === TaskRequestTypes.MATCH_TEMPLATES,
-    []
-  );
+  const filterTemplateTasks = useCallback((task) => {
+    const type = task?.request?.type;
+    return (
+      type === TaskRequestTypes.MATCH_TEMPLATES ||
+      type === TaskRequestTypes.FIND_FRAME
+    );
+  }, []);
 
   const showMatches = useCallback((template) => {
     collection.updateParams({ templates: [template.id] });
