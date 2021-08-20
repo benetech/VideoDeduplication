@@ -113,6 +113,9 @@ export default class ExamplesEndpoint {
           headers: {
             "Content-Type": "application/json",
           },
+          params: {
+            method: "frame",
+          },
         }
       );
       return this.transform.example(response.data);

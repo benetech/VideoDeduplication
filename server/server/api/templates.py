@@ -2,6 +2,7 @@ import enum
 import os
 import tempfile
 from http import HTTPStatus
+from numbers import Number
 from pathlib import Path
 from typing import Dict, Tuple, List
 
@@ -411,7 +412,7 @@ def validate_frame_dto(data: Dict) -> str:
         file_descr = f"{file.contributor.repository.name}:{file.contributor.name}:{file.sha256}"
         return f"Cannot read frame from remote file: {file_descr}"
 
-    if not isinstance(time, int) or time < 0:
+    if not isinstance(time, Number) or time < 0:
         return f"Invalid time: {time}"
 
 
@@ -426,7 +427,7 @@ def handle_create_example_from_frame(template: Template):
     if error:
         abort(HTTPStatus.BAD_REQUEST.value, error)
 
-    file_id, time = request_payload["file_id"], request_payload["time"]
+    file_id, time = request_payload["file_id"], int(request_payload["time"])
     file = database.session.query(Files).filter(Files.id == file_id).first()
 
     try:

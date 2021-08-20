@@ -46,7 +46,7 @@ function VideoPlayerAction(props) {
   // Add tooltip if provided
   if (tooltip?.length > 0) {
     return (
-      <Tooltip title={tooltip} classes={classes}>
+      <Tooltip title={tooltip} classes={{ tooltip: classes.tooltip }}>
         {button}
       </Tooltip>
     );

@@ -108,6 +108,7 @@
     "actions.findFrame": "Find Similar Frames",
     "actions.nextFrame": "Next frame",
     "actions.prevFrame": "Previous Frame",
+    "actions.addFrameToTemplate": "Add Frame to Template",
     "actions.gotoFile": "Go to File",
     "actions.gotoFrame": "Show Frame",
     "actions.blurFrames": "Blur frames",

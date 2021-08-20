@@ -8,6 +8,7 @@ import Grid from "@material-ui/core/Grid";
 import SearchIcon from "@material-ui/icons/Search";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import AddIcon from "@material-ui/icons/Add";
 import VideoPlayerPane from "./VideoPlayerPane";
 import VideoInformationPane from "./VideoInformationPane";
 import { seekTo } from "./seekTo";
@@ -26,6 +27,7 @@ import useLoadAllObjects from "../../application/api/objects/useLoadAllObjects";
 import useLoadAllTemplates from "../../application/api/templates/useLoadAllTemplates";
 import VideoPlayerActions from "../../components/files/VideoPlayerActions";
 import VideoPlayerAction from "../../components/files/VideoPlayerAction";
+import useAddFrameDialog from "./useAddFrameDialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -75,6 +77,7 @@ function useMessages() {
     findFrame: intl.formatMessage({ id: "actions.findFrame" }),
     nextFrame: intl.formatMessage({ id: "actions.nextFrame" }),
     prevFrame: intl.formatMessage({ id: "actions.prevFrame" }),
+    addFrame: intl.formatMessage({ id: "actions.addFrameToTemplate" }),
   };
 }
 
@@ -111,6 +114,13 @@ function VideoDetailsPage(props) {
   }, [player, file]);
   const showNextFrame = useCallback(() => player.stepForward(), [player]);
   const showPrevFrame = useCallback(() => player.stepBack(), [player]);
+
+  const [addFrame, addFrameDialog] = useAddFrameDialog();
+  const handleAddFrame = useCallback(() => {
+    if (player != null && file != null) {
+      addFrame(file, player.currentTime * 1000);
+    }
+  }, [player, file, addFrame]);
 
   if (file == null || !objectsLoaded || !templatesLoaded) {
     return (
@@ -161,6 +171,11 @@ function VideoDetailsPage(props) {
                     title={messages.findFrame}
                   />
                   <VideoPlayerAction
+                    icon={AddIcon}
+                    handler={handleAddFrame}
+                    tooltip={messages.addFrame}
+                  />
+                  <VideoPlayerAction
                     icon={ChevronRightIcon}
                     handler={showNextFrame}
                     tooltip={messages.nextFrame}
@@ -174,6 +189,7 @@ function VideoDetailsPage(props) {
           </Grid>
         </Grid>
       </div>
+      {addFrameDialog}
     </div>
   );
 }
