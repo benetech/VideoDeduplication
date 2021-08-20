@@ -51,7 +51,9 @@ export default class VideoController {
    */
   seekTo(position, options = {}) {
     const { playing = true, units = TimeUnits.FRACTION } = options;
-    this._setWatch(true);
+    if (playing) {
+      this._setWatch(true);
+    }
     this._setPlaying(playing);
     this._position = { position, units };
     this._trySeek();
