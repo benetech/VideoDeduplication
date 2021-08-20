@@ -37,6 +37,8 @@ class AnnoyNNeighbors:
         feature_size=500,
         search_k_intensity=100,
     ):
+        if metric == "cosine":
+            metric = "angular"
 
         self.n_neighbors = n_neighbors
         self.metric = metric
@@ -79,15 +81,22 @@ class AnnoyNNeighbors:
             for i, d in enumerate(data)
         ]
         distances, indices = [], []
-        for d, i in results:
+        for i, d in results:
             distances.append(d)
             indices.append(i)
 
+        distances = np.vstack(distances)
+        indices = np.vstack(indices).astype(np.int)
+
+        if self.metric == "angular":
+            # convert distances to cosine distances from angular
+            distances = np.power(distances, 2) / 2.0
+
         if not return_distance:
 
-            return np.vstack(distances)
+            return distances
 
-        return np.vstack(indices), np.vstack(distances)
+        return distances, indices
 
     def __optimize__(self, data):
 

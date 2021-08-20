@@ -1,6 +1,6 @@
 """The matches module offers high-level operations with matches."""
-from sklearn.neighbors import NearestNeighbors
 import pandas as pd
+from ..duplicate_detection.annoy_neighbors import AnnoyNNeighbors
 
 
 def unique(row):
@@ -17,10 +17,10 @@ def filter_results(threshold, distances, indices):
     return results, results_distances
 
 
-def get_summarized_matches(video_signatures, distance=0.75):
+def get_summarized_matches(video_signatures, distance=0.75, metric="cosine"):
 
     neighbors = min(20, video_signatures.shape[0])
-    nn = NearestNeighbors(n_neighbors=neighbors, metric="euclidean", algorithm="kd_tree")
+    nn = AnnoyNNeighbors(n_neighbors=neighbors, metric=metric)
     nn.fit(video_signatures)
 
     distances, indices = nn.kneighbors(video_signatures)
