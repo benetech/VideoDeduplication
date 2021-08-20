@@ -8,17 +8,12 @@ import ReactPlayer from "react-player";
 import { FLV_GLOBAL } from "react-player/lib/players/FilePlayer";
 import flvjs from "flv.js";
 import TimeCaption from "../../../pages/VideoDetailsPage/TimeCaption";
-import VideoController, { TimeUnits } from "./VideoController";
+import VideoController from "./VideoController";
 import { useServer } from "../../../server-api/context";
 import { useIntl } from "react-intl";
 import WarningOutlinedIcon from "@material-ui/icons/WarningOutlined";
-import SearchIcon from "@material-ui/icons/Search";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import Button from "../../basic/Button";
 import playerPreviewURL from "../../../pages/VideoDetailsPage/playerPreviewURL";
 import ServerError from "../../../server-api/Server/ServerError";
-import { Tooltip } from "@material-ui/core";
 
 /**
  * Setup bundled flv.js.
@@ -139,11 +134,6 @@ const VideoPlayer = function VideoPlayer(props) {
     setWatch(true);
     setHover(true);
   }, []);
-  const handleSearch = useCallback(() => {
-    if (player != null) {
-      onSearchFrame({ file, time: player.getCurrentTime() });
-    }
-  }, [player, file]);
 
   const controller = useMemo(
     () => new VideoController(player, setWatch, setPlaying),
