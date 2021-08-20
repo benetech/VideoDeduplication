@@ -109,6 +109,8 @@ function VideoDetailsPage(props) {
       searchFrame({ file, time });
     }
   }, [player, file]);
+  const showNextFrame = useCallback(() => player.stepForward(), [player]);
+  const showPrevFrame = useCallback(() => player.stepBack(), [player]);
 
   if (file == null || !objectsLoaded || !templatesLoaded) {
     return (
@@ -150,7 +152,7 @@ function VideoDetailsPage(props) {
                 <VideoPlayerActions>
                   <VideoPlayerAction
                     icon={ChevronLeftIcon}
-                    handler={console.log}
+                    handler={showPrevFrame}
                     tooltip={messages.prevFrame}
                   />
                   <VideoPlayerAction
@@ -160,7 +162,7 @@ function VideoDetailsPage(props) {
                   />
                   <VideoPlayerAction
                     icon={ChevronRightIcon}
-                    handler={console.log}
+                    handler={showNextFrame}
                     tooltip={messages.nextFrame}
                   />
                 </VideoPlayerActions>

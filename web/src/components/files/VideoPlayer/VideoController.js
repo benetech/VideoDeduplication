@@ -58,6 +58,26 @@ export default class VideoController {
   }
 
   /**
+   * Seek forward by the given `amount` of seconds.
+   * @param {number} amount step in seconds
+   * @param {boolean} playing play after seek
+   */
+  stepForward({ amount = 0.1, playing = false } = {}) {
+    const position = this.currentTime + amount;
+    this.seekTo(position, { playing, units: TimeUnits.SECONDS });
+  }
+
+  /**
+   * Seek back by the given `amount` of seconds.
+   * @param {number} amount step in seconds
+   * @param {boolean} playing play after seek
+   */
+  stepBack({ amount = 0.1, playing = false } = {}) {
+    const position = this.currentTime - amount;
+    this.seekTo(position, { playing, units: TimeUnits.SECONDS });
+  }
+
+  /**
    * Get current time if available.
    * @return {number|null|undefined}
    */
