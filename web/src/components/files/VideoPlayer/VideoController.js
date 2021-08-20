@@ -1,13 +1,23 @@
 /**
+ * Seek time units.
+ * @enum
+ */
+export const TimeUnits = {
+  FRACTION: "fraction",
+  SECONDS: "seconds",
+};
+
+/**
  * Imperative controller for VideoPlayer component.
  *
  * Unfortunately it is not possible to use pure declarative API with video
  * player.
  */
 export default class VideoController {
-  constructor(player, setWatch) {
+  constructor(player, setWatch, setPlaying) {
     this._player = player;
     this._setWatch = setWatch; // show player
+    this._setPlaying = setPlaying;
     this._position = null; // position requested by seekTo method
   }
 
@@ -33,13 +43,25 @@ export default class VideoController {
 
   /**
    * Seek to the given position and start playing.
+   * @param {number} position
+   * @param {{
+   *   playing: boolean,
+   *   units: TimeUnits,
+   * }} options
    */
   seekTo(position, options = {}) {
-    const { playing = true, units = "fraction" } = options;
-    if (playing) {
-      this._setWatch(true);
-    }
+    const { playing = true, units = TimeUnits.FRACTION } = options;
+    this._setWatch(true);
+    this._setPlaying(playing);
     this._position = { position, units };
     this._trySeek();
+  }
+
+  /**
+   * Get current time if available.
+   * @return {number|null|undefined}
+   */
+  get currentTime() {
+    return this._player?.getCurrentTime();
   }
 }

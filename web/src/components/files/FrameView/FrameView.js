@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import VideoPlayer from "../../../pages/VideoDetailsPage/VideoPlayer";
+import VideoPlayer from "../VideoPlayer";
 import FileSummary from "../FileSummary";
 import Button from "../../basic/Button";
 import { useIntl } from "react-intl";
@@ -46,7 +46,7 @@ function FrameView(props) {
   const messages = useMessages();
 
   const handleShowFrame = useCallback(() => {
-    player?.seekTo(timeMillis / 1000, { units: "seconds" });
+    player?.seekTo(timeMillis / 1000, { playing: false, units: "seconds" });
   }, [player, timeMillis]);
 
   const handleShowFile = useShowFile(file, [file]);

@@ -2,20 +2,23 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { FileType } from "../../prop-types/FileType";
-import MediaPreview from "../../components/basic/MediaPreview";
+import { FileType } from "../../../prop-types/FileType";
+import MediaPreview from "../../basic/MediaPreview";
 import ReactPlayer from "react-player";
 import { FLV_GLOBAL } from "react-player/lib/players/FilePlayer";
 import flvjs from "flv.js";
-import TimeCaption from "./TimeCaption";
-import VideoController from "./VideoController";
-import { useServer } from "../../server-api/context";
+import TimeCaption from "../../../pages/VideoDetailsPage/TimeCaption";
+import VideoController, { TimeUnits } from "./VideoController";
+import { useServer } from "../../../server-api/context";
 import { useIntl } from "react-intl";
 import WarningOutlinedIcon from "@material-ui/icons/WarningOutlined";
 import SearchIcon from "@material-ui/icons/Search";
-import Button from "../../components/basic/Button";
-import playerPreviewURL from "./playerPreviewURL";
-import ServerError from "../../server-api/Server/ServerError";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import Button from "../../basic/Button";
+import playerPreviewURL from "../../../pages/VideoDetailsPage/playerPreviewURL";
+import ServerError from "../../../server-api/Server/ServerError";
+import { Tooltip } from "@material-ui/core";
 
 /**
  * Setup bundled flv.js.
@@ -64,12 +67,15 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
     maxHeight: 300,
   },
-  search: {
-    position: "absolute",
-    top: theme.spacing(2),
-    right: theme.spacing(2),
-    display: ({ search }) => (search ? "flex" : "none"),
-    borderRadius: theme.spacing(0.5),
+  actionButton: {
+    minWidth: 0,
+    marginLeft: theme.spacing(0.5),
+    backgroundColor: "rgba(5,5,5,0.4)",
+    "&:hover": {
+      backgroundColor: "rgba(5,5,5,0.3)",
+    },
+  },
+  tooltip: {
     color: theme.palette.common.white,
     backgroundColor: "rgba(5,5,5,0.4)",
   },
@@ -102,7 +108,6 @@ function useMessages() {
     notFoundError: intl.formatMessage({ id: "video.error.missing" }),
     loadError: intl.formatMessage({ id: "video.error.load" }),
     playbackError: intl.formatMessage({ id: "video.error.playback" }),
-    findFrame: intl.formatMessage({ id: "actions.findFrame" }),
   };
 }
 
@@ -112,9 +117,9 @@ const VideoPlayer = function VideoPlayer(props) {
     onReady,
     onProgress,
     suppressErrors = false,
-    onSearchFrame,
     seekTo,
     seekUnits = "fraction",
+    actions,
     className,
   } = props;
 
@@ -122,9 +127,11 @@ const VideoPlayer = function VideoPlayer(props) {
   const messages = useMessages();
   const [hover, setHover] = useState(false);
   const [watch, setWatch] = useState(false);
+  const [playing, setPlaying] = useState(true);
   const [player, setPlayer] = useState(null);
   const [error, setError] = useState(null);
-  const classes = useStyles({ search: hover && watch && !error });
+  const showActions = hover && watch && !error;
+  const classes = useStyles();
 
   const handleMouseOver = useCallback(() => setHover(true));
   const handleMouseOut = useCallback(() => setHover(false));
@@ -138,7 +145,10 @@ const VideoPlayer = function VideoPlayer(props) {
     }
   }, [player, file]);
 
-  const controller = useMemo(() => new VideoController(player, setWatch), []);
+  const controller = useMemo(
+    () => new VideoController(player, setWatch, setPlaying),
+    []
+  );
   const previewActions = useMemo(() => makePreviewActions(handleWatch), []);
 
   // Reset player on file change
@@ -204,7 +214,7 @@ const VideoPlayer = function VideoPlayer(props) {
           onMouseLeave={handleMouseOut}
         >
           <ReactPlayer
-            playing
+            playing={playing}
             ref={setPlayer}
             width="100%"
             height="100%"
@@ -218,14 +228,7 @@ const VideoPlayer = function VideoPlayer(props) {
               },
             }}
           />
-          {onSearchFrame && (
-            <div className={classes.search}>
-              <Button color="inherit" onClick={handleSearch}>
-                <SearchIcon />
-                <span>{messages.findFrame}</span>
-              </Button>
-            </div>
-          )}
+          {showActions && actions}
         </div>
       )}
       {watch && error != null && (
@@ -280,15 +283,12 @@ VideoPlayer.propTypes = {
    */
   suppressErrors: PropTypes.bool,
   /**
-   * Handle search for current frame.
-   *
-   * Callback will receive event containing file and desired time (in seconds).
-   * e.g. {
-   *   file: {id: 1, ...},
-   *   time:
-   * }
+   * Video Player Actions
    */
-  onSearchFrame: PropTypes.func,
+  actions: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]),
   className: PropTypes.string,
 };
 

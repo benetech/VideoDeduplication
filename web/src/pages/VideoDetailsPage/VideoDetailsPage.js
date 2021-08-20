@@ -5,6 +5,9 @@ import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
 import Button from "../../components/basic/Button";
 import Grid from "@material-ui/core/Grid";
+import SearchIcon from "@material-ui/icons/Search";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import VideoPlayerPane from "./VideoPlayerPane";
 import VideoInformationPane from "./VideoInformationPane";
 import { seekTo } from "./seekTo";
@@ -21,6 +24,8 @@ import {
 import useSearchFrame from "../../application/api/templates/useSearchFrame";
 import useLoadAllObjects from "../../application/api/objects/useLoadAllObjects";
 import useLoadAllTemplates from "../../application/api/templates/useLoadAllTemplates";
+import VideoPlayerActions from "../../components/files/VideoPlayerActions";
+import VideoPlayerAction from "../../components/files/VideoPlayerAction";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,6 +72,9 @@ function useMessages() {
   const intl = useIntl();
   return {
     compare: intl.formatMessage({ id: "actions.compare" }),
+    findFrame: intl.formatMessage({ id: "actions.findFrame" }),
+    nextFrame: intl.formatMessage({ id: "actions.nextFrame" }),
+    prevFrame: intl.formatMessage({ id: "actions.prevFrame" }),
   };
 }
 
@@ -95,6 +103,12 @@ function VideoDetailsPage(props) {
 
   const handleJump = useCallback(seekTo(player, file), [player, file]);
   const searchFrame = useSearchFrame();
+  const handleSearchFrame = useCallback(() => {
+    const time = player.currentTime;
+    if (file != null && time != null) {
+      searchFrame({ file, time });
+    }
+  }, [player, file]);
 
   if (file == null || !objectsLoaded || !templatesLoaded) {
     return (
@@ -132,7 +146,25 @@ function VideoDetailsPage(props) {
             <VideoPlayerPane
               file={file}
               onPlayerReady={setPlayer}
-              onSearchFrame={searchFrame}
+              playerActions={
+                <VideoPlayerActions>
+                  <VideoPlayerAction
+                    icon={ChevronLeftIcon}
+                    handler={console.log}
+                    tooltip={messages.prevFrame}
+                  />
+                  <VideoPlayerAction
+                    icon={SearchIcon}
+                    handler={handleSearchFrame}
+                    title={messages.findFrame}
+                  />
+                  <VideoPlayerAction
+                    icon={ChevronRightIcon}
+                    handler={console.log}
+                    tooltip={messages.nextFrame}
+                  />
+                </VideoPlayerActions>
+              }
             />
           </Grid>
           <Grid item xs={12} lg={6}>
