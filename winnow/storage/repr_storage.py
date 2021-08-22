@@ -15,8 +15,10 @@ class ReprStorage:
         self.directory = abspath(directory)
         self.frames = storage_factory(join(self.directory, "frames"))
         self.frame_level = storage_factory(join(self.directory, "frame_level"))
+        self.scene_level = storage_factory(join(self.directory, "scene_level"))
         self.video_level = storage_factory(join(self.directory, "video_level"))
         self.signature = storage_factory(join(self.directory, "video_signatures"))
+        self.scene_signature = storage_factory(join(self.directory, "scene_signatures"))
 
     def __repr__(self):
         return f"ReprStorage('{self.directory}')"
@@ -25,5 +27,7 @@ class ReprStorage:
         """Release any underlying resources (close database connections, etc.)."""
         self.frames.close()
         self.frame_level.close()
+        self.scene_level.close()
         self.video_level.close()
         self.signature.close()
+        self.scene_signature.close()
