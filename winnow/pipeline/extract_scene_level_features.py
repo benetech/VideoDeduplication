@@ -1,6 +1,8 @@
+import os
 import logging
 from typing import Collection
 import numpy as np
+import pandas as pd
 
 from winnow.feature_extraction.loading_utils import global_vector
 from winnow.pipeline.extract_frame_level_features import (
@@ -15,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def extract_scene_level_features(files: Collection[str], pipeline: PipelineContext, progress=ProgressMonitor.NULL):
-    """Extract video-level features from the dataset videos."""
+    """Extract scene-level features from the dataset videos."""
 
     files = tuple(files)
     remaining_video_paths = [*missing_scene_features(files, pipeline)]
@@ -27,14 +29,14 @@ def extract_scene_level_features(files: Collection[str], pipeline: PipelineConte
 
     # Skip step if required results already exist
     if not remaining_video_paths:
-        logger.info("All required video-level features already exist. Skipping...")
+        logger.info("All required scene-level features already exist. Skipping...")
         progress.complete()
         return
 
     # Do convert frame-level features into video-level features.
-    logger.info("Starting video-level feature extraction for %s of %s files", len(remaining_video_paths), len(files))
+    logger.info("Starting scene-level feature extraction for %s of %s files", len(remaining_video_paths), len(files))
     frame_to_global(remaining_video_paths, pipeline, progress)
-    logger.info("Done video-level feature extraction.")
+    logger.info("Done scene-level feature extraction.")
 
 
 def missing_scene_features(files, pipeline: PipelineContext):
@@ -59,7 +61,7 @@ def frame_to_global(files, pipeline: PipelineContext, progress=ProgressMonitor.N
         scene_metadata = pd.read_csv(scene_metadata_path)
         scene_durations = []
         for _, row in scene_metadata.iterrows():
-            scene_durations += [row['video_filename'], row['scene_duration_seconds']]
+            scene_durations += [[row['video_filename'], row['scene_duration_seconds']]]
     except Exception:
         logger.exception("Error loading scene metadata, file '%s' not found" % scene_metadata_path)
         return
@@ -73,7 +75,7 @@ def frame_to_global(files, pipeline: PipelineContext, progress=ProgressMonitor.N
             scenes_dur = None
             for filename, durs in scene_durations:
                 if filename in key.path:
-                    scenes_dur = durs
+                    scenes_dur = [int(d) for d in durs.strip('][').split(', ')]
                     break
             if scenes_dur is None:
                 raise Exception("Error: no scene metadata available for file '%s'" % key.path)
@@ -83,7 +85,7 @@ def frame_to_global(files, pipeline: PipelineContext, progress=ProgressMonitor.N
                 scene_frames = dur // spf
                 scene_features += [frame_features[:scene_frames]]
 
-            scene_representations = np.stack([global_vector(sf) for sf in scene_features])
+            scene_representations = np.concatenate([global_vector(sf) for sf in scene_features])
 
             pipeline.repr_storage.scene_level.write(key, scene_representations)
         except Exception:

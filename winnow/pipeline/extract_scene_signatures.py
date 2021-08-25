@@ -1,5 +1,6 @@
 import logging
 from typing import Collection, Dict
+from copy import deepcopy
 
 from winnow.feature_extraction import SimilarityModel
 from winnow.pipeline.extract_scene_level_features import scene_features_exist, extract_scene_level_features
@@ -66,6 +67,8 @@ def extract_signatures(files, pipeline: PipelineContext) -> Dict[FileKey, Collec
     scene_features_separated = {}
     for key, features in scene_features.items():
         for i in range(features.shape[0]):
-            scene_features_separated[key+'('+i')'] = features[i:i+1]
+            new_path = str(key.path)+'('+str(i)+')'
+            new_key = FileKey(path=new_path, hash=key.hash)
+            scene_features_separated[new_key] = features[i:i+1]
 
     return similarity_model.predict(scene_features_separated)
