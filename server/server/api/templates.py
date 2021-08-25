@@ -445,7 +445,6 @@ def create_example_from_frame(template: Template, file: Files, time: int, sessio
     video_path = resolve_video_file_path(file.file_path)
     if not os.path.isfile(video_path):
         raise ValueError(f"Video file is missing: {file.file_path}")
-    width = resolve_frame_width(file)
     frame_path = extract_frame_tmp(video_path, position=time, width=resolve_frame_width(file))
     if frame_path is None:
         raise ValueError(f"Timestamp exceeds video length: {time}")
