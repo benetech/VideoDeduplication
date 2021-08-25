@@ -80,7 +80,7 @@ export default class VideoController {
   }
 
   /**
-   * Get current time if available.
+   * Get current time in seconds if available.
    * @return {number|null|undefined}
    */
   get currentTime() {

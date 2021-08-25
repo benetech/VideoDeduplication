@@ -191,7 +191,7 @@ def match_all_templates(
 def find_frame_task(
     self,
     file_id: int,
-    frame_time_sec: int,
+    frame_time_millis: int,
     directory: str = ".",
     template_distance: Optional[float] = None,
     template_distance_min: Optional[float] = None,
@@ -248,7 +248,7 @@ def find_frame_task(
         file_path = os.path.join(storage_root, file.file_path)
 
     matches = find_frame(
-        frame=Frame(path=file_path, time=frame_time_sec),
+        frame=Frame(path=file_path, time=frame_time_millis),
         files=videos,
         pipeline=pipeline_context,
         progress=monitor.subtask(work_amount=1.0),

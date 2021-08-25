@@ -7,6 +7,6 @@ import getEntityId from "../../../../lib/helpers/getEntityId";
  * @returns {string} thumbnail URL
  */
 export default function thumbnailURL(file, positionMillis) {
-  const seconds = Math.round(positionMillis / 1000);
+  const seconds = Math.round(positionMillis);
   return `/api/v1/files/${getEntityId(file)}/thumbnail?time=${seconds}`;
 }

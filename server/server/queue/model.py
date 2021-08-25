@@ -117,7 +117,7 @@ class FindFrame(Request):
     """Find frame matches in the given directory."""
 
     file_id: int
-    frame_time_sec: int
+    frame_time_millis: int
     directory: str = "."
     template_distance: Optional[float] = None
     template_distance_min: Optional[float] = None

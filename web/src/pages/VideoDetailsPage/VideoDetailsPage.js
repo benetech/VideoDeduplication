@@ -107,7 +107,7 @@ function VideoDetailsPage(props) {
   const handleJump = useCallback(seekTo(player, file), [player, file]);
   const searchFrame = useSearchFrame();
   const handleSearchFrame = useCallback(() => {
-    const time = player.currentTime;
+    const time = player.currentTime * 1000;
     if (file != null && time != null) {
       searchFrame({ file, time });
     }

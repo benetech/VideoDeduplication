@@ -8,7 +8,7 @@ import useRunTask from "../tasks/useRunTask";
  * @typedef {{
  *   file: FileEntity,
  *   time: number,
- * }} FrameDescriptor
+ * }} FrameDescriptor Video file and time position in milliseconds.
  */
 
 /**
@@ -27,7 +27,7 @@ export default function useSearchFrame(override, deps = []) {
       const task = await runTask({
         type: TaskRequestTypes.FIND_FRAME,
         fileId: file.id,
-        frameTimeSec: time,
+        frameTimeMillis: time,
       });
       showTask(task);
     } catch (error) {

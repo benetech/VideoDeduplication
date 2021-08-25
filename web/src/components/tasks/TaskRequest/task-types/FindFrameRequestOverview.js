@@ -16,7 +16,7 @@ function FindFrameRequestOverview(props) {
   return (
     <FrameView
       file={file}
-      timeMillis={request.frameTimeSec * 1000}
+      timeMillis={request.frameTimeMillis}
       className={className}
       {...other}
     />

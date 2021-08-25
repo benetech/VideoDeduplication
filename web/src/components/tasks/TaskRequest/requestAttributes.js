@@ -74,7 +74,7 @@ export const findFrameAttributes = [
   {
     title: "task.attr.frameTime",
     value: (request, intl) =>
-      formatDuration(request.frameTimeSec * 1000, intl, false),
+      formatDuration(request.frameTimeMillis, intl, false),
   },
   {
     title: "task.attr.directory",
