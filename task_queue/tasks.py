@@ -55,7 +55,7 @@ def process_directory(
 
     absolute_root = os.path.abspath(config.sources.root)
     absolute_dir = os.path.abspath(os.path.join(absolute_root, directory))
-    if Path(config.sources.root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:
+    if Path(absolute_root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:
         raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
 
     videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
@@ -164,7 +164,7 @@ def match_all_templates(
     logger.info(f"Resolving video list for directory {directory}")
     absolute_root = os.path.abspath(config.sources.root)
     absolute_dir = os.path.abspath(os.path.join(absolute_root, directory))
-    if Path(config.sources.root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:
+    if Path(absolute_root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:
         raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
 
     videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
