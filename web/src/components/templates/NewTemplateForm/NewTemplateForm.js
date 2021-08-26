@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(1),
     marginLeft: theme.spacing(3),
     minWidth: 250,
+    flexGrow: 1,
   },
 }));
 

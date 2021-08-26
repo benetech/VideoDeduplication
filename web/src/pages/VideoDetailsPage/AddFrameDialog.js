@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -16,6 +16,13 @@ import TemplateSelect from "../../components/templates/TemplateSelect";
 import Button from "../../components/basic/Button";
 import { useCreateExampleFromFrame } from "../../application/api/templates/useTemplateAPI";
 import indexEntities from "../../application/common/helpers/indexEntities";
+import SelectableTabs, {
+  SelectableTab,
+} from "../../components/basic/SelectableTabs";
+import SwitchComponent from "../../components/basic/SwitchComponent/SwitchComponent";
+import Case from "../../components/basic/SwitchComponent/Case";
+import NewTemplateForm from "../../components/templates/NewTemplateForm";
+import useNewTemplateForm from "../../components/templates/NewTemplateForm/useNewTemplateForm";
 
 const useStyles = makeStyles((theme) => ({
   noScroll: {
@@ -25,8 +32,12 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
   },
+  tabs: {
+    margin: theme.spacing(1),
+  },
   form: {
     width: 500,
+    height: 64,
   },
   image: {
     width: 500,
@@ -40,9 +51,80 @@ const useStyles = makeStyles((theme) => ({
 function useMessages() {
   const intl = useIntl();
   return {
+    addTemplate: intl.formatMessage({ id: "actions.addTemplate" }),
+    existingTemplate: intl.formatMessage({ id: "templates.existing" }),
     addFrame: intl.formatMessage({ id: "actions.addFrameToTemplate" }),
     create: intl.formatMessage({ id: "actions.create" }),
     cancel: intl.formatMessage({ id: "actions.cancel" }),
+  };
+}
+
+/**
+ * Target template options
+ */
+const Target = {
+  EXISTING_TEMPLATE: "existing",
+  NEW_TEMPLATE: "new",
+};
+
+function useAddToExising(file, time, addFrame, onClose) {
+  const [selected, setSelected] = useState([]);
+  const { templates, done: loaded } = useLoadAllTemplates();
+  const templateIndex = useMemo(() => indexEntities(templates), [templates]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onCreate = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      for (const id of selected) {
+        const template = templateIndex.get(id);
+        try {
+          await addFrame(template, file, time);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      onClose();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [templateIndex, selected, file, time]);
+
+  return {
+    loaded,
+    templates,
+    selected,
+    onChange: setSelected,
+    onCreate,
+    canCreate: selected.length > 0 && !isLoading,
+    isLoading,
+  };
+}
+
+function useAddToNew(file, time, addFrame, onClose) {
+  const form = useNewTemplateForm();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onCreate = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const template = await form.onCreate();
+      await addFrame(template, file, time);
+      onClose();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [form.template, file, time, addFrame]);
+
+  return {
+    template: form.template,
+    onChange: form.onChange,
+    errors: form.errors,
+    onCreate,
+    canCreate: !form.errors.name && !isLoading,
+    isLoading,
   };
 }
 
@@ -53,18 +135,17 @@ function AddFrameDialog(props) {
   const { file, time, onClose, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const [selected, setSelected] = useState([]);
-  const { templates } = useLoadAllTemplates();
-  const templateIndex = useMemo(() => indexEntities(templates), [templates]);
   const addFrame = useCreateExampleFromFrame(true);
+  const existing = useAddToExising(file, time, addFrame, onClose);
+  const fresh = useAddToNew(file, time, addFrame, onClose);
+  const [target, setTarget] = useState(Target.EXISTING_TEMPLATE);
+  const handler = target === Target.NEW_TEMPLATE ? fresh : existing;
 
-  const handleCreate = useCallback(() => {
-    for (const id of selected) {
-      const template = templateIndex.get(id);
-      addFrame(template, file, time).catch(console.error);
+  useEffect(() => {
+    if (existing.loaded && existing.templates.length === 0) {
+      setTarget(Target.NEW_TEMPLATE);
     }
-    onClose();
-  }, [templateIndex, selected, file, time]);
+  }, [existing.loaded]);
 
   return (
     <Dialog className={clsx(className)} onClose={onClose} {...other}>
@@ -76,21 +157,49 @@ function AddFrameDialog(props) {
             alt={`${file?.filename} at ${time}`}
             className={classes.image}
           />
-          <TemplateSelect
-            templates={templates}
-            onChange={setSelected}
-            value={selected}
-            className={classes.form}
-            fullWidth
-          />
+          <SelectableTabs
+            value={target}
+            onChange={setTarget}
+            className={classes.tabs}
+          >
+            {existing.templates.length > 0 && (
+              <SelectableTab
+                label={messages.existingTemplate}
+                value={Target.EXISTING_TEMPLATE}
+              />
+            )}
+            <SelectableTab
+              label={messages.addTemplate}
+              value={Target.NEW_TEMPLATE}
+            />
+          </SelectableTabs>
+          <SwitchComponent value={target}>
+            <Case match={Target.EXISTING_TEMPLATE}>
+              <TemplateSelect
+                templates={existing.templates}
+                onChange={existing.onChange}
+                value={existing.selected}
+                className={classes.form}
+                fullWidth
+              />
+            </Case>
+            <Case match={Target.NEW_TEMPLATE}>
+              <NewTemplateForm
+                template={fresh.template}
+                onChange={fresh.onChange}
+                errors={fresh.errors}
+                className={classes.form}
+              />
+            </Case>
+          </SwitchComponent>
         </div>
       </DialogContent>
       <DialogActions>
         <Button
-          onClick={handleCreate}
+          onClick={handler.onCreate}
           color="primary"
           autoFocus
-          disabled={selected.length === 0}
+          disabled={!handler.canCreate}
         >
           {messages.create}
         </Button>

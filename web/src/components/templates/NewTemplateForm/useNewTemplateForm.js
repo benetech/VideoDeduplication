@@ -43,7 +43,7 @@ export default function useNewTemplateForm() {
   const onCreate = useCallback(async () => {
     setIsLoading(true);
     try {
-      await createTemplate(template);
+      return await createTemplate(template);
     } catch (error) {
       setErrors({
         ...error,

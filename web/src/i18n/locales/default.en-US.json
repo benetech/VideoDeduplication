@@ -309,6 +309,7 @@
     "templates.examples": "Images to match:",
     "templates.matchedFiles.many": "{count} files matched",
     "templates.matchedFiles.one": "1 file matched",
+    "templates.existing": "Existing Templates",
     "validation.invalidValue": "Invalid value",
     "validation.nameMissing": "Name cannot be empty",
     "validation.nameExists": "Name must be unique",
