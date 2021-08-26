@@ -1,39 +1,16 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/styles";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
 } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import Button from "../../components/basic/Button";
-import IconKind from "../../application/state/templates/IconKind";
-import TemplateIconPreview from "../../components/templates/TemplateList/TemplateIconPreview";
-import nameErrorMessage from "./nameErrorMessage";
-import { useAddTemplate } from "../../application/api/templates/useTemplateAPI";
-
-const useStyles = makeStyles((theme) => ({
-  content: {
-    display: "flex",
-    alignItems: "flex-start",
-  },
-  icon: {
-    width: 40,
-    height: 40,
-    fontSize: 40,
-    margin: theme.spacing(1),
-    marginBottom: theme.spacing(2),
-  },
-  title: {
-    marginTop: theme.spacing(1),
-    marginLeft: theme.spacing(3),
-    minWidth: 250,
-  },
-}));
+import useNewTemplateForm from "../../components/templates/NewTemplateForm/useNewTemplateForm";
+import NewTemplateForm from "../../components/templates/NewTemplateForm";
 
 /**
  * Get translated text.
@@ -44,53 +21,30 @@ function useMessages() {
     title: intl.formatMessage({ id: "actions.addTemplate" }),
     cancel: intl.formatMessage({ id: "actions.cancel" }),
     create: intl.formatMessage({ id: "actions.create" }),
-    defaultName: intl.formatMessage({ id: "templates.name" }),
-    nameError: (error) => nameErrorMessage(intl, error),
   };
 }
 
-const defaultIcon = {
-  kind: IconKind.PREDEFINED,
-  key: "GiPoliceOfficerHead",
-};
-
 function AddTemplateDialog(props) {
   const { open, onClose, className, ...other } = props;
-  const classes = useStyles();
   const messages = useMessages();
-  const [icon, setIcon] = useState(defaultIcon);
-  const [name, setName] = useState(messages.defaultName);
-  const [loading, setLoading] = useState(false);
-  const [nameError, setNameError] = useState("");
-  const createTemplate = useAddTemplate();
 
-  const handleNameChange = useCallback((event) => {
-    setName(event.target.value);
-    setNameError("");
-  }, []);
+  const form = useNewTemplateForm();
 
   // Reset dialog state on open
   useEffect(() => {
     if (open) {
-      setLoading(false);
-      setIcon(defaultIcon);
-      setName(messages.defaultName);
-      setNameError("");
+      form.reset();
     }
   }, [open]);
 
   const handleCreate = useCallback(async () => {
-    setLoading(true);
     try {
-      await createTemplate({ name, icon });
+      await form.onCreate();
       onClose();
     } catch (error) {
-      setNameError(messages.nameError(error.data?.fields?.name));
       console.error(error);
-    } finally {
-      setLoading(false);
     }
-  }, [name, icon]);
+  }, [form.onCreate]);
 
   return (
     <Dialog
@@ -101,29 +55,18 @@ function AddTemplateDialog(props) {
     >
       <DialogTitle>{messages.title}</DialogTitle>
       <DialogContent>
-        <div className={classes.content}>
-          <TemplateIconPreview
-            onChange={setIcon}
-            icon={icon}
-            edit
-            className={classes.icon}
-          />
-          <TextField
-            value={name}
-            onChange={handleNameChange}
-            className={classes.title}
-            color="secondary"
-            error={!!nameError}
-            helperText={nameError}
-          />
-        </div>
+        <NewTemplateForm
+          template={form.template}
+          onChange={form.onChange}
+          errors={form.errors}
+        />
       </DialogContent>
       <DialogActions>
         <Button
           variant="contained"
           color="primary"
           onClick={handleCreate}
-          disabled={!name || loading || !!nameError}
+          disabled={!form.template.name || form.isLoading || !!form.errors.name}
         >
           {messages.create}
         </Button>

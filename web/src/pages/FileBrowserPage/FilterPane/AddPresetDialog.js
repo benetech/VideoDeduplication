@@ -12,7 +12,7 @@ import {
 import { useIntl } from "react-intl";
 import Button from "../../../components/basic/Button";
 import { ValidationError } from "../../../server-api/Server/ServerError";
-import nameErrorMessage from "../../TemplatesPage/nameErrorMessage";
+import nameErrorMessage from "../../../lib/messages/nameErrorMessage";
 import useFilesColl from "../../../application/api/files/useFilesColl";
 
 /**
