@@ -82,7 +82,7 @@ function makeTaskTypeTransforms() {
       template_distance: "templateDistance",
       template_distance_min: "templateDistanceMin",
       file_id: "fileId",
-      frame_time_sec: "frameTimeSec",
+      frame_time_millis: "frameTimeMillis",
       directory: "directory",
     },
     matchProps: {

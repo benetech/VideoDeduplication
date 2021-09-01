@@ -97,6 +97,38 @@ export default class ExamplesEndpoint {
   }
 
   /**
+   * Create template example from video file frame.
+   * @param {TemplateEntity|string|number} template template to add example
+   * @param {FileEntity|string|number} file file to extract frame
+   * @param {number} time time position in milliseconds
+   * @return {Promise<TemplateExampleEntity>}
+   */
+  async createFromFrame({ template, file, time }) {
+    try {
+      const frameDTO = this.transform.frameDTO({ file, time });
+      const response = await this.axios.post(
+        `/templates/${getEntityId(template)}/examples/`,
+        JSON.stringify(frameDTO),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          params: {
+            method: "frame",
+          },
+        }
+      );
+      return this.transform.example(response.data);
+    } catch (error) {
+      throw makeServerError("Create example from frame error.", error, {
+        template,
+        file,
+        time,
+      });
+    }
+  }
+
+  /**
    * Delete template example by id.
    * @param {number|string|TemplateExampleEntity} example template example or example id
    * @return {Promise<void>}

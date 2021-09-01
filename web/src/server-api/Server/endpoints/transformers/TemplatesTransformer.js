@@ -2,6 +2,7 @@
  * Templates API args & results transformer.
  */
 import FilesTransformer from "./FilesTransformer";
+import getEntityId from "../../../../lib/helpers/getEntityId";
 
 export default class TemplatesTransformer {
   constructor(fileTransform) {
@@ -128,6 +129,19 @@ export default class TemplatesTransformer {
       templateId: data.template_id,
       template: this.template(data.template),
       url: `/api/v1/examples/${data.id}/image`,
+    };
+  }
+
+  /**
+   * Get create-example-from-frame DTO.
+   * @param {FileEntity|string|number} file
+   * @param {number} time position in file, in milliseconds
+   * @return {{file_id: (*), time}}
+   */
+  frameDTO({ file, time }) {
+    return {
+      file_id: getEntityId(file),
+      time,
     };
   }
 

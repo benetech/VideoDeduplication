@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import Paper from "@material-ui/core/Paper";
 import { FileType } from "../../prop-types/FileType";
-import VideoPlayer from "./VideoPlayer";
+import VideoPlayer from "../../components/files/VideoPlayer";
 import SceneSelector from "./SceneSelector";
 import { seekTo } from "./seekTo";
 import { useIntl } from "react-intl";
@@ -72,7 +72,7 @@ function VideoPlayerPane(props) {
     file,
     onPlayerReady,
     collapsible = false,
-    onSearchFrame,
+    playerActions,
     className,
   } = props;
   const classes = useStyles();
@@ -110,7 +110,7 @@ function VideoPlayerPane(props) {
             className={classes.player}
             onReady={callEach(setPlayer, onPlayerReady)}
             onProgress={setProgress}
-            onSearchFrame={onSearchFrame}
+            actions={playerActions}
             suppressErrors
           />
           <LoadableObjectTimeLine
@@ -146,15 +146,12 @@ VideoPlayerPane.propTypes = {
    */
   collapsible: PropTypes.bool,
   /**
-   * Handle search for current frame.
-   *
-   * Callback will receive event containing file and desired time (in seconds).
-   * e.g. {
-   *   file: {id: 1, ...},
-   *   time:
-   * }
+   * Video Player Actions
    */
-  onSearchFrame: PropTypes.func,
+  playerActions: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]),
   className: PropTypes.string,
 };
 

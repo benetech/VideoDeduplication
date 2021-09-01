@@ -5,6 +5,10 @@ import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
 import Button from "../../components/basic/Button";
 import Grid from "@material-ui/core/Grid";
+import SearchIcon from "@material-ui/icons/Search";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import AddIcon from "@material-ui/icons/Add";
 import VideoPlayerPane from "./VideoPlayerPane";
 import VideoInformationPane from "./VideoInformationPane";
 import { seekTo } from "./seekTo";
@@ -21,6 +25,9 @@ import {
 import useSearchFrame from "../../application/api/templates/useSearchFrame";
 import useLoadAllObjects from "../../application/api/objects/useLoadAllObjects";
 import useLoadAllTemplates from "../../application/api/templates/useLoadAllTemplates";
+import VideoPlayerActions from "../../components/files/VideoPlayerActions";
+import VideoPlayerAction from "../../components/files/VideoPlayerAction";
+import useAddFrameDialog from "./useAddFrameDialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,6 +74,10 @@ function useMessages() {
   const intl = useIntl();
   return {
     compare: intl.formatMessage({ id: "actions.compare" }),
+    findFrame: intl.formatMessage({ id: "actions.findFrame" }),
+    nextFrame: intl.formatMessage({ id: "actions.nextFrame" }),
+    prevFrame: intl.formatMessage({ id: "actions.prevFrame" }),
+    addFrame: intl.formatMessage({ id: "actions.addFrameToTemplate" }),
   };
 }
 
@@ -95,6 +106,21 @@ function VideoDetailsPage(props) {
 
   const handleJump = useCallback(seekTo(player, file), [player, file]);
   const searchFrame = useSearchFrame();
+  const handleSearchFrame = useCallback(() => {
+    const time = player.currentTime * 1000;
+    if (file != null && time != null) {
+      searchFrame({ file, time });
+    }
+  }, [player, file]);
+  const showNextFrame = useCallback(() => player.stepForward(), [player]);
+  const showPrevFrame = useCallback(() => player.stepBack(), [player]);
+
+  const [addFrame, addFrameDialog] = useAddFrameDialog();
+  const handleAddFrame = useCallback(() => {
+    if (player != null && file != null) {
+      addFrame(file, player.currentTime * 1000);
+    }
+  }, [player, file, addFrame]);
 
   if (file == null || !objectsLoaded || !templatesLoaded) {
     return (
@@ -132,7 +158,30 @@ function VideoDetailsPage(props) {
             <VideoPlayerPane
               file={file}
               onPlayerReady={setPlayer}
-              onSearchFrame={searchFrame}
+              playerActions={
+                <VideoPlayerActions>
+                  <VideoPlayerAction
+                    icon={ChevronLeftIcon}
+                    handler={showPrevFrame}
+                    tooltip={messages.prevFrame}
+                  />
+                  <VideoPlayerAction
+                    icon={SearchIcon}
+                    handler={handleSearchFrame}
+                    title={messages.findFrame}
+                  />
+                  <VideoPlayerAction
+                    icon={AddIcon}
+                    handler={handleAddFrame}
+                    tooltip={messages.addFrame}
+                  />
+                  <VideoPlayerAction
+                    icon={ChevronRightIcon}
+                    handler={showNextFrame}
+                    tooltip={messages.nextFrame}
+                  />
+                </VideoPlayerActions>
+              }
             />
           </Grid>
           <Grid item xs={12} lg={6}>
@@ -140,6 +189,7 @@ function VideoDetailsPage(props) {
           </Grid>
         </Grid>
       </div>
+      {addFrameDialog}
     </div>
   );
 }

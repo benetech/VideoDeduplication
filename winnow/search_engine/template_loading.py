@@ -166,7 +166,7 @@ class TemplateLoader:
             resized_images = np.array([load_image(frame_path, self._image_size)])
             features = self._pretrained_model.extract(resized_images, batch_sz=10)
 
-        name = f"{os.path.basename(frame.path)} at {int(frame.time)} sec."
+        name = f"{os.path.basename(frame.path)} at {int(frame.time)} millisec."
         return Template(name=name, features=features, examples=[])
 
     def _load_db_template(self, db_template: DBTemplate, file_storage: FileStorage) -> Template:

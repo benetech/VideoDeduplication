@@ -93,6 +93,7 @@ def get_file(file_id):
 def get_thumbnail(file_id):
     # Get time position
     time = parse_positive_int(request.args, "time", default=0)
+    width = parse_positive_int(request.args, "width", default=320)
 
     # Fetch file from database
     query = database.session.query(Files)
@@ -112,7 +113,7 @@ def get_thumbnail(file_id):
         video_path = resolve_video_file_path(file.file_path)
         if not os.path.isfile(video_path):
             abort(HTTPStatus.NOT_FOUND.value, f"Video file is missing: {file.file_path}")
-        thumbnail = extract_frame_tmp(video_path, position=time)
+        thumbnail = extract_frame_tmp(video_path, position=time, width=width)
         if thumbnail is None:
             abort(HTTPStatus.NOT_FOUND.value, f"Timestamp exceeds video length: {time}")
         thumbnail = thumbnails_cache.move(file.file_path, file.sha256, position=time, thumbnail=thumbnail)

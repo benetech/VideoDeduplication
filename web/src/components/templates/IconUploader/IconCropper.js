@@ -41,7 +41,6 @@ function IconCropper(props) {
   const [imageURL, setImageURL] = useState(null);
   const [crop, setCrop] = useState({ aspect: 1, unit: "%" });
   const classes = useStyles();
-
   useEffect(() => {
     const reader = new FileReader();
     reader.onload = () => setImageURL(reader.result);
@@ -54,7 +53,12 @@ function IconCropper(props) {
   }, []);
 
   const handleCrop = useCallback(async () => {
-    const croppedDataURL = await cropImageURL({ imageURL, ...crop });
+    const croppedDataURL = await cropImageURL({
+      imageURL,
+      ...crop,
+      resultHeight: 120,
+      resultWidth: 120,
+    });
     onCropped(croppedDataURL);
   }, [crop, imageURL]);
 

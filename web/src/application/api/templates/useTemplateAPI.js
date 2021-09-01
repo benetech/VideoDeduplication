@@ -31,6 +31,28 @@ export function useUploadExamples(raise = false) {
 }
 
 /**
+ * Get a callback to create template-examples from file frames.
+ * @param {boolean} raise if false, callback will not throw errors
+ * @return {(function(TemplateEntity|string|number, FileEntity|string|number, number): Promise<TemplateExampleEntity>)}
+ */
+export function useCreateExampleFromFrame(raise = false) {
+  const dispatch = useDispatch();
+  const server = useServer();
+  return useCallback(async (template, file, time) => {
+    try {
+      const example = await server.examples.createFromFrame({
+        template,
+        file,
+        time,
+      });
+      dispatch(addExample(example));
+    } catch (error) {
+      handleError(raise, error);
+    }
+  });
+}
+
+/**
  * Get a callback to delete template-example.
  * @param {boolean} raise if false, will not throw errors
  * @return {(function(TemplateExampleEntity): Promise<void>)|*}
@@ -117,5 +139,6 @@ export default function useTemplateAPI(raise = true) {
     updateTemplate: useUpdateTemplate(raise),
     uploadExample: useUploadExamples(raise),
     deleteExample: useDeleteExample(raise),
+    createExampleFromFrame: useCreateExampleFromFrame(raise),
   };
 }

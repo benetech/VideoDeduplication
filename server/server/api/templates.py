@@ -1,6 +1,8 @@
+import enum
 import os
 import tempfile
 from http import HTTPStatus
+from numbers import Number
 from pathlib import Path
 from typing import Dict, Tuple, List
 
@@ -10,13 +12,16 @@ from sqlalchemy.orm import defer, joinedload, Session
 from werkzeug.utils import secure_filename
 
 from db.access.templates import TemplatesDAO
-from db.schema import Template, TemplateExample, IconType
+from db.schema import Template, TemplateExample, IconType, Files
+from thumbnail.ffmpeg import extract_frame_tmp
 from .blueprint import api
 from .constants import ValidationErrors
 from .helpers import (
     parse_positive_int,
     get_file_storage,
     parse_enum_seq,
+    parse_enum,
+    resolve_video_file_path,
 )
 from ..model import database, Transform
 
@@ -326,14 +331,33 @@ def delete_template_example(template_id, example_id):
 ALLOWED_TYPES = {".jpg", ".jpeg", ".png", ".bmp", ".bmp", ".gif"}
 
 
+class CreateExampleMethod(enum.Enum):
+    """Methods to create examples."""
+
+    UPLOAD = "upload"
+    FRAME = "frame"
+
+
 @api.route("/templates/<int:template_id>/examples/", methods=["POST"])
-def upload_example(template_id):
+def add_example(template_id):
+    # Get example creation method
+    method = parse_enum(request.args, name="method", enum=CreateExampleMethod, default=CreateExampleMethod.UPLOAD)
+
     # Fetch template from database
     template = database.session.query(Template).get(template_id)
 
     # Handle template not found
     if template is None:
         abort(HTTPStatus.NOT_FOUND.value, f"Template id not found: {template_id}")
+
+    if method == CreateExampleMethod.UPLOAD:
+        return handle_upload_example(template)
+    elif method == CreateExampleMethod.FRAME:
+        return handle_create_example_from_frame(template)
+
+
+def handle_upload_example(template: Template):
+    """Do upload example image."""
 
     # check if the post request has the file part
     if "file" not in request.files:
@@ -365,3 +389,77 @@ def upload_example(template_id):
         database.session.add(example)
         database.session.commit()
         return jsonify(Transform.template_example(example, template=True))
+
+
+def validate_frame_dto(data: Dict) -> str:
+    """Validate create-from-frame DTO."""
+
+    expected_fields = {"file_id", "time"}
+    missing_fields = expected_fields - set(data.keys())
+    if missing_fields:
+        return f"Missing payload attributes: {','.join(missing_fields)}"
+
+    file_id, time = data["file_id"], data["time"]
+    if not isinstance(file_id, int):
+        return f"Invalid file_id: {file_id}"
+
+    file = database.session.query(Files).filter(Files.id == file_id).first()
+    if file is None:
+        return f"File id not found: {file_id}"
+
+    # Handle remote files
+    if not file.file_path:
+        file_descr = f"{file.contributor.repository.name}:{file.contributor.name}:{file.sha256}"
+        return f"Cannot read frame from remote file: {file_descr}"
+
+    if not isinstance(time, Number) or time < 0:
+        return f"Invalid time: {time}"
+
+
+def handle_create_example_from_frame(template: Template):
+    """Create example from the """
+
+    request_payload = request.get_json()
+    if request_payload is None:
+        abort(HTTPStatus.BAD_REQUEST.value, "Expected valid 'application/json' payload.")
+
+    error = validate_frame_dto(request_payload)
+    if error:
+        abort(HTTPStatus.BAD_REQUEST.value, error)
+
+    file_id, time = request_payload["file_id"], int(request_payload["time"])
+    file = database.session.query(Files).filter(Files.id == file_id).first()
+
+    try:
+        example = create_example_from_frame(template, file, time, database.session)
+        database.session.commit()
+        return jsonify(Transform.template_example(example, template=True))
+    except ValueError as e:
+        abort(HTTPStatus.BAD_REQUEST.value, str(e))
+    except IntegrityError:
+        abort(HTTPStatus.BAD_REQUEST.value, "Data integrity violation.")
+
+
+def create_example_from_frame(template: Template, file: Files, time: int, session) -> TemplateExample:
+    """Do create template example from file frame."""
+    video_path = resolve_video_file_path(file.file_path)
+    if not os.path.isfile(video_path):
+        raise ValueError(f"Video file is missing: {file.file_path}")
+    frame_path = extract_frame_tmp(video_path, position=time, width=resolve_frame_width(file))
+    if frame_path is None:
+        raise ValueError(f"Timestamp exceeds video length: {time}")
+
+    # Put file to the file storage
+    file_storage = get_file_storage()
+    storage_key = file_storage.save_file(frame_path)
+
+    # Create and return a new template example
+    example = TemplateExample(template=template, storage_key=storage_key)
+    session.add(example)
+    return example
+
+
+def resolve_frame_width(file: Files, default: int = 320) -> int:
+    if file.exif is not None and file.exif.Video_Width is not None:
+        return file.exif.Video_Width
+    return default

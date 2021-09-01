@@ -5,18 +5,18 @@ import tempfile
 from os.path import getsize
 
 
-def extract_frame(source_path, destination, position=0, compression=2, width=320):
+def extract_frame(source_path: str, destination: str, position: int = 0, compression: int = 2, width: int = 320):
     """Extract single frame from the given video file using ffmpeg utility.
 
     Args:
         source_path (str): Path to the video file from which to extract the frame.
         destination (str): Path of the destination image file.
-        position (int): Time position of the frame inside video (in seconds).
+        position (int): Time position of the frame inside video (in milliseconds).
         compression (int): JPEG compression (normal range is 2-31 with 31 being the worst quality).
         width (int): Scaled frame width.
     """
     # Get frame position timestamp as hh:mm:ss
-    timestamp = str(datetime.timedelta(seconds=position))
+    timestamp = str(datetime.timedelta(milliseconds=position))
 
     command = [
         "ffmpeg",
@@ -57,7 +57,13 @@ def extract_frame(source_path, destination, position=0, compression=2, width=320
     subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
-def extract_frame_tmp(source_path, position=0, compression=2, width=320, directory=None):
+def extract_frame_tmp(
+    source_path: str,
+    position: int = 0,
+    compression: int = 2,
+    width: int = 320,
+    directory: str = None,
+):
     """Extract single frame from the given video file to a temporary location.
 
     This is a convenience shortcut for calling extract_frame(), except that it safely stores extracted
@@ -65,7 +71,7 @@ def extract_frame_tmp(source_path, position=0, compression=2, width=320, directo
 
     Args:
         source_path (str): Path to the video file from which to extract the frame.
-        position (int): Time position of the frame inside video (in seconds).
+        position (int): Time position of the frame inside video (in milliseconds).
         compression (int): JPEG compression (normal range is 2-31 with 31 being the worst quality).
         width (int): Scaled frame width.
         directory (str): Directory in which to create an image file. If None, default platform temporary location is used.

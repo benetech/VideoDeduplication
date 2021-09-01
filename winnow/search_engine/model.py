@@ -40,4 +40,4 @@ class Frame:
     """Video file frame."""
 
     path: str  # Video file path
-    time: float  # Offset in seconds
+    time: float  # Offset in milliseconds
