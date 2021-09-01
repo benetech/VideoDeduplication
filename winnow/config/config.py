@@ -85,6 +85,7 @@ class ProcessingConfig:
     """Configuration for processing routine."""
 
     video_list_filename: str = None
+    metric: str = "euclidean"
     match_distance: float = 0.75
     filter_dark_videos: bool = True
     filter_dark_videos_thr: int = 2
@@ -99,6 +100,7 @@ class ProcessingConfig:
     def read_env(self):
         """Read config from environment variables."""
         self.video_list_filename = os.environ.get("WINNOW_PROC_VIDEO_LIST_FILE", self.video_list_filename)
+        self.metric = float(os.environ.get("WINNOW_PROC_METRIC", self.metric))
         self.match_distance = float(os.environ.get("WINNOW_PROC_MATCH_DISTANCE", self.match_distance))
         self.filter_dark_videos = _bool_env("WINNOW_PROC_FILTER_DARK", self.filter_dark_videos)
         self.filter_dark_videos_thr = int(os.environ.get("WINNOW_PROC_FILTER_DARK_THR", self.filter_dark_videos_thr))

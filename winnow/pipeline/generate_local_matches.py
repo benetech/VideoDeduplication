@@ -55,7 +55,7 @@ def generate_local_matches(
 
     # Do find matches
     start_time = time()
-    neighbor_matcher = NeighborMatcher(haystack=as_vectors(all_signatures))
+    neighbor_matcher = NeighborMatcher(haystack=as_vectors(all_signatures), metric=config.proc.metric)
     matches = neighbor_matcher.find_matches(needles=as_vectors(req_signatures), max_distance=config.proc.match_distance)
     logger.info(f"Match detection took {time() - start_time:.3f} seconds")
     progress.increase(amount=0.5)

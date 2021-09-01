@@ -31,7 +31,7 @@ def generate_remote_matches(
 
     # Prepare index of local signatures to detect matches
     local_signatures = bulk_read(pipeline.repr_storage.signature)
-    neighbor_matcher = NeighborMatcher(haystack=as_vectors(local_signatures))
+    neighbor_matcher = NeighborMatcher(haystack=as_vectors(local_signatures), metric=config.proc.metric)
 
     # Acquire remote signature storage
     storage = pipeline.remote_signature_dao

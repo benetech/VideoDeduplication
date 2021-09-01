@@ -16,6 +16,7 @@ repr:
 processing:
   frame_sampling: 1
   save_frames: false
+  metric: "euclidean"
   match_distance: 0.75
   video_list_filename: video_dataset_list.txt
   filter_dark_videos: true
