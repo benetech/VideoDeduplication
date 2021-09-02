@@ -15,6 +15,7 @@ import ServerError from "../../../server-api/Server/ServerError";
  * }}
  */
 export function useFile(id) {
+  const query = use;
   const file = useSelector(selectCachedFile(id));
   const [error, setError] = useState(null);
   const server = useServer();
