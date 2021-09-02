@@ -54,7 +54,9 @@ def main(source, output, metric, metric_threshold):
     match_df["match_scene"] = scene_index[match_df["match"]]
     match_df["query_video_original_path"] = scene_signatures_fp[match_df["query"]]
     match_df["match_video_original_path"] = scene_signatures_fp[match_df["match"]]
-    match_df["self_match"] = match_df["query_video"] == match_df["match_video"]
+    match_df["self_match"] = (match_df["query_scene"] == match_df["match_scene"]) & (
+        match_df["query"] == match_df["match"]
+    )
     match_df = match_df.loc[~match_df["self_match"], :]
     match_df["unique_index"] = match_df.apply(unique, axis=1)
     match_df = match_df.drop_duplicates(subset=["unique_index"])
