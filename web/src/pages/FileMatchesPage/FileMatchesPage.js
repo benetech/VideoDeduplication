@@ -89,7 +89,7 @@ function FileMatchesPage(props) {
   const classes = useStyles();
   const { id: rawId } = useParams();
   const id = Number(rawId);
-  const { file, error, loadFile } = useFile(id);
+  const { file, error, refetch } = useFile(id);
   const messages = useMessages((file && file.matchesCount) || 0);
   const [view, setView] = useState(View.grid);
   const fileMatches = useSelector(selectFileMatches);
@@ -124,7 +124,7 @@ function FileMatchesPage(props) {
         </FileActionHeader>
         <FileLoadingHeader
           error={error}
-          onRetry={loadFile}
+          onRetry={refetch}
           onBack={showCollection}
           className={classes.summaryHeader}
         />

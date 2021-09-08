@@ -85,7 +85,7 @@ function VideoDetailsPage(props) {
   const { className } = props;
   const { id } = useParams();
   const messages = useMessages();
-  const { file, error, loadFile } = useFile(id);
+  const { file, error, refetch } = useFile(id);
   const [player, setPlayer] = useState(null);
   const classes = useStyles();
   const showCollection = useShowCollection();
@@ -132,7 +132,7 @@ function VideoDetailsPage(props) {
         </FileActionHeader>
         <FileLoadingHeader
           error={error}
-          onRetry={loadFile}
+          onRetry={refetch}
           onBack={showCollection}
           className={classes.summaryHeader}
         />

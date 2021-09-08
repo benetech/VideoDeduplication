@@ -150,7 +150,7 @@ export default class FilesTransformer {
   /**
    * Transform list files results.
    * @param data server response
-   * @return {{files: FileEntity[], counts}} list files results
+   * @return {{files: FileEntity[], counts, offset: number}} list files results
    */
   files(data) {
     const counts = {
@@ -161,7 +161,7 @@ export default class FilesTransformer {
     };
 
     const files = data.items.map((post) => this.file(post));
-    return { files, counts };
+    return { files, counts, offset: data.offset };
   }
 
   /**

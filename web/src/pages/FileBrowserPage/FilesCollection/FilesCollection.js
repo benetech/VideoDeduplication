@@ -52,16 +52,6 @@ function listComponent(view) {
   }
 }
 
-function getPages(list, pageSize, offset = 0) {
-  const pages = [];
-  const totalCount = Math.max(list.length - offset);
-  const pageCount = Math.ceil(totalCount / pageSize);
-  for (let i = 0; i < pageCount; i++) {
-    pages.push(list.slice(offset + pageSize * i, offset + pageSize * (i + 1)));
-  }
-  return pages;
-}
-
 function FilesCollection(props) {
   const { className, ...other } = props;
   const collection = useFilesColl();
@@ -69,20 +59,19 @@ function FilesCollection(props) {
   const List = listComponent(collection.listType);
   const classes = useStyles({ listType: collection.listType });
   const showFile = useShowFile();
-  const files = query.files;
+  const pages = query.pages;
 
   // Scroll top feature
   const topRef = useRef(null);
   const [top, setTop] = useState(true);
   const scrollTop = useCallback(() =>
-    scrollIntoView(topRef, { smooth: files.length < 100 })
+    scrollIntoView(topRef, { smooth: pages.length < 2 })
   );
 
-  // Split files into pages
-  const pageSize = 24;
+  // Select eager and lazy pages
   const { height: pageHeight, ref: pageRef } = useResizeDetector();
-  const eagerFiles = useMemo(() => files.slice(0, pageSize), [files]);
-  const lazyPages = useMemo(() => getPages(files, pageSize, pageSize), [files]);
+  const eagerFiles = useMemo(() => pages[0] || [], [pages]);
+  const lazyPages = useMemo(() => pages.slice(1), [pages]);
 
   return (
     <div className={clsx(className, classes.container)} {...other}>
@@ -120,10 +109,10 @@ function FilesCollection(props) {
         ))}
       <List className={classes.data}>
         <List.LoadTrigger
-          error={query.error}
-          loading={query.loading}
-          onLoad={query.load}
-          hasMore={query.hasMore}
+          error={query.isError}
+          loading={query.isLoading}
+          onLoad={query.fetchNextPage}
+          hasMore={query.hasNextPage}
         />
       </List>
       <div className={classes.fab}>

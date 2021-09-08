@@ -82,13 +82,6 @@ function FileBrowserPage(props) {
     coll.updateParams({ matches })
   );
 
-  // Load files when filters change
-  useEffect(() => {
-    if (query.canLoad && query.files.length === 0) {
-      query.load();
-    }
-  }, [coll.params]);
-
   return (
     <div className={clsx(classes.container, className)}>
       <div className={classes.content}>

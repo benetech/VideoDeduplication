@@ -1,67 +1,79 @@
-import { useDispatch, useSelector } from "react-redux";
-import { selectFilesQuery } from "../../state/root/selectors";
-import { useCallback, useEffect } from "react";
-import {
-  acquireFilesQuery,
-  queryFiles,
-  releaseFilesQuery,
-} from "../../state/files/queries/actions";
+import { useMemo } from "react";
 import { MatchCategory } from "../../../prop-types/MatchCategory";
-import useValue from "../../../lib/hooks/useValue";
+import { useServer } from "../../../server-api/context";
+import { useInfiniteQuery } from "react-query";
+
+const defaultCounts = Object.freeze({
+  [MatchCategory.all]: 0,
+  [MatchCategory.duplicates]: 0,
+  [MatchCategory.related]: 0,
+  [MatchCategory.unique]: 0,
+});
 
 /**
  * @typedef {{
- *   files: FileEntity[],
+ *   pages: FileEntity[][],
  *   counts: {
  *     all: number,
  *     related: number,
  *     duplicates: number,
  *     unique: number
  *   },
- *   error: boolean,
- *   loading: boolean,
- *   hasMore: boolean,
+ *   error: object,
+ *   isLoading: boolean,
+ *   isError: boolean,
+ *   hasNextPage: boolean,
+ *   fetchNextPage: function,
+ *   refetch: function,
  *   canLoad: boolean,
- *   load: function,
- *   params: FileFilters,
  * }} FileQueryAPI
  */
 
 /**
  * Use lazy files query.
- * @param {FileFilters} params query filters
+ * @param {FileFilters} filters query filters
+ * @param {{
+ *   limit: number
+ * }} options additional options
  * @return {FileQueryAPI} files query.
  */
-export default function useFilesQuery(params) {
-  params = useValue(params);
-  const dispatch = useDispatch();
-  const query = useSelector(selectFilesQuery(params));
+export default function useFilesQuery(filters, options = {}) {
+  const server = useServer();
+  const { limit = 96 } = options;
+  const query = useInfiniteQuery(
+    ["files", { filters, limit }],
+    ({ pageParam: offset = 0 }) =>
+      server.files.list({ filters, limit, offset }),
+    {
+      keepPreviousData: true,
+      getNextPageParam: (lastPage) => {
+        const nextOffset = lastPage.offset + lastPage.files.length;
+        if (nextOffset < lastPage.counts[filters.matches]) {
+          return nextOffset;
+        }
+      },
+    }
+  );
 
-  // Acquire and release query
-  useEffect(() => {
-    dispatch(acquireFilesQuery(params));
-    return () => dispatch(releaseFilesQuery(params));
-  }, [params]);
+  const pages = useMemo(
+    () => (query.data?.pages || []).map((page) => page.files),
+    [query.data?.pages]
+  );
 
-  // Loading trigger
-  const load = useCallback(() => dispatch(queryFiles(params)), [params]);
-
-  const hasMore = query?.total == null || query?.total > query?.items?.length;
-  const canLoad = hasMore && query?.request == null;
+  let counts = defaultCounts;
+  if (query.data?.pages?.length > 0) {
+    counts = query.data.pages[pages.length - 1].counts;
+  }
 
   return {
-    files: query?.items || [],
-    counts: query?.data?.counts || {
-      [MatchCategory.all]: 0,
-      [MatchCategory.duplicates]: 0,
-      [MatchCategory.related]: 0,
-      [MatchCategory.unique]: 0,
-    },
-    error: query != null && query.requestError,
-    loading: query?.request != null,
-    hasMore,
-    canLoad,
-    load,
-    params,
+    pages,
+    counts,
+    error: query.error,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    hasNextPage: !!query.hasNextPage,
+    fetchNextPage: query.fetchNextPage,
+    refetch: query.fetchNextPage,
+    canLoad: query.hasNextPage && !query.isLoading,
   };
 }

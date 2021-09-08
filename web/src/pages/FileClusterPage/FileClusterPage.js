@@ -49,7 +49,7 @@ function FileClusterPage(props) {
   const { id } = useParams();
   const messages = useMessages();
   const showCollection = useShowCollection();
-  const { file, error, loadFile } = useFile(id);
+  const { file, error, refetch: loadFile } = useFile(id);
 
   const {
     matches,

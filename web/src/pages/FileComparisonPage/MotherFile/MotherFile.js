@@ -50,15 +50,15 @@ function MotherFile(props) {
   const { motherFileId, onBack, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const { file, error, loadFile } = useFile(motherFileId);
+  const { file, isError, refetch } = useFile(motherFileId);
 
   let content;
   if (file == null) {
     content = (
       <LoadingHeader
-        onRetry={loadFile}
+        onRetry={refetch}
         errorMessage={messages.loadError}
-        error={error}
+        error={isError}
         className={classes.loading}
       />
     );

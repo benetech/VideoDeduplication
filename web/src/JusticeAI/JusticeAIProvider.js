@@ -7,6 +7,7 @@ import { IntlProvider } from "react-intl";
 import { ServerProvider } from "../server-api/context";
 import { Provider as StoreProvider } from "react-redux";
 import makeStore from "./helpers/makeStore";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 /**
  * JusticeAI application API provider.
@@ -14,6 +15,7 @@ import makeStore from "./helpers/makeStore";
 function JusticeAIProvider(props) {
   const { server, initialState, locale, theme, children } = props;
   const store = useMemo(() => makeStore(initialState, server));
+  const queryClient = props.queryClient || new QueryClient();
 
   return (
     <React.Fragment>
@@ -25,9 +27,11 @@ function JusticeAIProvider(props) {
             locale={locale.locale}
             messages={locale.messages}
           >
-            <ServerProvider server={server}>
-              <StoreProvider store={store}>{children}</StoreProvider>
-            </ServerProvider>
+            <QueryClientProvider client={queryClient}>
+              <ServerProvider server={server}>
+                <StoreProvider store={store}>{children}</StoreProvider>
+              </ServerProvider>
+            </QueryClientProvider>
           </IntlProvider>
         </CustomScrollbar>
       </ThemeProvider>
@@ -36,6 +40,7 @@ function JusticeAIProvider(props) {
 }
 
 JusticeAIProvider.propTypes = {
+  queryClient: PropTypes.object,
   /**
    * Server API.
    */
