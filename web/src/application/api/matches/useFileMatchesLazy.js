@@ -54,15 +54,18 @@ export default function useFileMatchesLazy(fileId, filters, options = {}) {
     total = query.data.pages[pages.length - 1].total;
   }
 
+  const isLoading = query.isFetchingNextPage;
+  const canLoad = query.hasNextPage && !isLoading;
+
   return {
     pages,
     total,
     error: query.error,
-    isLoading: query.isFetchingNextPage,
+    isLoading,
     isError: query.isError,
     hasNextPage: !!query.hasNextPage,
     fetchNextPage: query.fetchNextPage,
     refetch: query.fetchNextPage,
-    canLoad: query.hasNextPage && !query.isLoading,
+    canLoad,
   };
 }

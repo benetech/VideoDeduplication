@@ -64,16 +64,18 @@ export default function useFilesLazy(filters, options = {}) {
   if (query.data?.pages?.length > 0) {
     counts = query.data.pages[pages.length - 1].counts;
   }
+  const isLoading = query.isFetchingNextPage;
+  const canLoad = query.hasNextPage && !isLoading;
 
   return {
     pages,
     counts,
     error: query.error,
-    isLoading: query.isFetchingNextPage,
+    isLoading,
     isError: query.isError,
     hasNextPage: !!query.hasNextPage,
     fetchNextPage: query.fetchNextPage,
     refetch: query.fetchNextPage,
-    canLoad: query.hasNextPage && !query.isLoading,
+    canLoad,
   };
 }
