@@ -3,7 +3,6 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import FileType from "../../../prop-types/FileType";
-import FileExclusionAPI from "../../../application/api/file-exclusions/FileExclusionAPI";
 import Loading from "../../../components/basic/Loading";
 import { useIntl } from "react-intl";
 import Button from "../../../components/basic/Button";
@@ -13,6 +12,8 @@ import usePopup from "../../../lib/hooks/usePopup";
 import TemplateIcon from "../../../components/templates/TemplateIcon/TemplateIcon";
 import ExcludedTemplate from "./ExcludedTemplate";
 import useLoadAllTemplates from "../../../application/api/templates/useLoadAllTemplates";
+import useExclusionsLazy from "../../../application/api/file-exclusions/useExclusionsLazy";
+import useExclusionAPI from "../../../application/api/file-exclusions/useExclusionAPI";
 
 const useStyles = makeStyles((theme) => ({
   blackList: {
@@ -62,34 +63,32 @@ function TemplateBlackList(props) {
   const { file, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const exclusionAPI = FileExclusionAPI.use();
+  const { createExclusion, deleteExclusion } = useExclusionAPI();
   const { clickTrigger, popup } = usePopup("exclude-templates");
 
   // Load templates
   const { templates } = useLoadAllTemplates();
 
   // Load exclusions
-  const exclusionList = exclusionAPI.useExclusions(file.id);
+  const exclusionList = useExclusionsLazy({ fileId: file.id });
 
   // Check if more exclusions could be added
-  const canExclude =
-    !exclusionList.hasMore &&
-    exclusionList.exclusions.length < templates.length;
+  const canExclude = exclusionList.total < templates.length;
 
   // Index excluded template ids
   const excluded = useMemo(() => {
     const result = new Set();
-    exclusionList.exclusions.forEach((exclusion) =>
-      result.add(exclusion.template.id)
+    exclusionList.pages.forEach((exclusions) =>
+      exclusions.forEach((exclusion) => result.add(exclusion.template.id))
     );
     return result;
-  }, [exclusionList.exclusions]);
+  }, [exclusionList.pages]);
 
   const exclude = useCallback(
     async (template) => {
       try {
         popup.onClose();
-        await exclusionAPI.createExclusion({ template, file });
+        await createExclusion({ template, file });
       } catch (error) {
         console.error("Error creating file exclusion.", error, { error });
       }
@@ -99,7 +98,7 @@ function TemplateBlackList(props) {
 
   const dismiss = useCallback(async (exclusion) => {
     try {
-      await exclusionAPI.deleteExclusion(exclusion);
+      await deleteExclusion(exclusion);
     } catch (error) {
       console.error("Error deleting exclusion", error, { exclusion, error });
     }
@@ -132,18 +131,20 @@ function TemplateBlackList(props) {
             ))}
         </Menu>
       </div>
-      {exclusionList.exclusions.map((exclusion) => (
-        <ExcludedTemplate
-          exclusion={exclusion}
-          onDelete={dismiss}
-          key={exclusion.id}
-          className={classes.exclusion}
-        />
-      ))}
-      {exclusionList.hasMore && (
+      {exclusionList.pages.map((exclusions) =>
+        exclusions.map((exclusion) => (
+          <ExcludedTemplate
+            exclusion={exclusion}
+            onDelete={dismiss}
+            key={exclusion.id}
+            className={classes.exclusion}
+          />
+        ))
+      )}
+      {exclusionList.hasNextPage && (
         <div className={classes.loading}>
           <Loading
-            onRetry={exclusionList.load}
+            onRetry={exclusionList.fetchNextPage}
             errorMessage={messages.loadError}
             error={exclusionList.error}
           />
