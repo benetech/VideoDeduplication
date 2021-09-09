@@ -1,5 +1,5 @@
 import useFileMatchesLazy from "./useFileMatchesLazy";
-import { useEffect, useMemo } from "react";
+import useLoadAll from "../../common/react-query/useLoadAll";
 
 /**
  * @typedef {{
@@ -23,20 +23,7 @@ export default function useFileMatchesAll(fileId, filters) {
   }
 
   const query = useFileMatchesLazy(fileId, filters);
-  const matches = useMemo(() => [].concat(...query.pages), [query.pages]);
+  const results = useLoadAll(query);
 
-  useEffect(() => {
-    if (query.canLoad && !query.isError) {
-      query.fetchNextPage();
-    }
-  }, [query.canLoad, query.isError, query.fetchNextPage]);
-
-  return {
-    matches,
-    total: query.total,
-    error: query.error,
-    progress: query.total > 0 ? matches.length / query.total : 0,
-    hasMore: query.hasNextPage,
-    resumeLoading: query.fetchNextPage,
-  };
+  return { ...results, matches: results.items };
 }

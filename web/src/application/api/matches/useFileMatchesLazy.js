@@ -1,6 +1,5 @@
-import { useMemo } from "react";
 import { useServer } from "../../../server-api/context";
-import { useInfiniteQuery } from "react-query";
+import useEntitiesLazy from "../../common/react-query/useEntitiesLazy";
 
 /**
  * @typedef {{
@@ -28,48 +27,13 @@ import { useInfiniteQuery } from "react-query";
  */
 export default function useFileMatchesLazy(fileId, filters, options = {}) {
   const server = useServer();
-  const { limit = 1, fields = ["meta", "exif", "scenes"] } = options;
-  const query = useInfiniteQuery(
+  const { limit = 100, fields = ["meta", "exif", "scenes"] } = options;
+
+  const { results } = useEntitiesLazy(
     ["files/matches", fileId, { filters, limit, fields }],
     ({ pageParam: offset = 0 }) =>
-      server.files.matches({ fileId, filters, limit, offset, fields }),
-    {
-      keepPreviousData: true,
-      getNextPageParam: (lastPage) => {
-        if (lastPage == null) {
-          return 0;
-        }
-        const nextOffset = lastPage.request.offset + lastPage.items.length;
-        if (nextOffset < lastPage.total) {
-          return nextOffset;
-        }
-      },
-    }
+      server.files.matches({ fileId, filters, limit, offset, fields })
   );
 
-  const pages = useMemo(
-    () => (query.data?.pages || []).map((page) => page.items),
-    [query.data?.pages]
-  );
-
-  let total = 0;
-  if (query.data?.pages?.length > 0) {
-    total = query.data.pages[pages.length - 1].total;
-  }
-
-  const isLoading = query.isFetchingNextPage;
-  const canLoad = query.hasNextPage && !isLoading;
-
-  console.log("Data", query.data);
-  return {
-    pages,
-    total,
-    error: query.error,
-    isLoading,
-    isError: query.isError,
-    hasNextPage: !!query.hasNextPage,
-    fetchNextPage: query.fetchNextPage,
-    refetch: query.fetchNextPage,
-    canLoad,
-  };
+  return results;
 }

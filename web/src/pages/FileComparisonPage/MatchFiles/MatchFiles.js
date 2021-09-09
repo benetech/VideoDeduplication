@@ -8,11 +8,11 @@ import FileDetails from "../FileDetails";
 import FileMatchHeader from "./FileMatchHeader";
 import MatchSelector from "./MatchSelector";
 import useFileMatchesAll from "../../../application/api/matches/useFileMatchesAll";
-import MatchAPI from "../../../application/api/matches/MatchAPI";
 import MatchOptions, { DefaultMatchOptions } from "./MatchOptions";
 import { Collapse, Tooltip } from "@material-ui/core";
 import SettingsIcon from "@material-ui/icons/Settings";
 import IconButton from "@material-ui/core/IconButton";
+import useDeleteMatch from "../../../application/api/matches/useDeleteMatch";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -121,7 +121,7 @@ function MatchFiles(props) {
     [hasMore, onMatchFileChange, motherFileId, matches]
   );
 
-  const matchAPI = MatchAPI.use();
+  const { deleteMatch, restoreMatch } = useDeleteMatch();
   const handleDismiss = useCallback(
     async (match) => {
       try {
@@ -135,7 +135,7 @@ function MatchFiles(props) {
         }
 
         // Dismiss current match
-        await matchAPI.deleteMatch(match);
+        await deleteMatch(match);
       } catch (error) {
         console.error("Error deleting match", error, { error, match });
       }
@@ -145,7 +145,7 @@ function MatchFiles(props) {
 
   const handleRestore = useCallback(async (match) => {
     try {
-      await matchAPI.restoreMatch(match);
+      await restoreMatch(match);
     } catch (error) {
       console.error("Error restoring match", error, { error, match });
     }
