@@ -67,17 +67,6 @@ function useMessages(matchesCount) {
   };
 }
 
-/**
- * Create match predicate from filters.
- */
-function asPredicate(filters) {
-  const { falsePositive } = filters;
-  return (match) =>
-    falsePositive == null ||
-    (match.falsePositive == null && !falsePositive) || // treat falsePositive = null as false by default
-    match.falsePositive === falsePositive;
-}
-
 function FileMatchesPage(props) {
   const { className } = props;
   const classes = useStyles();
