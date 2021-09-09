@@ -4,9 +4,6 @@ import lodash from "lodash";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import BoolFilter from "../FileBrowserPage/FilterPane/BoolFilter";
-import { useDispatch, useSelector } from "react-redux";
-import { selectFileMatches } from "../../application/state/root/selectors";
-import { updateFileMatchesParams } from "../../application/state/fileMatches/actions";
 import { useIntl } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
@@ -35,20 +32,13 @@ function useMessages() {
 }
 
 function FilterPanel(props) {
-  const { className, ...other } = props;
+  const { filters, onChange, className, ...other } = props;
   const classes = useStyles();
-  const dispatch = useDispatch();
   const messages = useMessages();
-  const params = useSelector(selectFileMatches).params;
 
   const handleFalsePositive = useCallback(
-    (falsePositive) => {
-      const updatedParams = lodash.merge({}, params, {
-        filters: { falsePositive },
-      });
-      dispatch(updateFileMatchesParams(updatedParams));
-    },
-    [params]
+    (falsePositive) => onChange(lodash.merge({}, filters, { falsePositive })),
+    [filters, onChange]
   );
 
   return (
@@ -59,7 +49,7 @@ function FilterPanel(props) {
         trueText={messages.falsePositive}
         falseText={messages.truePositive}
         onChange={handleFalsePositive}
-        value={params.filters.falsePositive}
+        value={filters.falsePositive}
         className={classes.filter}
       />
     </div>
@@ -67,6 +57,8 @@ function FilterPanel(props) {
 }
 
 FilterPanel.propTypes = {
+  filters: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
   className: PropTypes.string,
 };
 

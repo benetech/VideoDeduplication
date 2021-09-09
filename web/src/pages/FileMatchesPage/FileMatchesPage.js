@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
-import lodash from "lodash";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -17,15 +16,10 @@ import TuneOutlinedIcon from "@material-ui/icons/TuneOutlined";
 import { useParams } from "react-router-dom";
 import useFile from "../../application/api/files/useFile";
 import FileLoadingHeader from "../../components/files/FileLoadingHeader";
-import { useDispatch, useSelector } from "react-redux";
-import { selectFileMatches } from "../../application/state/root/selectors";
 import LoadTrigger from "../../components/basic/LoadingTrigger/LoadTrigger";
-import {
-  fetchFileMatchesSlice,
-  updateFileMatchesParams,
-} from "../../application/state/fileMatches/actions";
 import FilterPanel from "./FilterPanel";
 import { useCompareFiles, useShowCollection } from "../../routing/hooks";
+import useFileMatchesLazy from "../../application/api/matches/useFileMatchesLazy";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -92,29 +86,16 @@ function FileMatchesPage(props) {
   const { file, error, refetch } = useFile(id);
   const messages = useMessages((file && file.matchesCount) || 0);
   const [view, setView] = useState(View.grid);
-  const fileMatches = useSelector(selectFileMatches);
-  const dispatch = useDispatch();
-  const filters = fileMatches.params.filters;
+  const [filters, setFilters] = useState({ remote: null, falsePositive: null });
   const [showFilters, setShowFilters] = useState(false);
+  const query = useFileMatchesLazy(id, filters);
   const showCollection = useShowCollection();
+  const handleCompare = useCompareFiles(id, [id]);
 
   const handleToggleFilters = useCallback(
     () => setShowFilters(!showFilters),
     [showFilters]
   );
-
-  useEffect(() => {
-    const newParams = lodash.merge({}, fileMatches.params, {
-      fileId: id,
-    });
-    if (!lodash.isEqual(fileMatches.params, newParams)) {
-      dispatch(updateFileMatchesParams(newParams));
-      dispatch(fetchFileMatchesSlice());
-    }
-  }, [id, fileMatches]);
-
-  const handleCompare = useCompareFiles(id, [id]);
-  const handleLoad = useCallback(() => dispatch(fetchFileMatchesSlice()), []);
 
   if (file == null) {
     return (
@@ -168,28 +149,32 @@ function FileMatchesPage(props) {
           <TuneOutlinedIcon color="secondary" />
         </SquaredIconButton>
       </SectionSeparator>
-      {showFilters && <FilterPanel className={classes.filters} />}
+      {showFilters && (
+        <FilterPanel
+          filters={filters}
+          onChange={setFilters}
+          className={classes.filters}
+        />
+      )}
       <div
         role="region"
         aria-label={messages.matched}
         className={classes.matches}
       >
         <Grid container spacing={4} alignItems="stretch">
-          {fileMatches.matches.filter(asPredicate(filters)).map((match) => (
-            <Grid item xs={6} lg={3} key={match.id}>
-              <MatchPreview match={match} className={classes.match} />
-            </Grid>
-          ))}
+          {query.pages.map((page) =>
+            page.map((match) => (
+              <Grid item xs={6} lg={3} key={match.id}>
+                <MatchPreview match={match} className={classes.match} />
+              </Grid>
+            ))
+          )}
           <Grid item xs={6} lg={3}>
             <LoadTrigger
-              error={fileMatches.error}
-              loading={fileMatches.loading || fileMatches.params.fileId == null}
-              onLoad={handleLoad}
-              hasMore={
-                fileMatches.total == null ||
-                fileMatches.matches.length < fileMatches.total ||
-                fileMatches.params.fileId !== id
-              }
+              error={query.error}
+              loading={query.isLoading}
+              onLoad={query.fetchNextPage}
+              hasMore={query.hasNextPage}
               container={MatchPreview.Container}
               errorMessage={messages.loadError}
               className={classes.trigger}
