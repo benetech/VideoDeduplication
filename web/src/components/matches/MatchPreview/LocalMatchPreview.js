@@ -11,11 +11,11 @@ import PreviewMainAction from "./PreviewMainAction";
 import { useIntl } from "react-intl";
 import InactiveIcon from "@material-ui/icons/NotInterestedOutlined";
 import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
-import MatchAPI from "../../../application/api/matches/MatchAPI";
 import FileMatchType from "../../../prop-types/FileMatchType";
 
 import { makeStyles } from "@material-ui/styles";
 import { useCompareFiles, useShowFile } from "../../../routing/hooks";
+import useDeleteMatch from "../../../application/api/matches/useDeleteMatch";
 
 const useStyles = makeStyles((theme) => ({
   falsePositive: {
@@ -41,19 +41,19 @@ function useMessages() {
  * Get delete action.
  */
 function useToggleFalsePositive({ match, messages }) {
-  const matchAPI = MatchAPI.use();
+  const { deleteMatch, restoreMatch } = useDeleteMatch();
   return useMemo(
     () => ({
       title: match.falsePositive ? messages.restore : messages.delete,
       handler: async () => {
         if (match.falsePositive) {
-          await matchAPI.restoreMatch(match);
+          await restoreMatch(match);
         } else {
-          await matchAPI.deleteMatch(match);
+          await deleteMatch(match);
         }
       },
     }),
-    [matchAPI, match.id, match.falsePositive]
+    [match.id, match.falsePositive]
   );
 }
 
