@@ -58,7 +58,7 @@ export default function useFileMatchesLazy(fileId, filters, options = {}) {
     pages,
     total,
     error: query.error,
-    isLoading: query.isLoading,
+    isLoading: query.isFetchingNextPage,
     isError: query.isError,
     hasNextPage: !!query.hasNextPage,
     fetchNextPage: query.fetchNextPage,

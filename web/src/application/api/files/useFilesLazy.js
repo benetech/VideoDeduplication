@@ -69,7 +69,7 @@ export default function useFilesLazy(filters, options = {}) {
     pages,
     counts,
     error: query.error,
-    isLoading: query.isLoading,
+    isLoading: query.isFetchingNextPage,
     isError: query.isError,
     hasNextPage: !!query.hasNextPage,
     fetchNextPage: query.fetchNextPage,
