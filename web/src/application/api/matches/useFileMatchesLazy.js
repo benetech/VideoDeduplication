@@ -21,17 +21,18 @@ import { useInfiniteQuery } from "react-query";
  * @param fileId {number} file id
  * @param {FileMatchFilters} filters query filters
  * @param {{
- *   limit: number
+ *   limit: number,
+ *   fields: string[],
  * }} options additional options
  * @return {FileMatchesQueryAPI} files query.
  */
 export default function useFileMatchesLazy(fileId, filters, options = {}) {
   const server = useServer();
-  const { limit = 100 } = options;
+  const { limit = 100, fields = ["meta", "exif", "scenes"] } = options;
   const query = useInfiniteQuery(
-    ["file-matches", fileId, { filters, limit }],
+    ["file-matches", fileId, { filters, limit, fields }],
     ({ pageParam: offset = 0 }) =>
-      server.files.matches({ fileId, filters, limit, offset }),
+      server.files.matches({ fileId, filters, limit, offset, fields }),
     {
       keepPreviousData: true,
       getNextPageParam: (lastPage) => {

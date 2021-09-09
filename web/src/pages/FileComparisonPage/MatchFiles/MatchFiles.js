@@ -7,7 +7,7 @@ import LoadingHeader from "../LoadingHeader";
 import FileDetails from "../FileDetails";
 import FileMatchHeader from "./FileMatchHeader";
 import MatchSelector from "./MatchSelector";
-import useFileMatches from "../../../application/api/matches/useFileMatches";
+import useFileMatchesAll from "../../../application/api/matches/useFileMatchesAll";
 import MatchAPI from "../../../application/api/matches/MatchAPI";
 import MatchOptions, { DefaultMatchOptions } from "./MatchOptions";
 import { Collapse, Tooltip } from "@material-ui/core";
@@ -92,12 +92,8 @@ function MatchFiles(props) {
     resumeLoading: loadMatches,
     hasMore,
     progress,
-  } = useFileMatches({
-    fileId: motherFileId,
-    fields: ["meta", "exif", "scenes"],
-    filters: {
-      falsePositive: null,
-    },
+  } = useFileMatchesAll(motherFileId, {
+    falsePositive: null,
   });
 
   const matches = useMemo(
