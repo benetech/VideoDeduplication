@@ -11,14 +11,19 @@ export default class FilesEndpoint {
   }
 
   /**
-   * Get file list.
-   *
-   * @param {{
+   * @typedef {{
    *   limit: number,
    *   offset: number,
    *   filters: FileFilters,
-   * }} options query options
-   * @returns {Promise<{counts, files: FileEntity[]}>}
+   *   fields: string[]|undefined,
+   * }} ListFilesOptions
+   */
+
+  /**
+   * Get file list.
+   *
+   * @param {ListFilesOptions} options query options
+   * @returns {Promise<ListFilesResults>}
    */
   async list(options = {}) {
     try {
@@ -31,7 +36,7 @@ export default class FilesEndpoint {
           ...this.transform.listParams(filters),
         },
       });
-      return this.transform.files(response.data);
+      return this.transform.files(response.data, options);
     } catch (error) {
       throw makeServerError("Fetch files error.", error, { options });
     }
@@ -56,15 +61,19 @@ export default class FilesEndpoint {
   }
 
   /**
-   * Query file's neighbors.
-   *
-   * @param {{
+   * @typedef {{
    *   fieldId:number,
    *   limit:number,
    *   offset:number,
    *   fields:string[],
    *   filters:ClusterFilters
-   * }} options query options.
+   * }} ClusterOptions
+   */
+
+  /**
+   * Query file's neighbors.
+   *
+   * @param {ClusterOptions} options query options.
    * @returns {Promise<{total:number, files: FileEntity[], matches: MatchEntity[]}>}
    */
   async cluster(options = {}) {
@@ -77,22 +86,26 @@ export default class FilesEndpoint {
           ...this.transform.clusterParams(filters, fields),
         },
       });
-      return this.transform.cluster(response.data);
+      return this.transform.cluster(response.data, options);
     } catch (error) {
       throw makeServerError("Fetch file cluster error.", error, { options });
     }
   }
 
   /**
-   * List file matches.
-   * @param {{
+   * @typedef {{
    *   fieldId,
    *   limit: number,
    *   offset: number,
    *   fields: string[],
    *   filters: Object,
-   * }} options query options
-   * @returns {Promise<{total:number, offset:number, matches:FileMatchEntity[]}>}
+   * }} FileMatchesOptions
+   */
+
+  /**
+   * List file matches.
+   * @param {FileMatchesOptions} options query options
+   * @returns {Promise<ListFileMatchesResults>}
    */
   async matches(options = {}) {
     try {
@@ -112,7 +125,7 @@ export default class FilesEndpoint {
           ...this.transform.matchesParams(filters, fields),
         },
       });
-      return this.transform.matches(response.data);
+      return this.transform.matches(response.data, options);
     } catch (error) {
       throw makeServerError("Fetch file matches error.", error, { options });
     }

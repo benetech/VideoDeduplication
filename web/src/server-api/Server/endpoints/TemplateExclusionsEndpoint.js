@@ -37,13 +37,17 @@ export default class TemplateExclusionsEndpoint {
   }
 
   /**
-   * List template exclusions.
-   * @param {{
+   * @typedef {{
    *   limit: number|undefined,
    *   offset: number|undefined,
    *   filters: TemplateExclusionFilters,
-   * }} options
-   * @return {Promise<{total, offset, exclusions: TemplateExclusionEntity[]}>}
+   * }} ListTemplateExclusionsOptions
+   */
+
+  /**
+   * List template exclusions.
+   * @param {ListTemplateExclusionsOptions} options
+   * @return {Promise<ListTemplateExclusionsResults>}
    */
   async list(options = {}) {
     try {
@@ -55,7 +59,7 @@ export default class TemplateExclusionsEndpoint {
           ...this.transform.listParams(filters),
         },
       });
-      return this.transform.exclusions(response.data);
+      return this.transform.exclusions(response.data, options);
     } catch (error) {
       throw makeServerError("Fetch file exclusions error.", error, { options });
     }

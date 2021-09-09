@@ -17,11 +17,14 @@ export function* loadTasksSaga(server, action) {
 
   try {
     // Send request to the server
-    const { total, tasks } = yield call([server.tasks, server.tasks.list], {
-      limit: 1000,
-      offset: query.items.length,
-      filters: action.params,
-    });
+    const { total, items: tasks } = yield call(
+      [server.tasks, server.tasks.list],
+      {
+        limit: 1000,
+        offset: query.items.length,
+        filters: action.params,
+      }
+    );
 
     // Update query
     yield put(

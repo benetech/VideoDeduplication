@@ -9,14 +9,18 @@ export default class TemplateMatchesEndpoint {
   }
 
   /**
-   * List template matches;
-   * @param {{
+   * @typedef {{
    *   limit: number|undefined,
    *   offset: number|undefined,
    *   fields: string[],
    *   filters: TemplateMatchFilters
-   * }} options
-   * @return {Promise<{total:number, offset:number, templateMatches:ObjectEntity[], templates: TemplateEntity[], files: FileEntity[]}>}
+   * }} ListTemplateMatchesOptions
+   */
+
+  /**
+   * List template matches;
+   * @param {ListTemplateMatchesOptions} options
+   * @return {Promise<ListTemplateMatchesResults>}
    */
   async list(options = {}) {
     const {
@@ -34,7 +38,7 @@ export default class TemplateMatchesEndpoint {
           ...this.transform.matchesParams(filters, fields),
         },
       });
-      return this.transform.matches(response.data);
+      return this.transform.matches(response.data, options);
     } catch (error) {
       throw makeServerError("Get template-matches error.", error, options);
     }

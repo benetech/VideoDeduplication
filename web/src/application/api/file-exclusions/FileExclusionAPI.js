@@ -94,7 +94,7 @@ export default class FileExclusionAPI {
             filters: { fileId },
           });
 
-          const { exclusions: newExclusions, total: newTotal } = response;
+          const { items: newExclusions, total: newTotal } = response;
 
           // Update loaded exclusion collection
           currentExclusions = extendEntityList(

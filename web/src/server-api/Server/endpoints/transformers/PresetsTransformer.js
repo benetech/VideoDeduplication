@@ -24,15 +24,24 @@ export default class PresetsTransformer {
   }
 
   /**
+   * @typedef {{
+   *   request: ListPresetsOptions,
+   *   items: FilterPreset[],
+   *   total: number,
+   * }} ListPresetsResults
+   */
+
+  /**
    * Convert list presets results.
    * @param data server response.
-   * @return {{total: number, presets: FilterPreset[], offset: number}}
+   * @param {ListPresetsOptions} request
+   * @return {ListPresetsResults}
    */
-  presets(data) {
+  presets(data, request) {
     return {
-      offset: data.offset,
+      request,
       total: data.total,
-      presets: data.items.map((preset) => this.preset(preset)),
+      items: data.items.map((preset) => this.preset(preset)),
     };
   }
 

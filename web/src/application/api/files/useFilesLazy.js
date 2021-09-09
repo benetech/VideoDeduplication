@@ -47,7 +47,7 @@ export default function useFilesLazy(filters, options = {}) {
     {
       keepPreviousData: true,
       getNextPageParam: (lastPage) => {
-        const nextOffset = lastPage.offset + lastPage.files.length;
+        const nextOffset = lastPage.request.offset + lastPage.items.length;
         if (nextOffset < lastPage.counts[filters.matches]) {
           return nextOffset;
         }
@@ -56,7 +56,7 @@ export default function useFilesLazy(filters, options = {}) {
   );
 
   const pages = useMemo(
-    () => (query.data?.pages || []).map((page) => page.files),
+    () => (query.data?.pages || []).map((page) => page.items),
     [query.data?.pages]
   );
 

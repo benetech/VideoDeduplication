@@ -17,7 +17,7 @@ export function* loadObjectsSaga(server, action) {
     }
 
     // Send request to the server
-    const { total, templateMatches: objects } = yield call(
+    const { total, items: objects } = yield call(
       [server.templateMatches, server.templateMatches.list],
       {
         limit: 100,

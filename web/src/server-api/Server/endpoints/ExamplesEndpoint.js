@@ -12,14 +12,18 @@ export default class ExamplesEndpoint {
   }
 
   /**
-   * Query examples list.
-   * @param {{
+   * @typedef {{
    *   limit: number,
    *   offset: number,
    *   fields: string[],
    *   filters: ExampleFilters,
-   * }} options query options
-   * @return {Promise<{total:number, offset:number, examples:TemplateExampleEntity[]}>}
+   * }} ListExamplesOptions
+   */
+
+  /**
+   * Query examples list.
+   * @param {ListExamplesOptions} options query options
+   * @return {Promise<ListExamplesResults>}
    */
   async list(options = {}) {
     try {

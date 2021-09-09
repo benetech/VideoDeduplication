@@ -127,15 +127,24 @@ export default class TasksTransformer {
   }
 
   /**
+   * @typedef {{
+   *   request: ListTasksOptions,
+   *   items: TaskEntity[],
+   *   total: number,
+   * }} ListTasksResults
+   */
+
+  /**
    * Convert list tasks results.
    * @param data server response
-   * @return {{total:number, offset:number, tasks: TaskEntity[]}}
+   * @param {ListTasksOptions} request
+   * @return {ListTasksResults}
    */
-  tasks(data) {
+  tasks(data, request) {
     return {
-      offset: data.offset,
+      request,
+      items: data.items.map((task) => this.task(task)),
       total: data.total,
-      tasks: data.items.map((task) => this.task(task)),
     };
   }
 

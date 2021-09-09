@@ -84,7 +84,7 @@ export default class PresetAPI {
             limit,
             offset: presets.length,
           });
-          this.dispatch(addPresets(fetched.presets, fetched.total));
+          this.dispatch(addPresets(fetched.items, fetched.total));
         } catch (error) {
           console.error(error);
           setError(true);

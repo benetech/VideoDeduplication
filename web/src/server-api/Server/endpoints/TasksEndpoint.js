@@ -12,13 +12,17 @@ export default class TasksEndpoint {
   }
 
   /**
-   * Query task list.
-   * @param {{
+   * @typedef {{
    *   limit: number,
    *   offset: number,
    *   filters: TaskFilters,
-   * }} options query options
-   * @returns {Promise<{total: number, offset: number, tasks: TaskEntity[]}>}
+   * }} ListTasksOptions
+   */
+
+  /**
+   * Query task list.
+   * @param {ListTasksOptions} options query options
+   * @returns {Promise<ListTasksResults>}
    */
   async list(options = {}) {
     try {
@@ -30,7 +34,7 @@ export default class TasksEndpoint {
           ...this.transform.listParams({ filters }),
         },
       });
-      return this.transform.tasks(response.data);
+      return this.transform.tasks(response.data, options);
     } catch (error) {
       throw makeServerError("Fetch tasks error.", error, { options });
     }

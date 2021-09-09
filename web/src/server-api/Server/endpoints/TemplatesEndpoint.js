@@ -35,14 +35,18 @@ export default class TemplatesEndpoint {
   }
 
   /**
-   * Query templates list.
-   * @param {{
+   * @typedef {{
    *   limit: number,
    *   offset: number,
    *   fields: string[],
    *   filters: TemplateFilters,
-   * }} options query options
-   * @return {Promise<{total: number, offset: number, templates: TemplateEntity[]}>}
+   * }} ListTemplatesOptions
+   */
+
+  /**
+   * Query templates list.
+   * @param {ListTemplatesOptions} options query options
+   * @return {Promise<ListTemplatesResults>}
    */
   async list(options = {}) {
     try {
@@ -59,7 +63,7 @@ export default class TemplatesEndpoint {
           ...this.transform.listParams(filters, fields),
         },
       });
-      return this.transform.templates(response.data);
+      return this.transform.templates(response.data, options);
     } catch (error) {
       throw makeServerError("Fetch templates error.", error, { options });
     }

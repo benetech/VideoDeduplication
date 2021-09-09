@@ -17,7 +17,7 @@ export function* loadTemplatesSaga(server, action) {
     }
 
     // Send request to the server
-    const { total, templates } = yield call(
+    const { total, items: templates } = yield call(
       [server.templates, server.templates.list],
       {
         limit: 100,

@@ -35,13 +35,17 @@ export default class PresetsEndpoint {
   }
 
   /**
-   * List presets.
-   * @param {{
+   * @typedef {{
    *   limit: number|undefined,
    *   offset: number|undefined,
    *   filters: PresetFilters,
-   * }} options
-   * @return {Promise<{total:number, presets: FilterPreset[], offset: number}>}
+   * }} ListPresetsOptions
+   */
+
+  /**
+   * List presets.
+   * @param {ListPresetsOptions} options
+   * @return {Promise<ListPresetsResults>}
    */
   async list(options = {}) {
     try {
@@ -53,7 +57,7 @@ export default class PresetsEndpoint {
           ...this.transform.listParams(filters),
         },
       });
-      return this.transform.presets(response.data);
+      return this.transform.presets(response.data, options);
     } catch (error) {
       throw makeServerError("Fetch presets error.", error, { options });
     }

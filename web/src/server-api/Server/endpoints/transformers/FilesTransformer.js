@@ -148,11 +148,20 @@ export default class FilesTransformer {
   }
 
   /**
+   * @typedef {{
+   *   request: ListFilesOptions,
+   *   items: FileEntity[],
+   *   counts: Object,
+   * }} ListFilesResults
+   */
+
+  /**
    * Transform list files results.
    * @param data server response
-   * @return {{files: FileEntity[], counts, offset: number}} list files results
+   * @param {ListFilesOptions} request
+   * @return {ListFilesResults}
    */
-  files(data) {
+  files(data, request) {
     const counts = {
       all: data.total,
       duplicates: data.duplicates,
@@ -161,7 +170,7 @@ export default class FilesTransformer {
     };
 
     const files = data.items.map((post) => this.file(post));
-    return { files, counts, offset: data.offset };
+    return { request, items: files, counts };
   }
 
   /**
@@ -196,12 +205,23 @@ export default class FilesTransformer {
   }
 
   /**
+   * @typedef {{
+   *   request: ClusterOptions,
+   *   files: FileEntity[],
+   *   matches: MatchEntity[],
+   *   total: number,
+   * }} ClusterResults
+   */
+
+  /**
    * Transform file neighbors cluster.
    * @param {{}} data server response.
-   * @return {{total:number, files: FileEntity[], matches: MatchEntity[]}}
+   * @param {ClusterOptions} request
+   * @return {ClusterResults}
    */
-  cluster(data) {
+  cluster(data, request) {
     return {
+      request,
       total: data.total,
       matches: data.matches.map((match) => this._clusterMatch(match)),
       files: data.files.map((file) => this.file(file)),
@@ -209,15 +229,24 @@ export default class FilesTransformer {
   }
 
   /**
+   * @typedef {{
+   *   request: FileMatchesOptions,
+   *   items: FileMatchEntity[],
+   *   total: number,
+   * }} ListFileMatchesResults
+   */
+
+  /**
    * Transform list file matches results.
    * @param {{}} data server response
-   * @return {{total:number, offset:number, matches: FileMatchEntity[]}}
+   * @param {FileMatchesOptions} request
+   * @return {ListFileMatchesResults}
    */
-  matches(data) {
+  matches(data, request) {
     return {
-      offset: data.offset,
+      request,
       total: data.total,
-      matches: data.items.map((match) => this.match(match, data.mother_file)),
+      items: data.items.map((match) => this.match(match, data.mother_file)),
     };
   }
 

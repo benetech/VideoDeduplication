@@ -34,15 +34,24 @@ export default class TemplatesTransformer {
   }
 
   /**
+   * @typedef {{
+   *   request: ListTemplatesOptions,
+   *   items:TemplateEntity[] ,
+   *   total: number,
+   * }} ListTemplatesResults
+   */
+
+  /**
    * Convert template list results.
    * @param data server response
-   * @return {{total:number, offset:number, templates: TemplateEntity[]}}
+   * @param {ListTemplatesOptions} request
+   * @return {ListTemplatesResults}
    */
-  templates(data) {
+  templates(data, request) {
     return {
-      offset: data.offset,
+      request,
       total: data.total,
-      templates: data.items.map((template) => this.template(template)),
+      items: data.items.map((template) => this.template(template)),
     };
   }
 
@@ -106,15 +115,24 @@ export default class TemplatesTransformer {
   }
 
   /**
+   * @typedef {{
+   *   request: ListExamplesOptions,
+   *   items: TemplateExampleEntity[],
+   *   total: number,
+   * }} ListExamplesResults
+   */
+
+  /**
    * Convert list examples results.
    * @param data server response
-   * @return {{total:number, offset:number, examples:TemplateExampleEntity[]}}
+   * @param {ListExamplesOptions} request
+   * @return {ListExamplesResults}
    */
-  examples(data) {
+  examples(data, request) {
     return {
-      offset: data.offset,
+      request,
       total: data.total,
-      examples: data.items.map((example) => this.example(example)),
+      items: data.items.map((example) => this.example(example)),
     };
   }
 
@@ -174,15 +192,26 @@ export default class TemplatesTransformer {
   }
 
   /**
+   * @typedef {{
+   *   request: ListTemplateMatchesOptions,
+   *   items: templateMatches: ObjectEntity[],
+   *   templates: TemplateEntity[],
+   *   files: FileEntity[],
+   *   total: number,
+   * }} ListTemplateMatchesResults
+   */
+
+  /**
    * Convert list template matches results
    * @param data server response
-   * @return {{total, offset, templateMatches: ObjectEntity[], templates: TemplateEntity[], files: FileEntity[]}}
+   * @param {ListTemplateMatchesOptions} request
+   * @return {ListTemplateMatchesResults}
    */
-  matches(data) {
+  matches(data, request) {
     return {
-      offset: data.offset,
+      request,
       total: data.total,
-      templateMatches: data.items.map((match) => this.match(match)),
+      items: data.items.map((match) => this.match(match)),
       files: (data.files || []).map((file) => this.fileTransform.file(file)),
       templates: (data.templates || []).map((template) =>
         this.template(template)

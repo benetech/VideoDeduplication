@@ -39,15 +39,24 @@ export default class TemplateExclusionsTransformer {
   }
 
   /**
+   * @typedef {{
+   *   request: ListTemplateExclusionsOptions,
+   *   items: TemplateExclusionEntity[],
+   *   total: number,
+   * }} ListTemplateExclusionsResults
+   */
+
+  /**
    * Convert list template results.
    * @param data server response.
-   * @return {{total, offset, exclusions: TemplateExclusionEntity[]}}
+   * @param {ListTemplateExclusionsOptions} request
+   * @return {ListTemplateExclusionsResults}
    */
-  exclusions(data) {
+  exclusions(data, request) {
     return {
-      offset: data.offset,
+      request,
       total: data.total,
-      exclusions: data.items.map((exclusion) => this.exclusion(exclusion)),
+      items: data.items.map((exclusion) => this.exclusion(exclusion)),
     };
   }
 
