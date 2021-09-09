@@ -7,7 +7,7 @@ import FileLinearList from "../../../components/files/FileLinearList";
 import FileGridList from "../../../components/files/FileGridList";
 import useFilesColl from "../../../application/api/files/useFilesColl";
 import LazyLoad from "react-lazyload";
-import useFilesQuery from "../../../application/api/files/useFilesQuery";
+import useFilesLazy from "../../../application/api/files/useFilesLazy";
 import { useShowFile } from "../../../routing/hooks";
 import Zoom from "@material-ui/core/Zoom";
 import Fab from "@material-ui/core/Fab";
@@ -55,7 +55,7 @@ function listComponent(view) {
 function FilesCollection(props) {
   const { className, ...other } = props;
   const collection = useFilesColl();
-  const query = useFilesQuery(collection.params);
+  const query = useFilesLazy(collection.params);
   const List = listComponent(collection.listType);
   const classes = useStyles({ listType: collection.listType });
   const showFile = useShowFile();

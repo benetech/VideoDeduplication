@@ -7,7 +7,7 @@ import FilterPane from "./FilterPane";
 import SearchTextInput from "./SearchTextInput";
 import CategorySelector from "./CategorySelector";
 import useFilesColl from "../../application/api/files/useFilesColl";
-import useFilesQuery from "../../application/api/files/useFilesQuery";
+import useFilesLazy from "../../application/api/files/useFilesLazy";
 import FilesCollection from "./FilesCollection";
 
 const useStyles = makeStyles((theme) => ({
@@ -65,7 +65,7 @@ function FileBrowserPage(props) {
   const { className } = props;
   const classes = useStyles();
   const coll = useFilesColl();
-  const query = useFilesQuery(coll.params);
+  const query = useFilesLazy(coll.params);
 
   // Manage filters sidebar
   const activeFilters = FilterPane.useActiveFilters();

@@ -37,7 +37,7 @@ const defaultCounts = Object.freeze({
  * }} options additional options
  * @return {FileQueryAPI} files query.
  */
-export default function useFilesQuery(filters, options = {}) {
+export default function useFilesLazy(filters, options = {}) {
   const server = useServer();
   const { limit = 96 } = options;
   const query = useInfiniteQuery(
