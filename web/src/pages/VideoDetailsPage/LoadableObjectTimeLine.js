@@ -4,13 +4,13 @@ import PropTypes from "prop-types";
 import { FileType } from "../../prop-types/FileType";
 import { LinearProgress } from "@material-ui/core";
 import ObjectTimeLine from "./ObjectTimeLine";
-import useLoadAllObjects from "../../application/api/objects/useLoadAllObjects";
+import useObjectsAll from "../../application/api/objects/useObjectsAll";
 
 function LoadableObjectTimeLine(props) {
   const { file, onJump, className, ...other } = props;
 
   // Load objects
-  const { objects, progress, done } = useLoadAllObjects({ fileId: file.id });
+  const { objects, progress, done } = useObjectsAll({ fileId: file.id });
   const variant = progress == null ? "indeterminate" : "determinate";
 
   if (!done) {

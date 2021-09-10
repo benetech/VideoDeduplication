@@ -11,8 +11,8 @@ import {
   SelectableTabs,
 } from "../../components/basic/SelectableTabs";
 import MetadataPane from "./MetadataPane";
-import useLoadAllObjects from "../../application/api/objects/useLoadAllObjects";
 import useExclusionsAll from "../../application/api/file-exclusions/useExclusionsAll";
+import useObjectsAll from "../../application/api/objects/useObjectsAll";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -74,7 +74,7 @@ function VideoInformation(props) {
   const messages = useMessages();
   const [tab, setTab] = useState(Tab.info);
 
-  const { objects } = useLoadAllObjects({ fileId: file.id });
+  const { objects } = useObjectsAll({ fileId: file.id });
   const { exclusions } = useExclusionsAll({ fileId: file.id });
   const styles = contentStyles(tab);
 

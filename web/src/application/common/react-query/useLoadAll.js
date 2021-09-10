@@ -20,6 +20,7 @@ import { useEffect, useMemo } from "react";
  *   resumeLoading: function,
  *   hasMore: boolean,
  *   progress: number,
+ *   done: boolean,
  * }} EagerQueryResults
  */
 
@@ -44,5 +45,6 @@ export default function useLoadAll(results) {
     progress: results.total > 0 ? items.length / results.total : 0,
     hasMore: results.hasNextPage,
     resumeLoading: results.fetchNextPage,
+    done: !results.hasNextPage,
   };
 }

@@ -78,6 +78,10 @@ export function useCreateExclusion(options = {}) {
             "template-file-exclusions",
             { fileId: newExclusion.file.id },
           ]),
+          queryClient.invalidateQueries([
+            "template_matches",
+            { fileId: newExclusion.file.id },
+          ]),
         ]);
       },
       onError: (error, variables, context) => {

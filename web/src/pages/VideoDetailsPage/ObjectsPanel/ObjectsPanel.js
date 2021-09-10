@@ -86,14 +86,13 @@ function ObjectsPanel(props) {
   const { file, objects: objectsProp, onJump, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const updateObject = useUpdateObject();
+  const { updateObject } = useUpdateObject();
   const [tab, setTab] = useState(Tab.found);
 
   const handleDelete = useCallback(
     async (object) => {
       try {
-        const updates = { ...object, falsePositive: true };
-        await updateObject(updates, object);
+        await updateObject({ ...object, falsePositive: true });
       } catch (error) {
         console.error("Error deleting object", error, { error });
       }
@@ -104,8 +103,7 @@ function ObjectsPanel(props) {
   const handleRestore = useCallback(
     async (object) => {
       try {
-        const updates = { ...object, falsePositive: false };
-        await updateObject(updates, object);
+        await updateObject({ ...object, falsePositive: false });
       } catch (error) {
         console.error("Error restoring object", error, { error });
       }
