@@ -2,21 +2,21 @@ import { useServer } from "../../../server-api/context";
 import useEntitiesLazy from "../../common/react-query/useEntitiesLazy";
 
 /**
- * Use lazy objects query.
- * @param {TemplateMatchFilters} filters query filters
+ * Use lazy filter-presets query.
+ * @param {PresetFilters} filters query filters
  * @param {{
  *   limit: number,
  * }} options additional options
  * @return {InfiniteQueryAPI} files query.
  */
-export default function useObjectsLazy(filters, options = {}) {
+export default function usePresetsLazy(filters, options = {}) {
   const server = useServer();
   const { limit = 100 } = options;
 
   const { results } = useEntitiesLazy(
-    ["template_matches", filters, limit],
+    ["presets", filters, limit],
     ({ pageParam: offset = 0 }) =>
-      server.templateMatches.list({ filters, limit, offset })
+      server.presets.list({ filters, limit, offset })
   );
 
   return results;

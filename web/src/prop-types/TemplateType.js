@@ -54,7 +54,7 @@ export const TemplateExampleType = PropTypes.shape({
  * existing files.
  */
 export const TemplateType = PropTypes.shape({
-  id: PropTypes.any.isRequired,
+  id: PropTypes.any,
   name: PropTypes.string.isRequired,
   icon: TemplateIconType,
   examples: PropTypes.arrayOf(TemplateExampleType).isRequired,

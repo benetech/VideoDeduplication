@@ -10,11 +10,11 @@ import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import SquaredIconButton from "../../../components/basic/SquaredIconButton";
 import { useIntl } from "react-intl";
 import { Tooltip } from "@material-ui/core";
-import PresetAPI from "../../../application/api/presets/PresetAPI";
 import AddPresetDialog from "./AddPresetDialog";
 import SettingsBackupRestoreIcon from "@material-ui/icons/SettingsBackupRestore";
 import { DefaultFilters } from "../../../application/state/files/coll/initialState";
 import useFilesColl from "../../../application/api/files/useFilesColl";
+import { useCreatePreset } from "../../../application/api/presets/usePresetsAPI";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -59,18 +59,12 @@ function FilterPaneHeader(props) {
   const messages = useMessages();
   const buttonRef = useRef();
   const [showDialog, setShowDialog] = useState(false);
-  const presetApi = PresetAPI.use();
+  const { createPreset } = useCreatePreset();
   const coll = useFilesColl();
   const currentFilters = coll.params;
   const dirty = !lodash.isEqual(currentFilters, DefaultFilters);
 
-  const handleCreate = useCallback(
-    (preset) => presetApi.addPreset(preset),
-    [presetApi]
-  );
-
   const handleCloseDialog = useCallback(() => setShowDialog(false));
-
   const handleShowDialog = useCallback(() => setShowDialog(true));
 
   useEffect(() => {
@@ -131,7 +125,7 @@ function FilterPaneHeader(props) {
       <AddPresetDialog
         open={showDialog}
         onClose={handleCloseDialog}
-        onCreate={handleCreate}
+        onCreate={createPreset}
       />
     </div>
   );

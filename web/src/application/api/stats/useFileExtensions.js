@@ -1,6 +1,6 @@
 import { useServer } from "../../../server-api/context";
-import { useEffect, useState } from "react";
 import Statistics from "./Statistics";
+import { useQuery } from "react-query";
 
 export const defaultExtensions = [
   "MP4",
@@ -18,19 +18,11 @@ export const defaultExtensions = [
  */
 export default function useFileExtensions(initial) {
   const server = useServer();
-  const [extensions, setExtensions] = useState(initial || defaultExtensions);
+  const query = useQuery(
+    ["statistics", Statistics.extensions],
+    () => server.stats.get({ name: Statistics.extensions }),
+    { initialData: initial || defaultExtensions }
+  );
 
-  useEffect(() => {
-    server.stats
-      .get({ name: Statistics.extensions })
-      .then((results) => {
-        setExtensions(results);
-      })
-      .catch((error) => {
-        console.error("Error fetching file extensions", error, { error });
-        setExtensions(initial || defaultExtensions);
-      });
-  }, []);
-
-  return extensions;
+  return query.data;
 }

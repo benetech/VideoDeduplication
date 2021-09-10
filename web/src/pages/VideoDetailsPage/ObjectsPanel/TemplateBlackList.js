@@ -11,9 +11,9 @@ import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import usePopup from "../../../lib/hooks/usePopup";
 import TemplateIcon from "../../../components/templates/TemplateIcon/TemplateIcon";
 import ExcludedTemplate from "./ExcludedTemplate";
-import useLoadAllTemplates from "../../../application/api/templates/useLoadAllTemplates";
 import useExclusionsLazy from "../../../application/api/file-exclusions/useExclusionsLazy";
 import useExclusionAPI from "../../../application/api/file-exclusions/useExclusionAPI";
+import useTemplatesAll from "../../../application/api/templates/useTemplatesAll";
 
 const useStyles = makeStyles((theme) => ({
   blackList: {
@@ -67,7 +67,7 @@ function TemplateBlackList(props) {
   const { clickTrigger, popup } = usePopup("exclude-templates");
 
   // Load templates
-  const { templates } = useLoadAllTemplates();
+  const { templates } = useTemplatesAll();
 
   // Load exclusions
   const exclusionList = useExclusionsLazy({ fileId: file.id });

@@ -21,7 +21,7 @@ function checkFilters(request, match) {
   );
 }
 
-function makeComparator(request) {
+function makeComparator() {
   return (first, second) => first.distance - second.distance;
 }
 

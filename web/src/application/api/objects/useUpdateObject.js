@@ -5,7 +5,9 @@ import PagedResultsBuilder from "../../common/react-query/PagedResultsBuilder";
 
 /**
  * Check if the object satisfies query params.
- * @param {TemplateMatchFilters} params
+ * @param {{
+ *   filters: TemplateMatchFilters
+ * }} request
  * @param {ObjectEntity} object
  * @return {boolean}
  */

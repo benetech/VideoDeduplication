@@ -2,7 +2,7 @@ import { useIntl } from "react-intl";
 import nameErrorMessage from "../../../lib/messages/nameErrorMessage";
 import { useCallback, useState } from "react";
 import IconKind from "../../../application/state/templates/IconKind";
-import { useAddTemplate } from "../../../application/api/templates/useTemplateAPI";
+import { useCreateTemplate } from "../../../application/api/templates/useTemplateAPI";
 
 /**
  * Get translated text.
@@ -27,6 +27,7 @@ export default function useNewTemplateForm() {
   const [template, setTemplate] = useState({
     icon: defaultIcon,
     name: messages.defaultName,
+    examples: [],
   });
 
   const onChange = useCallback(
@@ -39,7 +40,7 @@ export default function useNewTemplateForm() {
     [template, errors]
   );
 
-  const createTemplate = useAddTemplate();
+  const { createTemplate } = useCreateTemplate();
   const onCreate = useCallback(async () => {
     setIsLoading(true);
     try {

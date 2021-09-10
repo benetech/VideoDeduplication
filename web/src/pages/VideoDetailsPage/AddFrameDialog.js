@@ -11,7 +11,6 @@ import {
 import { useIntl } from "react-intl";
 import thumbnailURL from "../../application/state/files/helpers/thumbnailURL";
 import FileType from "../../prop-types/FileType";
-import useLoadAllTemplates from "../../application/api/templates/useLoadAllTemplates";
 import TemplateSelect from "../../components/templates/TemplateSelect";
 import Button from "../../components/basic/Button";
 import { useCreateExampleFromFrame } from "../../application/api/templates/useTemplateAPI";
@@ -23,6 +22,7 @@ import SwitchComponent from "../../components/basic/SwitchComponent/SwitchCompon
 import Case from "../../components/basic/SwitchComponent/Case";
 import NewTemplateForm from "../../components/templates/NewTemplateForm";
 import useNewTemplateForm from "../../components/templates/NewTemplateForm/useNewTemplateForm";
+import useTemplatesAll from "../../application/api/templates/useTemplatesAll";
 
 const useStyles = makeStyles((theme) => ({
   noScroll: {
@@ -69,7 +69,7 @@ const Target = {
 
 function useAddToExising(file, time, addFrame, onClose) {
   const [selected, setSelected] = useState([]);
-  const { templates, done: loaded } = useLoadAllTemplates();
+  const { templates, done: loaded } = useTemplatesAll();
   const templateIndex = useMemo(() => indexEntities(templates), [templates]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -79,7 +79,7 @@ function useAddToExising(file, time, addFrame, onClose) {
       for (const id of selected) {
         const template = templateIndex.get(id);
         try {
-          await addFrame(template, file, time);
+          await addFrame({ template, file, time });
         } catch (error) {
           console.error(error);
         }
@@ -109,7 +109,7 @@ function useAddToNew(file, time, addFrame, onClose) {
     setIsLoading(true);
     try {
       const template = await form.onCreate();
-      await addFrame(template, file, time);
+      await addFrame({ template, file, time });
       onClose();
     } catch (error) {
       console.error(error);
@@ -135,7 +135,7 @@ function AddFrameDialog(props) {
   const { file, time, onClose, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const addFrame = useCreateExampleFromFrame(true);
+  const { createExampleFromFrame: addFrame } = useCreateExampleFromFrame();
   const existing = useAddToExising(file, time, addFrame, onClose);
   const fresh = useAddToNew(file, time, addFrame, onClose);
   const [target, setTarget] = useState(Target.EXISTING_TEMPLATE);

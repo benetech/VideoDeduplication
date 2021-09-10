@@ -1,6 +1,6 @@
-import useLoadAllTemplates from "./useLoadAllTemplates";
 import { useMemo } from "react";
 import { DefaultTemplateFilters } from "../../state/templates/queries/initialState";
+import useTemplatesAll from "./useTemplatesAll";
 
 /**
  * Index templates by id.
@@ -18,10 +18,10 @@ function indexTemplates(templates) {
 /**
  * Get id=>template index of the templates satisfying the given query params.
  *
- * @param {TemplateFilters} params
+ * @param {TemplateFilters} filters
  * @return {(Map<(string|number), TemplateEntity>)}
  */
-export default function useTemplateIndex(params = DefaultTemplateFilters) {
-  const { templates } = useLoadAllTemplates(params);
+export default function useTemplateIndex(filters = DefaultTemplateFilters) {
+  const { templates } = useTemplatesAll(filters);
   return useMemo(() => indexTemplates(templates), [templates]);
 }

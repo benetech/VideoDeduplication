@@ -7,10 +7,11 @@ import { makeStyles } from "@material-ui/styles";
 import PresetList from "../../../components/presets/PresetList";
 import LoadTrigger from "../../../components/basic/LoadingTrigger/LoadTrigger";
 import { useIntl } from "react-intl";
-import PresetAPI from "../../../application/api/presets/PresetAPI";
 import UpdatePresetDialog from "./UpdatePresetDialog";
 import DeletePresetDialog from "./DeletePresetDialog";
 import useFilesColl from "../../../application/api/files/useFilesColl";
+import usePresetsLazy from "../../../application/api/presets/usePresetsLazy";
+import usePresetsAPI from "../../../application/api/presets/usePresetsAPI";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -44,8 +45,8 @@ function Presets(props) {
   const [preset, setPreset] = useState(null);
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
-  const presetApi = PresetAPI.use();
-  const presetList = presetApi.useLazyPresetList();
+  const { updatePreset, deletePreset } = usePresetsAPI();
+  const presetList = usePresetsLazy();
   const collection = useFilesColl();
 
   const handleApply = useCallback((preset) => {
@@ -53,16 +54,6 @@ function Presets(props) {
     console.log("Applying", { preset, filters });
     collection.setParams(filters);
   });
-
-  const handleUpdate = useCallback(
-    (updated, original) => presetApi.updatePreset(updated, original),
-    [presetApi]
-  );
-
-  const handleDelete = useCallback(
-    (preset) => presetApi.deletePreset(preset),
-    [presetApi]
-  );
 
   const handleShowUpdate = useCallback((preset) => {
     setPreset(preset);
@@ -81,19 +72,21 @@ function Presets(props) {
   return (
     <div className={clsx(classes.root, className)}>
       <PresetList>
-        {presetList.presets.map((preset) => (
-          <PresetList.Item
-            key={preset.id}
-            preset={preset}
-            onClick={handleApply}
-            onUpdate={handleShowUpdate}
-            onDelete={handleShowDelete}
-          />
-        ))}
+        {presetList.pages.map((presets) =>
+          presets.map((preset) => (
+            <PresetList.Item
+              key={preset.name}
+              preset={preset}
+              onClick={handleApply}
+              onUpdate={handleShowUpdate}
+              onDelete={handleShowDelete}
+            />
+          ))
+        )}
         <LoadTrigger
           loading={presetList.isLoading}
-          onLoad={presetList.loadMore}
-          hasMore={presetList.hasMore}
+          onLoad={presetList.fetchNextPage}
+          hasMore={presetList.hasNextPage}
           errorMessage={messages.error}
           error={presetList.error}
           className={classes.trigger}
@@ -104,7 +97,7 @@ function Presets(props) {
           preset={preset}
           open={showUpdate}
           onClose={handleCloseUpdate}
-          onUpdate={handleUpdate}
+          onUpdate={updatePreset}
         />
       )}
       {preset && (
@@ -112,7 +105,7 @@ function Presets(props) {
           preset={preset}
           open={showDelete}
           onClose={handleCloseDelete}
-          onDelete={handleDelete}
+          onDelete={deletePreset}
         />
       )}
     </div>

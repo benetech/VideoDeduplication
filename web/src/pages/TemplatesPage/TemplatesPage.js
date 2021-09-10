@@ -17,9 +17,9 @@ import TaskRequestTypes from "../../prop-types/TaskRequestTypes";
 import AddTemplateDialog from "./AddTemplateDialog";
 import useFilesColl from "../../application/api/files/useFilesColl";
 import { useShowCollection } from "../../routing/hooks";
-import useLoadAllTemplates from "../../application/api/templates/useLoadAllTemplates";
 import useTemplateAPI from "../../application/api/templates/useTemplateAPI";
 import useRunTask from "../../application/api/tasks/useRunTask";
+import useTemplatesAll from "../../application/api/templates/useTemplatesAll";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -136,7 +136,7 @@ TasksHeader.propTypes = {
   className: PropTypes.string,
 };
 
-function ProcessingPage(props) {
+function TemplatesPage(props) {
   const { className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
@@ -147,8 +147,7 @@ function ProcessingPage(props) {
   const handleHideTasks = useCallback(() => setShowTasks(false));
   const collection = useFilesColl();
   const showCollection = useShowCollection();
-  const query = useLoadAllTemplates();
-  const templates = query.templates;
+  const { templates } = useTemplatesAll();
   const api = useTemplateAPI();
   const matchTemplates = useRunTask({ type: TaskRequestTypes.MATCH_TEMPLATES });
 
@@ -189,7 +188,7 @@ function ProcessingPage(props) {
               key={template.id}
               template={template}
               onChange={api.updateTemplate}
-              onAddExamples={api.uploadExample}
+              onAddExamples={api.uploadExamples}
               onDeleteExample={api.deleteExample}
               onDelete={api.deleteTemplate}
               onShowMatches={showMatches}
@@ -220,8 +219,8 @@ function ProcessingPage(props) {
   );
 }
 
-ProcessingPage.propTypes = {
+TemplatesPage.propTypes = {
   className: PropTypes.string,
 };
 
-export default ProcessingPage;
+export default TemplatesPage;

@@ -12,7 +12,7 @@ import useObjectsLazy from "./useObjectsLazy";
  */
 
 /**
- * Use lazy file matches query.
+ * Use eager objects query.
  * @param {TemplateMatchFilters} filters query filters
  * @param {{
  *   limit: number,

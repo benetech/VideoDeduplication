@@ -1,22 +1,17 @@
-import { useEffect, useState } from "react";
 import { useServer } from "../../../server-api/context";
+import { useQuery } from "react-query";
+import Statistics from "./Statistics";
 
 /**
  * Hook for retrieving matches statistics.
  */
 export default function useMatchStats() {
   const server = useServer();
-  const [stats, setStats] = useState({ unique: 0, related: 0, duplicates: 0 });
+  const query = useQuery(
+    ["statistics", Statistics.extensions],
+    () => server.files.list({ limit: 0 }),
+    { initialData: { counts: { unique: 0, related: 0, duplicates: 0 } } }
+  );
 
-  useEffect(() => {
-    server.files.list({ limit: 0 }).then(({ counts }) => {
-      setStats({
-        unique: counts.unique,
-        related: counts.related,
-        duplicates: counts.duplicates,
-      });
-    });
-  }, []);
-
-  return stats;
+  return query.data.counts;
 }

@@ -23,11 +23,11 @@ import {
   useShowMatches,
 } from "../../routing/hooks";
 import useSearchFrame from "../../application/api/templates/useSearchFrame";
-import useLoadAllTemplates from "../../application/api/templates/useLoadAllTemplates";
 import VideoPlayerActions from "../../components/files/VideoPlayerActions";
 import VideoPlayerAction from "../../components/files/VideoPlayerAction";
 import useAddFrameDialog from "./useAddFrameDialog";
 import useObjectsAll from "../../application/api/objects/useObjectsAll";
+import useTemplatesAll from "../../application/api/templates/useTemplatesAll";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -94,7 +94,7 @@ function VideoDetailsPage(props) {
 
   // Preload file objects and templates
   const { done: objectsLoaded } = useObjectsAll({ fileId: id });
-  const { done: templatesLoaded } = useLoadAllTemplates();
+  const { done: templatesLoaded } = useTemplatesAll();
 
   // There is nothing to show for external files.
   // Navigate to file matches if file is external.

@@ -15,7 +15,7 @@ import {
 } from "@material-ui/core";
 import useUniqueId from "../../../lib/hooks/useUniqueId";
 import TemplateIcon from "../../../components/templates/TemplateIcon/TemplateIcon";
-import useLoadAllTemplates from "../../../application/api/templates/useLoadAllTemplates";
+import useTemplatesAll from "../../../application/api/templates/useTemplatesAll";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -57,7 +57,7 @@ function TemplateFilter(props) {
   const classes = useStyles();
   const messages = useMessages();
   const labelId = useUniqueId("template-label-");
-  const { templates } = useLoadAllTemplates();
+  const { templates } = useTemplatesAll();
 
   const handleChange = useCallback(
     (event) => onChange(event.target.value),
