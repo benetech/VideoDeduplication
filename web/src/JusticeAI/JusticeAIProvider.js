@@ -8,7 +8,6 @@ import { ServerProvider } from "../server-api/context";
 import { Provider as StoreProvider } from "react-redux";
 import makeStore from "./helpers/makeStore";
 import { QueryClient, QueryClientProvider } from "react-query";
-import useHandleTaskEvents from "../application/api/tasks/useHandleTaskEvents";
 import HandleSocketEvents from "./HandleSocketEvents";
 
 /**
@@ -16,7 +15,7 @@ import HandleSocketEvents from "./HandleSocketEvents";
  */
 function JusticeAIProvider(props) {
   const { server, initialState, locale, theme, children } = props;
-  const store = useMemo(() => makeStore(initialState, server));
+  const store = useMemo(() => makeStore(initialState));
   const queryClient = props.queryClient || new QueryClient();
 
   return (

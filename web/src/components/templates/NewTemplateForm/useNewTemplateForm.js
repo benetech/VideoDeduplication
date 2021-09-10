@@ -1,7 +1,7 @@
 import { useIntl } from "react-intl";
 import nameErrorMessage from "../../../lib/messages/nameErrorMessage";
 import { useCallback, useState } from "react";
-import IconKind from "../../../application/state/templates/IconKind";
+import IconKind from "../../../prop-types/IconKind";
 import { useCreateTemplate } from "../../../application/api/templates/useTemplateAPI";
 
 /**

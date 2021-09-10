@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { DefaultTemplateFilters } from "../../state/templates/queries/initialState";
 import useTemplatesAll from "./useTemplatesAll";
+import DefaultTemplateFilters from "./helpers/DefaultTemplateFilters";
 
 /**
  * Index templates by id.

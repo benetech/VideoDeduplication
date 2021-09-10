@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@material-ui/core";
 import { useIntl } from "react-intl";
-import thumbnailURL from "../../application/state/files/helpers/thumbnailURL";
+import thumbnailURL from "../../application/api/files/helpers/thumbnailURL";
 import FileType from "../../prop-types/FileType";
 import TemplateSelect from "../../components/templates/TemplateSelect";
 import Button from "../../components/basic/Button";

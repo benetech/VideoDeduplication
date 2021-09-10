@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import IconKind from "../application/state/templates/IconKind";
+import IconKind from "./IconKind";
 
 /**
  * @typedef {{

@@ -1,4 +1,4 @@
-import thumbnailURL from "../../application/state/files/helpers/thumbnailURL";
+import thumbnailURL from "../../application/api/files/helpers/thumbnailURL";
 
 /**
  * Get seek position in milliseconds.

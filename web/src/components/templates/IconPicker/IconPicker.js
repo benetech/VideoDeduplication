@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import SelectableTabs, { SelectableTab } from "../../basic/SelectableTabs";
-import IconKind from "../../../application/state/templates/IconKind";
+import IconKind from "../../../prop-types/IconKind";
 import { useIntl } from "react-intl";
 import StandardIconPicker from "../StandardIconPicker";
 import { TemplateIconType } from "../../../prop-types/TemplateType";

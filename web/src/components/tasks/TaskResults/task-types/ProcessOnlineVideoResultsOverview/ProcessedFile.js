@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/styles";
 import ProcessedFileType from "./ProcessedFileType";
 import TimeCaption from "../../../../../pages/VideoDetailsPage/TimeCaption";
 import MediaPreview from "../../../../basic/MediaPreview";
-import thumbnailURL from "../../../../../application/state/files/helpers/thumbnailURL";
+import thumbnailURL from "../../../../../application/api/files/helpers/thumbnailURL";
 import useFile from "../../../../../application/api/files/useFile";
 import FileSummary from "../../../../files/FileSummary";
 import { CircularProgress } from "@material-ui/core";
