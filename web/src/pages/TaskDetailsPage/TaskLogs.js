@@ -62,7 +62,7 @@ function TaskLogs(props) {
       {...other}
     >
       {taskLogs.logs && <pre className={classes.logs}>{taskLogs.logs}</pre>}
-      {taskLogs.more && active && (
+      {taskLogs.hasMore && active && (
         <CircularProgress
           size={20}
           color="inherit"

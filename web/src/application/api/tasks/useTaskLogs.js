@@ -1,42 +1,33 @@
-// import { useDispatch, useSelector } from "react-redux";
-// import { selectTaskLogs } from "../../state/root/selectors";
-// import { useEffect } from "react";
-// import {
-//   setTaskLogs,
-//   subscribeForTaskLogs,
-//   unsubscribeFromTaskLogs,
-// } from "../../state/tasks/logs/actions";
-// import { useServer } from "../../../server-api/context";
-// import isActiveTask from "./helpers/isActiveTask";
-//
-// /**
-//  * Hook to get task logs.
-//  * @param {TaskEntity} task
-//  * @return {{logs: string[], more: boolean}}
-//  */
-// export default function useTaskLogs(task) {
-//   const server = useServer();
-//   const dispatch = useDispatch();
-//   const taskLogs = useSelector(selectTaskLogs);
-//
-//   // Fetch available logs
-//   useEffect(() => {
-//     if (isActiveTask(task)) {
-//       dispatch(subscribeForTaskLogs(task.id));
-//       return () => dispatch(unsubscribeFromTaskLogs(task.id));
-//     } else if (taskLogs.taskId !== task.id || taskLogs.more) {
-//       dispatch(setTaskLogs({ id: task.id, logs: null, more: true }));
-//       server.tasks
-//         .logs(task.id)
-//         .then((data) => {
-//           dispatch(setTaskLogs({ id: task.id, logs: [data], more: false }));
-//         })
-//         .catch(console.error);
-//     }
-//   }, [task.id]);
-//
-//   return {
-//     logs: taskLogs.logs || [],
-//     more: taskLogs.more,
-//   };
-// }
+import { useServer } from "../../../server-api/context";
+import { useEffect, useState } from "react";
+import isActiveTask from "./helpers/isActiveTask";
+
+/**
+ * Get task logs.
+ * @param {TaskEntity} task
+ * @return {{
+ *   logs: string[],
+ *   hasMore: boolean,
+ * }} task logs
+ */
+export default function useTaskLogs(task) {
+  const server = useServer();
+  const [logs, setLogs] = useState([]);
+
+  useEffect(() => {
+    const socket = server.socket;
+    const handleLogs = (newLogs) =>
+      setLogs((currentLogs) => [...currentLogs, newLogs.data]);
+    socket.subscribeForLogs(task.id);
+    socket.on("logs-update", handleLogs);
+    return () => {
+      socket.unsubscribeFromLogs(task.id);
+      socket.off("logs-update", handleLogs);
+    };
+  }, [task.id]);
+
+  return {
+    logs,
+    hasMore: isActiveTask(task),
+  };
+}
