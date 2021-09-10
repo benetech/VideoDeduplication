@@ -27,10 +27,15 @@ import { useEffect, useMemo } from "react";
 /**
  * Fetch all items.
  * @param {LazyQueryResults} results current paged query results
+ * @param {{
+ *   collectItems: function
+ * }} options
  * @return {EagerQueryResults}
  */
-export default function useLoadAll(results) {
-  const items = useMemo(() => [].concat(...results.pages), [results.pages]);
+export default function useLoadAll(results, options = {}) {
+  const { collectItems = (results) => [].concat(...results.pages) } = options;
+
+  const items = useMemo(() => collectItems(results), [results.pages]);
 
   useEffect(() => {
     if (results.canLoad && !results.isError) {

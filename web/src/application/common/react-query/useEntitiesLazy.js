@@ -19,31 +19,38 @@ import { useInfiniteQuery } from "react-query";
  * Use lazy infinite query.
  * @param queryKey query key
  * @param {function} fetchFn function to fetch entities
+ * @param {{
+ *   makePages: function,
+ *   getTotal: function,
+ *   getOffset: function,
+ * }} options
  * @return {{results: InfiniteQueryAPI, query: unknown}} files query.
  */
-export default function useEntitiesLazy(queryKey, fetchFn) {
+export default function useEntitiesLazy(queryKey, fetchFn, options = {}) {
+  const {
+    makePages = (query) => (query.data?.pages || []).map((page) => page.items),
+    getTotal = (query) => {
+      if (query.data?.pages?.length > 0) {
+        return query.data.pages[pages.length - 1].total;
+      }
+      return 0;
+    },
+    getOffset = (lastPage) => lastPage.request.offset + lastPage.items.length,
+  } = options;
   const query = useInfiniteQuery(queryKey, fetchFn, {
     keepPreviousData: true,
     getNextPageParam: (lastPage) => {
       if (lastPage == null) {
         return 0;
       }
-      const nextOffset = lastPage.request.offset + lastPage.items.length;
+      const nextOffset = getOffset(lastPage);
       if (nextOffset < lastPage.total) {
         return nextOffset;
       }
     },
   });
 
-  const pages = useMemo(
-    () => (query.data?.pages || []).map((page) => page.items),
-    [query.data?.pages]
-  );
-
-  let total = 0;
-  if (query.data?.pages?.length > 0) {
-    total = query.data.pages[pages.length - 1].total;
-  }
+  const pages = useMemo(() => makePages(query), [query.data?.pages]);
 
   const isLoading = query.isFetchingNextPage;
   const canLoad = query.hasNextPage && !isLoading;
@@ -51,11 +58,11 @@ export default function useEntitiesLazy(queryKey, fetchFn) {
   return {
     results: {
       pages,
-      total,
+      total: getTotal(query),
       error: query.error,
       isLoading,
       isError: query.isError,
-      hasNextPage: !!query.hasNextPage,
+      hasNextPage: !!query.hasNextPage || query.isLoading,
       fetchNextPage: query.fetchNextPage,
       refetch: query.fetchNextPage,
       canLoad,

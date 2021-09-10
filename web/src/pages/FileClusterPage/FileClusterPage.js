@@ -10,8 +10,8 @@ import FileLoadingHeader from "../../components/files/FileLoadingHeader";
 import MatchGraph from "../../components/matches/MatchGraph";
 import { useIntl } from "react-intl";
 import Loading from "../../components/basic/Loading";
-import useFileCluster from "../../application/api/file-cluster/useFileCluster";
 import { useShowCollection } from "../../routing/hooks";
+import useFileClusterAll from "../../application/api/file-cluster/useFileClusterAll";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,13 +52,13 @@ function FileClusterPage(props) {
   const { file, error, refetch: loadFile } = useFile(id);
 
   const {
-    matches,
     files,
+    matches,
     error: matchError,
     resumeLoading: loadCluster,
     hasMore,
     total,
-  } = useFileCluster({ fileId: id, filters: { hops: 2 } });
+  } = useFileClusterAll(id, { hops: 2 });
 
   const handleLoadFile = useCallback(() => {
     loadFile();

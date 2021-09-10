@@ -74,7 +74,7 @@ export default class FilesEndpoint {
    * Query file's neighbors.
    *
    * @param {ClusterOptions} options query options.
-   * @returns {Promise<{total:number, files: FileEntity[], matches: MatchEntity[]}>}
+   * @returns {Promise<ClusterResults>}
    */
   async cluster(options = {}) {
     try {
