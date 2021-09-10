@@ -59,23 +59,23 @@ function TaskSummaryHeader(props) {
   const isActive = isActiveTask(task);
   const { clickTrigger, popup } = usePopup("task-menu-");
   const handleBack = useShowProcessing();
-  const deleteTask = useDeleteTask(task, [task]);
-  const cancelTask = useCancelTask(task, [task]);
+  const deleteTask = useDeleteTask();
+  const cancelTask = useCancelTask();
 
   const handleCancel = useCallback(() => {
     popup.onClose();
-    cancelTask().catch(console.error);
-  }, [cancelTask]);
+    cancelTask(task).catch(console.error);
+  }, [task]);
 
   const handleDelete = useCallback(async () => {
     try {
       popup.onClose();
-      await deleteTask();
+      await deleteTask(task);
       handleBack();
     } catch (error) {
       console.log(error);
     }
-  }, [deleteTask]);
+  }, [task]);
 
   return (
     <Paper className={clsx(classes.header, className)} {...other}>

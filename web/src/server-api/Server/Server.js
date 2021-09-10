@@ -41,6 +41,7 @@ export default class Server {
     this._templateExclusions = new TemplateExclusionsEndpoint(this.axios);
     this._presetsEndpoint = new PresetsEndpoint(this.axios);
     this._statsEndpoint = new StatsEndpoint(this.axios);
+    this._socket = null;
   }
 
   /**
@@ -113,6 +114,23 @@ export default class Server {
    */
   get stats() {
     return this._statsEndpoint;
+  }
+
+  /**
+   * Get web-socket.
+   * @return {Socket}
+   */
+  get socket() {
+    if (this._socket == null) {
+      const socketio = io(SocketNamespace.TASKS, {
+        path: socketPath,
+      });
+      this._socket = new Socket({
+        socket: socketio,
+        transform: this.tasks.transform,
+      });
+    }
+    return this._socket;
   }
 
   /**

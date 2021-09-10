@@ -133,10 +133,7 @@ export function useUpdateTemplate() {
 export function useCreateTemplate() {
   const server = useServer();
   const mutation = useCreateEntity({
-    mutationFn: (template) => {
-      console.log("Template", template);
-      return server.templates.create(template);
-    },
+    mutationFn: (template) => server.templates.create(template),
     checkFilters,
     makeComparator,
     updateKeys: ["templates"],

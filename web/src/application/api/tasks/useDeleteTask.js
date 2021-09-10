@@ -1,32 +1,20 @@
-import { useCallback } from "react";
-import { useDispatch } from "react-redux";
 import { useServer } from "../../../server-api/context";
-import { deleteTask } from "../../state/tasks/common/actions";
-import resolveValue from "../../../lib/helpers/resolveValue";
-import handleError from "../../../lib/helpers/handleError";
-import getEntityId from "../../../lib/helpers/getEntityId";
+import { useDeleteEntity } from "../../common/react-query/useEntityMutation";
+import checkTaskFilters from "./helpers/checkTaskFilters";
+import makeTaskComparator from "./helpers/makeTaskComparator";
 
 /**
- * Reusable hook for task deletion.
- * @param {function|TaskEntity|string|number|undefined} override
- * @param {*[]} deps override dependencies
- * @param {boolean} raise if false, the callback will not throw exceptions.
+ * Get a callback to delete task.
  * @return {function}
  */
-export default function useDeleteTask(override, deps = [], raise = true) {
+export default function useDeleteTask() {
   const server = useServer();
-  const dispatch = useDispatch();
+  const mutation = useDeleteEntity({
+    mutationFn: (task) => server.tasks.delete(task),
+    checkFilters: checkTaskFilters,
+    makeComparator: makeTaskComparator,
+    updateKeys: ["tasks"],
+  });
 
-  return useCallback(
-    async (value) => {
-      try {
-        const task = resolveValue(value, override);
-        await server.tasks.delete(task);
-        dispatch(deleteTask(getEntityId(task)));
-      } catch (error) {
-        handleError(raise, error);
-      }
-    },
-    [raise, ...deps]
-  );
+  return mutation.mutateAsync;
 }

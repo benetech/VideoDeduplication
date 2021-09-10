@@ -8,6 +8,8 @@ import { ServerProvider } from "../server-api/context";
 import { Provider as StoreProvider } from "react-redux";
 import makeStore from "./helpers/makeStore";
 import { QueryClient, QueryClientProvider } from "react-query";
+import useHandleTaskEvents from "../application/api/tasks/useHandleTaskEvents";
+import HandleSocketEvents from "./HandleSocketEvents";
 
 /**
  * JusticeAI application API provider.
@@ -29,6 +31,7 @@ function JusticeAIProvider(props) {
           >
             <QueryClientProvider client={queryClient}>
               <ServerProvider server={server}>
+                <HandleSocketEvents />
                 <StoreProvider store={store}>{children}</StoreProvider>
               </ServerProvider>
             </QueryClientProvider>

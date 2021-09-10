@@ -1,31 +1,21 @@
-import { useCallback } from "react";
-import { updateTask } from "../../state/tasks/common/actions";
-import { useDispatch } from "react-redux";
 import { useServer } from "../../../server-api/context";
-import handleError from "../../../lib/helpers/handleError";
-import resolveValue from "../../../lib/helpers/resolveValue";
+import { useUpdateEntity } from "../../common/react-query/useEntityMutation";
+import checkTaskFilters from "./helpers/checkTaskFilters";
+import makeTaskComparator from "./helpers/makeTaskComparator";
 
 /**
- * Reusable hook to cancel task.
- * @param {function|TaskEntity|number|string|undefined} override
- * @param {*[]} deps override dependencies
- * @param {boolean} raise if false, the callback will not throw exceptions
+ * Get a callback to cancel task.
  * @return {function}
  */
-export default function useCancelTask(override, deps = [], raise = true) {
+export default function useCancelTask() {
   const server = useServer();
-  const dispatch = useDispatch();
+  const mutation = useUpdateEntity({
+    mutationFn: (task) => server.tasks.cancel(task),
+    checkFilters: checkTaskFilters,
+    makeComparator: makeTaskComparator,
+    updateKeys: ["tasks"],
+    optimistic: false,
+  });
 
-  return useCallback(
-    async (value) => {
-      try {
-        const task = resolveValue(value, override);
-        const cancelled = await server.tasks.cancel(task);
-        dispatch(updateTask(cancelled));
-      } catch (error) {
-        handleError(raise, error);
-      }
-    },
-    [raise, ...deps]
-  );
+  return mutation.mutateAsync;
 }

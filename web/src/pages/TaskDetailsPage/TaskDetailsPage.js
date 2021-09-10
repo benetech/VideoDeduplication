@@ -34,7 +34,7 @@ function TaskDetailsPage(props) {
   const { className, ...other } = props;
   const { id } = useParams();
   const classes = useStyles();
-  const { task, error, loadTask } = useTask(id);
+  const { task, error, refetch: loadTask } = useTask(id);
   const dummyTask = randomTask({ id, status: TaskStatus.RUNNING });
 
   if (task == null) {

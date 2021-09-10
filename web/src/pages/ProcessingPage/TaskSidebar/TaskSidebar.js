@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -7,7 +7,7 @@ import TaskList from "../../../components/tasks/TaskList";
 import { Tab } from "./tabs";
 import LoadTrigger from "../../../components/basic/LoadingTrigger/LoadTrigger";
 import { useIntl } from "react-intl";
-import useTaskQuery from "../../../application/api/tasks/useTaskQuery";
+import useTasksLazy from "../../../application/api/tasks/useTasksLazy";
 
 const useStyles = makeStyles((theme) => ({
   container: {},
@@ -45,8 +45,11 @@ function TaskSidebar(props) {
   const classes = useStyles();
   const [tab, setTab] = useState(Tab.ALL);
   const messages = useMessages();
-  const query = useTaskQuery();
-  const tasks = [...query.tasks].sort(byDate);
+  const query = useTasksLazy();
+  const tasks = useMemo(
+    () => [].concat(...query.pages).sort(byDate),
+    [query.pages]
+  );
 
   return (
     <div className={clsx(classes.container, className)} {...other}>
@@ -59,9 +62,9 @@ function TaskSidebar(props) {
             <TaskList.Item task={task} key={task.id} />
           ))}
         <LoadTrigger
-          loading={query.loading}
-          onLoad={query.load}
-          hasMore={query.hasMore}
+          loading={query.isLoading}
+          onLoad={query.fetchNextPage}
+          hasMore={query.hasNextPage}
           container={TaskList.ItemContainer}
           errorMessage={messages.loadError}
           error={query.error}

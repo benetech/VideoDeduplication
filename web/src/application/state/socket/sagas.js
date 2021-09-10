@@ -89,5 +89,5 @@ function* handleMessagesSaga(server) {
  * @param {Server} server backend API Client
  */
 export default function* socketRootSaga(server) {
-  yield fork(handleMessagesSaga, server);
+  // yield fork(handleMessagesSaga, server);
 }

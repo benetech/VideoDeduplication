@@ -165,8 +165,6 @@ export default class PagedResultsBuilder {
     const updatedItems = deleteEntityFromList(originalItems, deletedId);
     this.results = this._makeResults(updatedItems, request, total - 1);
 
-    console.log("Deleted", this.results);
-
     return this;
   }
 

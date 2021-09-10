@@ -149,7 +149,12 @@ function TemplatesPage(props) {
   const showCollection = useShowCollection();
   const { templates } = useTemplatesAll();
   const api = useTemplateAPI();
-  const matchTemplates = useRunTask({ type: TaskRequestTypes.MATCH_TEMPLATES });
+  const runTask = useRunTask();
+
+  const matchTemplates = useCallback(
+    () => runTask({ type: TaskRequestTypes.MATCH_TEMPLATES }),
+    []
+  );
 
   const showTemplateDialog = useCallback(() => setShowNewTemplateDialog(true));
   const hideTemplateDialog = useCallback(() => setShowNewTemplateDialog(false));

@@ -119,21 +119,21 @@ function TaskListItem(props) {
   const Icon = getStatusIcon(task.status);
   const running = task.status === TaskStatus.RUNNING;
   const { clickTrigger, popup } = usePopup("task-menu-");
-  const deleteTask = useDeleteTask(task, [task]);
-  const cancelTask = useCancelTask(task, [task]);
+  const deleteTask = useDeleteTask();
+  const cancelTask = useCancelTask();
 
   const showLogs = useShowLogs(task, [task]);
   const showTask = useShowTask(task, [task]);
 
   const handleCancel = useCallback(() => {
     popup.onClose();
-    cancelTask().catch(console.error);
-  }, [cancelTask]);
+    cancelTask(task).catch(console.error);
+  }, [task]);
 
   const handleDelete = useCallback(() => {
     popup.onClose();
-    deleteTask().catch(console.error);
-  }, [deleteTask]);
+    deleteTask(task).catch(console.error);
+  }, [task]);
 
   return (
     <div className={clsx(classes.task, className)} {...other}>

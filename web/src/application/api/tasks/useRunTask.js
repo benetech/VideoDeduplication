@@ -1,23 +1,21 @@
 import { useServer } from "../../../server-api/context";
-import { useDispatch } from "react-redux";
-import { useCallback } from "react";
-import resolveValue from "../../../lib/helpers/resolveValue";
-import { updateTask } from "../../state/tasks/common/actions";
+import { useCreateEntity } from "../../common/react-query/useEntityMutation";
+import checkTaskFilters from "./helpers/checkTaskFilters";
+import makeTaskComparator from "./helpers/makeTaskComparator";
 
 /**
  * Get callback to run tasks.
- * @param {function|TaskRequest|undefined} override task
- * @param deps override's dependencies
  * @return {(function(*): Promise<TaskEntity>)}
  */
-export default function useRunTask(override, deps = []) {
+export default function useRunTask() {
   const server = useServer();
-  const dispatch = useDispatch();
+  const mutation = useCreateEntity({
+    mutationFn: (request) => server.tasks.create(request),
+    checkFilters: checkTaskFilters,
+    makeComparator: makeTaskComparator,
+    updateKeys: ["tasks"],
+    optimistic: false,
+  });
 
-  return useCallback(async (value) => {
-    const request = resolveValue(value, override);
-    const task = await server.tasks.create(request);
-    dispatch(updateTask(task));
-    return task;
-  }, deps);
+  return mutation.mutateAsync;
 }
