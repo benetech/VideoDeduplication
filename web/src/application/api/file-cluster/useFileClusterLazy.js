@@ -34,7 +34,7 @@ export default function useFileClusterLazy(fileId, filters, options = {}) {
   const server = useServer();
   const { limit = 100, fields = ["meta", "exif"] } = options;
 
-  const { results, query } = useEntitiesLazy(
+  const { results } = useEntitiesLazy(
     ["files/cluster", fileId, { filters, limit, fields }],
     ({ pageParam: offset = 0 }) =>
       server.files.cluster({ fileId, filters, limit, offset, fields }),

@@ -67,6 +67,7 @@ IconSelectOption.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]),
+  "aria-label": PropTypes.string,
   className: PropTypes.string,
 };
 

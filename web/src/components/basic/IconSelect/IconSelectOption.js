@@ -64,6 +64,7 @@ IconSelectOption.propTypes = {
    * Value represented by the option
    */
   value: PropTypes.any,
+  "aria-label": PropTypes.string,
   className: PropTypes.string,
 };
 

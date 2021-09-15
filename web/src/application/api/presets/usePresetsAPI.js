@@ -49,12 +49,11 @@ export function useUpdatePreset() {
 
 /**
  * Get a callback to create preset.
- * @param {MutationOptions} options
  * @return {{
  *   createPreset: function
  * }}
  */
-export function useCreatePreset(options = {}) {
+export function useCreatePreset() {
   const server = useServer();
   const mutation = useCreateEntity({
     mutationFn: (preset) => server.presets.create(preset),
@@ -71,12 +70,11 @@ export function useCreatePreset(options = {}) {
 
 /**
  * Get a callback to delete preset.
- * @param {MutationOptions} options
  * @return {{
  *   deletePreset: function
  * }}
  */
-export function useDeletePreset(options = {}) {
+export function useDeletePreset() {
   const server = useServer();
 
   const mutation = useDeleteEntity({

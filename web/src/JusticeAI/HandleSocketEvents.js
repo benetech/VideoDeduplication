@@ -1,4 +1,3 @@
-import React from "react";
 import PropTypes from "prop-types";
 import useHandleTaskEvents from "../application/api/tasks/useHandleTaskEvents";
 
