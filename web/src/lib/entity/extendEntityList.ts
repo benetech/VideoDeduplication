@@ -1,14 +1,10 @@
-/**
- * @typedef {{id}} Entity database entity with id
- */
+import { Entity } from "./Entity";
 
 /**
  * Get set of entity ids.
- * @param {Entity[]} entities
- * @return {Set}
  */
-function ids(entities) {
-  const result = new Set();
+function ids<E extends Entity>(entities: E[]): Set<E["id"]> {
+  const result = new Set<E["id"]>();
   for (let entity of entities) {
     result.add(entity.id);
   }
@@ -17,11 +13,9 @@ function ids(entities) {
 
 /**
  * Index entities by id.
- * @param {Entity[]} entities array of entities to be indexed
- * @return {Map} mapping id -> entity
  */
-function indexEntities(entities) {
-  const index = new Map();
+function indexEntities<E extends Entity>(entities: E[]): Map<E["id"], E> {
+  const index = new Map<E["id"], E>();
   for (let entity of entities) {
     index.set(entity.id, entity);
   }
@@ -30,17 +24,17 @@ function indexEntities(entities) {
 
 /**
  * Add new entities to the entity array.
- * @param {Entity[]} existing Array of existing entities.
- * @param {Entity[]} loaded The new entities that should be added.
- * @returns {Entity[]} The updated mapping.
  */
-export default function extendEntityList(existing, loaded) {
+export default function extendEntityList<E extends Entity>(
+  existing: E[],
+  loaded: E[]
+): E[] {
   const existingIds = ids(existing);
   const loadedIndex = indexEntities(loaded);
   const newEntities = loaded.filter((item) => !existingIds.has(item.id));
   const updatedEntities = existing.map((entity) => {
     if (loadedIndex.has(entity.id)) {
-      return loadedIndex.get(entity.id);
+      return loadedIndex.get(entity.id) as E;
     }
     return entity;
   });

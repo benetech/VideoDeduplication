@@ -42,14 +42,14 @@ export enum ErrorCode {
 }
 
 class ServerError<Data = Json> extends Error {
-  public readonly cause: Error;
+  public readonly cause: Error | null;
   public readonly code: number;
   public readonly data?: Data;
   public readonly request: any;
 
   public static readonly Code = ErrorCode;
 
-  constructor(message: string, cause: Error, request: any) {
+  constructor(message: string, cause: Error | null, request: any) {
     super(ServerError.errorMessage(cause, message));
     this.cause = cause;
     this.code = ServerError.errorCode(cause);
@@ -57,9 +57,10 @@ class ServerError<Data = Json> extends Error {
     if (axios.isAxiosError(cause)) {
       this.data = cause.response?.data;
     }
+    Object.setPrototypeOf(this, ServerError.prototype);
   }
 
-  private static errorCode(error: Error) {
+  private static errorCode(error: Error | null) {
     if (axios.isAxiosError(error)) {
       const response = error.response;
       switch (response?.status) {
@@ -79,7 +80,7 @@ class ServerError<Data = Json> extends Error {
   /**
    * Compose error message.
    */
-  private static errorMessage(error?: Error, message?: string): string {
+  private static errorMessage(error: Error | null, message?: string): string {
     if (error?.message == null) {
       return message || "Unknown error";
     }
@@ -109,6 +110,7 @@ export class ValidationError extends ServerError<ValidationErrorDTO> {
   ) {
     super(message, cause, request);
     this.fields = this.resolveFields(fields);
+    Object.setPrototypeOf(this, ValidationError.prototype);
   }
 
   private resolveFields(fields?: FieldErrors): FieldErrors {
@@ -148,11 +150,14 @@ export class ValidationError extends ServerError<ValidationErrorDTO> {
  */
 export function makeServerError(
   message: string,
-  cause: Error,
+  cause: Error | unknown,
   request: any
 ): ServerError {
   if (axios.isAxiosError(cause) && isValidationErrorDTO(cause.response?.data)) {
     return new ValidationError(message, cause, request);
+  } else if (cause instanceof Error) {
+    return new ServerError(message, cause, request);
+  } else {
+    return new ServerError(message, null, request);
   }
-  return new ServerError(message, cause, request);
 }

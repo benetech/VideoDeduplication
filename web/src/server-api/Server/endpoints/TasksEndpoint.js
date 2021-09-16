@@ -1,6 +1,6 @@
 import { makeServerError } from "../ServerError";
 import TasksTransformer from "./transformers/TasksTransformer";
-import getEntityId from "../../../lib/helpers/getEntityId";
+import getEntityId from "../../../lib/entity/getEntityId";
 
 /**
  * Client for tasks API endpoint.

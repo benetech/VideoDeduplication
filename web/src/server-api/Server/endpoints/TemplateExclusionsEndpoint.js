@@ -1,6 +1,6 @@
 import { makeServerError } from "../ServerError";
 import TemplateExclusionsTransformer from "./transformers/TemplateExclusionsTransformer";
-import getEntityId from "../../../lib/helpers/getEntityId";
+import getEntityId from "../../../lib/entity/getEntityId";
 
 /**
  * Client for template exclusions API endpoint.

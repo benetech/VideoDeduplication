@@ -1,6 +1,9 @@
 import lodash from "lodash";
 import { useMemo } from "react";
 
-export default function useUniqueId(prefix = "") {
+/**
+ * Get unique identifier.
+ */
+export default function useUniqueId(prefix: string = ""): string {
   return useMemo(() => lodash.uniqueId(prefix), []);
 }

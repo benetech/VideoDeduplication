@@ -1,9 +1,16 @@
+import React from "react";
+
+type ScrollOptions = {
+  smooth?: boolean;
+};
+
 /**
  * Scroll the referenced component into view.
- * @param ref
- * @param {Object} options
  */
-export function scrollIntoView(ref, options = {}) {
+export function scrollIntoView(
+  ref: React.MutableRefObject<any>,
+  options: ScrollOptions = {}
+) {
   const { smooth = true } = options;
   if (ref == null || ref.current == null) {
     return;

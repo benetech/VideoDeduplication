@@ -1,4 +1,4 @@
-import { VideoFile } from "./File";
+import { VideoFile } from "./VideoFile";
 
 /**
  * Template query filters.

@@ -1,6 +1,6 @@
 import { makeServerError } from "../ServerError";
 import PresetsTransformer from "./transformers/PresetsTransformer";
-import getEntityId from "../../../lib/helpers/getEntityId";
+import getEntityId from "../../../lib/entity/getEntityId";
 
 /**
  * Client for presets API endpoint.

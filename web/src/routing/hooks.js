@@ -2,7 +2,7 @@ import lodash from "lodash";
 import { useHistory } from "react-router-dom";
 import { useCallback } from "react";
 import { routes } from "./routes";
-import getEntityId from "../lib/helpers/getEntityId";
+import getEntityId from "../lib/entity/getEntityId";
 import resolveValue from "../lib/helpers/resolveValue";
 
 /**

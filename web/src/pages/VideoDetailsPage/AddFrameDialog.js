@@ -14,7 +14,7 @@ import FileType from "../../prop-types/FileType";
 import TemplateSelect from "../../components/templates/TemplateSelect";
 import Button from "../../components/basic/Button";
 import { useCreateExampleFromFrame } from "../../application/api/templates/useTemplateAPI";
-import indexEntities from "../../application/common/helpers/indexEntities";
+import indexEntities from "../../lib/entity/indexEntities";
 import SelectableTabs, {
   SelectableTab,
 } from "../../components/basic/SelectableTabs";

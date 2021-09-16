@@ -1,6 +1,6 @@
-import extendEntityList from "../helpers/extendEntityList";
-import getEntityId from "../../../lib/helpers/getEntityId";
-import deleteEntityFromList from "../helpers/deleteEntityFromList";
+import extendEntityList from "../../../lib/entity/extendEntityList";
+import getEntityId from "../../../lib/entity/getEntityId";
+import deleteEntityFromList from "../../../lib/entity/deleteEntityFromList";
 
 /**
  * @typedef {{

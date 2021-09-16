@@ -1,4 +1,4 @@
-import { FileFilters } from "./File";
+import { FileFilters } from "./VideoFile";
 
 /**
  * Preset query filters.

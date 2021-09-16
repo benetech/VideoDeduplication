@@ -1,9 +1,9 @@
+import FilesTransformer from "./FilesTransformer";
+import getEntityId from "../../../../lib/entity/getEntityId";
+
 /**
  * Templates API args & results transformer.
  */
-import FilesTransformer from "./FilesTransformer";
-import getEntityId from "../../../../lib/helpers/getEntityId";
-
 export default class TemplatesTransformer {
   constructor(fileTransform) {
     this.fileTransform = fileTransform || new FilesTransformer();

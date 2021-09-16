@@ -1,4 +1,20 @@
-export function parseDuration(duration) {
+/**
+ * Parsed duration.
+ */
+import { IntlShape } from "react-intl";
+
+export type ParsedDuration = {
+  millis: number;
+  seconds: number;
+  minutes: number;
+  hours: number;
+};
+
+/**
+ * Parse duration milliseconds
+ * @param duration duration in milliseconds
+ */
+export function parseDuration(duration: number): ParsedDuration {
   const millis = Math.floor(duration % 1000);
   const seconds = Math.floor((duration % (1000 * 60)) / 1000);
   const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
@@ -6,11 +22,24 @@ export function parseDuration(duration) {
   return { millis, seconds, minutes, hours };
 }
 
-function pad(time) {
+/**
+ * Pad number to two-digit format.
+ */
+function pad(time: number): string {
   return String(time).padStart(2, "0");
 }
 
-export function formatDuration(duration, intl, showUnits = true) {
+/**
+ * Format duration.
+ * @param duration duration in milliseconds.
+ * @param intl
+ * @param showUnits
+ */
+export function formatDuration(
+  duration: number,
+  intl: IntlShape,
+  showUnits: boolean = true
+): string {
   const t = parseDuration(duration);
   if (t.hours > 0) {
     if (showUnits) {
@@ -28,7 +57,13 @@ export function formatDuration(duration, intl, showUnits = true) {
   }
 }
 
-export function formatDate(date, intl) {
+/**
+ * Format date according to the locale.
+ */
+export function formatDate(
+  date: Date | null,
+  intl: IntlShape
+): string | undefined {
   if (date == null) {
     return;
   }
@@ -39,14 +74,20 @@ export function formatDate(date, intl) {
   });
 }
 
-export function formatBool(value, intl) {
+/**
+ * Format boolean value.
+ */
+export function formatBool(value: any, intl: IntlShape): string {
   const messageID = value ? "value.bool.true" : "value.bool.false";
   return intl.formatMessage({ id: messageID });
 }
 
-export function formatCount(count) {
+/**
+ * Format potentially large count.
+ */
+export function formatCount(count: number): string {
   if (count < 1e3) {
-    return count;
+    return `${count}`;
   }
   if (count < 1e6) {
     return `${Math.round(count / 1e3)}K+`;

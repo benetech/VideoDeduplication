@@ -1,4 +1,4 @@
-import getEntityId from "../../../../lib/helpers/getEntityId";
+import getEntityId from "../../../../lib/entity/getEntityId";
 
 /**
  * Get file thumbnail URL.

@@ -2,6 +2,7 @@
  * File cluster query filters.
  */
 export type ClusterFilters = {
+  fileId: number;
   hops?: number;
   minDistance?: number;
   maxDistance?: number;
@@ -94,6 +95,14 @@ export type Scene = {
   preview: string;
   /** Scene start time position */
   position: number;
+};
+
+/**
+ * Video frame descriptor.
+ */
+export type FrameDescriptor = {
+  file: VideoFile;
+  time: number;
 };
 
 /**

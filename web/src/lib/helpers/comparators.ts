@@ -1,13 +1,10 @@
-import getEntityId from "./getEntityId";
+import getEntityId from "../entity/getEntityId";
+import { Entity } from "../entity/Entity";
 
 /**
  * String sort comparator.
- *
- * @param {string} first
- * @param {string} second
- * @return {number}
  */
-export function stringComparator(first, second) {
+export function stringComparator(first: string, second: string): number {
   if (first > second) {
     return 1;
   } else if (first < second) {
@@ -19,11 +16,11 @@ export function stringComparator(first, second) {
 
 /**
  * Compare two entities by ids.
- * @param {Entity} entityA
- * @param {Entity} entityB
- * @return {number}
  */
-export function idComparator(entityA, entityB) {
+export function idComparator(
+  entityA: Entity | Entity["id"],
+  entityB: Entity | Entity["id"]
+): number {
   const a = getEntityId(entityA);
   const b = getEntityId(entityB);
   if (a > b) {

@@ -1,6 +1,6 @@
 import TemplatesTransformer from "./transformers/TemplatesTransformer";
 import { makeServerError } from "../ServerError";
-import getEntityId from "../../../lib/helpers/getEntityId";
+import getEntityId from "../../../lib/entity/getEntityId";
 
 export default class TemplateMatchesEndpoint {
   constructor(axios, transform) {
