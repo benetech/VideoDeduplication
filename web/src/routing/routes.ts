@@ -1,3 +1,6 @@
+import { Task } from "../model/Task";
+import { VideoFile } from "../model/VideoFile";
+
 export const routes = {
   home: "/",
   analytics: {
@@ -8,31 +11,34 @@ export const routes = {
 
     // Fingerprints Pages
 
-    get fingerprints() {
+    get fingerprints(): string {
       return `${this.home}/fingerprints`;
     },
-    get file() {
+    get file(): string {
       return `${this.fingerprints}/:id`;
     },
-    get fileMatches() {
+    get fileMatches(): string {
       return `${this.file}/matches`;
     },
-    get fileCluster() {
+    get fileCluster(): string {
       return `${this.file}/cluster`;
     },
-    get fileComparison() {
+    get fileComparison(): string {
       return `${this.file}/compare/:matchFileId?`;
     },
-    fileURL(id) {
+    fileURL(id: VideoFile["id"] | string): string {
       return `${this.fingerprints}/${id}`;
     },
-    fileMatchesURL(id) {
+    fileMatchesURL(id: VideoFile["id"] | string): string {
       return `${this.fileURL(id)}/matches`;
     },
-    fileClusterURL(id) {
+    fileClusterURL(id: VideoFile["id"] | string): string {
       return `${this.fileURL(id)}/cluster`;
     },
-    fileComparisonURL(id, matchFileId = "") {
+    fileComparisonURL(
+      id: VideoFile["id"] | string,
+      matchFileId: VideoFile["id"] | string = ""
+    ): string {
       return `${this.fileURL(id)}/compare/${matchFileId}`;
     },
   },
@@ -48,19 +54,19 @@ export const routes = {
   processing: {
     home: "/processing",
 
-    get task() {
+    get task(): string {
       return `${this.home}/tasks/:id`;
     },
 
-    taskURL(id) {
+    taskURL(id: Task["id"]): string {
       return `${this.home}/tasks/${id}`;
     },
 
-    get taskLogs() {
+    get taskLogs(): string {
       return `${this.task}/logs`;
     },
 
-    taskLogsURL(id) {
+    taskLogsURL(id: Task["id"]): string {
       return `${this.taskURL(id)}/logs`;
     },
   },

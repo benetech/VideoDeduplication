@@ -28,4 +28,7 @@ const dimensions = {
   },
 };
 
+export type Dimensions = typeof dimensions;
+export type DimensionOptions = Partial<Dimensions>;
+
 export default dimensions;

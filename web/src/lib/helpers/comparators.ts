@@ -31,3 +31,5 @@ export function idComparator(
     return 0;
   }
 }
+
+export type ComparatorFn<T> = (first: T, second: T) => number;

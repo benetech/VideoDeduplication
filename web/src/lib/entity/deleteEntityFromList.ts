@@ -6,7 +6,7 @@ import getEntityId from "./getEntityId";
  */
 export default function deleteEntityFromList<E extends Entity>(
   entities: E[],
-  entity: E
+  entity: E | E["id"]
 ): E[] {
   const deletedId = getEntityId(entity);
   return entities.filter((entity) => entity.id !== deletedId);

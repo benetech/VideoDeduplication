@@ -4,7 +4,7 @@ import lodash from "lodash";
  * Entity is an application-level object with identity.
  */
 export type Entity = {
-  id: number;
+  id: number | string;
 };
 
 /**
@@ -32,5 +32,5 @@ export function isEntity(value: any): value is Entity {
  * @param value value which type will be verified.
  */
 export function isEntityId(value: any): value is Entity["id"] {
-  return lodash.isFinite(value);
+  return lodash.isFinite(value) || typeof value === "string";
 }

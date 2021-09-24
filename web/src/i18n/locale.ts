@@ -7,17 +7,28 @@ import zn from "./locales/zn.json";
 import { getUserLocales } from "get-user-locale";
 import * as HttpStatus from "http-status-codes";
 import axios from "axios";
+import { TextAttributes } from "../lib/types/TextAttributes";
 
-function staticLoad(data) {
+export type LocaleData = {
+  locale: string;
+  messages: TextAttributes;
+};
+
+export type LocaleLoader = {
+  name: string;
+  load: () => Promise<LocaleData>;
+};
+
+function staticLoad(data: LocaleData): () => Promise<LocaleData> {
   return async () => data;
 }
 
-function dynamicLoad(resource) {
-  return async function () {
-    const response = await axios.get(resource);
+function dynamicLoad(resource: string): () => Promise<LocaleData> {
+  return async () => {
+    const response = await axios.get<LocaleData>(resource);
     if (response.status !== HttpStatus.OK) {
       throw new Error(
-        `Error loading locale ${this.name}: ${response.statusText}`
+        `Error loading locale ${resource}: ${response.statusText}`
       );
     }
     return response.data;
@@ -32,32 +43,35 @@ const languagePattern = /^(?<language>[a-zA-Z]+)[-_]?/;
 /**
  * Default locale
  */
-const defaultLocale = { name: "en-US", load: staticLoad(enUS) };
+const defaultLocale: LocaleLoader = { name: "en-US", load: staticLoad(enUS) };
 
 /**
  * Available locales
  */
-const availableLocales = [
+const availableLocales: LocaleLoader[] = [
   defaultLocale,
-  { name: "ar-AE", load: dynamicLoad(arAE) },
-  { name: "el-GR", load: dynamicLoad(elGR) },
-  { name: "he-IL", load: dynamicLoad(heIL) },
-  { name: "ru-RU", load: dynamicLoad(ruRU) },
-  { name: "zn", load: dynamicLoad(zn) },
+  { name: "ar-AE", load: staticLoad(arAE) },
+  { name: "el-GR", load: staticLoad(elGR) },
+  { name: "he-IL", load: staticLoad(heIL) },
+  { name: "ru-RU", load: staticLoad(ruRU) },
+  { name: "zn", load: staticLoad(zn) },
 ];
 
 /**
  * Parse locale identifier and return language name.
  */
-function getLanguage(localeIdentifier) {
+function getLanguage(localeIdentifier: string): string | undefined {
   const match = languagePattern.exec(localeIdentifier);
-  return match && match.groups.language;
+  return match?.groups?.language;
 }
 
 /**
  * Retrieve best fit from the available locales.
  */
-function selectLocale(wanted, available) {
+function selectLocale(
+  wanted: string,
+  available: LocaleLoader[]
+): LocaleLoader | undefined {
   // Find exact match
   const exact = available.find((locale) => locale.name === wanted);
   if (exact != null) {
@@ -69,7 +83,10 @@ function selectLocale(wanted, available) {
   return available.find((locale) => getLanguage(locale.name) === language);
 }
 
-function resolveLocale(preferred, available) {
+function resolveLocale(
+  preferred: string[],
+  available: LocaleLoader[]
+): LocaleLoader {
   for (let locale of preferred) {
     const found = selectLocale(locale, available);
     if (found != null) {
@@ -79,6 +96,6 @@ function resolveLocale(preferred, available) {
   return defaultLocale;
 }
 
-export function detectLocale() {
+export function detectLocale(): LocaleLoader {
   return resolveLocale(getUserLocales(), availableLocales);
 }

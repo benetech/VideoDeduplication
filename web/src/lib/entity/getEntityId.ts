@@ -14,6 +14,6 @@ export default function getEntityId<E extends Entity>(
   } else if (isEntity(value)) {
     return value.id;
   } else {
-    throw new Error(`Invalid entity identifier: ${value}`);
+    throw new Error(`Invalid entity identifier: ${JSON.stringify(value)}`);
   }
 }

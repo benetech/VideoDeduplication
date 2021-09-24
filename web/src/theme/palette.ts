@@ -1,8 +1,41 @@
 import { colors } from "@material-ui/core";
+import {
+  Palette,
+  PaletteOptions,
+} from "@material-ui/core/styles/createPalette";
+
+// Material-UI interface augmentation for custom style properties.
+declare module "@material-ui/core/styles/createPalette" {
+  interface TypeAction {
+    textInactive: string;
+  }
+
+  interface TypeBackground {
+    backdrop: string;
+  }
+
+  interface Palette {
+    white: string;
+    dividerLight: string;
+    backgroundInactive: string;
+    border: {
+      light: string;
+    };
+  }
+
+  interface PaletteOptions {
+    white?: string;
+    dividerLight?: string;
+    backgroundInactive?: string;
+    border?: {
+      light?: string;
+    };
+  }
+}
 
 const white = "#FFFFFF";
 
-const palette = {
+const palette: PaletteOptions = {
   white,
   divider: "#979797",
   dividerLight: "#D8D8D8",
@@ -39,5 +72,7 @@ const palette = {
     backdrop: "rgba(249, 251, 251, 0.8)",
   },
 };
+
+export type JusticeAIPalette = Palette & typeof palette;
 
 export default palette;

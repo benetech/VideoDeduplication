@@ -1,7 +1,37 @@
+import { MixinsOptions } from "@material-ui/core/styles/createMixins";
+import { CSSProperties } from "@material-ui/core/styles/withStyles";
+
+// Material-UI interface augmentation for custom style properties.
+declare module "@material-ui/core/styles/createMixins" {
+  interface Mixins {
+    drawer: CSSProperties;
+    title0: CSSProperties;
+    title1: CSSProperties;
+    title2: CSSProperties;
+    title3: CSSProperties;
+    title4: CSSProperties;
+    title5: CSSProperties;
+    textEllipsisStart: CSSProperties;
+    textEllipsis: CSSProperties;
+    captionText: CSSProperties;
+    valueNormal: CSSProperties;
+    valueHighlighted: CSSProperties;
+    valueNormalSmall: CSSProperties;
+    navlink: CSSProperties;
+    navlinkSmall: CSSProperties;
+    navlinkLarge: CSSProperties;
+    text: CSSProperties;
+    textSmall: CSSProperties;
+    descriptionText: CSSProperties;
+    panel: CSSProperties;
+    noselect: CSSProperties;
+  }
+}
+
 /**
  * Reusable style mixins (presets).
  */
-const mixins = {
+const mixins: MixinsOptions = {
   drawer: { width: 261 },
   title0: {
     height: 62,
