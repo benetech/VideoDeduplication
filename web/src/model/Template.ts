@@ -56,6 +56,7 @@ export type TemplateExample = {
   id: number;
   url: string;
   templateId: number;
+  template?: Template;
 };
 
 /**

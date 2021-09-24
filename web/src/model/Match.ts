@@ -1,4 +1,4 @@
-import { VideoFile } from "./VideoFile";
+import { MatchCategory, VideoFile } from "./VideoFile";
 
 /**
  * File match query filters.
@@ -33,18 +33,8 @@ export type Match = {
 };
 
 /**
- * File categories by match distances.
- */
-export enum MatchCategory {
-  all = "all",
-  duplicates = "duplicates",
-  related = "related",
-  unique = "unique",
-}
-
-/**
  * Count of matched files by category.
  */
 export type MatchCounts = {
-  [Field in keyof MatchCategory]: number;
+  [category in MatchCategory]: number;
 };

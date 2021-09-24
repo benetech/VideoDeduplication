@@ -1,11 +1,11 @@
-import { JsonObject } from "../lib/Json";
+import { JsonObject } from "../lib/types/Json";
 
 /**
  * Task query filters.
  */
 export type TaskFilters = {
-  status: TaskStatus[];
-  type: TaskRequestType[];
+  status?: TaskStatus[];
+  type?: TaskRequestType[];
 };
 
 /**
@@ -22,7 +22,7 @@ export enum TaskRequestType {
 /**
  * Background task request.
  */
-export type TaskRequest = {
+export type TypedTaskRequest = {
   type: TaskRequestType;
 };
 
@@ -36,7 +36,80 @@ export type TaskConfig = {
   darkThreshold?: number;
   minDuration?: number;
   extensions?: string[];
+  saveFrames?: boolean;
 };
+
+/**
+ * Base type for most of the task requests.
+ */
+export type BaseTaskRequest = TypedTaskRequest & TaskConfig;
+
+export type ProcessDirectoryRequest = BaseTaskRequest & {
+  type: TaskRequestType.DIRECTORY;
+  directory: string;
+};
+
+export type ProcessFileListRequest = BaseTaskRequest & {
+  type: TaskRequestType.FILE_LIST;
+  files: string[];
+};
+
+export type MatchTemplatesRequest = BaseTaskRequest & {
+  type: TaskRequestType.MATCH_TEMPLATES;
+  templateDistance?: number;
+  templateDistanceMin?: number;
+};
+
+export type FindFrameRequest = BaseTaskRequest & {
+  type: TaskRequestType.FIND_FRAME;
+  fileId: number;
+  frameTimeMillis: number;
+  directory?: string;
+  templateDistance?: number;
+  templateDistanceMin?: number;
+};
+
+export type ProcessOnlineVideoRequest = BaseTaskRequest & {
+  type: TaskRequestType.PROCESS_ONLINE_VIDEO;
+  urls: string[];
+  destinationTemplate?: string;
+};
+
+export type TaskRequest =
+  | ProcessDirectoryRequest
+  | ProcessFileListRequest
+  | MatchTemplatesRequest
+  | FindFrameRequest
+  | ProcessOnlineVideoRequest;
+
+export type FileCount = {
+  templateId: number;
+  fileCount: number;
+};
+
+export type FoundFrame = {
+  fileId: number;
+  startMs: number;
+  endMs: number;
+};
+
+export type ProcessedFile = {
+  id: number;
+  path: string;
+};
+
+export type ProcessDirectoryResult = undefined;
+export type ProcessFileListResult = undefined;
+export type MatchTemplatesResult = { fileCounts: FileCount[] };
+export type FindFrameResult = { matches: FoundFrame[] };
+export type ProcessOnlineVideoResult = { files: ProcessedFile[] };
+
+export type TaskResult =
+  | ProcessDirectoryResult
+  | ProcessFileListResult
+  | MatchTemplatesResult
+  | FindFrameResult
+  | ProcessOnlineVideoResult;
 
 /**
  * Possible tasks statuses.
@@ -63,11 +136,13 @@ export type TaskError = {
  * Background task.
  */
 export type Task = {
-  id: number;
+  id: string;
   submissionTime: Date;
   statusUpdateTime: Date;
   status: TaskStatus;
   request: TaskRequest;
   error?: TaskError;
+  progress?: number;
   raw: JsonObject;
+  result?: TaskResult | null;
 };
