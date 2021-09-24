@@ -6,8 +6,13 @@ import {
   FrameDescriptor,
   VideoFile,
 } from "../model/VideoFile";
-import { Match, MatchCounts } from "../model/Match";
-import { Task, TaskFilters, TaskRequest } from "../model/Task";
+import {
+  FileMatch,
+  Match,
+  MatchCounts,
+  MatchQueryFilter,
+} from "../model/Match";
+import { Task, TaskFilters, TypedTaskRequest } from "../model/Task";
 import {
   Template,
   TemplateExample,
@@ -19,33 +24,53 @@ import {
   TemplateMatchFilters,
 } from "../model/Template";
 import { SocketAPI } from "./SocketAPI";
+import { ExtensionsStats } from "../model/Stats";
 
 /**
- * Generic params to list multiple entities.
+ * Generic request to list multiple entities.
  */
-export type ListParams<Filters> = {
-  limit?: number;
-  offset?: number;
-  fields?: string[];
-  filters?: Filters;
+export type ListRequest<Filters> = {
+  limit: number;
+  offset: number;
+  fields: string[];
+  filters: Filters;
+};
+
+/**
+ * Generic options to list multiple entities.
+ */
+export type ListOptions<Filters> = Partial<ListRequest<Filters>>;
+
+/**
+ * The most common list results attributes.
+ */
+export type BaseListResults<Filters = unknown> = {
+  request: ListRequest<Filters>;
+  total: number;
 };
 
 /**
  * List entities results.
  */
-export type ListResults<T, Filters> = {
-  request: ListParams<Filters>;
-  total: number;
-  items: T[];
+export type ListResults<
+  E extends Entity,
+  Filters = unknown
+> = BaseListResults<Filters> & {
+  items: E[];
 };
 
 /**
  * Reusable type for read-only API endpoint.
  */
 export interface ReadOnlyEndpoint<E extends Entity, Filters> {
-  get(id: E["id"]): Promise<E>;
-  list(params?: ListParams<Filters>): Promise<ListResults<E, Filters>>;
+  get(id: E["id"], fields?: string[]): Promise<E>;
+  list(params?: ListOptions<Filters>): Promise<ListResults<E, Filters>>;
 }
+
+/**
+ * Alias for tasks query results.
+ */
+export type ListTasksResults = ListResults<Task, TaskFilters>;
 
 /**
  * Read/write API endpoint.
@@ -64,41 +89,65 @@ export type ListFilesResults = ListResults<VideoFile, FileFilters> & {
   counts: MatchCounts;
 };
 
+export type QueryClusterOptions = ListOptions<ClusterFilters> & {
+  fileId: number;
+};
+
+export type QueryClusterRequest = ListRequest<ClusterFilters> & {
+  fileId: number;
+};
+
 /**
  * Query file cluster results.
  */
-export type QueryClusterResults = {
-  request: ListParams<ClusterFilters>;
-  total: number;
+export type QueryClusterResults = BaseListResults<ClusterFilters> & {
+  request: QueryClusterRequest;
   files: VideoFile[];
   matches: Match[];
+};
+
+export type QueryFileMatchesOptions = ListOptions<MatchQueryFilter> & {
+  fileId: number;
+};
+
+export type QueryFileMatchesRequest = ListRequest<MatchQueryFilter> & {
+  fileId: number;
+};
+
+export type QueryFileMatchesResults = ListResults<
+  FileMatch,
+  MatchQueryFilter
+> & {
+  request: QueryFileMatchesRequest;
 };
 
 /**
  * Files API endpoint.
  */
 export interface FilesAPI extends ReadOnlyEndpoint<VideoFile, FileFilters> {
-  list(params?: ListParams<FileFilters>): Promise<ListFilesResults>;
-  cluster(params?: ListParams<FileFilters>): Promise<QueryClusterResults>;
+  list(params?: ListOptions<FileFilters>): Promise<ListFilesResults>;
+  cluster(params?: QueryClusterOptions): Promise<QueryClusterResults>;
+  matches(params?: QueryFileMatchesOptions): Promise<QueryFileMatchesResults>;
+  probeVideo(id: number): Promise<void>;
 }
 
 /**
  * Matches API endpoint.
  */
 export interface MatchesAPI {
-  update(entity: Updates<Match>): Promise<Match>;
+  update(match: Updates<FileMatch> | Updates<Match>): Promise<Match>;
 }
 
 /**
  * Presets API endpoint.
  */
-export type PresetsAPI = Endpoint<Preset, PresetFilters>;
+export interface PresetsAPI extends Endpoint<Preset, PresetFilters> {}
 
 /**
  * Tasks API endpoint.
  */
 export interface TasksAPI extends ReadOnlyEndpoint<Task, TaskFilters> {
-  create(request: TaskRequest): Promise<Task>;
+  create(request: TypedTaskRequest): Promise<Task>;
   delete(task: Task | Task["id"]): Promise<void>;
   cancel(task: Task | Task["id"]): Promise<Task>;
   logs(task: Task | Task["id"]): Promise<string>;
@@ -107,7 +156,7 @@ export interface TasksAPI extends ReadOnlyEndpoint<Task, TaskFilters> {
 /**
  * Templates API endpoint.
  */
-export type TemplatesAPI = Endpoint<Template, TemplateFilters>;
+export interface TemplatesAPI extends Endpoint<Template, TemplateFilters> {}
 
 /**
  * Request params to create template example from video frame.
@@ -143,7 +192,7 @@ export type ListTemplateMatchesResults = ListResults<
 export interface TemplateMatchesAPI
   extends ReadOnlyEndpoint<TemplateMatch, TemplateMatchFilters> {
   list(
-    params?: ListParams<TemplateMatchFilters>
+    params?: ListOptions<TemplateMatchFilters>
   ): Promise<ListTemplateMatchesResults>;
   update(entity: Updates<TemplateMatch>): Promise<TemplateMatch>;
   delete(entity: TemplateMatch | TemplateMatch["id"]): Promise<void>;
@@ -159,17 +208,10 @@ export interface TemplateExclusionsAPI
 }
 
 /**
- * Statistics options.
- */
-export type GetStatsOptions = {
-  name: string;
-};
-
-/**
  * Statistics API endpoint.
  */
 export interface StatsAPI {
-  get(options: GetStatsOptions): Promise<any>;
+  extensions(): Promise<ExtensionsStats>;
 }
 
 export interface ServerAPI {

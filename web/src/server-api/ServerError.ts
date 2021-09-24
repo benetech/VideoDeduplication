@@ -1,7 +1,7 @@
 import lodash from "lodash";
 import axios from "axios";
 import StatusCodes from "http-status-codes";
-import { Json } from "../lib/Json";
+import { Json } from "../lib/types/Json";
 import {
   ConstraintViolationCode,
   FieldConstraintViolations,
@@ -151,7 +151,7 @@ export class ValidationError extends ServerError<ValidationErrorDTO> {
 export function makeServerError(
   message: string,
   cause: Error | unknown,
-  request: any
+  request?: any
 ): ServerError {
   if (axios.isAxiosError(cause) && isValidationErrorDTO(cause.response?.data)) {
     return new ValidationError(message, cause, request);
