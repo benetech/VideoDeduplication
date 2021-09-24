@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -40,11 +40,13 @@ function MatchGraph(props) {
   const [graphParent, setGraphParent] = useState(null);
   const nodeTooltip = useTooltip();
   const linkTooltip = useTooltip();
+  const compareFiles = useCompareFiles();
 
-  const handleClickFile = useShowFile((node) => node.file);
+  const showFile = useShowFile();
+  const handleClickFile = useCallback((node) => showFile(node.file), []);
 
-  const handleClickMatch = useCompareFiles(
-    (link) => linkComparison(source.id, link),
+  const handleClickMatch = useCallback(
+    (link) => compareFiles(...linkComparison(source.id, link)),
     [source.id]
   );
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
@@ -21,16 +21,18 @@ function FileComparisonPage(props) {
   const { id: rawId, matchFileId } = useParams();
   const id = Number(rawId);
   const { file: motherFile } = useFile(id);
-  const showMatches = useShowMatches(id, [id]);
+  const showMatches = useShowMatches();
+  const handleShowMatches = useCallback(() => showMatches(id), [id]);
 
   useEffect(() => {
     if (motherFile?.external) {
-      showMatches();
+      handleShowMatches();
     }
   }, [motherFile]);
 
-  const handleMatchFileChange = useCompareFiles(
-    (matchFile) => [id, matchFile],
+  const compareFiles = useCompareFiles();
+  const handleMatchFileChange = useCallback(
+    (matchFile) => compareFiles(id, matchFile),
     [id]
   );
 
@@ -38,7 +40,7 @@ function FileComparisonPage(props) {
     <div className={clsx(classes.root, className)}>
       <Grid container spacing={0}>
         <Grid item xs={12} lg={6}>
-          <MotherFile motherFileId={id} onBack={showMatches} />
+          <MotherFile motherFileId={id} onBack={handleShowMatches} />
         </Grid>
         <Grid item xs={12} lg={6}>
           <MatchFiles

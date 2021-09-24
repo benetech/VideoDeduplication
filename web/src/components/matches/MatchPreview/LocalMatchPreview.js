@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import PreviewContainer from "./PreviewContainer";
@@ -61,11 +61,15 @@ function useToggleFalsePositive({ match, messages }) {
  * Get comparison action.
  */
 function useCompare({ match, messages }) {
-  const compareFiles = useCompareFiles([match.motherFile, match.file], [match]);
+  const compareFiles = useCompareFiles();
+  const handleCompare = useCallback(
+    () => compareFiles(match.motherFile, match.file),
+    [match]
+  );
   return useMemo(
     () => ({
       title: messages.compare,
-      handler: compareFiles,
+      handler: handleCompare,
     }),
     [match.file.id, match.motherFile.id]
   );
@@ -75,11 +79,12 @@ function useCompare({ match, messages }) {
  * Get "Show Details" action.
  */
 function useShowDetails({ match, messages }) {
-  const showFile = useShowFile(match.file, [match]);
+  const showFile = useShowFile();
+  const handleShowFile = useCallback(() => showFile(match.file), [match]);
   return useMemo(
     () => ({
       title: messages.showDetails,
-      handler: showFile,
+      handler: handleShowFile,
     }),
     [match.file.id]
   );

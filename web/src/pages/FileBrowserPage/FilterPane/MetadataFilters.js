@@ -6,7 +6,6 @@ import FilterList from "./FilterList";
 import DateRangeFilter from "./DateRangeFilter";
 import BoolFilter from "./BoolFilter";
 import { useIntl } from "react-intl";
-import { DefaultFilters } from "../../../application/state/files/coll/initialState";
 import objectDiff from "../../../lib/helpers/objectDiff";
 import useFileExtensions from "../../../application/api/stats/useFileExtensions";
 import {
@@ -14,6 +13,7 @@ import {
   stringifyDateRange,
 } from "../../../lib/helpers/date-range";
 import useFilesColl from "../../../application/api/files/useFilesColl";
+import { DefaultFilters } from "../../../model/VideoFile";
 
 /**
  * Get i18n text.

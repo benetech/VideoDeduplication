@@ -135,7 +135,7 @@ function AddFrameDialog(props) {
   const { file, time, onClose, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const { createExampleFromFrame: addFrame } = useCreateExampleFromFrame();
+  const addFrame = useCreateExampleFromFrame();
   const existing = useAddToExising(file, time, addFrame, onClose);
   const fresh = useAddToNew(file, time, addFrame, onClose);
   const [target, setTarget] = useState(Target.EXISTING_TEMPLATE);

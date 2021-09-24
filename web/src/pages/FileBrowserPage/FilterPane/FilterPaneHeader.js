@@ -12,9 +12,9 @@ import { useIntl } from "react-intl";
 import { Tooltip } from "@material-ui/core";
 import AddPresetDialog from "./AddPresetDialog";
 import SettingsBackupRestoreIcon from "@material-ui/icons/SettingsBackupRestore";
-import { DefaultFilters } from "../../../application/state/files/coll/initialState";
 import useFilesColl from "../../../application/api/files/useFilesColl";
 import { useCreatePreset } from "../../../application/api/presets/usePresetsAPI";
+import { DefaultFilters } from "../../../model/VideoFile";
 
 const useStyles = makeStyles((theme) => ({
   header: {

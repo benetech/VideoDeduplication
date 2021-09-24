@@ -13,7 +13,7 @@ import { useServer } from "../../../server-api/context";
 import { useIntl } from "react-intl";
 import WarningOutlinedIcon from "@material-ui/icons/WarningOutlined";
 import playerPreviewURL from "../../../pages/VideoDetailsPage/playerPreviewURL";
-import ServerError from "../../../server-api/Server/ServerError";
+import { ErrorCode } from "../../../server-api/ServerError";
 
 /**
  * Setup bundled flv.js.
@@ -164,7 +164,7 @@ const VideoPlayer = function VideoPlayer(props) {
   // Check if video is available
   useEffect(() => {
     server.files.probeVideo(file.id).catch((error) => {
-      if (error.code === ServerError.NOT_FOUND) {
+      if (error.code === ErrorCode.NotFound) {
         setError(messages.notFoundError);
       } else {
         setError(messages.loadError);

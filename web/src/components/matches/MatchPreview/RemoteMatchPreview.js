@@ -39,13 +39,17 @@ function useMessages() {
  * Get match actions.
  */
 function useActions(match, handleCopy, messages) {
-  const showMatches = useShowMatches(match.file, [match.file.id]);
+  const showMatches = useShowMatches();
+  const handleShowMatches = useCallback(
+    () => showMatches(match.file),
+    [match.file.id]
+  );
 
   return useMemo(
     () => [
       {
         title: messages.showMatches,
-        handler: showMatches,
+        handler: handleShowMatches,
       },
       {
         title: messages.copySHA,

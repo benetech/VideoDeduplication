@@ -7,8 +7,6 @@ import { Route, Switch } from "react-router-dom";
 import { routes } from "../../routing/routes";
 import TaskLogs from "./TaskLogs";
 import { useParams } from "react-router";
-import { randomTask } from "../../server-api/MockServer/fake-data/tasks";
-import TaskStatus from "../../prop-types/TaskStatus";
 import TaskSummaryHeader from "../../components/tasks/TaskSummaryHeader";
 import useTask from "../../application/api/tasks/useTask";
 import TaskLoadingHeader from "../../components/tasks/TaskLoadingHeader";
@@ -35,7 +33,6 @@ function TaskDetailsPage(props) {
   const { id } = useParams();
   const classes = useStyles();
   const { task, error, refetch: loadTask } = useTask(id);
-  const dummyTask = randomTask({ id, status: TaskStatus.RUNNING });
 
   if (task == null) {
     return (
@@ -52,7 +49,7 @@ function TaskDetailsPage(props) {
 
   return (
     <div className={clsx(classes.root, className)} {...other}>
-      <TaskSummaryHeader task={task || dummyTask} className={classes.header} />
+      <TaskSummaryHeader task={task} className={classes.header} />
       <TaskPageTabs />
       <div className={classes.content}>
         <Switch>

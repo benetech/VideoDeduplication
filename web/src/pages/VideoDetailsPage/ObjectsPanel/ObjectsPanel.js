@@ -86,7 +86,7 @@ function ObjectsPanel(props) {
   const { file, objects: objectsProp, onJump, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const { updateObject } = useUpdateObject();
+  const updateObject = useUpdateObject();
   const [tab, setTab] = useState(Tab.found);
 
   const handleDelete = useCallback(

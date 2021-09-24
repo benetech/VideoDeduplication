@@ -11,9 +11,9 @@ import {
 } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import Button from "../../../components/basic/Button";
-import { ValidationError } from "../../../server-api/Server/ServerError";
 import nameErrorMessage from "../../../lib/messages/nameErrorMessage";
 import useFilesColl from "../../../application/api/files/useFilesColl";
+import { ValidationError } from "../../../server-api/ServerError";
 
 /**
  * Get translated text.

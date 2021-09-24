@@ -89,8 +89,10 @@ function VideoDetailsPage(props) {
   const [player, setPlayer] = useState(null);
   const classes = useStyles();
   const showCollection = useShowCollection();
-  const compareFile = useCompareFiles(id, [id]);
-  const showMatches = useShowMatches(id, [id]);
+  const showMatches = useShowMatches();
+  const compareFiles = useCompareFiles();
+  const handleCompare = useCallback(() => compareFiles(id), [id]);
+  const handleShowMatches = useCallback(() => showMatches(id), [id]);
 
   // Preload file objects and templates
   const { done: objectsLoaded } = useObjectsAll({ fileId: id });
@@ -100,7 +102,7 @@ function VideoDetailsPage(props) {
   // Navigate to file matches if file is external.
   useEffect(() => {
     if (file?.external) {
-      showMatches();
+      handleShowMatches();
     }
   }, [file]);
 
@@ -143,7 +145,7 @@ function VideoDetailsPage(props) {
   return (
     <div className={clsx(classes.root, className)}>
       <FileActionHeader id={file.id} matches={file.matchesCount}>
-        <Button color="primary" variant="contained" onClick={compareFile}>
+        <Button color="primary" variant="contained" onClick={handleCompare}>
           {messages.compare}
         </Button>
       </FileActionHeader>

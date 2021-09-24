@@ -79,7 +79,8 @@ function FileMatchesPage(props) {
   const [showFilters, setShowFilters] = useState(false);
   const query = useFileMatchesLazy(id, filters);
   const showCollection = useShowCollection();
-  const handleCompare = useCompareFiles(id, [id]);
+  const compareFiles = useCompareFiles();
+  const handleCompare = useCallback(() => compareFiles(id), [id]);
 
   const handleToggleFilters = useCallback(
     () => setShowFilters(!showFilters),

@@ -5,9 +5,9 @@ import { useFilters } from "../../../application/api/files/useFilters";
 import { useIntl } from "react-intl";
 import RangeFilter from "./RangeFilter";
 import objectDiff from "../../../lib/helpers/objectDiff";
-import { DefaultFilters } from "../../../application/state/files/coll/initialState";
 import TemplateFilter from "./TemplateFilter";
 import useFilesColl from "../../../application/api/files/useFilesColl";
+import { DefaultFilters } from "../../../model/VideoFile";
 
 /**
  * Get i18n text

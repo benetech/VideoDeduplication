@@ -49,7 +49,8 @@ function FrameView(props) {
     player?.seekTo(timeMillis / 1000, { playing: true, units: "seconds" });
   }, [player, timeMillis]);
 
-  const handleShowFile = useShowFile(file, [file]);
+  const showFile = useShowFile();
+  const handleShowFile = useCallback(() => showFile(file), [file]);
 
   if (!file) {
     return null;

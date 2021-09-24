@@ -6,8 +6,8 @@ import { ButtonBase, CircularProgress, Paper } from "@material-ui/core";
 import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import { useIntl } from "react-intl";
-import ServerError from "../../../server-api/Server/ServerError";
 import { useShowProcessing } from "../../../routing/hooks";
+import { ErrorCode } from "../../../server-api/ServerError";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -55,7 +55,7 @@ function TaskLoadingHeader(props) {
   let content;
   if (!error) {
     content = <CircularProgress color="primary" />;
-  } else if (error.status === ServerError.NOT_FOUND) {
+  } else if (error.status === ErrorCode.NotFound) {
     content = <div className={classes.errorMessage}>{messages.notFound}</div>;
   } else {
     content = (

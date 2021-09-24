@@ -122,8 +122,10 @@ function TaskListItem(props) {
   const deleteTask = useDeleteTask();
   const cancelTask = useCancelTask();
 
-  const showLogs = useShowLogs(task, [task]);
-  const showTask = useShowTask(task, [task]);
+  const showLogs = useShowLogs();
+  const showTask = useShowTask();
+  const handleShowLogs = useCallback(() => showLogs(task), [task]);
+  const handleShowTask = useCallback(() => showTask(task), [task]);
 
   const handleCancel = useCallback(() => {
     popup.onClose();
@@ -142,7 +144,7 @@ function TaskListItem(props) {
         <div className={classes.attributes}>
           <div className={classes.topAttributes}>
             <div className={classes.timeCaption}>{messages.time(task)}</div>
-            <IconButton size="small" onClick={showTask}>
+            <IconButton size="small" onClick={handleShowTask}>
               <HeightOutlinedIcon
                 className={classes.expandIcon}
                 fontSize="small"
@@ -162,7 +164,7 @@ function TaskListItem(props) {
         <TaskProgress value={task.progress} className={classes.progress} />
       )}
       <Menu {...popup}>
-        <MenuItem onClick={showLogs}>{messages.showLogs}</MenuItem>
+        <MenuItem onClick={handleShowLogs}>{messages.showLogs}</MenuItem>
         <MenuItem onClick={handleCancel}>{messages.cancel}</MenuItem>
         <MenuItem onClick={handleDelete}>{messages.delete}</MenuItem>
       </Menu>
