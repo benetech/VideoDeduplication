@@ -1,4 +1,5 @@
 import { makeStyles } from "@material-ui/styles";
+import { Theme } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import clsx from "clsx";
 import {
@@ -14,10 +15,9 @@ import CollectionRootPage from "../pages/CollectionRootPage";
 import AppPage from "../components/app/AppPage";
 import TemplatesRootPage from "../pages/TemplatesRootPage/TemplatesRootPage";
 import ProcessingRootPage from "../pages/ProcessingRootPage";
-import PropTypes from "prop-types";
 import React from "react";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles<Theme>((theme) => ({
   root: {
     width: `calc(100vw - ${theme.dimensions.scrollbar.size}px)`,
     height: "100vh",
@@ -41,10 +41,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+type JusticeAIRootComponentProps = {
+  className?: string;
+};
+
 /**
  * Top-level application layout: side-bar menu + body.
  */
-function JusticeAIRootComponent(props) {
+export default function JusticeAIRootComponent(
+  props: JusticeAIRootComponentProps
+): JSX.Element {
   const { className } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -88,9 +94,3 @@ function JusticeAIRootComponent(props) {
     </div>
   );
 }
-
-JusticeAIRootComponent.propTypes = {
-  className: PropTypes.string,
-};
-
-export default JusticeAIRootComponent;

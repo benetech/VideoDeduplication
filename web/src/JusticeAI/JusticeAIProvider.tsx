@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import PropTypes from "prop-types";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import ThemeProvider from "@material-ui/styles/ThemeProvider";
 import CustomScrollbar from "../components/app/CustomScrollbar";
@@ -9,13 +8,28 @@ import { Provider as StoreProvider } from "react-redux";
 import makeStore from "./helpers/makeStore";
 import { QueryClient, QueryClientProvider } from "react-query";
 import HandleSocketEvents from "./HandleSocketEvents";
+import { ServerAPI } from "../server-api/ServerAPI";
+import { AppState } from "../application/state/root/initialState";
+import { LocaleData } from "../i18n/locale";
+import { Theme } from "@material-ui/core";
+
+type JusticeAIProviderProps = {
+  queryClient?: QueryClient;
+  server: ServerAPI;
+  initialState?: AppState;
+  locale: LocaleData;
+  theme: Theme;
+  children: React.ReactNode;
+};
 
 /**
  * JusticeAI application API provider.
  */
-function JusticeAIProvider(props) {
+export default function JusticeAIProvider(
+  props: JusticeAIProviderProps
+): JSX.Element {
   const { server, initialState, locale, theme, children } = props;
-  const store = useMemo(() => makeStore(initialState));
+  const store = useMemo(() => makeStore(initialState), []);
   const queryClient = props.queryClient || new QueryClient();
 
   return (
@@ -40,35 +54,3 @@ function JusticeAIProvider(props) {
     </React.Fragment>
   );
 }
-
-JusticeAIProvider.propTypes = {
-  queryClient: PropTypes.object,
-  /**
-   * Server API.
-   */
-  server: PropTypes.object.isRequired,
-  /**
-   * Initial application state.
-   */
-  initialState: PropTypes.object,
-  /**
-   * Application locale.
-   */
-  locale: PropTypes.shape({
-    locale: PropTypes.string.isRequired,
-    messages: PropTypes.object.isRequired,
-  }).isRequired,
-  /**
-   * Visual theme.
-   */
-  theme: PropTypes.object.isRequired,
-  /**
-   * Components that use JusticeAI application API.
-   */
-  children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.node),
-    PropTypes.node,
-  ]),
-};
-
-export default JusticeAIProvider;

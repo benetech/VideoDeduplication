@@ -1,17 +1,16 @@
-import { compose as reduxCompose, createStore } from "redux";
+import { compose as reduxCompose, createStore, Store } from "redux";
 import {
   appRootReducer,
   initialState as defaultInitialState,
 } from "../../application/state/root";
+import { AppState } from "../../application/state/root/initialState";
 
 /**
  * Create JusticeAI Redux store.
- * @param {Object} initialState initial application state
- * @return {Store}
  */
-export default function makeStore(initialState) {
+export default function makeStore(initialState?: AppState): Store<AppState> {
   const compose =
     window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"] || reduxCompose;
-  const preloadedState = initialState || defaultInitialState;
+  const preloadedState: AppState = initialState || defaultInitialState;
   return createStore(appRootReducer, preloadedState, compose());
 }
