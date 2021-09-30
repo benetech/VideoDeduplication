@@ -1,7 +1,11 @@
 import useFileMatchesLazy from "./useFileMatchesLazy";
 import useLoadAll from "../../common/useLoadAll";
 import { EagerQueryAPI, QueryOptions } from "../../common/model";
-import { FileMatch, MatchQueryFilter } from "../../../model/Match";
+import {
+  DefaultMatchQueryFilters,
+  FileMatch,
+  MatchQueryFilters,
+} from "../../../model/Match";
 import { VideoFile } from "../../../model/VideoFile";
 
 /**
@@ -16,7 +20,7 @@ export type UseFileMatchesAllResults = EagerQueryAPI & {
  */
 export default function useFileMatchesAll(
   fileId: VideoFile["id"],
-  filters: MatchQueryFilter = {},
+  filters: MatchQueryFilters = DefaultMatchQueryFilters,
   options: QueryOptions = {}
 ): UseFileMatchesAllResults {
   const query = useFileMatchesLazy(fileId, filters, options);

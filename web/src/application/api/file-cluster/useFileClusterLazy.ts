@@ -16,7 +16,7 @@ export type ClusterPage = {
  */
 export default function useFileClusterLazy(
   fileId: VideoFile["id"],
-  filters: ClusterFilters,
+  filters: ClusterFilters = {},
   options: QueryOptions = {}
 ): LazyQueryResults<ClusterPage> {
   const server = useServer();

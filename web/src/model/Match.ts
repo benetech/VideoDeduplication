@@ -3,11 +3,21 @@ import { MatchCategory, VideoFile } from "./VideoFile";
 /**
  * File match query filters.
  */
-export type MatchQueryFilter = {
-  remote?: boolean;
-  falsePositive?: boolean;
-  sort?: string;
-  sortDirection?: string;
+export type MatchQueryFilters = {
+  remote: boolean | null;
+  falsePositive: boolean | null;
+  sort: string | null;
+  sortDirection: string | null;
+};
+
+/**
+ * Default match filters.
+ */
+export const DefaultMatchQueryFilters: MatchQueryFilters = {
+  remote: null,
+  falsePositive: null,
+  sort: null,
+  sortDirection: null,
 };
 
 /**

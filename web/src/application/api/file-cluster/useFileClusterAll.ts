@@ -21,8 +21,8 @@ export type UseFileClusterAllResults = {
  */
 export default function useFileClusterAll(
   fileId: VideoFile["id"],
-  filters: ClusterFilters,
-  options: QueryOptions
+  filters: ClusterFilters = {},
+  options: QueryOptions = {}
 ): UseFileClusterAllResults {
   const query = useFileClusterLazy(fileId, filters, options);
   const results = useBasicLoadAll<Match, ClusterPage>(query, {

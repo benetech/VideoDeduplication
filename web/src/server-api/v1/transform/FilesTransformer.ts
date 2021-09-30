@@ -15,7 +15,7 @@ import {
   FileMatch,
   Match,
   MatchCounts,
-  MatchQueryFilter,
+  MatchQueryFilters,
 } from "../../../model/Match";
 import {
   ListFilesResults,
@@ -121,7 +121,7 @@ export default class FilesTransformer {
   /**
    * Convert file matches filters to query params.
    */
-  matchesParams(filters: MatchQueryFilter, fields: string[]): QueryParams {
+  matchesParams(filters: MatchQueryFilters, fields: string[]): QueryParams {
     const params: QueryParams = {};
     if (fields != null && fields.length > 0) {
       params.include = fields.join(",");

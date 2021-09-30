@@ -11,7 +11,7 @@ export type UseTemplatesAllResult = EagerQueryAPI & {
  * Use eager templates query.
  */
 export default function useTemplatesAll(
-  filters: TemplateFilters,
+  filters: TemplateFilters = {},
   options: QueryOptions = {}
 ): UseTemplatesAllResult {
   const query = useTemplatesLazy(filters, options);

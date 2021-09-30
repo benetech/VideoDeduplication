@@ -1,6 +1,21 @@
 import { Task } from "../model/Task";
 import { VideoFile } from "../model/VideoFile";
 
+/**
+ * Expected URL parameters of a single entity page.
+ */
+export type EntityPageURLParams = {
+  id: string;
+};
+
+/**
+ * Expected URL parameters of file comparison page.
+ */
+export type ComparisonPageURLParams = {
+  id: string;
+  matchFileId?: string;
+};
+
 export const routes = {
   home: "/",
   analytics: {

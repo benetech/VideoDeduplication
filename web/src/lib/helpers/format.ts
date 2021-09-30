@@ -61,7 +61,7 @@ export function formatDuration(
  * Format date according to the locale.
  */
 export function formatDate(
-  date: Date | null,
+  date: Date | null | undefined,
   intl: IntlShape
 ): string | undefined {
   if (date == null) {

@@ -1,6 +1,7 @@
 import { FileIndex, VideoFile } from "../../../model/VideoFile";
-import { ClusterData, ClusterLink, ClusterNode } from "./model";
+import { AdjacencyTable, ClusterData, ClusterLink, ClusterNode } from "./model";
 import { Match } from "../../../model/Match";
+import getEntityId from "../../../lib/entity/getEntityId";
 
 /**
  * For each node create a data structure expected by the D3Graph
@@ -30,14 +31,18 @@ function createLinks(matches: Match[]): ClusterLink[] {
 export function getAdjacency(
   links: ClusterLink[],
   nodes: ClusterNode[]
-): Map<number, Set<number>> {
-  const adjacency = new Map<number, Set<number>>();
+): AdjacencyTable {
+  const adjacency = new Map<VideoFile["id"], Set<VideoFile["id"]>>();
   for (let node of nodes) {
     adjacency.set(node.id, new Set());
   }
   for (let link of links) {
-    adjacency.get(link.source)?.add(link.target);
-    adjacency.get(link.target)?.add(link.source);
+    adjacency
+      .get(getEntityId<ClusterNode>(link.source))
+      ?.add(getEntityId<ClusterNode>(link.target));
+    adjacency
+      .get(getEntityId<ClusterNode>(link.target))
+      ?.add(getEntityId<ClusterNode>(link.source));
   }
   return adjacency;
 }
@@ -102,8 +107,8 @@ export default function prepareGraph(
 
   for (const link of links) {
     link.generation = Math.min(
-      nodeGenerations.get(link.source) || 0,
-      nodeGenerations.get(link.target) || 0
+      nodeGenerations.get(getEntityId<ClusterNode>(link.source)) || 0,
+      nodeGenerations.get(getEntityId<ClusterNode>(link.target)) || 0
     );
   }
 

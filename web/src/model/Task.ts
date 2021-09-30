@@ -112,6 +112,28 @@ export type TaskResult =
   | ProcessOnlineVideoResult;
 
 /**
+ * Task type to request type mapping.
+ */
+export type TaskRequestMap = {
+  [TaskRequestType.DIRECTORY]: ProcessDirectoryRequest;
+  [TaskRequestType.FILE_LIST]: ProcessFileListRequest;
+  [TaskRequestType.MATCH_TEMPLATES]: MatchTemplatesRequest;
+  [TaskRequestType.FIND_FRAME]: FindFrameRequest;
+  [TaskRequestType.PROCESS_ONLINE_VIDEO]: ProcessOnlineVideoRequest;
+};
+
+/**
+ * Task type to result type mapping.
+ */
+export type TaskResultMap = {
+  [TaskRequestType.DIRECTORY]: ProcessDirectoryResult;
+  [TaskRequestType.FILE_LIST]: ProcessFileListResult;
+  [TaskRequestType.MATCH_TEMPLATES]: MatchTemplatesResult;
+  [TaskRequestType.FIND_FRAME]: FindFrameResult;
+  [TaskRequestType.PROCESS_ONLINE_VIDEO]: ProcessOnlineVideoResult;
+};
+
+/**
  * Possible tasks statuses.
  */
 export enum TaskStatus {
@@ -135,14 +157,98 @@ export type TaskError = {
 /**
  * Background task.
  */
-export type Task = {
+export type Task<TRequest extends TaskRequest = TaskRequest> = {
   id: string;
   submissionTime: Date;
   statusUpdateTime: Date;
   status: TaskStatus;
-  request: TaskRequest;
+  request: TRequest;
   error?: TaskError;
   progress?: number;
   raw: JsonObject;
-  result?: TaskResult | null;
+  result?: TaskResultMap[TRequest["type"]] | null;
 };
+
+/**
+ * Make default ProcessDirectoryRequest
+ */
+export function makeProcDirRequest(
+  req: Partial<ProcessDirectoryRequest> = {}
+): ProcessDirectoryRequest {
+  return {
+    type: TaskRequestType.DIRECTORY,
+    directory: ".",
+    ...req,
+  };
+}
+
+/**
+ * Make default ProcessFileListRequest
+ */
+export function makeProcFileListRequest(
+  req: Partial<ProcessFileListRequest> = {}
+): ProcessFileListRequest {
+  return {
+    type: TaskRequestType.FILE_LIST,
+    files: [],
+    ...req,
+  };
+}
+
+/**
+ * Make default MatchTemplatesRequest
+ */
+export function makeMatchTemplatesRequest(
+  req: Partial<MatchTemplatesRequest> = {}
+): MatchTemplatesRequest {
+  return {
+    type: TaskRequestType.MATCH_TEMPLATES,
+    ...req,
+  };
+}
+
+/**
+ * Make default FindFrameRequest
+ */
+export function makeFindFrameRequest(
+  req: Partial<FindFrameRequest> = {}
+): FindFrameRequest {
+  return {
+    type: TaskRequestType.FIND_FRAME,
+    fileId: -1,
+    frameTimeMillis: -1,
+    ...req,
+  };
+}
+
+/**
+ * Make default ProcessOnlineVideoRequest
+ */
+export function makeProcessOnlineVideoRequest(
+  req: Partial<ProcessOnlineVideoRequest> = {}
+): ProcessOnlineVideoRequest {
+  return {
+    type: TaskRequestType.PROCESS_ONLINE_VIDEO,
+    urls: [],
+    destinationTemplate: "%(title)s.%(ext)s",
+    ...req,
+  };
+}
+
+/**
+ * Make default request (correct shape, but possible invalid data).
+ */
+export function makeTaskRequest(type: TaskRequestType): TaskRequest {
+  switch (type) {
+    case TaskRequestType.DIRECTORY:
+      return makeProcDirRequest();
+    case TaskRequestType.FILE_LIST:
+      return makeProcFileListRequest();
+    case TaskRequestType.MATCH_TEMPLATES:
+      return makeMatchTemplatesRequest();
+    case TaskRequestType.FIND_FRAME:
+      return makeFindFrameRequest();
+    case TaskRequestType.PROCESS_ONLINE_VIDEO:
+      return makeProcessOnlineVideoRequest();
+  }
+}

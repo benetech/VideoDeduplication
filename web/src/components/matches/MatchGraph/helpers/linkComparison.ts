@@ -1,5 +1,6 @@
 import { VideoFile } from "../../../../model/VideoFile";
-import { ClusterLink } from "../model";
+import { ClusterLink, ClusterNode } from "../model";
+import getEntityId from "../../../../lib/entity/getEntityId";
 
 /**
  * Get comparison file ids from the graph link.
@@ -11,9 +12,15 @@ export default function linkComparison(
   origin: VideoFile["id"],
   link: ClusterLink
 ): [number, number] {
-  const [source, target] =
-    link.source === origin
-      ? [link.source, link.target]
-      : [link.target, link.source];
-  return [source, target];
+  if (getEntityId(link.source) === origin) {
+    return [
+      getEntityId<ClusterNode>(link.source),
+      getEntityId<ClusterNode>(link.target),
+    ];
+  } else {
+    return [
+      getEntityId<ClusterNode>(link.target),
+      getEntityId<ClusterNode>(link.source),
+    ];
+  }
 }

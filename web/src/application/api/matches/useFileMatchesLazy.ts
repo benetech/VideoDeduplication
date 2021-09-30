@@ -1,7 +1,11 @@
 import { useServer } from "../../../server-api/context";
 import useEntitiesLazy from "../../common/useEntitiesLazy";
 import { VideoFile } from "../../../model/VideoFile";
-import { FileMatch, MatchQueryFilter } from "../../../model/Match";
+import {
+  DefaultMatchQueryFilters,
+  FileMatch,
+  MatchQueryFilters,
+} from "../../../model/Match";
 import { LazyQueryResults, QueryOptions } from "../../common/model";
 import { QueryFileMatchesResults } from "../../../server-api/ServerAPI";
 
@@ -10,7 +14,7 @@ import { QueryFileMatchesResults } from "../../../server-api/ServerAPI";
  */
 export default function useFileMatchesLazy(
   fileId: VideoFile["id"],
-  filters: MatchQueryFilter = {},
+  filters: MatchQueryFilters = DefaultMatchQueryFilters,
   options: QueryOptions = {}
 ): LazyQueryResults<FileMatch[]> {
   const server = useServer();
@@ -18,7 +22,7 @@ export default function useFileMatchesLazy(
 
   const { results } = useEntitiesLazy<
     FileMatch,
-    MatchQueryFilter,
+    MatchQueryFilters,
     QueryFileMatchesResults
   >(
     ["files/matches", fileId, { filters, limit, fields }],

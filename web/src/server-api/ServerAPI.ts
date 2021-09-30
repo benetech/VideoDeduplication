@@ -10,7 +10,7 @@ import {
   FileMatch,
   Match,
   MatchCounts,
-  MatchQueryFilter,
+  MatchQueryFilters,
 } from "../model/Match";
 import { Task, TaskFilters, TypedTaskRequest } from "../model/Task";
 import {
@@ -106,17 +106,17 @@ export type QueryClusterResults = BaseListResults<ClusterFilters> & {
   matches: Match[];
 };
 
-export type QueryFileMatchesOptions = ListOptions<MatchQueryFilter> & {
+export type QueryFileMatchesOptions = ListOptions<MatchQueryFilters> & {
   fileId: number;
 };
 
-export type QueryFileMatchesRequest = ListRequest<MatchQueryFilter> & {
+export type QueryFileMatchesRequest = ListRequest<MatchQueryFilters> & {
   fileId: number;
 };
 
 export type QueryFileMatchesResults = ListResults<
   FileMatch,
-  MatchQueryFilter
+  MatchQueryFilters
 > & {
   request: QueryFileMatchesRequest;
 };

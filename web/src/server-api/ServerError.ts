@@ -41,9 +41,9 @@ export enum ErrorCode {
   Unavailable,
 }
 
-class ServerError<Data = Json> extends Error {
+export class ServerError<Data = Json> extends Error {
   public readonly cause: Error | null;
-  public readonly code: number;
+  public readonly code: ErrorCode;
   public readonly data?: Data;
   public readonly request: any;
 
@@ -60,7 +60,7 @@ class ServerError<Data = Json> extends Error {
     Object.setPrototypeOf(this, ServerError.prototype);
   }
 
-  private static errorCode(error: Error | null) {
+  private static errorCode(error: Error | null): ErrorCode {
     if (axios.isAxiosError(error)) {
       const response = error.response;
       switch (response?.status) {

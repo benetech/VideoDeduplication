@@ -39,7 +39,7 @@ export type FileFilters = {
   length: PartialRange;
   date: PartialRange<string>;
   audio: boolean | null;
-  matches: string;
+  matches: MatchCategory;
   sort: FileSort;
   remote: boolean | null;
   templates: number[];
@@ -65,9 +65,10 @@ export const DefaultFilters: FileFilters = {
  */
 export type FileMetadata = {
   uploadedBy?: string;
+  uploadDate?: Date;
   updatedDate?: number;
   fileType?: string;
-  length?: number;
+  length: number;
   frames?: number;
   codec?: string;
   grayMax?: number;

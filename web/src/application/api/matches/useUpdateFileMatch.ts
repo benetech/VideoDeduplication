@@ -6,7 +6,7 @@ import {
   QueryFileMatchesRequest,
   QueryFileMatchesResults,
 } from "../../../server-api/ServerAPI";
-import { FileMatch, Match, MatchQueryFilter } from "../../../model/Match";
+import { FileMatch, Match, MatchQueryFilters } from "../../../model/Match";
 import { ComparatorFn } from "../../../lib/helpers/comparators";
 import { MutationContext } from "../../common/useEntityMutation";
 
@@ -74,7 +74,7 @@ export default function useUpdateFileMatch(): UpdateFileMatchFn {
       const updater = (data) =>
         new PagedResultsBuilder<
           FileMatch,
-          MatchQueryFilter,
+          MatchQueryFilters,
           QueryFileMatchesResults
         >(data, checkFilters, makeComparator).updateEntity(match, () => match)
           .results;

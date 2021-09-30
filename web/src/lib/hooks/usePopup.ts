@@ -1,28 +1,30 @@
 import useUniqueId from "./useUniqueId";
 import React, { useCallback, useRef, useState } from "react";
 
-export type ClickTriggerOptions = {
-  ref: React.RefObject<HTMLElement>;
+export type ClickTriggerOptions<TElement extends HTMLElement = HTMLElement> = {
+  ref: React.RefObject<TElement>;
   "aria-controls": string;
   "aria-haspopup": boolean;
   "aria-expanded": boolean;
   onClick: () => void;
 };
 
-export type PopupOptions = {
+export type PopupOptions<TElement extends HTMLElement = HTMLElement> = {
   id: string;
   open: boolean;
   onClose: () => void;
-  anchorEl: HTMLElement | null;
+  anchorEl: TElement | null;
 };
 
-export type PopupBindings = {
-  clickTrigger: ClickTriggerOptions;
+export type PopupBindings<TElement extends HTMLElement = HTMLElement> = {
+  clickTrigger: ClickTriggerOptions<TElement>;
   popup: PopupOptions;
 };
 
-export default function usePopup(prefix: string = ""): PopupBindings {
-  const ref = useRef<HTMLElement>(null);
+export default function usePopup<TElement extends HTMLElement = HTMLElement>(
+  prefix: string = ""
+): PopupBindings<TElement> {
+  const ref = useRef<TElement>(null);
   const id = useUniqueId(prefix);
   const [open, setOpen] = useState(false);
 

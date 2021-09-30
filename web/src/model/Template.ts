@@ -1,4 +1,5 @@
 import { VideoFile } from "./VideoFile";
+import { Transient } from "../lib/entity/Entity";
 
 /**
  * Template query filters.
@@ -45,6 +46,14 @@ export type TemplateIcon = {
   kind: IconKind;
   key: string;
 };
+
+/**
+ * Default icon.
+ */
+export const DefaultTemplateIcon: TemplateIcon = Object.freeze({
+  kind: IconKind.PREDEFINED,
+  key: "GiPoliceOfficerHead",
+});
 
 /**
  * Template example prop-type.
@@ -104,3 +113,16 @@ export type TemplateMatch = {
   file?: VideoFile;
   falsePositive?: boolean;
 };
+
+/**
+ * Create empty template stub.
+ */
+export function makeTemplate(
+  attrs: Partial<Transient<Template>> = {}
+): Transient<Template> {
+  return {
+    name: "",
+    icon: DefaultTemplateIcon,
+    examples: [],
+  };
+}
