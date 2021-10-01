@@ -16,6 +16,7 @@ import FormControl from "@material-ui/core/FormControl";
 import useUniqueId from "../../../lib/hooks/useUniqueId";
 import TemplateIconViewer from "../../../components/templates/TemplateIcon/TemplateIconViewer";
 import useTemplatesAll from "../../../application/api/templates/useTemplatesAll";
+import { Template } from "../../../model/Template";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   form: {
@@ -46,12 +47,12 @@ function useMessages() {
     }),
   };
 }
+
 /**
  * Get template description.
  * @param template
  */
-
-function description(template) {
+function description(template: Template): string {
   if (template.fileCount != null) {
     return `${template.name} (${template.fileCount})`;
   }
@@ -117,12 +118,12 @@ type TemplateFilterProps = {
   /**
    * Selected template ids.
    */
-  value: number[];
+  value: Template["id"][];
 
   /**
    * Handle selection change.
    */
-  onChange: (...args: any[]) => void;
+  onChange: (value: Template["id"][]) => void;
   className?: string;
 };
 export default TemplateFilter;

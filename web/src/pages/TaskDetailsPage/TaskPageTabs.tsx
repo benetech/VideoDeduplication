@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useHistory, useParams, useRouteMatch } from "react-router-dom";
 import { EntityPageURLParams, routes } from "../../routing/routes";
 import { useIntl } from "react-intl";
@@ -9,6 +9,7 @@ import {
 import { makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
 import clsx from "clsx";
+import { Task } from "../../model/Task";
 
 const useStyles = makeStyles<Theme>(() => ({
   tabs: {
@@ -19,10 +20,10 @@ const useStyles = makeStyles<Theme>(() => ({
  * Identifiers for task page tabs.
  */
 
-const Section = {
-  details: "details",
-  logs: "logs",
-};
+enum Section {
+  details = "details",
+  logs = "logs",
+}
 /**
  * Get current section
  */
@@ -62,15 +63,18 @@ function useMessages() {
  * Get navigation handler
  */
 
-function useNavigation(id) {
+function useNavigation(id: Task["id"]) {
   const history = useHistory();
-  return (newSection) => {
-    if (newSection === Section.details) {
-      history.replace(routes.processing.taskURL(id));
-    } else if (newSection === Section.logs) {
-      history.replace(routes.processing.taskLogsURL(id));
+  return useCallback((newSection: Section) => {
+    switch (newSection) {
+      case Section.details:
+        history.replace(routes.processing.taskURL(id));
+        return;
+      case Section.logs:
+        history.replace(routes.processing.taskLogsURL(id));
+        return;
     }
-  };
+  }, []);
 }
 
 function TaskPageTabs(props: TaskPageTabsProps): JSX.Element {

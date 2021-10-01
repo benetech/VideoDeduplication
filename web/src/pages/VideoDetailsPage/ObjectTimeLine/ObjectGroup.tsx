@@ -24,33 +24,36 @@ const useStyles = makeStyles<Theme>((theme) => ({
  * Get relative start position of the group
  */
 
-function relativePosition(objects, fullLength) {
+function relativePosition(
+  objects: TemplateMatch[],
+  fullLength: number
+): number {
   const first = Math.min(...objects.map(position));
   return first / fullLength;
 }
+
 /**
  * Convert fraction to CSS Percents
  */
-
-function percents(value) {
+function percents(value: number): string {
   return `${(value * 100).toFixed(2)}%`;
 }
+
 /**
  * A point on the video timeline representing a close group
  * of recognized objects.
  */
-
 function ObjectGroup(props: ObjectGroupProps): JSX.Element {
   const { objects, fullLength, onSelect, className } = props;
   const classes = useStyles();
   const { popup, clickTrigger } = usePopup<HTMLButtonElement>("object-group");
   const intl = useIntl();
   const left = percents(relativePosition(objects, fullLength));
+
   /**
    * Move focus back to the object group when popper is closed by
    * the keyboard action.
    */
-
   const handlePopperClose = useCallback(() => {
     clickTrigger.ref.current?.focus();
   }, [clickTrigger.ref]);

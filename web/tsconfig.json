@@ -7,7 +7,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "downlevelIteration": true,
     "resolveJsonModule": true
   },

@@ -23,9 +23,9 @@ function useMessages() {
     task: intl.formatMessage({
       id: "tasks.one",
     }),
-    taskTitle: (type) =>
+    taskTitle: (title: string) =>
       intl.formatMessage({
-        id: type.title,
+        id: title,
       }),
   };
 }
@@ -51,9 +51,9 @@ function TypeSelector(props: TypeSelectorProps): JSX.Element {
         onChange={handleChange}
         label={messages.task}
       >
-        {TaskViewDescriptors.map((type) => (
-          <MenuItem key={type.type} value={type as any}>
-            {messages.taskTitle(type)}
+        {TaskViewDescriptors.map((view) => (
+          <MenuItem key={view.type} value={view as any}>
+            {messages.taskTitle(view.title)}
           </MenuItem>
         ))}
       </Select>

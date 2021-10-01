@@ -18,7 +18,7 @@ const useStyles = makeStyles<Theme>(() => ({
  */
 
 function bindProps(
-  width
+  width: number
 ): (listItem: React.ReactNode) => React.ReactNode | null {
   return (listItem) => {
     if (!React.isValidElement(listItem)) {
@@ -39,7 +39,7 @@ const FileLinearList = React.forwardRef(function FileLinearList(
   const { children, className, ...other } = props;
   const classes = useStyles();
   const { width, ref } = useResizeDetector();
-  const items = React.Children.map(children, bindProps(width));
+  const items = React.Children.map(children, bindProps(width || 1));
   const composedRef = useMemo(
     () => composeRefs<HTMLDivElement>(ref, externalRef),
     [ref, externalRef]

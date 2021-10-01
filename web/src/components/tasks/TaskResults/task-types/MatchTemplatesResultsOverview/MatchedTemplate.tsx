@@ -31,7 +31,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
 function useMessages() {
   const intl = useIntl();
   return {
-    matchedFiles(count) {
+    matchedFiles(count: number) {
       if (count === 1) {
         return intl.formatMessage({
           id: "templates.matchedFiles.one",

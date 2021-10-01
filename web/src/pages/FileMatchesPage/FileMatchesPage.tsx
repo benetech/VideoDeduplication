@@ -58,7 +58,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
  * Get i18n text
  */
 
-function useMessages(matchesCount) {
+function useMessages(matchesCount: number) {
   const intl = useIntl();
   const matches = String(matchesCount).padStart(2, "0");
   return {

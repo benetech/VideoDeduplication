@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import { Theme, useTheme } from "@material-ui/core"; // import BackdropMenu from "./BackdropMenu";
 import { useIntl } from "react-intl"; // import DropDownButton from "../../../common/components/DropDownButton";
 import PieChart from "./PieChart";
-import StackedLineChart from "./StackedLineChart";
+import StackedLineChart, { ChartDataProps } from "./StackedLineChart";
 import Grid from "@material-ui/core/Grid";
 import { MatchCategory } from "../../model/VideoFile";
 import useMatchStats from "../../application/api/stats/useMatchStats";
@@ -43,7 +43,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
 // }
 // This data will be retrieved from server.
 
-const dbMatches = (theme) => ({
+const dbMatches = (theme: Theme): ChartDataProps => ({
   labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
   series: [
     {

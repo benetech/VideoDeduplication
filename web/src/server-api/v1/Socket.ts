@@ -4,6 +4,7 @@ import TasksTransformer from "./transform/TasksTransformer";
 import { Task } from "../../model/Task";
 import getEntityId from "../../lib/entity/getEntityId";
 import { EventEmitter } from "events";
+import { LogsUpdateMessageDTO, TaskDTO } from "./dto/tasks";
 
 /**
  * Available Socket.io namespaces.
@@ -55,17 +56,20 @@ export default class Socket extends EventEmitter implements SocketAPI {
       this.emit(SocketEvents.DISCONNECT, this);
     });
 
-    this.socket.on(InternalSocketEvents.TASK_UPDATED, (data) => {
+    this.socket.on(InternalSocketEvents.TASK_UPDATED, (data: TaskDTO) => {
       this.emit(SocketEvents.TASK_UPDATED, this.taskTransform.task(data));
     });
 
-    this.socket.on(InternalSocketEvents.TASK_DELETED, (taskId) => {
-      this.emit(SocketEvents.TASK_DELETED, taskId);
-    });
+    this.socket.on(
+      InternalSocketEvents.TASK_DELETED,
+      (taskId: TaskDTO["id"]) => {
+        this.emit(SocketEvents.TASK_DELETED, taskId);
+      }
+    );
 
     this.socket.on(
       InternalSocketEvents.TASK_LOGS_UPDATED,
-      ({ task_id, data }) => {
+      ({ task_id, data }: LogsUpdateMessageDTO) => {
         this.emit(SocketEvents.LOGS_UPDATE, { taskId: task_id, data });
       }
     );

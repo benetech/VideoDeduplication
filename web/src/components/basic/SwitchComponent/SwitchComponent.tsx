@@ -3,8 +3,8 @@ import React from "react";
 /**
  * Set the current value on switch cases.
  */
-function bindProps(
-  currentValue
+function bindProps<T>(
+  currentValue: T
 ): (element: React.ReactNode, index: number) => React.ReactNode | null {
   return (caseElement, currentIndex) => {
     if (!React.isValidElement(caseElement)) {
@@ -23,18 +23,18 @@ function bindProps(
   };
 }
 
-function SwitchComponent(props: SwitchComponentProps): JSX.Element {
+function SwitchComponent<T = any>(props: SwitchComponentProps<T>): JSX.Element {
   const { value, children } = props; // Set required child properties
 
   const cases = React.Children.map(children, bindProps(value));
   return <React.Fragment>{cases}</React.Fragment>;
 }
 
-type SwitchComponentProps = {
+type SwitchComponentProps<T> = {
   /**
    * Current value that will be tested against cases.
    */
-  value?: any;
+  value?: T;
 
   /**
    * Cases list

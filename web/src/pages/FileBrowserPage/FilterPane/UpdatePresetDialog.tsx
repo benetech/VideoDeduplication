@@ -16,7 +16,10 @@ import Button from "../../../components/basic/Button";
 import nameErrorMessage from "../../../lib/messages/nameErrorMessage";
 import { Preset } from "../../../model/Preset";
 import useFilesColl from "../../../application/api/files/useFilesColl";
-import { ValidationError } from "../../../server-api/ServerError";
+import {
+  ValidationError,
+  ValidationErrorCode,
+} from "../../../server-api/ServerError";
 import { DefaultFilters } from "../../../model/VideoFile";
 import { Updates } from "../../../lib/entity/Entity";
 
@@ -45,7 +48,7 @@ function useMessages() {
     name: intl.formatMessage({
       id: "presets.name",
     }),
-    nameError: (code) => nameErrorMessage(intl, code),
+    nameError: (code: ValidationErrorCode) => nameErrorMessage(intl, code),
   };
 }
 

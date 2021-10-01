@@ -99,7 +99,7 @@ function useAddToExising(
   file: VideoFile,
   time: number,
   addFrame: CreateExampleFn,
-  onClose
+  onClose: () => void
 ): UseAddToExistingResults {
   const [selected, setSelected] = useState<Template["id"][]>([]);
   const { templates, done: loaded } = useTemplatesAll();

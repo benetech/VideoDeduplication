@@ -14,6 +14,7 @@ import MetadataPane from "./MetadataPane";
 import useExclusionsAll from "../../application/api/file-exclusions/useExclusionsAll";
 import useObjectsAll from "../../application/api/objects/useObjectsAll";
 import { TemplateMatch } from "../../model/Template";
+import { CSSProperties } from "@material-ui/core/styles/withStyles";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   root: {
@@ -28,20 +29,20 @@ const useStyles = makeStyles<Theme>((theme) => ({
     height: "100%",
   },
 }));
+
 /**
  * Tabs enum for ideomatic access
  */
+enum Tab {
+  info = "info",
+  objects = "objects",
+  metadata = "metadata",
+}
 
-const Tab = {
-  info: "info",
-  objects: "objects",
-  metadata: "metadata",
-};
 /**
  * Get styles to hide element if condition is false.
  */
-
-function showIf(cond) {
+function showIf(cond: boolean): CSSProperties {
   if (!cond) {
     return {
       display: "none",
@@ -50,11 +51,11 @@ function showIf(cond) {
     return {};
   }
 }
+
 /**
  * Select data-presentation panel
  */
-
-function contentStyles(tab) {
+function contentStyles(tab: Tab) {
   return {
     info: showIf(tab === Tab.info),
     objects: showIf(tab === Tab.objects),

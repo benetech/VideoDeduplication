@@ -5,7 +5,6 @@ import { Theme } from "@material-ui/core";
 import { VideoFile } from "../../../model/VideoFile";
 import MediaPreview from "../../basic/MediaPreview";
 import ReactPlayer from "react-player";
-import * as FilePlayer from "react-player/lib/players/FilePlayer";
 import flvjs from "flv.js";
 import TimeCaption from "../../../pages/VideoDetailsPage/TimeCaption";
 import VideoController from "./VideoController";
@@ -15,6 +14,13 @@ import WarningOutlinedIcon from "@material-ui/icons/WarningOutlined";
 import playerPreviewURL from "../../../pages/VideoDetailsPage/playerPreviewURL";
 import { ErrorCode } from "../../../server-api/ServerError";
 import { PlaybackStatus, TimeUnits, VideoPlayerAPI } from "./VideoPlayerAPI";
+import Action from "../../../model/Action";
+
+declare global {
+  interface Window {
+    flvjs: typeof flvjs | null;
+  }
+}
 
 /**
  * Setup bundled flv.js.
@@ -27,18 +33,16 @@ import { PlaybackStatus, TimeUnits, VideoPlayerAPI } from "./VideoPlayerAPI";
  * See https://www.npmjs.com/package/react-player#sdk-overrides
  * See https://github.com/CookPete/react-player/issues/605#issuecomment-492561909
  */
-
 function setupBundledFlvJs(
   options = {
     suppressLogs: false,
   }
 ) {
-  const FLV_VAR = FilePlayer["FLV_GLOBAL"] || "flvjs";
+  if (window.flvjs == null) {
+    window.flvjs = flvjs;
+  }
 
-  if (window[FLV_VAR] == null) {
-    (window as object)[FLV_VAR] = flvjs;
-  } // Disable flv.js error messages and info messages (#149)
-
+  // Disable flv.js error messages and info messages (#149)
   if (options.suppressLogs) {
     flvjs.LoggingControl.enableError = false;
     flvjs.LoggingControl.enableVerbose = false;
@@ -96,10 +100,10 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
-function makePreviewActions(handleWatch) {
+function makePreviewActions(handleWatch: () => void): Action[] {
   return [
     {
-      name: "Watch Video",
+      title: "Watch Video",
       handler: handleWatch,
     },
   ];

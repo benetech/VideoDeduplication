@@ -51,7 +51,9 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
-function callEach(...actions) {
+type AcceptFn<TValue> = (value: TValue) => void;
+
+function callEach<T>(...actions: AcceptFn<T>[]): AcceptFn<T> {
   actions = actions.filter(Boolean);
   return (value) => actions.forEach((action) => action(value));
 }
@@ -71,14 +73,14 @@ function useMessages() {
 function VideoPlayerPane(props: VideoPlayerPaneProps): JSX.Element {
   const {
     file,
-    onPlayerReady,
+    onPlayerReady = () => null,
     collapsible = false,
     playerActions,
     className,
   } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const [player, setPlayer] = useState(null);
+  const [player, setPlayer] = useState<VideoPlayerAPI | null>(null);
   const [progress, setProgress] = useState({
     played: 0,
   });
@@ -110,7 +112,7 @@ function VideoPlayerPane(props: VideoPlayerPaneProps): JSX.Element {
           <VideoPlayer
             file={file}
             className={classes.player}
-            onReady={callEach(setPlayer, onPlayerReady)}
+            onReady={callEach<VideoPlayerAPI>(setPlayer, onPlayerReady)}
             onProgress={setProgress}
             actions={playerActions}
             suppressErrors

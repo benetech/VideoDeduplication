@@ -18,7 +18,7 @@ export type PopupOptions<TElement extends HTMLElement = HTMLElement> = {
 
 export type PopupBindings<TElement extends HTMLElement = HTMLElement> = {
   clickTrigger: ClickTriggerOptions<TElement>;
-  popup: PopupOptions;
+  popup: PopupOptions<TElement>;
 };
 
 export default function usePopup<TElement extends HTMLElement = HTMLElement>(

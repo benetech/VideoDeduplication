@@ -28,7 +28,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
  * Get i18n text
  */
 
-function useMessages(object) {
+function useMessages(object: TemplateMatch) {
   const intl = useIntl();
   const time = objectTime(object, intl);
   return {
@@ -37,7 +37,7 @@ function useMessages(object) {
         id: "actions.seekToTheObject",
       },
       {
-        object: object.name,
+        object: object.template?.name || "?",
         time,
       }
     ),

@@ -50,7 +50,7 @@ function IconSelectOption<T = any>(props: IconSelectOptionProps<T>) {
   return option;
 }
 
-type IconSelectOptionProps<T = any> = ButtonProps & {
+export type IconSelectOptionProps<T = any> = ButtonProps & {
   /**
    * Tooltip to display on hover
    */

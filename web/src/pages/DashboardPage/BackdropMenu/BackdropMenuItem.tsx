@@ -21,7 +21,9 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
-function doSeq(...actions) {
+type Callable = () => void;
+
+function doSeq(...actions: Callable[]): Callable {
   return () => actions.forEach((action) => action());
 }
 

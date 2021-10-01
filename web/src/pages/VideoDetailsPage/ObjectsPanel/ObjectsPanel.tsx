@@ -64,12 +64,18 @@ function useMessages() {
     }),
   };
 }
+
+type UseGroupsResults = {
+  objects: TemplateMatch[];
+  groups: TemplateMatch[][];
+  falsePositive: TemplateMatch[];
+  falseGroups: TemplateMatch[][];
+};
+
 /**
  * Split objects into groups.
- * @param {ObjectEntity[]} objectsProp
  */
-
-function useGroups(objectsProp) {
+function useGroups(objectsProp: TemplateMatch[]): UseGroupsResults {
   const objects = useMemo(
     () => objectsProp.filter((object) => !object.falsePositive),
     [objectsProp]

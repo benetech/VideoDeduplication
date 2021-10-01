@@ -44,17 +44,17 @@ export interface VideoPlayerAPI {
   /**
    * Seek to the given position and start playing.
    */
-  seekTo(position: number, options?: SeekOptions);
+  seekTo(position: number, options?: SeekOptions): void;
 
   /**
    * Seek forward by the given `amount` of seconds.
    */
-  stepForward(options?: StepOptions);
+  stepForward(options?: StepOptions): void;
 
   /**
    * Seek back by the given `amount` of seconds.
    */
-  stepBack(options?: StepOptions);
+  stepBack(options?: StepOptions): void;
 
   /**
    * Get current time in seconds if available.

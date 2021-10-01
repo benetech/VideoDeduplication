@@ -5,6 +5,12 @@ import {
 } from "../../application/state/root";
 import { AppState } from "../../application/state/root/initialState";
 
+declare global {
+  interface Window {
+    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof reduxCompose;
+  }
+}
+
 /**
  * Create JusticeAI Redux store.
  */

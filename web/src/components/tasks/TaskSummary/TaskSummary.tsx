@@ -42,7 +42,7 @@ function bindProps(
  */
 
 function TaskSummary(props: TaskSummaryProps): JSX.Element {
-  const { task, divider, children, className, ...other } = props;
+  const { task, divider = false, children, className, ...other } = props;
   const classes = useStyles();
 
   // Set required child properties

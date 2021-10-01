@@ -51,7 +51,7 @@ function useMessages() {
  * Check if task is still active.
  */
 
-function isActiveTask(task) {
+function isActiveTask(task: Task): boolean {
   const status = task.status;
   return status === TaskStatus.PENDING || status === TaskStatus.RUNNING;
 }

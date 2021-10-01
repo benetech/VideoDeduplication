@@ -6,7 +6,7 @@ import { FileFilters } from "../../../model/VideoFile";
 /**
  * Filters merge customizer.
  */
-function replaceArrays(objValue, srcValue) {
+function replaceArrays(objValue: any, srcValue: any): any {
   if (isArray(objValue)) {
     return srcValue;
   }

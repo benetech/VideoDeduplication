@@ -7,7 +7,7 @@ import VideocamOutlinedIcon from "@material-ui/icons/VideocamOutlined";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import AttributeText from "../../basic/AttributeText";
-import { useIntl } from "react-intl";
+import { IntlShape, useIntl } from "react-intl";
 import { formatDate, formatDuration } from "../../../lib/helpers/format";
 import EventAvailableOutlinedIcon from "@material-ui/icons/EventAvailableOutlined";
 import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
@@ -56,7 +56,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
-function useMessages(intl) {
+function useMessages(intl: IntlShape) {
   return {
     attr: {
       filename: intl.formatMessage({

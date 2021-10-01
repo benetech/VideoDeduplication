@@ -13,6 +13,7 @@ import CloudOutlinedIcon from "@material-ui/icons/CloudOutlined";
 import { useIntl } from "react-intl";
 import { FileMatch } from "../../../model/Match";
 import { useShowMatches } from "../../../routing/hooks";
+import Action from "../../../model/Action";
 
 const useStyles = makeStyles<Theme>({
   root: {},
@@ -46,7 +47,11 @@ function useMessages() {
  * Get match actions.
  */
 
-function useActions(match, handleCopy, messages) {
+function useActions(
+  match: FileMatch,
+  handleCopy: () => void,
+  messages: ReturnType<typeof useMessages>
+): Action[] {
   const showMatches = useShowMatches();
   const handleShowMatches = useCallback(
     () => showMatches(match.file),
@@ -76,7 +81,7 @@ function RemoteMatchPreview(props: RemoteMatchPreviewProps): JSX.Element {
       .writeText(match.file.hash)
       .then(null, (reason) => console.error("Copy hash failed", reason));
   }, [match.file.id]);
-  const actions = useActions(match.file, handleCopy, messages);
+  const actions = useActions(match, handleCopy, messages);
   return (
     <PreviewContainer className={clsx(classes.root, className)} {...other}>
       <PreviewHeader

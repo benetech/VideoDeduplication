@@ -31,7 +31,7 @@ export default function useFileClusterAll(
 
   // Collect files
   const files: FileIndex = useMemo(() => {
-    const fileIndex = {};
+    const fileIndex: FileIndex = {};
     for (const page of query.pages) {
       for (const file of page.files) {
         fileIndex[file.id] = file;

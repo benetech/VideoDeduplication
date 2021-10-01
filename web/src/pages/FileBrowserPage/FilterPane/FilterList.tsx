@@ -1,6 +1,6 @@
 import React from "react";
 import clsx from "clsx";
-import { makeStyles } from "@material-ui/styles";
+import { ClassNameMap, makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
 
 const useStyles = makeStyles<Theme>((theme) => ({
@@ -11,12 +11,12 @@ const useStyles = makeStyles<Theme>((theme) => ({
     marginTop: theme.spacing(4),
   },
 }));
+
 /**
  * Set the following properties: selected, onSelect and value (if absent)
  */
-
 function bindProps(
-  classes
+  classes: ClassNameMap
 ): (filter: React.ReactNode, index: number) => React.ReactNode {
   return (filter, currentIndex) => {
     if (!React.isValidElement(filter)) {

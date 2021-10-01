@@ -2,12 +2,14 @@ import React, { useMemo } from "react";
 import Grid from "@material-ui/core/Grid";
 import { useResizeDetector } from "react-resize-detector";
 import composeRefs from "@seznam/compose-react-refs/composeRefs";
-import { FileListComponent, FileListProps } from "../FileList";
+import { FileListProps } from "../FileList";
 
 /**
  * Set the following properties: selected, onSelect and value (if absent)
  */
-function bindProps(perRow): (listItem: React.ReactNode) => React.ReactNode {
+function bindProps(
+  perRow: number
+): (listItem: React.ReactNode) => React.ReactNode {
   return (listItem) => {
     if (!React.isValidElement(listItem)) {
       return null;
@@ -20,7 +22,7 @@ function bindProps(perRow): (listItem: React.ReactNode) => React.ReactNode {
   };
 }
 
-function useRow(minItemWidth, defaultRow = 3) {
+function useRow(minItemWidth: number, defaultRow: number = 3) {
   const { width, ref } = useResizeDetector();
   let perRow = Math.floor((width || 0) / minItemWidth);
   return {

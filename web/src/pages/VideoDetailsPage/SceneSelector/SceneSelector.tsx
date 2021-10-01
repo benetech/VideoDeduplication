@@ -33,11 +33,11 @@ const useStyles = makeStyles<Theme>((theme) => ({
     cursor: "pointer",
   },
 }));
+
 /**
  * Get index of the scene being played at the moment.
  */
-
-function selectedScene(scenes, played) {
+function selectedScene(scenes: Scene[], played: number): number {
   let selected = -1;
 
   for (let [index, scene] of scenes.entries()) {
@@ -65,11 +65,11 @@ function useMessages() {
     }),
   };
 }
+
 /**
  * Get list of scenes sorted by position.
  */
-
-function sorted(scenes) {
+function sorted(scenes: Scene[]): Scene[] {
   const result = [...scenes];
   return result.sort((a, b) => a.position - b.position);
 }
@@ -84,7 +84,7 @@ function SceneSelector(props: SceneSelectorProps): JSX.Element {
   } = props;
   const classes = useStyles();
   const scenes = useMemo(() => sorted(scenesProp), [scenesProp]);
-  const selected = selectedScene(scenes, played);
+  const selected = selectedScene(scenes, played || 0);
   const messages = useMessages();
   const [collapsed, setCollapsed] = useState(false);
   const [blur, setBlur] = useState(true);

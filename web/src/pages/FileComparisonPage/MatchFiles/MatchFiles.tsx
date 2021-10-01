@@ -12,7 +12,7 @@ import MatchOptions, { DefaultMatchOptions } from "./MatchOptions";
 import SettingsIcon from "@material-ui/icons/Settings";
 import IconButton from "@material-ui/core/IconButton";
 import useDeleteMatch from "../../../application/api/matches/useDeleteMatch";
-import { DefaultMatchQueryFilters } from "../../../model/Match";
+import { DefaultMatchQueryFilters, FileMatch } from "../../../model/Match";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   root: {},
@@ -46,11 +46,11 @@ const useStyles = makeStyles<Theme>((theme) => ({
     marginLeft: theme.spacing(1),
   },
 }));
+
 /**
  * Compare two matches.
  */
-
-function matchComparator(first, second) {
+function matchComparator(first: FileMatch, second: FileMatch): number {
   if (first.distance < second.distance) {
     return -1;
   } else if (first.distance > second.distance) {

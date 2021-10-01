@@ -46,7 +46,7 @@ export function useBasicEntitiesLazy<
   TData extends BaseListResults = BaseListResults
 >(
   queryKey: QueryKey,
-  fetchFn,
+  fetchFn: (context?: any) => Promise<TData>,
   options: UseBasicEntitiesLazyOptions<TPage, TData>
 ): UseEntitiesLazyResults<TPage, TData> {
   const { getTotal = getTotalDefault, makePages, getOffset } = options;
@@ -90,7 +90,7 @@ export default function useEntitiesLazy<
   TData extends ListResults<TEntity, TFilters> = ListResults<TEntity, TFilters>
 >(
   queryKey: QueryKey,
-  fetchFn,
+  fetchFn: (context?: any) => Promise<TData>,
   options: UseEntitiesLazyOptions<TEntity[], TData> = {}
 ): UseEntitiesLazyResults<TEntity[], TData> {
   const {

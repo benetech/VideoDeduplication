@@ -230,7 +230,7 @@ export default class FilesTransformer {
     };
   }
 
-  _creationDate(data): Date | undefined {
+  _creationDate(data: FileDTO): Date | undefined {
     const value = data?.exif?.General_Encoded_Date;
     if (value == null) {
       return;
@@ -263,7 +263,7 @@ export default class FilesTransformer {
     }
   }
 
-  _scene(scene: SceneDTO, file): Scene {
+  _scene(scene: SceneDTO, file: FileDTO): Scene {
     return {
       id: scene.id,
       preview: `/api/v1/files/${file.id}/thumbnail?time=${scene.start_time}`,

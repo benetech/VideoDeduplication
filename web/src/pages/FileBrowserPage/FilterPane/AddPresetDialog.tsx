@@ -12,7 +12,10 @@ import { useIntl } from "react-intl";
 import Button from "../../../components/basic/Button";
 import nameErrorMessage from "../../../lib/messages/nameErrorMessage";
 import useFilesColl from "../../../application/api/files/useFilesColl";
-import { ValidationError } from "../../../server-api/ServerError";
+import {
+  ValidationError,
+  ValidationErrorCode,
+} from "../../../server-api/ServerError";
 
 /**
  * Get translated text.
@@ -36,7 +39,8 @@ function useMessages() {
     name: intl.formatMessage({
       id: "presets.name",
     }),
-    nameError: (code) => nameErrorMessage(intl, code),
+    nameError: (code: ValidationErrorCode): string =>
+      nameErrorMessage(intl, code),
   };
 }
 

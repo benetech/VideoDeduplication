@@ -4,6 +4,8 @@ import { Theme } from "@material-ui/core";
 import * as GameIcon from "react-icons/gi";
 import CancelPresentationOutlinedIcon from "@material-ui/icons/CancelPresentationOutlined";
 import clsx from "clsx";
+import { IconType } from "react-icons/lib";
+import { Attributes } from "../../../lib/types/TextAttributes";
 
 const useStyles = makeStyles<Theme>({
   defaultIcon: {
@@ -16,11 +18,13 @@ const useStyles = makeStyles<Theme>({
 function StandardIcon(props: StandardIconProps): JSX.Element {
   const { name, className, ...other } = props;
   const classes = useStyles();
-  const iconDiv = GameIcon[name] ? (
-    React.createElement(GameIcon[name])
-  ) : (
-    <CancelPresentationOutlinedIcon />
-  );
+  const gameIcon = (GameIcon as Attributes<IconType>)[name];
+  const iconDiv =
+    gameIcon != null ? (
+      React.createElement(gameIcon)
+    ) : (
+      <CancelPresentationOutlinedIcon />
+    );
   return (
     <div className={clsx(classes.defaultIcon, className)} {...other}>
       {iconDiv}

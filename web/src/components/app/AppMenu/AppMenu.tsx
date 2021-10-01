@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import clsx from "clsx";
-import { makeStyles } from "@material-ui/styles";
+import { ClassNameMap, makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
 import AppMenuList from "./AppMenuList";
 import AppMenuListItem from "./AppMenuListItem";
@@ -40,7 +40,14 @@ const useStyles = makeStyles<Theme>((theme) => ({
     top: 0,
   },
 }));
-const menuItems = [
+
+type AppMenuItem = {
+  icon: JSX.Element;
+  title: string;
+  location: string;
+};
+
+const menuItems: AppMenuItem[] = [
   {
     icon: <BarChartOutlinedIcon fontSize="large" />,
     title: "nav.dashboard",
@@ -68,17 +75,21 @@ const menuItems = [
   },
 ];
 
-function useCurrentLink(links) {
+function useCurrentLink(links: AppMenuItem[]): AppMenuItem | undefined {
   let pathname = useLocation().pathname;
   return links.find((link) => pathname.startsWith(link.location));
 }
 
-function useSelectPage() {
+function useSelectPage(): (link: AppMenuItem) => void {
   const history = useHistory();
   return (link) => history.push(link.location);
 }
 
-function getStyles(classes, open, className) {
+function getStyles(
+  classes: ClassNameMap,
+  open: boolean,
+  className: string | undefined
+): string {
   return clsx(
     classes.drawer,
     {

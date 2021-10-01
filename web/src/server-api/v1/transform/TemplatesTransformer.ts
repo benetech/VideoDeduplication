@@ -23,7 +23,7 @@ import {
   TemplateMatchDTO,
   TemplateMatchQueryResultsDTO,
 } from "../dto/templates";
-import { Transient } from "../../../lib/entity/Entity";
+import { Transient, Updates } from "../../../lib/entity/Entity";
 import getEntityId from "../../../lib/entity/getEntityId";
 import { VideoFile } from "../../../model/VideoFile";
 
@@ -210,7 +210,7 @@ export default class TemplatesTransformer {
    * @param match match object
    * @return {{false_positive}} update-match DTO
    */
-  updateMatchDTO(match) {
+  updateMatchDTO(match: Updates<TemplateMatch>) {
     return {
       false_positive: match.falsePositive,
     };

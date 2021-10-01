@@ -53,7 +53,7 @@ const options: CategoryButtonDescr[] = [
 function CategorySelector(props: CategorySelectorProps) {
   const { category: selected, onChange, counts, dense, className } = props;
   const intl = useIntl();
-  const format = (id) => intl.formatMessage({ id });
+  const format = (id: string): string => intl.formatMessage({ id });
 
   return (
     <Grid

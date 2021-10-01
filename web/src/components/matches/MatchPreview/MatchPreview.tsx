@@ -4,12 +4,13 @@ import LocalMatchPreview from "./LocalMatchPreview";
 import RemoteMatchPreview from "./RemoteMatchPreview";
 import { FileMatch } from "../../../model/Match";
 import { useIntl } from "react-intl";
+import { VideoFile } from "../../../model/VideoFile";
 
 /**
  * Get translated text
  */
 
-function useMessages(file) {
+function useMessages(file: VideoFile) {
   const intl = useIntl();
   return {
     ariaLabel: file.external

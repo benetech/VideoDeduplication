@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "react-query";
+import { InfiniteData, useMutation, useQueryClient } from "react-query";
 import { useServer } from "../../../server-api/context";
 import collectQueriesData from "../../common/collectQueriesData";
 import PagedResultsBuilder from "../../common/PagedResultsBuilder";
@@ -71,19 +71,25 @@ export default function useUpdateFileMatch(): UpdateFileMatchFn {
         ["files/matches", file.id],
       ]);
 
-      const updater = (data) =>
+      const updater = (data?: InfiniteData<QueryFileMatchesResults>) =>
         new PagedResultsBuilder<
           FileMatch,
           MatchQueryFilters,
           QueryFileMatchesResults
         >(data, checkFilters, makeComparator).updateEntity(match, () => match)
-          .results;
+          .results as InfiniteData<QueryFileMatchesResults>;
 
       // Perform optimistic updates
       if (motherFile != null) {
-        queryClient.setQueriesData(["files/matches", motherFile.id], updater);
+        queryClient.setQueriesData<InfiniteData<QueryFileMatchesResults>>(
+          ["files/matches", motherFile.id],
+          updater
+        );
       }
-      queryClient.setQueriesData(["files/matches", file.id], updater);
+      queryClient.setQueriesData<InfiniteData<QueryFileMatchesResults>>(
+        ["files/matches", file.id],
+        updater
+      );
 
       return { originalData };
     },

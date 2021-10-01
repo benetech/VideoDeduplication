@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
-import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import FilterContainer from "./FilterContainer";
 import { useIntl } from "react-intl";
@@ -13,7 +12,7 @@ import TopLabelTextField from "../../../components/basic/TopLabelTextField";
 import useUniqueId from "../../../lib/hooks/useUniqueId";
 import { format as formatDate } from "date-fns";
 import { Theme } from "@material-ui/core";
-import { PartialRange, Range } from "../../../lib/helpers/Range";
+import { PartialRange } from "../../../lib/helpers/Range";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   content: {
@@ -27,32 +26,36 @@ const useStyles = makeStyles<Theme>((theme) => ({
   upper: {},
 }));
 
-/**
- * Check if date is defined.
- */
-function defined(date) {
-  return date != null && !isNaN(date);
-}
+type ValidBounds = {
+  lowerMin: Date | null;
+  lowerMax: Date | null;
+  upperMin: Date | null;
+  upperMax: Date | null;
+};
 
 /**
  * Get valid range of each bound.
  */
-function validBounds(range, minDate, maxDate) {
-  let lowerMax = undefined;
-  if (defined(range.upper) && defined(maxDate)) {
+function validBounds(
+  range: PartialRange<Date>,
+  minDate: Date | null,
+  maxDate: Date | null
+): ValidBounds {
+  let lowerMax = null;
+  if (range.upper != null && maxDate != null) {
     lowerMax = range.upper > maxDate ? maxDate : range.upper;
-  } else if (defined(range.upper)) {
+  } else if (range.upper != null) {
     lowerMax = range.upper;
-  } else if (defined(maxDate)) {
+  } else if (maxDate != null) {
     lowerMax = maxDate;
   }
 
-  let upperMin = undefined;
-  if (defined(range.lower) && defined(minDate)) {
+  let upperMin = null;
+  if (range.lower != null && minDate != null) {
     upperMin = range.lower > minDate ? range.lower : minDate;
-  } else if (defined(range.lower)) {
+  } else if (range.lower != null) {
     upperMin = range.lower;
-  } else if (defined(minDate)) {
+  } else if (minDate != null) {
     upperMin = minDate;
   }
   return {
@@ -66,7 +69,7 @@ function validBounds(range, minDate, maxDate) {
 /**
  * Format date
  */
-function format(date) {
+function format(date: Date | null) {
   if (date == null) {
     return null;
   }
@@ -76,7 +79,7 @@ function format(date) {
 /**
  * Get i18n text.
  */
-function useMessages(range, minDate, maxDate) {
+function useMessages(range: PartialRange<Date>, minDate: Date, maxDate: Date) {
   const intl = useIntl();
   const bounds = validBounds(range, minDate, maxDate);
   const defaultMin = intl.formatMessage({ id: "filter.defaultMinDate" });
@@ -110,17 +113,19 @@ function useMessages(range, minDate, maxDate) {
 /**
  * Check if range is valid.
  */
-function isValid(range, minDate, maxDate) {
+function isValid(
+  range: PartialRange<Date>,
+  minDate: Date,
+  maxDate: Date
+): boolean {
   const { lower, upper } = range;
   const bounds = validBounds(range, minDate, maxDate);
   return (
     (lower == null ||
-      (!isNaN(lower) &&
-        (bounds.lowerMin == null || lower >= bounds.lowerMin) &&
+      ((bounds.lowerMin == null || lower >= bounds.lowerMin) &&
         (bounds.lowerMax == null || lower <= bounds.lowerMax))) &&
     (upper == null ||
-      (!isNaN(upper) &&
-        (bounds.upperMin == null || upper >= bounds.upperMin) &&
+      ((bounds.upperMin == null || upper >= bounds.upperMin) &&
         (bounds.upperMax == null || upper <= bounds.upperMax)))
   );
 }

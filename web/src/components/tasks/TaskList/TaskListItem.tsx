@@ -90,14 +90,14 @@ function useMessages() {
       id: "actions.findFrame",
     }),
 
-    files(count) {
+    files(count: number) {
       const files = intl.formatMessage({
         id: count === 1 ? "file.one" : "file.many",
       });
       return `${count} ${files}`;
     },
 
-    time(task) {
+    time(task: Task) {
       return intl.formatMessage(
         {
           id: "task.time",
@@ -108,7 +108,7 @@ function useMessages() {
       );
     },
 
-    status(task) {
+    status(task: Task) {
       switch (task.status) {
         case TaskStatus.PENDING:
           return intl.formatMessage({

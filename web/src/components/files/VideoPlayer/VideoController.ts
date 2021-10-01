@@ -47,7 +47,7 @@ export default class VideoController implements VideoPlayerAPI {
     }
   }
 
-  setPlayer(player) {
+  setPlayer(player: ReactPlayer | null) {
     this.player = player;
     this.trySeek(); // there might be postponed seek request
   }

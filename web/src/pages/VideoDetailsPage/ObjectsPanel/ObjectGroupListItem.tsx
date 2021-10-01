@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import { ButtonBase, Theme } from "@material-ui/core";
 import { TemplateMatch } from "../../../model/Template";
 import { formatDuration } from "../../../lib/helpers/format";
-import { useIntl } from "react-intl";
+import { IntlShape, useIntl } from "react-intl";
 import position from "../objectPosition";
 import ObjectPreview from "./ObjectPreview";
 import useTemplateIndex from "../../../application/api/templates/useTemplateIndex";
@@ -69,7 +69,7 @@ function startTime(objects: TemplateMatch[]): number {
 /**
  * Get a11y label for time caption
  */
-function captionLabel(objects, intl) {
+function captionLabel(objects: TemplateMatch[], intl: IntlShape): string {
   const time = formatDuration(startTime(objects), intl, false);
   return intl.formatMessage({ id: "aria.label.objectGroup" }, { time });
 }

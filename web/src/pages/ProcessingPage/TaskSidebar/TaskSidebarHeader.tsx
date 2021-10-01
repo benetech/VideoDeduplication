@@ -1,6 +1,5 @@
 import React from "react";
 import clsx from "clsx";
-import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
 import { useIntl } from "react-intl";
 import TextField from "@material-ui/core/TextField";
@@ -47,14 +46,14 @@ const useStyles = makeStyles<Theme>((theme) => ({
 /**
  * Get i18n text.
  */
-function useMessages(count) {
+function useMessages(count: number | null) {
   const intl = useIntl();
   const tasks = count === 1 ? "tasks.one" : "tasks.many";
-  count = count != null ? count : "";
+  const countStr: string = count != null ? String(count) : "";
   return {
-    title: `${count} ${intl.formatMessage({ id: tasks })}`,
+    title: `${countStr} ${intl.formatMessage({ id: tasks })}`,
     search: intl.formatMessage({ id: "actions.search" }),
-    format(id) {
+    format(id: string) {
       return intl.formatMessage({ id });
     },
   };

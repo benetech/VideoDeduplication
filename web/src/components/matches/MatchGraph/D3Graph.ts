@@ -98,7 +98,7 @@ function nodeHoverPainter(
 
 function linkHoverPainter(
   hovered: ClusterLink,
-  scheme
+  scheme: ColorScheme
 ): GetColorFn<ClusterNode> {
   const adjacentColor = color(scheme.normal);
   const nonAdjacentColor = color(scheme.inactive);
@@ -417,13 +417,13 @@ export default class D3Graph {
       }
       event.subject.fx = event.subject.x;
       event.subject.fy = event.subject.y;
-      this.tracker?.track(event);
+      this.tracker?.track();
     };
 
     const dragged = (event: NodeDragEvent) => {
       event.subject.fx = event.x;
       event.subject.fy = event.y;
-      this.tracker?.track(event);
+      this.tracker?.track();
     };
 
     const dragEnded = (event: NodeDragEvent) => {
@@ -432,7 +432,7 @@ export default class D3Graph {
       }
       event.subject.fx = null;
       event.subject.fy = null;
-      this.tracker?.track(event);
+      this.tracker?.track();
     };
 
     return d3

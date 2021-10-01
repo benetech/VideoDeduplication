@@ -1,6 +1,6 @@
 import React from "react";
 import clsx from "clsx";
-import { makeStyles } from "@material-ui/styles";
+import { ClassNameMap, makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
 import AppActions from "./AppActions";
 import Label from "../basic/Label";
@@ -26,7 +26,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
-function titleElement(title, classes) {
+function titleElement(title: string, classes: ClassNameMap) {
   if (title != null) {
     return (
       <Label className={classes.title} variant="title2">
@@ -37,10 +37,10 @@ function titleElement(title, classes) {
 
   return null;
 }
+
 /**
  * Navigation elements displayed at the page header.
  */
-
 function PageHeader(props: PageHeaderProps): JSX.Element {
   const { title, children, className } = props;
   const classes = useStyles();
@@ -57,7 +57,7 @@ type PageHeaderProps = {
   /**
    * Optional page title.
    */
-  title?: string;
+  title: string;
 
   /**
    * Custom elements displayed on the application header.

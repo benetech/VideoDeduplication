@@ -21,7 +21,7 @@ function useMessages() {
     title: intl.formatMessage({
       id: "presets.deletePreset.title",
     }),
-    description: (name) =>
+    description: (name: string) =>
       intl.formatMessage(
         {
           id: "presets.deletePreset.description",

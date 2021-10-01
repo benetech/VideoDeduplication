@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
 import { useIntl } from "react-intl";
 import { useHistory, useRouteMatch } from "react-router-dom";
@@ -8,17 +8,16 @@ import SelectableTabs, { SelectableTab } from "../../basic/SelectableTabs";
 /**
  * Identifiers for main file data sections
  */
+enum Section {
+  details = "details",
+  matches = "matches",
+  cluster = "cluster",
+}
 
-const Section = {
-  details: "details",
-  matches: "matches",
-  cluster: "cluster",
-};
 /**
  * Get current section
  */
-
-function useSection() {
+function useSection(): Section | undefined {
   const details = useRouteMatch({
     path: routes.collection.file,
     exact: true,
@@ -40,14 +39,15 @@ function useSection() {
     return Section.cluster;
   }
 }
+
 /**
  * Get i18n text
  */
-
-function useMessages({ matches }) {
+function useMessages(matchesCount: number) {
   const intl = useIntl();
-  const filesMatched = matches === 1 ? "file.oneMatch" : "file.manyMatches";
-  matches = String(matches).padStart(2, "0");
+  const filesMatched =
+    matchesCount === 1 ? "file.oneMatch" : "file.manyMatches";
+  const matchesCountStr = String(matchesCount).padStart(2, "0");
   return {
     details: intl.formatMessage({
       id: "file.details",
@@ -57,7 +57,7 @@ function useMessages({ matches }) {
         id: filesMatched,
       },
       {
-        count: matches,
+        count: matchesCountStr,
       }
     ),
     cluster: intl.formatMessage({
@@ -69,25 +69,26 @@ function useMessages({ matches }) {
  * Get navigation handler
  */
 
-function useNavigation(id) {
+function useNavigation(id: number | string) {
   const history = useHistory();
-  return (newSection) => {
-    if (newSection === Section.details) {
-      history.replace(routes.collection.fileURL(id));
-    } else if (newSection === Section.matches) {
-      history.replace(routes.collection.fileMatchesURL(id));
-    } else if (newSection === Section.cluster) {
-      history.replace(routes.collection.fileClusterURL(id));
-    }
-  };
+  return useCallback(
+    (newSection: Section) => {
+      if (newSection === Section.details) {
+        history.replace(routes.collection.fileURL(id));
+      } else if (newSection === Section.matches) {
+        history.replace(routes.collection.fileMatchesURL(id));
+      } else if (newSection === Section.cluster) {
+        history.replace(routes.collection.fileClusterURL(id));
+      }
+    },
+    [id]
+  );
 }
 
 function FileNavigationTabs(props: FileNavigationTabsProps): JSX.Element {
   const { id, matches = 0, remote = false, className } = props;
   const section = useSection();
-  const messages = useMessages({
-    matches,
-  });
+  const messages = useMessages(matches);
   const navigate = useNavigation(id);
   return (
     <SelectableTabs

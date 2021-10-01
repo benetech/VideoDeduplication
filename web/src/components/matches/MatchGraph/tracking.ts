@@ -1,4 +1,5 @@
 import { ClusterLink, ClusterNode, Position } from "./model";
+import React from "react";
 
 /**
  * Element move handler.
@@ -21,8 +22,8 @@ export type RemoveHandler<TData> = (
  * Generic interface for movement trackers.
  */
 export interface MoveTracker {
-  track(event?: any);
-  remove();
+  track(event?: React.MouseEvent): void;
+  remove(): void;
 }
 
 /**
@@ -87,7 +88,7 @@ export class LinkTracker implements MoveTracker {
   /**
    * Call move listener.
    */
-  track(event) {
+  track(event?: React.MouseEvent) {
     if (event == null) {
       return;
     }

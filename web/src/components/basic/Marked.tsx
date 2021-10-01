@@ -10,11 +10,12 @@ const useStyles = makeStyles<Theme>((theme) => ({
 /**
  * Find the first entry of marked substring in the text and split the text by
  * that entry.
- *
- * @returns {string[]|*[]}
  */
 
-function split(text, marked) {
+function split(
+  text: string,
+  marked: string | undefined
+): [string, string | null, string | null] {
   if (marked == null || marked.length === 0) {
     return [text, null, null];
   }

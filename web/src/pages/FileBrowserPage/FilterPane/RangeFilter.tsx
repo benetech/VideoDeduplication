@@ -20,7 +20,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
 /**
  * Get i18n text.
  */
-function useMessages(title) {
+function useMessages(title: string) {
   const intl = useIntl();
   return {
     from: intl.formatMessage({

@@ -15,7 +15,7 @@ type IndentAttributesOptions = {
  */
 export default function indentAttributes(
   attributes: React.ReactNode[] | undefined | null,
-  divider,
+  divider: boolean,
   options: IndentAttributesOptions = {}
 ): React.ReactNode[] {
   const { spacerClass, dividerClass } = options;
@@ -26,15 +26,13 @@ export default function indentAttributes(
 
   const indentClass = divider ? dividerClass : spacerClass;
   const IndentComponent = divider ? Divider : Spacer;
-  if (attributes != null) {
-    attributes.forEach((attribute, index) => {
-      result.push(attribute);
-      if (index < attributes.length - 1) {
-        result.push(
-          <IndentComponent key={`divider-${index}`} className={indentClass} />
-        );
-      }
-    });
-  }
+  attributes.forEach((attribute, index) => {
+    result.push(attribute);
+    if (index < attributes.length - 1) {
+      result.push(
+        <IndentComponent key={`divider-${index}`} className={indentClass} />
+      );
+    }
+  });
   return result;
 }

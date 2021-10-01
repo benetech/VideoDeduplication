@@ -14,7 +14,7 @@ const useStyles = makeStyles<Theme>(() => ({
   },
 }));
 
-const data = (categories, theme) => ({
+const data = (categories: ChartDataCategory[], theme: Theme) => ({
   datasets: [
     {
       label: "Categories",
@@ -28,7 +28,7 @@ const data = (categories, theme) => ({
   labels: categories.map((category) => category.name),
 });
 
-const options = (theme) => ({
+const options = (theme: Theme) => ({
   legend: {
     display: true,
     position: "bottom",
@@ -54,10 +54,10 @@ const options = (theme) => ({
   },
 });
 
-const sumCategories = (categories) =>
+const sumCategories = (categories: ChartDataCategory[]): number =>
   categories.reduce((acc, cat) => acc + cat.value, 0);
 
-const Actions = () => {
+const Actions = (): JSX.Element => {
   const intl = useIntl();
   return (
     <IconButton
@@ -107,14 +107,16 @@ function PieChart(props: PieChartProps): JSX.Element {
   );
 }
 
+type ChartDataCategory = {
+  name: string;
+  value: number;
+  color: string;
+  onClick?: () => void;
+};
+
 type PieChartProps = {
   title: string;
-  categories: {
-    name: string;
-    value: number;
-    color: string;
-    onClick?: (...args: any[]) => void;
-  }[];
+  categories: ChartDataCategory[];
   total?: number;
   className?: string;
 };

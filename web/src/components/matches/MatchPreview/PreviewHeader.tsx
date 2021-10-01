@@ -6,7 +6,7 @@ import IconButton from "@material-ui/core/IconButton";
 import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import { useIntl } from "react-intl";
 import Action from "../../../model/Action";
-import usePopup from "../../../lib/hooks/usePopup";
+import usePopup, { PopupOptions } from "../../../lib/hooks/usePopup";
 import clsx from "clsx";
 import { OverridableComponent } from "@material-ui/core/OverridableComponent";
 import { SvgIconTypeMap } from "@material-ui/core/SvgIcon/SvgIcon";
@@ -60,8 +60,10 @@ function useMessages() {
   };
 }
 
-function bindHandler(popup) {
-  return (action) => () => {
+function bindHandler(
+  popup: PopupOptions<HTMLButtonElement>
+): (action: Action) => () => void {
+  return (action: Action) => () => {
     popup.onClose();
     action.handler();
   };

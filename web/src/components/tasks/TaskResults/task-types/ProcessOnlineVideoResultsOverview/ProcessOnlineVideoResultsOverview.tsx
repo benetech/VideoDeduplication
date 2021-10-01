@@ -38,7 +38,7 @@ function useMessages() {
       id: "actions.blurVideos.help",
     }),
 
-    title(count) {
+    title(count: number) {
       return intl.formatMessage(
         {
           id: "task.onlineFiles.description",

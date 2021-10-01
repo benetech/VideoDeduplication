@@ -40,7 +40,7 @@ type AppPageProps = {
   /**
    * Page title displayed in the header.
    */
-  title?: string;
+  title: string;
 
   /**
    * Custom header content.

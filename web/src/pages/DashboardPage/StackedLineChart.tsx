@@ -14,7 +14,7 @@ const useStyles = makeStyles<Theme>(() => ({
   },
 }));
 
-const data = (datasets, labels) => ({
+const data = (datasets: ChartDataSeries[], labels: string[]) => ({
   labels,
   datasets: datasets.map((series) => ({
     label: series.name,
@@ -27,7 +27,7 @@ const data = (datasets, labels) => ({
   })),
 });
 
-const options = (theme) => ({
+const options = (theme: Theme) => ({
   legend: {
     display: true,
     position: "bottom",
@@ -62,13 +62,13 @@ const options = (theme) => ({
   },
 });
 
-function total(datasets) {
+function total(datasets: ChartDataSeries[]): number {
   return datasets.reduce((acc, series) => {
     return acc + series.data[series.data.length - 1];
   }, 0);
 }
 
-const Actions = () => {
+const Actions = (): JSX.Element => {
   const intl = useIntl();
   return (
     <IconButton
@@ -99,14 +99,19 @@ function StackedLineChart(props: StackedLineChartProps): JSX.Element {
   );
 }
 
-type StackedLineChartProps = {
-  title: string;
+export type ChartDataSeries = {
+  name: string;
+  data: number[];
+  color?: string;
+};
+
+export type ChartDataProps = {
   labels: string[];
-  series: {
-    name: string;
-    data: number[];
-    color?: string;
-  }[];
+  series: ChartDataSeries[];
+};
+
+type StackedLineChartProps = ChartDataProps & {
+  title: string;
   className?: string;
 };
 export default StackedLineChart;

@@ -17,11 +17,38 @@ const useStyles = makeStyles<Theme>((theme) => ({
     width: 120,
   },
 }));
+
+/**
+ * Get translated text.
+ */
+function useMessages() {
+  const intl = useIntl();
+  return {
+    pending: intl.formatMessage({
+      id: "task.statusLong.pending",
+    }),
+    running: intl.formatMessage({
+      id: "task.statusLong.running",
+    }),
+    success: intl.formatMessage({
+      id: "task.statusLong.success",
+    }),
+    failure: intl.formatMessage({
+      id: "task.statusLong.failure",
+    }),
+    cancelled: intl.formatMessage({
+      id: "task.statusLong.cancelled",
+    }),
+  };
+}
+
 /**
  * Determine task status text
  */
-
-function getStatusText(status, messages) {
+function getStatusText(
+  status: TaskStatus,
+  messages: ReturnType<typeof useMessages>
+): string {
   switch (status) {
     case TaskStatus.PENDING:
       return messages.pending;
@@ -42,30 +69,6 @@ function getStatusText(status, messages) {
       console.warn(`Unknown task status: ${status}`);
       return status;
   }
-}
-/**
- * Get translated text.
- */
-
-function useMessages() {
-  const intl = useIntl();
-  return {
-    pending: intl.formatMessage({
-      id: "task.statusLong.pending",
-    }),
-    running: intl.formatMessage({
-      id: "task.statusLong.running",
-    }),
-    success: intl.formatMessage({
-      id: "task.statusLong.success",
-    }),
-    failure: intl.formatMessage({
-      id: "task.statusLong.failure",
-    }),
-    cancelled: intl.formatMessage({
-      id: "task.statusLong.cancelled",
-    }),
-  };
 }
 
 function Status(props: StatusProps): JSX.Element | null {

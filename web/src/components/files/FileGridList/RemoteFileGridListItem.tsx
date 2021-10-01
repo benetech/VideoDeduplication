@@ -9,7 +9,7 @@ import MoreHorizOutlinedIcon from "@material-ui/icons/MoreHorizOutlined";
 import DescriptionOutlinedIcon from "@material-ui/icons/DescriptionOutlined";
 import IconButton from "@material-ui/core/IconButton";
 import AttributeText from "../../basic/AttributeText";
-import { useIntl } from "react-intl";
+import { IntlShape, useIntl } from "react-intl";
 import Marked from "../../basic/Marked";
 import FileGridListItemContainer from "./FileGridListItemContainer";
 import LockIcon from "@material-ui/icons/Lock";
@@ -80,7 +80,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
-function useMessages(intl) {
+function useMessages(intl: IntlShape) {
   return {
     remoteFile: intl.formatMessage({
       id: "file.remote",

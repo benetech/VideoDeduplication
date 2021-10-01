@@ -74,7 +74,10 @@ export default class TemplatesEndpoint implements TemplatesAPI {
   /**
    * Fetch single template by id.
    */
-  async get(id, fields: string[] = ["examples"]): Promise<Template> {
+  async get(
+    id: Template["id"],
+    fields: string[] = ["examples"]
+  ): Promise<Template> {
     try {
       const response = await this.axios.get<TemplateDTO>(`/templates/${id}`, {
         params: {

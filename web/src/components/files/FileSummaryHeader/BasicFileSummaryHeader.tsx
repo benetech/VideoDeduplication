@@ -6,7 +6,7 @@ import Paper from "@material-ui/core/Paper";
 import { VideoFile } from "../../../model/VideoFile";
 import IconButton from "@material-ui/core/IconButton";
 import ArrowBackOutlinedIcon from "@material-ui/icons/ArrowBackOutlined";
-import { useIntl } from "react-intl";
+import { IntlShape, useIntl } from "react-intl";
 import FileSummary from "../FileSummary";
 
 const useStyles = makeStyles<Theme>((theme) => ({
@@ -27,7 +27,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
  * Get translated text.
  */
 
-function getMessages(intl) {
+function getMessages(intl: IntlShape) {
   return {
     goBack: intl.formatMessage({
       id: "actions.goBack",

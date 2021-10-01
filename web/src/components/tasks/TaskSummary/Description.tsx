@@ -32,10 +32,11 @@ const useStyles = makeStyles<Theme>((theme) => ({
  * Get translated text.
  */
 
-function useMessages(task) {
+function useMessages(task: Task | undefined) {
   const intl = useIntl();
   return {
-    description: getTaskTextDescription(task.request, intl),
+    description:
+      task == null ? "null" : getTaskTextDescription(task.request, intl),
     created: intl.formatMessage({
       id: "task.created",
     }),

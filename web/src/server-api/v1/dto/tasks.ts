@@ -146,3 +146,8 @@ export type TaskDTO = {
   progress?: number;
   result?: TaskResultDTO | null;
 };
+
+export type LogsUpdateMessageDTO = {
+  task_id: TaskDTO["id"];
+  data: string;
+};

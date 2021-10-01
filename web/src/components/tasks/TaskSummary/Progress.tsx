@@ -15,7 +15,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
-function isProgressDefined(task) {
+function isProgressDefined(task: Task): boolean {
   return !(task.progress == null && task.status === TaskStatus.RUNNING);
 }
 

@@ -9,6 +9,7 @@ import PreviewActions from "./PreviewActions";
 import PreviewCaption from "./PreviewCaption";
 import { useIntl } from "react-intl";
 import NotAvailable from "./NotAvailable";
+import Action from "../../../model/Action";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   previewContainer: {
@@ -197,10 +198,7 @@ type MediaPreviewProps = React.HTMLProps<HTMLDivElement> & {
   /**
    * Optional action buttons.
    */
-  actions?: {
-    name: string;
-    handler: (...args: any[]) => void;
-  }[];
+  actions?: Action[];
 
   /**
    * Caption elements at the left-bottom corner

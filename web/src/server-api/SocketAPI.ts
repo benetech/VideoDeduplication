@@ -23,13 +23,19 @@ export type LogsUpdate = {
  * Real-time messaging API.
  */
 export interface SocketAPI {
-  on(event: SocketEvents.TASK_UPDATED, listener: (task: Task) => void);
-  on(event: SocketEvents.TASK_DELETED, listener: (taskId: Task["id"]) => void);
-  on(event: SocketEvents.LOGS_UPDATE, listener: (message: LogsUpdate) => void);
-  on(event: SocketEvents.DISCONNECT, listener: () => void);
-  on(event: SocketEvents.CONNECT, listener: () => void);
-  off(event: SocketEvents, listener: (...args: any[]) => void);
-  subscribeForLogs(task: Task | Task["id"], offset?: number);
-  unsubscribeFromLogs(task: Task | Task["id"]);
-  close();
+  on(event: SocketEvents.TASK_UPDATED, listener: (task: Task) => void): void;
+  on(
+    event: SocketEvents.TASK_DELETED,
+    listener: (taskId: Task["id"]) => void
+  ): void;
+  on(
+    event: SocketEvents.LOGS_UPDATE,
+    listener: (message: LogsUpdate) => void
+  ): void;
+  on(event: SocketEvents.DISCONNECT, listener: () => void): void;
+  on(event: SocketEvents.CONNECT, listener: () => void): void;
+  off(event: SocketEvents, listener: (...args: any[]) => void): void;
+  subscribeForLogs(task: Task | Task["id"], offset?: number): void;
+  unsubscribeFromLogs(task: Task | Task["id"]): void;
+  close(): void;
 }

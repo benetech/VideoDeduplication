@@ -49,7 +49,8 @@ function labelClass(
  * Get spacing between tabs.
  */
 
-function getIndent({ first, spacing }) {
+function getIndent(options: { first: boolean; spacing: number }): number {
+  const { first, spacing } = options;
   if (first) {
     return 0;
   }

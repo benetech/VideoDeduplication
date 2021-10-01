@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
 import Button from "../Button";
+import Action from "../../../model/Action";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   actionsRoot: {
@@ -22,8 +23,8 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
-function invoke(action) {
-  return (event) => {
+function invoke(action: Action) {
+  return (event: React.MouseEvent) => {
     event.stopPropagation();
     action.handler();
   };
@@ -41,12 +42,12 @@ function PreviewActions(props: PreviewActionsProps): JSX.Element | null {
     <div className={clsx(classes.actionsRoot, className)}>
       {actions.map((action) => (
         <Button
-          key={action.name}
+          key={action.title}
           onClick={invoke(action)}
           className={clsx(classes.actionButton, dark && classes.dark)}
           size={size}
         >
-          {action.name}
+          {action.title}
         </Button>
       ))}
     </div>
@@ -54,10 +55,7 @@ function PreviewActions(props: PreviewActionsProps): JSX.Element | null {
 }
 
 type PreviewActionsProps = {
-  actions?: {
-    name: string;
-    handler: (...args: any[]) => void;
-  }[];
+  actions?: Action[];
   size?: "small" | "medium" | "large";
   dark?: boolean;
   className?: string;

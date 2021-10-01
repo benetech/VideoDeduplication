@@ -15,6 +15,7 @@ import { makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
 import { useCompareFiles, useShowFile } from "../../../routing/hooks";
 import useDeleteMatch from "../../../application/api/matches/useDeleteMatch";
+import Action from "../../../model/Action";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   falsePositive: {
@@ -45,13 +46,19 @@ function useMessages() {
     }),
   };
 }
+
+type MatchActionContext = {
+  match: FileMatch;
+  messages: ReturnType<typeof useMessages>;
+};
+
 /**
  * Get delete action.
  */
-
-function useToggleFalsePositive({ match, messages }) {
+function useToggleFalsePositive(options: MatchActionContext): Action {
+  const { match, messages } = options;
   const { deleteMatch, restoreMatch } = useDeleteMatch();
-  return useMemo(
+  return useMemo<Action>(
     () => ({
       title: match.falsePositive ? messages.restore : messages.delete,
       handler: async () => {
@@ -65,29 +72,32 @@ function useToggleFalsePositive({ match, messages }) {
     [match.id, match.falsePositive]
   );
 }
+
 /**
  * Get comparison action.
  */
-
-function useCompare({ match, messages }) {
+function useCompare(options: MatchActionContext): Action {
+  const { match, messages } = options;
   const compareFiles = useCompareFiles();
-  const handleCompare = useCallback(
-    () => compareFiles(match.motherFile, match.file),
-    [match]
-  );
-  return useMemo(
+  const handleCompare = useCallback(() => {
+    if (match.motherFile != null) {
+      compareFiles(match.motherFile, match.file);
+    }
+  }, [match]);
+  return useMemo<Action>(
     () => ({
       title: messages.compare,
       handler: handleCompare,
     }),
-    [match.file.id, match.motherFile.id]
+    [match.file.id, match.motherFile?.id]
   );
 }
 /**
  * Get "Show Details" action.
  */
 
-function useShowDetails({ match, messages }) {
+function useShowDetails(options: MatchActionContext): Action {
+  const { match, messages } = options;
   const showFile = useShowFile();
   const handleShowFile = useCallback(() => showFile(match.file), [match]);
   return useMemo(
@@ -99,7 +109,15 @@ function useShowDetails({ match, messages }) {
   );
 }
 
-function useActions({ match, messages }) {
+type MatchActions = {
+  compare: Action;
+  showDetails: Action;
+  toggleFalsePositive: Action;
+  list: Action[];
+};
+
+function useActions(options: MatchActionContext): MatchActions {
+  const { match, messages } = options;
   const compare = useCompare({
     match,
     messages,
@@ -113,12 +131,12 @@ function useActions({ match, messages }) {
     messages,
   });
   const list = useMemo(() => {
-    if (match.motherFile.external) {
+    if (match.motherFile?.external) {
       return [showDetails];
     }
 
     return [showDetails, toggleFalsePositive, compare];
-  }, [showDetails, toggleFalsePositive, compare, match.motherFile.external]);
+  }, [showDetails, toggleFalsePositive, compare, match.motherFile?.external]);
   return {
     compare,
     showDetails,

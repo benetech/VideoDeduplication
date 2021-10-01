@@ -6,7 +6,7 @@ import FileSummary from "../../../components/files/FileSummary/FileSummary";
 import Distance from "../../../components/matches/Distance";
 import IconButton from "@material-ui/core/IconButton";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import usePopup from "../../../lib/hooks/usePopup";
+import usePopup, { PopupOptions } from "../../../lib/hooks/usePopup";
 import { useIntl } from "react-intl";
 import useConfirmDialog from "./useConfirmDialog";
 import { FileMatch } from "../../../model/Match";
@@ -50,7 +50,7 @@ function useMessages() {
   };
 }
 
-function menuAction(popup, handler) {
+function menuAction(popup: PopupOptions, handler: () => void): () => void {
   return () => {
     popup.onClose();
     handler();

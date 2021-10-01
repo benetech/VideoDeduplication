@@ -21,10 +21,10 @@ const useStyles = makeStyles<Theme>((theme) => ({
     margin: theme.spacing(1),
   },
 }));
+
 /**
  * Get i18n text.
  */
-
 function useMessages() {
   const intl = useIntl();
   return {
@@ -34,11 +34,12 @@ function useMessages() {
   };
 }
 
-const byDate = (first, second) => second.submissionTime - first.submissionTime;
+const byDate = (first: Task, second: Task): number =>
+  second.submissionTime.getTime() - first.submissionTime.getTime();
+
 /**
  * Show all tasks.
  */
-
 function showAll() {
   return true;
 }

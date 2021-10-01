@@ -5,7 +5,7 @@ import { Dialog } from "@material-ui/core";
 import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 
-function galleryItems(template) {
+function galleryItems(template: Template) {
   return template.examples.map((example) => ({
     original: example.url,
     thumbnail: example.url,

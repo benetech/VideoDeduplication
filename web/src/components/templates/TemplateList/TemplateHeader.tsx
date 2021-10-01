@@ -12,7 +12,8 @@ import Spacer from "../../basic/Spacer";
 import Button from "../../basic/Button";
 import TemplateTitle from "./TemplateTitle";
 import TemplateIconPreview from "./TemplateIconPreview";
-import usePopup from "../../../lib/hooks/usePopup";
+import usePopup, { PopupOptions } from "../../../lib/hooks/usePopup";
+import Action from "../../../model/Action";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   header: {
@@ -48,7 +49,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
 function useMessages() {
   const intl = useIntl();
   return {
-    examples(count) {
+    examples(count: number) {
       if (count === 1) {
         return intl.formatMessage({
           id: "templates.examples.one",
@@ -82,7 +83,7 @@ function useMessages() {
       id: "actions.showMatchedFiles",
     }),
 
-    matchedFiles(count) {
+    matchedFiles(count: number) {
       if (count === 1) {
         return intl.formatMessage({
           id: "templates.matchedFiles.one",
@@ -101,7 +102,19 @@ function useMessages() {
   };
 }
 
-function useActions({ messages, onShowMatches, onDelete, template }) {
+type UseActionsOptions = {
+  messages: ReturnType<typeof useMessages>;
+  onShowMatches: (template: Template) => void;
+  onDelete: (template: Template) => void;
+  template: Template;
+};
+
+function useActions({
+  messages,
+  onShowMatches,
+  onDelete,
+  template,
+}: UseActionsOptions): Action[] {
   return useMemo(
     () => [
       {
@@ -117,8 +130,10 @@ function useActions({ messages, onShowMatches, onDelete, template }) {
   );
 }
 
-function bindHandler(popup) {
-  return (action) => () => {
+function bindHandler(
+  popup: PopupOptions<HTMLButtonElement>
+): (action: Action) => () => void {
+  return (action: Action) => () => {
     popup.onClose();
     action.handler();
   };
@@ -182,7 +197,7 @@ function TemplateHeader(props: TemplateHeaderProps): JSX.Element {
         clickable
         color="primary"
         variant="outlined"
-        label={messages.matchedFiles(template.fileCount)}
+        label={messages.matchedFiles(template.fileCount || 0)}
         className={clsx(
           classes.count,
           !((template.fileCount || 0) > 0) && classes.hide

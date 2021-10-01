@@ -6,7 +6,7 @@ import { CollActions, isCollAction } from "./actions";
 /**
  * Array merge customizer which simply replaces array with a new one.
  */
-function replaceArrays(objValue, srcValue) {
+function replaceArrays(objValue: any, srcValue: any): any {
   if (lodash.isArray(objValue)) {
     return srcValue;
   }

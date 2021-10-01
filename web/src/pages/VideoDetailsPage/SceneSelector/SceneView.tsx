@@ -27,7 +27,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
  * Get i18n text
  */
 
-function useMessages(scene) {
+function useMessages(scene: Scene) {
   const intl = useIntl();
   const time = formatDuration(scene.position, intl, false);
   return {

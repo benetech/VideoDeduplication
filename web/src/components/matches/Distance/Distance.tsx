@@ -45,7 +45,7 @@ const DistanceIndicator = withStyles((theme) => ({
 /**
  * Get i18n text
  */
-function useMessages(distance) {
+function useMessages(distance: number) {
   const intl = useIntl();
   return {
     score: intl.formatMessage(
@@ -62,7 +62,7 @@ function useMessages(distance) {
 /**
  * Distance score in percents
  */
-function score(value) {
+function score(value: number): number {
   return 100 * (1 - value);
 }
 
