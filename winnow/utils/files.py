@@ -5,6 +5,8 @@ from glob import glob
 from pathlib import Path
 from functools import lru_cache
 
+from winnow.config.config import HashMode
+
 
 def read_chunks(file_object, buffer_size=64 * 1024):
     """Read chunks from file object."""
@@ -14,13 +16,26 @@ def read_chunks(file_object, buffer_size=64 * 1024):
         chunk = file_object.read(buffer_size)
 
 
-@lru_cache(maxsize=None)
-def get_hash(file_path, buffer_size=64 * 1024):
+def get_hash(file_path, mode=HashMode.FILE, buffer_size=64 * 1024):
     """Get sha256 hash of the file."""
+    if mode == HashMode.FILE:
+        with open(file_path, "rb") as file:
+            return hash_object(read_chunks(file, buffer_size), True)
+    elif mode == HashMode.PATH:
+        return hash_object(file_path, False)
+    else:
+        print('Error: mode "%s" is invalid. mode must be one of ("file", "path").' % str(mode))
+
+
+@lru_cache(maxsize=None)
+def hash_object(hashable, iterable=True):
+    """Get sha256 hash of the specified object."""
     sha256 = hashlib.sha256()
-    with open(file_path, "rb") as file:
-        for data in read_chunks(file, buffer_size):
+    if iterable:
+        for data in hashable:
             sha256.update(data)
+    else:
+        sha256.update(hashable)
     return sha256.hexdigest()
 
 

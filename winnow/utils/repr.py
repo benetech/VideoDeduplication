@@ -28,7 +28,7 @@ def filekey_resolver(config: Config) -> Callable[[str], FileKey]:
     def filekey(path: PathLike, hash: str = None) -> FileKey:
         """Convert path and optional hash to the FileKey. Caclulate missing hashes."""
         if hash is None:
-            hash = get_hash(path)
+            hash = get_hash(path, config.repr.hash_mode)
         return FileKey(path=storepath(path), hash=hash)
 
     return filekey

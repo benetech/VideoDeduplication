@@ -13,6 +13,24 @@ def _bool_env(variable_name, default):
     return os.environ[variable_name].lower() == "true"
 
 
+class HashMode(enum.Enum):
+    """Supported hash modes."""
+
+    FILE = "file"
+    PATH = "path"
+
+    @staticmethod
+    def parse(value, default=None):
+        """Create a HashMode described by the given value."""
+        if value is None:
+            return default
+        if isinstance(value, HashMode):
+            return value
+        if isinstance(value, str):
+            return HashMode(value.lower().strip())
+        raise TypeError(f"Unrecognized value for HashMode: {value}")
+
+
 class StorageType(enum.Enum):
     """Supported storage types."""
 
@@ -53,11 +71,13 @@ class RepresentationConfig:
 
     directory: str = None  # Root folder with intermediate representations
     storage_type: StorageType = StorageType.LMDB  # Specify representation storage type
+    hash_mode: str = HashMode.FILE # Specify hash mode
 
     def read_env(self):
         """Read config from environment variables."""
         self.directory = os.environ.get("WINNOW_REPR_DIRECTORY", self.directory)
         self.storage_type = StorageType.parse(os.environ.get("WINNOW_REPR_STORAGE_TYPE", self.storage_type))
+        self.hash_mode = HashMode.parse(os.environ.get("WINNOW_REPR_HASH_MODE", self.hash_mode))
 
     @staticmethod
     def fromdict(data: Dict):

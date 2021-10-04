@@ -19,7 +19,7 @@ def extract_exif(videos: Iterable[str], pipeline: PipelineContext, progress_moni
     storepath = path_resolver(config.sources.root)
 
     if videos is not None:
-        hashes = [get_hash(video) for video in videos]
+        hashes = [get_hash(video, config.repr.hash_mode) for video in videos]
     elif config.database.use:
         with pipeline.database.session_scope() as session:
             video_records = session.query(Files).filter(Files.contributor == None).yield_per(10 ** 4)  # noqa: E711
@@ -27,7 +27,7 @@ def extract_exif(videos: Iterable[str], pipeline: PipelineContext, progress_moni
             videos, hashes = zip(*path_hash_pairs)
     else:
         videos = scan_videos(config.sources.root, "**", extensions=config.sources.extensions)
-        hashes = [get_hash(video) for video in videos]
+        hashes = [get_hash(video, config.repr.hash_mode) for video in videos]
 
     assert len(videos) > 0, "No videos found"
 
