@@ -41,7 +41,10 @@ describe("The File Matches Page", () => {
       for (const match of matches) {
         cy.get(preview(match.file.id)).should("contain", match.file.file_path);
       }
-      cy.get(selector("MatchPreview")).should("have.length", matches.length);
+      cy.get(selector("MatchPreview")).should(
+        "have.length.gte",
+        matches.length
+      );
 
       // Scroll to the bottom to trigger the next page loading
       cy.scrollTo("bottom");
