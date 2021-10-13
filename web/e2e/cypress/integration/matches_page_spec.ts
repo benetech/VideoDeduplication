@@ -38,7 +38,7 @@ describe("The File Matches Page", () => {
     cy.wait("@getMatches(page=0)").then((getMatches0) => {
       // Check matches are displayed
       let matches = getRespMatches(getMatches0);
-      for (let match of matches) {
+      for (const match of matches) {
         cy.get(preview(match.file.id)).should("contain", match.file.file_path);
       }
       cy.get(selector("MatchPreview")).should("have.length", matches.length);

@@ -1,5 +1,5 @@
 export type ErrorDTO = {
-  message: string;
+  error: string;
 };
 
 export enum ConstraintViolationCode {
@@ -17,7 +17,7 @@ export type ValidationErrorDTO = ErrorDTO & {
 };
 
 export function isErrorDTO(data: unknown): data is ErrorDTO {
-  return typeof (data as ErrorDTO)?.message === "string";
+  return typeof (data as ErrorDTO)?.error === "string";
 }
 
 export function isValidationErrorDTO(

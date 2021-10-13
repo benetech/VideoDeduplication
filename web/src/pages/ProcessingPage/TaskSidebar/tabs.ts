@@ -7,6 +7,12 @@ export type TaskSidebarTab = {
 
 export const DefaultTabs: TaskSidebarTab[] = [
   {
+    title: "task.list.all",
+    filter(): boolean {
+      return true;
+    },
+  },
+  {
     title: "task.list.active",
     filter(task: Task): boolean {
       return (
@@ -22,12 +28,6 @@ export const DefaultTabs: TaskSidebarTab[] = [
         task.status === TaskStatus.FAILURE ||
         task.status === TaskStatus.CANCELLED
       );
-    },
-  },
-  {
-    title: "task.list.all",
-    filter(): boolean {
-      return true;
     },
   },
 ];

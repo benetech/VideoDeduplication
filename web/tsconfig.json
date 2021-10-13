@@ -9,7 +9,8 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
     "downlevelIteration": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "sourceMap": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "e2e/cypress/**/*.ts"]
 }

@@ -22,7 +22,7 @@ export type LazyQueryResults<TPage> = {
   isLoading: boolean;
   isError: boolean;
   hasNextPage: boolean;
-  fetchNextPage: () => void;
+  fetchNextPage: () => Promise<any>;
   refetch: () => void;
   canLoad: boolean;
 };
@@ -33,7 +33,7 @@ export type LazyQueryResults<TPage> = {
 export type EagerQueryAPI = {
   error: Error | null;
   total: number;
-  resumeLoading: () => void;
+  resumeLoading: () => Promise<any>;
   hasMore: boolean;
   progress: number;
   done: boolean;

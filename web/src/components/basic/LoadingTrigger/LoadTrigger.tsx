@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
@@ -56,14 +56,24 @@ function LoadTrigger(props: LoadTriggerProps): JSX.Element | null {
   } = props;
   const classes = useStyles();
   const messages = useMessages();
-  const handleVisibilityChange = useCallback(
-    (visible) => {
-      if (visible && !loading && hasMore) {
-        onLoad();
-      }
-    },
-    [onLoad, loading, hasMore]
-  );
+  const [visible, setVisible] = useState<boolean>(false);
+  const [progress, setProgress] = useState<boolean>(false);
+  const handleLoad = useCallback(async () => {
+    setProgress(true);
+    try {
+      await onLoad();
+    } finally {
+      setProgress(false);
+    }
+  }, [onLoad]);
+
+  const shouldAutoLoad = visible && hasMore && !loading && !error && !progress;
+
+  useEffect(() => {
+    if (shouldAutoLoad) {
+      handleLoad().catch(console.error);
+    }
+  }, [shouldAutoLoad, onLoad]);
 
   if (!hasMore) {
     return null;
@@ -72,7 +82,7 @@ function LoadTrigger(props: LoadTriggerProps): JSX.Element | null {
   return (
     <Container className={clsx(classes.trigger, className)} {...other}>
       {!loading && !error && (
-        <VisibilitySensor onChange={handleVisibilityChange} partialVisibility>
+        <VisibilitySensor onChange={setVisible} partialVisibility>
           <div className={classes.triggerArea} />
         </VisibilitySensor>
       )}

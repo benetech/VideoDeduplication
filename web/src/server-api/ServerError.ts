@@ -109,8 +109,8 @@ export class ValidationError extends ServerError<ValidationErrorDTO> {
     fields?: FieldErrors
   ) {
     super(message, cause, request);
-    this.fields = this.resolveFields(fields);
     Object.setPrototypeOf(this, ValidationError.prototype);
+    this.fields = this.resolveFields(fields);
   }
 
   private resolveFields(fields?: FieldErrors): FieldErrors {

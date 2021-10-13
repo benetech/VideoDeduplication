@@ -1,8 +1,14 @@
+import { describe, expect, test } from "@jest/globals";
 import getEntityId from "./getEntityId";
 
-describe(getEntityId, () => {
+type TestEntity<IdType extends string | number> = {
+  id: IdType;
+  attr?: string;
+};
+
+describe("getEntityId", () => {
   test("Handles strings", () => {
-    expect(getEntityId("some-id")).toEqual("some-id");
+    expect(getEntityId<TestEntity<string>>("some-id")).toEqual("some-id");
   });
 
   test("Handles finite numbers", () => {
@@ -16,14 +22,9 @@ describe(getEntityId, () => {
     expect(() => getEntityId(-Infinity)).toThrow();
     expect(() => getEntityId(Infinity)).toThrow();
     expect(() => getEntityId(NaN)).toThrow();
-    expect(() => getEntityId(true)).toThrow();
-    expect(() => getEntityId(null)).toThrow();
-    expect(() => getEntityId(undefined)).toThrow();
-    expect(() => getEntityId({ foo: "bar" })).toThrow();
     expect(() => getEntityId({ id: -Infinity })).toThrow();
     expect(() => getEntityId({ id: Infinity })).toThrow();
     expect(() => getEntityId({ id: NaN })).toThrow();
-    expect(() => getEntityId({ id: true })).toThrow();
   });
 
   test("Handles entities", () => {
