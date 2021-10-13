@@ -13,6 +13,7 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import IconButton from "@material-ui/core/IconButton";
 import useDeleteMatch from "../../../application/api/matches/useDeleteMatch";
 import { DefaultMatchQueryFilters, FileMatch } from "../../../model/Match";
+import { VideoFile } from "../../../model/VideoFile";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   root: {},
@@ -256,17 +257,17 @@ type MatchFilesProps = {
   /**
    * Mother file id.
    */
-  motherFileId: number;
+  motherFileId: VideoFile["id"];
 
   /**
    * Match file id.
    */
-  matchFileId?: number | null;
+  matchFileId?: VideoFile["id"] | null;
 
   /**
    * Handle match file change.
    */
-  onMatchFileChange: (...args: any[]) => void;
+  onMatchFileChange: (matchFileId: VideoFile["id"]) => void;
   className?: string;
 };
 export default MatchFiles;

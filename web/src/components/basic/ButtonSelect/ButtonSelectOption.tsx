@@ -3,7 +3,9 @@ import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
 import { ButtonProps } from "@material-ui/core/Button/Button";
 
-function IconSelectOption<T = any>(props: IconSelectOptionProps<T>) {
+function IconSelectOption<T = any>(
+  props: IconSelectOptionProps<T>
+): JSX.Element {
   const {
     children,
     value,

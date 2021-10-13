@@ -25,7 +25,7 @@ const useStyles = makeStyles<Theme, NavLinkListAdaptiveProps>((theme) => ({
   }),
 }));
 
-function NavLinkListAdaptive(props: NavLinkListAdaptiveProps) {
+function NavLinkListAdaptive(props: NavLinkListAdaptiveProps): JSX.Element {
   const { selected, links, onSelect, className, ...other } = props;
   const classes = useStyles(props);
   return (

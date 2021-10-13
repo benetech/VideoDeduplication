@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import AttributeTable from "../../../basic/AttributeTable";
 import { processDirectoryAttributes } from "../requestAttributes";
-import { ProcessDirectoryRequest, Task } from "../../../../model/Task";
+import { ProcessDirectoryRequest } from "../../../../model/Task";
 import { TaskRequestViewProps } from "../model";
 
 function ProcessDirectoryRequestAttrs(

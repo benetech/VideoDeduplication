@@ -76,7 +76,7 @@ const menuItems: AppMenuItem[] = [
 ];
 
 function useCurrentLink(links: AppMenuItem[]): AppMenuItem | undefined {
-  let pathname = useLocation().pathname;
+  const pathname = useLocation().pathname;
   return links.find((link) => pathname.startsWith(link.location));
 }
 

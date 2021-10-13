@@ -4,6 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
 import ReactJson from "react-json-view";
 import { Task } from "../../../model/Task";
+import { JsonArray, JsonObject } from "../../../lib/types/Json";
 
 const useStyles = makeStyles<Theme>({
   root: {
@@ -15,7 +16,7 @@ const useStyles = makeStyles<Theme>({
 /**
  * Get task raw result.
  */
-function getRawResult(task: Task): object {
+function getRawResult(task: Task): JsonObject | JsonArray {
   const result = task.raw?.result;
   if (typeof result === "object" && result != null) {
     return result;

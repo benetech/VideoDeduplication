@@ -46,6 +46,10 @@ export type TemplateMatchQueryResultsDTO = QueryResultsDTO<TemplateMatchDTO> & {
   files?: FileDTO[];
 };
 
+export type UpdateTemplateMatchDTO = {
+  false_positive?: boolean;
+};
+
 export type NewTemplateDTO = {
   name: string;
   icon_type: RawIconType;

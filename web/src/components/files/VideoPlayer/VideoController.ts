@@ -32,7 +32,7 @@ export default class VideoController implements VideoPlayerAPI {
     this.position = null; // position requested by seekTo method
   }
 
-  private trySeek() {
+  private trySeek(): void {
     // Player might be unavailable at the moment
     if (this.position != null && this.player != null) {
       try {
@@ -47,7 +47,7 @@ export default class VideoController implements VideoPlayerAPI {
     }
   }
 
-  setPlayer(player: ReactPlayer | null) {
+  setPlayer(player: ReactPlayer | null): void {
     this.player = player;
     this.trySeek(); // there might be postponed seek request
   }
@@ -55,7 +55,7 @@ export default class VideoController implements VideoPlayerAPI {
   /**
    * Seek to the given position and start playing.
    */
-  seekTo(position: number, options: SeekOptions = {}) {
+  seekTo(position: number, options: SeekOptions = {}): void {
     const { playing = true, units = "fraction" } = options;
     if (playing) {
       this.setWatch(true);
@@ -68,7 +68,7 @@ export default class VideoController implements VideoPlayerAPI {
   /**
    * Seek forward by the given `amount` of seconds.
    */
-  stepForward(options: StepOptions = {}) {
+  stepForward(options: StepOptions = {}): void {
     const { amount = 0.1, playing = false } = options;
     const position = (this.currentTime || 0) + amount;
     this.seekTo(position, { playing, units: "seconds" });
@@ -77,7 +77,7 @@ export default class VideoController implements VideoPlayerAPI {
   /**
    * Seek back by the given `amount` of seconds.
    */
-  stepBack(options: StepOptions = {}) {
+  stepBack(options: StepOptions = {}): void {
     const { amount = 0.1, playing = false } = options;
     const position = Math.max((this.currentTime || 0) - amount, 0);
     this.seekTo(position, { playing, units: "seconds" });

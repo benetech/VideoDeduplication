@@ -2,8 +2,8 @@ import RawResults from "./RawResults";
 import FindFrameResultsOverview from "./task-types/FindFrameResultsOverview";
 import ProcessOnlineVideoResultsOverview from "./task-types/ProcessOnlineVideoResultsOverview";
 import MatchTemplatesResultsOverview from "./task-types/MatchTemplatesResultsOverview";
-import { TaskResultViewDescriptor, TaskResultViewMap } from "./model";
-import { TaskRequestMap, TaskRequestType } from "../../../model/Task";
+import { TaskResultViewMap } from "./model";
+import { TaskRequestType } from "../../../model/Task";
 
 export const TaskResultViews: TaskResultViewMap = {
   [TaskRequestType.DIRECTORY]: [

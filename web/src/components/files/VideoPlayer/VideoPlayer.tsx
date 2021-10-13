@@ -50,7 +50,7 @@ function setupBundledFlvJs(
 
     flvjs.createPlayer = (mediaDataSource, optionalConfig) => {
       const player = doCreatePlayer(mediaDataSource, optionalConfig);
-      player.on("error", () => {});
+      player.on("error", () => null);
       return player;
     };
   }
@@ -127,7 +127,7 @@ function useMessages() {
   };
 }
 
-const VideoPlayer = function VideoPlayer(props: VideoPlayerProps) {
+const VideoPlayer = function VideoPlayer(props: VideoPlayerProps): JSX.Element {
   const {
     file,
     onReady,

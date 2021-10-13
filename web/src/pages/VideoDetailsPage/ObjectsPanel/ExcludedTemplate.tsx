@@ -76,7 +76,7 @@ type ExcludedTemplateProps = {
   /**
    * Handle deletion of exclusion.
    */
-  onDelete: (...args: any[]) => void;
+  onDelete: (exclusion: TemplateExclusion) => void;
   className?: string;
 };
 export default ExcludedTemplate;

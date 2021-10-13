@@ -16,11 +16,13 @@ export type ValidationErrorDTO = ErrorDTO & {
   fields: FieldConstraintViolations;
 };
 
-export function isErrorDTO(data: any): data is ErrorDTO {
+export function isErrorDTO(data: unknown): data is ErrorDTO {
   return typeof (data as ErrorDTO)?.message === "string";
 }
 
-export function isValidationErrorDTO(data: any): data is ValidationErrorDTO {
+export function isValidationErrorDTO(
+  data: unknown
+): data is ValidationErrorDTO {
   return (
     isErrorDTO(data) && typeof (data as ValidationErrorDTO)?.fields === "object"
   );

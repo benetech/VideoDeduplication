@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import AttributeTable from "../../../basic/AttributeTable";
 import { findFrameAttributes } from "../requestAttributes";
-import { FindFrameRequest, Task } from "../../../../model/Task";
+import { FindFrameRequest } from "../../../../model/Task";
 import { TaskRequestViewProps } from "../model";
 
 function FindFrameRequestAttrs(

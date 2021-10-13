@@ -22,9 +22,9 @@ function bindProps(
   };
 }
 
-function useRow(minItemWidth: number, defaultRow: number = 3) {
+function useRow(minItemWidth: number, defaultRow = 3) {
   const { width, ref } = useResizeDetector();
-  let perRow = Math.floor((width || 0) / minItemWidth);
+  const perRow = Math.floor((width || 0) / minItemWidth);
   return {
     ref,
     perRow: isFinite(perRow) ? perRow : defaultRow,

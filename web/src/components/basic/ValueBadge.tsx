@@ -23,7 +23,7 @@ const useStyles = makeStyles<Theme, ValueBadgeStyleProps>((theme) => ({
   },
 }));
 
-function ValueBadge(props: ValueBadgePros) {
+function ValueBadge(props: ValueBadgePros): JSX.Element {
   const { value, color = "primary", className } = props;
   const classes = useStyles({ color });
   return <div className={clsx(classes.type, className)}>{value}</div>;

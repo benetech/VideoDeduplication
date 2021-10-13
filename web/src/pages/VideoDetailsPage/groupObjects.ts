@@ -29,7 +29,7 @@ export function groupObjects(
   let currentGroup: TemplateMatch[] = [objects[0]];
   const groups: TemplateMatch[][] = [currentGroup];
 
-  for (let object of objects.slice(1)) {
+  for (const object of objects.slice(1)) {
     if (objectPosition(object) - startPosition(currentGroup) < minDist) {
       // if distance is small enough, add the object to the current group
       currentGroup.push(object);

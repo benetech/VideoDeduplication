@@ -1,9 +1,12 @@
 import selector from "../support/selector";
+import { VideoFile } from "../../../src/model/VideoFile";
+import { FileDTO } from "../../../src/server-api/v1/dto/files";
+import getRespMatches from "../support/getRespMatches";
 
 describe("The File Matches Page", () => {
   // Define reusable selectors
-  const preview = (fileId) =>
-    `${selector("MatchPreview")}[data-file-id=${fileId}]`;
+  const preview = (id: VideoFile["id"]) =>
+    `${selector("MatchPreview")}[data-file-id=${id}]`;
 
   // Mother file id
   const fileId = 1;
@@ -28,13 +31,13 @@ describe("The File Matches Page", () => {
   };
 
   // Verify all matches are displayed correctly
-  const testMatchesLoaded = (file) => {
+  const testMatchesLoaded = (file: FileDTO) => {
     // Check summary is displayed
     cy.get(selector("FileSummaryHeader")).should("contain", file.file_path);
 
-    cy.wait("@getMatches(page=0)").then(({ response }) => {
+    cy.wait("@getMatches(page=0)").then((getMatches0) => {
       // Check matches are displayed
-      let matches = response.body.items;
+      let matches = getRespMatches(getMatches0);
       for (let match of matches) {
         cy.get(preview(match.file.id)).should("contain", match.file.file_path);
       }
@@ -43,12 +46,14 @@ describe("The File Matches Page", () => {
       // Scroll to the bottom to trigger the next page loading
       cy.scrollTo("bottom");
 
-      cy.wait("@getMatches(page=next)").then(({ request, response }) => {
+      cy.wait("@getMatches(page=next)").then((getMatchesNext) => {
         // Check request offset
-        expect(request.url).to.contain(`offset=${matches.length}`);
+        expect(getMatchesNext.request.url).to.contain(
+          `offset=${matches.length}`
+        );
 
         // Check all matches are displayed
-        matches = matches.concat(response.body.items);
+        matches = matches.concat(getRespMatches(getMatchesNext));
         for (let match of matches) {
           cy.get(preview(match.file.id)).should(
             "contain",
@@ -73,8 +78,8 @@ describe("The File Matches Page", () => {
     setupInterception();
     cy.visit(`/collection/fingerprints/${fileId}/matches`);
 
-    cy.wait("@getFile").then(({ response }) => {
-      const file = response.body;
+    cy.wait("@getFile").then((getFile) => {
+      const file = getFile.response?.body as FileDTO;
 
       // Check summary is displayed
       cy.get(selector("FileSummaryHeader")).should("contain", file.file_path);
@@ -89,8 +94,8 @@ describe("The File Matches Page", () => {
     setupInterception();
     cy.visit(`/collection/fingerprints/${fileId}`);
 
-    cy.wait("@getFile").then(({ response }) => {
-      const file = response.body;
+    cy.wait("@getFile").then((getFile) => {
+      const file = getFile.response?.body as FileDTO;
 
       // Navigate to matches page
       cy.contains("Files Matched").click();

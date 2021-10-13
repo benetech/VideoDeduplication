@@ -75,20 +75,20 @@ export default class Socket extends EventEmitter implements SocketAPI {
     );
   }
 
-  subscribeForLogs(task: Task | Task["id"], offset = 0) {
+  subscribeForLogs(task: Task | Task["id"], offset = 0): void {
     this.socket.emit(InternalSocketEvents.TASK_LOGS_SUBSCRIBE, {
       task_id: getEntityId(task),
       offset,
     });
   }
 
-  unsubscribeFromLogs(task: Task | Task["id"]) {
+  unsubscribeFromLogs(task: Task | Task["id"]): void {
     this.socket.emit(InternalSocketEvents.TASK_LOGS_UNSUBSCRIBE, {
       task_id: getEntityId(task),
     });
   }
 
-  close() {
+  close(): void {
     this.socket.close();
   }
 }

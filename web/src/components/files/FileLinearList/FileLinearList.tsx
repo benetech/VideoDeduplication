@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
 import composeRefs from "@seznam/compose-react-refs";
 import { useResizeDetector } from "react-resize-detector";
-import { FileListComponent, FileListProps } from "../FileList";
+import { FileListProps } from "../FileList";
 
 const useStyles = makeStyles<Theme>(() => ({
   list: {

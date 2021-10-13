@@ -116,12 +116,12 @@ type FileMatchHeaderProps = {
   /**
    * Handle match dismissal
    */
-  onDismiss: (...args: any[]) => void;
+  onDismiss: (match: FileMatch) => void;
 
   /**
    * Handle match dismissal
    */
-  onRestore: (...args: any[]) => void;
+  onRestore: (match: FileMatch) => void;
   className?: string;
 };
 export default FileMatchHeader;

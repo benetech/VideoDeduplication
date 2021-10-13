@@ -1,7 +1,7 @@
 import React from "react";
 import useFile from "../../../../application/api/files/useFile";
 import FrameView from "../../../files/FrameView/FrameView";
-import { FindFrameRequest, Task } from "../../../../model/Task";
+import { FindFrameRequest } from "../../../../model/Task";
 import { TaskRequestViewProps } from "../model";
 
 function FindFrameRequestOverview(

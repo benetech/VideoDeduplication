@@ -8,6 +8,7 @@ import usePopup from "../../lib/hooks/usePopup";
 import Popover from "@material-ui/core/Popover";
 import NavLinkList from "./NavLinkList";
 import useUniqueId from "../../lib/hooks/useUniqueId";
+import { CSSProperties } from "@material-ui/core/styles/withStyles";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   selector: {
@@ -77,7 +78,7 @@ type NavLinkSelectorProps = {
   onSelect: (...args: any[]) => void;
   selected: any;
   links: Link[];
-  styles?: object;
+  styles?: CSSProperties;
   className?: string;
 };
 

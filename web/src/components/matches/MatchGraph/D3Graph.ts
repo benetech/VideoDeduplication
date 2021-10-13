@@ -134,7 +134,7 @@ function color(scheme: NodesColors): GetColorFn<ClusterNode> {
   };
 }
 
-const noop = () => {};
+const noop = () => null;
 
 /**
  * Link data descriptor.
@@ -143,11 +143,6 @@ export type LinkDescr = {
   source: VideoFile["id"];
   target: VideoFile["id"];
 };
-
-/**
- * Root element selection.
- */
-type RootSelection = d3.Selection<SVGElement, unknown, null, undefined>;
 
 /**
  * Parent SVG element selection.
@@ -251,7 +246,7 @@ export default class D3Graph {
   /**
    * Display graph.
    */
-  display() {
+  display(): void {
     this.simulation = this.createForceSimulation();
 
     removeChildren(this.container);
@@ -337,6 +332,7 @@ export default class D3Graph {
   }
 
   private hookNodeEvents(nodes: NodeSelection, links: LinkSelection) {
+    /* eslint-disable  @typescript-eslint/no-this-alias */
     const self = this;
 
     // Define mouse hover listeners for nodes
@@ -374,6 +370,7 @@ export default class D3Graph {
     displayLinks: LinkSelection,
     nodes: NodeSelection
   ) {
+    /* eslint-disable  @typescript-eslint/no-this-alias */
     const self = this;
 
     // Define mouse hover listeners for links
@@ -475,7 +472,7 @@ export default class D3Graph {
   /**
    * Remove graph elements, remove all listeners, clear container.
    */
-  cleanup() {
+  cleanup(): void {
     removeChildren(this.container);
     if (this.updateSize != null) {
       window.removeEventListener("resize", this.updateSize);

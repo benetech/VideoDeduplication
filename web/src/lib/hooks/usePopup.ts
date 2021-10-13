@@ -22,7 +22,7 @@ export type PopupBindings<TElement extends HTMLElement = HTMLElement> = {
 };
 
 export default function usePopup<TElement extends HTMLElement = HTMLElement>(
-  prefix: string = ""
+  prefix = ""
 ): PopupBindings<TElement> {
   const ref = useRef<TElement>(null);
   const id = useUniqueId(prefix);

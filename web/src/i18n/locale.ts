@@ -5,8 +5,6 @@ import heIL from "./locales/he-IL.json";
 import ruRU from "./locales/ru-RU.json";
 import zn from "./locales/zn.json";
 import { getUserLocales } from "get-user-locale";
-import * as HttpStatus from "http-status-codes";
-import axios from "axios";
 import { TextAttributes } from "../lib/types/TextAttributes";
 
 export type LocaleData = {
@@ -23,17 +21,17 @@ function staticLoad(data: LocaleData): () => Promise<LocaleData> {
   return async () => data;
 }
 
-function dynamicLoad(resource: string): () => Promise<LocaleData> {
-  return async () => {
-    const response = await axios.get<LocaleData>(resource);
-    if (response.status !== HttpStatus.OK) {
-      throw new Error(
-        `Error loading locale ${resource}: ${response.statusText}`
-      );
-    }
-    return response.data;
-  };
-}
+// function dynamicLoad(resource: string): () => Promise<LocaleData> {
+//   return async () => {
+//     const response = await axios.get<LocaleData>(resource);
+//     if (response.status !== HttpStatus.OK) {
+//       throw new Error(
+//         `Error loading locale ${resource}: ${response.statusText}`
+//       );
+//     }
+//     return response.data;
+//   };
+// }
 
 /**
  * Pattern to extract language from the locale identifier.
@@ -87,7 +85,7 @@ function resolveLocale(
   preferred: string[],
   available: LocaleLoader[]
 ): LocaleLoader {
-  for (let locale of preferred) {
+  for (const locale of preferred) {
     const found = selectLocale(locale, available);
     if (found != null) {
       return found;

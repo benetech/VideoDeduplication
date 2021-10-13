@@ -2,6 +2,6 @@
 
 import selector from "./selector";
 
-Cypress.Commands.add("selector", (name, ...args) => {
+Cypress.Commands.add("selector", (name: string, ...args: any[]) => {
   return cy.get(selector(name), ...args);
 });

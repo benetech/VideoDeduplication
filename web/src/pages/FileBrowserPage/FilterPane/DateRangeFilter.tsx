@@ -130,7 +130,7 @@ function isValid(
   );
 }
 
-function DateRangeFilter(props: DateRangeFilterProps) {
+function DateRangeFilter(props: DateRangeFilterProps): JSX.Element {
   const {
     title,
     range,

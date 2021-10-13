@@ -50,7 +50,10 @@ export default class TemplateMatchesEndpoint implements TemplateMatchesAPI {
   /**
    * Get template match by id.
    */
-  async get(id: TemplateMatch["id"], fields: string[] = ["template", "file"]) {
+  async get(
+    id: TemplateMatch["id"],
+    fields: string[] = ["template", "file"]
+  ): Promise<TemplateMatch> {
     try {
       const response = await this.axios.get(`/template_matches/${id}`, {
         params: {
@@ -89,7 +92,7 @@ export default class TemplateMatchesEndpoint implements TemplateMatchesAPI {
   /**
    * Delete template match.
    */
-  async delete(match: TemplateMatch | TemplateMatch["id"]) {
+  async delete(match: TemplateMatch | TemplateMatch["id"]): Promise<void> {
     try {
       await this.axios.delete(`/template_matches/${getEntityId(match)}`);
     } catch (error) {

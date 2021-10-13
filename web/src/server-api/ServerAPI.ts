@@ -141,7 +141,7 @@ export interface MatchesAPI {
 /**
  * Presets API endpoint.
  */
-export interface PresetsAPI extends Endpoint<Preset, PresetFilters> {}
+export type PresetsAPI = Endpoint<Preset, PresetFilters>;
 
 /**
  * Tasks API endpoint.
@@ -156,7 +156,7 @@ export interface TasksAPI extends ReadOnlyEndpoint<Task, TaskFilters> {
 /**
  * Templates API endpoint.
  */
-export interface TemplatesAPI extends Endpoint<Template, TemplateFilters> {}
+export type TemplatesAPI = Endpoint<Template, TemplateFilters>;
 
 /**
  * Request params to create template example from video frame.

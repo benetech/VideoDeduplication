@@ -5,7 +5,7 @@ import { Entity } from "./Entity";
  */
 function ids<E extends Entity>(entities: E[]): Set<E["id"]> {
   const result = new Set<E["id"]>();
-  for (let entity of entities) {
+  for (const entity of entities) {
     result.add(entity.id);
   }
   return result;
@@ -16,7 +16,7 @@ function ids<E extends Entity>(entities: E[]): Set<E["id"]> {
  */
 function indexEntities<E extends Entity>(entities: E[]): Map<E["id"], E> {
   const index = new Map<E["id"], E>();
-  for (let entity of entities) {
+  for (const entity of entities) {
     index.set(entity.id, entity);
   }
   return index;

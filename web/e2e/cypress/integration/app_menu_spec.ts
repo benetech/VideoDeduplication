@@ -4,7 +4,8 @@ describe("Application Sidebar Menu", () => {
   // Menu elements selectors
   const menu = selector("AppMenu");
   const toggle = selector("AppMenuToggle");
-  const item = (text) => `${selector("AppMenuItem")}:contains("${text}")`;
+  const item = (text: string): string =>
+    `${selector("AppMenuItem")}:contains("${text}")`;
 
   beforeEach(() => {
     cy.visit("/");

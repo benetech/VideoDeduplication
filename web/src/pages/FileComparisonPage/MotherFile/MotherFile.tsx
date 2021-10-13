@@ -99,7 +99,7 @@ type MotherFileProps = {
   /**
    * Handle go-back button.
    */
-  onBack?: (...args: any[]) => void;
+  onBack?: () => void;
   className?: string;
 };
 export default MotherFile;

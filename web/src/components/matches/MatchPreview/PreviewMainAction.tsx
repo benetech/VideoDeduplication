@@ -43,7 +43,7 @@ function PreviewMainAction(props: PreviewMainActionProps): JSX.Element {
     }
   }, [ack, showAck]);
   const handleCloseAck = useCallback(() => setShowAck(false), []);
-  const handleOpenAck = useCallback(() => {}, []);
+  const handleOpenAck = useCallback(() => null, []);
   return (
     <Tooltip
       title={ack}

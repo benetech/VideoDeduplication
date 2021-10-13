@@ -59,7 +59,7 @@ function useMessages(count: number | null) {
   };
 }
 
-function TaskSidebarHeader(props: TaskSidebarHeaderProps) {
+function TaskSidebarHeader(props: TaskSidebarHeaderProps): JSX.Element {
   const {
     tab,
     onTabChange,

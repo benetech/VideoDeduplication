@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import AttributeTable from "../../../basic/AttributeTable";
 import { matchTemplatesAttributes } from "../requestAttributes";
-import { MatchTemplatesRequest, Task } from "../../../../model/Task";
+import { MatchTemplatesRequest } from "../../../../model/Task";
 import { TaskRequestViewProps } from "../model";
 
 function MatchTemplatesRequestAttrs(

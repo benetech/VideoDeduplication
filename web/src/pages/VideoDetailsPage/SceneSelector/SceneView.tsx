@@ -84,7 +84,7 @@ type SceneProps = {
   /**
    * Handle scene selection.
    */
-  onSelect?: (...args: any[]) => void;
+  onSelect?: (scene: Scene) => void;
 
   /**
    * True iff scene is selected (e.g. when it's being played).

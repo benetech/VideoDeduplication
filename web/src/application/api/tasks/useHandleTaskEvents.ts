@@ -4,7 +4,7 @@ import useUpdateTaskData from "./useUpdateTaskData";
 import useDeleteTaskData from "./useDeleteTaskData";
 import { SocketEvents } from "../../../server-api/SocketAPI";
 
-export default function useHandleTaskEvents() {
+export default function useHandleTaskEvents(): void {
   const server = useServer();
   const updateTaskData = useUpdateTaskData();
   const deleteTaskData = useDeleteTaskData();

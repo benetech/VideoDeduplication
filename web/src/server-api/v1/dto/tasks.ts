@@ -1,5 +1,3 @@
-import { Json } from "../../../lib/types/Json";
-
 export type TaskErrorDTO = {
   exc_type: string;
   exc_message: string;

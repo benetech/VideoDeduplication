@@ -1,12 +1,13 @@
 import React, { useCallback } from "react";
-import PropTypes from "prop-types";
 import SquaredIconButton from "../SquaredIconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 import { OverridableComponent } from "@material-ui/core/OverridableComponent";
 import { SvgIconTypeMap } from "@material-ui/core/SvgIcon/SvgIcon";
 import { ButtonProps } from "@material-ui/core/Button/Button";
 
-function IconSelectOption<T = any>(props: IconSelectOptionProps<T>) {
+function IconSelectOption<T = any>(
+  props: IconSelectOptionProps<T>
+): JSX.Element {
   const {
     value,
     onSelect,

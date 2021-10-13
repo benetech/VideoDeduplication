@@ -41,8 +41,6 @@ import { QueryParams, QueryResultsDTO } from "../dto/query";
 import { ListRequest, ListResults } from "../../ServerAPI";
 
 class TaskRequestTransformer {
-  constructor() {}
-
   request(data: TaskRequestDTO): TaskRequest {
     switch (data.type) {
       case RawTaskType.ProcessDirectory:

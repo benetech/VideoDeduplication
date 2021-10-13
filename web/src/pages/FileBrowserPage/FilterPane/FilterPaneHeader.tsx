@@ -45,7 +45,7 @@ function useMessages() {
   };
 }
 
-function FilterPaneHeader(props: FilterPaneHeaderProps) {
+function FilterPaneHeader(props: FilterPaneHeaderProps): JSX.Element {
   const {
     onClose,
     autoFocus = false,

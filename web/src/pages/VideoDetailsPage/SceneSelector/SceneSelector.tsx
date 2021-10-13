@@ -40,7 +40,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
 function selectedScene(scenes: Scene[], played: number): number {
   let selected = -1;
 
-  for (let [index, scene] of scenes.entries()) {
+  for (const [index, scene] of scenes.entries()) {
     if (scene.position <= played) {
       selected = index;
     } else {

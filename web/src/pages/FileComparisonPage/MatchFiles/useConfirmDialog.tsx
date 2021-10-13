@@ -29,7 +29,7 @@ export default function useConfirmDialog(
   description: string,
   yesText: string,
   action: () => void,
-  deps: any[] = []
+  deps: unknown[] = []
 ): UseConfirmDialogResults {
   const [open, setOpen] = useState(false);
   const messages = useMessages();

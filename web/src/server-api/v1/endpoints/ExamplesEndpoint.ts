@@ -77,7 +77,7 @@ export default class ExamplesEndpoint implements TemplateExamplesAPI {
    */
   async upload(template: Template, file: File): Promise<TemplateExample> {
     try {
-      let formData = new FormData();
+      const formData = new FormData();
       formData.append("file", file);
 
       const response = await this.axios.post(
@@ -85,7 +85,7 @@ export default class ExamplesEndpoint implements TemplateExamplesAPI {
         formData,
         {
           onUploadProgress: (progressEvent) => {
-            let percentCompleted = Math.round(
+            const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
             );
             console.log(

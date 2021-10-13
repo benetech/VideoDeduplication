@@ -1,10 +1,13 @@
 import selector from "../support/selector";
+import { VideoFile } from "../../../src/model/VideoFile";
+import { Interception } from "cypress/types/net-stubbing";
+import getRespFiles from "../support/getRespFiles";
 
 describe("The Collection Page", () => {
   // Reusable selectors
-  const gridItem = (id) =>
+  const gridItem = (id: VideoFile["id"]) =>
     `${selector("FileGridListItem")}[data-file-id=${id}]`;
-  const listItem = (id) =>
+  const listItem = (id: VideoFile["id"]) =>
     `${selector("FileLinearListItem")}[data-file-id=${id}]`;
 
   beforeEach(() => {
@@ -22,8 +25,8 @@ describe("The Collection Page", () => {
   });
 
   it("should load fingerprints", () => {
-    cy.wait(["@getFiles(page=0)"]).then(({ response }) => {
-      let files = response.body.items;
+    cy.wait("@getFiles(page=0)").then((getFiles0) => {
+      let files = getRespFiles(getFiles0);
 
       // Check all files are displayed
       for (const file of files) {
@@ -34,12 +37,12 @@ describe("The Collection Page", () => {
       cy.scrollTo("bottom");
 
       // Wait for the next slice to load
-      cy.wait(["@getFiles(page=next)"]).then(({ request, response }) => {
+      cy.wait("@getFiles(page=next)").then((getFilesNext) => {
         // Check request offset
-        expect(request.url).to.contain(`offset=${files.length}`);
+        expect(getFilesNext.request.url).to.contain(`offset=${files.length}`);
 
         // Check all files are displayed
-        files = files.concat(response.body.items);
+        files = files.concat(getRespFiles(getFilesNext));
         for (const file of files) {
           cy.get(gridItem(file.id)).should("contain", file.file_path);
         }
@@ -47,25 +50,25 @@ describe("The Collection Page", () => {
         // Check total count
         cy.get(selector("ShowAllButton")).should(
           "contain",
-          response.body.total
+          getFilesNext.response?.body.total
         );
 
         // Check duplicates count
         cy.get(selector("ShowDuplicatesButton")).should(
           "contain",
-          response.body.duplicates
+          getFilesNext.response?.body.duplicates
         );
 
         // Check related count
         cy.get(selector("ShowRelatedButton")).should(
           "contain",
-          response.body.related
+          getFilesNext.response?.body.related
         );
 
         // Check unique count
         cy.get(selector("ShowUniqueButton")).should(
           "contain",
-          response.body.unique
+          getFilesNext.response?.body.unique
         );
 
         // Check navigation
@@ -77,11 +80,11 @@ describe("The Collection Page", () => {
   });
 
   it("should render linear list", () => {
-    cy.wait(["@getFiles(page=0)"]).then(({ response }) => {
+    cy.wait("@getFiles(page=0)").then((getFiles0) => {
       cy.get(selector("ToggleListView")).click();
 
       // Check all files are displayed
-      let files = response.body.items;
+      let files = getRespFiles(getFiles0);
       for (const file of files) {
         cy.get(listItem(file.id)).should("contain", file.file_path);
       }
@@ -90,12 +93,12 @@ describe("The Collection Page", () => {
       cy.scrollTo("bottom");
 
       // Wait for the next slice to load
-      cy.wait(["@getFiles(page=next)"]).then(({ request, response }) => {
+      cy.wait("@getFiles(page=next)").then((getFilesNext) => {
         // Check request offset
-        expect(request.url).to.contain(`offset=${files.length}`);
+        expect(getFilesNext.request.url).to.contain(`offset=${files.length}`);
 
         // Check all files are also displayed
-        files = files.concat(response.body.items);
+        files = files.concat(getRespFiles(getFilesNext));
         for (const file of files) {
           cy.get(listItem(file.id)).should("contain", file.file_path);
         }

@@ -6,8 +6,6 @@ import { Updates } from "../../../lib/entity/Entity";
  * File API endpoint argument and result transformer.
  */
 export default class MatchesTransformer {
-  constructor() {}
-
   /**
    * Convert match DTO to match object.
    */

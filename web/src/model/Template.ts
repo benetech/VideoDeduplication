@@ -117,9 +117,7 @@ export type TemplateMatch = {
 /**
  * Create empty template stub.
  */
-export function makeTemplate(
-  attrs: Partial<Transient<Template>> = {}
-): Transient<Template> {
+export function makeTemplate(): Transient<Template> {
   return {
     name: "",
     icon: DefaultTemplateIcon,

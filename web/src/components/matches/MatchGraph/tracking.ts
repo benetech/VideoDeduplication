@@ -50,7 +50,7 @@ export class NodeTracker implements MoveTracker {
   /**
    * Call move listener.
    */
-  track() {
+  track(): void {
     const clientRect = this.element.getBoundingClientRect();
     const position = {
       top: clientRect.top,
@@ -59,7 +59,7 @@ export class NodeTracker implements MoveTracker {
     this.onMove(this.element, this.node, position);
   }
 
-  remove() {
+  remove(): void {
     this.onRemove(this.element, this.node);
   }
 }
@@ -88,7 +88,7 @@ export class LinkTracker implements MoveTracker {
   /**
    * Call move listener.
    */
-  track(event?: React.MouseEvent) {
+  track(event?: React.MouseEvent): void {
     if (event == null) {
       return;
     }
@@ -99,7 +99,7 @@ export class LinkTracker implements MoveTracker {
     this.onMove(this.element, this.link, position);
   }
 
-  remove() {
+  remove(): void {
     this.onRemove(this.element, this.link);
   }
 }

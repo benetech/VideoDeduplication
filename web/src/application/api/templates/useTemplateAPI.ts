@@ -39,7 +39,7 @@ type UploadExampleRequest = {
 /**
  * Get a callback to upload images as template-examples.
  */
-export function useUploadExamples(raise: boolean = false): UploadExamplesFn {
+export function useUploadExamples(raise = false): UploadExamplesFn {
   const server = useServer();
   const queryClient = useQueryClient();
   const { mutateAsync: uploadSingleExample } = useMutation<

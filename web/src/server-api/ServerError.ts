@@ -45,11 +45,11 @@ export class ServerError<Data = Json> extends Error {
   public readonly cause: Error | null;
   public readonly code: ErrorCode;
   public readonly data?: Data;
-  public readonly request: any;
+  public readonly request: unknown;
 
   public static readonly Code = ErrorCode;
 
-  constructor(message: string, cause: Error | null, request: any) {
+  constructor(message: string, cause: Error | null, request: unknown) {
     super(ServerError.errorMessage(cause, message));
     this.cause = cause;
     this.code = ServerError.errorCode(cause);
@@ -105,7 +105,7 @@ export class ValidationError extends ServerError<ValidationErrorDTO> {
   constructor(
     message: string,
     cause: Error,
-    request: any,
+    request: unknown,
     fields?: FieldErrors
   ) {
     super(message, cause, request);
@@ -151,7 +151,7 @@ export class ValidationError extends ServerError<ValidationErrorDTO> {
 export function makeServerError(
   message: string,
   cause: Error | unknown,
-  request?: any
+  request?: unknown
 ): ServerError {
   if (axios.isAxiosError(cause) && isValidationErrorDTO(cause.response?.data)) {
     return new ValidationError(message, cause, request);

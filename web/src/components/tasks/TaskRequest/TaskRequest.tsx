@@ -21,10 +21,7 @@ function TaskRequest(props: TaskRequestProps): JSX.Element {
   const { task, viewMap = RequestViews, className, ...other } = props;
   const classes = useStyles();
   const intl = useIntl();
-  const views = useMemo(
-    () => RequestViews[task.request.type],
-    [task.request.type]
-  );
+  const views = useMemo(() => viewMap[task.request.type], [task.request.type]);
   const [currentView, setView] = useState(views[0]);
   const Component = currentView.component as TaskRequestViewComponent;
   return (

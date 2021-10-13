@@ -43,9 +43,7 @@ function useMessages() {
  * Loading trigger
  */
 
-function LoadTrigger<
-  ContainerProps extends ExpectedContainerProps = ExpectedContainerProps
->(props: LoadTriggerProps<ContainerProps>): JSX.Element | null {
+function LoadTrigger(props: LoadTriggerProps): JSX.Element | null {
   const {
     error,
     container: Container = "div",
@@ -96,9 +94,7 @@ export type ExpectedContainerProps = {
   className?: string;
 };
 
-type LoadTriggerProps<
-  ContainerProps extends ExpectedContainerProps = ExpectedContainerProps
-> = {
+type LoadTriggerProps = {
   /**
    * Indicate loading error
    */

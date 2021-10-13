@@ -206,7 +206,7 @@ export default class PagedResultsBuilder<
 
     const { pages, request, total } = this._unpackResults(this.results);
     const entityId = getEntityId(entity);
-    let currentEntity = this._findEntity(pages, entityId);
+    const currentEntity = this._findEntity(pages, entityId);
 
     // Leave query unchanged if it doesn't contain entity
     if (currentEntity === undefined) {

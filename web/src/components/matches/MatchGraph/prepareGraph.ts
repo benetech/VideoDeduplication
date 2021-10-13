@@ -33,10 +33,10 @@ export function getAdjacency(
   nodes: ClusterNode[]
 ): AdjacencyTable {
   const adjacency = new Map<VideoFile["id"], Set<VideoFile["id"]>>();
-  for (let node of nodes) {
+  for (const node of nodes) {
     adjacency.set(node.id, new Set());
   }
-  for (let link of links) {
+  for (const link of links) {
     adjacency
       .get(getEntityId<ClusterNode>(link.source))
       ?.add(getEntityId<ClusterNode>(link.target));

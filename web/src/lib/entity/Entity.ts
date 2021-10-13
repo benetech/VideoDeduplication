@@ -23,6 +23,7 @@ export type Transient<E extends Entity> = {
  * Type predicate for `Entity`, could be used for type narrowing.
  * @param value value which type will be verified.
  */
+/* eslint-disable   @typescript-eslint/explicit-module-boundary-types */
 export function isEntity(value: any): value is Entity {
   return isEntityId((value as Entity)?.id);
 }
@@ -31,6 +32,7 @@ export function isEntity(value: any): value is Entity {
  * Type predicate for entity id. Could be used for type narrowing.
  * @param value value which type will be verified.
  */
+/* eslint-disable   @typescript-eslint/explicit-module-boundary-types */
 export function isEntityId(value: any): value is Entity["id"] {
   return lodash.isFinite(value) || typeof value === "string";
 }

@@ -14,7 +14,7 @@ export type StagingShape<T = any> = {
  */
 export default function useStaging<T = any>(
   initialValue: T,
-  delay: number = 200
+  delay = 200
 ): StagingShape {
   const [value, setValue] = useState(initialValue);
   const [staging, setStaging] = useState(initialValue);

@@ -110,7 +110,7 @@ function SearchTextInput(props: SearchTextInputProps): JSX.Element {
 
 type SearchTextInputProps = {
   query?: string;
-  onSearch?: (...args: any[]) => void;
+  onSearch?: (query: string) => void;
   className?: string;
 };
 export default SearchTextInput;

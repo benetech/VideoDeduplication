@@ -38,7 +38,7 @@ function pad(time: number): string {
 export function formatDuration(
   duration: number,
   intl: IntlShape,
-  showUnits: boolean = true
+  showUnits = true
 ): string {
   const t = parseDuration(duration);
   if (t.hours > 0) {
@@ -77,7 +77,7 @@ export function formatDate(
 /**
  * Format boolean value.
  */
-export function formatBool(value: any, intl: IntlShape): string {
+export function formatBool(value: boolean, intl: IntlShape): string {
   const messageID = value ? "value.bool.true" : "value.bool.false";
   return intl.formatMessage({ id: messageID });
 }

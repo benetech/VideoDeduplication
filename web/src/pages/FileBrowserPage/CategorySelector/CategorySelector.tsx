@@ -50,7 +50,7 @@ const options: CategoryButtonDescr[] = [
   },
 ];
 
-function CategorySelector(props: CategorySelectorProps) {
+function CategorySelector(props: CategorySelectorProps): JSX.Element {
   const { category: selected, onChange, counts, dense, className } = props;
   const intl = useIntl();
   const format = (id: string): string => intl.formatMessage({ id });

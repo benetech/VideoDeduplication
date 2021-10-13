@@ -8,7 +8,7 @@ export type TaskSidebarTab = {
 export const DefaultTabs: TaskSidebarTab[] = [
   {
     title: "task.list.active",
-    filter(task) {
+    filter(task: Task): boolean {
       return (
         task.status === TaskStatus.PENDING || task.status === TaskStatus.RUNNING
       );
@@ -16,7 +16,7 @@ export const DefaultTabs: TaskSidebarTab[] = [
   },
   {
     title: "task.list.finished",
-    filter(task) {
+    filter(task: Task): boolean {
       return (
         task.status === TaskStatus.SUCCESS ||
         task.status === TaskStatus.FAILURE ||
@@ -26,7 +26,7 @@ export const DefaultTabs: TaskSidebarTab[] = [
   },
   {
     title: "task.list.all",
-    filter() {
+    filter(): boolean {
       return true;
     },
   },

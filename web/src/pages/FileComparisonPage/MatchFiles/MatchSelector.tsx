@@ -2,7 +2,6 @@ import React, { useCallback } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
-import { VideoFile } from "../../../model/VideoFile";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";

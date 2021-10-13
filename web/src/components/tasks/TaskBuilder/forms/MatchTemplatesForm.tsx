@@ -29,14 +29,14 @@ function useMessages() {
 export default function MatchTemplatesForm(
   props: TaskBuilderProps<MatchTemplatesRequest>
 ): JSX.Element {
-  const { onChange, onValidated, className, ...other } = props;
+  const { onValidated, className } = props;
   const messages = useMessages();
   const classes = useStyles(); // Initialize state
 
   useEffect(() => onValidated(true), []);
 
   return (
-    <div className={clsx(className)} {...other}>
+    <div className={clsx(className)}>
       <Description
         className={classes.description}
         text={messages.description}

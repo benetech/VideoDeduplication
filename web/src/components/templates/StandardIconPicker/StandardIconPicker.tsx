@@ -36,7 +36,7 @@ function useMessages() {
  */
 function useDelayState<T>(
   initial: T,
-  timeout: number = 1000
+  timeout = 1000
 ): [T, T, React.Dispatch<React.SetStateAction<T>>] {
   const [value, setValue] = useState<T>(initial);
   const [staging, setStaging] = useState<T>(initial);

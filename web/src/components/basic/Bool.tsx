@@ -10,7 +10,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
 }));
 
 function Bool(props: BoolProps): JSX.Element {
-  const { value, className } = props;
+  const { value = false, className } = props;
   const classes = useStyles();
   const intl = useIntl();
   return (

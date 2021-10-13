@@ -45,7 +45,7 @@ type LoadingHeaderProps = {
   /**
    * Trigger loading of the next portion of files
    */
-  onRetry: (...args: any[]) => void;
+  onRetry: () => void;
 
   /**
    * Message displayed when error=true

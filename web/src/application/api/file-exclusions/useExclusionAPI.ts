@@ -1,7 +1,4 @@
-import { useMutation, useQueryClient } from "react-query";
 import { useServer } from "../../../server-api/context";
-import collectQueriesData from "../../common/collectQueriesData";
-import PagedResultsBuilder from "../../common/PagedResultsBuilder";
 import {
   ComparatorFn,
   stringComparator,
@@ -11,10 +8,9 @@ import {
   TemplateExclusion,
   TemplateExclusionFilters,
 } from "../../../model/Template";
-import { AsyncOperation, CreateFn, DeleteFn } from "../../common/model";
+import { AsyncOperation, CreateFn } from "../../common/model";
 import {
   useCreateEntity,
-  useDeleteEntity,
   useDeleteFullEntity,
 } from "../../common/useEntityMutation";
 

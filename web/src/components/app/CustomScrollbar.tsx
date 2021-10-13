@@ -26,13 +26,13 @@ const useStyles = makeStyles<Theme>((theme) => ({
 /**
  * Apply custom scroll-bar styles to all children.
  */
-const CustomScrollbar = (props: CustomScrollbarProps) => {
+const CustomScrollbar = (props: CustomScrollbarProps): JSX.Element => {
   const { children } = props;
 
-  /* eslint-disable no-unused-vars */
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   const classes = useStyles();
 
-  /* eslint-enable no-unused-vars */
+  /* eslint-enable @typescript-eslint/no-unused-vars */
   return <React.Fragment>{children}</React.Fragment>;
 };
 

@@ -29,7 +29,9 @@ function bindProps<T>(
   };
 }
 
-function GridButtonPicker<T = any>(props: GridButtonPickerProps<T>) {
+function GridButtonPicker<T = any>(
+  props: GridButtonPickerProps<T>
+): JSX.Element {
   const { selected, onChange, children, className, ...other } = props;
 
   // Invert value presence on selection

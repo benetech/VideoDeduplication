@@ -44,7 +44,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
 /**
  * Title of the application left-side menu.
  */
-function AppMenuHeader(props: AppMenuHeaderProps) {
+function AppMenuHeader(props: AppMenuHeaderProps): JSX.Element {
   const {
     open,
     onToggle,

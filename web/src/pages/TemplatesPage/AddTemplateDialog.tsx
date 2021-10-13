@@ -89,7 +89,7 @@ type AddTemplateDialogProps = {
   /**
    * Handle dialog close.
    */
-  onClose: (...args: any[]) => void;
+  onClose: () => void;
   className?: string;
 };
 export default AddTemplateDialog;

@@ -10,7 +10,7 @@ type ScrollOptions = {
 export function scrollIntoView(
   ref: React.MutableRefObject<any>,
   options: ScrollOptions = {}
-) {
+): void {
   const { smooth = true } = options;
   if (ref == null || ref.current == null) {
     return;

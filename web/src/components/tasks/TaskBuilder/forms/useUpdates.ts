@@ -32,6 +32,8 @@ export type TextChangeHandler = (event: TextChangeEvent) => void;
  * Handler of Autocomplete onChange events..
  */
 export type AutocompleteHandler<TValue, Multiple extends boolean = true> = (
+  // React.ChangeEvent<{}> is required
+  /* eslint-disable   @typescript-eslint/ban-types */
   event: React.ChangeEvent<{}>,
   value: AutocompleteValue<TValue, Multiple>
 ) => void;
@@ -212,6 +214,8 @@ export function useUpdates<TTarget>(
   ): AutocompleteHandler<TValue, Multiple> {
     return useCallback<AutocompleteHandler<TValue, Multiple>>(
       (
+        // React.ChangeEvent<{}> is required
+        /* eslint-disable   @typescript-eslint/ban-types */
         event: React.ChangeEvent<{}>,
         values: AutocompleteValue<TValue, Multiple>
       ) => {
