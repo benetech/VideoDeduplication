@@ -21,12 +21,7 @@ def pload_video(p, size, frame_sampling):
 
 
 def feature_extraction_videos(
-    model,
-    videos,
-    on_extracted: Callable,
-    cores=4,
-    batch_sz=8,
-    frame_sampling=1,
+    model, videos, on_extracted: Callable, cores=4, batch_sz=8, frame_sampling=1,
 ):
     """
     Function that extracts the intermediate CNN features
@@ -65,13 +60,13 @@ def feature_extraction_videos(
                     future_videos[next_video_path] = pool.apply_async(
                         pload_video,
                         args=[next_video_path, model.desired_size, frame_sampling],
-                        callback=update_callback
+                        callback=update_callback,
                     )
                 else:
                     # Handling UI behavior when a video is skipped for not existing
                     next(progress_bar)
                     # postfix removed so progress_bar could be an iterator:
-                    #progress_bar.set_postfix(video=os.path.basename(next_video_path))
+                    # progress_bar.set_postfix(video=os.path.basename(next_video_path))
             else:
                 break
 
@@ -83,7 +78,7 @@ def feature_extraction_videos(
         video_file_path, video_tensor = result
         next(progress_bar)
         # postfix removed so progress_bar could be an iterator:
-        #progress_bar.set_postfix(video=os.path.basename(video_file_path))
+        # progress_bar.set_postfix(video=os.path.basename(video_file_path))
 
         try:
             # start loading new video
