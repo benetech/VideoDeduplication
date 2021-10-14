@@ -157,7 +157,7 @@ describe("The File Comparison Page", () => {
   };
 
   beforeEach(() => {
-    cy.intercept(`/api/v1/files/${fileId}?`, {
+    cy.intercept(`/api/v1/files/${fileId}?*`, {
       fixture: "file.json",
     }).as("getFile");
 
