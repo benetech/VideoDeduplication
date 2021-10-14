@@ -2,7 +2,6 @@ import logging
 import os
 from typing import Callable
 
-import numpy as np
 from tqdm import tqdm
 import time
 
