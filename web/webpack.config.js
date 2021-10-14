@@ -7,7 +7,7 @@ const apiServer = process.env.API_SERVER || `localhost:5000`;
 const publicPath = process.env.PUBLIC_PATH || "/";
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/index.tsx",
   output: {
     path: outputDir,
     publicPath: publicPath,
@@ -15,6 +15,17 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /\.tsx?$/,
+        use: [
+          {
+            loader: "ts-loader",
+            options: {
+              allowTsInNodeModules: true,
+            },
+          },
+        ],
+      },
       {
         test: /\.(jsx|js)$/,
         exclude: /node_modules/,
@@ -41,6 +52,9 @@ module.exports = {
       },
     ],
   },
+  resolve: {
+    extensions: [".ts", ".tsx", ".js", ".jsx"],
+  },
   plugins: [
     new HtmlWebpackPlugin({
       filename: "index.html",
@@ -49,7 +63,9 @@ module.exports = {
   ],
   devtool: "source-map",
   devServer: {
-    contentBase: outputDir,
+    static: {
+      directory: outputDir,
+    },
     port: 9999,
     historyApiFallback: true,
     proxy: {

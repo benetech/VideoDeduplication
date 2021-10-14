@@ -1,23 +1,29 @@
 module.exports = {
-  parser: "babel-eslint",
+  parser: "@typescript-eslint/parser",
   env: {
     browser: true,
     es2020: true,
     "jest/globals": true,
   },
-  extends: ["eslint:recommended", "plugin:react/recommended"],
+  extends: [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+  ],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
     },
-    ecmaVersion: 11,
+    ecmaVersion: 12,
     sourceType: "module",
   },
-  plugins: ["react", "jest"],
+  plugins: ["react", "jest", "@typescript-eslint"],
   settings: {
     react: {
       version: "detect",
     },
   },
-  rules: {},
+  rules: {
+    "@typescript-eslint/no-explicit-any": "off",
+  },
 };

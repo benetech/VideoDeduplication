@@ -62,6 +62,7 @@ def list_files():
     return jsonify(
         {
             "items": [Transform.file(item, **include_flags) for item in results.items],
+            "offset": req.offset,
             "total": results.counts.total,
             "duplicates": results.counts.duplicates,
             "related": results.counts.related,
