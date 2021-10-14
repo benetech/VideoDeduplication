@@ -21,7 +21,12 @@ def pload_video(p, size, frame_sampling):
 
 
 def feature_extraction_videos(
-    model, videos, on_extracted: Callable, cores=4, batch_sz=8, frame_sampling=1,
+    model,
+    videos,
+    on_extracted: Callable,
+    cores=4,
+    batch_sz=8,
+    frame_sampling=1,
 ):
     """
     Function that extracts the intermediate CNN features
