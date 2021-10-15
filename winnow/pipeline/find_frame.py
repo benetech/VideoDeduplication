@@ -8,6 +8,7 @@ from winnow.search_engine import SearchEngine, Template
 from winnow.search_engine.black_list import BlackList
 from winnow.search_engine.model import Frame
 from winnow.utils.files import get_hash
+from winnow.config import Config
 
 # Default module logger
 logger = logging.getLogger(__name__)
