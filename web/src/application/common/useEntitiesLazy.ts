@@ -13,7 +13,7 @@ export type UseEntitiesLazyOptions<
   TData extends ListResults<any, any>
 > = {
   makePages?: (query: UseInfiniteQueryResult<TData>) => TPage[];
-  getTotal?: (query: UseInfiniteQueryResult<TData>) => number;
+  getTotal?: (lastPage: TData | undefined) => number;
   getOffset?: (lastPage: TData) => number;
 };
 
@@ -22,7 +22,7 @@ export type UseBasicEntitiesLazyOptions<
   TData extends BaseListResults
 > = {
   makePages: (query: UseInfiniteQueryResult<TData>) => TPage[];
-  getTotal?: (query: UseInfiniteQueryResult<TData>) => number;
+  getTotal?: (lastPage: TData | undefined) => number;
   getOffset: (lastPage: TData) => number;
 };
 
@@ -31,12 +31,21 @@ export type UseEntitiesLazyResults<TPage, TData = unknown> = {
   query: UseInfiniteQueryResult<TData, Error>;
 };
 
-function getTotalDefault<TData extends BaseListResults>(
+function getLastPage<TData extends BaseListResults>(
   query: UseInfiniteQueryResult<TData>
-): number {
+): TData | undefined {
   const pages: TData[] = query.data?.pages || [];
   if (pages.length > 0) {
-    return pages[pages.length - 1].total;
+    return pages[pages.length - 1];
+  }
+  return undefined;
+}
+
+function getTotalDefault<TData extends BaseListResults>(
+  lastPage: TData | undefined
+): number {
+  if (lastPage != null) {
+    return lastPage.total;
   }
   return 0;
 }
@@ -57,7 +66,8 @@ export function useBasicEntitiesLazy<
         return 0;
       }
       const nextOffset = getOffset(lastPage);
-      if (nextOffset < lastPage.total) {
+      const total = getTotal(lastPage);
+      if (nextOffset < total) {
         return nextOffset;
       }
     },
@@ -71,7 +81,7 @@ export function useBasicEntitiesLazy<
   return {
     results: {
       pages,
-      total: getTotal(query),
+      total: getTotal(getLastPage(query)),
       error: query.error,
       isLoading,
       isError: query.isError,

@@ -9,7 +9,7 @@
     "test": "npm run prettier:check && npm run lint && npm run jest",
     "prettier": "prettier --ignore-path .gitignore --write --list-different \"**/*.{js,ts,tsx,md,json,yml}\"",
     "prettier:check": "prettier --ignore-path .gitignore --check \"**/*.{js,ts,tsx,md,json,yml}\"",
-    "lint": "eslint src",
+    "lint": "eslint --max-warnings=0 src",
     "jest": "jest src",
     "cy:open": "cypress open",
     "cy:server": "npm run dev & wait-on 'http://localhost:9999'",
