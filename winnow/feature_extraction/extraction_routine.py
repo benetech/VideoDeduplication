@@ -2,8 +2,8 @@ import logging
 import os
 from typing import Callable
 
-import numpy as np
 from tqdm import tqdm
+import time
 
 from winnow.utils.multiproc import multiprocessing as mp
 from .model_tf import CNN_tf
@@ -16,7 +16,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 def pload_video(p, size, frame_sampling):
-    return load_video(p, size, frame_sampling)
+    return p, load_video(p, size, frame_sampling)
 
 
 def feature_extraction_videos(
@@ -47,41 +47,60 @@ def feature_extraction_videos(
     logger.info("Starting Feature Extraction Process")
 
     pool = mp.Pool(cores)
-    future_videos = dict()
 
-    progress_bar = tqdm(range(np.max(list(video_list.keys())) + 1), mininterval=1.0, unit="video")
-    for video in progress_bar:
+    unprocessed_videos = [v for v in videos]
+    future_videos = {}
+    processed_videos = []
+    progress_bar = tqdm(range(len(videos)), mininterval=1.0, unit="video").__iter__()
+
+    # Make sure proper number of video loading threads are going
+    def fill_cores():
+        nonlocal unprocessed_videos, future_videos, progress_bar
+        while len(future_videos) < cores:
+            if len(unprocessed_videos) > 0:
+                next_video_path = unprocessed_videos[0]
+                unprocessed_videos = unprocessed_videos[1:]
+                if os.path.exists(next_video_path):
+                    future_videos[next_video_path] = pool.apply_async(
+                        pload_video,
+                        args=[next_video_path, model.desired_size, frame_sampling],
+                        callback=update_callback,
+                    )
+                else:
+                    # Handling UI behavior when a video is skipped for not existing
+                    next(progress_bar)
+                    # postfix removed so progress_bar could be an iterator:
+                    # progress_bar.set_postfix(video=os.path.basename(next_video_path))
+            else:
+                break
+
+    # Called when a video is done loading
+    # Note: nonlocal object safety is guaranteed because the callback is run on one result at a time, never in parallel
+    def update_callback(result):
+        nonlocal future_videos, processed_videos, progress_bar
+        # Get path and tensor
+        video_file_path, video_tensor = result
+        next(progress_bar)
+        # postfix removed so progress_bar could be an iterator:
+        # progress_bar.set_postfix(video=os.path.basename(video_file_path))
 
         try:
-            video_file_path = video_list[video]
-            progress_bar.set_postfix(video=os.path.basename(video_file_path))
-            if os.path.exists(video_file_path):
+            # start loading new video
+            del future_videos[video_file_path]
+            fill_cores()
 
-                if video not in future_videos:
-                    video_tensor = pload_video(video_file_path, model.desired_size, frame_sampling)
-
-                else:
-                    video_tensor = future_videos[video].get()
-                    del future_videos[video]
-
-                # load videos in parallel
-                for i in range(cores - len(future_videos)):
-                    next_video = np.max(list(future_videos.keys())) + 1 if len(future_videos) else video + 1
-
-                    if (
-                        next_video in video_list
-                        and next_video not in future_videos  # noqa: W503
-                        and os.path.exists(video_list[next_video])  # noqa: W503
-                    ):
-                        future_videos[next_video] = pool.apply_async(
-                            pload_video, args=[video_list[next_video], model.desired_size, frame_sampling]
-                        )
-
-                # extract features
-                features = model.extract(video_tensor, batch_sz)
-                on_extracted(video_file_path, video_tensor, features)
+            # extract features
+            features = model.extract(video_tensor, batch_sz)
+            on_extracted(video_file_path, video_tensor, features)
+            processed_videos += [video_file_path]
         except Exception:
-            logger.exception(f"Error processing file:{video_list[video]}")
+            logger.exception(f"Error processing file:{video_file_path}")
+
+    # Start loading + processing
+    fill_cores()
+    # wait until all data processing is done, checking at 1-second intervals
+    while len(processed_videos) < len(videos):
+        time.sleep(1)
 
 
 def load_featurizer(pretrained_local_path):
