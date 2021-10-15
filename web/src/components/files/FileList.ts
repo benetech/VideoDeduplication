@@ -72,7 +72,7 @@ export type FileListLoadingTriggerProps = {
   /**
    * Trigger loading of the next portion of files
    */
-  onLoad: () => void;
+  onLoad: () => Promise<any>;
   /**
    * Whether more files could be loaded
    */

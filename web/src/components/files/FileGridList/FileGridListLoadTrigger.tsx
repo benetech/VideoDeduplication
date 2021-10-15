@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
@@ -7,6 +7,7 @@ import FPGridListItemContainer from "./FileGridListItemContainer";
 import VisibilitySensor from "react-visibility-sensor";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { FileListLoadingTriggerProps } from "../FileList";
+import useLoadTrigger from "../../../lib/hooks/useLoadTrigger";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   trigger: {
@@ -53,16 +54,9 @@ function FileGridListLoadTrigger(
   props: FileListLoadingTriggerProps
 ): JSX.Element | null {
   const { loading, error, onLoad, hasMore, perRow = 3, className } = props;
+  const { setVisible } = useLoadTrigger({ loading, error, onLoad, hasMore });
   const classes = useStyles();
   const messages = useMessages();
-  const handleVisibilityChange = useCallback(
-    (visible) => {
-      if (visible && !loading && hasMore) {
-        onLoad();
-      }
-    },
-    [onLoad, loading, hasMore]
-  );
 
   if (!hasMore) {
     return null;
@@ -74,7 +68,7 @@ function FileGridListLoadTrigger(
       perRow={perRow}
     >
       {!loading && !error && (
-        <VisibilitySensor onChange={handleVisibilityChange} partialVisibility>
+        <VisibilitySensor onChange={setVisible} partialVisibility>
           <div className={classes.triggerArea} />
         </VisibilitySensor>
       )}
