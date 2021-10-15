@@ -22,10 +22,10 @@ def extract_video_signatures(
     remaining_video_paths = list(missing_video_signatures(files, pipeline))
 
     # Ensure dependencies are satisfied
-
     if not video_features_exist(remaining_video_paths, pipeline):
         extract_video_level_features(remaining_video_paths, pipeline, progress=progress.subtask(0.9))
         progress = progress.subtask(0.1)
+
     # Skip step if required results already exist
     if not remaining_video_paths:
         logger.info("Representation storage contains all required signatures. Skipping...")

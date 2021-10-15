@@ -23,10 +23,10 @@ def extract_scene_signatures(
     remaining_video_paths = list(missing_scene_signatures(files, pipeline))
 
     # Ensure dependencies are satisfied
-
     if not scene_features_exist(remaining_video_paths, pipeline):
         extract_scene_level_features(remaining_video_paths, pipeline, progress=progress.subtask(0.9))
         progress = progress.subtask(0.1)
+
     # Skip step if required results already exist
     if not remaining_video_paths:
         logger.info("Representation storage contains all required signatures. Skipping...")
@@ -67,8 +67,8 @@ def extract_signatures(files, pipeline: PipelineContext) -> Dict[FileKey, Collec
     scene_features_separated = {}
     for key, features in scene_features.items():
         for i in range(features.shape[0]):
-            new_path = str(key.path)+'('+str(i)+')'
+            new_path = str(key.path) + "(" + str(i) + ")"
             new_key = FileKey(path=new_path, hash=key.hash)
-            scene_features_separated[new_key] = features[i:i+1]
+            scene_features_separated[new_key] = features[i : i + 1]
 
     return similarity_model.predict(scene_features_separated)

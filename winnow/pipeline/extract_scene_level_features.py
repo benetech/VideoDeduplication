@@ -61,7 +61,7 @@ def frame_to_global(files, pipeline: PipelineContext, progress=ProgressMonitor.N
         scene_metadata = pd.read_csv(scene_metadata_path)
         scene_durations = []
         for _, row in scene_metadata.iterrows():
-            scene_durations += [[row['video_filename'], row['scene_duration_seconds']]]
+            scene_durations += [[row["video_filename"], row["scene_duration_seconds"]]]
     except Exception:
         logger.exception("Error loading scene metadata, file '%s' not found" % scene_metadata_path)
         return
@@ -75,7 +75,7 @@ def frame_to_global(files, pipeline: PipelineContext, progress=ProgressMonitor.N
             scenes_dur = None
             for filename, durs in scene_durations:
                 if filename in key.path:
-                    scenes_dur = [int(d) for d in durs.strip('][').split(', ')]
+                    scenes_dur = [int(d) for d in durs.strip("][").split(", ")]
                     break
             if scenes_dur is None:
                 raise Exception("Error: no scene metadata available for file '%s'" % key.path)
