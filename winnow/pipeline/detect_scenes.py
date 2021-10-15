@@ -85,7 +85,7 @@ def missing_scenes(files, pipeline: PipelineContext, yield_per=100):
 
 def _query_files_with_missing_scenes(files, session, pipeline: PipelineContext):
     """Create a database query for files with missing scenes."""
-    hash_modes = [pipeline.config.repr.hash_mode]*len(files)
+    hash_modes = [pipeline.config.repr.hash_mode] * len(files)
     path_hash_pairs = tuple(zip(map(pipeline.storepath, files), map(get_hash, files, hash_modes)))
     query = session.query(Files).filter(Files.contributor == None)  # noqa: E711
     query = query.filter(tuple_(Files.file_path, Files.sha256).in_(path_hash_pairs))

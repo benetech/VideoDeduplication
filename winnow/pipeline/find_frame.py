@@ -53,5 +53,7 @@ def find_frame(frame: Frame, files: Collection[str], pipeline: PipelineContext, 
 def make_black_list(template: Template, frame: Frame, config: Config) -> BlackList:
     """Exclude the frame source from the template scope."""
     black_list = BlackList()
-    black_list.exclude_file(template_name=template.name, file_path=frame.path, file_hash=get_hash(frame.path, config.repr.hash_mode))
+    black_list.exclude_file(
+        template_name=template.name, file_path=frame.path, file_hash=get_hash(frame.path, config.repr.hash_mode)
+    )
     return black_list

@@ -17,7 +17,7 @@ def resolve_config(  # noqa C901
     extensions=None,
     match_distance=None,
     min_duration=None,
-    hash_mode=None
+    hash_mode=None,
 ):
     """Resolve config from command-line arguments."""
     config_path = resolve_config_path(config_path)
