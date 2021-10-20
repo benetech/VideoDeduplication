@@ -1,4 +1,7 @@
 import selector from "../support/selector";
+import ignoreUncaughtError, {
+  withMessage,
+} from "../support/ignoreUncaughtError";
 
 describe("Application Sidebar Menu", () => {
   // Menu elements selectors
@@ -8,6 +11,10 @@ describe("Application Sidebar Menu", () => {
     `${selector("AppMenuItem")}:contains("${text}")`;
 
   beforeEach(() => {
+    // It is healthy to ignore this error
+    // See https://stackoverflow.com/a/50387233 for more details.
+    ignoreUncaughtError(withMessage("ResizeObserver loop limit exceeded"));
+
     cy.visit("/");
   });
 
