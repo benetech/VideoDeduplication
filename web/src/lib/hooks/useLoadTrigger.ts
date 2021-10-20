@@ -30,16 +30,8 @@ export default function useLoadTrigger(
 
   // Perform autoload.
   const shouldAutoload = visible && hasMore && !loading && !error && !progress;
-  console.log("Value", shouldAutoload, {
-    visible,
-    hasMore,
-    loading,
-    error,
-    progress,
-  });
   useEffect(() => {
     if (shouldAutoload) {
-      console.log("Triggered!");
       handleLoad().catch(console.error);
     }
   }, [shouldAutoload]);
