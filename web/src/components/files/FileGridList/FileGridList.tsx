@@ -23,7 +23,9 @@ function bindProps(
 }
 
 function useRow(minItemWidth: number, defaultRow = 3) {
-  const { width, ref } = useResizeDetector();
+  const { width, ref } = useResizeDetector({
+    handleHeight: false,
+  });
   const perRow = Math.floor((width || 0) / minItemWidth);
   return {
     ref,

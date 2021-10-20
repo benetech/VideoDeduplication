@@ -38,7 +38,9 @@ const FileLinearList = React.forwardRef(function FileLinearList(
 ) {
   const { children, className, ...other } = props;
   const classes = useStyles();
-  const { width, ref } = useResizeDetector();
+  const { width, ref } = useResizeDetector({
+    handleHeight: false,
+  });
   const items = React.Children.map(children, bindProps(width || 1));
   const composedRef = useMemo(
     () => composeRefs<HTMLDivElement>(ref, externalRef),
