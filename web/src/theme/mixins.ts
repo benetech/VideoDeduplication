@@ -25,6 +25,7 @@ declare module "@material-ui/core/styles/createMixins" {
     descriptionText: CSSProperties;
     panel: CSSProperties;
     noselect: CSSProperties;
+    logs: CSSProperties;
   }
 }
 
@@ -167,6 +168,10 @@ const mixins: MixinsOptions = {
     // Non-prefixed version, currently
     // supported by Chrome, Edge, Opera and Firefox
     "user-select": "none",
+  },
+  logs: {
+    backgroundColor: "#272c34",
+    color: "#ffffff",
   },
 };
 

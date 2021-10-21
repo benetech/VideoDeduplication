@@ -23,6 +23,14 @@ export type UseFilesLazyAPI = LazyQueryResults<VideoFile[]> & {
   counts: MatchCounts;
 };
 
+function getTotalFiles(lastPage: ListFilesResults | undefined): number {
+  if (lastPage != null) {
+    const matchCategory = lastPage.request.filters.matches;
+    return lastPage.counts[matchCategory];
+  }
+  return 0;
+}
+
 /**
  * Use lazy files query.
  */
@@ -37,8 +45,11 @@ export default function useFilesLazy(
     VideoFile,
     FileFilters,
     ListFilesResults
-  >(["files", { filters, limit }], ({ pageParam: offset = 0 }) =>
-    server.files.list({ filters, limit, offset })
+  >(
+    ["files", { filters, limit }],
+    ({ pageParam: offset = 0 }) =>
+      server.files.list({ filters, limit, offset }),
+    { getTotal: getTotalFiles }
   );
 
   let counts = defaultCounts;

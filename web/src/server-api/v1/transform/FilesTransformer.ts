@@ -266,7 +266,9 @@ export default class FilesTransformer {
   _scene(scene: SceneDTO, file: FileDTO): Scene {
     return {
       id: scene.id,
-      preview: `/api/v1/files/${file.id}/thumbnail?time=${scene.start_time}`,
+      preview: `/api/v1/files/${file.id}/thumbnail?time=${
+        scene.start_time * 1000
+      }`,
       position: scene.start_time * 1000,
       duration: scene.duration * 1000,
     };

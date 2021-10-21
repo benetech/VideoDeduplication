@@ -9,6 +9,7 @@ import TaskRequest from "../TaskRequest";
 import TaskResults from "../TaskResults";
 import { useIntl } from "react-intl";
 import LabeledSection from "../../basic/LabeledSection";
+import TaskErrorView from "../TaskErrorView";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   root: {
@@ -46,6 +47,7 @@ function useMessages() {
     results: intl.formatMessage({
       id: "task.results",
     }),
+    error: intl.formatMessage({ id: "error" }),
   };
 }
 
@@ -65,6 +67,13 @@ function TaskDetails(props: TaskDetailsProps): JSX.Element {
           <TaskRequest task={task} />
         </LabeledSection>
       </Paper>
+      {task.error != null && (
+        <Paper className={classes.pane}>
+          <LabeledSection title={messages.error} collapsible>
+            <TaskErrorView error={task.error} />
+          </LabeledSection>
+        </Paper>
+      )}
       {task.result != null && (
         <Paper className={classes.pane}>
           <LabeledSection title={messages.results} collapsible>

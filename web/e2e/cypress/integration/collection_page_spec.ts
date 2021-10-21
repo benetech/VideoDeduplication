@@ -1,7 +1,9 @@
 import selector from "../support/selector";
 import { VideoFile } from "../../../src/model/VideoFile";
-import { Interception } from "cypress/types/net-stubbing";
 import getRespFiles from "../support/getRespFiles";
+import ignoreUncaughtError, {
+  withMessage,
+} from "../support/ignoreUncaughtError";
 
 describe("The Collection Page", () => {
   // Reusable selectors
@@ -20,6 +22,16 @@ describe("The Collection Page", () => {
       { pathname: "/api/v1/files", query: { offset: /^[1-9][0-9]*/ } },
       { fixture: "files_page_1.json" }
     ).as("getFiles(page=next)");
+
+    // It is healthy to ignore this error
+    // See https://stackoverflow.com/a/50387233 for more details.
+    ignoreUncaughtError(withMessage("ResizeObserver loop limit exceeded"));
+    // TODO: investigate and fix the following error (#442)
+    ignoreUncaughtError(
+      withMessage(
+        "ResizeObserver loop completed with undelivered notifications."
+      )
+    );
 
     cy.visit("/collection/fingerprints");
   });

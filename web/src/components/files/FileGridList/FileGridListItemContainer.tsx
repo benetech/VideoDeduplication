@@ -25,7 +25,7 @@ function FileGridListItemContainer(
   const { children, perRow, className, ...other } = props;
   const classes = useStyles();
   return (
-    <Grid item xs={Math.ceil(12 / perRow) as GridSize}>
+    <Grid item xs={Math.ceil(12 / Math.max(perRow, 1)) as GridSize}>
       <Paper className={clsx(classes.itemContainer, className)} {...other}>
         {children}
       </Paper>

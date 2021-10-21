@@ -12,7 +12,7 @@ describe("The File Matches Page", () => {
   const fileId = 1;
 
   const setupInterception = () => {
-    cy.intercept(`/api/v1/files/${fileId}?`, {
+    cy.intercept(`/api/v1/files/${fileId}?*`, {
       fixture: "file.json",
     }).as("getFile");
 

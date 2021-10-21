@@ -67,7 +67,10 @@ function FilesCollection(props: FilesCollectionProps): JSX.Element {
 
   // Select eager and lazy pages
   const { height: pageHeight, ref: pageRef } =
-    useResizeDetector<HTMLDivElement>();
+    useResizeDetector<HTMLDivElement>({
+      handleWidth: false,
+      skipOnMount: true,
+    });
   const eagerFiles = useMemo(() => pages[0] || [], [pages]);
   const lazyPages = useMemo(() => pages.slice(1), [pages]);
   return (

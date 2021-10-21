@@ -6,6 +6,7 @@ import { Theme } from "@material-ui/core";
 
 type ValueBadgeStyleProps = {
   color: ColorVariant;
+  uppercase: boolean;
 };
 
 const useStyles = makeStyles<Theme, ValueBadgeStyleProps>((theme) => ({
@@ -14,7 +15,7 @@ const useStyles = makeStyles<Theme, ValueBadgeStyleProps>((theme) => ({
     backgroundColor: ({ color }) => theme.palette[color].light,
     ...theme.mixins.textSmall,
     color: ({ color }) => theme.palette[color].contrastText,
-    textTransform: "uppercase",
+    textTransform: ({ uppercase }) => (uppercase ? "uppercase" : "none"),
     paddingTop: theme.spacing(0.5),
     paddingBottom: theme.spacing(0.5),
     paddingLeft: theme.spacing(2),
@@ -24,8 +25,8 @@ const useStyles = makeStyles<Theme, ValueBadgeStyleProps>((theme) => ({
 }));
 
 function ValueBadge(props: ValueBadgePros): JSX.Element {
-  const { value, color = "primary", className } = props;
-  const classes = useStyles({ color });
+  const { value, uppercase = true, color = "primary", className } = props;
+  const classes = useStyles({ color, uppercase });
   return <div className={clsx(classes.type, className)}>{value}</div>;
 }
 
@@ -35,6 +36,7 @@ type ValueBadgePros = {
    */
   value: string;
   color?: ColorVariant;
+  uppercase?: boolean;
   className?: string;
 };
 
