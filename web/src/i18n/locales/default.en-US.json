@@ -332,6 +332,10 @@
     "view.overview": "Overview",
     "request": "Request",
     "error": "Error",
+    "error.class": "Error Class",
+    "error.module": "Error module",
+    "error.message": "Error message",
+    "error.stacktrace": "Stack trace",
     "startTime": "Start",
     "endTime": "End",
     "config": "Configuration"
