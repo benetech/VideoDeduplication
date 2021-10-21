@@ -26,6 +26,12 @@ describe("The Collection Page", () => {
     // It is healthy to ignore this error
     // See https://stackoverflow.com/a/50387233 for more details.
     ignoreUncaughtError(withMessage("ResizeObserver loop limit exceeded"));
+    // TODO: investigate and fix the following error (#442)
+    ignoreUncaughtError(
+      withMessage(
+        "ResizeObserver loop completed with undelivered notifications."
+      )
+    );
 
     cy.visit("/collection/fingerprints");
   });
