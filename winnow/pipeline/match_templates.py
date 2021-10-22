@@ -46,7 +46,7 @@ def match_templates(files: Collection[str], pipeline: PipelineContext, progress=
         black_list.time_exclusions_count,
     )
 
-    se = SearchEngine(reprs=pipeline.repr_storage, black_list=black_list)
+    se = SearchEngine(frame_features=pipeline.repr_storage.frame_level, black_list=black_list)
     template_matches = se.create_annotation_report(
         templates=templates,
         threshold=config.templates.distance,

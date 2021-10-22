@@ -33,7 +33,7 @@ def find_frame(frame: Frame, files: Collection[str], pipeline: PipelineContext, 
     black_list = make_black_list(template, frame)
     logger.info("Frame source file is excluded from the search scope.")
 
-    se = SearchEngine(reprs=pipeline.repr_storage, black_list=black_list)
+    se = SearchEngine(frame_features=pipeline.repr_storage.frame_level, black_list=black_list)
     template_matches = se.create_annotation_report(
         templates=[template],
         threshold=config.templates.distance,
