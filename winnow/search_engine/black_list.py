@@ -1,3 +1,5 @@
+from typing import Dict, Tuple, Set
+
 from db.schema import TemplateFileExclusion, TemplateMatches
 from winnow.search_engine.model import Template
 from winnow.storage.file_key import FileKey
@@ -47,8 +49,10 @@ class BlackList:
     """Template scope black list."""
 
     def __init__(self):
-        self._file_exclusions = {}
-        self._time_exclusions = {}
+        # Template name to (path, hash) pairs.
+        self._file_exclusions: Dict[str, Set[Tuple[str, str]]] = {}
+        # (template.name, file.path, file.hash) to time cover
+        self._time_exclusions: Dict[Tuple[str, str, str], Cover] = {}
 
     @property
     def file_exclusions_count(self):
