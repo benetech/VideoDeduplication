@@ -10,7 +10,8 @@ from db.access.matches import MatchSort, MatchSortDirection, MatchesDAO
 from db.schema import Matches, Files
 from .blueprint import api
 from .constants import ValidationErrors
-from .helpers import parse_positive_int, Fields, parse_fields, parse_boolean, parse_enum
+from .helpers import parse_positive_int, parse_fields, parse_boolean, parse_enum
+from db.access.fields import Fields
 from ..model import Transform, database
 
 # Optional file fields

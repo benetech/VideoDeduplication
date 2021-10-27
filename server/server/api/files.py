@@ -1,11 +1,10 @@
-import enum
 import os
 from http import HTTPStatus
 from os.path import dirname, basename
 
 from flask import jsonify, request, abort, send_from_directory
 
-from db.access.files import ListFilesRequest, FileMatchFilter, FileSort, FilesDAO
+from db.access.files import ListFilesRequest, FileMatchFilter, FileSort, FilesDAO, FileInclude, get_file_fields
 from db.schema import Files
 from thumbnail.ffmpeg import extract_frame_tmp
 from .blueprint import api
@@ -16,28 +15,19 @@ from .helpers import (
     parse_enum,
     get_thumbnails,
     resolve_video_file_path,
-    Fields,
-    parse_fields,
     parse_seq,
     get_config,
     parse_int_list,
+    parse_enum_seq,
 )
+from db.access.fields import Fields
 from ..model import database, Transform
 
 # Optional file fields to be loaded
 FILE_FIELDS = Fields(Files.exif, Files.meta, Files.signature, Files.scenes)
 
 
-class FileFields(enum.Enum):
-    """File fields available for retrieval."""
-
-    exif = "exif"
-    meta = "meta"
-    signature = "signature"
-    scenes = "scenes"
-
-
-def parse_params():
+def parse_params() -> ListFilesRequest:
     """Parse and validate request arguments."""
     config = get_config()
     result = ListFilesRequest()
@@ -47,7 +37,7 @@ def parse_params():
     result.audio = parse_boolean(request.args, "audio")
     result.min_length = parse_positive_int(request.args, "min_length")
     result.max_length = parse_positive_int(request.args, "max_length")
-    result.preload = parse_fields(request.args, "include", FILE_FIELDS)
+    result.include = parse_enum_seq(request.args, "include", enum_class=FileInclude, default=())
     result.extensions = parse_seq(request.args, "extensions")
     result.date_from = parse_date(request.args, "date_from")
     result.date_to = parse_date(request.args, "date_to")
@@ -67,7 +57,7 @@ def list_files():
     req = parse_params()
 
     results = FilesDAO.list_files(req, database.session)
-    include_flags = {field.key: True for field in req.preload}
+    include_flags = {field.value: True for field in req.include}
 
     return jsonify(
         {
@@ -83,11 +73,11 @@ def list_files():
 
 @api.route("/files/<int:file_id>", methods=["GET"])
 def get_file(file_id):
-    extra_fields = parse_fields(request.args, "include", FILE_FIELDS)
+    extra_fields = get_file_fields(parse_enum_seq(request.args, "include", enum_class=FileInclude, default=()))
 
     # Fetch file from database
     query = database.session.query(Files)
-    query = FILE_FIELDS.preload(query, extra_fields)
+    query = Fields.preload(query, extra_fields)
     file = query.get(file_id)
 
     # Handle file not found

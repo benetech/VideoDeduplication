@@ -10,9 +10,9 @@ from .blueprint import api
 from .constants import ValidationErrors
 from .helpers import (
     parse_positive_int,
-    Fields,
     parse_fields,
 )
+from db.access.fields import Fields
 from ..model import database, Transform
 
 TEMPLATE_MATCH_FIELDS = Fields(TemplateMatches.template, TemplateMatches.file)

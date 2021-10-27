@@ -2,13 +2,12 @@ import enum
 import os
 import re
 from datetime import datetime
-from functools import cached_property
 from http import HTTPStatus
 from typing import Type
 
 from flask import current_app, abort
-from sqlalchemy.orm import joinedload
 
+from db.access.fields import Fields
 from template_support.file_storage import FileStorage
 from thumbnail.cache import ThumbnailCache
 from ..config import Config
@@ -163,37 +162,7 @@ def parse_enum_seq(args, name, enum_class: Type[enum.Enum], default=None):
     return result
 
 
-def parse_fields(args, name, fields):
+def parse_fields(args, name, fields: Fields):
     """Parse requested fields list."""
     field_names = parse_seq_predefined(args, name, values=fields.names, default=())
     return {fields.get(name) for name in field_names}
-
-
-class Fields:
-    """Helper class to fetch entity fields."""
-
-    def __init__(self, *fields):
-        self._fields = tuple(fields)
-        self._index = {field.key: field for field in fields}
-
-    @property
-    def fields(self):
-        """List fields."""
-        return self._fields
-
-    @cached_property
-    def names(self):
-        """Set of field names."""
-        return {field.key for field in self.fields}
-
-    def get(self, name):
-        """Get field by name."""
-        return self._index[name]
-
-    @staticmethod
-    def preload(query, fields, *path):
-        """Enable eager loading for enumerated fields."""
-        for field in fields:
-            full_path = path + (field,)
-            query = query.options(joinedload(*full_path))
-        return query
