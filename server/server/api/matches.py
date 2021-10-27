@@ -24,8 +24,10 @@ def list_file_matches(file_id):
     include_fields = parse_fields(request.args, "include", FILE_FIELDS)
     remote = parse_boolean(request.args, "remote")
     false_positive = parse_boolean(request.args, "false_positive")
-    match_sort = parse_enum(request.args, "sort", enum=MatchSort, default=MatchSort.DISTANCE)
-    sort_direction = parse_enum(request.args, "sort_direction", enum=MatchSortDirection, default=MatchSortDirection.ASC)
+    match_sort = parse_enum(request.args, "sort", enum_class=MatchSort, default=MatchSort.DISTANCE)
+    sort_direction = parse_enum(
+        request.args, "sort_direction", enum_class=MatchSortDirection, default=MatchSortDirection.ASC
+    )
 
     file = database.session.query(Files).get(file_id)
 

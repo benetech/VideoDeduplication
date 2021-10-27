@@ -26,18 +26,21 @@ from .helpers import (
 from ..model import database, Transform
 
 
-class TemplateFields:
-    """Template field inclusion manager."""
+class TemplateFields(enum.Enum):
+    examples = "examples"
+    file_count = "file_count"
 
-    _FIELD_NAMES = ("examples", "file_count")
+
+class TemplateFieldsLoader:
+    """Template field inclusion manager."""
 
     examples: bool = False
     file_count: bool = False
 
     def __init__(self, args, name="include", default=()):
-        include_fields = parse_enum_seq(args, name, values=self._FIELD_NAMES, default=default)
-        self.examples = "examples" in include_fields
-        self.file_count = "file_count" in include_fields
+        include_fields = parse_enum_seq(args, name, enum_class=TemplateFields, default=default)
+        self.examples = TemplateFields.examples in include_fields
+        self.file_count = TemplateFields.file_count in include_fields
         self._file_counts: Dict[int, int] = {}
         self._default_count = None
 
@@ -74,7 +77,7 @@ def template_file_counter(session, templates, fetch_count=False):
 def list_templates():
     limit = parse_positive_int(request.args, "limit", 100)
     offset = parse_positive_int(request.args, "offset", 0)
-    include_fields = TemplateFields(request.args)
+    include_fields = TemplateFieldsLoader(request.args)
 
     query = database.session.query(Template).order_by(Template.name.asc())
     if include_fields.examples:
@@ -95,7 +98,7 @@ def list_templates():
 
 @api.route("/templates/<int:template_id>", methods=["GET"])
 def get_template(template_id):
-    include_fields = TemplateFields(request.args)
+    include_fields = TemplateFieldsLoader(request.args)
 
     # Fetch template from database
     query = database.session.query(Template)
@@ -151,7 +154,7 @@ def validate_update_template_dto(template, data: Dict) -> Tuple[str, Dict[str, s
 
 @api.route("/templates/<int:template_id>", methods=["PATCH"])
 def update_template(template_id):
-    include_fields = TemplateFields(request.args)
+    include_fields = TemplateFieldsLoader(request.args)
 
     # Fetch template from database
     query = database.session.query(Template).filter(Template.id == template_id)
@@ -341,7 +344,7 @@ class CreateExampleMethod(enum.Enum):
 @api.route("/templates/<int:template_id>/examples/", methods=["POST"])
 def add_example(template_id):
     # Get example creation method
-    method = parse_enum(request.args, name="method", enum=CreateExampleMethod, default=CreateExampleMethod.UPLOAD)
+    method = parse_enum(request.args, name="method", enum_class=CreateExampleMethod, default=CreateExampleMethod.UPLOAD)
 
     # Fetch template from database
     template = database.session.query(Template).get(template_id)

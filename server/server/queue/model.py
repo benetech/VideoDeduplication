@@ -1,9 +1,8 @@
+from dataclasses import dataclass, asdict
 from datetime import datetime
 from enum import Enum
 from numbers import Number
 from typing import List, Optional, Dict, Union
-
-from dataclasses import dataclass, asdict
 
 from server.queue import time_utils
 
@@ -38,7 +37,7 @@ class TaskError:
 
 
 class TaskStatus(Enum):
-    """Enum for """
+    """Enum for task status."""
 
     PENDING = "PENDING"
     RUNNING = "RUNNING"

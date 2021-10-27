@@ -1,3 +1,4 @@
+import enum
 import os
 from http import HTTPStatus
 from os.path import dirname, basename
@@ -27,6 +28,15 @@ from ..model import database, Transform
 FILE_FIELDS = Fields(Files.exif, Files.meta, Files.signature, Files.scenes)
 
 
+class FileFields(enum.Enum):
+    """File fields available for retrieval."""
+
+    exif = "exif"
+    meta = "meta"
+    signature = "signature"
+    scenes = "scenes"
+
+
 def parse_params():
     """Parse and validate request arguments."""
     config = get_config()
@@ -41,10 +51,10 @@ def parse_params():
     result.extensions = parse_seq(request.args, "extensions")
     result.date_from = parse_date(request.args, "date_from")
     result.date_to = parse_date(request.args, "date_to")
-    result.match_filter = parse_enum(request.args, "matches", enum=FileMatchFilter, default=FileMatchFilter.ALL)
+    result.match_filter = parse_enum(request.args, "matches", enum_class=FileMatchFilter, default=FileMatchFilter.ALL)
     result.related_distance = config.related_distance
     result.duplicate_distance = config.duplicate_distance
-    result.sort = parse_enum(request.args, "sort", enum=FileSort, default=None)
+    result.sort = parse_enum(request.args, "sort", enum_class=FileSort, default=None)
     result.remote = parse_boolean(request.args, "remote")
     result.contributor = request.args.get("contributor", None, type=str)
     result.repository = request.args.get("repository", None, type=str)
