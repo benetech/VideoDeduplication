@@ -342,10 +342,16 @@ class FilesDAO:
         """Apply ordering."""
         if req.sort == FileSort.LENGTH:
             exif = aliased(Exif)
-            return query.outerjoin(exif).order_by(exif.General_Duration.desc(), Files.id.asc())
+            return (
+                query.outerjoin(exif).group_by(Files.id, exif.id).order_by(exif.General_Duration.desc(), Files.id.asc())
+            )
         elif req.sort == FileSort.DATE:
             exif = aliased(Exif)
-            return query.outerjoin(exif).order_by(exif.General_Encoded_Date.desc(), Files.id.asc())
+            return (
+                query.outerjoin(exif)
+                .group_by(Files.id, exif.id)
+                .order_by(exif.General_Encoded_Date.desc(), Files.id.asc())
+            )
         return query
 
     @staticmethod
