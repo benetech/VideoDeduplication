@@ -4,6 +4,7 @@ from os.path import dirname, basename
 
 from flask import jsonify, request, abort, send_from_directory
 
+from db.access.fields import Fields
 from db.access.files import ListFilesRequest, FileMatchFilter, FileSort, FilesDAO, FileInclude, get_file_fields
 from db.schema import Files
 from thumbnail.ffmpeg import extract_frame_tmp
@@ -20,7 +21,6 @@ from .helpers import (
     parse_int_list,
     parse_enum_seq,
 )
-from db.access.fields import Fields
 from ..model import database, Transform
 
 # Optional file fields to be loaded
@@ -61,7 +61,7 @@ def list_files():
 
     return jsonify(
         {
-            "items": [Transform.file(item, **include_flags) for item in results.items],
+            "items": [Transform.file_data(item, **include_flags) for item in results.items],
             "offset": req.offset,
             "total": results.counts.total,
             "duplicates": results.counts.duplicates,

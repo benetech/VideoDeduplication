@@ -7,9 +7,8 @@ from cli.platform.formatters import Format, resolve_formatter
 from cli.platform.transform import Transform
 from cli.platform.validate import positive_int, boolean, valid_date, valid_enum, valid_sequence, valid_duration_millis
 from db import Database
-from db.access.files import FileMatchFilter, FileSort, ListFilesRequest, FilesDAO
+from db.access.files import FileMatchFilter, FileSort, ListFilesRequest, FilesDAO, FileInclude
 from db.access.matches import MatchesDAO
-from db.schema import Files
 
 # Maximal amount of items to be fetched at a time
 ITEMS_CHUNK = 100
@@ -54,7 +53,7 @@ class DBGetterCli:
         req.audio = boolean("audio", audio)
         req.min_length = valid_duration_millis("min_length", min_length)
         req.max_length = valid_duration_millis("max_length", max_length)
-        req.preload = [Files.exif, Files.scenes, Files.meta]
+        req.include = [FileInclude.exif, FileInclude.scenes, FileInclude.meta]
         req.extensions = extensions
         req.date_from = valid_date("date_from", date_from)
         req.date_to = valid_date("date_to", date_to)
