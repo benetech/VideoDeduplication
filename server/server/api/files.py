@@ -86,7 +86,7 @@ def get_file(file_id):
 
     include_flags = {field.key: True for field in extra_fields}
     data = Transform.file(file, **include_flags)
-    data["matches_count"] = FilesDAO.file_matches(file_id, database.session).count()
+    data["related_count"] = FilesDAO.file_matches(file_id, database.session).count()
     return jsonify(data)
 
 

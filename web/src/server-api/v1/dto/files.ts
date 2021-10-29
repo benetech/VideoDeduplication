@@ -72,7 +72,9 @@ export type FileDTO = {
   scenes: SceneDTO[];
   signature: string;
   contributor?: ContributorDTO;
-  matches_count?: number;
+  related_count?: number;
+  duplicates_count?: number;
+  matched_templates?: number[];
 };
 
 export type FileQueryResultsDTO = QueryResultsDTO<FileDTO> & {

@@ -90,7 +90,7 @@ class Transform:
         if related is not None:
             result["related_count"] = file_data.related_count
         if duplicates is not None:
-            result["duplicate_count"] = file_data.duplicate_count
+            result["duplicates_count"] = file_data.duplicate_count
         if templates is not None:
             result["matched_templates"] = file_data.matched_templates
         return result

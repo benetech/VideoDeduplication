@@ -88,7 +88,7 @@ function FileMatchesPage(props: FileMatchesPageProps): JSX.Element {
   const { id: rawId } = useParams<EntityPageURLParams>();
   const id = Number(rawId);
   const { file, error, refetch } = useFile(id);
-  const messages = useMessages((file && file.matchesCount) || 0);
+  const messages = useMessages((file && file.relatedCount) || 0);
   const [view, setView] = useState(MatchesView.grid);
   const [filters, setFilters] = useState<MatchQueryFilters>(
     DefaultMatchQueryFilters
@@ -123,7 +123,7 @@ function FileMatchesPage(props: FileMatchesPageProps): JSX.Element {
     <div className={clsx(classes.root, className)}>
       <FileActionHeader
         id={id}
-        matches={file.matchesCount}
+        matches={file.relatedCount}
         remote={file?.external}
       >
         <FileMatchesActions

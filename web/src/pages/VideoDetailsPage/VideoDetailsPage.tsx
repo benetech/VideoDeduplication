@@ -159,7 +159,7 @@ function VideoDetailsPage(props: VideoDetailsPageProps): JSX.Element {
 
   return (
     <div className={clsx(classes.root, className)}>
-      <FileActionHeader id={file.id} matches={file.matchesCount}>
+      <FileActionHeader id={file.id} matches={file.relatedCount}>
         <Button color="primary" variant="contained" onClick={handleCompare}>
           {messages.compare}
         </Button>
