@@ -213,7 +213,7 @@ class TemplateIds(QueryValueLoader):
         ).group_by(Files.id)
 
     def write_result(self, value, result: FileData):
-        result.matched_templates = value
+        result.matched_templates = tuple(set(item for item in value if item is not None))
 
     @staticmethod
     def make_loader(req: ListFilesRequest) -> Optional[QueryValueLoader]:
