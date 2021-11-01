@@ -31,7 +31,7 @@ def generate_local_matches(
     files = tuple(files)
     config = pipeline.config
     if hashes is None:
-        hashes = [get_hash(file) for file in files]
+        hashes = [get_hash(file, config.repr.hash_mode) for file in files]
 
     # There is no way to check if matches are already generated.
     # Hence we must always attempt to generate matches.

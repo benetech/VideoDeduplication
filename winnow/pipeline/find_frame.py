@@ -8,6 +8,7 @@ from winnow.search_engine import SearchEngine, Template
 from winnow.search_engine.black_list import BlackList
 from winnow.search_engine.model import Frame
 from winnow.utils.files import get_hash
+from winnow.config import Config
 
 # Default module logger
 logger = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ def find_frame(frame: Frame, files: Collection[str], pipeline: PipelineContext, 
     template = pipeline.template_loader.load_template_from_frame(frame)
     logger.info("Loaded temporary template: %s", template.name)
 
-    black_list = make_black_list(template, frame)
+    black_list = make_black_list(template, frame, config)
     logger.info("Frame source file is excluded from the search scope.")
 
     se = SearchEngine(frame_features=pipeline.repr_storage.frame_level, black_list=black_list)
@@ -50,8 +51,10 @@ def find_frame(frame: Frame, files: Collection[str], pipeline: PipelineContext, 
     return tm_entries
 
 
-def make_black_list(template: Template, frame: Frame) -> BlackList:
+def make_black_list(template: Template, frame: Frame, config: Config) -> BlackList:
     """Exclude the frame source from the template scope."""
     black_list = BlackList()
-    black_list.exclude_file(template_name=template.name, file_path=frame.path, file_hash=get_hash(frame.path))
+    black_list.exclude_file(
+        template_name=template.name, file_path=frame.path, file_hash=get_hash(frame.path, config.repr.hash_mode)
+    )
     return black_list

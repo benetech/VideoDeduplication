@@ -17,6 +17,7 @@ def resolve_config(  # noqa C901
     extensions=None,
     match_distance=None,
     min_duration=None,
+    hash_mode=None,
 ):
     """Resolve config from command-line arguments."""
     config_path = resolve_config_path(config_path)
@@ -46,4 +47,6 @@ def resolve_config(  # noqa C901
         config.processing.match_distance = match_distance
     if min_duration is not None:
         config.processing.min_video_duration_seconds = min_duration
+    if hash_mode is not None:
+        config.representation.hash_mode = hash_mode
     return config

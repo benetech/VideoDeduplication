@@ -12,6 +12,7 @@ sources:
 repr:
   directory: data/representations
   storage_type: detect
+  hash_mode: file
 
 processing:
   frame_sampling: 1

@@ -59,7 +59,7 @@ def process_directory(
         raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
 
     videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
-    hashes = [get_hash(file) for file in videos]
+    hashes = [get_hash(file, config.repr.hash_mode) for file in videos]
 
     # Run pipeline
     monitor.update(0)
@@ -111,7 +111,7 @@ def process_file_list(
     # Run pipeline
     monitor.update(0)
     pipeline_context = PipelineContext(config)
-    hashes = [get_hash(file) for file in files]
+    hashes = [get_hash(file, config.repr.hash_mode) for file in files]
     generate_local_matches(files, pipeline=pipeline_context, hashes=hashes, progress=monitor.subtask(work_amount=0.9))
     detect_scenes(files, pipeline=pipeline_context, progress=monitor.subtask(0.01))
     extract_exif(files, pipeline_context, progress_monitor=monitor.subtask(work_amount=0.05))
