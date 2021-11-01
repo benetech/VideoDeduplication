@@ -71,7 +71,7 @@ class RepresentationConfig:
 
     directory: str = None  # Root folder with intermediate representations
     storage_type: StorageType = StorageType.LMDB  # Specify representation storage type
-    hash_mode: str = HashMode.FILE  # Specify hash mode
+    hash_mode: HashMode = HashMode.FILE  # Specify hash mode
 
     def read_env(self):
         """Read config from environment variables."""
