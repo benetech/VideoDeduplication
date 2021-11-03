@@ -5,7 +5,8 @@ from flask import jsonify, request, abort
 from db.access.matches import FileMatchesRequest, MatchesDAO
 from db.schema import Files
 from .blueprint import api
-from .helpers import parse_positive_int, Fields, parse_positive_float, parse_fields
+from .helpers import parse_positive_int, parse_positive_float, parse_fields
+from db.access.fields import Fields
 from ..model import Transform, database
 
 # Optional file fields

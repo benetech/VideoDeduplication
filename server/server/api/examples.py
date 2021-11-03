@@ -7,10 +7,10 @@ from db.schema import TemplateExample
 from .blueprint import api
 from .helpers import (
     parse_positive_int,
-    Fields,
     parse_fields,
     get_file_storage,
 )
+from db.access.fields import Fields
 from ..model import database, Transform
 
 EXAMPLE_FIELDS = Fields(TemplateExample.template)

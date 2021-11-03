@@ -7,6 +7,7 @@ from typing import Dict, Optional
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect
 
+from db.access.files import FileData
 from db.schema import (
     Contributor,
     Repository,
@@ -62,6 +63,37 @@ def entity_fields(entity):
 
 class Transform:
     """Convert database entities to serializable data structures."""
+
+    @staticmethod
+    @serializable
+    def file_data(
+        file_data: FileData,
+        *,
+        meta=False,
+        signature=False,
+        scenes=False,
+        exif=False,
+        contributor=True,
+        related=False,
+        duplicates=False,
+        templates=False,
+    ) -> Dict:
+        """Get plain data representation for a single extended file data item."""
+        result = Transform.file(
+            file_data.file,
+            meta=meta,
+            signature=signature,
+            scenes=scenes,
+            exif=exif,
+            contributor=contributor,
+        )
+        if related is not None:
+            result["related_count"] = file_data.related_count
+        if duplicates is not None:
+            result["duplicates_count"] = file_data.duplicate_count
+        if templates is not None:
+            result["matched_templates"] = file_data.matched_templates
+        return result
 
     @staticmethod
     @serializable

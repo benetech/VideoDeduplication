@@ -1,13 +1,14 @@
+import abc
 import enum
 import itertools
+from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional, Iterator
+from typing import List, Optional, Iterator, Set
 
-from dataclasses import dataclass, field
 from sqlalchemy import or_, and_, func, literal_column, tuple_
 from sqlalchemy.orm import aliased, Query, Session, joinedload
 
-from db.schema import Files, Matches, Exif, Contributor, Repository, Signature, TemplateMatches
+from db.schema import Files, Matches, Exif, Contributor, Repository, Signature, TemplateMatches, Template
 
 
 # TODO: Improve dependency management and get rid of duplicate code (#295)
@@ -38,6 +39,31 @@ class FileSort(enum.Enum):
     DUPLICATES = "duplicates"
 
 
+class FileInclude(enum.Enum):
+    """Data that could be included into query results."""
+
+    EXIF = "exif"
+    META = "meta"
+    SIGNATURE = "signature"
+    SCENES = "scenes"
+    DUPLICATES = "duplicates"
+    RELATED = "related"
+    TEMPLATES = "templates"
+
+
+# Some of the included data are mapped to the File fields.
+_FILE_FIELDS = {
+    FileInclude.EXIF: Files.exif,
+    FileInclude.META: Files.meta,
+    FileInclude.SIGNATURE: Files.signature,
+    FileInclude.SCENES: Files.scenes,
+}
+
+
+def get_file_fields(included_fields: Set[FileInclude]):
+    return {_FILE_FIELDS.get(field_id) for field_id in included_fields if field_id in _FILE_FIELDS}
+
+
 @dataclass
 class ListFilesRequest:
     """Parameters for list-files query."""
@@ -45,14 +71,14 @@ class ListFilesRequest:
     limit: int = 20
     offset: int = 0
     path_query: str = None
-    extensions: List[str] = field(default_factory=list)
+    extensions: List[str] = ()
     exif: bool = None
     audio: bool = None
     min_length: int = None
     max_length: int = None
     date_from: datetime = None
     date_to: datetime = None
-    preload: list = field(default_factory=list)
+    include: List[FileInclude] = ()
     sort: Optional[FileSort] = None
     match_filter: FileMatchFilter = FileMatchFilter.ALL
     related_distance: float = 0.4
@@ -75,10 +101,135 @@ class Counts:
 
 
 @dataclass
+class FileData:
+    """Retrieved File along with some additional data."""
+
+    file: Files
+    duplicate_count: Optional[int] = None
+    related_count: Optional[int] = None
+    matched_templates: Optional[List[int]] = None
+
+
+class QueryValueLoader(abc.ABC):
+    """Some value (file, match count, etc.) that must be retrieved from the database."""
+
+    @property
+    @abc.abstractmethod
+    def value(self):
+        """Value that should be passed to Session.query(*values, **values) method."""
+
+    @abc.abstractmethod
+    def advice_query(self, req: ListFilesRequest, query: Query) -> Query:
+        """Modify query if needed."""
+
+    @abc.abstractmethod
+    def write_result(self, value, result: FileData):
+        """Write result value to file data object."""
+
+    @staticmethod
+    @abc.abstractmethod
+    def make_loader(req: ListFilesRequest) -> Optional:
+        """Create value loaders according to the request."""
+
+
+class MatchCount(QueryValueLoader):
+    """Basic match count loader."""
+
+    def __init__(self, label: str = "match_count"):
+        self._label = label
+        self._match_alias = aliased(Matches)
+
+    @property
+    def value(self):
+        return func.count(self._match_alias.id).label(self._label)
+
+    def _query_match_count(self, query: Query, distance_threshold: float) -> Query:
+        """Join by matches count."""
+        match = self._match_alias
+        return query.outerjoin(
+            match,
+            ((match.query_video_file_id == Files.id) | (match.match_video_file_id == Files.id))
+            & (match.distance < distance_threshold),
+        ).group_by(Files.id)
+
+    def _sort_by_match_count(self, query: Query) -> Query:
+        """Sort by match count."""
+        return query.order_by(literal_column(self._label).desc(), Files.id.asc())
+
+
+class DuplicateCount(MatchCount):
+    """Duplicate count loader."""
+
+    def __init__(self):
+        super().__init__(label="duplicate_count")
+
+    def advice_query(self, req: ListFilesRequest, query: Query) -> Query:
+        query = self._query_match_count(query, req.duplicate_distance)
+        if req.sort == FileSort.DUPLICATES:
+            query = self._sort_by_match_count(query)
+        return query
+
+    def write_result(self, value, result: FileData):
+        result.duplicate_count = value
+
+    @staticmethod
+    def make_loader(req: ListFilesRequest) -> Optional[QueryValueLoader]:
+        if req.sort == FileSort.DUPLICATES or FileInclude.DUPLICATES in req.include:
+            return DuplicateCount()
+
+
+class RelatedCount(MatchCount):
+    """Duplicate count loader."""
+
+    def __init__(self):
+        super().__init__(label="related_count")
+
+    def advice_query(self, req: ListFilesRequest, query: Query) -> Query:
+        query = self._query_match_count(query, req.related_distance)
+        if req.sort == FileSort.RELATED:
+            query = self._sort_by_match_count(query)
+        return query
+
+    def write_result(self, value, result: FileData):
+        result.related_count = value
+
+    @staticmethod
+    def make_loader(req: ListFilesRequest) -> Optional[QueryValueLoader]:
+        if req.sort == FileSort.RELATED or FileInclude.RELATED in req.include:
+            return RelatedCount()
+
+
+class TemplateIds(QueryValueLoader):
+    """Matched template ids."""
+
+    @property
+    def value(self):
+        return func.array_agg(Template.id)
+
+    def advice_query(self, req: ListFilesRequest, query: Query) -> Query:
+        return query.outerjoin(
+            Template,
+            Template.matches.any(TemplateMatches.file_id == Files.id),
+        ).group_by(Files.id)
+
+    def write_result(self, value, result: FileData):
+        result.matched_templates = tuple(set(item for item in value if item is not None))
+
+    @staticmethod
+    def make_loader(req: ListFilesRequest) -> Optional[QueryValueLoader]:
+        if FileInclude.TEMPLATES in req.include:
+            return TemplateIds()
+
+
+# Available additional value loaders
+_VALUE_LOADERS = (RelatedCount, DuplicateCount, TemplateIds)
+
+
+@dataclass
 class ListFilesResults:
     """Results of list-files query."""
 
-    items: List[Files]
+    items: List[FileData]
     counts: Counts
 
 
@@ -98,24 +249,21 @@ class FilesDAO:
         counts = FilesDAO.counts(query, req.related_distance, req.duplicate_distance)
 
         # Select files
-        sortable_attributes = FilesDAO._sortable_attributes(req)
-        query = session.query(Files, *sortable_attributes)
+        included_values = FilesDAO._make_loaders(req)
+        query = session.query(Files, *(included.value for included in included_values))
         query = FilesDAO._filter_by_file_attributes(req, query)
         query = FilesDAO._filter_by_matches(req, query)
+        query = FilesDAO._advice_query(query, req, included_values)
         query = FilesDAO._sort_items(req, query)
 
         # Retrieve slice
         query = query.offset(req.offset).limit(req.limit)
-        items = query.all()
-
-        # Get files from result set if there are additional attributes.
-        if len(sortable_attributes) > 0:
-            items = [item[0] for item in items]
+        items = FilesDAO._collect_items(query.all(), included_values)
 
         return ListFilesResults(items=items, counts=counts)
 
     @staticmethod
-    def counts(query, related_distance, duplicate_distance):
+    def counts(query, related_distance, duplicate_distance) -> Counts:
         """Count queried files by matches."""
         total = query.count()
         duplicates = query.filter(FilesDAO.has_matches(duplicate_distance)).count()
@@ -147,6 +295,40 @@ class FilesDAO:
         return query
 
     @staticmethod
+    def _make_loaders(req: ListFilesRequest, loader_types=_VALUE_LOADERS) -> List[QueryValueLoader]:
+        """Get loaders for required values."""
+        result = []
+        for loader_type in loader_types:
+            loader = loader_type.make_loader(req)
+            if loader is not None:
+                result.append(loader)
+        return result
+
+    @staticmethod
+    def _advice_query(query: Query, req: ListFilesRequest, included: List[QueryValueLoader]) -> Query:
+        """Apply query loaders."""
+        for value_loader in included:
+            query = value_loader.advice_query(req, query)
+        return query
+
+    @staticmethod
+    def _collect_items(items: List, included_values: List[QueryValueLoader]) -> List[FileData]:
+        """Convert query results to FileData list."""
+        if len(included_values) == 0:
+            # Each item is a File entity
+            return list(map(FileData, items))
+
+        # Otherwise each item is a tuple of values
+        result = []
+        for item in items:
+            file_data = FileData(file=item[0])
+            # Write extra values to the result item
+            for value, loader in zip(item[1:], included_values):
+                loader.write_result(value, file_data)
+            result.append(file_data)
+        return result
+
+    @staticmethod
     def _sortable_attributes(req: ListFilesRequest):
         """Get additional sortable attributes."""
         values = []
@@ -158,21 +340,18 @@ class FilesDAO:
     @staticmethod
     def _sort_items(req: ListFilesRequest, query: Query) -> Query:
         """Apply ordering."""
-        if req.sort == FileSort.RELATED or req.sort == FileSort.DUPLICATES:
-            match = FilesDAO._countable_match
-            threshold = req.related_distance if req.sort == FileSort.RELATED else req.duplicate_distance
-            query = query.outerjoin(
-                FilesDAO._countable_match,
-                ((match.query_video_file_id == Files.id) | (match.match_video_file_id == Files.id))
-                & (match.distance < threshold),
-            )
-            return query.group_by(Files.id).order_by(literal_column(FilesDAO._LABEL_COUNT).desc(), Files.id.asc())
-        elif req.sort == FileSort.LENGTH:
+        if req.sort == FileSort.LENGTH:
             exif = aliased(Exif)
-            return query.outerjoin(exif).order_by(exif.General_Duration.desc(), Files.id.asc())
+            return (
+                query.outerjoin(exif).group_by(Files.id, exif.id).order_by(exif.General_Duration.desc(), Files.id.asc())
+            )
         elif req.sort == FileSort.DATE:
             exif = aliased(Exif)
-            return query.outerjoin(exif).order_by(exif.General_Encoded_Date.desc(), Files.id.asc())
+            return (
+                query.outerjoin(exif)
+                .group_by(Files.id, exif.id)
+                .order_by(exif.General_Encoded_Date.desc(), Files.id.asc())
+            )
         return query
 
     @staticmethod

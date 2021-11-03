@@ -110,7 +110,7 @@ function FileClusterPage(props: FileClusterPageProps): JSX.Element {
     <div className={clsx(classes.root, className)}>
       <FileActionHeader
         id={id}
-        matches={file.matchesCount}
+        matches={file.relatedCount}
         remote={file?.external}
       />
       <FileSummaryHeader

@@ -182,7 +182,9 @@ export default class FilesTransformer {
       preview: `/api/v1/files/${data.id}/thumbnail?time=0`,
       playbackURL: `/api/v1/files/${data.id}/watch`,
       scenes: this._scenes(data),
-      matchesCount: data.matches_count,
+      relatedCount: data.related_count,
+      duplicatesCount: data.duplicates_count,
+      matchedTemplateIds: data.matched_templates,
       external: data.contributor != null,
       contributor: this._contributor(data.contributor),
     };

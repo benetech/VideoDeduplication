@@ -39,12 +39,12 @@ export default class FilesEndpoint implements FilesAPI {
   ): Promise<ListFilesResults> {
     try {
       const request = FilesEndpoint.filesRequest(options);
-      const { limit, offset, filters } = request;
+      const { limit, offset, filters, fields } = request;
       const response = await this.axios.get("/files/", {
         params: {
           offset,
           limit,
-          include: ["signature", "meta", "exif"].join(","),
+          include: fields.join(","),
           ...this.transform.listParams(filters),
         },
       });
@@ -131,7 +131,14 @@ export default class FilesEndpoint implements FilesAPI {
       {
         limit: 100,
         offset: 0,
-        fields: [],
+        fields: [
+          "signature",
+          "meta",
+          "exif",
+          "duplicates",
+          "related",
+          "templates",
+        ],
         filters: DefaultFilters,
       },
       options

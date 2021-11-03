@@ -1,12 +1,13 @@
+import enum
 import os
 import re
 from datetime import datetime
-from functools import cached_property
 from http import HTTPStatus
+from typing import Type
 
 from flask import current_app, abort
-from sqlalchemy.orm import joinedload
 
+from db.access.fields import Fields
 from template_support.file_storage import FileStorage
 from thumbnail.cache import ThumbnailCache
 from ..config import Config
@@ -120,61 +121,48 @@ def parse_date(args, name, default=None):
         abort(HTTPStatus.BAD_REQUEST.value, str(error))
 
 
-def parse_enum(args, name, enum, default=None):
+def parse_enum(args, name, enum_class: Type[enum.Enum], default=None):
     """Parse enum parameter."""
-    values = set(e.value for e in enum)
+    values = set(e.value for e in enum_class)
     value = args.get(name, default=default)
     if value is default:
-        return enum(value) if value is not None else value
+        return enum_class(value) if value is not None else value
     if value not in values:
         abort(HTTPStatus.BAD_REQUEST.value, f"'{name}' must be one of {values}")
-    return enum(value)
+    return enum_class(value)
 
 
-def parse_enum_seq(args, name, values, default=None):
-    """Parse sequence of enum values."""
+def parse_seq_predefined(args, name, values, default=None):
+    """Parse sequence of predefined string values."""
     raw_value = args.get(name)
     if raw_value is None:
         return default
     result = set()
-    for value in raw_value.split(","):
+    for value in parse_seq(args, name):
         if value not in values:
             abort(HTTPStatus.BAD_REQUEST.value, f"'{name}' must be a comma-separated sequence of values from {values}")
         result.add(value)
     return result
 
 
-def parse_fields(args, name, fields):
+def parse_enum_seq(args, name, enum_class: Type[enum.Enum], default=None):
+    """Parse sequence of enum values."""
+    raw_seq = args.get(name)
+    enum_values = {option.value for option in enum_class}
+    if raw_seq is None:
+        return default
+    result = set()
+    for value in raw_seq.split(","):
+        if value not in enum_values:
+            abort(
+                HTTPStatus.BAD_REQUEST.value,
+                f"'{name}' must be a comma-separated sequence of values from {enum_values}",
+            )
+        result.add(enum_class(value))
+    return result
+
+
+def parse_fields(args, name, fields: Fields):
     """Parse requested fields list."""
-    field_names = parse_enum_seq(args, name, values=fields.names, default=())
+    field_names = parse_seq_predefined(args, name, values=fields.names, default=())
     return {fields.get(name) for name in field_names}
-
-
-class Fields:
-    """Helper class to fetch entity fields."""
-
-    def __init__(self, *fields):
-        self._fields = tuple(fields)
-        self._index = {field.key: field for field in fields}
-
-    @property
-    def fields(self):
-        """List fields."""
-        return self._fields
-
-    @cached_property
-    def names(self):
-        """Set of field names."""
-        return {field.key for field in self.fields}
-
-    def get(self, name):
-        """Get field by name."""
-        return self._index[name]
-
-    @staticmethod
-    def preload(query, fields, *path):
-        """Enable eager loading for enumerated fields."""
-        for field in fields:
-            full_path = path + (field,)
-            query = query.options(joinedload(*full_path))
-        return query

@@ -184,6 +184,8 @@ export type VideoFile = {
   exif?: Exif;
   external: boolean;
   contributor?: Contributor;
-  matchesCount?: number;
+  relatedCount?: number;
+  duplicatesCount?: number;
+  matchedTemplateIds?: number[];
   scenes: Scene[];
 };

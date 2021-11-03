@@ -17,7 +17,6 @@ import { DefaultFilters } from "../../../model/VideoFile";
 /**
  * Get i18n text.
  */
-
 function useMessages() {
   const intl = useIntl();
   return {
@@ -47,10 +46,10 @@ function useMessages() {
     }),
   };
 }
+
 /**
  * Get count of active filters.
  */
-
 function useActiveFilters(): number {
   const filters = useFilesColl().params;
   const diff = objectDiff(filters, DefaultFilters);
@@ -126,12 +125,14 @@ function MetadataFilters(props: MetadataFiltersProps): JSX.Element {
     </FilterList>
   );
 }
+
 /**
  * Hook to retrieve active filters count.
  */
-
 MetadataFilters.useActiveFilters = useActiveFilters;
+
 type MetadataFiltersProps = {
   className?: string;
 };
+
 export default MetadataFilters;

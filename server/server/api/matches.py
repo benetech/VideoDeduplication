@@ -10,7 +10,8 @@ from db.access.matches import MatchSort, MatchSortDirection, MatchesDAO
 from db.schema import Matches, Files
 from .blueprint import api
 from .constants import ValidationErrors
-from .helpers import parse_positive_int, Fields, parse_fields, parse_boolean, parse_enum
+from .helpers import parse_positive_int, parse_fields, parse_boolean, parse_enum
+from db.access.fields import Fields
 from ..model import Transform, database
 
 # Optional file fields
@@ -24,8 +25,10 @@ def list_file_matches(file_id):
     include_fields = parse_fields(request.args, "include", FILE_FIELDS)
     remote = parse_boolean(request.args, "remote")
     false_positive = parse_boolean(request.args, "false_positive")
-    match_sort = parse_enum(request.args, "sort", enum=MatchSort, default=MatchSort.DISTANCE)
-    sort_direction = parse_enum(request.args, "sort_direction", enum=MatchSortDirection, default=MatchSortDirection.ASC)
+    match_sort = parse_enum(request.args, "sort", enum_class=MatchSort, default=MatchSort.DISTANCE)
+    sort_direction = parse_enum(
+        request.args, "sort_direction", enum_class=MatchSortDirection, default=MatchSortDirection.ASC
+    )
 
     file = database.session.query(Files).get(file_id)
 

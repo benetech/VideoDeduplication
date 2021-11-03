@@ -92,7 +92,7 @@ const LocalFileLinearListItem = React.memo(function FpLocalFileLinearListItem(
     >
       <FileSummary file={file} divider className={classes.summary}>
         <FileSummary.Name highlight={highlight} />
-        {medium && <FileSummary.Fingerprint />}
+        {medium && <FileSummary.MatchCount />}
         <FileSummary.Duration />
         {large && !dense && <FileSummary.CreationDate />}
         {large && !dense && <FileSummary.HasAudio />}
