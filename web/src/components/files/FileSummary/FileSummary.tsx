@@ -12,6 +12,7 @@ import indentAttributes from "../../basic/AttributeLists/indentAttributes";
 import RemoteHash from "./RmoteHash";
 import RemoteRepo from "./RemoteRepo";
 import RemoteOwner from "./RemoteOwner";
+import MatchCount from "./MatchCount";
 
 const useStyles = makeStyles<Theme>({
   summary: {
@@ -68,6 +69,8 @@ FileSummary.HasAudio = HasAudio;
 FileSummary.RemoteHash = RemoteHash;
 FileSummary.RemoteRepo = RemoteRepo;
 FileSummary.RemoteOwner = RemoteOwner;
+FileSummary.MatchCount = MatchCount;
+
 type FileSummaryProps = {
   /**
    * Video file to be summarized.

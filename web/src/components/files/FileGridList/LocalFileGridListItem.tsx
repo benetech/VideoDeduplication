@@ -14,6 +14,7 @@ import VolumeOffOutlinedIcon from "@material-ui/icons/VolumeOffOutlined";
 import Marked from "../../basic/Marked";
 import FileGridListItemContainer from "./FileGridListItemContainer";
 import { FileListItemProps } from "../FileList";
+import MatchedTemplates from "./MatchedTemplates";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   asButton: {
@@ -71,6 +72,15 @@ function useMessages(intl: IntlShape) {
       duration: intl.formatMessage({
         id: "file.attr.duration",
       }),
+      related: intl.formatMessage({
+        id: "file.attr.relatedCount",
+      }),
+      duplicates: intl.formatMessage({
+        id: "file.attr.duplicatesCount",
+      }),
+      templates: intl.formatMessage({
+        id: "file.attr.templates",
+      }),
     },
   };
 }
@@ -87,6 +97,7 @@ const LocalFileGridListItem = React.memo(function FpLocalFileGridListItem(
     perRow = 4,
     className,
   } = props;
+
   const intl = useIntl();
   const messages = useMessages(intl);
   const handleClick = useCallback(() => {
@@ -94,10 +105,10 @@ const LocalFileGridListItem = React.memo(function FpLocalFileGridListItem(
       onClick(file);
     }
   }, [file, onClick]);
+
   /**
    * Support keyboard actions
    */
-
   const handleKeyDown = useCallback(
     (event) => {
       const key = event.key;
@@ -147,8 +158,8 @@ const LocalFileGridListItem = React.memo(function FpLocalFileGridListItem(
       </div>
       <div className={classes.attrRow}>
         <AttributeText
-          name={messages.attr.fingerprint}
-          value={file.fingerprint && file.fingerprint.slice(0, 7)}
+          name={`${messages.attr.duplicates}/${messages.attr.related}`}
+          value={`${file.duplicatesCount || 0}/${file.relatedCount || 0} `}
           variant="primary"
           size="small"
         />
@@ -176,6 +187,12 @@ const LocalFileGridListItem = React.memo(function FpLocalFileGridListItem(
           defaultValue="Unknown"
           size="small"
         />
+        {(file.matchedTemplateIds?.length || 0) > 0 && (
+          <React.Fragment>
+            <div className={classes.divider} />
+            <MatchedTemplates file={file} />
+          </React.Fragment>
+        )}
         <div className={classes.divider} />
         <VolumeOffOutlinedIcon className={classes.volume} />
       </div>
