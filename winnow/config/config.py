@@ -55,6 +55,7 @@ class StorageType(enum.Enum):
     LMDB = "lmdb"
     SIMPLE = "simple"
     SQLITE = "sqlite"
+    NOHASH = "nohash"
 
     @staticmethod
     def parse(value, default=None):

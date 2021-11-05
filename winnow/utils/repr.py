@@ -9,6 +9,7 @@ from winnow.storage.base_repr_storage import ReprStorageFactory
 from winnow.storage.file_key import FileKey
 from winnow.storage.legacy import LMDBReprStorage, SQLiteReprStorage
 from winnow.storage.legacy.wrapper import LegacyStorageWrapper
+from winnow.storage.no_hash_repr_storage import NoHashReprStorage
 from winnow.storage.repr_utils import path_resolver
 from winnow.storage.simple_repr_storage import SimpleReprStorage
 from winnow.utils.files import get_hash
@@ -61,6 +62,8 @@ def repr_storage_factory(
         return LegacyStorageWrapper.factory(LMDBReprStorage)
     elif storage_type is StorageType.SQLITE:
         return LegacyStorageWrapper.factory(SQLiteReprStorage)
+    elif storage_type is StorageType.NOHASH:
+        return NoHashReprStorage
     elif storage_type is StorageType.DETECT or storage_type is None:
         return detect_storage
     else:
