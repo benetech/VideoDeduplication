@@ -36,9 +36,9 @@ from winnow.utils.logging import configure_logging_cli
     is_flag=True,
 )
 def main(config, list_of_files, frame_sampling, save_frames):
-    logger = configure_logging_cli()
-    logger.info("Loading config file")
     config = resolve_config(config_path=config, frame_sampling=frame_sampling, save_frames=save_frames)
+    logger = configure_logging_cli(config.logging)
+    logger.info("Loaded config file")
 
     logger.info("Searching for Dataset Video Files")
     if list_of_files is None:

@@ -16,8 +16,8 @@ class FinderCli:
         from winnow.pipeline.generate_local_matches import generate_local_matches
         from winnow.utils.files import scan_videos
 
-        configure_logging_cli()
         config = self._pipeline.config
+        configure_logging_cli(config.logging)
 
         videos = scan_videos(config.sources.root, "**", extensions=config.sources.extensions)
         generate_local_matches(files=videos, pipeline=self._pipeline)
@@ -26,7 +26,8 @@ class FinderCli:
         """Find matches between local files and remote fingerprints."""
         from winnow.pipeline.generate_remote_matches import generate_remote_matches
 
-        configure_logging_cli()
+        config = self._pipeline.config
+        configure_logging_cli(config.logging)
 
         if repo is not None:
             repo = str(repo)
