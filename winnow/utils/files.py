@@ -24,7 +24,9 @@ def get_hash(file_path, mode=HashMode.FILE, buffer_size=64 * 1024):
     elif mode == HashMode.PATH:
         return hash_object(file_path, False)
     else:
-        print('Error: mode "%s" is invalid. mode must be one of ("file", "path").' % str(mode))
+        hash_modes = [e.value for e in HashMode]
+        hash_modes_str = '", "'.join(hash_modes)
+        print('Error: mode "%s" is invalid. mode must be one of ("%s").' % (str(mode), hash_modes_str))
 
 
 @lru_cache(maxsize=None)
