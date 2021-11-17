@@ -127,9 +127,9 @@ class ProgressMonitor(BaseProgressMonitor):
 class ProgressBar(BaseProgressMonitor):
     """Wrapper around a progress-monitor which will display a progress bar on the console."""
 
-    def __init__(self, monitor: BaseProgressMonitor = None, file=sys.stdout, unit="it"):
+    def __init__(self, monitor: BaseProgressMonitor = None, file=sys.stdout, unit="it", **kwargs):
         self._monitor: BaseProgressMonitor = monitor or ProgressMonitor()
-        self._progress_bar: tqdm = tqdm(file=file, total=self._monitor.total, unit=unit)
+        self._progress_bar: tqdm = tqdm(file=file, total=self._monitor.total, unit=unit, **kwargs)
         self._progress_bar.update(self._monitor.progress * self._monitor.total)
 
     def scale(self, total_work):
