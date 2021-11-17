@@ -19,6 +19,12 @@ dependencies:
   - pysoundfile
   - h5py==2.9.0
   - ffmpeg
+  - numba
+  - pynndescent
+  - luigi
+  - tabulate
+  - umap-learn
+  - networkit
   - pip
   - pip:
       - lmdb
@@ -42,5 +48,7 @@ dependencies:
       - youtube-dl
       - dacite
       - deprecation
+      - trimap
+      - pacmap
 
 prefix: C:\ProgramData\Anaconda3\envs\winnow
