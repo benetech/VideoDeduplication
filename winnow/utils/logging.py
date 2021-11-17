@@ -8,12 +8,14 @@ from winnow.config.config import LoggingConfig
 def configure_logging_cli(config: LoggingConfig = None):
     """Configure logging for CLI scripts."""
     config = config or LoggingConfig()
-    root_logger = logging.getLogger()
-    winnow_logger = logging.getLogger("winnow")
-    root_logger.setLevel(logging.ERROR)
+
     root_handler = logging.StreamHandler(sys.stdout)
     root_handler.setFormatter(logging.Formatter(config.console_format))
+    root_logger = logging.getLogger()
     root_logger.addHandler(root_handler)
+    root_logger.setLevel(logging.ERROR)
+
+    winnow_logger = logging.getLogger("winnow")
     winnow_logger.setLevel(config.console_level.value)
 
     # Write errors to the log file
