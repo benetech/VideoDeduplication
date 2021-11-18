@@ -1,6 +1,7 @@
 import abc
 import logging
 import logging.config
+import math
 import os
 import shutil
 from glob import glob
@@ -10,6 +11,9 @@ import click
 import luigi
 import luigi.format
 import luigi.setup_logging
+import matplotlib.axes
+import matplotlib.cm
+import matplotlib.figure
 import matplotlib.pyplot as plt
 import networkit as nk
 import networkit.community
@@ -409,6 +413,9 @@ class EmbeddingsImageTask(PipelineTask, abc.ABC):
     n_communities = luigi.IntParameter(default=20)
     alpha = luigi.FloatParameter(default=0.2)
     color_map = luigi.Parameter(default="Spectral")
+    ignored_outliers_ratio = luigi.FloatParameter(default=0.001)
+    figure_width = luigi.FloatParameter(default=20.0)
+    figure_height = luigi.FloatParameter(default=20.0)
 
     def run(self):
         self.logger.info("Loading embeddings")
@@ -432,21 +439,12 @@ class EmbeddingsImageTask(PipelineTask, abc.ABC):
         self.logger.info("Loaded file communities for %s files", len(file_coms))
 
         self.logger.info("Preparing point colors")
-        colors = []
-        no_community_id = partition.numberOfSubsets() + 1
-        for file_key in vector_files[: len(embeddings)]:
-            community_id = file_coms.get(file_key, no_community_id)
-            color = com_colors.get(community_id, self.n_communities + 1)
-            colors.append(color)
+        colors = self.prepare_colors(embeddings, vector_files, file_coms, com_colors, partition)
         self.logger.info("Prepared colors for %s fingerprints", len(colors))
 
-        self.logger.info("Drawing %s image with colored communities", self.algorithm_name)
-        plt.scatter(embeddings[:, 0], embeddings[:, 1], c=colors, cmap=self.color_map, s=1, alpha=self.alpha)
-        plt.gca().set_aspect("equal", "datalim")
-        plt.colorbar(boundaries=np.arange(self.n_communities + 1) - 0.5).set_ticks(np.arange(self.n_communities))
-        plt.title(f"{self.algorithm_name} projection of the fingerprint dataset", fontsize=24)
-        plt.savefig(self.output().path, format="png")
-        plt.show()
+        self.logger.info("Drawing %s image with %s colored communities", self.algorithm_name, self.n_communities)
+        self.draw_figure(embeddings, colors)
+        self.logger.info("Done drawing %s image", self.algorithm_name)
 
     def requires(self):
         yield CondensedFingerprints(config_path=self.config_path)
@@ -460,10 +458,14 @@ class EmbeddingsImageTask(PipelineTask, abc.ABC):
     def output_path(self) -> str:
         """Output image path."""
         match_distance = self.config.proc.match_distance
-        return os.path.join(
-            self.output_directory,
-            f"{self.algorithm_name.lower()}_at_{match_distance:.2}_distance_{self.n_communities}_colors.png",
-        )
+        algo = self.algorithm_name.lower()
+        dist = f"dist{match_distance:.2}"
+        coms = f"coms{self.n_communities}"
+        size = f"size{self.figure_width:.4}x{self.figure_height:.4}"
+        drop = f"drop{self.ignored_outliers_ratio:.2}"
+        alpha = f"alpha{self.alpha:.2}"
+
+        return os.path.join(self.output_directory, f"{algo}_{dist}_{coms}_{size}_{drop}_{alpha}.png")
 
     def read_embeddings(self) -> np.ndarray:
         """Read saved trimap embeddings."""
@@ -515,6 +517,61 @@ class EmbeddingsImageTask(PipelineTask, abc.ABC):
             colors[com_id] = len(colors)
         return colors
 
+    def prepare_colors(
+        self,
+        embeddings: np.ndarray,
+        vector_files: List[FileKey],
+        file_coms: Dict[FileKey, int],
+        com_colors: Dict[int, int],
+        partition: nk.structures.Partition,
+    ) -> np.ndarray:
+        """Get list of colors for each vector."""
+        colors = []
+        no_community_id = partition.numberOfSubsets() + 1
+        for file_key in vector_files[: len(embeddings)]:
+            community_id = file_coms.get(file_key, no_community_id)
+            color = com_colors.get(community_id, self.n_communities + 1)
+            colors.append(color)
+        return np.array(colors)
+
+    def draw_figure(self, embeddings: np.ndarray, colors: np.ndarray):
+        """Draw and save image displaying fingerprints."""
+        figure = plt.figure()
+        self.apply_image_config(figure, embeddings)
+        figure.gca().scatter(embeddings[:, 0], embeddings[:, 1], c=colors, cmap=self.color_map, s=1, alpha=self.alpha)
+        figure.savefig(self.output().path, format="png")
+
+    def apply_image_config(self, figure: matplotlib.figure.Figure, embeddings: np.ndarray):
+        """Apply figure configuration."""
+        # Set up general figure attributes
+        axes = figure.gca()
+        figure.set_figwidth(self.figure_width)
+        figure.set_figheight(self.figure_height)
+        figure.suptitle(self.figure_title, fontsize=24)
+        # Set up colorbar
+        colorbar_boundaries = np.arange(self.n_communities + 1) - 0.5
+        mappable = matplotlib.cm.ScalarMappable(cmap=self.color_map)
+        colorbar = figure.colorbar(mappable, boundaries=colorbar_boundaries)
+        colorbar.set_ticks(np.arange(self.n_communities))
+        # Configure current Axes
+        axes.set_aspect("equal", "datalim")
+        # Configure limits
+        self.set_limits(embeddings, axes)
+
+    def set_limits(self, embeddings: np.ndarray, axes: matplotlib.axes.Axes):
+        """Calculate X and Y axis limit."""
+        n_ignored_outliers = math.floor(len(embeddings) * self.ignored_outliers_ratio)
+        if n_ignored_outliers == 0:
+            return
+        sorted_coordinates = np.sort(embeddings, kind="heapsort", axis=0)
+        axes.set_ylim(sorted_coordinates[n_ignored_outliers][1], sorted_coordinates[-n_ignored_outliers][1])
+        axes.set_xlim(sorted_coordinates[n_ignored_outliers][0], sorted_coordinates[-n_ignored_outliers][0])
+
+    @cached_property
+    def figure_title(self) -> str:
+        """Get figure title"""
+        return f"{self.algorithm_name} projection of the fingerprint dataset"
+
     @property
     @abc.abstractmethod
     def embeddings_task(self) -> EmbeddingsTask:
@@ -524,6 +581,26 @@ class EmbeddingsImageTask(PipelineTask, abc.ABC):
     @abc.abstractmethod
     def algorithm_name(self) -> str:
         """Dimension reduction algorithm name."""
+
+
+class TopComsImageTask(EmbeddingsImageTask):
+    """Use embedding to display only top communities."""
+
+    def draw_figure(self, embeddings: np.ndarray, colors: np.ndarray):
+        top_communities = colors < self.n_communities
+        super().draw_figure(embeddings[top_communities], colors[top_communities])
+
+    @cached_property
+    def output_path(self) -> str:
+        match_distance = self.config.proc.match_distance
+        algo = self.algorithm_name.lower()
+        top = f"top{self.n_communities}"
+        dist = f"dist{match_distance:.2}"
+        size = f"size{self.figure_width:.4}x{self.figure_height:.4}"
+        drop = f"drop{self.ignored_outliers_ratio:.2}"
+        alpha = f"alpha{self.alpha:.2}"
+
+        return os.path.join(self.output_directory, f"{algo}_{top}_{dist}_{size}_{drop}_{alpha}.png")
 
 
 class UmapEmbeddings(EmbeddingsTask):
@@ -549,6 +626,18 @@ class UmapEmbeddings(EmbeddingsTask):
 
 class UmapImage(EmbeddingsImageTask):
     """Create UMAP dataset image with detected communities."""
+
+    @property
+    def embeddings_task(self) -> EmbeddingsTask:
+        return UmapEmbeddings(config_path=self.config_path)
+
+    @property
+    def algorithm_name(self) -> str:
+        return "UMAP"
+
+
+class UmapTopComsImage(TopComsImageTask):
+    """Draw only top communities using UMAP embeddings."""
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
@@ -587,6 +676,18 @@ class TriMapImage(EmbeddingsImageTask):
         return "TriMap"
 
 
+class TriMapTopComsImage(TopComsImageTask):
+    """Draw only top communities using TriMap embeddings."""
+
+    @property
+    def embeddings_task(self) -> EmbeddingsTask:
+        return TriMapEmbeddings(config_path=self.config_path)
+
+    @property
+    def algorithm_name(self) -> str:
+        return "TriMap"
+
+
 class PaCMAPEmbeddings(EmbeddingsTask):
     """Reduce fingerprint dimensions to 2D space using PaCMAP algorithm.
 
@@ -615,11 +716,26 @@ class PaCMAPImage(EmbeddingsImageTask):
         return "PaCMAP"
 
 
+class PaCMAPTopComsImage(TopComsImageTask):
+    """Draw only top communities using PaCMAP embeddings."""
+
+    @property
+    def embeddings_task(self) -> EmbeddingsTask:
+        return PaCMAPEmbeddings(config_path=self.config_path)
+
+    @property
+    def algorithm_name(self) -> str:
+        return "PaCMAP"
+
+
 class TSNEEmbeddings(EmbeddingsTask):
     """Reduce fingerprint dimensions to 2D space using t-SNE algorithm.
 
     See https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html
     """
+
+    def read_fingerprints(self) -> np.ndarray:
+        return super().read_fingerprints()[:20000]
 
     @property
     def alogrithm_name(self) -> str:
@@ -628,11 +744,23 @@ class TSNEEmbeddings(EmbeddingsTask):
     def fit_transform(self, vectors: np.ndarray) -> np.ndarray:
         from sklearn.manifold import TSNE
 
-        return TSNE().fit_transform(vectors)
+        return TSNE(method="barnes_hut").fit_transform(vectors)
 
 
 class TSNEImage(EmbeddingsImageTask):
     """Create t-SNE dataset image with detected communities."""
+
+    @property
+    def embeddings_task(self) -> EmbeddingsTask:
+        return TSNEEmbeddings(config_path=self.config_path)
+
+    @property
+    def algorithm_name(self) -> str:
+        return "t-SNE"
+
+
+class TSNETopComsImage(TopComsImageTask):
+    """Draw only top communities using t-SNE embeddings."""
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
@@ -658,9 +786,13 @@ class AllEmbeddingImages(PipelineTask):
 
     def requires(self):
         yield UmapImage(config_path=self.config_path)
+        yield UmapTopComsImage(config_path=self.config_path)
         yield TriMapImage(config_path=self.config_path)
+        yield TriMapTopComsImage(config_path=self.config_path)
         yield PaCMAPImage(config_path=self.config_path)
+        yield PaCMAPTopComsImage(config_path=self.config_path)
         yield TSNEImage(config_path=self.config_path)
+        yield TSNETopComsImage(config_path=self.config_path)
 
 
 def make_matches(report: pd.DataFrame) -> List[Match]:
@@ -724,7 +856,7 @@ def normalize_fingerprint_storage(config_path: str):
 @click.option("--config_path", "-cp", help="path to the project config file", default=os.environ.get("WINNOW_CONFIG"))
 def main(config_path):
     luigi.build(
-        [TSNEImage(config_path=config_path)],
+        [AllEmbeddingImages(config_path=config_path)],
         local_scheduler=True,
         workers=1,
         logging_conf_file="./logging.conf",
