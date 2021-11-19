@@ -416,6 +416,7 @@ class EmbeddingsImageTask(PipelineTask, abc.ABC):
     ignored_outliers_ratio = luigi.FloatParameter(default=0.001)
     figure_width = luigi.FloatParameter(default=20.0)
     figure_height = luigi.FloatParameter(default=20.0)
+    point_size = luigi.IntParameter(default=1)
 
     def run(self):
         self.logger.info("Loading embeddings")
@@ -464,8 +465,9 @@ class EmbeddingsImageTask(PipelineTask, abc.ABC):
         size = f"size{self.figure_width:.4}x{self.figure_height:.4}"
         drop = f"drop{self.ignored_outliers_ratio:.2}"
         alpha = f"alpha{self.alpha:.2}"
+        point = f"p{self.point_size}"
 
-        return os.path.join(self.output_directory, f"{algo}_{dist}_{coms}_{size}_{drop}_{alpha}.png")
+        return os.path.join(self.output_directory, f"{algo}_{dist}_{coms}_{size}_{drop}_{alpha}_{point}.png")
 
     def read_embeddings(self) -> np.ndarray:
         """Read saved trimap embeddings."""
@@ -538,7 +540,14 @@ class EmbeddingsImageTask(PipelineTask, abc.ABC):
         """Draw and save image displaying fingerprints."""
         figure = plt.figure()
         self.apply_image_config(figure, embeddings)
-        figure.gca().scatter(embeddings[:, 0], embeddings[:, 1], c=colors, cmap=self.color_map, s=1, alpha=self.alpha)
+        figure.gca().scatter(
+            embeddings[:, 0],
+            embeddings[:, 1],
+            c=colors,
+            cmap=self.color_map,
+            s=self.point_size,
+            alpha=self.alpha,
+        )
         figure.savefig(self.output().path, format="png")
 
     def apply_image_config(self, figure: matplotlib.figure.Figure, embeddings: np.ndarray):
@@ -599,8 +608,14 @@ class TopComsImageTask(EmbeddingsImageTask):
         size = f"size{self.figure_width:.4}x{self.figure_height:.4}"
         drop = f"drop{self.ignored_outliers_ratio:.2}"
         alpha = f"alpha{self.alpha:.2}"
+        point = f"p{self.point_size}"
 
-        return os.path.join(self.output_directory, f"{algo}_{top}_{dist}_{size}_{drop}_{alpha}.png")
+        return os.path.join(self.output_directory, f"{algo}_{top}_{dist}_{size}_{drop}_{alpha}_{point}.png")
+
+    @cached_property
+    def figure_title(self) -> str:
+        """Get figure title"""
+        return f"{self.algorithm_name} projection of top-{self.n_communities} communities of the fingerprint dataset"
 
 
 class UmapEmbeddings(EmbeddingsTask):
@@ -771,6 +786,251 @@ class TSNETopComsImage(TopComsImageTask):
         return "t-SNE"
 
 
+class LabeledEmbeddingsImageTask(PipelineTask, abc.ABC):
+    """Draw embeddings with custom labels."""
+
+    alpha = luigi.FloatParameter(default=0.2)
+    color_map = luigi.Parameter(default="Spectral")
+    ignored_outliers_ratio = luigi.FloatParameter(default=0.001)
+    figure_width = luigi.FloatParameter(default=20.0)
+    figure_height = luigi.FloatParameter(default=20.0)
+    point_size = luigi.IntParameter(default=1)
+
+    def run(self):
+        self.logger.info("Loading embeddings")
+        embeddings = self.read_embeddings()
+        self.logger.info("Loaded embeddings with shape %s", embeddings.shape)
+
+        self.logger.info("Loading file keys for embeddings")
+        vector_files = self.read_vector_files()
+        self.logger.info("Loaded %s file keys", len(vector_files))
+
+        self.logger.info("Obtaining colors")
+        colors, color_labels = self.get_colors(embeddings, vector_files)
+        self.logger.info("Obtined %s colors", len(color_labels))
+
+        self.logger.info("Drawing image with")
+        self.draw_figure(embeddings, colors, color_labels)
+        self.logger.info("Done drawing image")
+
+    def output(self):
+        return luigi.LocalTarget(self.output_path)
+
+    def read_vector_files(self) -> List[FileKey]:
+        """Read file key for each vector."""
+        self.logger.info("Reading condensed file key attributes from csv-file")
+        with self.file_keys_csv.open("r") as file_keys_file:
+            vector_files = pd.read_csv(file_keys_file)
+            vector_files.fillna("", inplace=True)
+
+        self.logger.info("Preparing FileKeys")
+        file_keys = []
+        for entry in vector_files.itertuples():
+            file_keys.append(FileKey(path=entry.path, hash=entry.hash))
+        return file_keys
+
+    def draw_figure(self, embeddings: np.ndarray, colors: np.ndarray, color_labels: List[str]):
+        """Draw and save image displaying fingerprints."""
+        figure = plt.figure()
+        self.apply_image_config(figure, embeddings, color_labels)
+        figure.gca().scatter(
+            embeddings[:, 0],
+            embeddings[:, 1],
+            c=colors,
+            cmap=self.color_map,
+            s=self.point_size,
+            alpha=self.alpha,
+        )
+        figure.savefig(self.output().path, format="png")
+
+    def apply_image_config(self, figure: matplotlib.figure.Figure, embeddings: np.ndarray, color_labels: List[str]):
+        """Apply figure configuration."""
+        # Set up general figure attributes
+        axes = figure.gca()
+        figure.set_figwidth(self.figure_width)
+        figure.set_figheight(self.figure_height)
+        figure.suptitle(self.figure_title, fontsize=24)
+        # Set up colorbar
+        colorbar_boundaries = np.arange(len(color_labels) + 1) - 0.5
+        mappable = matplotlib.cm.ScalarMappable(cmap=self.color_map)
+        colorbar = figure.colorbar(mappable, boundaries=colorbar_boundaries)
+        colorbar.set_ticks(np.arange(len(color_labels)))
+        colorbar.set_ticklabels(color_labels)
+        # Configure current Axes
+        axes.set_aspect("equal", "datalim")
+        # Configure limits
+        self.set_limits(embeddings, axes)
+
+    def set_limits(self, embeddings: np.ndarray, axes: matplotlib.axes.Axes):
+        """Calculate X and Y axis limit."""
+        n_ignored_outliers = math.floor(len(embeddings) * self.ignored_outliers_ratio)
+        if n_ignored_outliers == 0:
+            return
+        sorted_coordinates = np.sort(embeddings, kind="heapsort", axis=0)
+        axes.set_ylim(sorted_coordinates[n_ignored_outliers][1], sorted_coordinates[-n_ignored_outliers][1])
+        axes.set_xlim(sorted_coordinates[n_ignored_outliers][0], sorted_coordinates[-n_ignored_outliers][0])
+
+    @abc.abstractmethod
+    def read_embeddings(self) -> np.ndarray:
+        """Read saved trimap embeddings."""
+
+    @abc.abstractmethod
+    def get_colors(self, embeddings: np.ndarray, file_keys: List[FileKey]) -> Tuple[List[int], List[str]]:
+        """Get file colors and color labels."""
+
+    @property
+    @abc.abstractmethod
+    def figure_title(self) -> str:
+        """Get figure title"""
+
+    @property
+    @abc.abstractmethod
+    def output_path(self) -> str:
+        """Output image path."""
+
+    @property
+    @abc.abstractmethod
+    def file_keys_csv(self) -> luigi.LocalTarget:
+        """Get file-keys csv input."""
+
+
+class CCWebImage(LabeledEmbeddingsImageTask):
+    """Draw CCWeb embeddings with the corresponding category labels."""
+
+    def requires(self):
+        yield CondensedFingerprints(config_path=self.config_path)
+        yield self.embeddings_task
+
+    def read_embeddings(self) -> np.ndarray:
+        _, embeddings_input = self.input()
+        with embeddings_input.open("r") as embeddings_file:
+            return np.load(embeddings_file)
+
+    def get_colors(self, embeddings: np.ndarray, file_keys: List[FileKey]) -> Tuple[List[int], List[str]]:
+        label_counts = {}
+        file_labels = []
+        self.logger.info("Retrieving ccweb labels")
+        for file_key in file_keys:
+            label, *_ = file_key.path.split("/", maxsplit=1)
+            label_counts[label] = label_counts.get(label, 0) + 1
+            file_labels.append(label)
+
+        sorted_count_labels = sorted([(count, label) for label, count in label_counts.items()], reverse=True)
+
+        label_colors = {}
+        for _, label in sorted_count_labels:
+            label_colors[label] = len(label_colors)
+
+        file_colors = np.array([label_colors[label] for label in file_labels])
+        color_labels = [label for _, label in sorted_count_labels]
+        return file_colors, color_labels
+
+    @property
+    def figure_title(self) -> str:
+        return f"{self.algorithm_name} projection of cc_web videos"
+
+    @property
+    def output_path(self) -> str:
+        algo = self.algorithm_name.lower()
+        size = f"size{self.figure_width:.4}x{self.figure_height:.4}"
+        drop = f"drop{self.ignored_outliers_ratio:.2}"
+        alpha = f"alpha{self.alpha:.2}"
+        point = f"p{self.point_size}"
+
+        return os.path.join(self.output_directory, f"{algo}_ccweb_{size}_{drop}_{alpha}_{point}.png")
+
+    @property
+    def file_keys_csv(self) -> luigi.LocalTarget:
+        (_, file_keys_input), _ = self.input()
+        return file_keys_input
+
+    @property
+    @abc.abstractmethod
+    def algorithm_name(self) -> str:
+        """Get embedding algorithm name."""
+
+    @property
+    @abc.abstractmethod
+    def embeddings_task(self) -> EmbeddingsTask:
+        """Get the corresponding embedding tas."""
+
+    def draw_figure(self, embeddings: np.ndarray, colors: np.ndarray, color_labels: List[str]):
+        n_categories = 20
+        top_categories = colors < n_categories
+        super().draw_figure(embeddings[top_categories], colors[top_categories], color_labels[:n_categories])
+
+
+class CCWebUmapImage(CCWebImage):
+    """Draw UMAP projection of CCWeb videos."""
+
+    @property
+    def algorithm_name(self) -> str:
+        return "UMAP"
+
+    @property
+    def embeddings_task(self) -> EmbeddingsTask:
+        return UmapEmbeddings(config_path=self.config_path)
+
+
+class CCWebTriMapImage(CCWebImage):
+    """Draw TriMap projection of CCWeb videos."""
+
+    @property
+    def algorithm_name(self) -> str:
+        return "TriMap"
+
+    @property
+    def embeddings_task(self) -> EmbeddingsTask:
+        return TriMapEmbeddings(config_path=self.config_path)
+
+
+class CCWebPaCMAPImage(CCWebImage):
+    """Draw PaCMAP projection of CCWeb videos."""
+
+    @property
+    def algorithm_name(self) -> str:
+        return "PaCMAP"
+
+    @property
+    def embeddings_task(self) -> EmbeddingsTask:
+        return PaCMAPEmbeddings(config_path=self.config_path)
+
+
+class CCWebTSNEImage(CCWebImage):
+    """Draw t-SNE projection of CCWeb videos."""
+
+    @property
+    def algorithm_name(self) -> str:
+        return "t-SNE"
+
+    @property
+    def embeddings_task(self) -> EmbeddingsTask:
+        return TSNEEmbeddings(config_path=self.config_path)
+
+
+class AllCCWebImages(PipelineTask):
+    """Produce all CCWeb-specific images."""
+
+    # The same params as for EmbeddingsImageTask:
+    alpha = luigi.FloatParameter(default=0.2)
+    color_map = luigi.Parameter(default="Spectral")
+    ignored_outliers_ratio = luigi.FloatParameter(default=0.001)
+    figure_width = luigi.FloatParameter(default=20.0)
+    figure_height = luigi.FloatParameter(default=20.0)
+    point_size = luigi.IntParameter(default=1)
+
+    def requires(self):
+        params = self.all_params_dict()
+        yield CCWebTSNEImage(**params)
+        yield CCWebPaCMAPImage(**params)
+        yield CCWebUmapImage(**params)
+        yield CCWebTriMapImage(**params)
+
+    def all_params_dict(self) -> Dict:
+        """Get all task params as dict."""
+        return {name: getattr(self, name) for name in AllCCWebImages.get_param_names()}
+
+
 class AllEmbeddings(PipelineTask):
     """Produce all embeddings."""
 
@@ -784,15 +1044,29 @@ class AllEmbeddings(PipelineTask):
 class AllEmbeddingImages(PipelineTask):
     """Produce all embeddings."""
 
+    # The same params as for EmbeddingsImageTask:
+    n_communities = luigi.IntParameter(default=20)
+    alpha = luigi.FloatParameter(default=0.2)
+    color_map = luigi.Parameter(default="Spectral")
+    ignored_outliers_ratio = luigi.FloatParameter(default=0.001)
+    figure_width = luigi.FloatParameter(default=20.0)
+    figure_height = luigi.FloatParameter(default=20.0)
+    point_size = luigi.IntParameter(default=1)
+
     def requires(self):
-        yield UmapImage(config_path=self.config_path)
-        yield UmapTopComsImage(config_path=self.config_path)
-        yield TriMapImage(config_path=self.config_path)
-        yield TriMapTopComsImage(config_path=self.config_path)
-        yield PaCMAPImage(config_path=self.config_path)
-        yield PaCMAPTopComsImage(config_path=self.config_path)
-        yield TSNEImage(config_path=self.config_path)
-        yield TSNETopComsImage(config_path=self.config_path)
+        params = self.all_params_dict()
+        yield UmapImage(**params)
+        yield UmapTopComsImage(**params)
+        yield TriMapImage(**params)
+        yield TriMapTopComsImage(**params)
+        yield PaCMAPImage(**params)
+        yield PaCMAPTopComsImage(**params)
+        yield TSNEImage(**params)
+        yield TSNETopComsImage(**params)
+
+    def all_params_dict(self) -> Dict:
+        """Get all task params as dict."""
+        return {name: getattr(self, name) for name in AllEmbeddingImages.get_param_names()}
 
 
 def make_matches(report: pd.DataFrame) -> List[Match]:
@@ -852,11 +1126,53 @@ def normalize_fingerprint_storage(config_path: str):
     logger.info("Normalized %s files", changed)
 
 
+def prepare_ccweb(config_path: str):
+    """Prepare ccweb fingerprints."""
+    log_config_path = "./logging.conf"
+    if os.path.isfile(log_config_path):
+        logging.config.fileConfig(log_config_path)
+
+    pipeline = create_pipeline(config_path=config_path)
+    logger = logging.getLogger("winnow")
+
+    file_labels_csv = os.path.join(pipeline.config.repr.directory, "vcdb_files_labels.csv")
+    logger.info("Loading labeled ccweb videos list %s", file_labels_csv)
+    file_labels = pd.read_csv(file_labels_csv)
+    logger.info("Loaded %s labeled file names", len(file_labels.index))
+
+    logger.info("Creating file-keys dataframe")
+    file_keys = []
+    for entry in file_labels.itertuples():
+        file_keys.append((os.path.join(entry.label, entry.basename), ""))
+    file_keys_dataframe = pd.DataFrame(file_keys, columns=("path", "hash"))
+    logger.info("Created file-keys dataframe")
+
+    condensed_file_keys_path = os.path.join(pipeline.config.repr.directory, "condensed_fingerprints.files.csv")
+    logger.info("Saving condensed file-keys to %s", condensed_file_keys_path)
+    file_keys_dataframe.to_csv(condensed_file_keys_path)
+    logger.info("Saving file-keys is done")
+
+
 @click.command()
 @click.option("--config_path", "-cp", help="path to the project config file", default=os.environ.get("WINNOW_CONFIG"))
 def main(config_path):
     luigi.build(
-        [AllEmbeddingImages(config_path=config_path)],
+        [
+            AllCCWebImages(
+                config_path=config_path,
+                point_size=10,
+                alpha=1.0,
+                figure_width=10.0,
+                figure_height=10.0,
+            ),
+            AllEmbeddingImages(
+                config_path=config_path,
+                point_size=10,
+                alpha=1.0,
+                figure_width=10.0,
+                figure_height=10.0,
+            ),
+        ],
         local_scheduler=True,
         workers=1,
         logging_conf_file="./logging.conf",
