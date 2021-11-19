@@ -2,14 +2,21 @@ import parseDate from "./parseDate";
 import { PartialRange } from "./Range";
 
 /**
+ * Check if the string value is defined.
+ */
+function isBlank(value?: string | null): boolean {
+  return value == null || value.length === 0;
+}
+
+/**
  * Convert ISO-string date range to Date-based range.
  */
 export function parseDateRange(
   range: PartialRange<string>
 ): PartialRange<Date> {
   return {
-    lower: parseDate(range.lower),
-    upper: parseDate(range.upper),
+    lower: isBlank(range.lower) ? null : parseDate(range.lower),
+    upper: isBlank(range.upper) ? null : parseDate(range.upper),
   };
 }
 
