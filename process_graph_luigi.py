@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 from cached_property import cached_property
 from dataclasses import asdict, astuple, dataclass
+from typing.io import BinaryIO, TextIO
 
 from winnow.config import Config
 from winnow.duplicate_detection.neighbors import FeatureVector, NeighborMatcher, DetectedMatch
@@ -374,8 +375,8 @@ class EmbeddingsTask(PipelineTask, abc.ABC):
         self.logger.info(f"{self.alogrithm_name} dimension reduction is done")
 
         self.logger.info("Saving embeddings")
-        with self.output().open("w") as umap_file:
-            np.save(umap_file, embeddings)
+        with self.output().open("w") as embeddings_file:
+            np.save(embeddings_file, embeddings)
         self.logger.info("Saving embeddings done")
 
     def output(self):
@@ -1153,18 +1154,225 @@ def prepare_ccweb(config_path: str):
     logger.info("Saving file-keys is done")
 
 
+def read_fingerprints(
+    fingerprins_file: BinaryIO,
+    file_keys_file: TextIO,
+    logger: logging.Logger,
+) -> List[FeatureVector]:
+    """Read condensed fingerprints."""
+
+    fingerprints = np.load(fingerprins_file, allow_pickle=False)
+    file_keys = pd.read_csv(file_keys_file)
+    if len(fingerprints) != len(file_keys.index):
+        raise Exception(
+            "Inconsistent condensed vectors size: len(vectors) = %s != len(files) = %s",
+            len(fingerprints),
+            len(file_keys.index),
+        )
+
+    logger.info("Preparing fingerprints")
+
+    progress = ProgressBar(unit=" fingerprints")
+    progress.scale(len(file_keys.index))
+    portion, portion_size = 0, int(len(file_keys.index) ** 0.5)
+    result = []
+    for fingerprint, row in zip(fingerprints, file_keys.itertuples()):
+        result.append(FeatureVector(key=FileKey(path=row.path, hash=row.hash), features=fingerprint))
+        portion += 1
+        if portion >= portion_size:
+            progress.increase(portion)
+            portion = 0
+    progress.complete()
+    return result
+
+
+def random_mask(total_size, true_count) -> np.ndarray:
+    """Create random True/False mask."""
+    mask = np.full(total_size, fill_value=False)
+    mask[: min(true_count, len(mask))] = True
+    np.random.shuffle(mask)
+    return mask
+
+
+def select_random_vectors(vectors: np.ndarray, max_count: int) -> np.ndarray:
+    """Select subset of vectors."""
+    if max_count <= 0:
+        return vectors
+    selected = random_mask(len(vectors), max_count)
+    return vectors[selected]
+
+
+class CrossCollectionMatches(PipelineTask):
+    other_config_path = luigi.Parameter()
+
+    @cached_property
+    def output_path(self) -> str:
+        """Output file path."""
+        match_distance = self.config.proc.match_distance
+        return os.path.join(self.output_directory, f"cross_matches_at_{match_distance:.2}_distance.csv")
+
+    def run(self):
+        self.logger.info("Loading fingerprint collections")
+        needles, haystack = self.read_fingerprint_collections()
+        self.logger.info("Loaded %s needles and %s haystack items", len(needles), len(haystack))
+
+        self.logger.info("Building fingerprints index.")
+        neighbor_matcher = NeighborMatcher(haystack=haystack)
+        self.logger.info("Searching for matches.")
+        matches = neighbor_matcher.find_matches(needles=needles, max_distance=self.config.proc.match_distance)
+        self.logger.info("Found %s matches", len(matches))
+
+        self.logger.info("Saving matches report")
+        self.save_matches_csv(matches)
+
+    def output(self):
+        return luigi.LocalTarget(self.output_path)
+
+    def requires(self):
+        yield CondensedFingerprints(config_path=self.config_path)
+        yield CondensedFingerprints(config_path=self.other_config_path)
+
+    def read_fingerprint_collections(self) -> Tuple[List[FeatureVector], List[FeatureVector]]:
+        (fingerprints_npy, file_keys_csv), (other_fingerprints_npy, other_file_keys_csv) = self.input()
+
+        self.logger.info("Loading needles")
+        with fingerprints_npy.open("r") as vectors_file, file_keys_csv.open("r") as file_keys_file:
+            needles = read_fingerprints(vectors_file, file_keys_file, self.logger)
+
+        self.logger.info("Loading haystack")
+        with other_fingerprints_npy.open("r") as vectors_file, other_file_keys_csv.open("r") as file_keys_file:
+            hastack = read_fingerprints(vectors_file, file_keys_file, self.logger)
+
+        return needles, hastack
+
+    def save_matches_csv(self, matches: List[DetectedMatch]):
+        """Save matches to csv file."""
+
+        def entry(detected_match: DetectedMatch):
+            """Flatten (query_key, match_key, dist) match entry."""
+            source, target = detected_match.needle_key, detected_match.haystack_key
+            return source.path, source.hash, target.path, target.hash, detected_match.distance
+
+        self.logger.info("Creating report-dataframe")
+        dataframe = pd.DataFrame(
+            tuple(entry(match) for match in matches),
+            columns=[
+                "query_video",
+                "query_sha256",
+                "match_video",
+                "match_sha256",
+                "distance",
+            ],
+        )
+        self.logger.info("Writing report-dataframe to %s", self.output_path)
+        with self.output().open("w") as output:
+            dataframe.to_csv(output)
+
+
+class CrossCollectionEmbeddings(EmbeddingsTask, abc.ABC):
+    """Abstract task to perform dimension reduction on multiple fingerprint collections."""
+
+    other_config_path = luigi.Parameter()
+
+    def requires(self):
+        yield CondensedFingerprints(config_path=self.config_path)
+        yield CondensedFingerprints(config_path=self.other_config_path)
+
+    def read_fingerprints(self) -> np.ndarray:
+        """Read condensed fingerprints."""
+        (input_1, _), (input_2, _) = self.input()
+        with input_1.open("r") as file_1, input_2.open("r") as file_2:
+            return np.concatenate([np.load(file_1), np.load(file_2)])
+
+    @cached_property
+    def output_path(self) -> str:
+        """File path to save cross-collection embeddings."""
+        return os.path.join(self.output_directory, f"cross_{self.alogrithm_name.lower()}_embeddings.npy")
+
+
+class CrossCollectionUmapEmbeddings(CrossCollectionEmbeddings):
+    """Project 2 fingerprint collections using UMAP."""
+
+    max_fit = luigi.IntParameter(default=200000)
+
+    @property
+    def alogrithm_name(self) -> str:
+        return "UMAP"
+
+    def fit_transform(self, vectors: np.ndarray) -> np.ndarray:
+        import umap
+
+        vectors = select_random_vectors(vectors, max_count=self.max_fit)
+        reducer = umap.UMAP(random_state=42, n_neighbors=100)
+        reducer.fit(vectors)
+        return reducer.transform(vectors)
+
+
+class CrossCollectionPaCMAPEmbeddings(CrossCollectionEmbeddings):
+    """Project 2 fingerprint collections using PaCMAP."""
+
+    @property
+    def alogrithm_name(self) -> str:
+        return "PaCMAP"
+
+    def fit_transform(self, vectors: np.ndarray) -> np.ndarray:
+        import pacmap
+
+        return pacmap.PaCMAP(n_dims=2, n_neighbors=100, MN_ratio=0.5, FP_ratio=2.0).fit_transform(vectors)
+
+
+class CrossCollectionTriMapEmbeddings(CrossCollectionEmbeddings):
+    """Project 2 fingerprint collections using TriMap."""
+
+    @property
+    def alogrithm_name(self) -> str:
+        return "TriMap"
+
+    def fit_transform(self, vectors: np.ndarray) -> np.ndarray:
+        import trimap
+
+        return trimap.TRIMAP().fit_transform(vectors)
+
+
+class CrossCollectionTSNEEmbeddings(CrossCollectionEmbeddings):
+    """Project 2 fingerprint collections using t-SNE."""
+
+    max_fit = luigi.IntParameter(default=20000)
+
+    @property
+    def alogrithm_name(self) -> str:
+        return "t-SNE"
+
+    def fit_transform(self, vectors: np.ndarray) -> np.ndarray:
+        from sklearn.manifold import TSNE
+
+        vectors = select_random_vectors(vectors, max_count=self.max_fit)
+        return TSNE(method="barnes_hut").fit_transform(vectors)
+
+
+class AllCrossCollectionEmbeddings(PipelineTask):
+    """Produce all cross-collection embeddings."""
+
+    # The same params as for CrossCollectionEmbeddings:
+    other_config_path = luigi.Parameter()
+
+    def requires(self):
+        params = self.all_params_dict()
+        yield CrossCollectionUmapEmbeddings(**params)
+        yield CrossCollectionTriMapEmbeddings(**params)
+        yield CrossCollectionPaCMAPEmbeddings(**params)
+        yield CrossCollectionTSNEEmbeddings(**params)
+
+    def all_params_dict(self) -> Dict:
+        """Get all task params as dict."""
+        return {name: getattr(self, name) for name in AllCrossCollectionEmbeddings.get_param_names()}
+
+
 @click.command()
 @click.option("--config_path", "-cp", help="path to the project config file", default=os.environ.get("WINNOW_CONFIG"))
 def main(config_path):
     luigi.build(
         [
-            AllCCWebImages(
-                config_path=config_path,
-                point_size=10,
-                alpha=1.0,
-                figure_width=10.0,
-                figure_height=10.0,
-            ),
             AllEmbeddingImages(
                 config_path=config_path,
                 point_size=10,
