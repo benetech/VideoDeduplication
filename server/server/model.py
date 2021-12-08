@@ -202,7 +202,6 @@ class Transform:
         return {
             "id": repository.id,
             "name": repository.name,
-            "address": repository.network_address,
             "login": repository.account_id,
             "type": repository.repository_type.value,
         }
