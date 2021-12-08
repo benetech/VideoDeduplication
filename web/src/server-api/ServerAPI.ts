@@ -2,8 +2,12 @@ import { Preset, PresetFilters } from "../model/Preset";
 import { Entity, Transient, Updates } from "../lib/entity/Entity";
 import {
   ClusterFilters,
+  Contributor,
+  ContributorFilters,
   FileFilters,
   FrameDescriptor,
+  Repository,
+  RepositoryFilters,
   VideoFile,
 } from "../model/VideoFile";
 import {
@@ -208,6 +212,18 @@ export interface TemplateExclusionsAPI
 }
 
 /**
+ * Repositories API endpoint.
+ */
+export interface RepositoriesAPI
+  extends Endpoint<Repository, RepositoryFilters> {}
+
+/**
+ * Contributors API endpoint.
+ */
+export interface ContributorsAPI
+  extends ReadOnlyEndpoint<Contributor, ContributorFilters> {}
+
+/**
  * Statistics API endpoint.
  */
 export interface StatsAPI {
@@ -223,6 +239,8 @@ export interface ServerAPI {
   readonly examples: TemplateExamplesAPI;
   readonly templateMatches: TemplateMatchesAPI;
   readonly templateExclusions: TemplateExclusionsAPI;
+  readonly repos: RepositoriesAPI;
+  readonly contributors: ContributorsAPI;
   readonly stats: StatsAPI;
   readonly socket: SocketAPI;
 }

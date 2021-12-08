@@ -110,6 +110,21 @@ export type Contributor = {
 };
 
 /**
+ * Remote repository filters.
+ */
+export type RepositoryFilters = {
+  name?: string;
+};
+
+/**
+ * Remote repo contributor filters.
+ */
+export type ContributorFilters = {
+  name?: string;
+  repositoryId?: number;
+};
+
+/**
  * Property type for Scene in a video file.
  */
 export type Scene = {
