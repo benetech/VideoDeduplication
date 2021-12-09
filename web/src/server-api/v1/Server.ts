@@ -11,6 +11,8 @@ import TemplateMatchesEndpoint from "./endpoints/TemplateMatchesEndpoint";
 import TemplateExclusionsEndpoint from "./endpoints/TemplateExclusionsEndpoint";
 import TasksEndpoint from "./endpoints/TasksEndpoint";
 import Socket from "./Socket";
+import RepositoryEndpoint from "./endpoints/RepositoryEndpoint";
+import ContributorsEndpoint from "./endpoints/ContributorsEndpoint";
 
 type RestServerOptions = {
   baseURL?: string;
@@ -30,6 +32,8 @@ export default class Server implements ServerAPI {
   readonly templateMatches: TemplateMatchesEndpoint;
   readonly templateExclusions: TemplateExclusionsEndpoint;
   readonly tasks: TasksEndpoint;
+  readonly repositories: RepositoryEndpoint;
+  readonly contributors: ContributorsEndpoint;
   readonly stats: StatsEndpoint;
   readonly socket: Socket;
 
@@ -52,6 +56,8 @@ export default class Server implements ServerAPI {
     this.templateMatches = new TemplateMatchesEndpoint(this.axios);
     this.templateExclusions = new TemplateExclusionsEndpoint(this.axios);
     this.tasks = new TasksEndpoint(this.axios);
+    this.repositories = new RepositoryEndpoint(this.axios);
+    this.contributors = new ContributorsEndpoint(this.axios);
     this.stats = new StatsEndpoint(this.axios);
     this.socket = new Socket();
   }

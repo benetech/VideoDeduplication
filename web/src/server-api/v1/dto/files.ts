@@ -55,6 +55,17 @@ export type RepositoryDTO = {
   type: RepositoryType;
 };
 
+export type CreateRepositoryDTO = {
+  name: string;
+  address: string;
+  login: string;
+  type: RepositoryType;
+};
+
+export type UpdateRepositoryDTO = {
+  name?: string;
+};
+
 export type ContributorDTO = {
   id: number;
   name: string;

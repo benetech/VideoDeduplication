@@ -30,10 +30,12 @@ import {
 } from "../../ServerAPI";
 import {
   ContributorDTO,
+  CreateRepositoryDTO,
   FileDTO,
   FileQueryResultsDTO,
   RepositoryDTO,
   SceneDTO,
+  UpdateRepositoryDTO,
 } from "../dto/files";
 import {
   FileMatchDTO,
@@ -41,6 +43,7 @@ import {
   MatchDTO,
   QueryClusterResultsDTO,
 } from "../dto/matches";
+import { Transient, Updates } from "../../../lib/entity/Entity";
 
 /**
  * Argument and result transformer for file API endpoint.
@@ -364,6 +367,18 @@ export default class FilesTransformer {
       address: data.address,
       login: data.login,
       type: data.type,
+    };
+  }
+
+  createRepositoryDTO(repository: Transient<Repository>): CreateRepositoryDTO {
+    return {
+      ...repository,
+    };
+  }
+
+  updateRepositoryDTO(repository: Updates<Repository>): UpdateRepositoryDTO {
+    return {
+      name: repository.name,
     };
   }
 }

@@ -11,6 +11,7 @@ import { Repository, RepositoryFilters } from "../../../model/VideoFile";
 import { QueryResultsDTO } from "../dto/query";
 import { makeServerError } from "../../ServerError";
 import { RepositoryDTO } from "../dto/files";
+import getEntityId from "../../../lib/entity/getEntityId";
 
 export default class RepositoryEndpoint implements RepositoriesAPI {
   private readonly axios: AxiosInstance;
@@ -21,8 +22,21 @@ export default class RepositoryEndpoint implements RepositoriesAPI {
     this.transform = transform || new FilesTransformer();
   }
 
-  async create(entity: Transient<Repository>): Promise<Repository> {
-    return Promise.resolve(undefined);
+  async create(repo: Transient<Repository>): Promise<Repository> {
+    try {
+      const response = await this.axios.post<RepositoryDTO>(
+        `/repositories/`,
+        JSON.stringify(this.transform.createRepositoryDTO(repo)),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return this.transform.repository(response.data);
+    } catch (error) {
+      throw makeServerError("Create repository error.", error, { repo });
+    }
   }
 
   async list(
@@ -48,15 +62,39 @@ export default class RepositoryEndpoint implements RepositoriesAPI {
   }
 
   async get(id: Repository["id"], fields?: string[]): Promise<Repository> {
-    return Promise.resolve(undefined);
+    try {
+      const response = await this.axios.get<RepositoryDTO>(
+        `/repositories/${id}`
+      );
+      return this.transform.repository(response.data);
+    } catch (error) {
+      throw makeServerError("Get repository error", error, { id });
+    }
   }
 
-  async update(entity: Updates<Repository>): Promise<Repository> {
-    return Promise.resolve(undefined);
+  async update(updates: Updates<Repository>): Promise<Repository> {
+    try {
+      const response = await this.axios.patch<RepositoryDTO>(
+        `/repositories/${updates.id}`,
+        JSON.stringify(this.transform.updateRepositoryDTO(updates)),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return this.transform.repository(response.data);
+    } catch (error) {
+      throw makeServerError("Update repository error", error, { updates });
+    }
   }
 
-  async delete(entity: Repository["id"] | Repository): Promise<void> {
-    return Promise.resolve(undefined);
+  async delete(repo: Repository["id"] | Repository): Promise<void> {
+    try {
+      await this.axios.delete(`/repositories/${getEntityId(repo)}`);
+    } catch (error) {
+      throw makeServerError("Delete repository error.", error, { repo });
+    }
   }
 
   private static completeRequest(

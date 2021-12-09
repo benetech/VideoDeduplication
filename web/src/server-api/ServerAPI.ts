@@ -239,7 +239,7 @@ export interface ServerAPI {
   readonly examples: TemplateExamplesAPI;
   readonly templateMatches: TemplateMatchesAPI;
   readonly templateExclusions: TemplateExclusionsAPI;
-  readonly repos: RepositoriesAPI;
+  readonly repositories: RepositoriesAPI;
   readonly contributors: ContributorsAPI;
   readonly stats: StatsAPI;
   readonly socket: SocketAPI;
