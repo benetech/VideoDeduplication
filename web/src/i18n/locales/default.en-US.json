@@ -341,6 +341,13 @@
     "error.stacktrace": "Stack trace",
     "startTime": "Start",
     "endTime": "End",
-    "config": "Configuration"
+    "config": "Configuration",
+    "repos.shareFingerprints": "Share Fingerprints",
+    "repos.fingerprintRepositories": "Fingerprint Repositories",
+    "repos.fingerprintRepositories.help": "Remote repositories containing fingerprints provided by partner organizations.",
+    "repos.addRepository": "Add Repository",
+    "repos.attr.partners": "{count} partners",
+    "repos.attr.fingerprints": "fingerprints",
+    "repos.attr.lastSynced": "last synced"
   }
 }
