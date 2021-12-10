@@ -4,7 +4,6 @@ import { makeStyles } from "@material-ui/styles";
 import { IconButton, Theme, Tooltip } from "@material-ui/core";
 import { useIntl } from "react-intl";
 import Title from "../../components/basic/Title";
-import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
 import PlaylistAddCheckOutlinedIcon from "@material-ui/icons/PlaylistAddCheckOutlined";
 import Spacer from "../../components/basic/Spacer";
 import Button from "../../components/basic/Button";
@@ -23,6 +22,7 @@ import {
   Task,
   TaskRequestType,
 } from "../../model/Task";
+import TasksSidebarHeader from "../../components/tasks/TasksSidebarHeader";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   root: {
@@ -55,10 +55,10 @@ const useStyles = makeStyles<Theme>((theme) => ({
     flexShrink: 0,
   },
 }));
+
 /**
  * Get translated text.
  */
-
 function useMessages() {
   const intl = useIntl();
   return {
@@ -118,33 +118,6 @@ type TemplatesHeaderProps = {
   onAddTemplate: () => void;
   onShowTasks: () => void;
   tasksShown: boolean;
-  className?: string;
-};
-
-function TasksHeader(props: TasksHeaderProps) {
-  const { onClose, className, ...other } = props;
-  const messages = useMessages();
-  return (
-    <Title text={messages.process} className={className} {...other}>
-      <Spacer />
-      <Tooltip title={messages.hideTasks}>
-        <IconButton
-          color="inherit"
-          onClick={onClose}
-          aria-label={messages.hideTasks}
-        >
-          <CloseOutlinedIcon color="inherit" fontSize="large" />
-        </IconButton>
-      </Tooltip>
-    </Title>
-  );
-}
-
-type TasksHeaderProps = {
-  /**
-   * Handle task close.
-   */
-  onClose: () => void;
   className?: string;
 };
 
@@ -217,7 +190,7 @@ function TemplatesPage(props: TemplatesPageProps): JSX.Element {
       </div>
       {showTasks && (
         <div className={clsx(classes.column, classes.tasks)}>
-          <TasksHeader onClose={handleHideTasks} />
+          <TasksSidebarHeader onClose={handleHideTasks} />
           <TaskSidebar filter={filterTemplateTasks} />
           <Button
             variant="contained"
