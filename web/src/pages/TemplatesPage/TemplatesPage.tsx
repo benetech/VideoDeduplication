@@ -54,6 +54,9 @@ const useStyles = makeStyles<Theme>((theme) => ({
   addButton: {
     flexShrink: 0,
   },
+  header: {
+    marginBottom: theme.spacing(3),
+  },
 }));
 
 /**
@@ -173,6 +176,7 @@ function TemplatesPage(props: TemplatesPageProps): JSX.Element {
           onAddTemplate={showTemplateDialog}
           onShowTasks={handleShowTasks}
           tasksShown={showTasks}
+          className={classes.header}
         />
         <TemplateList>
           {templates.map((template) => (
@@ -190,7 +194,10 @@ function TemplatesPage(props: TemplatesPageProps): JSX.Element {
       </div>
       {showTasks && (
         <div className={clsx(classes.column, classes.tasks)}>
-          <TasksSidebarHeader onClose={handleHideTasks} />
+          <TasksSidebarHeader
+            onClose={handleHideTasks}
+            className={classes.header}
+          />
           <TaskSidebar filter={filterTemplateTasks} />
           <Button
             variant="contained"

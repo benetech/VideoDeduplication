@@ -26,6 +26,9 @@ const useStyles = makeStyles<Theme>((theme) => ({
     flexDirection: "column",
     alignItems: "stretch",
   },
+  header: {
+    marginBottom: theme.spacing(3),
+  },
 }));
 
 type RepositoriesPageProps = {
@@ -46,12 +49,16 @@ function RepositoriesPage(props: RepositoriesPageProps): JSX.Element {
         <RepositoriesPageHeader
           showTasks={showTasks}
           onShowTasks={handleShowTasks}
+          className={classes.header}
         />
         <div>Content</div>
       </div>
       {showTasks && (
         <div className={clsx(classes.column, classes.tasks)}>
-          <TasksSidebarHeader onClose={handleHideTasks} />
+          <TasksSidebarHeader
+            onClose={handleHideTasks}
+            className={classes.header}
+          />
           <TaskSidebar />
         </div>
       )}

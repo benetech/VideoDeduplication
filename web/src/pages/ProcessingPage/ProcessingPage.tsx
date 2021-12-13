@@ -36,6 +36,9 @@ const useStyles = makeStyles<Theme>((theme) => ({
       display: "none",
     },
   },
+  header: {
+    marginBottom: theme.spacing(3),
+  },
 }));
 /**
  * Get translated text.
@@ -69,7 +72,7 @@ function ProcessingPage(props: ProcessingPageProps): JSX.Element {
   const tooltip = showTasks ? messages.hideTasks : messages.showTasks;
   return (
     <div className={clsx(classes.root, className)} {...other}>
-      <Title text={messages.title}>
+      <Title text={messages.title} className={classes.header}>
         <Description className={classes.description} />
         <Spacer />
         <Tooltip title={tooltip}>
