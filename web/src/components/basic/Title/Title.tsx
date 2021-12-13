@@ -16,8 +16,18 @@ const useStyles = makeStyles<Theme>((theme) => ({
   subtitle: {
     fontWeight: "bold",
     ...theme.mixins.title2,
-    marginRight: theme.spacing(3),
+    marginRight: theme.spacing(2),
     flexShrink: 0,
+  },
+  card: {
+    ...theme.mixins.title3,
+    fontWeight: 500,
+    flexShrink: 0,
+    marginRight: theme.spacing(1),
+  },
+  ellipsis: {
+    ...theme.mixins.textEllipsis,
+    flexShrink: 1,
   },
   grow: {
     flexGrow: 1,
@@ -29,6 +39,7 @@ function Title(props: TitleProps): JSX.Element {
     text,
     children,
     grow = false,
+    ellipsis = false,
     variant = "title",
     className,
     ...other
@@ -37,11 +48,20 @@ function Title(props: TitleProps): JSX.Element {
   const titleClasses = {
     [classes.title]: variant === "title",
     [classes.subtitle]: variant === "subtitle",
+    [classes.card]: variant === "card",
   };
 
   return (
     <div className={clsx(classes.container, className)} {...other}>
-      <div className={clsx(titleClasses, grow && classes.grow)}>{text}</div>
+      <div
+        className={clsx(
+          titleClasses,
+          grow && classes.grow,
+          ellipsis && classes.ellipsis
+        )}
+      >
+        {text}
+      </div>
       {children}
     </div>
   );
@@ -62,7 +82,8 @@ type TitleProps = {
    * Control title horizontal stretching.
    */
   grow?: boolean;
-  variant?: "title" | "subtitle";
+  ellipsis?: boolean;
+  variant?: "title" | "subtitle" | "card";
   className?: string;
 };
 export default Title;

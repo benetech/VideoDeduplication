@@ -19,25 +19,50 @@ const useStyles = makeStyles<Theme>((theme) => ({
     ...theme.mixins.textEllipsis,
     maxWidth: 300,
   },
+  attrNameSmall: {
+    ...theme.mixins.captionText,
+    color: theme.palette.secondary.main,
+    borderBottom: "none",
+    padding: theme.spacing(1),
+  },
+  attrValueSmall: {
+    ...theme.mixins.captionText,
+    color: theme.palette.common.black,
+    fontWeight: "bold",
+    borderBottom: "none",
+    padding: theme.spacing(1),
+  },
 }));
 
 function AttributeTable<TData>(props: AttributeTableProps<TData>): JSX.Element {
-  const { value, attributes: attributesProp, className, ...other } = props;
+  const {
+    value,
+    size = "large",
+    attributes: attributesProp,
+    className,
+    ...other
+  } = props;
   const classes = useStyles();
   const intl = useIntl();
+
   const attributes = attributesProp.map((attr) => ({
     title: intl.formatMessage({
       id: attr.title,
     }),
     value: attr.value(value, intl),
   }));
+
+  const nameClass = size === "small" ? classes.attrNameSmall : classes.attrName;
+  const valueClass =
+    size === "small" ? classes.attrValueSmall : classes.attrValue;
+
   return (
     <Table className={clsx(className)} {...other}>
       <TableBody>
         {attributes.map((attr) => (
           <TableRow key={attr.title}>
-            <TableCell className={classes.attrName}>{attr.title}</TableCell>
-            <TableCell className={classes.attrValue}>{attr.value}</TableCell>
+            <TableCell className={nameClass}>{attr.title}</TableCell>
+            <TableCell className={valueClass}>{attr.value}</TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -55,6 +80,7 @@ type AttributeTableProps<TData> = {
    * Attributes that will be displayed.
    */
   attributes: AttributeRenderer<TData>[];
+  size?: "large" | "small";
   className?: string;
 };
 export default AttributeTable;
