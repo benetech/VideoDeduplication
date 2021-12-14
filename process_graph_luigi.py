@@ -5,6 +5,7 @@ import math
 import os
 import shutil
 from glob import glob
+from os import PathLike, fspath
 from typing import Tuple, List, Dict
 
 import click
@@ -375,8 +376,7 @@ class EmbeddingsTask(PipelineTask, abc.ABC):
         self.logger.info(f"{self.alogrithm_name} dimension reduction is done")
 
         self.logger.info("Saving embeddings")
-        with self.output().open("w") as embeddings_file:
-            np.save(embeddings_file, embeddings)
+        self.save_embeddings(embeddings)
         self.logger.info("Saving embeddings done")
 
     def output(self):
@@ -390,6 +390,11 @@ class EmbeddingsTask(PipelineTask, abc.ABC):
         vectors_input, _ = self.input()
         with vectors_input.open("r") as vectors_file:
             return np.load(vectors_file)
+
+    def save_embeddings(self, embeddings):
+        """Save embeddings to the output target."""
+        with self.output().open("w") as embeddings_file:
+            np.save(embeddings_file, embeddings)
 
     @cached_property
     def output_path(self) -> str:
@@ -1202,6 +1207,12 @@ def select_random_vectors(vectors: np.ndarray, max_count: int) -> np.ndarray:
     return vectors[selected]
 
 
+def without_ext(path: PathLike) -> str:
+    """File path without extension."""
+    result, _ = os.path.splitext(fspath(path))
+    return result
+
+
 class CrossCollectionMatches(PipelineTask):
     other_config_path = luigi.Parameter()
 
@@ -1290,22 +1301,84 @@ class CrossCollectionEmbeddings(EmbeddingsTask, abc.ABC):
         return os.path.join(self.output_directory, f"cross_{self.alogrithm_name.lower()}_embeddings.npy")
 
 
-class CrossCollectionUmapEmbeddings(CrossCollectionEmbeddings):
-    """Project 2 fingerprint collections using UMAP."""
+class CrossCollectionSubsetEmbeddings(CrossCollectionEmbeddings, abc.ABC):
+    """Cross-collection embeddings of selected vector subset."""
 
-    max_fit = luigi.IntParameter(default=200000)
+    max_vectors = luigi.IntParameter(default=0)
+
+    def output(self):
+        files_index_path = f"{without_ext(self.output_path)}.files.csv"
+        return luigi.LocalTarget(self.output_path, format=luigi.format.Nop), luigi.LocalTarget(files_index_path)
+
+    def read_file_keys(self) -> pd.DataFrame:
+        """Read dataframe with file keys of both collections."""
+        self.logger.info("Loading file keys")
+        (_, files_1_csv), (_, files_2_csv) = self.input()
+        with files_1_csv.open("r") as files_1, files_2_csv.open("r") as files_2:
+            file_keys = pd.concat([pd.read_csv(files_1), pd.read_csv(files_2)])
+        self.logger.info("Loaded %s file keys", len(file_keys.index))
+        return file_keys
+
+    def select_count(self, total_count: int, max_count: int) -> int:
+        """Get actual count of selected vectors."""
+        if max_count <= 0:
+            return total_count
+        return min(max_count, total_count)
+
+    def select_subset(self, vectors: np.ndarray) -> Tuple[np.ndarray, pd.DataFrame]:
+        """Get selected vectors and their file_keys as pandas DataFrame."""
+        file_keys = self.read_file_keys()
+
+        if len(file_keys.index) != len(vectors):
+            raise RuntimeError(f"Inconsistent file_keys and vectors lengths: {len(file_keys)} != {len(vectors)}")
+
+        select_count = self.select_count(total_count=len(vectors), max_count=self.max_vectors)
+        self.logger.info("Selecting %s random elements from %s fingerprints", select_count, len(vectors))
+        selected_indices = random_mask(total_size=len(vectors), true_count=select_count)
+
+        selected_vectors = vectors[selected_indices]
+        selected_file_keys = file_keys.iloc[selected_indices]
+
+        self.logger.info("Selected %s random fingerprints", len(selected_vectors))
+        return selected_vectors, selected_file_keys
+
+    def save_embeddings(self, embeddings: Tuple[np.ndarray, pd.DataFrame]):
+        """Save embeddings to the output target."""
+        vectors, file_keys = embeddings
+        vectors_output, file_keys_output = self.output()
+        with vectors_output.open("w") as vectors_file, file_keys_output.open("w") as file_keys_file:
+            np.save(vectors_file, vectors)
+            file_keys.to_csv(file_keys_file)
+
+
+class CrossCollectionUmapEmbeddings(CrossCollectionSubsetEmbeddings):
+    """Project 2 fingerprint collections using UMAP."""
 
     @property
     def alogrithm_name(self) -> str:
         return "UMAP"
 
-    def fit_transform(self, vectors: np.ndarray) -> np.ndarray:
+    def fit_transform(self, vectors: np.ndarray) -> Tuple[np.ndarray, pd.DataFrame]:
         import umap
 
-        vectors = select_random_vectors(vectors, max_count=self.max_fit)
+        vectors, file_keys = self.select_subset(vectors)
         reducer = umap.UMAP(random_state=42, n_neighbors=100)
         reducer.fit(vectors)
-        return reducer.transform(vectors)
+        return reducer.transform(vectors), file_keys
+
+
+class CrossCollectionTSNEEmbeddings(CrossCollectionSubsetEmbeddings):
+    """Project 2 fingerprint collections using t-SNE."""
+
+    @property
+    def alogrithm_name(self) -> str:
+        return "t-SNE"
+
+    def fit_transform(self, vectors: np.ndarray) -> Tuple[np.ndarray, pd.DataFrame]:
+        from sklearn.manifold import TSNE
+
+        vectors, file_keys = self.select_subset(vectors)
+        return TSNE(method="barnes_hut").fit_transform(vectors), file_keys
 
 
 class CrossCollectionPaCMAPEmbeddings(CrossCollectionEmbeddings):
@@ -1334,22 +1407,6 @@ class CrossCollectionTriMapEmbeddings(CrossCollectionEmbeddings):
         return trimap.TRIMAP().fit_transform(vectors)
 
 
-class CrossCollectionTSNEEmbeddings(CrossCollectionEmbeddings):
-    """Project 2 fingerprint collections using t-SNE."""
-
-    max_fit = luigi.IntParameter(default=20000)
-
-    @property
-    def alogrithm_name(self) -> str:
-        return "t-SNE"
-
-    def fit_transform(self, vectors: np.ndarray) -> np.ndarray:
-        from sklearn.manifold import TSNE
-
-        vectors = select_random_vectors(vectors, max_count=self.max_fit)
-        return TSNE(method="barnes_hut").fit_transform(vectors)
-
-
 class AllCrossCollectionEmbeddings(PipelineTask):
     """Produce all cross-collection embeddings."""
 
@@ -1373,13 +1430,18 @@ class AllCrossCollectionEmbeddings(PipelineTask):
 def main(config_path):
     luigi.build(
         [
-            AllEmbeddingImages(
-                config_path=config_path,
-                point_size=10,
-                alpha=1.0,
-                figure_width=10.0,
-                figure_height=10.0,
-            ),
+            CrossCollectionTSNEEmbeddings(
+                config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big.yaml",
+                other_config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big2.yaml",
+                max_vectors=20000,
+            )
+            # AllEmbeddingImages(
+            #     config_path=config_path,
+            #     point_size=10,
+            #     alpha=1.0,
+            #     figure_width=10.0,
+            #     figure_height=10.0,
+            # ),
         ],
         local_scheduler=True,
         workers=1,
