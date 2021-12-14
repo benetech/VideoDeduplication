@@ -1,4 +1,5 @@
 import abc
+import enum
 import logging
 import logging.config
 import math
@@ -808,7 +809,7 @@ class LabeledEmbeddingsImageTask(PipelineTask, abc.ABC):
         self.logger.info("Loaded embeddings with shape %s", embeddings.shape)
 
         self.logger.info("Loading file keys for embeddings")
-        vector_files = self.read_vector_files()
+        vector_files = self.read_files_keys()
         self.logger.info("Loaded %s file keys", len(vector_files))
 
         self.logger.info("Obtaining colors")
@@ -822,18 +823,22 @@ class LabeledEmbeddingsImageTask(PipelineTask, abc.ABC):
     def output(self):
         return luigi.LocalTarget(self.output_path)
 
-    def read_vector_files(self) -> List[FileKey]:
+    def read_files_keys(self) -> List[FileKey]:
         """Read file key for each vector."""
-        self.logger.info("Reading condensed file key attributes from csv-file")
-        with self.file_keys_csv.open("r") as file_keys_file:
-            vector_files = pd.read_csv(file_keys_file)
-            vector_files.fillna("", inplace=True)
+        file_keys_dataframe = self.read_condensed_file_keys()
 
         self.logger.info("Preparing FileKeys")
         file_keys = []
-        for entry in vector_files.itertuples():
+        for entry in file_keys_dataframe.itertuples():
             file_keys.append(FileKey(path=entry.path, hash=entry.hash))
         return file_keys
+
+    def read_condensed_file_keys(self) -> pd.DataFrame:
+        self.logger.info("Reading condensed file key attributes from csv-file")
+        with self.file_keys_csv.open("r") as file_keys_file:
+            file_keys_dataframe = pd.read_csv(file_keys_file)
+            file_keys_dataframe.fillna("", inplace=True)
+        return file_keys_dataframe
 
     def draw_figure(self, embeddings: np.ndarray, colors: np.ndarray, color_labels: List[str]):
         """Draw and save image displaying fingerprints."""
@@ -1415,14 +1420,179 @@ class AllCrossCollectionEmbeddings(PipelineTask):
 
     def requires(self):
         params = self.all_params_dict()
-        yield CrossCollectionUmapEmbeddings(**params)
+        yield CrossCollectionUmapEmbeddings(max_vectors=200000, **params)
         yield CrossCollectionTriMapEmbeddings(**params)
         yield CrossCollectionPaCMAPEmbeddings(**params)
-        yield CrossCollectionTSNEEmbeddings(**params)
+        yield CrossCollectionTSNEEmbeddings(max_vectors=20000, **params)
 
     def all_params_dict(self) -> Dict:
         """Get all task params as dict."""
         return {name: getattr(self, name) for name in AllCrossCollectionEmbeddings.get_param_names()}
+
+
+class CrossMatchCategory(enum.Enum):
+    COLL_1 = 0
+    COLL_1_MATCHED = 1
+    COLL_2_MATCHED = 2
+    COLL_2 = 3
+
+    @classmethod
+    def names(cls) -> List[str]:
+        labels = [None] * len(cls)
+        for category in cls:
+            labels[category.value] = category.name
+        return labels
+
+
+class CrossCollectionEmbeddingsImage(LabeledEmbeddingsImageTask, abc.ABC):
+    """Base task to draw multiple projected fingerprint collections."""
+
+    other_config_path = luigi.Parameter()
+
+    def requires(self):
+        yield CondensedFingerprints(config_path=self.config_path)
+        yield CondensedFingerprints(config_path=self.other_config_path)
+        yield CrossCollectionMatches(config_path=self.config_path, other_config_path=self.other_config_path)
+        yield self.embeddings_task
+
+    def read_embeddings(self) -> np.ndarray:
+        _, _, _, embeddings_input = self.input()
+        with embeddings_input.open("r") as embeddings_file:
+            return np.load(embeddings_file)
+
+    def read_condensed_file_keys(self) -> pd.DataFrame:
+        """Read dataframe with file keys of both collections."""
+        self.logger.info("Loading condensed file keys from both collections")
+        (_, files_1_csv), (_, files_2_csv), _, _ = self.input()
+        with files_1_csv.open("r") as files_1, files_2_csv.open("r") as files_2:
+            file_keys = pd.concat([pd.read_csv(files_1), pd.read_csv(files_2)])
+            file_keys.fillna("", inplace=True)
+        self.logger.info("Loaded %s file keys", len(file_keys.index))
+        return file_keys
+
+    def get_colors(self, embeddings: np.ndarray, file_keys: List[FileKey]) -> Tuple[List[int], List[str]]:
+        first_coll_size = self.first_coll_size
+        match_counts = self.get_match_counts()
+
+        colors = []
+        for index, file_key in enumerate(file_keys):
+            coll_1 = index < first_coll_size
+            matched = file_key in match_counts
+            if coll_1 and not matched:
+                colors.append(CrossMatchCategory.COLL_1.value)
+            elif coll_1 and matched:
+                colors.append(CrossMatchCategory.COLL_1_MATCHED.value)
+            elif not coll_1 and not matched:
+                colors.append(CrossMatchCategory.COLL_2.value)
+            else:
+                colors.append(CrossMatchCategory.COLL_2_MATCHED.value)
+
+        return colors, CrossMatchCategory.names()
+
+    @property
+    def figure_title(self) -> str:
+        return f"Cross-Collection {self.algorithm_name} Projection"
+
+    @property
+    def output_path(self) -> str:
+        algo = self.algorithm_name.lower()
+        size = f"size{self.figure_width:.4}x{self.figure_height:.4}"
+        drop = f"drop{self.ignored_outliers_ratio:.2}"
+        alpha = f"alpha{self.alpha:.2}"
+        point = f"p{self.point_size}"
+
+        return os.path.join(self.output_directory, f"cross_{algo}_{size}_{drop}_{alpha}_{point}.png")
+
+    @cached_property
+    def first_coll_size(self) -> int:
+        """Size of the first collection."""
+        (_, file_keys_csv), _, _, _ = self.input()
+        with file_keys_csv.open("r") as file_keys_file:
+            return len(pd.read_csv(file_keys_file).index)
+
+    def get_match_counts(self) -> Dict[Tuple[str, str], int]:
+        """Get cross-collection match counts for file-keys."""
+        self.logger.info("Loading cross-collection matches")
+        _, _, matches_csv, _ = self.input()
+        with matches_csv.open("r") as matches_file:
+            matches_df = pd.read_csv(matches_file)
+            matches_df.fillna("", inplace=True)
+        self.logger.info("Loaded %s matches", len(matches_df.index))
+
+        self.logger.info("Calculating cross-collection matches count for each file key")
+        counts = {}
+
+        progress = ProgressBar(unit=" keys")
+        progress.scale(len(matches_df.index))
+        portion, portion_size = 0, int(len(matches_df.index) ** 0.5)
+        for entry in matches_df.itertuples():
+            source = FileKey(entry.query_video, entry.query_sha256)
+            target = FileKey(entry.match_video, entry.match_sha256)
+            counts[source] = counts.get(source, 0) + 1
+            counts[target] = counts.get(target, 0) + 1
+            portion += 1
+            if portion >= portion_size:
+                progress.increase(portion)
+                portion = 0
+        progress.complete()
+        self.logger.info("Calculated cross-collection matches count for %s file keys", len(counts))
+        return counts
+
+    @property
+    def file_keys_csv(self) -> luigi.LocalTarget:
+        raise NotImplementedError()
+
+    @property
+    @abc.abstractmethod
+    def embeddings_task(self) -> luigi.Task:
+        """Embeddings that will be visualized."""
+
+    @property
+    @abc.abstractmethod
+    def algorithm_name(self) -> str:
+        """Get embedding algorithm name."""
+
+
+class CrossCollectionPaCMAPImage(CrossCollectionEmbeddingsImage):
+    @property
+    def embeddings_task(self) -> luigi.Task:
+        return CrossCollectionPaCMAPEmbeddings(config_path=self.config_path, other_config_path=self.other_config_path)
+
+    @property
+    def algorithm_name(self) -> str:
+        return "PaCMAP"
+
+
+class CrossCollectionTriMapImage(CrossCollectionEmbeddingsImage):
+    @property
+    def embeddings_task(self) -> luigi.Task:
+        return CrossCollectionTriMapEmbeddings(config_path=self.config_path, other_config_path=self.other_config_path)
+
+    @property
+    def algorithm_name(self) -> str:
+        return "TriMap"
+
+
+class AllCrossCollectionEmbeddingsImages(PipelineTask):
+    """Produce all cross-collection embeddings images."""
+
+    # The same params as for CrossCollectionEmbeddingsImage:
+    other_config_path = luigi.Parameter()
+    alpha = luigi.FloatParameter(default=0.2)
+    color_map = luigi.Parameter(default="Spectral")
+    ignored_outliers_ratio = luigi.FloatParameter(default=0.001)
+    figure_width = luigi.FloatParameter(default=20.0)
+    figure_height = luigi.FloatParameter(default=20.0)
+    point_size = luigi.IntParameter(default=1)
+
+    def requires(self):
+        params = self.all_params_dict()
+        yield CrossCollectionTriMapImage(**params)
+        yield CrossCollectionPaCMAPImage(**params)
+
+    def all_params_dict(self) -> Dict:
+        """Get all task params as dict."""
+        return {name: getattr(self, name) for name in AllCrossCollectionEmbeddingsImages.get_param_names()}
 
 
 @click.command()
@@ -1430,18 +1600,19 @@ class AllCrossCollectionEmbeddings(PipelineTask):
 def main(config_path):
     luigi.build(
         [
-            CrossCollectionTSNEEmbeddings(
+            # CrossCollectionTSNEEmbeddings(
+            #     config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big.yaml",
+            #     other_config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big2.yaml",
+            #     max_vectors=20000,
+            # )
+            AllCrossCollectionEmbeddingsImages(
                 config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big.yaml",
                 other_config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big2.yaml",
-                max_vectors=20000,
-            )
-            # AllEmbeddingImages(
-            #     config_path=config_path,
-            #     point_size=10,
-            #     alpha=1.0,
-            #     figure_width=10.0,
-            #     figure_height=10.0,
-            # ),
+                point_size=1,
+                alpha=0.1,
+                figure_width=10.0,
+                figure_height=10.0,
+            ),
         ],
         local_scheduler=True,
         workers=1,
