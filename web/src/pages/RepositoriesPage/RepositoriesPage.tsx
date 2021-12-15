@@ -10,6 +10,9 @@ import Sidebar from "../../components/page-layout/Sidebar";
 import SidebarHeader from "../../components/page-layout/SidebarHeader";
 import SidebarContent from "../../components/page-layout/SidebarContent";
 import PageLayout from "../../components/page-layout/PageLayout";
+import { Route, Switch } from "react-router-dom";
+import { routes } from "../../routing/routes";
+import RepoDetailsPane from "./RepoDetailsPane";
 
 /**
  * Get translated text.
@@ -51,7 +54,20 @@ function RepositoriesPage(props: RepositoriesPageProps): JSX.Element {
           />
         </PageHeader>
         <PageBody>
-          <RepoListPane perRow={showTasks ? 2 : 3} />
+          <Switch>
+            <Route exact path={routes.collaborators.repositories}>
+              <RepoListPane perRow={showTasks ? 2 : 3} />
+            </Route>
+            <Route exact path={routes.collaborators.newRepository}>
+              Repository Constructor
+            </Route>
+            <Route exact path={routes.collaborators.repository}>
+              <RepoDetailsPane />
+            </Route>
+            <Route exact path={routes.collaborators.editRepository}>
+              Repository Editor
+            </Route>
+          </Switch>
         </PageBody>
       </PageContent>
       <Sidebar show={showTasks}>

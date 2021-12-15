@@ -31,6 +31,9 @@ const useStyles = makeStyles<Theme>((theme) => ({
     padding: theme.spacing(2),
     width: "100%",
     height: "100%",
+    "&:hover": {
+      backgroundColor: theme.palette.action.hover,
+    },
   },
   title: {
     marginBottom: theme.spacing(1),

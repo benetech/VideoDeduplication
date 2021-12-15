@@ -96,3 +96,31 @@ export function useShowRepository(): EntityRoute<Repository> {
     routes.collaborators.repositoryURL(id)
   );
 }
+
+/**
+ * Get function to navigate to repository editing page.
+ */
+export function useEditRepository(): EntityRoute<Repository> {
+  return useShowEntityPage<Repository>((id) =>
+    routes.collaborators.editRepositoryURL(id)
+  );
+}
+
+/**
+ * Get function to navigate to repository construction page.
+ */
+export function useShowCreateRepositoryPage(): () => void {
+  const history = useHistory();
+  return useCallback(
+    () => history.push(routes.collaborators.newRepository),
+    []
+  );
+}
+
+/**
+ * Get function to navigate to repositories page.
+ */
+export function useShowRepositoriesPage(): () => void {
+  const history = useHistory();
+  return useCallback(() => history.push(routes.collaborators.repositories), []);
+}

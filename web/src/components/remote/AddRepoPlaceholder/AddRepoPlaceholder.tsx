@@ -22,6 +22,9 @@ const useStyles = makeStyles<Theme>((theme) => ({
     justifyContent: "center",
     width: "100%",
     height: "100%",
+    "&:hover": {
+      backgroundColor: theme.palette.action.hover,
+    },
   },
 }));
 

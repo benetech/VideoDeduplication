@@ -7,6 +7,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
   sidebar: {
     marginLeft: theme.spacing(4),
     maxWidth: 380,
+    width: "100%",
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",

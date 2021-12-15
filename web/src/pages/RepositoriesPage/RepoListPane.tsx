@@ -10,7 +10,11 @@ import AddRepoPlaceholder from "../../components/remote/AddRepoPlaceholder";
 import FlatPane from "../../components/basic/FlatPane/FlatPane";
 import { Repository, RepositoryType } from "../../model/VideoFile";
 import { useIntl } from "react-intl";
-import { useShowRepository } from "../../routing/hooks";
+import {
+  useShowCreateRepositoryPage,
+  useEditRepository,
+  useShowRepository,
+} from "../../routing/hooks";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   repoListPane: {},
@@ -79,6 +83,8 @@ function RepoListPane(props: RepoListPaneProps): JSX.Element {
   const messages = useMessages();
 
   const showRepository = useShowRepository();
+  const editRepository = useEditRepository();
+  const createRepository = useShowCreateRepositoryPage();
 
   return (
     <FlatPane className={className} {...other}>
@@ -90,11 +96,15 @@ function RepoListPane(props: RepoListPaneProps): JSX.Element {
       <Grid container spacing={4} className={classes.repos}>
         {repos.map((repo) => (
           <Grid key={repo.id} xs={(12 / perRow) as GridSize} item>
-            <RepositoryPreview repository={repo} onShow={showRepository} />
+            <RepositoryPreview
+              repository={repo}
+              onShow={showRepository}
+              onEdit={editRepository}
+            />
           </Grid>
         ))}
         <Grid xs={(12 / perRow) as GridSize} item>
-          <AddRepoPlaceholder />
+          <AddRepoPlaceholder onClick={createRepository} />
         </Grid>
       </Grid>
     </FlatPane>
