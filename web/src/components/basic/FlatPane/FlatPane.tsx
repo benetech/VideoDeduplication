@@ -1,4 +1,4 @@
-import React from "react";
+import React, { HTMLAttributes } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import { Theme } from "@material-ui/core";
@@ -10,7 +10,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
-type FlatPaneProps = {
+type FlatPaneProps = HTMLAttributes<HTMLDivElement> & {
   children?: React.ReactNode;
   className?: string;
 };

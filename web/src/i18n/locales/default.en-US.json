@@ -117,6 +117,8 @@
     "actions.collapseAll": "Collapse All",
     "actions.collapse": "Collapse",
     "actions.expand": "Expand",
+    "actions.showSidebar": "Show Sidebar",
+    "actions.hideSidebar": "Hide Sidebar",
     "sort.duration": "Duration",
     "sort.date": "Date",
     "sort.related": "Count of Related",

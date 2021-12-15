@@ -59,7 +59,7 @@ function useMessages() {
 
 type RepoListItemProps = ButtonBaseProps<"div"> & {
   selected?: boolean;
-  onSelect?: (repo: Repository) => void;
+  onShow?: (repo: Repository) => void;
   onEdit?: (repo: Repository) => void;
   onDelete?: (repo: Repository) => void;
   onPushFingerprints?: (repo: Repository) => void;
@@ -70,7 +70,7 @@ type RepoListItemProps = ButtonBaseProps<"div"> & {
 
 function RepositoryPreview(props: RepoListItemProps): JSX.Element {
   const {
-    onSelect,
+    onShow,
     onDelete,
     onEdit,
     onPushFingerprints,
@@ -88,9 +88,9 @@ function RepositoryPreview(props: RepoListItemProps): JSX.Element {
     (event: React.SyntheticEvent) => {
       event.stopPropagation();
       popup.onClose();
-      if (onSelect != null) onSelect(repository);
+      if (onShow != null) onShow(repository);
     },
-    [repository, onSelect]
+    [repository, onShow]
   );
 
   const handleEdit = useCallback(

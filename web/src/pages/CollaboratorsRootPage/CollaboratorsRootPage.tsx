@@ -2,7 +2,7 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Theme } from "@material-ui/core";
 import AppPage from "../../components/app/AppPage";
-import { Route, Switch } from "react-router-dom";
+import { Redirect, Route, Switch } from "react-router-dom";
 import { routes } from "../../routing/routes";
 import { useIntl } from "react-intl";
 import RepositoriesPage from "../RepositoriesPage";
@@ -31,6 +31,9 @@ function CollaboratorsRootPage(props: CollaboratorsRootPageProps): JSX.Element {
       <div className={classes.body}>
         <Switch>
           <Route exact path={routes.collaborators.home}>
+            <Redirect to={routes.collaborators.repositories} />
+          </Route>
+          <Route path={routes.collaborators.repositories}>
             <RepositoriesPage />
           </Route>
         </Switch>
