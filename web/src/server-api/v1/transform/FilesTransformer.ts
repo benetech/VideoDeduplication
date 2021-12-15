@@ -367,6 +367,11 @@ export default class FilesTransformer {
       address: data.address,
       login: data.login,
       type: data.type,
+      lastSynced: new Date(data.last_synced),
+      stats: {
+        partnersCount: data.partners_count || 0,
+        fingerprintsCount: data.fingerprints_count || 0,
+      },
     };
   }
 

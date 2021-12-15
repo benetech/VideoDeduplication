@@ -346,8 +346,11 @@
     "repos.fingerprintRepositories": "Fingerprint Repositories",
     "repos.fingerprintRepositories.help": "Remote repositories containing fingerprints provided by partner organizations.",
     "repos.addRepository": "Add Repository",
+    "repos.action.shareFingerprints": "Share my fingerprints",
+    "repos.action.pullFingerprints": "Pull fingerprints",
     "repos.attr.partners": "Partners",
     "repos.attr.fingerprints": "Fingerprints",
-    "repos.attr.lastSynced": "Last synced"
+    "repos.attr.lastSynced": "Last synced",
+    "time.ago": "{time} ago"
   }
 }

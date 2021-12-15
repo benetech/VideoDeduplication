@@ -89,6 +89,11 @@ export enum RepositoryType {
   BARE_DATABASE = "BARE_DATABASE",
 }
 
+export type RepositoryStats = {
+  partnersCount: number;
+  fingerprintsCount: number;
+};
+
 /**
  * Remote signature repository.
  */
@@ -98,6 +103,8 @@ export type Repository = {
   address: string;
   login: string;
   type: RepositoryType;
+  lastSynced: Date;
+  stats?: RepositoryStats;
 };
 
 /**

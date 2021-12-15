@@ -53,6 +53,9 @@ export type RepositoryDTO = {
   address: string;
   login: string;
   type: RepositoryType;
+  last_synced: number;
+  partners_count?: number;
+  fingerprints_count?: number;
 };
 
 export type CreateRepositoryDTO = {

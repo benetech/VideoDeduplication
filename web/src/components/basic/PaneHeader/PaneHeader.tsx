@@ -5,6 +5,8 @@ import { Theme } from "@material-ui/core";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   paneHeader: {
+    display: "flex",
+    alignItems: "center",
     marginBottom: theme.spacing(4),
   },
 }));

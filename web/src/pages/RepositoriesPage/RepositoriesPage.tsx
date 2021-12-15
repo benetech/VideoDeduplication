@@ -13,6 +13,7 @@ import PaneHeader from "../../components/basic/PaneHeader/PaneHeader";
 import { Repository, RepositoryType } from "../../model/VideoFile";
 import RepositoryPreview from "../../components/remote/RepositoryPreview";
 import Grid from "@material-ui/core/Grid";
+import AddRepoPlaceholder from "../../components/remote/AddRepoPlaceholder";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   repositoriesPage: {
@@ -62,6 +63,11 @@ const repos: Repository[] = [
     type: RepositoryType.BARE_DATABASE,
     address: "some address",
     login: "MyLogin",
+    lastSynced: new Date(),
+    stats: {
+      partnersCount: 5,
+      fingerprintsCount: 4567,
+    },
   },
   {
     id: 2,
@@ -69,6 +75,11 @@ const repos: Repository[] = [
     type: RepositoryType.BARE_DATABASE,
     address: "some address",
     login: "MyLogin",
+    lastSynced: new Date(),
+    stats: {
+      partnersCount: 3,
+      fingerprintsCount: 5367,
+    },
   },
   {
     id: 3,
@@ -76,6 +87,11 @@ const repos: Repository[] = [
     type: RepositoryType.BARE_DATABASE,
     address: "some address",
     login: "MyLogin",
+    lastSynced: new Date(),
+    stats: {
+      partnersCount: 7,
+      fingerprintsCount: 7567,
+    },
   },
 ];
 
@@ -89,7 +105,6 @@ function RepositoriesPage(props: RepositoriesPageProps): JSX.Element {
   const messages = useMessages();
 
   const [showTasks, setShowTasks] = useState(true);
-  const [selected, setSelected] = useState<Repository | null>(null);
   const handleShowTasks = useCallback(() => setShowTasks(true), []);
   const handleHideTasks = useCallback(() => setShowTasks(false), []);
 
@@ -112,11 +127,14 @@ function RepositoriesPage(props: RepositoriesPageProps): JSX.Element {
               <Grid key={repo.id} xs={showTasks ? 6 : 4} item>
                 <RepositoryPreview
                   repository={repo}
-                  onSelect={setSelected}
-                  selected={selected?.id === repo.id}
+                  onClick={console.log}
+                  onSelect={console.log}
                 />
               </Grid>
             ))}
+            <Grid xs={showTasks ? 6 : 4} item>
+              <AddRepoPlaceholder />
+            </Grid>
           </Grid>
         </FlatPane>
       </div>
