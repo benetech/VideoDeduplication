@@ -16,6 +16,7 @@ import useCancelTask from "../../../application/api/tasks/useCancelTask";
 import useDeleteTask from "../../../application/api/tasks/useDeleteTask";
 import getTaskTextDescription from "../TaskSummary/helpers/getTaskTextDescription";
 import { useShowLogs, useShowTask } from "../../../routing/hooks";
+import formatTaskStatus from "../../../lib/messages/formatTaskStatus";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   task: {
@@ -109,36 +110,7 @@ function useMessages() {
     },
 
     status(task: Task) {
-      switch (task.status) {
-        case TaskStatus.PENDING:
-          return intl.formatMessage({
-            id: "task.status.pending",
-          });
-
-        case TaskStatus.RUNNING:
-          return intl.formatMessage({
-            id: "task.status.running",
-          });
-
-        case TaskStatus.SUCCESS:
-          return intl.formatMessage({
-            id: "task.status.success",
-          });
-
-        case TaskStatus.FAILURE:
-          return intl.formatMessage({
-            id: "task.status.failure",
-          });
-
-        case TaskStatus.CANCELLED:
-          return intl.formatMessage({
-            id: "task.status.cancelled",
-          });
-
-        default:
-          console.warn(`Unsupported task status: ${task.status}`);
-          return task.status;
-      }
+      return formatTaskStatus(task.status, intl);
     },
   };
 }

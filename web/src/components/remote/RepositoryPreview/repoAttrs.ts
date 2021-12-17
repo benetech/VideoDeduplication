@@ -1,7 +1,7 @@
 import { AttributeRenderer } from "../../../lib/types/AttributeRenderer";
 import { Repository } from "../../../model/VideoFile";
 import { formatCount } from "../../../lib/helpers/format";
-import { formatDistance } from "date-fns";
+import { safeTimeDistance } from "../../../lib/messages/safeTimeDistance";
 
 const repoAttrs: AttributeRenderer<Repository>[] = [
   {
@@ -14,11 +14,7 @@ const repoAttrs: AttributeRenderer<Repository>[] = [
   },
   {
     title: "repos.attr.lastSynced",
-    value: (repo, intl) =>
-      intl.formatMessage(
-        { id: "time.ago" },
-        { time: formatDistance(repo.lastSynced, new Date()) }
-      ),
+    value: (repo, intl) => safeTimeDistance(repo.lastSynced, intl),
   },
 ];
 
