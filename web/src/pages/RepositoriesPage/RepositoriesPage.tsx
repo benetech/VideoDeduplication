@@ -13,6 +13,7 @@ import PageLayout from "../../components/page-layout/PageLayout";
 import { Route, Switch } from "react-router-dom";
 import { routes } from "../../routing/routes";
 import RepoDetailsPane from "./RepoDetailsPane";
+import RepoConstructorPane from "./RepoConstructorPane";
 
 /**
  * Get translated text.
@@ -59,7 +60,7 @@ function RepositoriesPage(props: RepositoriesPageProps): JSX.Element {
               <RepoListPane perRow={showTasks ? 2 : 3} />
             </Route>
             <Route exact path={routes.collaborators.newRepository}>
-              Repository Constructor
+              <RepoConstructorPane />
             </Route>
             <Route exact path={routes.collaborators.repository}>
               <RepoDetailsPane />

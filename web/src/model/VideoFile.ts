@@ -103,7 +103,7 @@ export type Repository = {
   address: string;
   login: string;
   type: RepositoryType;
-  lastSynced: Date;
+  lastSynced?: Date;
   stats?: RepositoryStats;
 };
 

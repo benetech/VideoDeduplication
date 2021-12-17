@@ -153,7 +153,12 @@ def create_repository():
         )
 
     # Create repo
-    repo = Repository(**request_payload)
+    repo = Repository(
+        name=request_payload["name"],
+        repository_type=request_payload["type"],
+        network_address=request_payload["address"],
+        account_id=request_payload["login"],
+    )
     database.session.add(repo)
 
     # Try to commit session
