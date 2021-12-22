@@ -8,13 +8,14 @@ import Grid from "@material-ui/core/Grid";
 import RepositoryPreview from "../../components/remote/RepositoryPreview";
 import AddRepoPlaceholder from "../../components/remote/AddRepoPlaceholder";
 import FlatPane from "../../components/basic/FlatPane/FlatPane";
-import { Repository, RepositoryType } from "../../model/VideoFile";
 import { useIntl } from "react-intl";
 import {
-  useShowCreateRepositoryPage,
   useEditRepository,
+  useShowCreateRepositoryPage,
   useShowRepository,
 } from "../../routing/hooks";
+import useRepositoriesAll from "../../application/api/repositories/useRepositoriesAll";
+import useDeleteRepoDialog from "./useDeleteRepoDialog";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   repoListPane: {},
@@ -33,45 +34,6 @@ function useMessages() {
   };
 }
 
-const repos: Repository[] = [
-  {
-    id: 1,
-    name: "Repository Name",
-    type: RepositoryType.BARE_DATABASE,
-    address: "some address",
-    login: "MyLogin",
-    lastSynced: new Date(),
-    stats: {
-      partnersCount: 5,
-      fingerprintsCount: 4567,
-    },
-  },
-  {
-    id: 2,
-    name: "Repository Name 2",
-    type: RepositoryType.BARE_DATABASE,
-    address: "some address",
-    login: "MyLogin",
-    lastSynced: new Date(),
-    stats: {
-      partnersCount: 3,
-      fingerprintsCount: 5367,
-    },
-  },
-  {
-    id: 3,
-    name: "Repository Name 3",
-    type: RepositoryType.BARE_DATABASE,
-    address: "some address",
-    login: "MyLogin",
-    lastSynced: new Date(),
-    stats: {
-      partnersCount: 7,
-      fingerprintsCount: 7567,
-    },
-  },
-];
-
 type RepoListPaneProps = {
   perRow?: 2 | 3;
   className?: string;
@@ -81,10 +43,12 @@ function RepoListPane(props: RepoListPaneProps): JSX.Element {
   const { perRow = 3, className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
+  const { repositories } = useRepositoriesAll();
 
   const showRepository = useShowRepository();
   const editRepository = useEditRepository();
   const createRepository = useShowCreateRepositoryPage();
+  const deleteRepoDialog = useDeleteRepoDialog();
 
   return (
     <FlatPane className={className} {...other}>
@@ -94,12 +58,13 @@ function RepoListPane(props: RepoListPaneProps): JSX.Element {
         </Title>
       </PaneHeader>
       <Grid container spacing={4} className={classes.repos}>
-        {repos.map((repo) => (
+        {repositories.map((repo) => (
           <Grid key={repo.id} xs={(12 / perRow) as GridSize} item>
             <RepositoryPreview
               repository={repo}
               onShow={showRepository}
               onEdit={editRepository}
+              onDelete={deleteRepoDialog.handleOpen}
             />
           </Grid>
         ))}
@@ -107,6 +72,7 @@ function RepoListPane(props: RepoListPaneProps): JSX.Element {
           <AddRepoPlaceholder onClick={createRepository} />
         </Grid>
       </Grid>
+      {deleteRepoDialog.dialog}
     </FlatPane>
   );
 }

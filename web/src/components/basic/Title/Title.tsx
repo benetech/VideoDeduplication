@@ -42,6 +42,7 @@ function Title(props: TitleProps): JSX.Element {
     ellipsis = false,
     variant = "title",
     className,
+    classes: classesProp,
     ...other
   } = props;
   const classes = useStyles();
@@ -57,7 +58,8 @@ function Title(props: TitleProps): JSX.Element {
         className={clsx(
           titleClasses,
           grow && classes.grow,
-          ellipsis && classes.ellipsis
+          ellipsis && classes.ellipsis,
+          classesProp?.text
         )}
       >
         {text}
@@ -84,6 +86,12 @@ type TitleProps = {
   grow?: boolean;
   ellipsis?: boolean;
   variant?: "title" | "subtitle" | "card";
+  /**
+   * Override styles
+   */
+  classes?: {
+    text?: string;
+  };
   className?: string;
 };
 export default Title;
