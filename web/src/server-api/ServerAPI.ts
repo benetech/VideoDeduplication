@@ -243,4 +243,9 @@ export interface ServerAPI {
   readonly contributors: ContributorsAPI;
   readonly stats: StatsAPI;
   readonly socket: SocketAPI;
+
+  /**
+   * Check for internet connection on backend side.
+   */
+  isOnline(): Promise<boolean>;
 }

@@ -17,6 +17,7 @@ from . import (  # noqa: F401
     template_file_exclusions,
     repositories,
     contributors,
+    online,
 )
 from .blueprint import api
 

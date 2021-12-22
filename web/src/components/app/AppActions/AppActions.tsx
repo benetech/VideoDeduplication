@@ -12,6 +12,7 @@ import { useIntl } from "react-intl";
 import { useHistory } from "react-router-dom";
 import { routes } from "../../../routing/routes";
 import WikiLink from "./WikiLink";
+import useOnline from "../../../application/api/useOnline";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   actions: {
@@ -46,18 +47,22 @@ function AppActions(props: AppActionsProps): JSX.Element {
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
+  const online = useOnline();
+
   const handleAddMedia = useCallback(
     () => history.push(routes.processing.home),
     []
   );
+
   const handleOpenWiki = useCallback(
     () => window.open(routes.external.wiki, "_blank"),
     []
   );
+
   return (
     <div className={clsx(classes.actions, className)}>
       <PlusButton onClick={handleAddMedia} />
-      <ConnectionIndicator offline className={classes.indicator} />
+      <ConnectionIndicator online={online} className={classes.indicator} />
       <Divider orientation="vertical" className={classes.divider} />
       <IconButton
         className={classes.notificationButton}

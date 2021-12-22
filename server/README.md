@@ -48,6 +48,7 @@ Server honors the following environment variables:
  * `FILE_STORE_DIRECTORY` - Directory in which the application files (e.g. template examples) will be stored (default is `./app_files`)
  * `MAX_UPLOAD_SIZE` - Maximal upload file size in bytes (default is `20971520`, i.e. 20MB)
  * `ALLOWED_ORIGINS` - Optional comma-separated list of allowed origins. 
+ * `ONLINE_POLICY` - Online detection policy. Possible values are `online`, `offline` and `detect` (default is `detect`)
 
 
 Server accepts the following command-line arguments:
@@ -64,6 +65,7 @@ Server accepts the following command-line arguments:
  * `--db_uri` - set database connection URI (overrides the other `DATABASE_*` variables and `--db_*` flags)
  * `--static` - set location of directory with static resources (overrides `STATIC_FOLDER` variable)
  * `--videos` - set location of video files (overrides `VIDEO_FOLDER` variable)
+ * `--online_policy` - set server online detection policty (overrices `ONLINE_POLICY` variable)
 
 ## Serving Frontend
 

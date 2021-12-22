@@ -13,6 +13,8 @@ import TasksEndpoint from "./endpoints/TasksEndpoint";
 import Socket from "./Socket";
 import RepositoryEndpoint from "./endpoints/RepositoryEndpoint";
 import ContributorsEndpoint from "./endpoints/ContributorsEndpoint";
+import { makeServerError } from "../ServerError";
+import { OnlineDTO } from "./dto/online";
 
 type RestServerOptions = {
   baseURL?: string;
@@ -60,5 +62,14 @@ export default class Server implements ServerAPI {
     this.contributors = new ContributorsEndpoint(this.axios);
     this.stats = new StatsEndpoint(this.axios);
     this.socket = new Socket();
+  }
+
+  async isOnline(): Promise<boolean> {
+    try {
+      const response = await this.axios.get<OnlineDTO>("/online");
+      return response.data.online;
+    } catch (error) {
+      throw makeServerError("Fetch online status error.", error);
+    }
   }
 }

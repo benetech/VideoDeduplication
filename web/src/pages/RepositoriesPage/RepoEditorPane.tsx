@@ -27,7 +27,6 @@ import { useUpdateRepository } from "../../application/api/repositories/useRepos
 import { hasErrors } from "../../lib/forms/validation";
 import { ValidationError } from "../../server-api/ServerError";
 import nameErrorMessage from "../../lib/messages/nameErrorMessage";
-import { BareDatabaseRepoFields } from "../../components/remote/BareDatabaseRepoForm";
 import { Repository } from "../../model/VideoFile";
 import { Nullable } from "../../lib/types/util-types";
 
