@@ -204,7 +204,7 @@ def update_repository(repository_id):
         abort(HTTPStatus.BAD_REQUEST.value, "Expected valid 'application/json' payload.")
 
     # Validate payload
-    error, fields = validate_update_repo_dto(repo, request_payload)
+    error, fields = validate_update_repo_dto(request_payload, repo)
     if error is not None:
         return (
             jsonify({"error": error, "code": HTTPStatus.BAD_REQUEST.value, "fields": fields}),

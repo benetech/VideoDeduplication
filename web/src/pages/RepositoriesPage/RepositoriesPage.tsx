@@ -14,6 +14,7 @@ import { Route, Switch } from "react-router-dom";
 import { routes } from "../../routing/routes";
 import RepoDetailsPane from "./RepoDetailsPane";
 import RepoConstructorPane from "./RepoConstructorPane";
+import RepoEditorPane from "./RepoEditorPane";
 
 /**
  * Get translated text.
@@ -66,7 +67,7 @@ function RepositoriesPage(props: RepositoriesPageProps): JSX.Element {
               <RepoDetailsPane />
             </Route>
             <Route exact path={routes.collaborators.editRepository}>
-              Repository Editor
+              <RepoEditorPane />
             </Route>
           </Switch>
         </PageBody>

@@ -21,15 +21,6 @@ import {
 function useMessages() {
   const intl = useIntl();
   return {
-    create: intl.formatMessage({ id: "actions.create" }),
-    discard: intl.formatMessage({ id: "actions.discard" }),
-    type: intl.formatMessage({ id: "repos.attr.type.short" }),
-    name: intl.formatMessage({ id: "repos.attr.name" }),
-    host: intl.formatMessage({ id: "repos.attr.host" }),
-    port: intl.formatMessage({ id: "repos.attr.port" }),
-    dbName: intl.formatMessage({ id: "repos.attr.dbName" }),
-    login: intl.formatMessage({ id: "repos.attr.login" }),
-    password: intl.formatMessage({ id: "repos.attr.password" }),
     passVisibility: intl.formatMessage({ id: "actions.changePassVisibility" }),
   };
 }

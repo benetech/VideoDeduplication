@@ -21,7 +21,7 @@ function PageHeader(props: PageHeaderProps): JSX.Element {
   const classes = useStyles();
   return (
     <div className={clsx(classes.pageHeader, className)} {...other}>
-      <Title text={title} variant="title">
+      <Title text={title} variant="title" ellipsis={true}>
         {children}
       </Title>
     </div>
