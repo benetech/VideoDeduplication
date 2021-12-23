@@ -10,9 +10,9 @@ from sqlalchemy.orm import joinedload
 from db import Database
 from db.schema import Repository, Files, Contributor, Signature
 from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonitor
-from winnow.remote import RepositoryClient
-from winnow.remote.helpers import file_to_local_fingerprint
-from winnow.remote.model import RemoteFingerprint, LocalFingerprint, RemoteRepository
+from remote import RepositoryClient
+from remote.helpers import file_to_local_fingerprint
+from remote.model import RemoteFingerprint, LocalFingerprint, RemoteRepository
 from winnow.storage.base_repr_storage import BaseReprStorage
 from winnow.storage.file_key import FileKey
 from winnow.storage.remote_signatures_dao import ReprRemoteSignaturesDAO

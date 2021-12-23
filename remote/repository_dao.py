@@ -9,7 +9,7 @@ from dataclasses import asdict, replace
 
 from db import Database
 from db.schema import Repository, RepositoryType
-from winnow.remote.model import RemoteRepository
+from remote.model import RemoteRepository
 from winnow.security import SecureStorage, SecretNamespace
 
 # Default module logger

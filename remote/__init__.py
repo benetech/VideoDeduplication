@@ -1,9 +1,9 @@
 """This is a parent package containing components required for interaction with remote fingerprint repositories."""
 
 from db.schema import RepositoryType
-from winnow.remote.bare_database.client import BareDatabaseClient
-from winnow.remote.bare_database.schema import RepoDatabase
-from winnow.remote.model import RepositoryClient, RemoteRepository
+from remote.bare_database.client import BareDatabaseClient
+from remote.bare_database.schema import RepoDatabase
+from remote.model import RepositoryClient, RemoteRepository
 
 
 def make_client(repo: RemoteRepository) -> RepositoryClient:

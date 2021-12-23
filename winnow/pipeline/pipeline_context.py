@@ -6,11 +6,11 @@ from cached_property import cached_property
 
 from db import Database
 from template_support.file_storage import FileStorage, LocalFileStorage
-from winnow import remote
+import remote
 from winnow.config import Config
-from winnow.remote import RemoteRepository
-from winnow.remote.connect import RepoConnector, DatabaseConnector, ReprConnector
-from winnow.remote.repository_dao import DBRemoteRepoDAO, CsvRemoteRepoDAO, RemoteRepoDAO
+from remote import RemoteRepository
+from remote.connect import RepoConnector, DatabaseConnector, ReprConnector
+from remote.repository_dao import DBRemoteRepoDAO, CsvRemoteRepoDAO, RemoteRepoDAO
 from winnow.security import SecureStorage
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.file_key import FileKey

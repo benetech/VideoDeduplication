@@ -6,7 +6,7 @@ import inquirer
 
 from cli.platform.error import CliError
 from winnow.pipeline.pipeline_context import PipelineContext
-from winnow.remote.connect import RepoConnector
+from remote.connect import RepoConnector
 
 
 def ask_password(
