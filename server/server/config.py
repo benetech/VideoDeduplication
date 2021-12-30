@@ -106,6 +106,8 @@ class Config:
         self.max_upload_size = int(os.environ.get("MAX_UPLOAD_SIZE", 20 * 1024 * 1024))
         self.allowed_origins = self.read_allowed_origins()
         self.online_policy = OnlinePolicy.parse(os.environ.get("ONLINE_POLICY", OnlinePolicy.DETECT))
+        self.security_storage_path = os.environ.get("SECURITY_STORAGE_PATH", ".")
+        self.master_key_path = os.environ.get("SECURITY_MASTER_KEY_PATH")
 
     @staticmethod
     def read_allowed_origins():

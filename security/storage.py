@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class SecureStorage:
-    NAME_PATTERN = re.compile(r"^[\w][\w-]*$")
+    NAME_PATTERN = re.compile(r"^[\w][\w -]*$")
     NS_PATTERN = re.compile(r"^(?:\.|[\w][\w-]*)(?:/[\w][\w-]*)*$")
 
     @staticmethod

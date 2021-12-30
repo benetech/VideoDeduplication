@@ -15,20 +15,26 @@ import { Errors } from "../../lib/forms/handler-types";
 import Button from "../../components/basic/Button";
 import { hasErrors } from "../../lib/forms/validation";
 import { useCreateRepository } from "../../application/api/repositories/useRepositoryAPI";
-import { Transient } from "../../lib/entity/Entity";
-import { Repository, RepositoryType } from "../../model/VideoFile";
+import { Repository } from "../../model/VideoFile";
 import { ValidationError } from "../../server-api/ServerError";
 import nameErrorMessage from "../../lib/messages/nameErrorMessage";
+import makeRepo from "./helpers/makeRepo";
+import useCheckCredentials from "./helpers/useCheckCredentials";
+import Spacer from "../../components/basic/Spacer";
+import RepoCheckStatus from "./RepoCheckStatus";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   repoConstructorPane: {},
   actions: {
     display: "flex",
-    justifyContent: "flex-end",
+    alignItems: "center",
     marginTop: theme.spacing(4),
   },
   action: {
     marginLeft: theme.spacing(1),
+  },
+  status: {
+    fontWeight: "bold",
   },
 }));
 
@@ -43,22 +49,6 @@ function useMessages() {
     create: intl.formatMessage({ id: "actions.create" }),
     discard: intl.formatMessage({ id: "actions.discard" }),
     passVisibility: intl.formatMessage({ id: "actions.changePassVisibility" }),
-  };
-}
-
-/**
- * Create fresh transient repository from repo-form fields.
- */
-function makeRepo(fields: BareDatabaseRepoFields): Transient<Repository> {
-  const login = encodeURIComponent(fields.login);
-  const password = encodeURIComponent(fields.password);
-  const host = encodeURIComponent(fields.host);
-  const databaseName = encodeURIComponent(fields.databaseName);
-  return {
-    name: fields.name,
-    type: RepositoryType.BARE_DATABASE,
-    login: fields.login,
-    address: `postgresql://${login}:${password}@${host}:${fields.port}/${databaseName}`,
   };
 }
 
@@ -121,6 +111,8 @@ function RepoConstructorPane(props: RepoConstructorPaneProps): JSX.Element {
     showRepositories
   );
 
+  const status = useCheckCredentials(fields);
+
   return (
     <FlatPane className={className} {...other}>
       <PaneHeader>
@@ -133,6 +125,8 @@ function RepoConstructorPane(props: RepoConstructorPaneProps): JSX.Element {
         onErrorsChange={setErrors}
       />
       <div className={classes.actions}>
+        <RepoCheckStatus status={status} className={classes.status} />
+        <Spacer />
         <Button
           className={classes.action}
           onClick={showRepositories}

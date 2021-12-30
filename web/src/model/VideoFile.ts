@@ -1,5 +1,6 @@
 import { TextAttributes } from "../lib/types/TextAttributes";
 import { PartialRange } from "../lib/helpers/Range";
+import { Transient } from "../lib/entity/Entity";
 
 /**
  * File cluster query filters.
@@ -89,9 +90,14 @@ export enum RepositoryType {
   BARE_DATABASE = "BARE_DATABASE",
 }
 
+/**
+ * Repository statistics.
+ */
 export type RepositoryStats = {
   partnersCount: number;
-  fingerprintsCount: number;
+  totalFingerprintsCount: number;
+  pushedFingerprintsCount: number;
+  pulledFingerprintsCount: number;
 };
 
 /**
@@ -108,12 +114,27 @@ export type Repository = {
 };
 
 /**
+ * Remote repository prototype
+ */
+export type RepositoryPrototype = Transient<Repository> & {
+  credentials: string;
+};
+
+/**
+ * Contributor statistics.
+ */
+export type ContributorStats = {
+  totalFingerprintsCount: number;
+};
+
+/**
  * Remote signature-repository contributor.
  */
 export type Contributor = {
   id: number;
   name: string;
   repository: Repository;
+  stats?: ContributorStats;
 };
 
 /**

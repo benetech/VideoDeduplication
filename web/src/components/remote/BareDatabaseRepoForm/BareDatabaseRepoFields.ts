@@ -20,6 +20,7 @@ export const BareDatabaseRepoFormDescriptor: FormDescriptor<BareDatabaseRepoFiel
     name: reqString("repos.attr.name", {
       minLength: 3,
       maxLength: 250,
+      pattern: /^[\w][\w -]*$/,
       order: 0,
     }),
     host: reqString("repos.attr.host", { maxLength: 250, order: 1 }),

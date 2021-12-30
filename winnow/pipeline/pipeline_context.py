@@ -10,8 +10,10 @@ import remote
 from winnow.config import Config
 from remote import RemoteRepository
 from remote.connect import RepoConnector, DatabaseConnector, ReprConnector
-from remote.repository_dao import DBRemoteRepoDAO, CsvRemoteRepoDAO, RemoteRepoDAO
-from winnow.security import SecureStorage
+from remote.repository_dao import RemoteRepoDAO
+from remote.repository_dao_csv import CsvRemoteRepoDAO
+from remote.repository_dao_database import DBRemoteRepoDAO
+from security import SecureStorage
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.file_key import FileKey
 from winnow.storage.metadata import FeaturesMetadata
@@ -50,7 +52,7 @@ class PipelineContext:
     @cached_property
     def database(self) -> Database:
         """Get result database."""
-        database = Database(uri=self.config.database.uri)
+        database = Database.from_uri(uri=self.config.database.uri)
         database.create_tables()
         return database
 

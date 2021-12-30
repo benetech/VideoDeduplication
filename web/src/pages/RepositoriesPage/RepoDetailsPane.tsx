@@ -20,6 +20,8 @@ import { useIntl } from "react-intl";
 import useRepository from "../../application/api/repositories/useRepository";
 import LoadingStatus from "../../components/basic/LoadingStatus";
 import useDeleteRepoDialog from "./useDeleteRepoDialog";
+import { useSyncRepository } from "../../application/api/repositories/useRepositoryAPI";
+import SyncButton from "./SyncButton";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   repoDetailsPane: {},
@@ -65,6 +67,13 @@ function RepoDetailsPane(props: RepoDetailsPaneProps): JSX.Element {
     [repository]
   );
 
+  const syncHandler = useSyncRepository();
+  const syncRepo = useCallback(async () => {
+    if (repository != null) {
+      syncHandler.syncRepo(repository).catch(console.error);
+    }
+  }, [repository]);
+
   if (repository == null) {
     return (
       <FlatPane className={className} {...other}>
@@ -100,8 +109,13 @@ function RepoDetailsPane(props: RepoDetailsPaneProps): JSX.Element {
           className={classes.title}
         />
         <Spacer />
+        <SyncButton onClick={syncRepo} loading={syncHandler.loading} />
         <Tooltip title={messages.edit}>
-          <IconButton size="small" onClick={handleEdit}>
+          <IconButton
+            size="small"
+            className={classes.action}
+            onClick={handleEdit}
+          >
             <EditOutlinedIcon />
           </IconButton>
         </Tooltip>

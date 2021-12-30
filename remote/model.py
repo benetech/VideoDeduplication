@@ -52,6 +52,24 @@ class RemoteFingerprint:
     repository: str
 
 
+@dataclass(frozen=True)
+class ContributorInfo:
+    """Contributor statistics."""
+
+    name: str
+    fingerprints_count: int
+
+
+@dataclass(frozen=True)
+class RepositoryInfo:
+    """Repository statistics."""
+
+    repo: RemoteRepository
+    total_count: int
+    pushed_count: int
+    contributors: List[ContributorInfo]
+
+
 class RepositoryClient(abc.ABC):
     """Abstract base class for repository clients."""
 
@@ -67,7 +85,7 @@ class RepositoryClient(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def pull(self, start_from: int = 0, limit: int = 1000) -> List[RemoteFingerprint]:
+    def pull(self, start_from: int = 0, limit: int = 10000) -> List[RemoteFingerprint]:
         """Fetch fingerprints from the remote repository.
 
         Args:
@@ -82,6 +100,11 @@ class RepositoryClient(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def count(self, start_from: int = 0) -> int:
+    def count(self, start_from: int = 0, contributor: str = None) -> int:
         """Get count of fingerprint with id greater than the given one."""
+        pass
+
+    @abc.abstractmethod
+    def info(self) -> RepositoryInfo:
+        """Get repository info."""
         pass

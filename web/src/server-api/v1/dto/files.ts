@@ -54,8 +54,12 @@ export type RepositoryDTO = {
   login: string;
   type: RepositoryType;
   last_synced: number;
-  partners_count?: number;
-  fingerprints_count?: number;
+  stats?: {
+    partners_count: number;
+    total_fingerprints_count: number;
+    pushed_fingerprints_count: number;
+    pulled_fingerprints_count: number;
+  };
 };
 
 export type CreateRepositoryDTO = {
@@ -63,6 +67,7 @@ export type CreateRepositoryDTO = {
   address: string;
   login: string;
   type: RepositoryType;
+  credentials: string;
 };
 
 export type UpdateRepositoryDTO = {
@@ -73,6 +78,13 @@ export type ContributorDTO = {
   id: number;
   name: string;
   repository: RepositoryDTO;
+  stats?: {
+    total_fingerprints_count: number;
+  };
+};
+
+export type CheckRepoCredentialsDTO = {
+  confirm_credentials: boolean;
 };
 
 export type FileDTO = {

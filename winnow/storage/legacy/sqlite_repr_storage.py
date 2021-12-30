@@ -103,7 +103,7 @@ class SQLiteReprStorage(LegacyReprStorage):
         manifest_file.ensure(self.MANIFEST)
 
         self.db_file = os.path.join(self.directory, self.DB_FILE_NAME)
-        self.database = Database(f"sqlite:///{self.db_file}", base=Base)
+        self.database = Database.from_uri(f"sqlite:///{self.db_file}", base=Base)
         self.database.create_tables()
 
     def exists(self, key: ReprKey, check_tag: bool = True):

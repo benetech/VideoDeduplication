@@ -1,7 +1,6 @@
 import React from "react";
 import { AttributeRenderer } from "../../../lib/types/AttributeRenderer";
 import { Repository } from "../../../model/VideoFile";
-import { formatDistance } from "date-fns";
 import ValueBadge from "../../basic/ValueBadge";
 import formatRepoType from "../../../lib/messages/formatRepoType";
 import { safeTimeDistance } from "../../../lib/messages/safeTimeDistance";
@@ -18,12 +17,24 @@ const repoAttrs: AttributeRenderer<Repository>[] = [
     ),
   },
   {
+    title: "repos.attr.address",
+    value: (repo) => repo.address,
+  },
+  {
     title: "repos.attr.partners",
     value: (repo) => `${repo.stats?.partnersCount || 0}`,
   },
   {
     title: "repos.attr.fingerprints",
-    value: (repo) => `${repo.stats?.fingerprintsCount || 0}`,
+    value: (repo) => `${repo.stats?.totalFingerprintsCount || 0}`,
+  },
+  {
+    title: "repos.attr.pushedFingerprints",
+    value: (repo) => `${repo.stats?.pushedFingerprintsCount || 0}`,
+  },
+  {
+    title: "repos.attr.pulledFingerprints",
+    value: (repo) => `${repo.stats?.pulledFingerprintsCount || 0}`,
   },
   {
     title: "repos.attr.lastSynced",

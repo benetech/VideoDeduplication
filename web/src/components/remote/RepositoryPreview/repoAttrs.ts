@@ -10,7 +10,7 @@ const repoAttrs: AttributeRenderer<Repository>[] = [
   },
   {
     title: "repos.attr.fingerprints",
-    value: (repo) => formatCount(repo.stats?.fingerprintsCount || 0),
+    value: (repo) => formatCount(repo.stats?.totalFingerprintsCount || 0),
   },
   {
     title: "repos.attr.lastSynced",

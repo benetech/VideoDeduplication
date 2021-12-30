@@ -48,7 +48,7 @@ class ThumbnailCache:
         self.capacity = capacity
         self.suffix = suffix
         self.db_file = os.path.join(self.directory, "cache.sqlite")
-        self.database = Database(f"sqlite:///{self.db_file}", base=Base)
+        self.database = Database.from_uri(f"sqlite:///{self.db_file}", base=Base)
         self.database.create_tables()
 
     def put(self, path, sha256, position, thumbnail):

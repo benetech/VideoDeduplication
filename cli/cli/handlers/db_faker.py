@@ -20,14 +20,14 @@ class DBFakerCli:
 
     def cluster(self, count=10, min_distance=0.3, max_distance=0.7, density=0.2):
         """Generate fake file cluster."""
-        database = Database(uri=self._config.database.uri)
+        database = Database.from_uri(uri=self._config.database.uri)
         with database.session_scope() as session:
             files = self._make_files(count)
             session.add_all(self._cluster(files, min_distance=min_distance, max_distance=max_distance, density=density))
 
     def files(self, count=10, prefix="", length=42, ext="mp4"):
         """Generate fake files."""
-        database = Database(uri=self._config.database.uri)
+        database = Database.from_uri(uri=self._config.database.uri)
         with database.session_scope() as session:
             files = self._make_files(count=count, prefix=prefix, length=length, ext=ext)
             session.add_all(files)

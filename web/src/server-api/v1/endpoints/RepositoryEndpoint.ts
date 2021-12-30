@@ -7,10 +7,14 @@ import {
 import { AxiosInstance } from "axios";
 import FilesTransformer from "../transform/FilesTransformer";
 import { Transient, Updates } from "../../../lib/entity/Entity";
-import { Repository, RepositoryFilters } from "../../../model/VideoFile";
+import {
+  Repository,
+  RepositoryFilters,
+  RepositoryPrototype,
+} from "../../../model/VideoFile";
 import { QueryResultsDTO } from "../dto/query";
 import { makeServerError } from "../../ServerError";
-import { RepositoryDTO } from "../dto/files";
+import { CheckRepoCredentialsDTO, RepositoryDTO } from "../dto/files";
 import getEntityId from "../../../lib/entity/getEntityId";
 
 export default class RepositoryEndpoint implements RepositoriesAPI {
@@ -22,7 +26,7 @@ export default class RepositoryEndpoint implements RepositoriesAPI {
     this.transform = transform || new FilesTransformer();
   }
 
-  async create(repo: Transient<Repository>): Promise<Repository> {
+  async create(repo: RepositoryPrototype): Promise<Repository> {
     try {
       const response = await this.axios.post<RepositoryDTO>(
         `/repositories/`,
@@ -94,6 +98,40 @@ export default class RepositoryEndpoint implements RepositoriesAPI {
       await this.axios.delete(`/repositories/${getEntityId(repo)}`);
     } catch (error) {
       throw makeServerError("Delete repository error.", error, { repo });
+    }
+  }
+
+  async checkCredentials(repo: RepositoryPrototype): Promise<boolean> {
+    try {
+      const response = await this.axios.post<CheckRepoCredentialsDTO>(
+        `/repositories/check`,
+        JSON.stringify(this.transform.createRepositoryDTO(repo)),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data.confirm_credentials;
+    } catch (error) {
+      throw makeServerError("Check repository credentials error.", error, {
+        repo,
+      });
+    }
+  }
+
+  async synchronize(
+    repository: Updates<Repository> | Repository["id"]
+  ): Promise<Repository> {
+    try {
+      const response = await this.axios.post<RepositoryDTO>(
+        `/repositories/${getEntityId(repository)}/sync`
+      );
+      return this.transform.repository(response.data);
+    } catch (error) {
+      throw makeServerError("Synchronize repository error", error, {
+        repository,
+      });
     }
   }
 

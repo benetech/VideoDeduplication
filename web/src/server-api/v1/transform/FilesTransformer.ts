@@ -10,6 +10,7 @@ import {
   FileMetadata,
   Repository,
   RepositoryFilters,
+  RepositoryPrototype,
   Scene,
   VideoFile,
 } from "../../../model/VideoFile";
@@ -43,7 +44,7 @@ import {
   MatchDTO,
   QueryClusterResultsDTO,
 } from "../dto/matches";
-import { Transient, Updates } from "../../../lib/entity/Entity";
+import { Updates } from "../../../lib/entity/Entity";
 
 /**
  * Argument and result transformer for file API endpoint.
@@ -346,6 +347,9 @@ export default class FilesTransformer {
       id: data.id,
       name: data.name,
       repository: this.repository(data.repository),
+      stats: {
+        totalFingerprintsCount: data.stats?.total_fingerprints_count || 0,
+      },
     };
   }
 
@@ -370,13 +374,15 @@ export default class FilesTransformer {
       lastSynced:
         data.last_synced != null ? new Date(data.last_synced) : undefined,
       stats: {
-        partnersCount: data.partners_count || 0,
-        fingerprintsCount: data.fingerprints_count || 0,
+        partnersCount: data.stats?.partners_count || 0,
+        totalFingerprintsCount: data.stats?.total_fingerprints_count || 0,
+        pushedFingerprintsCount: data.stats?.pushed_fingerprints_count || 0,
+        pulledFingerprintsCount: data.stats?.pulled_fingerprints_count || 0,
       },
     };
   }
 
-  createRepositoryDTO(repository: Transient<Repository>): CreateRepositoryDTO {
+  createRepositoryDTO(repository: RepositoryPrototype): CreateRepositoryDTO {
     return {
       ...repository,
     };

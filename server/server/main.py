@@ -56,6 +56,8 @@ def serve(
     static=None,
     videos=None,
     online_policy=None,
+    security_storage_path=None,
+    security_master_key_path=None,
 ):
     """Start Deduplication API Server."""
     eventlet.monkey_patch()
@@ -72,6 +74,8 @@ def serve(
     config.video_folder = videos or config.video_folder
     config.static_folder = static or config.static_folder
     config.online_policy = OnlinePolicy.parse(online_policy, config.online_policy)
+    config.security_storage_path = security_storage_path or config.security_storage_path
+    config.master_key_path = security_master_key_path or config.master_key_path
     config.database.port = db_port or config.database.port
     config.database.host = db_host or config.database.host
     config.database.name = db_name or config.database.name

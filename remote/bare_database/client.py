@@ -6,7 +6,14 @@ from sqlalchemy import select, asc
 from sqlalchemy.sql import func
 
 from .schema import RepoDatabase, fingerprints_table
-from ..model import LocalFingerprint, RemoteFingerprint, RepositoryClient, RemoteRepository
+from ..model import (
+    LocalFingerprint,
+    RemoteFingerprint,
+    RepositoryClient,
+    RemoteRepository,
+    RepositoryInfo,
+    ContributorInfo,
+)
 
 
 class BareDatabaseClient(RepositoryClient):
@@ -32,15 +39,15 @@ class BareDatabaseClient(RepositoryClient):
                 insert_stmt = insert_stmt.on_conflict_do_nothing()
             txn.execute(insert_stmt)
 
-    def pull(self, start_from: int = 0, limit: int = 1000) -> List[RemoteFingerprint]:
+    def pull(self, start_from: int = 0, limit: int = 10000) -> List[RemoteFingerprint]:
         """Fetch fingerprints from the remote repository.
 
         Args:
             start_from (int): external fingerprint id (within remote repo) from which to start pulling.
-            limit (int): maximal number of fingerprints to pull at once. Must be between 0 and 10000.
+            limit (int): maximal number of fingerprints to pull at once.
         """
-        if not (0 <= limit <= 10000):
-            raise ValueError(f"Limit must be from [0, 10000]. Given: {limit}")
+        if limit <= 0:
+            raise ValueError(f"Limit must be > 0. Given: {limit}")
         with self._database.transaction() as txn:
             select_statement = (
                 select(
@@ -100,10 +107,32 @@ class BareDatabaseClient(RepositoryClient):
                 return None
             return LocalFingerprint(sha256=record[0], fingerprint=self._load_fingerprint(record[1]))
 
-    def count(self, start_from: int = 0) -> int:
+    def count(self, start_from: int = 0, contributor: str = None) -> int:
         """Get count of fingerprint with id greater than the given one."""
         with self._database.transaction() as txn:
-            statement = select([func.count(fingerprints_table.c.id)]).where(
-                (fingerprints_table.c.id > start_from) & (fingerprints_table.c.contributor != self.repository.user),
-            )
+            has_wanted_id = fingerprints_table.c.id > start_from
+            pushed_by_others = fingerprints_table.c.contributor != self.repository.user
+            condition = has_wanted_id & pushed_by_others
+            if contributor is not None:
+                pushed_by_wanted_contributor = fingerprints_table.c.contributor == contributor
+                condition = has_wanted_id & pushed_by_wanted_contributor
+            statement = select([func.count(fingerprints_table.c.id)]).where(condition)
             return txn.execute(statement).scalar()
+
+    def _contributors(self) -> List[ContributorInfo]:
+        """Get all contributors."""
+        with self._database.transaction() as txn:
+            statement = select([fingerprints_table.c.contributor, func.count(fingerprints_table.c.id)]).group_by(
+                fingerprints_table.c.contributor
+            )
+            results = txn.execute(statement)
+            return [ContributorInfo(name=record[0], fingerprints_count=record[1]) for record in results]
+
+    def info(self) -> RepositoryInfo:
+        """Get repository info."""
+        return RepositoryInfo(
+            repo=self.repository,
+            total_count=self.count(),
+            pushed_count=self.count(contributor=self.repository.user),
+            contributors=self._contributors(),
+        )

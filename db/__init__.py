@@ -6,25 +6,35 @@ from sqlalchemy.orm import sessionmaker, Session
 from .schema import Base
 
 
-# TODO: Move to db.utils
 class Database:
     """Database class provides session factory and convenience methods to access database."""
 
     @staticmethod
-    def in_memory(**options):
-        """Create in-memory database."""
-        return Database("sqlite:///:memory:", **options)
-
-    def __init__(self, uri, base=Base, **options):
-        """Create a new database instance.
-
-        Each database instance will allocate it's own resources (connections, etc.).
+    def from_uri(uri: str, base=Base, **options):
+        """
+        Create database from uri.
 
         Args:
-            uri (String): Database connection uri.
+            uri: Database connection uri.
+            base: Base class for model classes
+            **options: any additional `create_engine` options
         """
-        self.engine = create_engine(uri, **options)
-        self.session = sessionmaker(bind=self.engine)
+        engine = create_engine(uri, **options)
+        make_session = sessionmaker(bind=engine)
+        return Database(engine, make_session, base)
+
+    @staticmethod
+    def in_memory(**options):
+        """Create in-memory database."""
+        return Database.from_uri("sqlite:///:memory:", **options)
+
+    def __init__(self, engine, make_session, base=Base):
+        """Create a new database instance.
+
+        Each database instance will allocate its own resources (connections, etc.).
+        """
+        self.engine = engine
+        self.session = make_session
         self.base = base
 
     def create_tables(self):

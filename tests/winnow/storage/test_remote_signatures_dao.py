@@ -13,7 +13,9 @@ from db import Database
 from db.schema import RepositoryType, Files, Matches
 from tests.winnow.remote.helpers import make_secure_storage
 from remote.model import RemoteRepository, RemoteFingerprint
-from remote.repository_dao import RemoteRepoDAO, DBRemoteRepoDAO, CsvRemoteRepoDAO
+from remote.repository_dao import RemoteRepoDAO
+from remote.repository_dao_csv import CsvRemoteRepoDAO
+from remote.repository_dao_database import DBRemoteRepoDAO
 from winnow.storage.file_key import FileKey
 from winnow.storage.remote_signatures_dao import (
     DBRemoteSignaturesDAO,

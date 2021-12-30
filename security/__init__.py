@@ -1,5 +1,5 @@
 from winnow.config import Config
-from winnow.security.storage import SecureStorage
+from security.storage import SecureStorage
 
 
 class SecretNamespace:

@@ -8,6 +8,7 @@ import {
   FrameDescriptor,
   Repository,
   RepositoryFilters,
+  RepositoryPrototype,
   VideoFile,
 } from "../model/VideoFile";
 import {
@@ -215,7 +216,15 @@ export interface TemplateExclusionsAPI
  * Repositories API endpoint.
  */
 export interface RepositoriesAPI
-  extends Endpoint<Repository, RepositoryFilters> {}
+  extends ReadOnlyEndpoint<Repository, RepositoryFilters> {
+  create(repository: RepositoryPrototype): Promise<Repository>;
+  update(repository: Updates<Repository>): Promise<Repository>;
+  delete(repository: Repository | Repository["id"]): Promise<void>;
+  checkCredentials(repository: RepositoryPrototype): Promise<boolean>;
+  synchronize(
+    repository: Updates<Repository> | Repository["id"]
+  ): Promise<Repository>;
+}
 
 /**
  * Contributors API endpoint.

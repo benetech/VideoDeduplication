@@ -11,7 +11,11 @@ export type RepoEditorFields = {
 };
 
 export const RepoEditorDescriptor: FormDescriptor<RepoEditorFields> = {
-  name: reqString("repos.attr.name", { minLength: 3, maxLength: 250 }),
+  name: reqString("repos.attr.name", {
+    minLength: 3,
+    maxLength: 250,
+    pattern: /^[\w][\w -]*$/,
+  }),
 };
 
 type RepoEditorValidator = (

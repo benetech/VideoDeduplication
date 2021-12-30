@@ -11,7 +11,7 @@ from cli.platform.validate import valid_string, valid_enum, positive_int, valid_
 from db.schema import RepositoryType
 from winnow.pipeline.pipeline_context import PipelineContext
 from remote import RemoteRepository
-from winnow.security.storage import SecureStorage
+from security.storage import SecureStorage
 
 
 class RepoCli:

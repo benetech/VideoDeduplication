@@ -123,6 +123,7 @@
     "actions.showPassword": "Show password",
     "actions.hidePassword": "Hide password",
     "actions.changePassVisibility": "Change password visibility",
+    "actions.synchronize": "Synchronize",
     "sort.duration": "Duration",
     "sort.date": "Date",
     "sort.related": "Count of Related",
@@ -370,7 +371,10 @@
     "repos.action.delete.question": "Delete \"{name}\" repository and all the corresponding fingerprints?",
     "repos.action.create": "Create Repository",
     "repos.attr.partners": "Partners",
+    "repos.attr.address": "Address",
     "repos.attr.fingerprints": "Fingerprints",
+    "repos.attr.pushedFingerprints": "Pushed fingerprints",
+    "repos.attr.pulledFingerprints": "Pulled fingerprints",
     "repos.attr.lastSynced": "Last synced",
     "repos.attr.account": "Account",
     "repos.attr.type": "Repository type",
@@ -383,6 +387,8 @@
     "repos.attr.password": "Password",
     "repos.type.bareDatabase": "DB Connection",
     "time.ago": "{time} ago",
-    "time.never": "never"
+    "time.never": "never",
+    "status.available": "Available",
+    "status.unavailable": "Unavailable"
   }
 }
