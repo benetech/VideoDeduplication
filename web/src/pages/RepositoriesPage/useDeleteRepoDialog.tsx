@@ -53,7 +53,7 @@ export default function useDeleteRepoDialog(
     }
   }, [repo]);
 
-  let dialog: React.ReactNode = (
+  const dialog: React.ReactNode = (
     <Dialog
       open={open}
       onClose={handleClose}

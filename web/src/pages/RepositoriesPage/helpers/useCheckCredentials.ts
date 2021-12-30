@@ -4,7 +4,6 @@ import {
 } from "../../../components/remote/BareDatabaseRepoForm";
 import useOnline from "../../../application/api/useOnline";
 import { useEffect, useState } from "react";
-import { useServer } from "../../../server-api/context";
 import makeRepo from "./makeRepo";
 import { hasErrors } from "../../../lib/forms/validation";
 import { useCheckRepoCredentials } from "../../../application/api/repositories/useRepositoryAPI";

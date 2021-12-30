@@ -17,9 +17,9 @@ import {
 import useRepositoriesAll from "../../application/api/repositories/useRepositoriesAll";
 import useDeleteRepoDialog from "./useDeleteRepoDialog";
 
-const useStyles = makeStyles<Theme>((theme) => ({
+const useStyles = makeStyles<Theme>({
   repoListPane: {},
-}));
+});
 
 /**
  * Get translated text.

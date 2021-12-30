@@ -11,7 +11,7 @@ type OnChangeEventHandler = React.ChangeEventHandler<
 /**
  * Single field handler as available for user.
  */
-export type FieldHandler<FieldType> = {
+export type FieldHandler = {
   onChange: OnChangeEventHandler;
   name: string;
   required: boolean;
@@ -21,7 +21,7 @@ export type FieldHandler<FieldType> = {
  * Form handler as available for client code.
  */
 export type FormHandler<Fields> = {
-  [Field in keyof Fields]: FieldHandler<Fields[Field]>;
+  [Field in keyof Fields]: FieldHandler;
 };
 
 /**

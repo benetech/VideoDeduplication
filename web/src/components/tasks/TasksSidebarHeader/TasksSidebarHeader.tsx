@@ -28,7 +28,9 @@ type TasksSidebarHeaderProps = {
   className?: string;
 };
 
-export default function TasksSidebarHeader(props: TasksSidebarHeaderProps) {
+export default function TasksSidebarHeader(
+  props: TasksSidebarHeaderProps
+): JSX.Element {
   const { onClose, className, ...other } = props;
   const messages = useMessages();
   return (

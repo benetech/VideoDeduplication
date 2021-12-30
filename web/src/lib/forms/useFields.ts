@@ -1,11 +1,7 @@
 import { useMemo } from "react";
 import { useIntl } from "react-intl";
 import { Errors, FormHandler } from "./handler-types";
-import {
-  descrEntries,
-  FieldDescriptor,
-  FormDescriptor,
-} from "./descriptor-types";
+import { descrEntries, FormDescriptor } from "./descriptor-types";
 
 /**
  * Create form handler.

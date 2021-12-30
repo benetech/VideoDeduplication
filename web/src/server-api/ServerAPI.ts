@@ -229,8 +229,7 @@ export interface RepositoriesAPI
 /**
  * Contributors API endpoint.
  */
-export interface ContributorsAPI
-  extends ReadOnlyEndpoint<Contributor, ContributorFilters> {}
+export type ContributorsAPI = ReadOnlyEndpoint<Contributor, ContributorFilters>;
 
 /**
  * Statistics API endpoint.

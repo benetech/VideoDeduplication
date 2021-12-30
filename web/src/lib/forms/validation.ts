@@ -27,7 +27,7 @@ export type ValidatorFn<Fields> = (
  */
 export function hasErrors<Fields>(errors: Errors<Fields>): boolean {
   for (const error of Object.values(errors)) {
-    if (Boolean(error)) {
+    if (error) {
       return true;
     }
   }
@@ -77,12 +77,10 @@ export class Valid {
     attrName: string,
     options: StringOptions = {}
   ): FieldValidator<string> {
-    const { required = true, minLength, maxLength, pattern } = options;
+    const { required = true } = options;
     return (value: string | undefined, intl: IntlShape) => {
       if (required && (value == null || value.length === 0)) {
         return ValidationErrorMessages.isMissing(attrName, intl);
-      }
-      if (minLength != null && (value == null || value.length < minLength)) {
       }
       return null;
     };

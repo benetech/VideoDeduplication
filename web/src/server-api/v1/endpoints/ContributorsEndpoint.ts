@@ -42,7 +42,7 @@ export default class ContributorsEndpoint implements ContributorsAPI {
     }
   }
 
-  async get(id: Contributor["id"], fields?: string[]): Promise<Contributor> {
+  async get(id: Contributor["id"]): Promise<Contributor> {
     try {
       const response = await this.axios.get<ContributorDTO>(
         `/contributors/${id}`

@@ -7,11 +7,11 @@ import { routes } from "../../routing/routes";
 import { useIntl } from "react-intl";
 import RepositoriesPage from "../RepositoriesPage";
 
-const useStyles = makeStyles<Theme>((theme) => ({
+const useStyles = makeStyles<Theme>({
   body: {
     height: "100%",
   },
-}));
+});
 
 type CollaboratorsRootPageProps = {
   className?: string;

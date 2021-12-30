@@ -46,7 +46,7 @@ function RepositoriesPage(props: RepositoriesPageProps): JSX.Element {
   const [showTasks, setShowTasks] = useState(true);
 
   return (
-    <PageLayout {...other}>
+    <PageLayout className={className} {...other}>
       <PageContent>
         <PageHeader title={messages.title}>
           <SidebarToggle

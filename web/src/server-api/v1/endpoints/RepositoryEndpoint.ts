@@ -6,7 +6,7 @@ import {
 } from "../../ServerAPI";
 import { AxiosInstance } from "axios";
 import FilesTransformer from "../transform/FilesTransformer";
-import { Transient, Updates } from "../../../lib/entity/Entity";
+import { Updates } from "../../../lib/entity/Entity";
 import {
   Repository,
   RepositoryFilters,
@@ -65,7 +65,7 @@ export default class RepositoryEndpoint implements RepositoriesAPI {
     }
   }
 
-  async get(id: Repository["id"], fields?: string[]): Promise<Repository> {
+  async get(id: Repository["id"]): Promise<Repository> {
     try {
       const response = await this.axios.get<RepositoryDTO>(
         `/repositories/${id}`

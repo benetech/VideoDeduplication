@@ -85,7 +85,7 @@ export function formatBool(value: boolean, intl: IntlShape): string {
 /**
  * Format potentially large count.
  */
-export function formatCount(count: number, fractionDigits: number = 1): string {
+export function formatCount(count: number, fractionDigits = 1): string {
   if (count < 1e3) {
     return `${count}`;
   }
