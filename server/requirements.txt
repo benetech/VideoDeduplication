@@ -10,3 +10,4 @@ Flask-SocketIO==5.0.0
 eventlet==0.31.0
 Werkzeug==1.0.1
 cached-property==1.5.2
+cryptography==3.3.1
