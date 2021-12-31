@@ -343,7 +343,7 @@ def check_credentials():
     )
 
     try:
-        make_client(repo).info()
+        make_client(repo).get_stats()
         return jsonify({"confirm_credentials": True})
     except Exception:
         return jsonify({"confirm_credentials": False})
@@ -359,8 +359,8 @@ def sync_repository(repository_id):
         abort(HTTPStatus.NOT_FOUND.value, f"Repository id not found: {repository_id}")
 
     client = make_client(repo)
-    repo_stats = client.info()
-    repo_dao.sync(stats=repo_stats)
+    repo_stats = client.get_stats()
+    repo_dao.update_stats(stats=repo_stats)
 
     # Fetch repository from database
     repo, stats = fetch_repo(repository_id)

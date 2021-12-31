@@ -5,7 +5,7 @@ from typing import Optional, List
 from db import Database
 from db.schema import Repository, Contributor
 from remote import RemoteRepository
-from remote.model import RepositoryInfo
+from remote.model import RepositoryStats
 from remote.repository_dao import RemoteRepoDAO
 from security import SecureStorage, SecretNamespace
 
@@ -129,11 +129,11 @@ class DBRemoteRepoDAO(RemoteRepoDAO):
             credentials=credentials,
         )
 
-    def sync(self, stats: RepositoryInfo) -> Repository:
+    def update_stats(self, stats: RepositoryStats) -> Repository:
         with self._database.session_scope() as session:
             repo: Repository = session.query(Repository).filter(Repository.name == stats.repo.name).one_or_none()
             if repo is None:
-                raise KeyError(f"No such repository")
+                raise KeyError(f"No such repository: {stats.repo.name}")
 
             repo.last_sync = datetime.now()
             repo.pushed_fingerprint_count = stats.pushed_count
@@ -151,6 +151,6 @@ class DBRemoteRepoDAO(RemoteRepoDAO):
                         fingerprints_count=contrib_stats.fingerprints_count,
                     )
                     session.add(new_contributor)
-                else:
+                elif contrib_stats.name != repo.account_id:
                     contributor = contributors_index[contrib_stats.name]
                     contributor.fingerprints_count = contrib_stats.fingerprints_count

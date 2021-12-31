@@ -5,6 +5,9 @@ from server.queue.model import (
     MatchTemplates,
     FindFrame,
     ProcessOnlineVideo,
+    PushFingerprints,
+    PullFingerprints,
+    MatchRemoteFingerprints,
 )
 from server.queue.request_transformer import RequestTransformer
 
@@ -21,6 +24,9 @@ def make_celery_task_queue(task_request_transformer: RequestTransformer):
         match_all_templates,
         find_frame_task,
         process_online_video,
+        push_fingerprints_task,
+        pull_fingerprints_task,
+        match_remote_fingerprints,
     )
 
     return CeleryTaskQueue(
@@ -34,5 +40,8 @@ def make_celery_task_queue(task_request_transformer: RequestTransformer):
             FindFrame: find_frame_task,
             ProcessOnlineVideo: process_online_video,
             TestTask: test_fibonacci,
+            PushFingerprints: push_fingerprints_task,
+            PullFingerprints: pull_fingerprints_task,
+            MatchRemoteFingerprints: match_remote_fingerprints,
         },
     )

@@ -86,7 +86,7 @@ type TaskSidebarProps = {
   /**
    * Optional task display filter
    */
-  filter?: (task: Task) => void;
+  filter?: (task: Task) => boolean;
   tabs?: TaskSidebarTab[];
   className?: string;
 };

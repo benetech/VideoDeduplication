@@ -53,7 +53,7 @@ class RemoteFingerprint:
 
 
 @dataclass(frozen=True)
-class ContributorInfo:
+class ContributorStats:
     """Contributor statistics."""
 
     name: str
@@ -61,13 +61,13 @@ class ContributorInfo:
 
 
 @dataclass(frozen=True)
-class RepositoryInfo:
+class RepositoryStats:
     """Repository statistics."""
 
     repo: RemoteRepository
     total_count: int
     pushed_count: int
-    contributors: List[ContributorInfo]
+    contributors: List[ContributorStats]
 
 
 class RepositoryClient(abc.ABC):
@@ -105,6 +105,6 @@ class RepositoryClient(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def info(self) -> RepositoryInfo:
+    def get_stats(self) -> RepositoryStats:
         """Get repository info."""
         pass

@@ -7,6 +7,7 @@ from dataclasses import replace, asdict
 
 from db.schema import RepositoryType
 from remote import RemoteRepository
+from remote.model import RepositoryStats
 from remote.repository_dao import RemoteRepoDAO
 from security import SecureStorage, SecretNamespace
 
@@ -109,3 +110,6 @@ class CsvRemoteRepoDAO(RemoteRepoDAO):
     def _save(self, dataframe: pd.DataFrame):
         """Save DataFrame to csv file."""
         dataframe.to_csv(self._csv_file_path, index=False)
+
+    def update_stats(self, stats: RepositoryStats):
+        """Do nothing as CSV-DAO doesn't store stats."""

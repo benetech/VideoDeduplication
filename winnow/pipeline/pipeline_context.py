@@ -4,16 +4,16 @@ from typing import Callable
 
 from cached_property import cached_property
 
-from db import Database
-from template_support.file_storage import FileStorage, LocalFileStorage
 import remote
-from winnow.config import Config
-from remote import RemoteRepository
+from db import Database
+from remote import RemoteRepository, RepositoryClient, make_client
 from remote.connect import RepoConnector, DatabaseConnector, ReprConnector
 from remote.repository_dao import RemoteRepoDAO
 from remote.repository_dao_csv import CsvRemoteRepoDAO
 from remote.repository_dao_database import DBRemoteRepoDAO
 from security import SecureStorage
+from template_support.file_storage import FileStorage, LocalFileStorage
+from winnow.config import Config
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.file_key import FileKey
 from winnow.storage.metadata import FeaturesMetadata
@@ -128,6 +128,10 @@ class PipelineContext:
             signature_storage=self.repr_storage.signature,
             repo_client=client,
         )
+
+    def make_client(self, repo: RemoteRepository) -> RepositoryClient:
+        """Make repository client."""
+        return make_client(repo)
 
     @cached_property
     def file_storage(self) -> FileStorage:

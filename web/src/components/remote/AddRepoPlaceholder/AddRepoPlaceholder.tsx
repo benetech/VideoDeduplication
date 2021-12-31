@@ -22,6 +22,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
     justifyContent: "center",
     width: "100%",
     height: "100%",
+    borderStyle: "dashed",
     "&:hover": {
       backgroundColor: theme.palette.action.hover,
     },
@@ -53,7 +54,7 @@ function AddRepoPlaceholder(props: AddRepositoryPlaceholderProps): JSX.Element {
       className={clsx(classes.addRepoPlaceholder, className)}
       {...other}
     >
-      <OutlinedCard className={classes.card}>
+      <OutlinedCard className={classes.card} border="lean">
         <AddIcon />
         <Title text={messages.addRepo} variant="card" />
       </OutlinedCard>

@@ -15,6 +15,15 @@ import { routes } from "../../routing/routes";
 import RepoDetailsPane from "./RepoDetailsPane";
 import RepoConstructorPane from "./RepoConstructorPane";
 import RepoEditorPane from "./RepoEditorPane";
+import RepoTasksPane from "./RepoTasksPane";
+import { makeStyles } from "@material-ui/core";
+import { Task, TaskRequestType } from "../../model/Task";
+
+const useStyles = makeStyles((theme) => ({
+  bottomPane: {
+    marginTop: theme.spacing(2),
+  },
+}));
 
 /**
  * Get translated text.
@@ -35,6 +44,15 @@ function useMessages() {
   };
 }
 
+function repoTasks(task: Task): boolean {
+  const taskType = task.request.type;
+  return (
+    taskType === TaskRequestType.PULL_FINGERPRINTS ||
+    taskType === TaskRequestType.PUSH_FINGERPRINTS ||
+    taskType === TaskRequestType.MATCH_REMOTE_FINGERPRINTS
+  );
+}
+
 type RepositoriesPageProps = {
   className?: string;
 };
@@ -42,6 +60,7 @@ type RepositoriesPageProps = {
 function RepositoriesPage(props: RepositoriesPageProps): JSX.Element {
   const { className, ...other } = props;
   const messages = useMessages();
+  const classes = useStyles();
 
   const [showTasks, setShowTasks] = useState(true);
 
@@ -65,6 +84,7 @@ function RepositoriesPage(props: RepositoriesPageProps): JSX.Element {
             </Route>
             <Route exact path={routes.collaborators.repository}>
               <RepoDetailsPane />
+              <RepoTasksPane className={classes.bottomPane} />
             </Route>
             <Route exact path={routes.collaborators.editRepository}>
               <RepoEditorPane />
@@ -75,7 +95,7 @@ function RepositoriesPage(props: RepositoriesPageProps): JSX.Element {
       <Sidebar show={showTasks}>
         <SidebarHeader title={messages.process} onToggle={setShowTasks} />
         <SidebarContent>
-          <TaskSidebar />
+          <TaskSidebar filter={repoTasks} />
         </SidebarContent>
       </Sidebar>
     </PageLayout>

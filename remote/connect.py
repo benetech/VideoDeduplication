@@ -4,15 +4,15 @@ import pickle
 from math import ceil
 from typing import Iterable, List, Union
 
-from sqlalchemy import func, tuple_
+from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
 from db import Database
 from db.schema import Repository, Files, Contributor, Signature
-from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonitor
 from remote import RepositoryClient
 from remote.helpers import file_to_local_fingerprint
 from remote.model import RemoteFingerprint, LocalFingerprint, RemoteRepository
+from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonitor
 from winnow.storage.base_repr_storage import BaseReprStorage
 from winnow.storage.file_key import FileKey
 from winnow.storage.remote_signatures_dao import ReprRemoteSignaturesDAO
@@ -129,7 +129,7 @@ class DatabaseConnector:
             session.query(Contributor)
             .filter(
                 Contributor.repository == repo,
-                tuple_(Contributor.name).in_(contributor_names),
+                Contributor.name.in_(contributor_names),
             )
             .all()
         )

@@ -11,8 +11,6 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import usePopup from "../../../lib/hooks/usePopup";
 import { useIntl } from "react-intl";
-import AttributeTable from "../../basic/AttributeTable";
-import repoAttrs from "./repoAttrs";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import { ButtonBaseProps } from "@material-ui/core/ButtonBase/ButtonBase";
 import LaunchOutlinedIcon from "@material-ui/icons/LaunchOutlined";
@@ -20,6 +18,9 @@ import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 import DeleteOutlineOutlinedIcon from "@material-ui/icons/DeleteOutlineOutlined";
 import CloudDownloadOutlinedIcon from "@material-ui/icons/CloudDownloadOutlined";
 import CloudUploadOutlinedIcon from "@material-ui/icons/CloudUploadOutlined";
+import { safeTimeDistance } from "../../../lib/messages/safeTimeDistance";
+import { Nullable } from "../../../lib/types/util-types";
+import RepoProgress from "../RepoProgress";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   repositoryPreview: {
@@ -35,8 +36,10 @@ const useStyles = makeStyles<Theme>((theme) => ({
       backgroundColor: theme.palette.action.hover,
     },
   },
-  title: {
-    marginBottom: theme.spacing(1),
+  title: {},
+  subtitle: {
+    color: theme.palette.secondary.light,
+    marginBottom: theme.spacing(3),
   },
   select: {
     cursor: "pointer",
@@ -57,6 +60,12 @@ function useMessages() {
     delete: intl.formatMessage({ id: "actions.delete" }),
     push: intl.formatMessage({ id: "repos.action.shareFingerprints" }),
     pull: intl.formatMessage({ id: "repos.action.pullFingerprints" }),
+    lastSynced(time: Nullable<Date>): string {
+      return intl.formatMessage(
+        { id: "repos.attr.lastSynced.dist" },
+        { distance: safeTimeDistance(time, intl) }
+      );
+    },
   };
 }
 
@@ -160,7 +169,11 @@ function RepositoryPreview(props: RepoListItemProps): JSX.Element {
       className={clsx(classes.repositoryPreview, className)}
       {...other}
     >
-      <OutlinedCard className={classes.card} onClick={handleSelect}>
+      <OutlinedCard
+        className={classes.card}
+        border="lean"
+        onClick={handleSelect}
+      >
         <Title
           text={repository.name}
           className={classes.title}
@@ -177,12 +190,10 @@ function RepositoryPreview(props: RepoListItemProps): JSX.Element {
             <MoreHorizOutlinedIcon fontSize="small" />
           </IconButton>
         </Title>
-        <AttributeTable
-          value={repository}
-          attributes={repoAttrs}
-          size="small"
-          className={classes.attributes}
-        />
+        <div className={classes.subtitle}>
+          {messages.lastSynced(repository.lastSynced)}
+        </div>
+        <RepoProgress repository={repository} />
         <Menu {...popup} onClose={closeMenu}>
           <MenuItem onClick={handleSelect} onMouseDown={stopPropagation}>
             <ListItemIcon>

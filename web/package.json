@@ -75,6 +75,7 @@
     "@material-ui/pickers": "^3.2.10",
     "@material-ui/styles": "^4.10.0",
     "@seznam/compose-react-refs": "^1.0.6",
+    "@types/chart.js": "^2.9.35",
     "@types/react-dom": "^17.0.9",
     "axios": "^0.21.4",
     "axios-retry": "^3.1.9",

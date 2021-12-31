@@ -11,8 +11,8 @@ from ..model import (
     RemoteFingerprint,
     RepositoryClient,
     RemoteRepository,
-    RepositoryInfo,
-    ContributorInfo,
+    RepositoryStats,
+    ContributorStats,
 )
 
 
@@ -119,18 +119,18 @@ class BareDatabaseClient(RepositoryClient):
             statement = select([func.count(fingerprints_table.c.id)]).where(condition)
             return txn.execute(statement).scalar()
 
-    def _contributors(self) -> List[ContributorInfo]:
+    def _contributors(self) -> List[ContributorStats]:
         """Get all contributors."""
         with self._database.transaction() as txn:
             statement = select([fingerprints_table.c.contributor, func.count(fingerprints_table.c.id)]).group_by(
                 fingerprints_table.c.contributor
             )
             results = txn.execute(statement)
-            return [ContributorInfo(name=record[0], fingerprints_count=record[1]) for record in results]
+            return [ContributorStats(name=record[0], fingerprints_count=record[1]) for record in results]
 
-    def info(self) -> RepositoryInfo:
+    def get_stats(self) -> RepositoryStats:
         """Get repository info."""
-        return RepositoryInfo(
+        return RepositoryStats(
             repo=self.repository,
             total_count=self.count(),
             pushed_count=self.count(contributor=self.repository.user),

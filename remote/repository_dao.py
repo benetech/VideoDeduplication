@@ -2,7 +2,7 @@
 import abc
 from typing import List, Optional
 
-from remote.model import RemoteRepository
+from remote.model import RemoteRepository, RepositoryStats
 
 
 class RemoteRepoDAO(abc.ABC):
@@ -27,3 +27,7 @@ class RemoteRepoDAO(abc.ABC):
     @abc.abstractmethod
     def list(self, name=None, offset=0, limit=1000) -> List[RemoteRepository]:
         """List known fingerprint repositories."""
+
+    @abc.abstractmethod
+    def update_stats(self, stats: RepositoryStats):
+        """Update repository statistics."""

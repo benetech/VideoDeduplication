@@ -310,6 +310,84 @@ def process_online_video(
     return result
 
 
+@winnow_task(bind=True)
+def push_fingerprints_task(
+    self,
+    repository_name: str,
+):
+    from winnow.utils.config import resolve_config
+    from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.pipeline.push_fingerprints import push_fingerprints
+
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
+    # Load configuration file
+    logger.info("Loading config file")
+    config = resolve_config()
+    config.database.use = True
+
+    # Run pipeline
+    monitor.update(0)
+    pipeline_context = PipelineContext(config)
+    push_fingerprints(repository_name, pipeline_context, monitor.subtask(work_amount=1.0))
+    monitor.complete()
+
+
+@winnow_task(bind=True)
+def pull_fingerprints_task(
+    self,
+    repository_name: str,
+):
+    from winnow.utils.config import resolve_config
+    from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.pipeline.pull_fingerprints import pull_fingerprints
+
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
+    # Load configuration file
+    logger.info("Loading config file")
+    config = resolve_config()
+    config.database.use = True
+
+    # Run pipeline
+    monitor.update(0)
+    pipeline_context = PipelineContext(config)
+    pull_fingerprints(repository_name, pipeline_context, monitor.subtask(work_amount=1.0))
+    monitor.complete()
+
+
+@winnow_task(bind=True)
+def match_remote_fingerprints(
+    self,
+    repository_name: str = None,
+    contributor_name: str = None,
+):
+    from winnow.utils.config import resolve_config
+    from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.pipeline.generate_remote_matches import generate_remote_matches
+
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
+    # Load configuration file
+    logger.info("Loading config file")
+    config = resolve_config()
+    config.database.use = True
+
+    # Run pipeline
+    monitor.update(0)
+    pipeline_context = PipelineContext(config)
+    generate_remote_matches(
+        repository_name=repository_name,
+        contributor_name=contributor_name,
+        pipeline=pipeline_context,
+        progress=monitor.subtask(work_amount=1.0),
+    )
+    monitor.complete()
+
+
 def fibo(n):
     """A very inefficient Fibonacci numbers generator."""
     if n <= 2:
