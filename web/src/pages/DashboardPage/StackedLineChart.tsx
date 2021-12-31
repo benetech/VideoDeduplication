@@ -3,9 +3,10 @@ import { makeStyles } from "@material-ui/styles";
 import { Theme, useTheme } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import IconButton from "@material-ui/core/IconButton";
-import { Line } from "react-chartjs-2";
+import { ChartData, Line } from "react-chartjs-2";
 import Dashlet from "./Dashlet";
 import { useIntl } from "react-intl";
+import * as ChartJS from "chart.js";
 
 const useStyles = makeStyles<Theme>(() => ({
   content: {
@@ -14,7 +15,10 @@ const useStyles = makeStyles<Theme>(() => ({
   },
 }));
 
-const data = (datasets: ChartDataSeries[], labels: string[]) => ({
+const data = (
+  datasets: ChartDataSeries[],
+  labels: string[]
+): ChartData<ChartJS.ChartData> => ({
   labels,
   datasets: datasets.map((series) => ({
     label: series.name,
@@ -27,7 +31,7 @@ const data = (datasets: ChartDataSeries[], labels: string[]) => ({
   })),
 });
 
-const options = (theme: Theme) => ({
+const options = (theme: Theme): ChartJS.ChartOptions => ({
   legend: {
     display: true,
     position: "bottom",
@@ -46,8 +50,6 @@ const options = (theme: Theme) => ({
   },
   layout: {
     padding: 0,
-    width: "100%",
-    height: "100%",
   },
   tooltips: {
     enabled: true,
