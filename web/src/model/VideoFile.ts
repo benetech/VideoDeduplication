@@ -1,6 +1,7 @@
 import { TextAttributes } from "../lib/types/TextAttributes";
 import { PartialRange } from "../lib/helpers/Range";
 import { Transient } from "../lib/entity/Entity";
+import { Template } from "./Template";
 
 /**
  * File cluster query filters.
@@ -43,7 +44,8 @@ export type FileFilters = {
   matches: MatchCategory;
   sort: FileSort;
   remote: boolean | null;
-  templates: number[];
+  templates: Template["id"][];
+  contributors: Contributor["id"][];
 };
 
 /**
@@ -57,8 +59,9 @@ export const DefaultFilters: FileFilters = {
   audio: null,
   matches: MatchCategory.all,
   sort: FileSort.date,
-  remote: null,
+  remote: false,
   templates: [],
+  contributors: [],
 };
 
 /**
@@ -125,6 +128,7 @@ export type RepositoryPrototype = Transient<Repository> & {
  */
 export type ContributorStats = {
   totalFingerprintsCount: number;
+  pulledFingerprintsCount: number;
 };
 
 /**

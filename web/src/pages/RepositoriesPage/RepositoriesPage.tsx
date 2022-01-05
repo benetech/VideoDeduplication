@@ -18,6 +18,7 @@ import RepoEditorPane from "./RepoEditorPane";
 import RepoTasksPane from "./RepoTasksPane";
 import { makeStyles } from "@material-ui/core";
 import { Task, TaskRequestType } from "../../model/Task";
+import PartnersPane from "./PartnersPane";
 
 const useStyles = makeStyles((theme) => ({
   bottomPane: {
@@ -84,6 +85,7 @@ function RepositoriesPage(props: RepositoriesPageProps): JSX.Element {
             </Route>
             <Route exact path={routes.collaborators.repository}>
               <RepoDetailsPane />
+              <PartnersPane className={classes.bottomPane} />
               <RepoTasksPane className={classes.bottomPane} />
             </Route>
             <Route exact path={routes.collaborators.editRepository}>

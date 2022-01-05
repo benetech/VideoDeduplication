@@ -102,6 +102,9 @@ export default class FilesTransformer {
     if (filters?.templates != null && filters.templates.length > 0) {
       params.templates = filters.templates.join(",");
     }
+    if (filters?.contributors != null && filters.contributors.length > 0) {
+      params.contributors = filters.contributors.join(",");
+    }
     return params;
   }
 
@@ -349,6 +352,7 @@ export default class FilesTransformer {
       repository: this.repository(data.repository),
       stats: {
         totalFingerprintsCount: data.stats?.total_fingerprints_count || 0,
+        pulledFingerprintsCount: data.stats?.pulled_fingerprints_count || 0,
       },
     };
   }

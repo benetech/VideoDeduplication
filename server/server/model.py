@@ -46,6 +46,7 @@ class RepoStats:
 @dataclass(frozen=True)
 class ContributorStats:
     total_fingerprints_count: int
+    pulled_fingerprints_count: int
 
 
 def prepare_serialization(data):
@@ -214,6 +215,7 @@ class Transform:
         if stats is not None:
             data["stats"] = {
                 "total_fingerprints_count": stats.total_fingerprints_count,
+                "pulled_fingerprints_count": stats.pulled_fingerprints_count,
             }
         return data
 

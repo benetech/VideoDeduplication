@@ -4,6 +4,7 @@ import { Repository } from "../../../model/VideoFile";
 import ValueBadge from "../../basic/ValueBadge";
 import formatRepoType from "../../../lib/messages/formatRepoType";
 import { safeTimeDistance } from "../../../lib/messages/safeTimeDistance";
+import StyledProgressAttr from "../../basic/ProgressAttr/ProgressAttr";
 
 const repoAttrs: AttributeRenderer<Repository>[] = [
   {
@@ -21,11 +22,15 @@ const repoAttrs: AttributeRenderer<Repository>[] = [
     value: (repo) => repo.address,
   },
   {
+    title: "repos.attr.lastSynced",
+    value: (repo, intl) => safeTimeDistance(repo.lastSynced, intl),
+  },
+  {
     title: "repos.attr.partners",
     value: (repo) => `${repo.stats?.partnersCount || 0}`,
   },
   {
-    title: "repos.attr.fingerprints",
+    title: "repos.attr.totalFingerprints",
     value: (repo) => `${repo.stats?.totalFingerprintsCount || 0}`,
   },
   {
@@ -37,8 +42,17 @@ const repoAttrs: AttributeRenderer<Repository>[] = [
     value: (repo) => `${repo.stats?.pulledFingerprintsCount || 0}`,
   },
   {
-    title: "repos.attr.lastSynced",
-    value: (repo, intl) => safeTimeDistance(repo.lastSynced, intl),
+    title: "repos.attr.pullProgress",
+    value: (repo) => (
+      <StyledProgressAttr
+        style={{ fontWeight: "normal" }}
+        variant="determinate"
+        value={
+          (100 * (repo.stats?.pulledFingerprintsCount || 0)) /
+            (repo.stats?.totalFingerprintsCount || 1) || 0
+        }
+      />
+    ),
   },
 ];
 

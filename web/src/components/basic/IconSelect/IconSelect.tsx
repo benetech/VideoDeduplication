@@ -43,12 +43,15 @@ function bindProperties<T>(
   return (option) => {
     if (!React.isValidElement(option)) {
       return null;
-    } // Get value identifying the current option
+    }
 
-    const optionValue = getValue(option, currentIndex); // Check if the option is selected
+    // Get value identifying the current option
+    const optionValue = getValue(option, currentIndex);
 
-    const selected = optionValue === selectedValue; // Get additional option styles
+    // Check if the option is selected
+    const selected = optionValue === selectedValue;
 
+    // Get additional option styles
     const optionClass = getStyles(currentIndex, selectedIndex, classes);
     currentIndex += 1;
     return React.cloneElement(option, {

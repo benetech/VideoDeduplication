@@ -1,10 +1,10 @@
 import abc
 import enum
 import itertools
-from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional, Iterator, Set
 
+from dataclasses import dataclass
 from sqlalchemy import or_, and_, func, literal_column, tuple_
 from sqlalchemy.orm import aliased, Query, Session, joinedload
 
@@ -88,6 +88,7 @@ class ListFilesRequest:
     repository: Optional[str] = None
     sha256: str = None
     templates: Optional[List[int]] = None
+    contributors: Optional[List[int]] = None
 
 
 @dataclass
@@ -462,6 +463,17 @@ class FilesDAO:
         return query
 
     @staticmethod
+    def _filter_contributors(req: ListFilesRequest, query: Query) -> Query:
+        """Filter by contributors."""
+        if req.contributors is not None and len(req.contributors) > 0:
+            return query.filter(
+                Files.contributor.has(
+                    Contributor.id.in_(tuple(req.contributors)),
+                )
+            )
+        return query
+
+    @staticmethod
     def _filter_by_file_attributes(req: ListFilesRequest, query: Query) -> Query:
         """Apply filters related to the properties of video file itself."""
         query = FilesDAO._filter_path(req, query)
@@ -474,6 +486,7 @@ class FilesDAO:
         query = FilesDAO._filter_repository(req, query)
         query = FilesDAO._filter_contributor(req, query)
         query = FilesDAO._filter_templates(req, query)
+        query = FilesDAO._filter_contributors(req, query)
         return query
 
     @staticmethod

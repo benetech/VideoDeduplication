@@ -80,6 +80,7 @@ export type ContributorDTO = {
   repository: RepositoryDTO;
   stats?: {
     total_fingerprints_count: number;
+    pulled_fingerprints_count: number;
   };
 };
 

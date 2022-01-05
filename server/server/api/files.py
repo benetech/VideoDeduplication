@@ -49,6 +49,7 @@ def parse_params() -> ListFilesRequest:
     result.contributor = request.args.get("contributor", None, type=str)
     result.repository = request.args.get("repository", None, type=str)
     result.templates = parse_int_list(request.args, "templates")
+    result.contributors = parse_int_list(request.args, "contributors")
     return result
 
 

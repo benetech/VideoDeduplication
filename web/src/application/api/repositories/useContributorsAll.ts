@@ -10,7 +10,7 @@ export type UseContributorsAllResult = EagerQueryAPI & {
 /**
  * Use eager contributors query.
  */
-export default function useRepositoriesAll(
+export default function useContributorsAll(
   filters: ContributorFilters = {},
   options: QueryOptions = {}
 ): UseContributorsAllResult {

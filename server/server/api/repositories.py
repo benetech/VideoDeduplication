@@ -2,7 +2,7 @@ from http import HTTPStatus
 from typing import Dict, Optional, Tuple
 
 from flask import jsonify, request, abort
-from sqlalchemy import func
+from sqlalchemy import func, distinct
 from sqlalchemy.exc import IntegrityError, DataError
 
 from db.schema import Repository, RepositoryType, Contributor, Files
@@ -33,7 +33,7 @@ def make_stats(entry: Tuple[Repository, int, int]):
 def fetch_repo(repository_id: int) -> Tuple[Optional[Repository], Optional[RepoStats]]:
     """Fetch repository with statistics by id."""
     entry = (
-        database.session.query(Repository, func.count(Contributor.id), func.count(Files.id))
+        database.session.query(Repository, func.count(distinct(Contributor.id)), func.count(distinct(Files.id)))
         .filter(Repository.id == repository_id)
         .outerjoin(Repository.contributors)
         .outerjoin(Contributor.files)
@@ -53,7 +53,7 @@ def list_repositories():
     name = request.args.get("name", "", type=str).strip()
 
     query = (
-        database.session.query(Repository, func.count(Contributor.id), func.count(Files.id))
+        database.session.query(Repository, func.count(distinct(Contributor.id)), func.count(distinct(Files.id)))
         .outerjoin(Repository.contributors)
         .outerjoin(Contributor.files)
         .group_by(Repository.id)
