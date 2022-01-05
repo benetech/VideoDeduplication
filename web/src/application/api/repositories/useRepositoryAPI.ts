@@ -71,6 +71,7 @@ export function useSyncRepository(): SyncRepoHandler {
     updateKeys: (repo: Updates<Repository>) => [
       ["repositories"],
       ["repository", repo.id],
+      ["contributors"],
     ],
   });
 

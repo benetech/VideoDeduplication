@@ -98,10 +98,12 @@ function MetadataFilters(props: MetadataFiltersProps): JSX.Element {
     [setFilters]
   );
   const handleRemoteChange = useCallback(
-    (remote) =>
+    (remote) => {
       setFilters({
         remote,
-      }),
+        contributors: remote ? filters.contributors : [],
+      });
+    },
     [setFilters]
   );
   const handleContributorsChange = useCallback(
