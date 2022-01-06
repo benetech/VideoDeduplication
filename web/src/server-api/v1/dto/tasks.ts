@@ -103,7 +103,7 @@ export function isProcessOnlineVideoRequestDTO(
 
 export type PushFingerprintsRequestDTO = {
   type: RawTaskType.PushFingerprints;
-  repository_name: string;
+  repository_id: number;
 };
 
 export function isPushFingerprintsRequestDTO(
@@ -114,7 +114,7 @@ export function isPushFingerprintsRequestDTO(
 
 export type PullFingerprintsRequestDTO = {
   type: RawTaskType.PullFingerprints;
-  repository_name: string;
+  repository_id: number;
 };
 
 export function isPullFingerprintsRequestDTO(

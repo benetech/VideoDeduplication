@@ -149,14 +149,14 @@ class ProcessOnlineVideo(Request):
 class PushFingerprints(Request):
     """Push fingerprints to remote repository."""
 
-    repository_name: str
+    repository_id: int
 
 
 @dataclass
 class PullFingerprints(Request):
     """Pull fingerprints from remote repository."""
 
-    repository_name: str
+    repository_id: int
 
 
 @dataclass

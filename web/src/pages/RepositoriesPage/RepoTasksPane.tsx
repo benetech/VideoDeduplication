@@ -77,11 +77,11 @@ function RepoTasksPane(props: RepoTasksPaneProps): JSX.Element | null {
       switch (type) {
         case TaskRequestType.PUSH_FINGERPRINTS:
           return await runTask(
-            makePushFingerprintsRequest({ repositoryName: repository.name })
+            makePushFingerprintsRequest({ repositoryId: repository.id })
           );
         case TaskRequestType.PULL_FINGERPRINTS:
           return await runTask(
-            makePullFingerprintsRequest({ repositoryName: repository.name })
+            makePullFingerprintsRequest({ repositoryId: repository.id })
           );
       }
     } catch (error) {

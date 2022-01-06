@@ -7,7 +7,7 @@ from typing import Optional, List, Dict
 from celery.utils.log import get_task_logger
 
 from db.access.templates import TemplatesDAO
-from db.schema import Template, Files
+from db.schema import Template, Files, Repository
 from .progress_monitor import make_progress_monitor
 from .winnow_task import winnow_task
 
@@ -313,7 +313,7 @@ def process_online_video(
 @winnow_task(bind=True)
 def push_fingerprints_task(
     self,
-    repository_name: str,
+    repository_id: int,
 ):
     from winnow.utils.config import resolve_config
     from winnow.pipeline.pipeline_context import PipelineContext
@@ -330,14 +330,18 @@ def push_fingerprints_task(
     # Run pipeline
     monitor.update(0)
     pipeline_context = PipelineContext(config)
-    push_fingerprints(repository_name, pipeline_context, monitor.subtask(work_amount=1.0))
+
+    with pipeline_context.database.session_scope(expunge=True) as session:
+        repo: Repository = session.query(Repository).filter(Repository.id == repository_id).one()
+
+    push_fingerprints(repo.name, pipeline_context, monitor.subtask(work_amount=1.0))
     monitor.complete()
 
 
 @winnow_task(bind=True)
 def pull_fingerprints_task(
     self,
-    repository_name: str,
+    repository_id: int,
 ):
     from winnow.utils.config import resolve_config
     from winnow.pipeline.pipeline_context import PipelineContext
@@ -354,7 +358,11 @@ def pull_fingerprints_task(
     # Run pipeline
     monitor.update(0)
     pipeline_context = PipelineContext(config)
-    pull_fingerprints(repository_name, pipeline_context, monitor.subtask(work_amount=1.0))
+
+    with pipeline_context.database.session_scope(expunge=True) as session:
+        repo: Repository = session.query(Repository).filter(Repository.id == repository_id).one()
+
+    pull_fingerprints(repo.name, pipeline_context, monitor.subtask(work_amount=1.0))
     monitor.complete()
 
 

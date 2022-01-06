@@ -196,7 +196,7 @@ class TaskRequestTransformer {
   ): PushFingerprintsRequest {
     return {
       type: TaskRequestType.PUSH_FINGERPRINTS,
-      repositoryName: data.repository_name,
+      repositoryId: data.repository_id,
     };
   }
 
@@ -205,7 +205,7 @@ class TaskRequestTransformer {
   ): PushFingerprintsRequestDTO {
     return {
       type: RawTaskType.PushFingerprints,
-      repository_name: req.repositoryName,
+      repository_id: req.repositoryId,
     };
   }
 
@@ -214,7 +214,7 @@ class TaskRequestTransformer {
   ): PullFingerprintsRequest {
     return {
       type: TaskRequestType.PULL_FINGERPRINTS,
-      repositoryName: data.repository_name,
+      repositoryId: data.repository_id,
     };
   }
 
@@ -223,7 +223,7 @@ class TaskRequestTransformer {
   ): PullFingerprintsRequestDTO {
     return {
       type: RawTaskType.PullFingerprints,
-      repository_name: req.repositoryName,
+      repository_id: req.repositoryId,
     };
   }
 

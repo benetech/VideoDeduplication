@@ -1,4 +1,5 @@
 import { JsonObject } from "../lib/types/Json";
+import { Repository } from "./VideoFile";
 
 /**
  * Task query filters.
@@ -80,12 +81,12 @@ export type ProcessOnlineVideoRequest = BaseTaskRequest & {
 
 export type PushFingerprintsRequest = {
   type: TaskRequestType.PUSH_FINGERPRINTS;
-  repositoryName: string;
+  repositoryId: Repository["id"];
 };
 
 export type PullFingerprintsRequest = {
   type: TaskRequestType.PULL_FINGERPRINTS;
-  repositoryName: string;
+  repositoryId: Repository["id"];
 };
 
 export type MatchRemoteFingerprintsRequest = {
@@ -274,7 +275,7 @@ export function makePushFingerprintsRequest(
 ): PushFingerprintsRequest {
   return {
     type: TaskRequestType.PUSH_FINGERPRINTS,
-    repositoryName: "",
+    repositoryId: 0,
     ...req,
   };
 }
@@ -287,7 +288,7 @@ export function makePullFingerprintsRequest(
 ): PullFingerprintsRequest {
   return {
     type: TaskRequestType.PULL_FINGERPRINTS,
-    repositoryName: "",
+    repositoryId: 0,
     ...req,
   };
 }
