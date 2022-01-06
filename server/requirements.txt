@@ -4,7 +4,7 @@ Flask-SQLAlchemy==2.4.4
 PyYAML==5.3.1
 psycopg2==2.8.6
 fire==0.3.1
-celery==5.0.5
+celery==5.2.2
 redis==3.5.3
 Flask-SocketIO==5.0.0
 eventlet==0.30.0
