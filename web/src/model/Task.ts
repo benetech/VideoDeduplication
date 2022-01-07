@@ -91,7 +91,7 @@ export type PullFingerprintsRequest = {
 
 export type MatchRemoteFingerprintsRequest = {
   type: TaskRequestType.MATCH_REMOTE_FINGERPRINTS;
-  repositoryName?: string | null;
+  repositoryId?: Repository["id"] | null;
   contributorName?: string | null;
 };
 

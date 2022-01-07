@@ -163,7 +163,7 @@ class PullFingerprints(Request):
 class MatchRemoteFingerprints(Request):
     """Match local and remote fingerprints."""
 
-    repository_name: Optional[str] = None
+    repository_id: Optional[int] = None
     contributor_name: Optional[str] = None
 
 

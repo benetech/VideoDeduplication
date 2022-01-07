@@ -369,7 +369,7 @@ def pull_fingerprints_task(
 @winnow_task(bind=True)
 def match_remote_fingerprints(
     self,
-    repository_name: str = None,
+    repository_id: int = None,
     contributor_name: str = None,
 ):
     from winnow.utils.config import resolve_config
@@ -387,6 +387,16 @@ def match_remote_fingerprints(
     # Run pipeline
     monitor.update(0)
     pipeline_context = PipelineContext(config)
+
+    if repository_id is None and contributor_name is not None:
+        raise ValueError("Cannot specify contributor name when repository id is not specified")
+
+    repository_name = None
+    if repository_id is not None:
+        with pipeline_context.database.session_scope() as session:
+            repo = session.query(Repository).filter(Repository.id == repository_id).one()
+            repository_name = repo.name
+
     generate_remote_matches(
         repository_name=repository_name,
         contributor_name=contributor_name,

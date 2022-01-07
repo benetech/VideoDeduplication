@@ -125,7 +125,7 @@ export function isPullFingerprintsRequestDTO(
 
 export type MatchRemoteFingerprintsRequestDTO = {
   type: RawTaskType.MatchRemoteFingerprints;
-  repository_name?: string | null;
+  repository_id?: number | null;
   contributor_name?: string | null;
 };
 

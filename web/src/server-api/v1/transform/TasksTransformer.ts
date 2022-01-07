@@ -232,7 +232,7 @@ class TaskRequestTransformer {
   ): MatchRemoteFingerprintsRequest {
     return {
       type: TaskRequestType.MATCH_REMOTE_FINGERPRINTS,
-      repositoryName: data.repository_name,
+      repositoryId: data.repository_id,
       contributorName: data.contributor_name,
     };
   }
@@ -242,7 +242,7 @@ class TaskRequestTransformer {
   ): MatchRemoteFingerprintsRequestDTO {
     return {
       type: RawTaskType.MatchRemoteFingerprints,
-      repository_name: req.repositoryName,
+      repository_id: req.repositoryId,
       contributor_name: req.contributorName,
     };
   }
