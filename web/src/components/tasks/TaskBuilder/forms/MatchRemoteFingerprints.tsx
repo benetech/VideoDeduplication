@@ -16,6 +16,9 @@ import useRepositoriesAll from "../../../../application/api/repositories/useRepo
 import FormControl from "@material-ui/core/FormControl";
 import InputContainer from "../../../forms/InputContainer";
 import useContributorsAll from "../../../../application/api/repositories/useContributorsAll";
+import SingleContributorSelect from "../../../remote/SingleContributorSelect";
+import { Nullable } from "../../../../lib/types/util-types";
+import { Contributor } from "../../../../model/VideoFile";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   description: {
@@ -48,7 +51,6 @@ function MatchRemoteFingerprints(
   const classes = useStyles();
   const messages = useMessages();
   const repoLabelId = useUniqueId("label-repo-");
-  const partnerLabelId = useUniqueId("label-partner-");
   const { repositories } = useRepositoriesAll();
   const { contributors } = useContributorsAll({
     repositoryId: request.repositoryId || 0,
@@ -77,18 +79,15 @@ function MatchRemoteFingerprints(
     [onChange, request]
   );
 
-  const renderPartner = useCallback(
-    (selectedName) =>
-      contributors.find((contributor) => contributor.name === selectedName)
-        ?.name || messages.all,
-    [contributors]
-  );
-
   const handlePartnerChange = useCallback(
-    (event) => {
-      onChange({ ...request, contributorName: event.target.value || null });
+    (contributor: Nullable<Contributor>) => {
+      onChange({ ...request, contributorName: contributor?.name || null });
     },
     [onChange, request]
+  );
+
+  const contributor = contributors.find(
+    (contributor) => contributor.name === request.contributorName
   );
 
   return (
@@ -120,30 +119,12 @@ function MatchRemoteFingerprints(
         </FormControl>
       </InputContainer>
       <InputContainer title={messages.partner} tooltip={messages.partnerHelp}>
-        <FormControl fullWidth variant="outlined">
-          <InputLabel id={partnerLabelId}>{messages.partner}</InputLabel>
-          <Select
-            labelId={partnerLabelId}
-            value={request.contributorName || messages.all}
-            onChange={handlePartnerChange}
-            renderValue={renderPartner}
-            disabled={
-              request.repositoryId == null ||
-              request.repositoryId <= 0 ||
-              contributors.length === 0
-            }
-            labelWidth={60}
-          >
-            <MenuItem value={messages.all}>
-              <ListItemText primary={messages.all} />
-            </MenuItem>
-            {contributors.map((contributor) => (
-              <MenuItem key={contributor.id} value={contributor.name}>
-                <ListItemText primary={contributor.name} />
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <SingleContributorSelect
+          contributors={contributors}
+          selected={contributor}
+          onSelect={handlePartnerChange}
+          disabled={request.repositoryId == null || request.repositoryId <= 0}
+        />
       </InputContainer>
     </div>
   );
