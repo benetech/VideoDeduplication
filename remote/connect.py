@@ -117,7 +117,7 @@ class DatabaseConnector:
                 contributor=contributors[fingerprint.contributor],
                 external_id=fingerprint.id,
             )
-            signature = Signature(signature=fingerprint.fingerprint, file=file)
+            signature = Signature(signature=pickle.dumps(fingerprint.fingerprint), file=file)
             session.add(file)
             session.add(signature)
 
