@@ -96,7 +96,7 @@ function RepositoriesPage(props: RepositoriesPageProps): JSX.Element {
       </PageContent>
       <Sidebar show={showTasks}>
         <SidebarHeader title={messages.process} onToggle={setShowTasks} />
-        <SidebarContent>
+        <SidebarContent sticky>
           <TaskSidebar filter={repoTasks} />
         </SidebarContent>
       </Sidebar>

@@ -1,14 +1,27 @@
 import React, { HTMLAttributes } from "react";
+import { makeStyles } from "@material-ui/core";
+import clsx from "clsx";
+
+const useStyles = makeStyles((theme) => ({
+  sticky: {
+    position: "sticky",
+    top: theme.spacing(2),
+    height: `90vh`,
+  },
+}));
 
 type SidebarContentProps = HTMLAttributes<HTMLDivElement> & {
+  sticky?: boolean;
   children?: React.ReactNode;
   className?: string;
 };
 
 function SidebarContent(props: SidebarContentProps): JSX.Element {
-  const { children, className, ...other } = props;
+  const { children, className, sticky, ...other } = props;
+  const classes = useStyles();
+
   return (
-    <div className={className} {...other}>
+    <div className={clsx(className, sticky && classes.sticky)} {...other}>
       {children}
     </div>
   );

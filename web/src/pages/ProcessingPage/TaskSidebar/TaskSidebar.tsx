@@ -11,11 +11,13 @@ import useTasksLazy from "../../../application/api/tasks/useTasksLazy";
 import { Task } from "../../../model/Task";
 
 const useStyles = makeStyles<Theme>((theme) => ({
-  container: {},
+  container: {
+    height: "85%",
+  },
   tasks: {
     marginTop: theme.spacing(2),
-    maxHeight: 450,
     overflowY: "auto",
+    height: "100%",
   },
   task: {
     margin: theme.spacing(1),
