@@ -6,7 +6,7 @@ const useStyles = makeStyles((theme) => ({
   sticky: {
     position: "sticky",
     top: theme.spacing(2),
-    height: `90vh`,
+    height: `calc(100vh - ${theme.spacing(6)}px)`,
   },
 }));
 
