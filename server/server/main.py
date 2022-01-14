@@ -5,7 +5,7 @@ import eventlet
 import fire
 from flask import Flask
 
-from server.config import Config
+from server.config import Config, OnlinePolicy
 from server.socket.log_watcher import LogWatcher
 from server.socket.task_observer import TaskObserver
 from template_support.file_storage import LocalFileStorage
@@ -55,6 +55,9 @@ def serve(
     db_uri=None,
     static=None,
     videos=None,
+    online_policy=None,
+    security_storage_path=None,
+    security_master_key_path=None,
 ):
     """Start Deduplication API Server."""
     eventlet.monkey_patch()
@@ -70,6 +73,9 @@ def serve(
     config.host = host or config.host
     config.video_folder = videos or config.video_folder
     config.static_folder = static or config.static_folder
+    config.online_policy = OnlinePolicy.parse(online_policy, config.online_policy)
+    config.security_storage_path = security_storage_path or config.security_storage_path
+    config.master_key_path = security_master_key_path or config.master_key_path
     config.database.port = db_port or config.database.port
     config.database.host = db_host or config.database.host
     config.database.name = db_name or config.database.name

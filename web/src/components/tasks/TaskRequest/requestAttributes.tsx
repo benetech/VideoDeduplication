@@ -5,15 +5,15 @@ import ExtensionList from "./ExtensionList";
 import FileRef from "../../basic/FileRef";
 import LinkList from "./LinkList";
 import {
+  BaseTaskRequest,
   FindFrameRequest,
   MatchTemplatesRequest,
   ProcessDirectoryRequest,
   ProcessOnlineVideoRequest,
-  TaskRequest,
 } from "../../../model/Task";
 import { AttributeRenderer } from "../../../lib/types/AttributeRenderer";
 
-export const commonRequestAttributes: AttributeRenderer<TaskRequest>[] = [
+export const commonRequestAttributes: AttributeRenderer<BaseTaskRequest>[] = [
   {
     title: "task.attr.frameSampling",
     value: (request) => request.frameSampling,

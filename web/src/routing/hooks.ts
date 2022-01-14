@@ -4,7 +4,7 @@ import { routes } from "./routes";
 import getEntityId from "../lib/entity/getEntityId";
 import { Entity } from "../lib/entity/Entity";
 import { Task } from "../model/Task";
-import { VideoFile } from "../model/VideoFile";
+import { Repository, VideoFile } from "../model/VideoFile";
 
 export type EntityRoute<E extends Entity> = (
   entity: E | E["id"] | string
@@ -86,4 +86,41 @@ export function useShowCollection(): () => void {
 export function useShowProcessing(): () => void {
   const history = useHistory();
   return useCallback(() => history.push(routes.processing.home), []);
+}
+
+/**
+ * Get function to navigate to repository details page.
+ */
+export function useShowRepository(): EntityRoute<Repository> {
+  return useShowEntityPage<Repository>((id) =>
+    routes.collaborators.repositoryURL(id)
+  );
+}
+
+/**
+ * Get function to navigate to repository editing page.
+ */
+export function useEditRepository(): EntityRoute<Repository> {
+  return useShowEntityPage<Repository>((id) =>
+    routes.collaborators.editRepositoryURL(id)
+  );
+}
+
+/**
+ * Get function to navigate to repository construction page.
+ */
+export function useShowCreateRepositoryPage(): () => void {
+  const history = useHistory();
+  return useCallback(
+    () => history.push(routes.collaborators.newRepository),
+    []
+  );
+}
+
+/**
+ * Get function to navigate to repositories page.
+ */
+export function useShowRepositoriesPage(): () => void {
+  const history = useHistory();
+  return useCallback(() => history.push(routes.collaborators.repositories), []);
 }

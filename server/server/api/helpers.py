@@ -2,15 +2,20 @@ import enum
 import os
 import re
 from datetime import datetime
+from functools import lru_cache
 from http import HTTPStatus
 from typing import Type
 
 from flask import current_app, abort
 
+from db import Database
 from db.access.fields import Fields
+from remote.repository_dao_database import DBRemoteRepoDAO
+from security.storage import SecureStorage
 from template_support.file_storage import FileStorage
 from thumbnail.cache import ThumbnailCache
 from ..config import Config
+from ..model import database
 from ..queue import TaskQueue
 from ..queue.framework import TaskLogStorage
 from ..socket.log_watcher import LogWatcher
@@ -44,6 +49,23 @@ def get_log_watcher() -> LogWatcher:
 def get_thumbnails() -> ThumbnailCache:
     """Get current application thumbnail cache."""
     return current_app.config.get("THUMBNAILS")
+
+
+def get_security_storage() -> SecureStorage:
+    """Get secured credentials storage."""
+    config = get_config()
+    return SecureStorage(path=config.security_storage_path, master_key_path=config.master_key_path)
+
+
+@lru_cache()
+def get_repos_dao() -> DBRemoteRepoDAO:
+    return DBRemoteRepoDAO(
+        database=Database(
+            engine=database.engine,
+            make_session=lambda: database.session,
+        ),
+        secret_storage=get_security_storage(),
+    )
 
 
 def resolve_video_file_path(file_path):

@@ -66,7 +66,7 @@ class DBGetterCli:
         output = valid_enum("output", output, Format)
         fields = valid_sequence("fields", fields, Transform.FILE_FIELDS, required=False)
 
-        database = Database(self._config.database.uri)
+        database = Database.from_uri(self._config.database.uri)
         with database.session_scope(expunge=True) as session:
             results = FilesDAO.list_files(req, session)
             files = [Transform.file(file) for file in results.items]
@@ -99,7 +99,7 @@ class DBGetterCli:
         fields = valid_sequence("fields", fields, admissible_values=Transform.MATCH_FIELDS)
 
         # Query matches
-        database = Database(self._config.database.uri)
+        database = Database.from_uri(self._config.database.uri)
         with database.session_scope() as session:
             matches = MatchesDAO.list_matches_query(
                 session, path=path, min_distance=min_distance, max_distance=max_distance, limit=limit, offset=offset

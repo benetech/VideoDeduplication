@@ -74,7 +74,8 @@ def extract_frame_tmp(
         position (int): Time position of the frame inside video (in milliseconds).
         compression (int): JPEG compression (normal range is 2-31 with 31 being the worst quality).
         width (int): Scaled frame width.
-        directory (str): Directory in which to create an image file. If None, default platform temporary location is used.
+        directory (str): Directory in which to create an image file. If None, default platform
+            temporary location is used.
 
     Returns:
         Path of the created image file. None if position exceeds video length.

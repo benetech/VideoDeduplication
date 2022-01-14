@@ -22,16 +22,16 @@ const useStyles = makeStyles<Theme>((theme) => ({
 }));
 
 function ConnectionIndicator(props: ConnectionIndicatorProps): JSX.Element {
-  const { offline = false, className } = props;
+  const { online = false, className } = props;
   const classes = useStyles();
   const intl = useIntl();
-  const Icon = offline ? WifiOffOutlinedIcon : WifiOutlinedIcon;
-  const text = offline
+  const Icon = online ? WifiOutlinedIcon : WifiOffOutlinedIcon;
+  const text = online
     ? intl.formatMessage({
-        id: "app.action.offline",
+        id: "app.action.online",
       })
     : intl.formatMessage({
-        id: "app.action.online",
+        id: "app.action.offline",
       });
   return (
     <div className={clsx(classes.indicator, className)}>
@@ -41,7 +41,7 @@ function ConnectionIndicator(props: ConnectionIndicatorProps): JSX.Element {
 }
 
 type ConnectionIndicatorProps = {
-  offline?: boolean;
+  online?: boolean;
   className?: string;
 };
 export default ConnectionIndicator;

@@ -1,15 +1,18 @@
-import React, { useCallback, useState } from "react";
-import clsx from "clsx";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/styles";
-import { IconButton, Theme, Tooltip } from "@material-ui/core";
+import { Theme } from "@material-ui/core";
 import TaskSidebar from "./TaskSidebar";
 import { useIntl } from "react-intl";
-import Title from "../../components/basic/Title";
 import Description from "./Description";
-import CloseOutlinedIcon from "@material-ui/icons/CloseOutlined";
-import PlaylistAddCheckOutlinedIcon from "@material-ui/icons/PlaylistAddCheckOutlined";
-import Spacer from "../../components/basic/Spacer";
 import TaskBuilder from "../../components/tasks/TaskBuilder";
+import PageLayout from "../../components/page-layout/PageLayout";
+import PageHeader from "../../components/page-layout/PageHeader";
+import SidebarToggle from "../../components/page-layout/SidebarToggle";
+import PageBody from "../../components/page-layout/PageBody";
+import PageContent from "../../components/page-layout/PageContent";
+import SidebarHeader from "../../components/page-layout/SidebarHeader";
+import SidebarContent from "../../components/page-layout/SidebarContent";
+import Sidebar from "../../components/page-layout/Sidebar";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   root: {
@@ -36,11 +39,14 @@ const useStyles = makeStyles<Theme>((theme) => ({
       display: "none",
     },
   },
+  header: {
+    marginBottom: theme.spacing(3),
+  },
 }));
+
 /**
  * Get translated text.
  */
-
 function useMessages() {
   const intl = useIntl();
   return {
@@ -56,41 +62,39 @@ function useMessages() {
   };
 }
 
-function ProcessingPage(props: ProcessingPageProps): JSX.Element {
+type ProcessingPageProps = {
+  className?: string;
+};
+
+export default function ProcessingPage(
+  props: ProcessingPageProps
+): JSX.Element {
   const { className, ...other } = props;
   const classes = useStyles();
   const messages = useMessages();
   const [showTasks, setShowTasks] = useState(true);
-  const handleToggleTasks = useCallback(
-    () => setShowTasks(!showTasks),
-    [showTasks]
-  );
-  const Icon = showTasks ? CloseOutlinedIcon : PlaylistAddCheckOutlinedIcon;
-  const tooltip = showTasks ? messages.hideTasks : messages.showTasks;
+
   return (
-    <div className={clsx(classes.root, className)} {...other}>
-      <Title text={messages.title}>
-        <Description className={classes.description} />
-        <Spacer />
-        <Tooltip title={tooltip}>
-          <IconButton
-            color="inherit"
-            onClick={handleToggleTasks}
-            aria-label={tooltip}
-          >
-            <Icon color="inherit" fontSize="large" />
-          </IconButton>
-        </Tooltip>
-      </Title>
-      <div className={classes.content}>
-        <TaskBuilder className={classes.builder} />
-        {showTasks && <TaskSidebar className={classes.tasks} />}
-      </div>
-    </div>
+    <PageLayout className={className} {...other}>
+      <PageContent>
+        <PageHeader title={messages.title}>
+          <Description className={classes.description} />
+          <SidebarToggle
+            sidebar={showTasks}
+            onToggle={setShowTasks}
+            tooltip={messages.showTasks}
+          />
+        </PageHeader>
+        <PageBody>
+          <TaskBuilder className={classes.builder} />
+        </PageBody>
+      </PageContent>
+      <Sidebar show={showTasks}>
+        <SidebarHeader onToggle={setShowTasks} />
+        <SidebarContent sticky>
+          <TaskSidebar />
+        </SidebarContent>
+      </Sidebar>
+    </PageLayout>
   );
 }
-
-type ProcessingPageProps = {
-  className?: string;
-};
-export default ProcessingPage;

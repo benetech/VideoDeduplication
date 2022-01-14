@@ -48,4 +48,22 @@ export const TaskResultViews: TaskResultViewMap = {
       component: RawResults,
     },
   ],
+  [TaskRequestType.PUSH_FINGERPRINTS]: [
+    {
+      title: "view.raw",
+      component: RawResults,
+    },
+  ],
+  [TaskRequestType.PULL_FINGERPRINTS]: [
+    {
+      title: "view.raw",
+      component: RawResults,
+    },
+  ],
+  [TaskRequestType.MATCH_REMOTE_FINGERPRINTS]: [
+    {
+      title: "view.raw",
+      component: RawResults,
+    },
+  ],
 };

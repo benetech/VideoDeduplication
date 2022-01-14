@@ -1,5 +1,5 @@
 import { Task } from "../model/Task";
-import { VideoFile } from "../model/VideoFile";
+import { Repository, VideoFile } from "../model/VideoFile";
 
 /**
  * Expected URL parameters of a single entity page.
@@ -62,6 +62,25 @@ export const routes = {
   },
   collaborators: {
     home: "/collaborators",
+
+    get repositories(): string {
+      return `${this.home}/repositories`;
+    },
+    get newRepository(): string {
+      return `${this.repositories}/new`;
+    },
+    get repository(): string {
+      return `${this.repositories}/:id`;
+    },
+    repositoryURL(id: Repository["id"] | string): string {
+      return `${this.repositories}/${id}`;
+    },
+    get editRepository(): string {
+      return `${this.repository}/edit`;
+    },
+    editRepositoryURL(id: Repository["id"] | string): string {
+      return `${this.repositoryURL(id)}/edit`;
+    },
   },
   templates: {
     home: "/templates",

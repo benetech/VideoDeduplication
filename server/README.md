@@ -48,6 +48,9 @@ Server honors the following environment variables:
  * `FILE_STORE_DIRECTORY` - Directory in which the application files (e.g. template examples) will be stored (default is `./app_files`)
  * `MAX_UPLOAD_SIZE` - Maximal upload file size in bytes (default is `20971520`, i.e. 20MB)
  * `ALLOWED_ORIGINS` - Optional comma-separated list of allowed origins. 
+ * `ONLINE_POLICY` - Online detection policy. Possible values are `online`, `offline` and `detect` (default is `detect`)
+ * `SECURITY_STORAGE_PATH` - Directory in which third-party credentials are stored (default is `./`).
+ * `SECURITY_MASTER_KEY_PATH` - File path in which master key for third-party credentials is stored (unset by default).
 
 
 Server accepts the following command-line arguments:
@@ -64,6 +67,9 @@ Server accepts the following command-line arguments:
  * `--db_uri` - set database connection URI (overrides the other `DATABASE_*` variables and `--db_*` flags)
  * `--static` - set location of directory with static resources (overrides `STATIC_FOLDER` variable)
  * `--videos` - set location of video files (overrides `VIDEO_FOLDER` variable)
+ * `--online_policy` - set server online detection policty (overrices `ONLINE_POLICY` variable)
+ * `--security_storage_path` - set directory in which third-party credentials are stored (overrides `SECURITY_STORAGE_PATH` varialbe)
+ * `--security_master_key_path` - set file path in which master key for third-party credentials is stored (overrides `SECURITY_MASTER_KEY_PATH` variable)
 
 ## Serving Frontend
 

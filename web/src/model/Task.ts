@@ -1,4 +1,5 @@
 import { JsonObject } from "../lib/types/Json";
+import { Repository } from "./VideoFile";
 
 /**
  * Task query filters.
@@ -17,6 +18,9 @@ export enum TaskRequestType {
   MATCH_TEMPLATES = "MatchTemplates",
   FIND_FRAME = "FindFrame",
   PROCESS_ONLINE_VIDEO = "ProcessOnlineVideo",
+  PUSH_FINGERPRINTS = "PushFingerprints",
+  PULL_FINGERPRINTS = "PullFingerprints",
+  MATCH_REMOTE_FINGERPRINTS = "MatchRemoteFingerprints",
 }
 
 /**
@@ -75,12 +79,31 @@ export type ProcessOnlineVideoRequest = BaseTaskRequest & {
   destinationTemplate?: string;
 };
 
+export type PushFingerprintsRequest = {
+  type: TaskRequestType.PUSH_FINGERPRINTS;
+  repositoryId: Repository["id"];
+};
+
+export type PullFingerprintsRequest = {
+  type: TaskRequestType.PULL_FINGERPRINTS;
+  repositoryId: Repository["id"];
+};
+
+export type MatchRemoteFingerprintsRequest = {
+  type: TaskRequestType.MATCH_REMOTE_FINGERPRINTS;
+  repositoryId?: Repository["id"] | null;
+  contributorName?: string | null;
+};
+
 export type TaskRequest =
   | ProcessDirectoryRequest
   | ProcessFileListRequest
   | MatchTemplatesRequest
   | FindFrameRequest
-  | ProcessOnlineVideoRequest;
+  | ProcessOnlineVideoRequest
+  | PushFingerprintsRequest
+  | PullFingerprintsRequest
+  | MatchRemoteFingerprintsRequest;
 
 export type FileCount = {
   templateId: number;
@@ -103,6 +126,9 @@ export type ProcessFileListResult = undefined;
 export type MatchTemplatesResult = { fileCounts: FileCount[] };
 export type FindFrameResult = { matches: FoundFrame[] };
 export type ProcessOnlineVideoResult = { files: ProcessedFile[] };
+export type PushFingerprintsResult = undefined;
+export type PullFingerprintsResult = undefined;
+export type MatchRemoteFingerprintsResult = undefined;
 
 export type TaskResult =
   | ProcessDirectoryResult
@@ -120,6 +146,9 @@ export type TaskRequestMap = {
   [TaskRequestType.MATCH_TEMPLATES]: MatchTemplatesRequest;
   [TaskRequestType.FIND_FRAME]: FindFrameRequest;
   [TaskRequestType.PROCESS_ONLINE_VIDEO]: ProcessOnlineVideoRequest;
+  [TaskRequestType.PUSH_FINGERPRINTS]: PushFingerprintsRequest;
+  [TaskRequestType.PULL_FINGERPRINTS]: PullFingerprintsRequest;
+  [TaskRequestType.MATCH_REMOTE_FINGERPRINTS]: MatchRemoteFingerprintsRequest;
 };
 
 /**
@@ -131,6 +160,9 @@ export type TaskResultMap = {
   [TaskRequestType.MATCH_TEMPLATES]: MatchTemplatesResult;
   [TaskRequestType.FIND_FRAME]: FindFrameResult;
   [TaskRequestType.PROCESS_ONLINE_VIDEO]: ProcessOnlineVideoResult;
+  [TaskRequestType.PUSH_FINGERPRINTS]: PushFingerprintsResult;
+  [TaskRequestType.PULL_FINGERPRINTS]: PullFingerprintsResult;
+  [TaskRequestType.MATCH_REMOTE_FINGERPRINTS]: MatchRemoteFingerprintsResult;
 };
 
 /**
@@ -236,6 +268,44 @@ export function makeProcessOnlineVideoRequest(
 }
 
 /**
+ * Make default PushFingerprintsRequest
+ */
+export function makePushFingerprintsRequest(
+  req: Partial<PushFingerprintsRequest> = {}
+): PushFingerprintsRequest {
+  return {
+    type: TaskRequestType.PUSH_FINGERPRINTS,
+    repositoryId: 0,
+    ...req,
+  };
+}
+
+/**
+ * Make default PullFingerprintsRequest
+ */
+export function makePullFingerprintsRequest(
+  req: Partial<PullFingerprintsRequest> = {}
+): PullFingerprintsRequest {
+  return {
+    type: TaskRequestType.PULL_FINGERPRINTS,
+    repositoryId: 0,
+    ...req,
+  };
+}
+
+/**
+ * Make default MatchRemoteFingerprintsRequest
+ */
+export function makeMatchRemoteFingerprintsRequest(
+  req: Partial<MatchRemoteFingerprintsRequest> = {}
+): MatchRemoteFingerprintsRequest {
+  return {
+    type: TaskRequestType.MATCH_REMOTE_FINGERPRINTS,
+    ...req,
+  };
+}
+
+/**
  * Make default request (correct shape, but possible invalid data).
  */
 export function makeTaskRequest(type: TaskRequestType): TaskRequest {
@@ -250,5 +320,11 @@ export function makeTaskRequest(type: TaskRequestType): TaskRequest {
       return makeFindFrameRequest();
     case TaskRequestType.PROCESS_ONLINE_VIDEO:
       return makeProcessOnlineVideoRequest();
+    case TaskRequestType.PUSH_FINGERPRINTS:
+      return makePushFingerprintsRequest();
+    case TaskRequestType.PULL_FINGERPRINTS:
+      return makePullFingerprintsRequest();
+    case TaskRequestType.MATCH_REMOTE_FINGERPRINTS:
+      return makeMatchRemoteFingerprintsRequest();
   }
 }

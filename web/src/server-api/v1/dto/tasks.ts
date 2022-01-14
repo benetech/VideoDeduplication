@@ -19,6 +19,9 @@ export enum RawTaskType {
   MatchTemplates = "MatchTemplates",
   FindFrame = "FindFrame",
   ProcessOnlineVideo = "ProcessOnlineVideo",
+  PushFingerprints = "PushFingerprints",
+  PullFingerprints = "PullFingerprints",
+  MatchRemoteFingerprints = "MatchRemoteFingerprints",
 }
 
 export type TypedRequestDTO = {
@@ -98,12 +101,49 @@ export function isProcessOnlineVideoRequestDTO(
   return data.type === RawTaskType.ProcessOnlineVideo;
 }
 
+export type PushFingerprintsRequestDTO = {
+  type: RawTaskType.PushFingerprints;
+  repository_id: number;
+};
+
+export function isPushFingerprintsRequestDTO(
+  data: TypedRequestDTO
+): data is PushFingerprintsRequestDTO {
+  return data.type === RawTaskType.PushFingerprints;
+}
+
+export type PullFingerprintsRequestDTO = {
+  type: RawTaskType.PullFingerprints;
+  repository_id: number;
+};
+
+export function isPullFingerprintsRequestDTO(
+  data: TypedRequestDTO
+): data is PullFingerprintsRequestDTO {
+  return data.type === RawTaskType.PullFingerprints;
+}
+
+export type MatchRemoteFingerprintsRequestDTO = {
+  type: RawTaskType.MatchRemoteFingerprints;
+  repository_id?: number | null;
+  contributor_name?: string | null;
+};
+
+export function isMatchRemoteFingerprintsRequestDTO(
+  data: TypedRequestDTO
+): data is MatchRemoteFingerprintsRequestDTO {
+  return data.type === RawTaskType.MatchRemoteFingerprints;
+}
+
 export type TaskRequestDTO =
   | ProcessDirectoryRequestDTO
   | ProcessFileListRequestDTO
   | MatchTemplatesRequestDTO
   | FindFrameRequestDTO
-  | ProcessOnlineVideoRequestDTO;
+  | ProcessOnlineVideoRequestDTO
+  | PushFingerprintsRequestDTO
+  | PullFingerprintsRequestDTO
+  | MatchRemoteFingerprintsRequestDTO;
 
 export type FileCountDTO = {
   template: number;
@@ -126,13 +166,19 @@ export type ProcessFileListResultDTO = undefined;
 export type MatchTemplatesResultDTO = { file_counts: FileCountDTO[] };
 export type FindFrameResultDTO = { matches: FoundFrameDTO[] };
 export type ProcessOnlineVideoResultDTO = { files: ProcessedFileDTO[] };
+export type PushFingerprintsResultDTO = undefined;
+export type PullFingerprintsResultDTO = undefined;
+export type MatchRemoteFingerprintsResultDTO = undefined;
 
 export type TaskResultDTO =
   | ProcessDirectoryResultDTO
   | ProcessFileListResultDTO
   | MatchTemplatesResultDTO
   | FindFrameResultDTO
-  | ProcessOnlineVideoResultDTO;
+  | ProcessOnlineVideoResultDTO
+  | PushFingerprintsResultDTO
+  | PullFingerprintsResultDTO
+  | MatchRemoteFingerprintsResultDTO;
 
 export type TaskDTO = {
   id: string;

@@ -58,4 +58,22 @@ export const RequestViews: RequestViewMap = {
       component: RawRequest,
     },
   ],
+  [TaskRequestType.PUSH_FINGERPRINTS]: [
+    {
+      title: "view.raw",
+      component: RawRequest,
+    },
+  ],
+  [TaskRequestType.PULL_FINGERPRINTS]: [
+    {
+      title: "view.raw",
+      component: RawRequest,
+    },
+  ],
+  [TaskRequestType.MATCH_REMOTE_FINGERPRINTS]: [
+    {
+      title: "view.raw",
+      component: RawRequest,
+    },
+  ],
 };

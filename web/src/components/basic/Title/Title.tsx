@@ -4,16 +4,30 @@ import { makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
 
 const useStyles = makeStyles<Theme>((theme) => ({
-  header: {
+  container: {
     display: "flex",
     alignItems: "center",
-    paddingRight: theme.spacing(3),
-    paddingBottom: theme.spacing(3),
   },
   title: {
     ...theme.mixins.title0,
     marginRight: theme.spacing(5),
     flexShrink: 0,
+  },
+  subtitle: {
+    fontWeight: "bold",
+    ...theme.mixins.title2,
+    marginRight: theme.spacing(2),
+    flexShrink: 0,
+  },
+  card: {
+    ...theme.mixins.title3,
+    fontWeight: 500,
+    flexShrink: 0,
+    marginRight: theme.spacing(1),
+  },
+  ellipsis: {
+    ...theme.mixins.textEllipsis,
+    flexShrink: 1,
   },
   grow: {
     flexGrow: 1,
@@ -21,11 +35,35 @@ const useStyles = makeStyles<Theme>((theme) => ({
 }));
 
 function Title(props: TitleProps): JSX.Element {
-  const { text, children, grow = false, className, ...other } = props;
+  const {
+    text,
+    children,
+    grow = false,
+    ellipsis = false,
+    variant = "title",
+    className,
+    classes: classesProp,
+    ...other
+  } = props;
   const classes = useStyles();
+  const titleClasses = {
+    [classes.title]: variant === "title",
+    [classes.subtitle]: variant === "subtitle",
+    [classes.card]: variant === "card",
+  };
+
   return (
-    <div className={clsx(classes.header, className)} {...other}>
-      <div className={clsx(classes.title, grow && classes.grow)}>{text}</div>
+    <div className={clsx(classes.container, className)} {...other}>
+      <div
+        className={clsx(
+          titleClasses,
+          grow && classes.grow,
+          ellipsis && classes.ellipsis,
+          classesProp?.text
+        )}
+      >
+        {text}
+      </div>
       {children}
     </div>
   );
@@ -46,6 +84,14 @@ type TitleProps = {
    * Control title horizontal stretching.
    */
   grow?: boolean;
+  ellipsis?: boolean;
+  variant?: "title" | "subtitle" | "card";
+  /**
+   * Override styles
+   */
+  classes?: {
+    text?: string;
+  };
   className?: string;
 };
 export default Title;

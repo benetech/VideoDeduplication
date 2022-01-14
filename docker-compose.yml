@@ -127,6 +127,7 @@ services:
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
       TASK_LOG_DIRECTORY: "/project/pipeline-logs"
       FILE_STORE_DIRECTORY: "/project/file-storage"
+      SECURITY_STORAGE_PATH: "/project/data/representations"
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed your video files

@@ -11,11 +11,15 @@ import useTasksLazy from "../../../application/api/tasks/useTasksLazy";
 import { Task } from "../../../model/Task";
 
 const useStyles = makeStyles<Theme>((theme) => ({
-  container: {},
+  container: {
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+  },
   tasks: {
     marginTop: theme.spacing(2),
-    maxHeight: 450,
     overflowY: "auto",
+    height: "100%",
   },
   task: {
     margin: theme.spacing(1),
@@ -44,11 +48,22 @@ function showAll() {
   return true;
 }
 
-function TaskSidebar(props: TaskSidebarProps): JSX.Element {
+type TaskSidebarProps = {
+  /**
+   * Optional task display filter
+   */
+  filter?: (task: Task) => boolean;
+  tabs?: TaskSidebarTab[];
+  children?: React.ReactNode;
+  className?: string;
+};
+
+export default function TaskSidebar(props: TaskSidebarProps): JSX.Element {
   const {
     filter: filterProp = showAll,
     tabs = DefaultTabs,
     className,
+    children,
     ...other
   } = props;
   const classes = useStyles();
@@ -78,16 +93,7 @@ function TaskSidebar(props: TaskSidebarProps): JSX.Element {
           error={Boolean(query.error)}
         />
       </TaskList>
+      {children}
     </div>
   );
 }
-
-type TaskSidebarProps = {
-  /**
-   * Optional task display filter
-   */
-  filter?: (task: Task) => void;
-  tabs?: TaskSidebarTab[];
-  className?: string;
-};
-export default TaskSidebar;

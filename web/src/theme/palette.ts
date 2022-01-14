@@ -20,6 +20,7 @@ declare module "@material-ui/core/styles/createPalette" {
     backgroundInactive: string;
     border: {
       light: string;
+      dark: string;
     };
   }
 
@@ -29,6 +30,7 @@ declare module "@material-ui/core/styles/createPalette" {
     backgroundInactive?: string;
     border?: {
       light?: string;
+      dark?: string;
     };
   }
 }
@@ -67,6 +69,7 @@ const palette: PaletteOptions = {
   },
   border: {
     light: "#EDEDED",
+    dark: "#B0B0B0",
   },
   background: {
     backdrop: "rgba(249, 251, 251, 0.8)",

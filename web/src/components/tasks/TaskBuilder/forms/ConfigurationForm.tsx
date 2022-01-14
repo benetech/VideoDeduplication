@@ -6,7 +6,7 @@ import { Autocomplete } from "@material-ui/lab";
 import Grid from "@material-ui/core/Grid";
 import { useIntl } from "react-intl";
 import { TaskConfig } from "../../../../model/Task";
-import InputContainer from "../InputContainer";
+import InputContainer from "../../../forms/InputContainer";
 import BoolInput from "../../../basic/BoolInput";
 import { nonNegative, positive } from "./validation";
 import { useUpdates } from "./useUpdates";

@@ -14,6 +14,18 @@ const TaskViewDescriptors: TaskViewDescriptor[] = [
     type: TaskRequestType.PROCESS_ONLINE_VIDEO,
     title: "task.type.processOnline",
   },
+  {
+    type: TaskRequestType.PULL_FINGERPRINTS,
+    title: "task.type.pullFingerprints",
+  },
+  {
+    type: TaskRequestType.PUSH_FINGERPRINTS,
+    title: "task.type.pushFingerprints",
+  },
+  {
+    type: TaskRequestType.MATCH_REMOTE_FINGERPRINTS,
+    title: "task.type.matchRemote",
+  },
 ];
 
 export default TaskViewDescriptors;

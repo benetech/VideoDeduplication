@@ -26,4 +26,4 @@ class PipelineCli:
         pipeline_context = PipelineContext(self._config)
         generate_local_matches(files=videos, pipeline=pipeline_context)
         detect_scenes(files=videos, pipeline=pipeline_context)
-        extract_exif(pipeline_context.config)
+        extract_exif(None, pipeline=pipeline_context)

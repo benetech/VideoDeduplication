@@ -85,12 +85,12 @@ export function formatBool(value: boolean, intl: IntlShape): string {
 /**
  * Format potentially large count.
  */
-export function formatCount(count: number): string {
+export function formatCount(count: number, fractionDigits = 1): string {
   if (count < 1e3) {
     return `${count}`;
   }
   if (count < 1e6) {
-    return `${Math.round(count / 1e3)}K+`;
+    return `${(count / 1e3).toFixed(fractionDigits)}k`;
   }
-  return `${Math.round(count / 1e6)}M+`;
+  return `${(count / 1e6).toFixed(fractionDigits)}M`;
 }
