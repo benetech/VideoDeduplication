@@ -28,7 +28,7 @@ from typing.io import BinaryIO, TextIO
 from winnow.config import Config
 from winnow.duplicate_detection.neighbors import FeatureVector, NeighborMatcher, DetectedMatch
 from winnow.pipeline.pipeline_context import PipelineContext
-from winnow.pipeline.progress_monitor import ProgressBar
+from winnow.pipeline.progress_monitor import ProgressBar, ProgressMonitor
 from winnow.storage.file_key import FileKey
 from winnow.utils.cli import create_pipeline
 
@@ -65,6 +65,82 @@ class PipelineTask(luigi.Task):
     def output_directory(self) -> str:
         """Directory to store processing results."""
         return self.config.repr.directory
+
+
+class CondensedFingerprintsTarget(luigi.Target):
+    """
+    Task target representing fingerprints written to a single npy file plus
+    its legend (the corresponding file keys).
+
+    Fingerprints are condensed to a single file for a faster reading.
+    """
+
+    def __init__(self, output_directory: str, name: str = "condensed_fingerprints"):
+        self._output_directory: str = output_directory
+        self._name: str = name
+
+    @cached_property
+    def directory(self) -> str:
+        return self._output_directory
+
+    @cached_property
+    def fingerprints_file_path(self) -> str:
+        return os.path.join(self._output_directory, f"{self._name}.npy")
+
+    @cached_property
+    def keys_file_path(self) -> str:
+        return os.path.join(self._output_directory, f"{self._name}.files.csv")
+
+    @cached_property
+    def fingerprints_target(self) -> luigi.LocalTarget:
+        return luigi.LocalTarget(self.fingerprints_file_path, format=luigi.format.Nop)
+
+    @cached_property
+    def keys_target(self) -> luigi.LocalTarget:
+        return luigi.LocalTarget(self.keys_file_path)
+
+    def exists(self) -> bool:
+        return self.fingerprints_target.exists() and self.keys_target.exists()
+
+    def write(self, fingerprints: np.ndarray, file_keys: pd.DataFrame):
+        """Save condensed fingerprints."""
+        with self.fingerprints_target.open("w") as fingerprints_out, self.keys_target.open("w") as keys_out:
+            np.save(fingerprints_out, fingerprints)
+            file_keys.to_csv(keys_out)
+
+    def read(self) -> Tuple[np.ndarray, pd.DataFrame]:
+        with self.fingerprints_target.open("r") as fingerprints_file, self.keys_target.open("r") as file_keys_file:
+            fingerprints = np.load(fingerprints_file, allow_pickle=False)
+            file_keys_df = pd.read_csv(file_keys_file)
+            file_keys_df.fillna("", inplace=True)
+        if len(fingerprints) != len(file_keys_df.index):
+            raise Exception(
+                "Inconsistent condensed vectors size: len(vectors) = %s != len(files) = %s",
+                len(fingerprints),
+                len(file_keys_df.index),
+            )
+
+    def read_fingerprints(self) -> np.ndarray:
+        with self.fingerprints_target.open("r") as fingerprints_file:
+            return np.load(fingerprints_file, allow_pickle=False)
+
+    def read_file_keys_df(self) -> pd.DataFrame:
+        with self.keys_target.open("r") as file_keys_file:
+            file_keys_df = pd.read_csv(file_keys_file)
+            file_keys_df.fillna("", inplace=True)
+            return file_keys_df
+
+    def read_file_keys(self) -> List[FileKey]:
+        result = []
+        file_keys_df = self.read_file_keys_df()
+        for entry in file_keys_df.itertuples():
+            result.append(FileKey(path=entry.path, hash=entry.hash))
+        return result
+
+    def read_as_feature_vectors(self, progress: ProgressMonitor = ProgressMonitor.NULL) -> List[FeatureVector]:
+        """Convenience method to read fingerprints as FeatureVector's ready for matching."""
+        fingerprints, file_keys_df = self.read()
+        return make_feature_vectors(fingerprints, file_keys_df, progress)
 
 
 class CondensedFingerprints(PipelineTask):
@@ -1080,6 +1156,28 @@ class AllEmbeddingImages(PipelineTask):
         return {name: getattr(self, name) for name in AllEmbeddingImages.get_param_names()}
 
 
+def make_feature_vectors(
+    fingerprints: np.ndarray,
+    file_keys_df: pd.DataFrame,
+    progress: ProgressMonitor = ProgressMonitor.NULL,
+) -> List[FeatureVector]:
+    """Convert array of fingerprints and the corresponding file keys into feature-vectors.
+
+    This is required to prepare file matching.
+    """
+    progress.scale(len(file_keys_df.index))
+    portion, portion_size = 0, int(len(file_keys_df.index) ** 0.5)
+    result = []
+    for fingerprint, row in zip(fingerprints, file_keys_df.itertuples()):
+        result.append(FeatureVector(key=FileKey(path=row.path, hash=row.hash), features=fingerprint))
+        portion += 1
+        if portion >= portion_size:
+            progress.increase(portion)
+            portion = 0
+    progress.complete()
+    return result
+
+
 def make_matches(report: pd.DataFrame) -> List[Match]:
     """Make matches from the matches report dataframe."""
     progress = ProgressBar(unit=" matches")
@@ -1595,25 +1693,36 @@ class AllCrossCollectionEmbeddingsImages(PipelineTask):
         return {name: getattr(self, name) for name in AllCrossCollectionEmbeddingsImages.get_param_names()}
 
 
+# @click.command()
+# @click.option("--config_path", "-cp", help="path to the project config file", default=os.environ.get("WINNOW_CONFIG"))
+# def main(config_path):
+#     luigi.build(
+#         [
+#             # CrossCollectionTSNEEmbeddings(
+#             #     config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big.yaml",
+#             #     other_config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big2.yaml",
+#             #     max_vectors=20000,
+#             # )
+#             AllCrossCollectionEmbeddingsImages(
+#                 config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big.yaml",
+#                 other_config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big2.yaml",
+#                 point_size=1,
+#                 alpha=0.1,
+#                 figure_width=10.0,
+#                 figure_height=10.0,
+#             ),
+#         ],
+#         local_scheduler=True,
+#         workers=1,
+#         logging_conf_file="./logging.conf",
+#     )
+
+
 @click.command()
 @click.option("--config_path", "-cp", help="path to the project config file", default=os.environ.get("WINNOW_CONFIG"))
 def main(config_path):
     luigi.build(
-        [
-            # CrossCollectionTSNEEmbeddings(
-            #     config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big.yaml",
-            #     other_config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big2.yaml",
-            #     max_vectors=20000,
-            # )
-            AllCrossCollectionEmbeddingsImages(
-                config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big.yaml",
-                other_config_path="/home/stepan/work/benetech/repos/VideoDeduplication/config.big2.yaml",
-                point_size=1,
-                alpha=0.1,
-                figure_width=10.0,
-                figure_height=10.0,
-            ),
-        ],
+        [CondensedFingerprints(config_path=config_path)],
         local_scheduler=True,
         workers=1,
         logging_conf_file="./logging.conf",
