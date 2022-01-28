@@ -46,7 +46,7 @@ class CondensedFingerprints:
 
         FeatureVector is a dataset item, consumed by the neighbor detection algorithm.
         """
-        progress = LazyProgress(progress.scale(len(self.file_keys_df.index)))
+        progress = LazyProgress(progress.scale(len(self.file_keys_df.index), unit="fingerprints"))
         result = []
         for fingerprint, row in zip(self.fingerprints, self.file_keys_df.itertuples()):
             result.append(FeatureVector(key=FileKey(path=row.path, hash=row.hash), features=fingerprint))

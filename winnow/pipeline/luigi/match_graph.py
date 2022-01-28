@@ -18,43 +18,44 @@ from winnow.storage.file_key import FileKey
 WeightFunc = Callable[[float], float]
 
 
-@dataclass
-class MatchGraph:
-    """
-    MatchGraph is a networkit graph with associated file-keys.
-    """
+class MatchGraphBuilder:
+    def __init__(self, weight: WeightFunc):
+        self.file_to_id: Dict[FileKey, int] = {}
+        self.id_to_file: Dict[int, FileKey] = {}
+        self.graph: nk.Graph = nk.Graph(weighted=True)
+        self.weight: WeightFunc = weight
 
-    graph: nk.Graph
-    file_keys: Dict[int, FileKey]  # node_id -> FileKey
+    def add_node(self, file_key: FileKey) -> int:
+        """Add a single node."""
+        file_id = self.file_to_id.get(file_key)
+        if file_id is None:
+            file_id = self.graph.addNode()
+            self.file_to_id[file_key] = file_id
+            self.id_to_file[file_id] = file_key
+        return file_id
 
-    def to_file_keys_df(self, progress: ProgressMonitor = ProgressMonitor.NULL) -> pd.DataFrame:
-        """Get DataFrame containing all the file-keys in the correct order."""
-        return FileKeyDF.from_index_to_key_dict(self.file_keys, progress)
+    def add_match(self, match: Match):
+        """Add a single edge."""
+        source = self.add_node(match.source)
+        target = self.add_node(match.target)
+        self.graph.addEdge(source, target, self.weight(match.distance))
 
-    @staticmethod
-    def from_matches(matches: List[Match], weight: WeightFunc, progress: ProgressMonitor = ProgressMonitor.NULL):
-        """Create MatchGraph from matches DataFrame."""
-        file_to_id = {}
-        id_to_file = {}
-        graph = nk.Graph(weighted=True)
-        progress = LazyProgress(progress.scale(len(matches)))
-
-        def add_node(file_key: FileKey) -> int:
-            """Add a single node."""
-            file_id = file_to_id.get(file_key)
-            if file_id is None:
-                file_id = graph.addNode()
-                file_to_id[file_key] = file_id
-                id_to_file[file_id] = file_key
-            return file_id
-
+    def add_matches(
+        self,
+        matches: List[Match],
+        progress: ProgressMonitor = ProgressMonitor.NULL,
+    ) -> "MatchGraphBuilder":
+        """Add a list of matches."""
+        progress = LazyProgress(progress.scale(total_work=len(matches), unit="matches"))
         for match in matches:
-            source = add_node(match.source)
-            target = add_node(match.target)
-            graph.addEdge(source, target, weight(match.distance))
+            self.add_match(match)
             progress.increase(1)
         progress.complete()
-        return MatchGraph(graph=graph, file_keys=id_to_file)
+        return self
+
+    def build(self) -> "MatchGraph":
+        """Get result match graph."""
+        return MatchGraph(graph=self.graph, file_keys=self.id_to_file)
 
     @staticmethod
     def normalized_proximity(max_distance: float) -> WeightFunc:
@@ -69,6 +70,38 @@ class MatchGraph:
             return max(1.0 - distance / max_distance, 0.0)
 
         return get_weight
+
+
+@dataclass
+class MatchGraph:
+    """
+    MatchGraph is a networkit graph with associated file-keys.
+    """
+
+    graph: nk.Graph
+    file_keys: Dict[int, FileKey]  # node_id -> FileKey
+
+    def to_file_keys_df(self, progress: ProgressMonitor = ProgressMonitor.NULL) -> pd.DataFrame:
+        """Get DataFrame containing all the file-keys in the correct order."""
+        return FileKeyDF.from_index_to_key_dict(self.file_keys, progress)
+
+    @staticmethod
+    def from_matches(
+        matches: List[Match],
+        weight: WeightFunc,
+        progress: ProgressMonitor = ProgressMonitor.NULL,
+    ) -> "MatchGraph":
+        """Create MatchGraph from matches DataFrame."""
+        return MatchGraphBuilder(weight).add_matches(matches, progress).build()
+
+    @staticmethod
+    def normalized_proximity(max_distance: float) -> WeightFunc:
+        """
+        Edge weight strategy which calculates weight as a normalized proximit.
+
+        Normalized proximity is 0.0 when distance=max_distance, and 1.0 when distance=0.0
+        """
+        return MatchGraphBuilder.normalized_proximity(max_distance)
 
 
 class MatchGraphTarget(luigi.Target):
