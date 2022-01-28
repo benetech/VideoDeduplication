@@ -1,8 +1,4 @@
-import logging
-import logging.config
 import os
-import shutil
-from glob import glob
 from os import PathLike, fspath
 from pathlib import Path
 from typing import List, Tuple, Union, IO, AnyStr, Dict
@@ -10,13 +6,11 @@ from typing import List, Tuple, Union, IO, AnyStr, Dict
 import numpy as np
 import pandas as pd
 from dataclasses import astuple
-from typing.io import BinaryIO, TextIO
 
-from winnow.duplicate_detection.neighbors import FeatureVector, DetectedMatch
+from winnow.duplicate_detection.neighbors import DetectedMatch
 from winnow.pipeline.luigi.platform import Match
-from winnow.pipeline.progress_monitor import ProgressBar, ProgressMonitor, LazyProgress
+from winnow.pipeline.progress_monitor import ProgressMonitor, LazyProgress
 from winnow.storage.file_key import FileKey
-from winnow.utils.cli import create_pipeline
 
 
 class FileKeyDF:
@@ -147,7 +141,7 @@ class MatchesDF:
             return source.path, source.hash, target.path, target.hash, detected_match.distance
 
         entries = []
-        progress = LazyProgress(progress.scale(len(matches)))
+        progress = LazyProgress(progress.scale(len(matches), unit="matches"))
         for match in matches:
             entries.append(entry(match))
             progress.increase(1)
@@ -157,9 +151,9 @@ class MatchesDF:
         return matches_df
 
     @staticmethod
-    def to_matches(matches_df: pd.DataFrame, progress: ProgressMonitor = ProgressMonitor.NULL):
+    def to_matches(matches_df: pd.DataFrame, progress: ProgressMonitor = ProgressMonitor.NULL) -> List[Match]:
         """Convert matches DataFrame to list of matches."""
-        progress = LazyProgress(progress.scale(total_work=len(matches_df.index)))
+        progress = LazyProgress(progress.scale(total_work=len(matches_df.index), unit="matches"))
         result = []
         for row in matches_df.itertuples():
             match = Match(
@@ -185,3 +179,10 @@ def without_ext(path: PathLike) -> str:
     """File path without extension."""
     result, _ = os.path.splitext(fspath(path))
     return result
+
+
+def prefix(value: str) -> str:
+    """Snake-case prefix."""
+    if not value:
+        return ""
+    return f"{value}_"
