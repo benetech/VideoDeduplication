@@ -39,7 +39,7 @@ class CommunitiesDF:
         communities_df = FileKeyDF.from_index_to_key_dict(node_to_file_key, progress.scale(1.0).subtask(0.5))
         communities_df.index.name = "node_id"
 
-        progress = LazyProgress(progress.remaining().scale(communities_df.index))
+        progress = LazyProgress(progress.remaining().scale(len(communities_df.index), unit="nodes"))
         communities = [None] * len(communities_df.index)
         for node_id in communities_df.index:
             communities[node_id] = partition.subsetOf(node_id)
