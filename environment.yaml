@@ -43,5 +43,6 @@ dependencies:
       - youtube-dl
       - dacite
       - deprecation
+      - torch
 
 prefix: C:\ProgramData\Anaconda3\envs\winnow
