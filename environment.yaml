@@ -41,5 +41,6 @@ dependencies:
       - pytimeparse
       - annoy
       - youtube-dl
+      - torch
 
 prefix: C:\ProgramData\Anaconda3\envs\winnow

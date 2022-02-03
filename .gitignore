@@ -2,6 +2,7 @@
 **/__pycache__/
 data/
 winnow/feature_extraction/pretrained_models/**
+winnow/text_search/models/**
 .ipynb_checkpoints/**
 **/**.pyc
 *.npy
