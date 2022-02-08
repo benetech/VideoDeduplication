@@ -39,7 +39,7 @@ dependencies:
       - inquirer
       - pytimeparse
       - annoy
-      - youtube-dl
+      - yt-dlp
       - dacite
       - deprecation
       - torch
