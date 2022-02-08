@@ -53,7 +53,7 @@ class DBGetterCli:
         req.audio = boolean("audio", audio)
         req.min_length = valid_duration_millis("min_length", min_length)
         req.max_length = valid_duration_millis("max_length", max_length)
-        req.include = [FileInclude.exif, FileInclude.scenes, FileInclude.meta]
+        req.include = [FileInclude.EXIF, FileInclude.SCENES, FileInclude.META]
         req.extensions = extensions
         req.date_from = valid_date("date_from", date_from)
         req.date_to = valid_date("date_to", date_to)
@@ -69,7 +69,7 @@ class DBGetterCli:
         database = Database.from_uri(self._config.database.uri)
         with database.session_scope(expunge=True) as session:
             results = FilesDAO.list_files(req, session)
-            files = [Transform.file(file) for file in results.items]
+            files = [Transform.file(item.file) for item in results.items]
             formatter = resolve_formatter(format=output)
             formatter.format(
                 files, fields, file=sys.stdout, highlights={"path": path, "hash": hash, "hash_short": hash}
