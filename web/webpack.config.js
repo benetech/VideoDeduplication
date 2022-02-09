@@ -44,7 +44,7 @@ module.exports = {
         test: /i18n\/locales\/[^/]*\.json$/,
         loader: "file-loader",
         type: "javascript/auto",
-        exclude: [/default\.[^/]*\.json$/],
+        exclude: /default\.[^/]*\.json$/,
       },
       {
         test: /\.css$/i,
