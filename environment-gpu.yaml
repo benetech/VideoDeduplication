@@ -31,7 +31,7 @@ dependencies:
       - pyyaml
       - cached-property
       - dataclasses
-      - celery
+      - celery==5.0.5
       - redis
       - billiard
       - librosa
