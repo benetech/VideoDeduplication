@@ -1,6 +1,6 @@
-import pickle
 import os
 import pickle
+import sys
 from functools import partial
 from glob import glob
 from os.path import join, dirname
@@ -10,11 +10,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
+import winnow.text_search.bigfile as bigfile
+import winnow.text_search.configs as configs
+import winnow.text_search.textlib as textlib
+import winnow.text_search.txt2vec as txt2vec
 from winnow.storage.remote_file_repo import RemoteFileRepo, BaseUrl
 from winnow.text_search.bigfile import BigFile
 from winnow.text_search.evaluation import compute_sim
 from winnow.text_search.model import get_model
 from winnow.text_search.textlib import TextTool
+
+# FIXME: Fix the model_best.pth.tar imports (#460)
+# The model is saved using pickle with different import paths
+# (e.g. `import configs` instead of import `winnow.text_search.configs`).
+sys.modules["configs"] = configs
+sys.modules["txt2vec"] = txt2vec
+sys.modules["bigfile"] = bigfile
+sys.modules["textlib"] = textlib
 
 MODEL_PATH = "./models/model_best.pth.tar"
 W2V_PATH = "./models/vec500flickr30m.bin"
