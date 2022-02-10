@@ -19,14 +19,14 @@ import torch
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 
-import util
-import evaluation
-import data_provider as data
-from common import *
-from bigfile import BigFile
-from txt2vec import get_txt2vec
-from generic_utils import Progbar
-from model import get_model, get_we
+import winnow.text_search.util as util
+import winnow.text_search.evaluation as evaluation
+import winnow.text_search.data_provider as data
+from .common import *
+from .bigfile import BigFile
+from .txt2vec import get_txt2vec
+from .generic_utils import Progbar
+from .model import get_model, get_we
 
 
 def parse_args():
@@ -78,7 +78,7 @@ def main():
     valCollection = opt.valCollection
     val_set = opt.val_set
 
-    config = load_config("configs.%s" % opt.config_name)
+    config = load_config("winnow.text_search.configs.%s" % opt.config_name)
 
     model_path = os.path.join(
         rootpath, trainCollection, "w2vvpp_train", valCollection, val_set, opt.config_name, opt.model_prefix

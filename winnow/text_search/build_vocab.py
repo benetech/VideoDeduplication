@@ -11,9 +11,9 @@ from collections import Counter
 import os
 import sys
 
-from common import *
-from util import checkToSkip, makedirsforfile
-from textlib import TextTool, Vocabulary
+from .common import *
+from .util import checkToSkip, makedirsforfile
+from .textlib import TextTool, Vocabulary
 
 
 def read_from_txt_file(cap_file):
