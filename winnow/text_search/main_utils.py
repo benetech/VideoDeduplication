@@ -132,7 +132,7 @@ def query_bigfile(topic, file_basenames, vectors, model, base_preview_fp, previe
 
 def load_search_space_from_signatures(signatures_folder, model):
 
-    signature_files = glob(os.path.join(signatures_folder, "**.npy"), recursive=True)
+    signature_files = glob(os.path.join(signatures_folder, "**/*.npy"), recursive=True)
     basenames = [os.path.basename(x) for x in signature_files]
     videofile_basenames = [v[:-82] for v in basenames]
     signature_data = (np.load(x) for x in signature_files)
