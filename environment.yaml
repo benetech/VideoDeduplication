@@ -44,5 +44,7 @@ dependencies:
       - dacite
       - deprecation
       - torch
+      - grpcio==1.43.0
+      - grpcio-tools==1.43.0
 
 prefix: C:\ProgramData\Anaconda3\envs\winnow

@@ -18,6 +18,7 @@ from . import (  # noqa: F401
     repositories,
     contributors,
     online,
+    processing,
 )
 from .blueprint import api
 

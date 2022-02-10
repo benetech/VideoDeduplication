@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package rpc.proto;
+
+// Semantic search service
+service SemanticSearch {
+  // Perform semantic search by text description
+  rpc query_videos (TextSearchRequest) returns (TextSearchResults) {}
+}
+
+// Semantic text search request
+message TextSearchRequest {
+  string query = 1;
+}
+
+// Search results entry
+message FoundVideo {
+  string path = 1;
+  string hash = 2;
+  float distance = 3;
+}
+
+// Result of the semantic text search
+message TextSearchResults {
+  repeated FoundVideo videos = 1;
+  string original_query = 2;
+  repeated string tokens = 3;
+  repeated string clean_tokens = 4;
+  string human_readable = 5;
+  float score = 6;
+}

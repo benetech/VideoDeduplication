@@ -11,3 +11,5 @@ eventlet==0.31.0
 Werkzeug==1.0.1
 cached-property==1.5.2
 cryptography==3.3.1
+grpcio==1.43.0
+grpcio-tools==1.43.0
