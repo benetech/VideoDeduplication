@@ -4,8 +4,10 @@
 # --------------------------------------------------------
 
 
-import numpy as np
 import pickle
+
+import numpy as np
+
 from winnow.text_search.bigfile import BigFile
 from winnow.text_search.common import logger
 from winnow.text_search.textlib import TextTool

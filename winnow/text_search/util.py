@@ -3,28 +3,25 @@
 # Written by Xirong Li & Chaoxi Xu
 # --------------------------------------------------------
 
-import os
-import sys
-import time
 import logging
-from functools import wraps
+import os
+import time
 from collections import OrderedDict
-
+from functools import wraps
 
 logger = logging.getLogger(__file__)
 logging.basicConfig(
-    format="[%(asctime)s - %(filename)s:line %(lineno)s] %(message)s",
-    datefmt='%d %b %H:%M:%S',
-    level=logging.INFO)
+    format="[%(asctime)s - %(filename)s:line %(lineno)s] %(message)s", datefmt="%d %b %H:%M:%S", level=logging.INFO
+)
 
 
 def checkToSkip(filename, overwrite):
     if os.path.exists(filename):
         if overwrite:
-            logging.info('%s exists. overwrite', filename)
+            logging.info("%s exists. overwrite", filename)
             return 0
         else:
-            logging.info('%s exists. quit', filename)
+            logging.info("%s exists. quit", filename)
             return 1
     return 0
 
@@ -32,6 +29,7 @@ def checkToSkip(filename, overwrite):
 def makedirs(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
 
 def makedirsforfile(filename):
     makedirs(os.path.dirname(filename))
@@ -45,10 +43,12 @@ def timer(fn):
         ret = fn(*args, **kwargs)
 
         elapsed_time = time.time() - start_time
-        print (fn.__name__ + ' execution time: %.3f seconds\n' % elapsed_time)
+        print(fn.__name__ + " execution time: %.3f seconds\n" % elapsed_time)
 
         return ret
+
     return compute_time
+
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
@@ -66,16 +66,15 @@ class AverageMeter(object):
         self.val = val
         self.sum += val * n
         self.count += n
-        self.avg = self.sum / (.0001 + self.count)
+        self.avg = self.sum / (0.0001 + self.count)
 
     def __str__(self):
-        """String representation for logging
-        """
+        """String representation for logging"""
         # for values that should be recorded exactly e.g. iteration number
         if self.count == 0:
             return str(self.val)
         # for stats
-        return '%.4f (%.4f)' % (self.val, self.avg)
+        return "%.4f (%.4f)" % (self.val, self.avg)
 
 
 class LogCollector(object):
@@ -92,17 +91,15 @@ class LogCollector(object):
         self.meters[k].update(v, n)
 
     def __str__(self):
-        """Concatenate the meters in one log line
-        """
-        s = ''
+        """Concatenate the meters in one log line"""
+        s = ""
         for i, (k, v) in enumerate(self.meters.iteritems()):
             if i > 0:
-                s += '  '
-            s += k + ' ' + str(v)
+                s += "  "
+            s += k + " " + str(v)
         return s
 
-    def tb_log(self, tb_logger, prefix='', step=None):
-        """Log using tensorboard
-        """
+    def tb_log(self, tb_logger, prefix="", step=None):
+        """Log using tensorboard"""
         for k, v in self.meters.iteritems():
             tb_logger.add_scalar(prefix + k, v.val, step=step)

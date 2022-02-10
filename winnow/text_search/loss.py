@@ -11,15 +11,14 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def l2norm(X):
-    """L2-normalize columns of X
-    """
+    """L2-normalize columns of X"""
     norm = torch.pow(X, 2).sum(dim=1, keepdim=True).sqrt()
     X = torch.div(X, norm)
     return X
 
+
 def cosine_sim(query, retrio):
-    """Cosine similarity between all the query and retrio pairs
-    """
+    """Cosine similarity between all the query and retrio pairs"""
     query, retrio = l2norm(query), l2norm(retrio)
     return query.mm(retrio.t())
 
@@ -28,15 +27,16 @@ class MarginRankingLoss(nn.Module):
     """
     Compute margin ranking loss
     """
-    def __init__(self, margin=0, measure='cosine', max_violation=False, cost_style='sum', direction='bidir'):
+
+    def __init__(self, margin=0, measure="cosine", max_violation=False, cost_style="sum", direction="bidir"):
         super(MarginRankingLoss, self).__init__()
         self.margin = margin
         self.cost_style = cost_style
         self.direction = direction
-        if measure == 'cosine':
+        if measure == "cosine":
             self.sim = cosine_sim
         else:
-            raise Exception('Not implemented.')
+            raise Exception("Not implemented.")
 
         self.max_violation = max_violation
 
@@ -48,19 +48,19 @@ class MarginRankingLoss(nn.Module):
         d2 = diagonal.t().expand_as(scores)
 
         # clear diagonals
-        I = torch.eye(scores.size(0)) > .5
+        I = torch.eye(scores.size(0)) > 0.5
         if torch.cuda.is_available():
             I = I.cuda()
 
         cost_s = None
         cost_im = None
         # compare every diagonal score to scores in its column
-        if self.direction in  ['i2t', 'bidir']:
+        if self.direction in ["i2t", "bidir"]:
             # caption retrieval
             cost_s = (self.margin + scores - d1).clamp(min=0)
             cost_s = cost_s.masked_fill_(I, 0)
         # compare every diagonal score to scores in its row
-        if self.direction in ['t2i', 'bidir']:
+        if self.direction in ["t2i", "bidir"]:
             # image retrieval
             cost_im = (self.margin + scores - d2).clamp(min=0)
             cost_im = cost_im.masked_fill_(I, 0)
@@ -77,8 +77,7 @@ class MarginRankingLoss(nn.Module):
         if cost_im is None:
             cost_im = torch.zeros(1).to(device)
 
-        if self.cost_style == 'sum':
+        if self.cost_style == "sum":
             return cost_s.sum() + cost_im.sum()
         else:
             return cost_s.mean() + cost_im.mean()
-

@@ -4,12 +4,10 @@
 # Written by Xirong Li & Chaoxi Xu
 # --------------------------------------------------------
 
+import logging
 import os
 import re
 import sys
-import numpy as np
-
-import logging
 
 logger = logging.getLogger(__file__)
 logging.basicConfig(

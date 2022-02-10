@@ -10,16 +10,16 @@ from __future__ import division
 from __future__ import print_function
 
 import binascii
-import numpy as np
-
-import time
-import sys
-import six
-import marshal
-import types as python_types
-import inspect
 import codecs
 import collections
+import inspect
+import marshal
+import sys
+import time
+import types as python_types
+
+import numpy as np
+import six
 
 _GLOBAL_CUSTOM_OBJECTS = {}
 
@@ -112,26 +112,21 @@ def get_custom_objects():
 def serialize_keras_object(instance):
     if instance is None:
         return None
-    if hasattr(instance, 'get_config'):
-        return {
-            'class_name': instance.__class__.__name__,
-            'config': instance.get_config()
-        }
-    if hasattr(instance, '__name__'):
+    if hasattr(instance, "get_config"):
+        return {"class_name": instance.__class__.__name__, "config": instance.get_config()}
+    if hasattr(instance, "__name__"):
         return instance.__name__
     else:
-        raise ValueError('Cannot serialize', instance)
+        raise ValueError("Cannot serialize", instance)
 
 
-def deserialize_keras_object(identifier, module_objects=None,
-                             custom_objects=None,
-                             printable_module_name='object'):
+def deserialize_keras_object(identifier, module_objects=None, custom_objects=None, printable_module_name="object"):
     if isinstance(identifier, dict):
         # In this case we are dealing with a Keras config dictionary.
         config = identifier
-        if 'class_name' not in config or 'config' not in config:
-            raise ValueError('Improper config format: ' + str(config))
-        class_name = config['class_name']
+        if "class_name" not in config or "config" not in config:
+            raise ValueError("Improper config format: " + str(config))
+        class_name = config["class_name"]
         if custom_objects and class_name in custom_objects:
             cls = custom_objects[class_name]
         elif class_name in _GLOBAL_CUSTOM_OBJECTS:
@@ -140,23 +135,23 @@ def deserialize_keras_object(identifier, module_objects=None,
             module_objects = module_objects or {}
             cls = module_objects.get(class_name)
             if cls is None:
-                raise ValueError('Unknown ' + printable_module_name +
-                                 ': ' + class_name)
-        if hasattr(cls, 'from_config'):
+                raise ValueError("Unknown " + printable_module_name + ": " + class_name)
+        if hasattr(cls, "from_config"):
             custom_objects = custom_objects or {}
-            if has_arg(cls.from_config, 'custom_objects'):
-                return cls.from_config(config['config'],
-                                       custom_objects=dict(list(_GLOBAL_CUSTOM_OBJECTS.items()) +
-                                                           list(custom_objects.items())))
+            if has_arg(cls.from_config, "custom_objects"):
+                return cls.from_config(
+                    config["config"],
+                    custom_objects=dict(list(_GLOBAL_CUSTOM_OBJECTS.items()) + list(custom_objects.items())),
+                )
             with CustomObjectScope(custom_objects):
-                return cls.from_config(config['config'])
+                return cls.from_config(config["config"])
         else:
             # Then `cls` may be a function returning a class.
             # in this case by convention `config` holds
             # the kwargs of the function.
             custom_objects = custom_objects or {}
             with CustomObjectScope(custom_objects):
-                return cls(**config['config'])
+                return cls(**config["config"])
     elif isinstance(identifier, six.string_types):
         function_name = identifier
         if custom_objects and function_name in custom_objects:
@@ -166,12 +161,10 @@ def deserialize_keras_object(identifier, module_objects=None,
         else:
             fn = module_objects.get(function_name)
             if fn is None:
-                raise ValueError('Unknown ' + printable_module_name +
-                                 ':' + function_name)
+                raise ValueError("Unknown " + printable_module_name + ":" + function_name)
         return fn
     else:
-        raise ValueError('Could not interpret serialized ' +
-                         printable_module_name + ': ' + identifier)
+        raise ValueError("Could not interpret serialized " + printable_module_name + ": " + identifier)
 
 
 def func_dump(func):
@@ -184,7 +177,7 @@ def func_dump(func):
         A tuple `(code, defaults, closure)`.
     """
     raw_code = marshal.dumps(func.__code__)
-    code = codecs.encode(raw_code, 'base64').decode('ascii')
+    code = codecs.encode(raw_code, "base64").decode("ascii")
     defaults = func.__defaults__
     if func.__closure__:
         closure = tuple(c.cell_contents for c in func.__closure__)
@@ -220,6 +213,7 @@ def func_load(code, defaults=None, closure=None, globs=None):
             A value wrapped as a cell object (see function "func_load")
 
         """
+
         def dummy_fn():
             value  # just access it so it gets captured in .__closure__
 
@@ -232,18 +226,15 @@ def func_load(code, defaults=None, closure=None, globs=None):
     if closure is not None:
         closure = tuple(ensure_value_to_cell(_) for _ in closure)
     try:
-        raw_code = codecs.decode(code.encode('ascii'), 'base64')
+        raw_code = codecs.decode(code.encode("ascii"), "base64")
         code = marshal.loads(raw_code)
     except (UnicodeEncodeError, binascii.Error, ValueError):
         # backwards compatibility for models serialized prior to 2.1.2
-        raw_code = code.encode('raw_unicode_escape')
+        raw_code = code.encode("raw_unicode_escape")
         code = marshal.loads(raw_code)
     if globs is None:
         globs = globals()
-    return python_types.FunctionType(code, globs,
-                                     name=code.co_name,
-                                     argdefs=defaults,
-                                     closure=closure)
+    return python_types.FunctionType(code, globs, name=code.co_name, argdefs=defaults, closure=closure)
 
 
 def has_arg(fn, name, accept_all=False):
@@ -268,13 +259,12 @@ def has_arg(fn, name, accept_all=False):
         arg_spec = inspect.getargspec(fn)
         if accept_all and arg_spec.keywords is not None:
             return True
-        return (name in arg_spec.args)
+        return name in arg_spec.args
     elif sys.version_info < (3, 3):
         arg_spec = inspect.getfullargspec(fn)
         if accept_all and arg_spec.varkw is not None:
             return True
-        return (name in arg_spec.args or
-                name in arg_spec.kwonlyargs)
+        return name in arg_spec.args or name in arg_spec.kwonlyargs
     else:
         signature = inspect.signature(fn)
         parameter = signature.parameters.get(name)
@@ -284,8 +274,7 @@ def has_arg(fn, name, accept_all=False):
                     if param.kind == inspect.Parameter.VAR_KEYWORD:
                         return True
             return False
-        return (parameter.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD,
-                                   inspect.Parameter.KEYWORD_ONLY))
+        return parameter.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)
 
 
 class Progbar(object):
@@ -302,8 +291,7 @@ class Progbar(object):
         interval: Minimum visual progress update interval (in seconds).
     """
 
-    def __init__(self, target, width=30, verbose=1, interval=0.05,
-                 stateful_metrics=None):
+    def __init__(self, target, width=30, verbose=1, interval=0.05, stateful_metrics=None):
         self.target = target
         self.width = width
         self.verbose = verbose
@@ -313,9 +301,7 @@ class Progbar(object):
         else:
             self.stateful_metrics = set()
 
-        self._dynamic_display = ((hasattr(sys.stdout, 'isatty') and
-                                  sys.stdout.isatty()) or
-                                 'ipykernel' in sys.modules)
+        self._dynamic_display = (hasattr(sys.stdout, "isatty") and sys.stdout.isatty()) or "ipykernel" in sys.modules
         self._total_width = 0
         self._seen_so_far = 0
         self._values = collections.OrderedDict()
@@ -337,45 +323,43 @@ class Progbar(object):
         for k, v in values:
             if k not in self.stateful_metrics:
                 if k not in self._values:
-                    self._values[k] = [v * (current - self._seen_so_far),
-                                       current - self._seen_so_far]
+                    self._values[k] = [v * (current - self._seen_so_far), current - self._seen_so_far]
                 else:
                     self._values[k][0] += v * (current - self._seen_so_far)
-                    self._values[k][1] += (current - self._seen_so_far)
+                    self._values[k][1] += current - self._seen_so_far
             else:
                 self._values[k] = v
         self._seen_so_far = current
 
         now = time.time()
-        info = ' - %.0fs' % (now - self._start)
+        info = " - %.0fs" % (now - self._start)
         if self.verbose == 1:
-            if (now - self._last_update < self.interval and
-                    self.target is not None and current < self.target):
+            if now - self._last_update < self.interval and self.target is not None and current < self.target:
                 return
 
             prev_total_width = self._total_width
             if self._dynamic_display:
-                sys.stdout.write('\b' * prev_total_width)
-                sys.stdout.write('\r')
+                sys.stdout.write("\b" * prev_total_width)
+                sys.stdout.write("\r")
             else:
-                sys.stdout.write('\n')
+                sys.stdout.write("\n")
 
             if self.target is not None:
                 numdigits = int(np.floor(np.log10(self.target))) + 1
-                barstr = '%%%dd/%d [' % (numdigits, self.target)
+                barstr = "%%%dd/%d [" % (numdigits, self.target)
                 bar = barstr % current
                 prog = float(current) / self.target
                 prog_width = int(self.width * prog)
                 if prog_width > 0:
-                    bar += ('=' * (prog_width - 1))
+                    bar += "=" * (prog_width - 1)
                     if current < self.target:
-                        bar += '>'
+                        bar += ">"
                     else:
-                        bar += '='
-                bar += ('.' * (self.width - prog_width))
-                bar += ']'
+                        bar += "="
+                bar += "." * (self.width - prog_width)
+                bar += "]"
             else:
-                bar = '%7d/Unknown' % current
+                bar = "%7d/Unknown" % current
 
             self._total_width = len(bar)
             sys.stdout.write(bar)
@@ -387,39 +371,38 @@ class Progbar(object):
             if self.target is not None and current < self.target:
                 eta = time_per_unit * (self.target - current)
                 if eta > 3600:
-                    eta_format = '%d:%02d:%02d' % (eta // 3600, (eta % 3600) // 60, eta % 60)
+                    eta_format = "%d:%02d:%02d" % (eta // 3600, (eta % 3600) // 60, eta % 60)
                 elif eta > 60:
-                    eta_format = '%d:%02d' % (eta // 60, eta % 60)
+                    eta_format = "%d:%02d" % (eta // 60, eta % 60)
                 else:
-                    eta_format = '%ds' % eta
+                    eta_format = "%ds" % eta
 
-                info = ' - ETA: %s' % eta_format
+                info = " - ETA: %s" % eta_format
             else:
                 if time_per_unit >= 1:
-                    info += ' %.0fs/step' % time_per_unit
+                    info += " %.0fs/step" % time_per_unit
                 elif time_per_unit >= 1e-3:
-                    info += ' %.0fms/step' % (time_per_unit * 1e3)
+                    info += " %.0fms/step" % (time_per_unit * 1e3)
                 else:
-                    info += ' %.0fus/step' % (time_per_unit * 1e6)
+                    info += " %.0fus/step" % (time_per_unit * 1e6)
 
             for k in self._values:
-                info += ' - %s:' % k
+                info += " - %s:" % k
                 if isinstance(self._values[k], list):
-                    avg = np.mean(
-                        self._values[k][0] / max(1, self._values[k][1]))
+                    avg = np.mean(self._values[k][0] / max(1, self._values[k][1]))
                     if abs(avg) > 1e-3:
-                        info += ' %.4f' % avg
+                        info += " %.4f" % avg
                     else:
-                        info += ' %.4e' % avg
+                        info += " %.4e" % avg
                 else:
-                    info += ' %s' % self._values[k]
+                    info += " %s" % self._values[k]
 
             self._total_width += len(info)
             if prev_total_width > self._total_width:
-                info += (' ' * (prev_total_width - self._total_width))
+                info += " " * (prev_total_width - self._total_width)
 
             if self.target is not None and current >= self.target:
-                info += '\n'
+                info += "\n"
 
             sys.stdout.write(info)
             sys.stdout.flush()
@@ -427,14 +410,13 @@ class Progbar(object):
         elif self.verbose == 2:
             if self.target is None or current >= self.target:
                 for k in self._values:
-                    info += ' - %s:' % k
-                    avg = np.mean(
-                        self._values[k][0] / max(1, self._values[k][1]))
+                    info += " - %s:" % k
+                    avg = np.mean(self._values[k][0] / max(1, self._values[k][1]))
                     if avg > 1e-3:
-                        info += ' %.4f' % avg
+                        info += " %.4f" % avg
                     else:
-                        info += ' %.4e' % avg
-                info += '\n'
+                        info += " %.4e" % avg
+                info += "\n"
 
                 sys.stdout.write(info)
                 sys.stdout.flush()

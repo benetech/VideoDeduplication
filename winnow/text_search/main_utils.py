@@ -1,24 +1,20 @@
-from distutils.command import clean
+import pickle
+import os
 import pickle
 from functools import partial
-import os
-import torch
-import matplotlib.pyplot as plt
 from glob import glob
-import numpy as np
-from pathlib import Path
-from functools import partial
 from os.path import join, dirname
+from pathlib import Path
 
-
-from winnow.text_search.model import get_model
-from  winnow.text_search.bigfile import BigFile
-from  winnow.text_search.evaluation import compute_sim
-from winnow.text_search.textlib import TextTool
-from winnow.text_search.txt2vec import W2Vec
-
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
 
 from winnow.storage.remote_file_repo import RemoteFileRepo, BaseUrl
+from winnow.text_search.bigfile import BigFile
+from winnow.text_search.evaluation import compute_sim
+from winnow.text_search.model import get_model
+from winnow.text_search.textlib import TextTool
 
 MODEL_PATH = "./models/model_best.pth.tar"
 W2V_PATH = "./models/vec500flickr30m.bin"
@@ -46,7 +42,7 @@ def default_video_search_models_path(directory=None, base_url=None):
     """Get default pretrained model path."""
     models = model_artifacts(directory, base_url)
 
-    return models.get(DEFAULT_MODEL_VIDEO),models.get(DEFAULT_MODEL_TEXT),models.get(DEFAULT_MODEL_VOCAB)
+    return models.get(DEFAULT_MODEL_VIDEO), models.get(DEFAULT_MODEL_TEXT), models.get(DEFAULT_MODEL_VOCAB)
 
 
 def load_model(path_to_model=None, path_to_w2v=None):
@@ -57,7 +53,7 @@ def load_model(path_to_model=None, path_to_w2v=None):
 
     os.chdir(context_path)
 
-    path_to_model,path_to_w2v,_ = default_video_search_models_path()
+    path_to_model, path_to_w2v, _ = default_video_search_models_path()
 
     path_to_model = os.path.abspath(path_to_model)
     path_to_w2v = os.path.abspath(path_to_w2v)
@@ -153,7 +149,7 @@ def show_preview_from_frames(frames_file):
     plt.show()
 
 
-def get_signature_activations(topic, signature_data, model=None ):
+def get_signature_activations(topic, signature_data, model=None):
 
     if model is None:
         model = load_model()
@@ -165,51 +161,61 @@ def get_signature_activations(topic, signature_data, model=None ):
     return sims
 
 
-
 def load_vocab(path):
 
-    return np.load(path,allow_pickle=True)
+    return np.load(path, allow_pickle=True)
 
 
-def get_human_readable(tokens,vocab,placeholder="<NA>"):
+def get_human_readable(tokens, vocab, placeholder="<NA>"):
 
-    in_vocab = [x if x in vocab else placeholder for x in tokens ]
-    
+    in_vocab = [x if x in vocab else placeholder for x in tokens]
+
     return " ".join(in_vocab)
-    
 
-def get_query_context(topic,placeholder="<NA>"):
-     
-     text_tool = TextTool()
-     artifacts = model_artifacts()
-     vocab = load_vocab(artifacts.get(DEFAULT_MODEL_VOCAB))
 
-     tokens = text_tool.tokenize(topic,remove_stopword=True)
-     clean_tokens = [x for x in tokens if x in vocab]
-     human_readable = " ".join([x if x in clean_tokens else placeholder for x in tokens ])
-     score = len(clean_tokens) / len(tokens)
+def get_query_context(topic, placeholder="<NA>"):
 
-     return dict(original_query=topic,tokens=tokens,clean_tokens=clean_tokens,human_readable=human_readable,score=score)
-    
-    
-def query_signatures(topic, file_basenames=None, vectors=None, model=None, frames_mapping=None, preview_samples=10,verbose=False,plot_preview=False,query_transparency=True):
+    text_tool = TextTool()
+    artifacts = model_artifacts()
+    vocab = load_vocab(artifacts.get(DEFAULT_MODEL_VOCAB))
 
-    assert vectors is not None,"No signature data provided"
-    
+    tokens = text_tool.tokenize(topic, remove_stopword=True)
+    clean_tokens = [x for x in tokens if x in vocab]
+    human_readable = " ".join([x if x in clean_tokens else placeholder for x in tokens])
+    score = len(clean_tokens) / len(tokens)
+
+    return dict(
+        original_query=topic, tokens=tokens, clean_tokens=clean_tokens, human_readable=human_readable, score=score
+    )
+
+
+def query_signatures(
+    topic,
+    file_basenames=None,
+    vectors=None,
+    model=None,
+    frames_mapping=None,
+    preview_samples=10,
+    verbose=False,
+    plot_preview=False,
+    query_transparency=True,
+):
+
+    assert vectors is not None, "No signature data provided"
+
     if file_basenames is None:
 
         file_basenames = np.array(list(range(len(vectors))))
 
-    query_data=get_query_context(topic)
+    query_data = get_query_context(topic)
     if query_transparency:
         pass
         # text_tool = TextTool()
         # tokens = text_tool.tokenize(topic)
         # query_data["tokens"] = tokens
 
-
     sent_vec = model.embed_txt(topic).numpy()
-    
+
     ranklist = [(file_basenames[i], sim) for i, sim in enumerate(compute_sim(sent_vec, vectors, measure="cosine")[0])]
     ranklist.sort(key=lambda v: v[1], reverse=True)
     for i in range(preview_samples):
@@ -218,30 +224,27 @@ def query_signatures(topic, file_basenames=None, vectors=None, model=None, frame
             if verbose:
                 print("Query:", topic)
                 print("Rank:", i + 1, "Video:", video_code, "Similarity:", distance)
-            
+
             if plot_preview:
 
-                assert os.path.exists(frames_file),"Frames file not found"
+                assert os.path.exists(frames_file), "Frames file not found"
                 frames_file = frames_mapping[video_code]
                 print(frames_file)
                 show_preview_from_frames(frames_file)
         except Exception as e:
-            print("a",e)
+            print("a", e)
             pass
-
 
     files, sims = zip(*ranklist)
 
-    return files,sims,query_data
+    return files, sims, query_data
 
 
 class VideoSearch:
 
-    """Video Search class
-    """
+    """Video Search class"""
 
-
-    def __init__(self,path_to_signatures,path_to_model=MODEL_PATH,path_to_frames=None):
+    def __init__(self, path_to_signatures, path_to_model=MODEL_PATH, path_to_frames=None):
         """Instantiate a VideoSearch object
 
         Args:
@@ -254,17 +257,15 @@ class VideoSearch:
         self.video_file_basenames, self.vis_vecs = load_search_space_from_signatures(path_to_signatures, self.model)
         self.frame_files = None
         self.frames_mapping = None
-        
-    
+
         if path_to_frames is not None:
             self.__process_frames__(path_to_frames)
 
-    
-    def __process_frames__(self,path_to_frames):
+    def __process_frames__(self, path_to_frames):
         """Allows frames to be visualized"""
 
-        assert os.path.exists(path_to_frames),"Frames Folder not found"
-         # get frames required for video preview
+        assert os.path.exists(path_to_frames), "Frames Folder not found"
+        # get frames required for video preview
         self.frame_files = glob(os.path.join(path_to_frames, "**"))
 
         assert len(self.frame_files) > 0, "No frames found"
@@ -272,18 +273,25 @@ class VideoSearch:
         # allows quick lookup of frames file
         self.frames_mapping = {os.path.basename(v[:-82]): v for v in self.frame_files}
 
-
-    def query(self,topic,preview_samples=10,verbose=False,plot_preview=False,path_to_frames=None,query_transparency=True):
+    def query(
+        self, topic, preview_samples=10, verbose=False, plot_preview=False, path_to_frames=None, query_transparency=True
+    ):
 
         if path_to_frames is not None:
             self.__process_frames__(path_to_frames)
 
-        files,distances,query_data = query_signatures(topic,self.video_file_basenames,self.vis_vecs,self.model,self.frames_mapping,preview_samples,verbose,plot_preview)
+        files, distances, query_data = query_signatures(
+            topic,
+            self.video_file_basenames,
+            self.vis_vecs,
+            self.model,
+            self.frames_mapping,
+            preview_samples,
+            verbose,
+            plot_preview,
+        )
 
-        return files,distances,query_data
-
-
-
+        return files, distances, query_data
 
 
 def get_search_engine(path_to_signatures, path_to_frames, path_to_model=MODEL_PATH):
@@ -311,7 +319,11 @@ def get_search_engine(path_to_signatures, path_to_frames, path_to_model=MODEL_PA
 
     # instantiates the search engine
     search_engine = partial(
-        query_signatures, file_basenames=video_file_basenames, vectors=vis_vecs, model=model, frames_mapping=frames_mapping
+        query_signatures,
+        file_basenames=video_file_basenames,
+        vectors=vis_vecs,
+        model=model,
+        frames_mapping=frames_mapping,
     )
 
     return search_engine

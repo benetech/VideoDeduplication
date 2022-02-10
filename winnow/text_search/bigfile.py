@@ -1,4 +1,6 @@
-import os, sys, array
+import array
+import os
+
 import numpy as np
 
 
@@ -14,7 +16,6 @@ class BigFile:
         print("[%s] %dx%d instances loaded from %s" % (self.__class__.__name__, self.nr_of_images, self.ndims, datadir))
 
     def readall(self, isname=True):
-   
 
         index_name_array = [(self.name2index[x], x) for x in set(self.names) if x in self.name2index]
 

@@ -5,18 +5,16 @@
 # --------------------------------------------------------
 
 from __future__ import print_function
-from unittest.mock import MagicMixin
 
-import torch
 import numpy as np
+import torch
 
-from  .util import timer  
 from .generic_utils import Progbar
+from .util import timer
 
 
 def l2norm(X):
-    """L2-normalize columns of X
-    """
+    """L2-normalize columns of X"""
     norm = np.linalg.norm(X, axis=1, keepdims=True)
     return 1.0 * X / norm
 
@@ -28,25 +26,25 @@ def cosine_sim(query_embs, retro_embs):
 
     return query_embs.dot(retro_embs.T)
 
-def compute_sim(query_embs, retro_embs, measure='cosine'):
-    if measure == 'cosine':
-        return cosine_sim(query_embs, retro_embs)
-    
-    elif measure == 'euclidean':
-        raise Exception('Not implemented')
-    else:
-        raise Exception('%s is invalid' % measure)
 
-        
+def compute_sim(query_embs, retro_embs, measure="cosine"):
+    if measure == "cosine":
+        return cosine_sim(query_embs, retro_embs)
+
+    elif measure == "euclidean":
+        raise Exception("Not implemented")
+    else:
+        raise Exception("%s is invalid" % measure)
+
+
 def encode_data(model, data_loader):
-    """Encode all images and captions loadable by `data_loader`
-    """
+    """Encode all images and captions loadable by `data_loader`"""
     model.switch_to_eval()
 
     vis_embs = None
     txt_embs = None
-    vis_ids = ['']*len(data_loader.dataset)
-    txt_ids = ['']*len(data_loader.dataset)
+    vis_ids = [""] * len(data_loader.dataset)
+    txt_ids = [""] * len(data_loader.dataset)
 
     pbar = Progbar(len(data_loader.dataset))
     for i, (vis_input, txt_input, idxs, batch_vis_ids, batch_txt_ids) in enumerate(data_loader):
@@ -76,7 +74,7 @@ def encode_vis(model, data_loader):
     model.switch_to_eval()
 
     vis_embs = None
-    vis_ids = [''] * len(data_loader.dataset)
+    vis_ids = [""] * len(data_loader.dataset)
     pbar = Progbar(len(data_loader.dataset))
     for i, (vis_input, idxs, batch_vis_ids) in enumerate(data_loader):
         with torch.no_grad():
@@ -99,7 +97,7 @@ def encode_txt(model, data_loader):
     model.switch_to_eval()
 
     txt_embs = None
-    txt_ids = [''] * len(data_loader.dataset)
+    txt_ids = [""] * len(data_loader.dataset)
     pbar = Progbar(len(data_loader.dataset))
     for i, (txt_input, idxs, batch_txt_ids) in enumerate(data_loader):
         with torch.no_grad():
@@ -131,7 +129,7 @@ def eval_qry2retro(qry2retro_sim, n_qry=1):
     for index in range(len(ranks)):
         ind = inds[index][::-1]
 
-        rank = np.where(ind == index/n_qry)[0][0]
+        rank = np.where(ind == index / n_qry)[0][0]
         ranks[index] = rank
 
     # Compute metrics
@@ -140,7 +138,7 @@ def eval_qry2retro(qry2retro_sim, n_qry=1):
     r10 = 100.0 * len(np.where(ranks < 10)[0]) / len(ranks)
     medr = np.floor(np.median(ranks)) + 1
     meanr = ranks.mean() + 1
-    mir = (1.0/(ranks+1)).mean()
+    mir = (1.0 / (ranks + 1)).mean()
 
     return (r1, r5, r10, medr, meanr, mir)
 
@@ -150,15 +148,15 @@ def eval(label_matrix):
     aps = np.zeros(label_matrix.shape[0])
 
     for index in range(len(ranks)):
-        rank = np.where(label_matrix[index]==1)[0] + 1
+        rank = np.where(label_matrix[index] == 1)[0] + 1
         ranks[index] = rank[0]
 
-        aps[index] = np.mean([(i+1.)/rank[i] for i in range(len(rank))])
+        aps[index] = np.mean([(i + 1.0) / rank[i] for i in range(len(rank))])
 
-    r1, r5, r10 = [100.0*np.mean([x <= k for x in ranks]) for k in [1, 5, 10]]
+    r1, r5, r10 = [100.0 * np.mean([x <= k for x in ranks]) for k in [1, 5, 10]]
     medr = np.floor(np.median(ranks))
     meanr = ranks.mean()
-    mir = (1.0/ranks).mean()
+    mir = (1.0 / ranks).mean()
     mAP = aps.mean()
 
     return (r1, r5, r10, medr, meanr, mir, mAP)

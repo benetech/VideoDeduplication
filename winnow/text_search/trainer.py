@@ -5,28 +5,25 @@
 
 from __future__ import print_function
 
-import os
-import sys
-import time
-import json
-import shutil
-import pickle
-import logging
 import argparse
 import importlib
+import json
+import shutil
+import sys
+import time
 
-import torch
 import numpy as np
+import torch
 from torch.utils.tensorboard import SummaryWriter
 
-import winnow.text_search.util as util
-import winnow.text_search.evaluation as evaluation
 import winnow.text_search.data_provider as data
-from .common import *
+import winnow.text_search.evaluation as evaluation
+import winnow.text_search.util as util
 from .bigfile import BigFile
-from .txt2vec import get_txt2vec
+from .common import *
 from .generic_utils import Progbar
 from .model import get_model, get_we
+from .txt2vec import get_txt2vec
 
 
 def parse_args():

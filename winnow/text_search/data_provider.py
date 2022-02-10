@@ -6,10 +6,9 @@
 
 import torch
 import torch.utils.data as data
-import pickle
+
 from .bigfile import BigFile
-from .textlib import TextTool, Vocabulary
-from .txt2vec import get_lang, BowVec, BowVecNSW, W2Vec, W2VecNSW, IndexVec
+from .textlib import TextTool
 
 
 def collate_vision(data):
@@ -148,7 +147,7 @@ if __name__ == "__main__":
     vis_loader = vis_provider({"vis_feat": vid_feat_dir, "batch_size": 100, "num_workers": 2})
 
     for i, (feat_vecs, idxs, vis_ids) in enumerate(vis_loader):
-        print (i, feat_vecs.shape, len(idxs))
+        print(i, feat_vecs.shape, len(idxs))
         break
 
     capfile = os.path.join(collection, "TextData", "%s.caption.txt" % collection)
@@ -156,14 +155,14 @@ if __name__ == "__main__":
     txt_loader = txt_provider({"capfile": capfile, "batch_size": 100, "num_workers": 2})
 
     for i, (captions, idxs, cap_ids) in enumerate(txt_loader):
-        print (i, captions, len(cap_ids))
-        print (len(cap) for cap in captions)
+        print(i, captions, len(cap_ids))
+        print(len(cap) for cap in captions)
         break
 
     pair_loader = pair_provider(
         {"vis_feat": vid_feat_dir, "capfile": capfile, "batch_size": 100, "num_workers": 2, "shuffle": True}
     )
     for i, (vis_feats, captions, idxs, vis_ids, cap_ids) in enumerate(pair_loader):
-        print( i, vis_feats.shape, captions[:10], len(cap_ids))
-        print (len(cap) for cap in captions)
+        print(i, vis_feats.shape, captions[:10], len(cap_ids))
+        print(len(cap) for cap in captions)
         break
