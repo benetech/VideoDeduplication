@@ -1,4 +1,5 @@
 """A number of functions to apply logging configuration presets."""
+import inspect
 import logging
 import sys
 
@@ -8,7 +9,9 @@ def configure_logging_cli(error_log_file="processing_error.log") -> logging.Logg
     root_logger = logging.getLogger()
     winnow_logger = logging.getLogger("winnow")
     root_logger.setLevel(logging.ERROR)
-    root_logger.addHandler(logging.StreamHandler(sys.stdout))
+    root_handler = logging.StreamHandler(sys.stdout)
+    root_handler.setFormatter(logging.Formatter("[%(asctime)s: %(levelname)s] [%(name)s] %(message)s"))
+    root_logger.addHandler(root_handler)
     winnow_logger.setLevel(logging.INFO)
 
     # Write errors to the log file
@@ -43,3 +46,10 @@ def configure_logging_server(
     logger = logging.getLogger(name)
     logger.setLevel(level)
     return logger
+
+
+def logger_name(owner) -> str:
+    """Get appropriate logger name for an owner."""
+    if inspect.isclass(owner) or inspect.isfunction(owner) or inspect.ismethod(owner):
+        return f"{inspect.getmodule(owner).__name__}.{owner.__qualname__}"
+    return logger_name(type(owner))

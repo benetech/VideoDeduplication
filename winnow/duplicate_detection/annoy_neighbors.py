@@ -1,5 +1,5 @@
-from annoy import AnnoyIndex
 import numpy as np
+from annoy import AnnoyIndex
 
 
 class AnnoyNNeighbors:
@@ -55,7 +55,7 @@ class AnnoyNNeighbors:
             annoy_index.add_item(i, list(v))
 
         if self.optimize_trees:
-            self.n_trees = self.__optimize__(data, self.optimize_trees)
+            self.n_trees = self._optimize(data)
             self.search_k = self.search_k_intensity * (self.n_trees * self.n_neighbors)
 
         annoy_index.build(self.n_trees)
@@ -72,7 +72,7 @@ class AnnoyNNeighbors:
 
         if optimize:
 
-            self.n_neighbors = self.__optimize__(data)
+            self.n_neighbors = self._optimize(data)
 
         results = [
             self.annoy_index.get_nns_by_vector(
@@ -98,8 +98,6 @@ class AnnoyNNeighbors:
 
         return distances, indices
 
-    def __optimize__(self, data):
-
-        trees = int(np.sqrt(len(data)) / 2)
-
-        return trees
+    @staticmethod
+    def _optimize(data):
+        return int(np.sqrt(len(data)) / 2)

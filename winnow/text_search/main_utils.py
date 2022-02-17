@@ -5,6 +5,7 @@ from functools import partial
 from glob import glob
 from os.path import join, dirname
 from pathlib import Path
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,7 +18,8 @@ import winnow.text_search.txt2vec as txt2vec
 from winnow.storage.remote_file_repo import RemoteFileRepo, BaseUrl
 from winnow.text_search.bigfile import BigFile
 from winnow.text_search.evaluation import compute_sim
-from winnow.text_search.model import get_model
+from winnow.text_search.model import get_model, CrossModalNetwork
+from winnow.text_search.similarity_index import SimilarityIndex
 from winnow.text_search.textlib import TextTool
 
 # FIXME: Fix the model_best.pth.tar imports (#460)
@@ -57,7 +59,7 @@ def default_video_search_models_path(directory=None, base_url=None):
     return models.get(DEFAULT_MODEL_VIDEO), models.get(DEFAULT_MODEL_TEXT), models.get(DEFAULT_MODEL_VOCAB)
 
 
-def load_model(path_to_model=None, path_to_w2v=None):
+def load_model(path_to_model=None, path_to_w2v=None) -> CrossModalNetwork:
 
     # with set_directory(Path(__file__).parent.resolve()) as context:
     current_path = Path(os.path.curdir).resolve()
@@ -202,34 +204,20 @@ def get_query_context(topic, placeholder="<NA>"):
 
 
 def query_signatures(
-    topic,
-    file_basenames=None,
-    vectors=None,
-    model=None,
+    topic: str,
+    file_index: SimilarityIndex,
+    model: CrossModalNetwork = None,
+    min_similarity: float = 0.05,
+    max_count: Optional[int] = None,
     frames_mapping=None,
-    preview_samples=10,
-    verbose=False,
-    plot_preview=False,
-    query_transparency=True,
+    preview_samples: int = 10,
+    verbose: bool = False,
+    plot_preview: bool = False,
 ):
-
-    assert vectors is not None, "No signature data provided"
-
-    if file_basenames is None:
-
-        file_basenames = np.array(list(range(len(vectors))))
-
     query_data = get_query_context(topic)
-    if query_transparency:
-        pass
-        # text_tool = TextTool()
-        # tokens = text_tool.tokenize(topic)
-        # query_data["tokens"] = tokens
 
-    sent_vec = model.embed_txt(topic).numpy()
-
-    ranklist = [(file_basenames[i], sim) for i, sim in enumerate(compute_sim(sent_vec, vectors, measure="cosine")[0])]
-    ranklist.sort(key=lambda v: v[1], reverse=True)
+    sent_vec = model.embed_txt(topic).numpy()[0]
+    ranklist = file_index.query(sent_vec, min_similarity, max_count)
     for i in range(preview_samples):
         video_code, distance = ranklist[i]
         try:
@@ -253,20 +241,19 @@ def query_signatures(
 
 
 class VideoSearch:
-
     """Video Search class"""
 
-    def __init__(self, path_to_signatures, path_to_model=MODEL_PATH, path_to_frames=None):
+    def __init__(self, file_index: SimilarityIndex, model: CrossModalNetwork = None, path_to_frames=None):
         """Instantiate a VideoSearch object
 
         Args:
-             path_to_signatures (str): Path to a folder containing video signatures
+             file_index(SimilarityIndex): Index to efficiently query similar file vectors.
+             model (CrossModalNetwork): Text-Vis matching model.
              path_to_frames (path,optional): Path to a folder containing video signatures
-             path_to_model (path, optional): [description]. Defaults to MODEL_PATH.
         """
 
-        self.model = load_model(path_to_model)
-        self.video_file_basenames, self.vis_vecs = load_search_space_from_signatures(path_to_signatures, self.model)
+        self.model = model or load_model()
+        self.file_index = file_index
         self.frame_files = None
         self.frames_mapping = None
 
@@ -286,7 +273,14 @@ class VideoSearch:
         self.frames_mapping = {os.path.basename(v[:-82]): v for v in self.frame_files}
 
     def query(
-        self, topic, preview_samples=10, verbose=False, plot_preview=False, path_to_frames=None, query_transparency=True
+        self,
+        topic,
+        min_similarity: float = 0.05,
+        max_count: Optional[int] = 10000,
+        preview_samples=10,
+        verbose=False,
+        plot_preview=False,
+        path_to_frames=None,
     ):
 
         if path_to_frames is not None:
@@ -294,9 +288,10 @@ class VideoSearch:
 
         files, distances, query_data = query_signatures(
             topic,
-            self.video_file_basenames,
-            self.vis_vecs,
+            self.file_index,
             self.model,
+            min_similarity,
+            max_count,
             self.frames_mapping,
             preview_samples,
             verbose,
