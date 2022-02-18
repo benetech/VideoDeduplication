@@ -164,15 +164,17 @@ class AnnoySimilarityIndex(SimilarityIndex):
         return results  # Already sorted
 
     @staticmethod
-    def _file_paths(directory: str, index_name: str) -> Tuple[str, str]:
+    def _file_paths(directory: str, index_name: str, ids_name: Optional[str] = None) -> Tuple[str, str]:
         """Get file names for ids and vectors."""
-        common_prefix = os.path.join(os.path.abspath(directory), index_name)
-        return f"{common_prefix}.ids.npy", f"{common_prefix}.index.ann"
+        ids_name = ids_name or index_name
+        ids_path = f"{os.path.join(os.path.abspath(directory), ids_name)}.ids.npy"
+        index_path = f"{os.path.join(os.path.abspath(directory), index_name)}.index.ann"
+        return ids_path, index_path
 
-    def save(self, output_directory: str, index_name: str):
+    def save(self, output_directory: str, index_name: str, ids_name: Optional[str] = None):
         """Save index to the file system."""
         self._ensure_fit()
-        ids_path, index_path = self._file_paths(output_directory, index_name)
+        ids_path, index_path = self._file_paths(output_directory, index_name, ids_name)
         logger = logging.getLogger(logger_name(AnnoySimilarityIndex))
         logger.info("Saving AnnoySimilarityIndex with %s items to %s", self._annoy_index.get_n_items(), index_path)
         np.save(ids_path, self._ids)
@@ -184,23 +186,28 @@ class AnnoySimilarityIndex(SimilarityIndex):
         directory: str,
         index_name: str,
         n_features: int,
+        ids_name: Optional[str] = None,
         allow_pickle: bool = False,
     ) -> "AnnoySimilarityIndex":
         """Load linear index from the file system."""
         if self._ids is not None or self._annoy_index is not None:
             raise RuntimeError("Already initialized.")
         logger = logging.getLogger(logger_name(AnnoySimilarityIndex))
-        ids_path, index_path = AnnoySimilarityIndex._file_paths(directory, index_name)
-        logger.info("Loading AnnoySimilarityIndex from %s", index_path)
-        self._ids = np.load(ids_path, allow_pickle=allow_pickle)
+        ids_path, index_path = AnnoySimilarityIndex._file_paths(directory, index_name, ids_name)
+        if not os.path.exists(ids_path):
+            raise FileNotFoundError(f"Semantic text search IDs-index not found: {ids_path}")
+        if not os.path.exists(index_path):
+            raise FileNotFoundError(f"Semantic text search annoy index not found: {index_path}")
+        logger.info("Loading similarity index from %s", index_path)
         self._annoy_index = AnnoyIndex(f=n_features, metric="angular")
         self._annoy_index.load(index_path)
+        logger.info("Loading similarity index ids from %s", ids_path)
+        self._ids = np.load(ids_path, allow_pickle=allow_pickle)
         if len(self._ids) != self._annoy_index.get_n_items():
             raise ValueError(
                 "The number of ids doesn't match number of indexed vectors:"
                 f" {len(self._ids)} != {self._annoy_index.get_n_items()}"
             )
-        logger.info("Loaded AnnoySimilarityIndex")
         return self
 
     @staticmethod
@@ -214,3 +221,9 @@ class AnnoySimilarityIndex(SimilarityIndex):
         See: https://github.com/spotify/annoy#full-python-api
         """
         return 1.0 - (angular_distance ** 2) / 2.0
+
+    @staticmethod
+    def exists(directory: str, index_name: str, ids_name: Optional[str] = None) -> bool:
+        """Check if the given index exists in the file system."""
+        ids_path, index_path = AnnoySimilarityIndex._file_paths(directory, index_name, ids_name)
+        return os.path.exists(ids_path) and os.path.exists(index_path)

@@ -11,13 +11,14 @@ service SemanticSearch {
 // Semantic text search request
 message TextSearchRequest {
   string query = 1;
+  float min_similarity = 2;
+  int32 max_count = 3;
 }
 
 // Search results entry
 message FoundVideo {
-  string path = 1;
-  string hash = 2;
-  float distance = 3;
+  uint64 id = 1;
+  float distance = 2;
 }
 
 // Result of the semantic text search

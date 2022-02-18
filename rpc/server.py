@@ -6,21 +6,30 @@ import grpc
 
 import rpc.rpc_pb2 as proto
 import rpc.rpc_pb2_grpc as services
+from rpc.errors import unavailable
+from rpc.logging import configure_logging
+from winnow.config.path import resolve_config_path
+from winnow.pipeline.pipeline_context import PipelineContext, ComponentNotAvailable
 from winnow.text_search.main_utils import VideoSearch
 from winnow.utils.config import resolve_config
-from winnow.utils.logging import configure_logging_server
+from winnow.utils.logging import get_logger
+
+logger = logging.getLogger("rpc.server")
 
 
 class SemanticSearch(services.SemanticSearchServicer):
     """Provides methods that implement functionality of the SemanticSearch"""
 
-    def __init__(self, search_engine: VideoSearch):
-        self.search_engine: VideoSearch = search_engine
+    def __init__(self, pipeline: PipelineContext):
+        self.pipeline: PipelineContext = pipeline
 
     def query_videos(
-        self, request: proto.TextSearchRequest, context: grpc.aio.ServicerContext
+        self,
+        request: proto.TextSearchRequest,
+        context: grpc.ServicerContext,
     ) -> proto.TextSearchResults:
-        files, distances, details = self.search_engine.query(request.query)
+        search_engine = self._get_search_engine(context)
+        files, distances, details = search_engine.query(request.query)
         found = []
         for file, distance in zip(files, distances):
             found.append(proto.FoundVideo(path=file, hash="", distance=distance))
@@ -33,33 +42,50 @@ class SemanticSearch(services.SemanticSearchServicer):
             score=details["score"],
         )
 
+    def _get_search_engine(self, context: grpc.ServicerContext) -> VideoSearch:
+        """Try to get search engine."""
+        try:
+            return self.pipeline.text_search_engine
+        except ComponentNotAvailable as error:
+            raise unavailable(context, str(error))
 
-def make_search_engine() -> VideoSearch:
-    config = resolve_config()
-    signatures_folder = os.path.abspath(os.path.join(config.repr.directory, "video_signatures"))
-    search_engine = VideoSearch(signatures_folder)
-    return search_engine
+
+def initialize_search_engine(pipeline: PipelineContext):
+    """Try to eagerly initialize semantic search engine."""
+    logger.info("Trying to initialize semantic search engine.")
+    try:
+        engine = pipeline.text_search_engine
+        logger.info("Semantic search engine is initialized successfully.")
+        return engine
+    except ComponentNotAvailable:
+        logger.warning("Text search engine is not available. Did you forget to create index?")
 
 
-def serve(host: str, port: int, logger: logging.Logger):
-    search_engine = make_search_engine()
-    logger.info("Created search engine.")
+def serve(host: str, port: int, pipeline: PipelineContext):
+    semantic_search = SemanticSearch(pipeline)
+    initialize_search_engine(pipeline)
 
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    semantic_search = SemanticSearch(search_engine)
-    services.add_SemanticSearchServicer_to_server(semantic_search, server)
     listen_address = f"{host}:{port}"
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    services.add_SemanticSearchServicer_to_server(semantic_search, server)
     server.add_insecure_port(listen_address)
-    logger.info("Starting server on %s", listen_address)
+    logger.info("JusticeAI RPC server is initialized.")
+
+    logger.info("Listening incoming connections on %s", listen_address)
     server.start()
     server.wait_for_termination()
 
 
 def main():
+    configure_logging()
+    config_path = resolve_config_path()
+    config = resolve_config(config_path)
+    pipeline = PipelineContext(config)
+    logger.info("Resolved config path: %s", config_path)
+
     host = os.environ.get("RPC_SERVER_HOST", "localhost")
     port = os.environ.get("RPC_SERVER_PORT", "50051")
-    log = configure_logging_server(__name__)
-    serve(host, port, log)
+    serve(host, port, pipeline)
 
 
 if __name__ == "__main__":

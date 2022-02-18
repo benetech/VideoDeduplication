@@ -53,3 +53,8 @@ def logger_name(owner) -> str:
     if inspect.isclass(owner) or inspect.isfunction(owner) or inspect.ismethod(owner):
         return f"{inspect.getmodule(owner).__name__}.{owner.__qualname__}"
     return logger_name(type(owner))
+
+
+def get_logger(owner) -> logging.Logger:
+    """Get logger for the given owner object."""
+    return logging.getLogger(logger_name(owner))

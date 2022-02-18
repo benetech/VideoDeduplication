@@ -497,6 +497,13 @@ class FilesDAO:
         return query
 
     @staticmethod
+    def query_local_file_ids(session: Session, path_hash_pairs) -> Query:
+        """Query local files by (path, hash) pairs."""
+        query = session.query(Files.id).filter(Files.contributor == None)  # noqa: E711
+        query = query.filter(tuple_(Files.file_path, Files.sha256).in_(tuple(path_hash_pairs)))
+        return query
+
+    @staticmethod
     def query_remote_files(session: Session, repository_name: str = None, contributor_name: str = None) -> Query:
         """Query remote signatures from database."""
         query = session.query(Files).filter(Files.contributor != None)  # noqa: E711
