@@ -3,6 +3,7 @@ import os
 from concurrent import futures
 
 import grpc
+from google.protobuf.json_format import MessageToDict
 
 import rpc.rpc_pb2 as proto
 import rpc.rpc_pb2_grpc as services
@@ -12,7 +13,6 @@ from winnow.config.path import resolve_config_path
 from winnow.pipeline.pipeline_context import PipelineContext, ComponentNotAvailable
 from winnow.text_search.main_utils import VideoSearch
 from winnow.utils.config import resolve_config
-from winnow.utils.logging import get_logger
 
 logger = logging.getLogger("rpc.server")
 
@@ -29,10 +29,14 @@ class SemanticSearch(services.SemanticSearchServicer):
         context: grpc.ServicerContext,
     ) -> proto.TextSearchResults:
         search_engine = self._get_search_engine(context)
-        files, distances, details = search_engine.query(request.query)
+        file_ids, scores, details = search_engine.query(
+            request.query,
+            min_similarity=request.min_similarity,
+            max_count=request.max_count,
+        )
         found = []
-        for file, distance in zip(files, distances):
-            found.append(proto.FoundVideo(path=file, hash="", distance=distance))
+        for file_id, score in zip(file_ids, scores):
+            found.append(proto.FoundVideo(id=file_id, score=score))
         return proto.TextSearchResults(
             videos=found,
             original_query=details["original_query"],
@@ -43,7 +47,7 @@ class SemanticSearch(services.SemanticSearchServicer):
         )
 
     def _get_search_engine(self, context: grpc.ServicerContext) -> VideoSearch:
-        """Try to get search engine."""
+        """Try to get search engine and gracefully handle exceptions."""
         try:
             return self.pipeline.text_search_engine
         except ComponentNotAvailable as error:
@@ -61,9 +65,10 @@ def initialize_search_engine(pipeline: PipelineContext):
         logger.warning("Text search engine is not available. Did you forget to create index?")
 
 
-def serve(host: str, port: int, pipeline: PipelineContext):
+def serve(host: str, port: int, pipeline: PipelineContext, eager: bool = False):
     semantic_search = SemanticSearch(pipeline)
-    initialize_search_engine(pipeline)
+    if eager:
+        initialize_search_engine(pipeline)
 
     listen_address = f"{host}:{port}"
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -85,7 +90,8 @@ def main():
 
     host = os.environ.get("RPC_SERVER_HOST", "localhost")
     port = os.environ.get("RPC_SERVER_PORT", "50051")
-    serve(host, port, pipeline)
+    eager = "RPC_SERVER_EAGER_INITIALIZE" in os.environ
+    serve(host, port, pipeline, eager)
 
 
 if __name__ == "__main__":

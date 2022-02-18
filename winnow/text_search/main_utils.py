@@ -5,7 +5,7 @@ from functools import partial
 from glob import glob
 from os.path import join, dirname
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -188,7 +188,6 @@ def get_human_readable(tokens, vocab, placeholder="<NA>"):
 
 
 def get_query_context(topic, placeholder="<NA>"):
-
     text_tool = TextTool()
     artifacts = model_artifacts()
     vocab = load_vocab(artifacts.get(DEFAULT_MODEL_VOCAB))
@@ -199,7 +198,11 @@ def get_query_context(topic, placeholder="<NA>"):
     score = len(clean_tokens) / len(tokens)
 
     return dict(
-        original_query=topic, tokens=tokens, clean_tokens=clean_tokens, human_readable=human_readable, score=score
+        original_query=topic,
+        tokens=tokens,
+        clean_tokens=clean_tokens,
+        human_readable=human_readable,
+        score=score,
     )
 
 
@@ -209,96 +212,73 @@ def query_signatures(
     model: CrossModalNetwork = None,
     min_similarity: float = 0.05,
     max_count: Optional[int] = None,
-    frames_mapping=None,
-    preview_samples: int = 10,
-    verbose: bool = False,
-    plot_preview: bool = False,
 ):
     query_data = get_query_context(topic)
-
     sent_vec = model.embed_txt(topic).numpy()[0]
     ranklist = file_index.query(sent_vec, min_similarity, max_count)
-    for i in range(preview_samples):
-        video_code, distance = ranklist[i]
+    ids, similarities = zip(*ranklist) if len(ranklist) > 0 else ([], [])
+    return ids, similarities, query_data
+
+
+def preview_query_results(topic, files, distances, frames_mapping, preview_samples, verbose, plot_preview):
+    for i in range(min(preview_samples, len(files))):
+        video_code, distance = files[i], distances[i]
         try:
             if verbose:
                 print("Query:", topic)
                 print("Rank:", i + 1, "Video:", video_code, "Similarity:", distance)
-
             if plot_preview:
-
-                assert os.path.exists(frames_file), "Frames file not found"
                 frames_file = frames_mapping[video_code]
+                assert os.path.exists(frames_file), "Frames file not found"
                 print(frames_file)
                 show_preview_from_frames(frames_file)
         except Exception as e:
             print("a", e)
             pass
 
-    files, sims = zip(*ranklist)
 
-    return files, sims, query_data
+def get_frame_mapping(path_to_frames: str) -> Dict[str, str]:
+    """Build mapping from file name to file path."""
+    assert os.path.exists(path_to_frames), "Frames Folder not found"
+    # get frames required for video preview
+    frame_files = glob(os.path.join(path_to_frames, "**"))
+
+    assert len(frame_files) > 0, "No frames found"
+
+    # allows quick lookup of frame files
+    frames_mapping = {os.path.basename(v[:-82]): v for v in frame_files}
+    return frames_mapping
 
 
 class VideoSearch:
     """Video Search class"""
 
-    def __init__(self, file_index: SimilarityIndex, model: CrossModalNetwork = None, path_to_frames=None):
+    def __init__(self, file_index: SimilarityIndex, model: CrossModalNetwork = None):
         """Instantiate a VideoSearch object
 
         Args:
              file_index(SimilarityIndex): Index to efficiently query similar file vectors.
              model (CrossModalNetwork): Text-Vis matching model.
-             path_to_frames (path,optional): Path to a folder containing video signatures
         """
 
         self.model = model or load_model()
         self.file_index = file_index
-        self.frame_files = None
-        self.frames_mapping = None
-
-        if path_to_frames is not None:
-            self.__process_frames__(path_to_frames)
-
-    def __process_frames__(self, path_to_frames):
-        """Allows frames to be visualized"""
-
-        assert os.path.exists(path_to_frames), "Frames Folder not found"
-        # get frames required for video preview
-        self.frame_files = glob(os.path.join(path_to_frames, "**"))
-
-        assert len(self.frame_files) > 0, "No frames found"
-
-        # allows quick lookup of frames file
-        self.frames_mapping = {os.path.basename(v[:-82]): v for v in self.frame_files}
 
     def query(
         self,
         topic,
         min_similarity: float = 0.05,
         max_count: Optional[int] = 10000,
-        preview_samples=10,
-        verbose=False,
-        plot_preview=False,
-        path_to_frames=None,
     ):
-
-        if path_to_frames is not None:
-            self.__process_frames__(path_to_frames)
-
-        files, distances, query_data = query_signatures(
+        files, similarity_scores, query_data = query_signatures(
             topic,
             self.file_index,
             self.model,
             min_similarity,
             max_count,
-            self.frames_mapping,
-            preview_samples,
-            verbose,
-            plot_preview,
         )
 
-        return files, distances, query_data
+        return files, similarity_scores, query_data
 
 
 def get_search_engine(path_to_signatures, path_to_frames, path_to_model=MODEL_PATH):

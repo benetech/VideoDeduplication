@@ -18,7 +18,7 @@ message TextSearchRequest {
 // Search results entry
 message FoundVideo {
   uint64 id = 1;
-  float distance = 2;
+  float score = 2;
 }
 
 // Result of the semantic text search

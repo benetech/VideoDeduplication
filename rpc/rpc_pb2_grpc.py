@@ -6,7 +6,8 @@ from rpc import rpc_pb2 as rpc_dot_rpc__pb2
 
 
 class SemanticSearchStub(object):
-    """Semantic search service"""
+    """Semantic search service
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -15,63 +16,55 @@ class SemanticSearchStub(object):
             channel: A grpc.Channel.
         """
         self.query_videos = channel.unary_unary(
-            "/rpc.proto.SemanticSearch/query_videos",
-            request_serializer=rpc_dot_rpc__pb2.TextSearchRequest.SerializeToString,
-            response_deserializer=rpc_dot_rpc__pb2.TextSearchResults.FromString,
-        )
+                '/rpc.proto.SemanticSearch/query_videos',
+                request_serializer=rpc_dot_rpc__pb2.TextSearchRequest.SerializeToString,
+                response_deserializer=rpc_dot_rpc__pb2.TextSearchResults.FromString,
+                )
 
 
 class SemanticSearchServicer(object):
-    """Semantic search service"""
+    """Semantic search service
+    """
 
     def query_videos(self, request, context):
-        """Perform semantic search by text description"""
+        """Perform semantic search by text description
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details("Method not implemented!")
-        raise NotImplementedError("Method not implemented!")
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
 
 def add_SemanticSearchServicer_to_server(servicer, server):
     rpc_method_handlers = {
-        "query_videos": grpc.unary_unary_rpc_method_handler(
-            servicer.query_videos,
-            request_deserializer=rpc_dot_rpc__pb2.TextSearchRequest.FromString,
-            response_serializer=rpc_dot_rpc__pb2.TextSearchResults.SerializeToString,
-        ),
+            'query_videos': grpc.unary_unary_rpc_method_handler(
+                    servicer.query_videos,
+                    request_deserializer=rpc_dot_rpc__pb2.TextSearchRequest.FromString,
+                    response_serializer=rpc_dot_rpc__pb2.TextSearchResults.SerializeToString,
+            ),
     }
-    generic_handler = grpc.method_handlers_generic_handler("rpc.proto.SemanticSearch", rpc_method_handlers)
+    generic_handler = grpc.method_handlers_generic_handler(
+            'rpc.proto.SemanticSearch', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
-# This class is part of an EXPERIMENTAL API.
+ # This class is part of an EXPERIMENTAL API.
 class SemanticSearch(object):
-    """Semantic search service"""
+    """Semantic search service
+    """
 
     @staticmethod
-    def query_videos(
-        request,
-        target,
-        options=(),
-        channel_credentials=None,
-        call_credentials=None,
-        insecure=False,
-        compression=None,
-        wait_for_ready=None,
-        timeout=None,
-        metadata=None,
-    ):
-        return grpc.experimental.unary_unary(
-            request,
+    def query_videos(request,
             target,
-            "/rpc.proto.SemanticSearch/query_videos",
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/rpc.proto.SemanticSearch/query_videos',
             rpc_dot_rpc__pb2.TextSearchRequest.SerializeToString,
             rpc_dot_rpc__pb2.TextSearchResults.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-        )
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
