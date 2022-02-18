@@ -14,6 +14,6 @@ def processing_text():
 
     with grpc.insecure_channel("localhost:50051") as channel:
         service = services.SemanticSearchStub(channel)
-        req = proto.TextSearchRequest(query=query)
+        req = proto.TextSearchRequest(query=query, min_similarity=0.0, max_count=1000)
         response = service.query_videos(req)
     return jsonify(MessageToDict(response))

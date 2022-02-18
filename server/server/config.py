@@ -22,6 +22,18 @@ def parse_enum_value(enum_cls: Type[enum.Enum], value, default):
     return enum_cls(value)
 
 
+class RPCServerConfig:
+    """RPC-Server configuration."""
+
+    def __init__(self):
+        self.host = os.environ.get("RPC_SERVER_HOST", "localhost")
+        self.port = int(os.environ.get("RPC_SERVER_PORT", 50051))
+
+    @property
+    def address(self) -> str:
+        return f"{self.host}:{self.port}"
+
+
 class DatabaseConfig:
     """Database connection configuration."""
 
@@ -92,6 +104,7 @@ class Config:
 
     def __init__(self):
         self.database = DatabaseConfig()
+        self.rpc_server = RPCServerConfig()
         self.host = os.environ.get("SERVER_HOST", "0.0.0.0")
         self.port = int(os.environ.get("SERVER_PORT", 5000))
         self.static_folder = os.environ.get("STATIC_FOLDER", "static")

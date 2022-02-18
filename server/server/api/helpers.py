@@ -1,13 +1,16 @@
 import enum
 import os
 import re
+from contextlib import contextmanager
 from datetime import datetime
 from functools import lru_cache
 from http import HTTPStatus
-from typing import Type
+from typing import Type, Iterator
 
+import grpc
 from flask import current_app, abort
 
+import rpc.rpc_pb2_grpc as services
 from db import Database
 from db.access.fields import Fields
 from remote.repository_dao_database import DBRemoteRepoDAO
@@ -66,6 +69,14 @@ def get_repos_dao() -> DBRemoteRepoDAO:
         ),
         secret_storage=get_security_storage(),
     )
+
+
+@contextmanager
+def semantic_search() -> Iterator[services.SemanticSearchStub]:
+    """Get semantic search service."""
+    config = get_config()
+    with grpc.insecure_channel(config.rpc_server.address) as channel:
+        yield services.SemanticSearchStub(channel)
 
 
 def resolve_video_file_path(file_path):
