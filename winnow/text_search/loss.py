@@ -48,9 +48,9 @@ class MarginRankingLoss(nn.Module):
         d2 = diagonal.t().expand_as(scores)
 
         # clear diagonals
-        I = torch.eye(scores.size(0)) > 0.5
+        I = torch.eye(scores.size(0)) > 0.5  # noqa
         if torch.cuda.is_available():
-            I = I.cuda()
+            I = I.cuda()  # noqa
 
         cost_s = None
         cost_im = None

@@ -120,7 +120,13 @@ def serialize_keras_object(instance):
         raise ValueError("Cannot serialize", instance)
 
 
-def deserialize_keras_object(identifier, module_objects=None, custom_objects=None, printable_module_name="object"):
+# FIXME: simplify method
+def deserialize_keras_object(  # noqa: C901
+    identifier,
+    module_objects=None,
+    custom_objects=None,
+    printable_module_name="object",
+):
     if isinstance(identifier, dict):
         # In this case we are dealing with a Keras config dictionary.
         config = identifier
@@ -308,7 +314,8 @@ class Progbar(object):
         self._start = time.time()
         self._last_update = 0
 
-    def update(self, current, values=None):
+    # FIXME: simplify update function
+    def update(self, current, values=None):  # noqa: C901
         """Updates the progress bar.
 
         # Arguments

@@ -177,18 +177,18 @@ class GruTxtEncoder(TxtEncoder):
             for i, ln in enumerate(lengths):
                 out[i] = torch.mean(padded[0][i][:ln], dim=0)
         elif self.pooling == "last":
-            I = torch.LongTensor(lengths).view(-1, 1, 1)
-            I = I.expand(batch_size, 1, self.rnn_size) - 1
-            I = I.cuda()
+            I = torch.LongTensor(lengths).view(-1, 1, 1)  # noqa: E741
+            I = I.expand(batch_size, 1, self.rnn_size) - 1  # noqa: E741
+            I = I.cuda()  # noqa: E741
             out = torch.gather(padded[0], 1, I).squeeze(1)
         elif self.rnn_type == "mean_last":
             out1 = torch.zeros(batch_size, self.rnn_size).to(device)
             for i, ln in enumerate(lengths):
                 out1[i] = torch.mean(padded[0][i][:ln], dim=0)
 
-            I = torch.LongTensor(lengths).view(-1, 1, 1)
-            I = I.expand(batch_size, 1, self.rnn_size) - 1
-            I = I.cuda()
+            I = torch.LongTensor(lengths).view(-1, 1, 1)  # noqa: E741
+            I = I.expand(batch_size, 1, self.rnn_size) - 1  # noqa: E741
+            I = I.cuda()  # noqa: E741
             out2 = torch.gather(padded[0], 1, I).squeeze(1)
             out = torch.cat((out1, out2), dim=1)
         return out
@@ -256,7 +256,8 @@ class MultiScaleTxtNet(TxtNet):
 
 class CrossModalNetwork(object):
     def _init_vis_net(self, opt):
-        self.vis_net = VisNet(opt)
+        # FIXME: undefined symbol VisNet
+        self.vis_net = VisNet(opt)  # noqa: F821
 
     def _init_txt_net(self, opt):
         self.txt_net = TxtNet(opt)

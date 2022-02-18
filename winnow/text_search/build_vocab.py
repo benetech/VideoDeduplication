@@ -7,13 +7,17 @@
 
 from __future__ import print_function
 
+import logging
+import os
 import pickle
 import sys
 from collections import Counter
 
-from .common import *
+from .common import ROOT_PATH, TEXT_ENCODINGS, DEFAULT_LANG, DEFAULT_TEXT_ENCODING, MIN_WORD_COUNT
 from .textlib import TextTool, Vocabulary
 from .util import checkToSkip, makedirsforfile
+
+logger = logging.getLogger(__name__)
 
 
 def read_from_txt_file(cap_file):

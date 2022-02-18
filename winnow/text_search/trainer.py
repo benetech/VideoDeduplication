@@ -8,6 +8,7 @@ from __future__ import print_function
 import argparse
 import importlib
 import json
+import os
 import shutil
 import sys
 import time
@@ -20,7 +21,7 @@ import winnow.text_search.data_provider as data
 import winnow.text_search.evaluation as evaluation
 import winnow.text_search.util as util
 from .bigfile import BigFile
-from .common import *
+from .common import ROOT_PATH
 from .generic_utils import Progbar
 from .model import get_model, get_we
 from .txt2vec import get_txt2vec
@@ -71,14 +72,14 @@ def main():
     print(json.dumps(vars(opt), indent=2))
 
     rootpath = opt.rootpath
-    trainCollection = opt.trainCollection
-    valCollection = opt.valCollection
+    train_collection = opt.trainCollection
+    val_collection = opt.valCollection
     val_set = opt.val_set
 
     config = load_config("winnow.text_search.configs.%s" % opt.config_name)
 
     model_path = os.path.join(
-        rootpath, trainCollection, "w2vvpp_train", valCollection, val_set, opt.config_name, opt.model_prefix
+        rootpath, train_collection, "w2vvpp_train", val_collection, val_set, opt.config_name, opt.model_prefix
     )
     if util.checkToSkip(os.path.join(model_path, "model_best.pth.tar"), opt.overwrite):
         sys.exit(0)
@@ -87,7 +88,7 @@ def main():
     global writer
     writer = SummaryWriter(log_dir=model_path, flush_secs=5)
 
-    collections = {"train": trainCollection, "val": valCollection}
+    collections = {"train": train_collection, "val": val_collection}
 
     capfiles = {"train": "%s.caption.txt", "val": os.path.join(val_set, "%s.caption.txt")}
     cap_file_paths = {
@@ -106,7 +107,7 @@ def main():
     rnn_encoding, config.pooling = rnn_encoding.split("_", 1)
 
     bow_vocab_file = os.path.join(
-        rootpath, trainCollection, "TextData", "vocab", "%s_%d.pkl" % (bow_encoding, config.threshold)
+        rootpath, train_collection, "TextData", "vocab", "%s_%d.pkl" % (bow_encoding, config.threshold)
     )
     config.t2v_bow = get_txt2vec(bow_encoding)(bow_vocab_file, norm=config.bow_norm)
 
@@ -114,7 +115,7 @@ def main():
     config.t2v_w2v = get_txt2vec(w2v_encoding)(w2v_data_path)
 
     rnn_vocab_file = os.path.join(
-        rootpath, trainCollection, "TextData", "vocab", "%s_%d.pkl" % (rnn_encoding, config.threshold)
+        rootpath, train_collection, "TextData", "vocab", "%s_%d.pkl" % (rnn_encoding, config.threshold)
     )
     config.t2v_idx = get_txt2vec("idxvec")(rnn_vocab_file)
     if config.we_dim == 500:

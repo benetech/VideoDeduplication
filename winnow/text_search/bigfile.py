@@ -1,7 +1,10 @@
 import array
+import logging
 import os
 
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 class BigFile:
@@ -13,7 +16,9 @@ class BigFile:
         self.name2index = dict(zip(self.names, range(self.nr_of_images)))
         self.binary_file = os.path.join(datadir, bin_file)
         self.hijack = hijack
-        print("[%s] %dx%d instances loaded from %s" % (self.__class__.__name__, self.nr_of_images, self.ndims, datadir))
+        logger.info(
+            "[%s] %dx%d instances loaded from %s" % (self.__class__.__name__, self.nr_of_images, self.ndims, datadir)
+        )
 
     def readall(self, isname=True):
 
@@ -23,7 +28,6 @@ class BigFile:
         sorted_index = [x[0] for x in index_name_array]
 
         nr_of_images = len(index_name_array)
-        vecs = [None] * nr_of_images
         offset = np.float32(1).nbytes * self.ndims
 
         res = array.array("f")
@@ -60,7 +64,6 @@ class BigFile:
         sorted_index = [x[0] for x in index_name_array]
 
         nr_of_images = len(index_name_array)
-        vecs = [None] * nr_of_images
         offset = np.float32(1).nbytes * self.ndims
 
         res = array.array("f")
@@ -85,13 +88,11 @@ class BigFile:
     def read_one(self, name):
         renamed, vectors = self.read([name])
         try:
-
             if self.hijack:
-
                 return vectors[0][: self.hijack]
             return vectors[0]
-        except Exception as e:
-            print("failed", name)
+        except Exception:
+            logger.exception("read_one(%s) failed", name)
 
     def shape(self):
 
