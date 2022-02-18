@@ -1,4 +1,3 @@
-from winnow.config import Config
 from security.storage import SecureStorage
 
 
@@ -8,6 +7,6 @@ class SecretNamespace:
     REPOS = "repos"
 
 
-def resolve_secure_storage(config: Config) -> SecureStorage:
+def resolve_secure_storage(config) -> SecureStorage:
     """Create and configure secure secret storage."""
     return SecureStorage(path=config.repr.directory, master_key_path=config.security.master_key_path)
