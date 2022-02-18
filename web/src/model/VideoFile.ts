@@ -33,6 +33,15 @@ export enum MatchCategory {
 }
 
 /**
+ * Semantic search filters.
+ */
+export type SemanticFilters = {
+  query?: string;
+  minSimilarity?: number;
+  maxHits?: number;
+};
+
+/**
  * File query filters.
  */
 export type FileFilters = {
@@ -46,6 +55,7 @@ export type FileFilters = {
   remote: boolean | null;
   templates: Template["id"][];
   contributors: Contributor["id"][];
+  semantic: SemanticFilters;
 };
 
 /**
@@ -62,6 +72,7 @@ export const DefaultFilters: FileFilters = {
   remote: false,
   templates: [],
   contributors: [],
+  semantic: {},
 };
 
 /**
