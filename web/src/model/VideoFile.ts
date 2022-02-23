@@ -36,7 +36,7 @@ export enum MatchCategory {
  * Semantic search filters.
  */
 export type SemanticFilters = {
-  query?: string;
+  query: string;
   minSimilarity?: number;
   maxHits?: number;
 };
@@ -72,7 +72,9 @@ export const DefaultFilters: FileFilters = {
   remote: false,
   templates: [],
   contributors: [],
-  semantic: {},
+  semantic: {
+    query: "",
+  },
 };
 
 /**

@@ -172,6 +172,7 @@ class PipelineContext:
                 index_name=self.TEXT_SEARCH_INDEX_NAME,
                 ids_name=self.TEXT_SEARCH_DATABASE_IDS_NAME,
                 n_features=self.TEXT_SEARCH_N_FEATURES,
+                allow_pickle=True,
             )
         except FileNotFoundError:
             raise ComponentNotAvailable("Semantic text search index not found. Did you forget to create one?")

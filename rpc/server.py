@@ -3,6 +3,7 @@ import os
 from concurrent import futures
 
 import grpc
+from google.protobuf.json_format import MessageToJson
 
 import rpc.rpc_pb2 as proto
 import rpc.rpc_pb2_grpc as services
@@ -27,23 +28,27 @@ class SemanticSearch(services.SemanticSearchServicer):
         request: proto.TextSearchRequest,
         context: grpc.ServicerContext,
     ) -> proto.TextSearchResults:
-        search_engine = self._get_search_engine(context)
-        file_ids, scores, details = search_engine.query(
-            request.query,
-            min_similarity=request.min_similarity,
-            max_count=request.max_count,
-        )
-        found = []
-        for file_id, score in zip(file_ids, scores):
-            found.append(proto.FoundVideo(id=file_id, score=score))
-        return proto.TextSearchResults(
-            videos=found,
-            original_query=details["original_query"],
-            tokens=details["tokens"],
-            clean_tokens=details["clean_tokens"],
-            human_readable=details["human_readable"],
-            score=details["score"],
-        )
+        try:
+            search_engine = self._get_search_engine(context)
+            file_ids, scores, details = search_engine.query(
+                request.query,
+                min_similarity=request.min_similarity,
+                max_count=request.max_count,
+            )
+            found = []
+            for file_id, score in zip(file_ids, scores):
+                found.append(proto.FoundVideo(id=file_id, score=score))
+            return proto.TextSearchResults(
+                videos=found,
+                original_query=details["original_query"],
+                tokens=details["tokens"],
+                clean_tokens=details["clean_tokens"],
+                human_readable=details["human_readable"],
+                score=details["score"],
+            )
+        except:
+            logger.exception("Exception while processing request: %s", MessageToJson(request))
+            raise
 
     def _get_search_engine(self, context: grpc.ServicerContext) -> VideoSearch:
         """Try to get search engine and gracefully handle exceptions."""
