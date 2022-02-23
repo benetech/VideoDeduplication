@@ -17,7 +17,7 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
 
-const useStyles = makeStyles<Theme>((theme) => ({
+const useStyles = makeStyles<Theme>(() => ({
   container: {
     backgroundColor: "#EBEBEB",
     display: "flex",

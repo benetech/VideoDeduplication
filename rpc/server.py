@@ -46,7 +46,7 @@ class SemanticSearch(services.SemanticSearchServicer):
                 human_readable=details["human_readable"],
                 score=details["score"],
             )
-        except:
+        except Exception:
             logger.exception("Exception while processing request: %s", MessageToJson(request))
             raise
 
