@@ -1,4 +1,4 @@
-import { createMuiTheme, Theme } from "@material-ui/core";
+import { createTheme, Theme } from "@material-ui/core";
 import palette from "./palette";
 import mixins from "./mixins";
 import dimensions, { DimensionOptions, Dimensions } from "./dimensions";
@@ -18,7 +18,7 @@ declare module "@material-ui/core" {
  *
  * @see https://material-ui.com/customization/theming
  */
-const theme: Theme = createMuiTheme({
+const theme: Theme = createTheme({
   palette,
   mixins,
   dimensions,

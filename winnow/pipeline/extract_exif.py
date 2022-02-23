@@ -1,6 +1,6 @@
 import logging
 from os.path import join
-from typing import Iterable
+from typing import Iterable, Optional
 
 from db.schema import Files
 from winnow.pipeline.pipeline_context import PipelineContext
@@ -8,10 +8,18 @@ from winnow.pipeline.progress_monitor import ProgressMonitor
 from winnow.storage.db_result_storage import DBResultStorage
 from winnow.storage.repr_utils import path_resolver
 from winnow.utils.files import scan_videos, get_hash
-from winnow.utils.metadata_extraction import extract_from_list_of_videos, convert_to_df, parse_and_filter_metadata_df
+from winnow.utils.metadata_extraction import (
+    extract_from_list_of_videos,
+    convert_to_df,
+    parse_and_filter_metadata_df,
+)
 
 
-def extract_exif(videos: Iterable[str], pipeline: PipelineContext, progress_monitor=ProgressMonitor.NULL):
+def extract_exif(
+    videos: Optional[Iterable[str]],
+    pipeline: PipelineContext,
+    progress_monitor=ProgressMonitor.NULL,
+):
     """Extract EXIF metadata from video files."""
 
     logger = logging.getLogger(__name__)
