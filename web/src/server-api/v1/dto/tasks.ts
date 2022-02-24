@@ -22,6 +22,7 @@ export enum RawTaskType {
   PushFingerprints = "PushFingerprints",
   PullFingerprints = "PullFingerprints",
   MatchRemoteFingerprints = "MatchRemoteFingerprints",
+  PrepareSemanticSearch = "PrepareSemanticSearch",
 }
 
 export type TypedRequestDTO = {
@@ -135,6 +136,17 @@ export function isMatchRemoteFingerprintsRequestDTO(
   return data.type === RawTaskType.MatchRemoteFingerprints;
 }
 
+export type PrepareSemanticSearchRequestDTO = {
+  type: RawTaskType.PrepareSemanticSearch;
+  force: boolean;
+};
+
+export function isPrepareSemanticSearchRequestDTO(
+  data: TypedRequestDTO
+): data is PrepareSemanticSearchRequestDTO {
+  return data.type === RawTaskType.PrepareSemanticSearch;
+}
+
 export type TaskRequestDTO =
   | ProcessDirectoryRequestDTO
   | ProcessFileListRequestDTO
@@ -143,7 +155,8 @@ export type TaskRequestDTO =
   | ProcessOnlineVideoRequestDTO
   | PushFingerprintsRequestDTO
   | PullFingerprintsRequestDTO
-  | MatchRemoteFingerprintsRequestDTO;
+  | MatchRemoteFingerprintsRequestDTO
+  | PrepareSemanticSearchRequestDTO;
 
 export type FileCountDTO = {
   template: number;
@@ -169,6 +182,7 @@ export type ProcessOnlineVideoResultDTO = { files: ProcessedFileDTO[] };
 export type PushFingerprintsResultDTO = undefined;
 export type PullFingerprintsResultDTO = undefined;
 export type MatchRemoteFingerprintsResultDTO = undefined;
+export type PrepareSemanticSearchResultDTO = undefined;
 
 export type TaskResultDTO =
   | ProcessDirectoryResultDTO
@@ -178,7 +192,8 @@ export type TaskResultDTO =
   | ProcessOnlineVideoResultDTO
   | PushFingerprintsResultDTO
   | PullFingerprintsResultDTO
-  | MatchRemoteFingerprintsResultDTO;
+  | MatchRemoteFingerprintsResultDTO
+  | PrepareSemanticSearchResultDTO;
 
 export type TaskDTO = {
   id: string;

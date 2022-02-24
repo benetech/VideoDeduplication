@@ -35,6 +35,11 @@ const useStyles = makeStyles<Theme>(() => ({
     borderRadius: "0px 4px 4px 0px",
     minWidth: 200,
   },
+  selectOutlined: {
+    "& $notchedOutline": {
+      borderWidth: "5px",
+    },
+  },
 }));
 
 function useMessages() {
@@ -197,6 +202,7 @@ export default function SearchTextInput(
           onChange={handleQueryType}
           className={classes.selectInput}
           labelWidth={85}
+          classes={{ root: classes.selectOutlined }}
         >
           <MenuItem value={QueryType.FileName}>{messages.fileName}</MenuItem>
           <MenuItem value={QueryType.Semantic}>{messages.semantic}</MenuItem>

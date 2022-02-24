@@ -21,6 +21,7 @@ export enum TaskRequestType {
   PUSH_FINGERPRINTS = "PushFingerprints",
   PULL_FINGERPRINTS = "PullFingerprints",
   MATCH_REMOTE_FINGERPRINTS = "MatchRemoteFingerprints",
+  PREPARE_SEMANTIC_SEARCH = "PrepareSemanticSearch",
 }
 
 /**
@@ -95,6 +96,11 @@ export type MatchRemoteFingerprintsRequest = {
   contributorName?: string | null;
 };
 
+export type PrepareSemanticSearchRequest = {
+  type: TaskRequestType.PREPARE_SEMANTIC_SEARCH;
+  force: boolean;
+};
+
 export type TaskRequest =
   | ProcessDirectoryRequest
   | ProcessFileListRequest
@@ -103,7 +109,8 @@ export type TaskRequest =
   | ProcessOnlineVideoRequest
   | PushFingerprintsRequest
   | PullFingerprintsRequest
-  | MatchRemoteFingerprintsRequest;
+  | MatchRemoteFingerprintsRequest
+  | PrepareSemanticSearchRequest;
 
 export type FileCount = {
   templateId: number;
@@ -129,6 +136,7 @@ export type ProcessOnlineVideoResult = { files: ProcessedFile[] };
 export type PushFingerprintsResult = undefined;
 export type PullFingerprintsResult = undefined;
 export type MatchRemoteFingerprintsResult = undefined;
+export type PrepareSemanticSearchResult = undefined;
 
 export type TaskResult =
   | ProcessDirectoryResult
@@ -149,6 +157,7 @@ export type TaskRequestMap = {
   [TaskRequestType.PUSH_FINGERPRINTS]: PushFingerprintsRequest;
   [TaskRequestType.PULL_FINGERPRINTS]: PullFingerprintsRequest;
   [TaskRequestType.MATCH_REMOTE_FINGERPRINTS]: MatchRemoteFingerprintsRequest;
+  [TaskRequestType.PREPARE_SEMANTIC_SEARCH]: PrepareSemanticSearchRequest;
 };
 
 /**
@@ -163,6 +172,7 @@ export type TaskResultMap = {
   [TaskRequestType.PUSH_FINGERPRINTS]: PushFingerprintsResult;
   [TaskRequestType.PULL_FINGERPRINTS]: PullFingerprintsResult;
   [TaskRequestType.MATCH_REMOTE_FINGERPRINTS]: MatchRemoteFingerprintsResult;
+  [TaskRequestType.PREPARE_SEMANTIC_SEARCH]: PrepareSemanticSearchResult;
 };
 
 /**
@@ -306,6 +316,19 @@ export function makeMatchRemoteFingerprintsRequest(
 }
 
 /**
+ * Make default PrepareSemanticSearch
+ */
+export function makePrepareSemanticSearchRequest(
+  req: Partial<PrepareSemanticSearchRequest> = {}
+): PrepareSemanticSearchRequest {
+  return {
+    type: TaskRequestType.PREPARE_SEMANTIC_SEARCH,
+    force: true,
+    ...req,
+  };
+}
+
+/**
  * Make default request (correct shape, but possible invalid data).
  */
 export function makeTaskRequest(type: TaskRequestType): TaskRequest {
@@ -326,5 +349,7 @@ export function makeTaskRequest(type: TaskRequestType): TaskRequest {
       return makePullFingerprintsRequest();
     case TaskRequestType.MATCH_REMOTE_FINGERPRINTS:
       return makeMatchRemoteFingerprintsRequest();
+    case TaskRequestType.PREPARE_SEMANTIC_SEARCH:
+      return makePrepareSemanticSearchRequest();
   }
 }

@@ -6,6 +6,8 @@ import {
   MatchRemoteFingerprintsResult,
   MatchTemplatesRequest,
   MatchTemplatesResult,
+  PrepareSemanticSearchRequest,
+  PrepareSemanticSearchResult,
   ProcessDirectoryRequest,
   ProcessDirectoryResult,
   ProcessFileListRequest,
@@ -32,6 +34,8 @@ import {
   MatchRemoteFingerprintsResultDTO,
   MatchTemplatesRequestDTO,
   MatchTemplatesResultDTO,
+  PrepareSemanticSearchRequestDTO,
+  PrepareSemanticSearchResultDTO,
   ProcessDirectoryRequestDTO,
   ProcessDirectoryResultDTO,
   ProcessFileListRequestDTO,
@@ -71,6 +75,8 @@ class TaskRequestTransformer {
         return this.pullFingerprintsReq(data);
       case RawTaskType.MatchRemoteFingerprints:
         return this.matchRemoteFingerprintsReq(data);
+      case RawTaskType.PrepareSemanticSearch:
+        return this.prepareSemanticSearchReq(data);
     }
   }
 
@@ -92,6 +98,8 @@ class TaskRequestTransformer {
         return this.pullFingerprintsDTO(req);
       case TaskRequestType.MATCH_REMOTE_FINGERPRINTS:
         return this.matchRemoteFingerprintsDTO(req);
+      case TaskRequestType.PREPARE_SEMANTIC_SEARCH:
+        return this.prepareSemanticSearchDTO(req);
     }
   }
 
@@ -247,6 +255,24 @@ class TaskRequestTransformer {
     };
   }
 
+  prepareSemanticSearchReq(
+    data: PrepareSemanticSearchRequestDTO
+  ): PrepareSemanticSearchRequest {
+    return {
+      type: TaskRequestType.PREPARE_SEMANTIC_SEARCH,
+      force: data.force,
+    };
+  }
+
+  prepareSemanticSearchDTO(
+    req: PrepareSemanticSearchRequest
+  ): PrepareSemanticSearchRequestDTO {
+    return {
+      type: RawTaskType.PrepareSemanticSearch,
+      force: req.force,
+    };
+  }
+
   configReq(data: RequestConfigDTO): TaskConfig {
     return {
       darkThreshold: data.dark_threshold,
@@ -304,6 +330,10 @@ class TaskResultTransformer {
       case RawTaskType.MatchRemoteFingerprints:
         return this.matchRemoteFingerprintsRes(
           task.result as MatchRemoteFingerprintsResultDTO | null
+        );
+      case RawTaskType.PrepareSemanticSearch:
+        return this.prepareSemanticSearchRes(
+          task.result as PrepareSemanticSearchResultDTO | null
         );
     }
   }
@@ -368,6 +398,12 @@ class TaskResultTransformer {
   matchRemoteFingerprintsRes(
     data: MatchRemoteFingerprintsResultDTO | null
   ): MatchRemoteFingerprintsResult | null {
+    return data; // no difference
+  }
+
+  prepareSemanticSearchRes(
+    data: PrepareSemanticSearchResultDTO | null
+  ): PrepareSemanticSearchResult | null {
     return data; // no difference
   }
 }

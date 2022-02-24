@@ -66,4 +66,10 @@ export const TaskResultViews: TaskResultViewMap = {
       component: RawResults,
     },
   ],
+  [TaskRequestType.PREPARE_SEMANTIC_SEARCH]: [
+    {
+      title: "view.raw",
+      component: RawResults,
+    },
+  ],
 };

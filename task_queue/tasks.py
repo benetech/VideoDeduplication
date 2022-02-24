@@ -406,6 +406,31 @@ def match_remote_fingerprints(
     monitor.complete()
 
 
+@winnow_task(bind=True)
+def prepare_semantic_search(self, force: bool = True):
+    from winnow.utils.config import resolve_config
+    from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.pipeline.prepare_text_search import prepare_text_search
+    import torch
+
+    torch.multiprocessing.set_start_method("spawn")
+
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
+    # Load configuration file
+    logger.info("Loading config file")
+    config = resolve_config()
+    config.database.use = True
+
+    # Run pipeline
+    monitor.update(0)
+    pipeline_context = PipelineContext(config)
+
+    prepare_text_search(pipeline_context, force, monitor.subtask(1.0))
+    monitor.complete()
+
+
 def fibo(n):
     """A very inefficient Fibonacci numbers generator."""
     if n <= 2:
