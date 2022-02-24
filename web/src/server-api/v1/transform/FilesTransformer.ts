@@ -105,18 +105,6 @@ export default class FilesTransformer {
     if (filters?.contributors != null && filters.contributors.length > 0) {
       params.contributors = filters.contributors.join(",");
     }
-    if (
-      filters?.semantic.query != null &&
-      filters?.semantic.query.trim().length > 0
-    ) {
-      params.semantic_query = filters.semantic.query.trim();
-    }
-    if (filters?.semantic.maxHits != null) {
-      params.max_semantic_search_hits = filters.semantic.maxHits;
-    }
-    if (filters?.semantic.minSimilarity != null) {
-      params.min_semantic_similarity = filters.semantic.minSimilarity;
-    }
     return params;
   }
 

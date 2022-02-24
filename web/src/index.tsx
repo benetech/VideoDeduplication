@@ -5,7 +5,6 @@ import defaultTheme from "./theme";
 import { detectLocale, LocaleData } from "./i18n/locale";
 import JusticeAI from "./JusticeAI/JusticeAI";
 import Server from "./server-api/v1/Server";
-import "@fontsource/roboto";
 
 const server = new Server();
 const locale = detectLocale();

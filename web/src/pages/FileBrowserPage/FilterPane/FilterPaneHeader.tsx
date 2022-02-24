@@ -139,8 +139,6 @@ type FilterPaneHeaderProps = React.HTMLProps<HTMLDivElement> & {
    * Handle close button.
    */
   onClose: () => void;
-  "aria-controls"?: string;
-  className?: string;
 };
 
 export default FilterPaneHeader;

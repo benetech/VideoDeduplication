@@ -28,6 +28,5 @@ type FileInfoPanelProps = React.HTMLProps<HTMLDivElement> & {
    * Video file
    */
   file: VideoFile;
-  className?: string;
 };
 export default FileInfoPanel;

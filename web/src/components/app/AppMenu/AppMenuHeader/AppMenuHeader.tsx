@@ -102,7 +102,6 @@ type AppMenuHeaderProps = React.HTMLProps<HTMLDivElement> & {
   open: boolean;
   onToggle: () => void;
   className?: string;
-  "aria-controls"?: string;
 };
 
 export default AppMenuHeader;

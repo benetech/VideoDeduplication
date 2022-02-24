@@ -31,7 +31,7 @@ dependencies:
       - pyyaml
       - cached-property
       - dataclasses
-      - celery==5.0.5
+      - celery
       - redis
       - billiard
       - librosa
@@ -39,11 +39,8 @@ dependencies:
       - inquirer
       - pytimeparse
       - annoy
-      - yt-dlp
+      - youtube-dl
       - dacite
       - deprecation
-      - torch
-      - grpcio==1.43.0
-      - grpcio-tools==1.43.0
 
 prefix: C:\ProgramData\Anaconda3\envs\winnow

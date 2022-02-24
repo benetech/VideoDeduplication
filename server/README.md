@@ -51,8 +51,6 @@ Server honors the following environment variables:
  * `ONLINE_POLICY` - Online detection policy. Possible values are `online`, `offline` and `detect` (default is `detect`)
  * `SECURITY_STORAGE_PATH` - Directory in which third-party credentials are stored (default is `./`).
  * `SECURITY_MASTER_KEY_PATH` - File path in which master key for third-party credentials is stored (unset by default).
- * `RPC_SERVER_HOST` - Hostname of the RPC Server (RPC provides online data processing services, default is `localhost`)
- * `RPC_SERVER_PORT` - RPC Server port
 
 
 Server accepts the following command-line arguments:
@@ -72,8 +70,6 @@ Server accepts the following command-line arguments:
  * `--online_policy` - set server online detection policty (overrices `ONLINE_POLICY` variable)
  * `--security_storage_path` - set directory in which third-party credentials are stored (overrides `SECURITY_STORAGE_PATH` varialbe)
  * `--security_master_key_path` - set file path in which master key for third-party credentials is stored (overrides `SECURITY_MASTER_KEY_PATH` variable)
- * `--rpc_server_host` - set the rpc-server host to connect to (overrides `RPC_SERVER_HOST` variable)
- * `--rpc_server_port` - set the rpc-server port (overrides `RPC_SERVER_PORT` variable)
 
 ## Serving Frontend
 

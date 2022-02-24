@@ -58,8 +58,6 @@ def serve(
     online_policy=None,
     security_storage_path=None,
     security_master_key_path=None,
-    rpc_server_host=None,
-    rpc_server_port=None,
 ):
     """Start Deduplication API Server."""
     eventlet.monkey_patch()
@@ -85,8 +83,6 @@ def serve(
     config.database.secret = db_secret or config.database.secret
     config.database.dialect = db_dialect or config.database.dialect
     config.database.override_uri = db_uri or config.database.override_uri
-    config.rpc_server.host = rpc_server_host or config.rpc_server.host
-    config.rpc_server.port = rpc_server_port or config.rpc_server.port
 
     # Create application
     application = create_application(config)

@@ -77,15 +77,11 @@ function FileBrowserPage(props: FileBrowserPageProps): JSX.Element {
   }, [showFilters, showFiltersRef]);
 
   // Handle query params
-  const handleNameQuery = useCallback(
+  const handleQuery = useCallback(
     (query) =>
       coll.updateParams({
         query,
       }),
-    []
-  );
-  const handleSemanticQuery = useCallback(
-    (query: string) => coll.updateParams({ semantic: { query } }),
     []
   );
   const updateCategory = useCallback(
@@ -110,10 +106,8 @@ function FileBrowserPage(props: FileBrowserPageProps): JSX.Element {
           </div>
           <div className={classes.filters}>
             <SearchTextInput
-              nameQuery={coll.params.query}
-              onNameSearch={handleNameQuery}
-              semanticQuery={coll.params.semantic.query}
-              onSemanticSearch={handleSemanticQuery}
+              query={coll.params.query}
+              onSearch={handleQuery}
               className={classes.textSearch}
             />
             <CategorySelector

@@ -5,9 +5,9 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterable, List
 
-import yt_dlp
+import youtube_dl
 from tqdm import tqdm
-from yt_dlp.utils import YoutubeDLError
+from youtube_dl.utils import YoutubeDLError
 
 from winnow.pipeline.progress_monitor import ProgressMonitor, BaseProgressMonitor
 
@@ -129,7 +129,7 @@ def download_video(
         "outtmpl": output_template,
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         # Determine destination file name
         video_info = ydl.extract_info(video_url, download=False)
         file_name = ydl.prepare_filename(video_info)

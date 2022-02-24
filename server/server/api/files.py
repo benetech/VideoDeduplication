@@ -2,21 +2,10 @@ import os
 from http import HTTPStatus
 from os.path import dirname, basename
 
-import dataclasses
-from dataclasses import dataclass
 from flask import jsonify, request, abort, send_from_directory
 
-import rpc.rpc_pb2 as proto
 from db.access.fields import Fields
-from db.access.files import (
-    ListFilesRequest,
-    FileMatchFilter,
-    FileSort,
-    FilesDAO,
-    FileInclude,
-    get_file_fields,
-    ListFilesResults,
-)
+from db.access.files import ListFilesRequest, FileMatchFilter, FileSort, FilesDAO, FileInclude, get_file_fields
 from db.schema import Files
 from thumbnail.ffmpeg import extract_frame_tmp
 from .blueprint import api
@@ -31,7 +20,6 @@ from .helpers import (
     get_config,
     parse_int_list,
     parse_enum_seq,
-    semantic_search,
 )
 from ..model import database, Transform
 
@@ -39,19 +27,10 @@ from ..model import database, Transform
 FILE_FIELDS = Fields(Files.exif, Files.meta, Files.signature, Files.scenes)
 
 
-@dataclass
-class ListFilesApiRequest(ListFilesRequest):
-    """Augmented List-Files request."""
-
-    semantic_query: str = None
-    min_semantic_similarity: float = 0.05
-    max_semantic_search_hits: int = 10000
-
-
-def parse_params() -> ListFilesApiRequest:
+def parse_params() -> ListFilesRequest:
     """Parse and validate request arguments."""
     config = get_config()
-    result = ListFilesApiRequest()
+    result = ListFilesRequest()
     result.limit = parse_positive_int(request.args, "limit", 20)
     result.offset = parse_positive_int(request.args, "offset", 0)
     result.path_query = request.args.get("path", "", type=str).strip()
@@ -71,45 +50,14 @@ def parse_params() -> ListFilesApiRequest:
     result.repository = request.args.get("repository", None, type=str)
     result.templates = parse_int_list(request.args, "templates")
     result.contributors = parse_int_list(request.args, "contributors")
-    result.semantic_query = request.args.get("semantic_query", None, type=str)
-    result.min_semantic_similarity = request.args.get(
-        "min_semantic_similarity", result.min_semantic_similarity, type=float
-    )
-    result.max_semantic_search_hits = parse_positive_int(
-        request.args, "max_semantic_search_hits", result.max_semantic_search_hits
-    )
     return result
-
-
-def handle_semantic_query(req: ListFilesApiRequest) -> ListFilesResults:
-    """Handle request with semantic video query."""
-    with semantic_search() as service:
-        response = service.query_videos(
-            proto.TextSearchRequest(
-                query=req.semantic_query,
-                min_similarity=req.min_semantic_similarity,
-                max_count=req.max_semantic_search_hits,
-            )
-        )
-    selected_ids = [file.id for file in response.videos]
-    no_limits_req = dataclasses.replace(req, limit=None, offset=None, include=())
-    result_ids = FilesDAO.list_files(no_limits_req, database.session, entity=Files.id, selected_ids=selected_ids)
-    limit, offset = req.limit, req.offset
-    page_ids = [item.file for item in result_ids.items][offset : offset + limit]
-    load_page_req = ListFilesRequest(include=req.include, sort=req.sort)
-    result_files = FilesDAO.list_files(load_page_req, database.session, selected_ids=page_ids)
-    result_files.counts = result_ids.counts
-    return result_files
 
 
 @api.route("/files/", methods=["GET"])
 def list_files():
     req = parse_params()
 
-    if req.semantic_query:
-        results = handle_semantic_query(req)
-    else:
-        results = FilesDAO.list_files(req, database.session)
+    results = FilesDAO.list_files(req, database.session)
     include_flags = {field.value: True for field in req.include}
 
     return jsonify(
