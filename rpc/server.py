@@ -50,6 +50,20 @@ class SemanticSearch(services.SemanticSearchServicer):
             logger.exception("Exception while processing request: %s", MessageToJson(request))
             raise
 
+    def get_status(
+        self,
+        request: proto.StatusRequest,
+        context: grpc.ServicerContext,
+    ) -> proto.StatusResponse:
+        try:
+            _ = self.pipeline.text_search_engine
+            return proto.StatusResponse(status=True)
+        except ComponentNotAvailable:
+            return proto.StatusResponse(status=False)
+        except Exception:
+            logger.exception("Exception while processing request: %s", MessageToJson(request))
+            raise
+
     def _get_search_engine(self, context: grpc.ServicerContext) -> VideoSearch:
         """Try to get search engine and gracefully handle exceptions."""
         try:

@@ -16,6 +16,7 @@ import { useIntl } from "react-intl";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
+import useHealth from "../../application/api/useHealth";
 
 const useStyles = makeStyles<Theme>(() => ({
   container: {
@@ -131,6 +132,7 @@ export default function SearchTextInput(
     className,
   } = props;
   const classes = useStyles();
+  const health = useHealth();
   const inputId = useUniqueId("search-input");
   const selectId = useUniqueId("type-select");
   const messages = useMessages();
@@ -205,7 +207,12 @@ export default function SearchTextInput(
           classes={{ root: classes.selectOutlined }}
         >
           <MenuItem value={QueryType.FileName}>{messages.fileName}</MenuItem>
-          <MenuItem value={QueryType.Semantic}>{messages.semantic}</MenuItem>
+          <MenuItem
+            value={QueryType.Semantic}
+            disabled={!health?.semanticSearch.available}
+          >
+            {messages.semantic}
+          </MenuItem>
         </Select>
       </FormControl>
     </div>

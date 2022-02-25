@@ -19,6 +19,7 @@ from . import (  # noqa: F401
     contributors,
     online,
     processing,
+    health,
 )
 from .blueprint import api
 

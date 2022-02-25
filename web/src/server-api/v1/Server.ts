@@ -15,6 +15,8 @@ import RepositoryEndpoint from "./endpoints/RepositoryEndpoint";
 import ContributorsEndpoint from "./endpoints/ContributorsEndpoint";
 import { makeServerError } from "../ServerError";
 import { OnlineDTO } from "./dto/online";
+import { ServerHealthStatus } from "../../model/health";
+import { HealthDTO } from "./dto/health";
 
 type RestServerOptions = {
   baseURL?: string;
@@ -70,6 +72,17 @@ export default class Server implements ServerAPI {
       return response.data.online;
     } catch (error) {
       throw makeServerError("Fetch online status error.", error);
+    }
+  }
+
+  async getHealth(): Promise<ServerHealthStatus> {
+    try {
+      const response = await this.axios.get<HealthDTO>("/health");
+      return {
+        semanticSearch: response.data.semantic_search,
+      };
+    } catch (error) {
+      throw makeServerError("Fetch health status error.", error);
     }
   }
 }

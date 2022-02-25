@@ -30,6 +30,7 @@ import {
 } from "../model/Template";
 import { SocketAPI } from "./SocketAPI";
 import { ExtensionsStats } from "../model/Stats";
+import { ServerHealthStatus } from "../model/health";
 
 /**
  * Generic request to list multiple entities.
@@ -256,4 +257,9 @@ export interface ServerAPI {
    * Check for internet connection on backend side.
    */
   isOnline(): Promise<boolean>;
+
+  /**
+   * server health check.
+   */
+  getHealth(): Promise<ServerHealthStatus>;
 }
