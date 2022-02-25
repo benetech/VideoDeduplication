@@ -20,6 +20,7 @@ export enum FileSort {
   length = "length",
   related = "related",
   duplicates = "duplicates",
+  relevance = "relevance",
 }
 
 /**
@@ -68,7 +69,7 @@ export const DefaultFilters: FileFilters = {
   date: { lower: null, upper: null },
   audio: null,
   matches: MatchCategory.all,
-  sort: FileSort.date,
+  sort: FileSort.relevance,
   remote: false,
   templates: [],
   contributors: [],

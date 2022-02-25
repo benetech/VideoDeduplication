@@ -1,6 +1,7 @@
 import os
 from http import HTTPStatus
 from os.path import dirname, basename
+from typing import List, Dict
 
 import dataclasses
 from dataclasses import dataclass
@@ -16,8 +17,10 @@ from db.access.files import (
     FileInclude,
     get_file_fields,
     ListFilesResults,
+    FileData,
 )
 from db.schema import Files
+from rpc.rpc_pb2 import FoundVideo
 from thumbnail.ffmpeg import extract_frame_tmp
 from .blueprint import api
 from .helpers import (
@@ -65,7 +68,7 @@ def parse_params() -> ListFilesApiRequest:
     result.match_filter = parse_enum(request.args, "matches", enum_class=FileMatchFilter, default=FileMatchFilter.ALL)
     result.related_distance = config.related_distance
     result.duplicate_distance = config.duplicate_distance
-    result.sort = parse_enum(request.args, "sort", enum_class=FileSort, default=None)
+    result.sort = parse_enum(request.args, "sort", enum_class=FileSort, default=FileSort.RELEVANCE)
     result.remote = parse_boolean(request.args, "remote")
     result.contributor = request.args.get("contributor", None, type=str)
     result.repository = request.args.get("repository", None, type=str)
@@ -81,6 +84,32 @@ def parse_params() -> ListFilesApiRequest:
     return result
 
 
+def sort_by_relevance(result_ids: ListFilesResults, semantic_results: List[FoundVideo]) -> List[int]:
+    """Sort semantic search ids by relevance."""
+    scores = {video.id: video.score for video in semantic_results}
+    sorted_ids = [(scores[item.file[0]], item.file[0]) for item in result_ids.items]
+    sorted_ids.sort(reverse=True)
+    return [file_id for (score, file_id) in sorted_ids]
+
+
+def id_score(scores: Dict[int, int]):
+    """Create score getter by id."""
+
+    def get_score(data: FileData):
+        return scores[data.file[0]]
+
+    return get_score
+
+
+def file_score(scores: Dict[int, int]):
+    """Create score getter by file."""
+
+    def get_score(data: FileData):
+        return scores[data.file.id]
+
+    return get_score
+
+
 def handle_semantic_query(req: ListFilesApiRequest) -> ListFilesResults:
     """Handle request with semantic video query."""
     with semantic_search() as service:
@@ -93,12 +122,21 @@ def handle_semantic_query(req: ListFilesApiRequest) -> ListFilesResults:
         )
     selected_ids = [file.id for file in response.videos]
     no_limits_req = dataclasses.replace(req, limit=None, offset=None, include=())
-    result_ids = FilesDAO.list_files(no_limits_req, database.session, entity=Files.id, selected_ids=selected_ids)
+    no_limits_res = FilesDAO.list_files(no_limits_req, database.session, entity=Files.id, selected_ids=selected_ids)
+    scores = None
+    if req.sort == FileSort.RELEVANCE:
+        # Sort results by relevance if needed
+        scores = {video.id: video.score for video in response.videos}
+        no_limits_res.items.sort(key=id_score(scores), reverse=True)
+    result_ids = [item.file[0] for item in no_limits_res.items]
+
     limit, offset = req.limit, req.offset
-    page_ids = [item.file for item in result_ids.items][offset : offset + limit]
+    page_ids = result_ids[offset : offset + limit]
     load_page_req = ListFilesRequest(include=req.include, sort=req.sort)
     result_files = FilesDAO.list_files(load_page_req, database.session, selected_ids=page_ids)
-    result_files.counts = result_ids.counts
+    if scores is not None:
+        result_files.items.sort(key=file_score(scores), reverse=True)
+    result_files.counts = no_limits_res.counts
     return result_files
 
 

@@ -131,6 +131,7 @@
     "sort.date": "Date",
     "sort.related": "Count of Related",
     "sort.duplicates": "Count of Duplicates",
+    "sort.relevance": "Relevance",
     "sort.none": "None",
     "search.category.all": "All",
     "search.category.duplicates": "Duplicates",

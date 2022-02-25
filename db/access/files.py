@@ -37,6 +37,7 @@ class FileSort(enum.Enum):
     LENGTH = "length"
     RELATED = "related"
     DUPLICATES = "duplicates"
+    RELEVANCE = "relevance"
 
 
 class FileInclude(enum.Enum):
@@ -79,7 +80,7 @@ class ListFilesRequest:
     date_from: datetime = None
     date_to: datetime = None
     include: Collection[FileInclude] = ()
-    sort: Optional[FileSort] = None
+    sort: Optional[FileSort] = FileSort.RELEVANCE
     match_filter: FileMatchFilter = FileMatchFilter.ALL
     related_distance: float = 0.4
     duplicate_distance: float = 0.1
