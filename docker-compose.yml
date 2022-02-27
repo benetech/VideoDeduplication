@@ -75,12 +75,6 @@ services:
 
   celery-worker:
     image: "johnhbenetech/videodeduplication:${BENETECH_RUNTIME:-gpu}${BENETECH_MODE}"
-    build:
-      context: .
-      dockerfile: "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
-      target: prod
-      args:
-        GIT_HASH: "${GIT_HASH:-UNKNOWN}"
     runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
     command: bash -ic "python -m task_queue.application worker --loglevel=INFO -E"
     environment:
@@ -110,12 +104,6 @@ services:
 
   rpc:
     image: "johnhbenetech/videodeduplication:${BENETECH_RUNTIME:-gpu}${BENETECH_MODE}"
-    build:
-      context: .
-      dockerfile: "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
-      target: prod
-      args:
-        GIT_HASH: "${GIT_HASH:-UNKNOWN}"
     runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
     command: bash -ic "python -m rpc.server"
     environment:
