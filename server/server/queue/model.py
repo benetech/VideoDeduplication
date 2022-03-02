@@ -168,6 +168,13 @@ class MatchRemoteFingerprints(Request):
 
 
 @dataclass
+class PrepareSemanticSearch(Request):
+    """Generate indexes required for semantic search."""
+
+    force: bool = True
+
+
+@dataclass
 class TestTask(Request):
     """Example Fibonacci task for testing purpose."""
 

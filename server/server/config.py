@@ -34,6 +34,15 @@ class RPCServerConfig:
         return f"{self.host}:{self.port}"
 
 
+class CacheConfig:
+    """API Cache config."""
+
+    def __init__(self):
+        self.host = os.environ.get("REDIS_CACHE_HOST", "redis")
+        self.port = int(os.environ.get("REDIS_CACHE_PORT", 6379))
+        self.db = int(os.environ.get("REDIS_CACHE_DB", 0))
+
+
 class DatabaseConfig:
     """Database connection configuration."""
 
@@ -105,6 +114,7 @@ class Config:
     def __init__(self):
         self.database = DatabaseConfig()
         self.rpc_server = RPCServerConfig()
+        self.cache = CacheConfig()
         self.host = os.environ.get("SERVER_HOST", "0.0.0.0")
         self.port = int(os.environ.get("SERVER_PORT", 5000))
         self.static_folder = os.environ.get("STATIC_FOLDER", "static")

@@ -8,6 +8,7 @@ from server.queue.model import (
     PushFingerprints,
     PullFingerprints,
     MatchRemoteFingerprints,
+    PrepareSemanticSearch,
 )
 from server.queue.request_transformer import RequestTransformer
 
@@ -21,4 +22,5 @@ request_transformer = RequestTransformer(
     PushFingerprints,
     PullFingerprints,
     MatchRemoteFingerprints,
+    PrepareSemanticSearch,
 )

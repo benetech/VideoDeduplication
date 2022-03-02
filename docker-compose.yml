@@ -75,12 +75,6 @@ services:
 
   celery-worker:
     image: "johnhbenetech/videodeduplication:${BENETECH_RUNTIME:-gpu}${BENETECH_MODE}"
-    build:
-      context: .
-      dockerfile: "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
-      target: prod
-      args:
-        GIT_HASH: "${GIT_HASH:-UNKNOWN}"
     runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
     command: bash -ic "python -m task_queue.application worker --loglevel=INFO -E"
     environment:
@@ -110,12 +104,6 @@ services:
 
   rpc:
     image: "johnhbenetech/videodeduplication:${BENETECH_RUNTIME:-gpu}${BENETECH_MODE}"
-    build:
-      context: .
-      dockerfile: "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
-      target: prod
-      args:
-        GIT_HASH: "${GIT_HASH:-UNKNOWN}"
     runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
     command: bash -ic "python -m rpc.server"
     environment:
@@ -162,6 +150,8 @@ services:
       TASK_LOG_DIRECTORY: "/project/pipeline-logs"
       FILE_STORE_DIRECTORY: "/project/file-storage"
       SECURITY_STORAGE_PATH: "/project/data/representations"
+      RPC_SERVER_HOST: "rpc"
+      RPC_SERVER_PORT: 50051
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed your video files

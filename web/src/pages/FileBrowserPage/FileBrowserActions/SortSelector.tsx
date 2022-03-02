@@ -18,21 +18,12 @@ const useStyles = makeStyles<Theme>(() => ({
 function useMessages() {
   const intl = useIntl();
   return {
-    duration: intl.formatMessage({
-      id: "sort.duration",
-    }),
-    date: intl.formatMessage({
-      id: "sort.date",
-    }),
-    none: intl.formatMessage({
-      id: "sort.none",
-    }),
-    related: intl.formatMessage({
-      id: "sort.related",
-    }),
-    duplicates: intl.formatMessage({
-      id: "sort.duplicates",
-    }),
+    duration: intl.formatMessage({ id: "sort.duration" }),
+    date: intl.formatMessage({ id: "sort.date" }),
+    none: intl.formatMessage({ id: "sort.none" }),
+    related: intl.formatMessage({ id: "sort.related" }),
+    duplicates: intl.formatMessage({ id: "sort.duplicates" }),
+    relevance: intl.formatMessage({ id: "sort.relevance" }),
   };
 }
 
@@ -57,9 +48,7 @@ function SortSelector(props: SortSelectorProps): JSX.Element {
     >
       <InputLabel>Sort</InputLabel>
       <Select value={value} onChange={handleChange} label="Sort">
-        <MenuItem value="">
-          <em>{messages.none}</em>
-        </MenuItem>
+        <MenuItem value={FileSort.relevance}>{messages.relevance}</MenuItem>
         <MenuItem value={FileSort.date}>{messages.date}</MenuItem>
         <MenuItem value={FileSort.length}>{messages.duration}</MenuItem>
         <MenuItem value={FileSort.related}>{messages.related}</MenuItem>

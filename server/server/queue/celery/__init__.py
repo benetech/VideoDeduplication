@@ -8,6 +8,7 @@ from server.queue.model import (
     PushFingerprints,
     PullFingerprints,
     MatchRemoteFingerprints,
+    PrepareSemanticSearch,
 )
 from server.queue.request_transformer import RequestTransformer
 
@@ -27,6 +28,7 @@ def make_celery_task_queue(task_request_transformer: RequestTransformer):
         push_fingerprints_task,
         pull_fingerprints_task,
         match_remote_fingerprints,
+        prepare_semantic_search,
     )
 
     return CeleryTaskQueue(
@@ -43,5 +45,6 @@ def make_celery_task_queue(task_request_transformer: RequestTransformer):
             PushFingerprints: push_fingerprints_task,
             PullFingerprints: pull_fingerprints_task,
             MatchRemoteFingerprints: match_remote_fingerprints,
+            PrepareSemanticSearch: prepare_semantic_search,
         },
     )

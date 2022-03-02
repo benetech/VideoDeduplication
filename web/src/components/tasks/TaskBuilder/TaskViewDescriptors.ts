@@ -26,6 +26,10 @@ const TaskViewDescriptors: TaskViewDescriptor[] = [
     type: TaskRequestType.MATCH_REMOTE_FINGERPRINTS,
     title: "task.type.matchRemote",
   },
+  {
+    type: TaskRequestType.PREPARE_SEMANTIC_SEARCH,
+    title: "task.type.prepareSemanticSearch",
+  },
 ];
 
 export default TaskViewDescriptors;

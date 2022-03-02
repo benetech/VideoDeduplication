@@ -37,5 +37,7 @@ export default function getTaskTextDescription(
       return intl.formatMessage({ id: "task.type.pullFingerprints" });
     case TaskRequestType.MATCH_REMOTE_FINGERPRINTS:
       return intl.formatMessage({ id: "task.type.matchRemote" });
+    case TaskRequestType.PREPARE_SEMANTIC_SEARCH:
+      return intl.formatMessage({ id: "task.type.prepareSemanticSearch" });
   }
 }

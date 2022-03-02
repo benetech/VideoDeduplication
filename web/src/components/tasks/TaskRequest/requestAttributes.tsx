@@ -8,6 +8,7 @@ import {
   BaseTaskRequest,
   FindFrameRequest,
   MatchTemplatesRequest,
+  PrepareSemanticSearchRequest,
   ProcessDirectoryRequest,
   ProcessOnlineVideoRequest,
 } from "../../../model/Task";
@@ -114,5 +115,17 @@ export const processOnlineVideoAttributes: AttributeRenderer<ProcessOnlineVideoR
     {
       title: "task.attr.onlineDestination",
       value: (request) => request.destinationTemplate,
+    },
+  ];
+
+/**
+ * Prepare semantic search request attributes.
+ */
+export const prepareSemanticSearchAttributes: AttributeRenderer<PrepareSemanticSearchRequest>[] =
+  [
+    {
+      title: "task.attr.forcePrepareSemantic",
+      // eslint-disable-next-line react/display-name
+      value: (request) => <Bool value={request.force} />,
     },
   ];

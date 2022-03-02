@@ -6,6 +6,7 @@ package rpc.proto;
 service SemanticSearch {
   // Perform semantic search by text description
   rpc query_videos (TextSearchRequest) returns (TextSearchResults) {}
+  rpc get_status (StatusRequest) returns (StatusResponse) {}
 }
 
 // Semantic text search request
@@ -29,4 +30,14 @@ message TextSearchResults {
   repeated string clean_tokens = 4;
   string human_readable = 5;
   float score = 6;
+}
+
+// Service status request
+message StatusRequest {
+  // empty
+}
+
+// Service status response
+message StatusResponse {
+  bool status = 1;
 }

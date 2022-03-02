@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect
 
-from db.access.files import FileData
+from db.access.files import FileData, ListFilesRequest
 from db.schema import (
     Contributor,
     Repository,
@@ -312,3 +312,12 @@ class Transform:
             "file": Transform.file(exclusion.file),
             "template": Transform.template(exclusion.template),
         }
+
+
+@dataclass
+class ListFilesApiRequest(ListFilesRequest):
+    """Augmented List-Files request."""
+
+    semantic_query: str = None
+    min_semantic_similarity: float = 0.05
+    max_semantic_search_hits: int = 10000

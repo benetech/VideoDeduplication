@@ -2,7 +2,7 @@ import abc
 import enum
 import itertools
 from datetime import datetime
-from typing import List, Optional, Iterator, Set, Iterable, Collection
+from typing import List, Optional, Iterator, Set, Iterable, Collection, Union
 
 from dataclasses import dataclass
 from sqlalchemy import or_, and_, func, literal_column, tuple_
@@ -37,6 +37,7 @@ class FileSort(enum.Enum):
     LENGTH = "length"
     RELATED = "related"
     DUPLICATES = "duplicates"
+    RELEVANCE = "relevance"
 
 
 class FileInclude(enum.Enum):
@@ -79,7 +80,7 @@ class ListFilesRequest:
     date_from: datetime = None
     date_to: datetime = None
     include: Collection[FileInclude] = ()
-    sort: Optional[FileSort] = None
+    sort: Optional[FileSort] = FileSort.RELEVANCE
     match_filter: FileMatchFilter = FileMatchFilter.ALL
     related_distance: float = 0.4
     duplicate_distance: float = 0.1
@@ -105,7 +106,7 @@ class Counts:
 class FileData:
     """Retrieved File along with some additional data."""
 
-    file: Files
+    file: Union[Files, int]  # File or File.id
     duplicate_count: Optional[int] = None
     related_count: Optional[int] = None
     matched_templates: Optional[List[int]] = None

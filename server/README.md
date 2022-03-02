@@ -53,6 +53,9 @@ Server honors the following environment variables:
  * `SECURITY_MASTER_KEY_PATH` - File path in which master key for third-party credentials is stored (unset by default).
  * `RPC_SERVER_HOST` - Hostname of the RPC Server (RPC provides online data processing services, default is `localhost`)
  * `RPC_SERVER_PORT` - RPC Server port
+ * `REDIS_CACHE_HOST` - redis cache host (default is `redis`)
+ * `REDIS_CACHE_PORT` - redis cache port (default `6379`)
+ * `REDIS_CACHE_DB` - redis cache db (default is `0`)
 
 
 Server accepts the following command-line arguments:
@@ -74,6 +77,9 @@ Server accepts the following command-line arguments:
  * `--security_master_key_path` - set file path in which master key for third-party credentials is stored (overrides `SECURITY_MASTER_KEY_PATH` variable)
  * `--rpc_server_host` - set the rpc-server host to connect to (overrides `RPC_SERVER_HOST` variable)
  * `--rpc_server_port` - set the rpc-server port (overrides `RPC_SERVER_PORT` variable)
+ * `--redis_cache_host` - set the redis cache host (overrides `REDIS_CACHE_HOST` variable)
+ * `--redis_cache_port` - set the redis cache port (overrides `REDIS_CACHE_PORT` variable)
+ * `--redis_cache_db` - set the redis cache db (overrides `REDIS_CACHE_DB` variable)
 
 ## Serving Frontend
 
