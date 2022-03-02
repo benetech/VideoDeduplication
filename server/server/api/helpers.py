@@ -17,6 +17,7 @@ from remote.repository_dao_database import DBRemoteRepoDAO
 from security.storage import SecureStorage
 from template_support.file_storage import FileStorage
 from thumbnail.cache import ThumbnailCache
+from ..cache import FileQueryCache
 from ..config import Config
 from ..model import database
 from ..queue import TaskQueue
@@ -77,6 +78,11 @@ def semantic_search() -> Iterator[services.SemanticSearchStub]:
     config = get_config()
     with grpc.insecure_channel(config.rpc_server.address) as channel:
         yield services.SemanticSearchStub(channel)
+
+
+def get_cache() -> FileQueryCache:
+    """Get file query cache."""
+    return current_app.config.get("FILE_QUERY_CACHE")
 
 
 def resolve_video_file_path(file_path):

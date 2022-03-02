@@ -14,3 +14,4 @@ cached-property==1.5.2
 cryptography==3.3.1
 grpcio==1.43.0
 grpcio-tools==1.43.0
+redis==4.1.2

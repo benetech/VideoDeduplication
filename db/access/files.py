@@ -2,7 +2,7 @@ import abc
 import enum
 import itertools
 from datetime import datetime
-from typing import List, Optional, Iterator, Set, Iterable, Collection
+from typing import List, Optional, Iterator, Set, Iterable, Collection, Union
 
 from dataclasses import dataclass
 from sqlalchemy import or_, and_, func, literal_column, tuple_
@@ -106,7 +106,7 @@ class Counts:
 class FileData:
     """Retrieved File along with some additional data."""
 
-    file: Files
+    file: Union[Files, int]  # File or File.id
     duplicate_count: Optional[int] = None
     related_count: Optional[int] = None
     matched_templates: Optional[List[int]] = None

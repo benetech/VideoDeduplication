@@ -3,9 +3,11 @@ from os import path
 
 import eventlet
 import fire
+import redis
 from flask import Flask
 
-from server.config import Config, OnlinePolicy
+from server.cache import FileQueryCache, RedisCache, NoCache
+from server.config import Config, OnlinePolicy, CacheConfig
 from server.socket.log_watcher import LogWatcher
 from server.socket.task_observer import TaskObserver
 from template_support.file_storage import LocalFileStorage
@@ -43,6 +45,13 @@ def create_application(config):
     return app
 
 
+def create_cache(config: CacheConfig) -> FileQueryCache:
+    """Create files-query cache."""
+    if config.port and config.host:
+        return RedisCache(client=redis.Redis(host=config.host, port=config.port, db=config.db))
+    return NoCache()
+
+
 def serve(
     host=None,
     port=None,
@@ -60,6 +69,9 @@ def serve(
     security_master_key_path=None,
     rpc_server_host=None,
     rpc_server_port=None,
+    redis_cache_host=None,
+    redis_cache_port=None,
+    redis_cache_db=None,
 ):
     """Start Deduplication API Server."""
     eventlet.monkey_patch()
@@ -87,6 +99,9 @@ def serve(
     config.database.override_uri = db_uri or config.database.override_uri
     config.rpc_server.host = rpc_server_host or config.rpc_server.host
     config.rpc_server.port = rpc_server_port or config.rpc_server.port
+    config.cache.host = redis_cache_host or config.cache.host
+    config.cache.port = redis_cache_port or config.cache.port
+    config.cache.db = redis_cache_db or config.cache.db
 
     # Create application
     application = create_application(config)
@@ -112,6 +127,8 @@ def serve(
     # Initialize task log watcher
     log_watcher = LogWatcher(socketio=socketio, log_storage=log_storage)
     application.config["LOG_WATCHER"] = log_watcher
+
+    application.config["FILE_QUERY_CACHE"] = create_cache(config.cache)
 
     # Listen for task queue events in a background thread
     threading.Thread(target=task_queue.listen, daemon=True).start()
