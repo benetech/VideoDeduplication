@@ -1,7 +1,7 @@
 import os
 from os import PathLike, fspath
 from pathlib import Path
-from typing import List, Tuple, Union, IO, AnyStr, Dict
+from typing import List, Tuple, Union, IO, AnyStr, Dict, Collection
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,7 @@ from dataclasses import astuple
 
 from winnow.duplicate_detection.neighbors import DetectedMatch
 from winnow.pipeline.luigi.platform import Match
-from winnow.pipeline.progress_monitor import ProgressMonitor, LazyProgress
+from winnow.pipeline.progress_monitor import ProgressMonitor, LazyProgress, BaseProgressMonitor
 from winnow.storage.file_key import FileKey
 
 
@@ -23,7 +23,7 @@ class FileKeyDF:
         *,
         file_keys: List[FileKey] = None,
         tuples: List[Tuple[str, str]] = None,
-        progress: ProgressMonitor = ProgressMonitor.NULL,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
     ) -> pd.DataFrame:
         """Create DataFrame with file keys from tuples."""
         if file_keys is not None and tuples is not None:
@@ -41,7 +41,7 @@ class FileKeyDF:
     @staticmethod
     def to_file_keys(
         file_keys_df: pd.DataFrame,
-        progress: ProgressMonitor = ProgressMonitor.NULL,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
     ) -> List[FileKey]:
         """
         Convert file-keys data-frame to a new List with FileKey
@@ -57,7 +57,7 @@ class FileKeyDF:
     @staticmethod
     def make_index_to_key_dict(
         file_keys_df: pd.DataFrame,
-        progress: ProgressMonitor = ProgressMonitor.NULL,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
     ) -> Dict[int, FileKey]:
         """
         Convert file-keys data-frame to a new index->FileKey mapping.
@@ -73,8 +73,8 @@ class FileKeyDF:
     @staticmethod
     def make_key_to_index_dict(
         file_keys_df: pd.DataFrame,
-        progress: ProgressMonitor = ProgressMonitor.NULL,
-    ) -> Dict[int, FileKey]:
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
+    ) -> Dict[FileKey, int]:
         """
         Convert file-keys data-frame to a new FileKey->Index mapping.
         """
@@ -89,7 +89,7 @@ class FileKeyDF:
     @staticmethod
     def from_index_to_key_dict(
         file_keys: Dict[int, FileKey],
-        progress: ProgressMonitor = ProgressMonitor.NULL,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
     ) -> pd.DataFrame:
         """Convert index->FileKey dict to file-keys DataFrame."""
         tuples = [None] * len(file_keys)
@@ -132,7 +132,7 @@ class MatchesDF:
         return matches_df
 
     @staticmethod
-    def make(matches: List[DetectedMatch], progress: ProgressMonitor = ProgressMonitor.NULL) -> pd.DataFrame:
+    def make(matches: Collection[DetectedMatch], progress: BaseProgressMonitor = ProgressMonitor.NULL) -> pd.DataFrame:
         """Create DataFrame with file matches."""
 
         def entry(detected_match: DetectedMatch):
@@ -151,7 +151,7 @@ class MatchesDF:
         return matches_df
 
     @staticmethod
-    def to_matches(matches_df: pd.DataFrame, progress: ProgressMonitor = ProgressMonitor.NULL) -> List[Match]:
+    def to_matches(matches_df: pd.DataFrame, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> List[Match]:
         """Convert matches DataFrame to list of matches."""
         progress = LazyProgress(progress.scale(total_work=len(matches_df.index), unit="matches"))
         result = []

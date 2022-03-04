@@ -8,7 +8,6 @@ from winnow.duplicate_detection.neighbors import NeighborMatcher
 from winnow.pipeline.luigi.condense import CondenseFingerprintsTask, CondensedFingerprints
 from winnow.pipeline.luigi.platform import PipelineTask
 from winnow.pipeline.luigi.utils import MatchesDF
-from winnow.pipeline.progress_monitor import ProgressBar
 
 
 class MatchesReportTask(PipelineTask):
@@ -26,7 +25,7 @@ class MatchesReportTask(PipelineTask):
         self.logger.info("Loaded %s fingerprints", len(condensed))
 
         self.logger.info("Preparing feature-vectors for matching")
-        feature_vectors = condensed.to_feature_vectors(ProgressBar(unit=" fingerprints"))
+        feature_vectors = condensed.to_feature_vectors(self.progress.subtask(0.3))
         self.logger.info("Prepared %s feature-vectors for matching", len(feature_vectors))
 
         self.logger.info("Building fingerprints index.")
@@ -36,7 +35,7 @@ class MatchesReportTask(PipelineTask):
         self.logger.info("Found %s matches", len(matches))
 
         self.logger.info("Preparing file matches for saving")
-        matches_df = MatchesDF.make(matches, ProgressBar(unit=" matches"))
+        matches_df = MatchesDF.make(matches, self.progress.remaining())
         self.logger.info("Prepared %s file matches for saving", len(matches_df.index))
 
         self.logger.info("Saving matches report")

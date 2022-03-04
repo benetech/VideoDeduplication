@@ -29,17 +29,19 @@ class PrepareCCWeb(PipelineTask):
         self.logger.info("Loading fingerprints.")
         fingerprints = np.load(self.output().fingerprints_file_path)
         self.logger.info("Loaded %s fingerprints", len(fingerprints))
+        self.progress.increase(0.1)
 
         file_labels_csv = os.path.join(self.output_directory, "vcdb_files_labels.csv")
         self.logger.info("Loading labeled ccweb videos list %s", file_labels_csv)
         file_labels = pd.read_csv(file_labels_csv, index_col=0)
         self.logger.info("Loaded %s labeled file names", len(file_labels.index))
+        self.progress.increase(0.1)
 
         self.logger.info("Creating file-keys dataframe")
         path_hash_pairs = []
         for entry in file_labels.itertuples():
             path_hash_pairs.append((os.path.join(entry.label, entry.basename), ""))
-        file_keys_df = FileKeyDF.make(tuples=path_hash_pairs)
+        file_keys_df = FileKeyDF.make(tuples=path_hash_pairs, progress=self.progress.subtask(0.7))
         self.logger.info("Created file-keys dataframe")
 
         condensed = CondensedFingerprints(fingerprints, file_keys_df)

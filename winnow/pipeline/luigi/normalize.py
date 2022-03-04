@@ -5,16 +5,16 @@ from glob import glob
 
 import luigi
 
-from winnow.pipeline.luigi.platform import WithLogger
-from winnow.pipeline.progress_monitor import ProgressMonitor, LazyProgress, ProgressBar
+from winnow.pipeline.luigi.platform import JusticeAITask
+from winnow.pipeline.progress_monitor import ProgressMonitor, LazyProgress, BaseProgressMonitor
 
 
-class NormalizeStorageTask(luigi.Task, WithLogger):
+class NormalizeStorageTask(JusticeAITask):
     """Normalize fingerprint directory."""
 
-    fingerprints_directory = luigi.Parameter()
-    search_suffix = luigi.Parameter(default=".npy")
-    expected_suffix = luigi.Parameter(default="_vgg_features.npy")
+    fingerprints_directory: str = luigi.Parameter()
+    search_suffix: str = luigi.Parameter(default=".npy")
+    expected_suffix: str = luigi.Parameter(default="_vgg_features.npy")
 
     def run(self):
         normalize_fingerprint_storage(
@@ -22,7 +22,7 @@ class NormalizeStorageTask(luigi.Task, WithLogger):
             search_suffix=self.search_suffix,
             expected_suffix=self.expected_suffix,
             logger=self.logger,
-            progress=ProgressBar(),
+            progress=self.progress,
         )
 
 
@@ -31,7 +31,7 @@ def normalize_fingerprint_storage(
     search_suffix: str = ".npy",
     expected_suffix: str = "_vgg_features.npy",
     logger: logging.Logger = None,
-    progress: ProgressMonitor = ProgressMonitor.NULL,
+    progress: BaseProgressMonitor = ProgressMonitor.NULL,
 ):
     """Normalize fingerprint storage format."""
 

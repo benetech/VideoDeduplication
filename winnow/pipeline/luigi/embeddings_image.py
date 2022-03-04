@@ -1,6 +1,7 @@
 import abc
 import math
 import os
+from abc import ABC
 from typing import Dict, List, Tuple
 
 import luigi
@@ -27,36 +28,38 @@ from winnow.pipeline.luigi.embeddings import (
     TSNEEmbeddingsTask,
 )
 from winnow.pipeline.luigi.platform import PipelineTask
-from winnow.pipeline.progress_monitor import ProgressMonitor, ProgressBar
+from winnow.pipeline.progress_monitor import ProgressMonitor, BaseProgressMonitor
 
 
 class EmbeddingsImageTask(PipelineTask, abc.ABC):
     """Abstract task to visualize all fingerprints with communities."""
 
-    n_communities = luigi.IntParameter(default=20)
-    alpha = luigi.FloatParameter(default=0.2)
-    color_map = luigi.Parameter(default="Spectral")
-    ignored_outliers_ratio = luigi.FloatParameter(default=0.001)
-    figure_width = luigi.FloatParameter(default=20.0)
-    figure_height = luigi.FloatParameter(default=20.0)
-    point_size = luigi.IntParameter(default=1)
+    n_communities: int = luigi.IntParameter(default=20)
+    alpha: float = luigi.FloatParameter(default=0.2)
+    color_map: str = luigi.Parameter(default="Spectral")
+    ignored_outliers_ratio: float = luigi.FloatParameter(default=0.001)
+    figure_width: float = luigi.FloatParameter(default=20.0)
+    figure_height: float = luigi.FloatParameter(default=20.0)
+    point_size: int = luigi.IntParameter(default=1)
 
     def run(self):
         self.logger.info("Loading embeddings")
-        condensed_embeddings = self.read_embeddings(ProgressBar())
+        condensed_embeddings = self.read_embeddings(self.progress.subtask(0.1))
         self.logger.info("Loaded embeddings with shape %s", condensed_embeddings.fingerprints.shape)
 
         self.logger.info("Loading match graph communities")
-        communities = self.read_communities(ProgressBar())
+        communities = self.read_communities(self.progress.subtask(0.1))
         self.logger.info("Loaded %s communities", len(communities))
 
         self.logger.info("Calculating colors for top %s communities", self.n_communities)
         community_colors = self.community_colors(communities.partition)
         self.logger.info("Calculating colors is done")
+        self.progress.increase(0.1)
 
         self.logger.info("Preparing point colors")
         colors = self.prepare_colors(condensed_embeddings, communities, community_colors)
         self.logger.info("Prepared colors for %s fingerprints", len(colors))
+        self.progress.increase(0.2)
 
         self.logger.info("Drawing %s image with %s colored communities", self.algorithm_name, self.n_communities)
         self.draw_figure(condensed_embeddings.fingerprints, colors)
@@ -69,11 +72,11 @@ class EmbeddingsImageTask(PipelineTask, abc.ABC):
         yield GraphCommunitiesTask(config_path=self.config_path)
         yield self.embeddings_task
 
-    def read_communities(self, progress: ProgressMonitor = ProgressMonitor.NULL) -> MatchGraphCommunities:
+    def read_communities(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> MatchGraphCommunities:
         """Read saved match graph communities."""
         return self.input()[0].read(progress)
 
-    def read_embeddings(self, progress: ProgressMonitor = ProgressMonitor.NULL) -> CondensedFingerprints:
+    def read_embeddings(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> CondensedFingerprints:
         """Read saved embeddings."""
         return self.input()[1].read(progress)
 
@@ -172,7 +175,7 @@ class EmbeddingsImageTask(PipelineTask, abc.ABC):
         """Dimension reduction algorithm name."""
 
 
-class TopCommunitiesImageTask(EmbeddingsImageTask):
+class TopCommunitiesImageTask(EmbeddingsImageTask, ABC):
     """Use embedding to display only top communities."""
 
     def draw_figure(self, embeddings: np.ndarray, colors: np.ndarray):
@@ -201,21 +204,23 @@ class TopCommunitiesImageTask(EmbeddingsImageTask):
 class LabeledEmbeddingsImageTask(PipelineTask, abc.ABC):
     """Draw embeddings with custom labels."""
 
-    alpha = luigi.FloatParameter(default=0.2)
-    color_map = luigi.Parameter(default="Spectral")
-    ignored_outliers_ratio = luigi.FloatParameter(default=0.001)
-    figure_width = luigi.FloatParameter(default=20.0)
-    figure_height = luigi.FloatParameter(default=20.0)
-    point_size = luigi.IntParameter(default=1)
+    alpha: float = luigi.FloatParameter(default=0.2)
+    color_map: str = luigi.Parameter(default="Spectral")
+    ignored_outliers_ratio: float = luigi.FloatParameter(default=0.001)
+    figure_width: float = luigi.FloatParameter(default=20.0)
+    figure_height: float = luigi.FloatParameter(default=20.0)
+    point_size: int = luigi.IntParameter(default=1)
 
     def run(self):
         self.logger.info("Loading embeddings")
         condensed_embeddings = self.read_embeddings()
         self.logger.info("Loaded embeddings with shape %s", condensed_embeddings.fingerprints.shape)
+        self.progress.increase(0.1)
 
         self.logger.info("Obtaining colors")
         colors, color_labels = self.get_colors(condensed_embeddings)
-        self.logger.info("Obtined %s colors", len(color_labels))
+        self.logger.info("Obtained %s colors", len(color_labels))
+        self.progress.increase(0.2)
 
         self.logger.info("Drawing image with")
         self.draw_figure(condensed_embeddings.fingerprints, colors, color_labels)
@@ -384,13 +389,13 @@ class AllEmbeddingsImagesTasks(PipelineTask):
     """Draw all embeddings images."""
 
     # The same params as for EmbeddingsImageTask:
-    n_communities = luigi.IntParameter(default=20)
-    alpha = luigi.FloatParameter(default=0.2)
-    color_map = luigi.Parameter(default="Spectral")
-    ignored_outliers_ratio = luigi.FloatParameter(default=0.001)
-    figure_width = luigi.FloatParameter(default=20.0)
-    figure_height = luigi.FloatParameter(default=20.0)
-    point_size = luigi.IntParameter(default=1)
+    n_communities: int = luigi.IntParameter(default=20)
+    alpha: float = luigi.FloatParameter(default=0.2)
+    color_map: str = luigi.Parameter(default="Spectral")
+    ignored_outliers_ratio: float = luigi.FloatParameter(default=0.001)
+    figure_width: float = luigi.FloatParameter(default=20.0)
+    figure_height: float = luigi.FloatParameter(default=20.0)
+    point_size: int = luigi.IntParameter(default=1)
 
     def requires(self):
         params = self.all_params_dict()

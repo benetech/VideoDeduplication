@@ -14,7 +14,7 @@ from dataclasses import asdict, astuple, dataclass
 from winnow.duplicate_detection.neighbors import FeatureVector
 from winnow.pipeline.luigi.platform import PipelineTask
 from winnow.pipeline.luigi.utils import FileKeyDF
-from winnow.pipeline.progress_monitor import ProgressBar, ProgressMonitor, LazyProgress
+from winnow.pipeline.progress_monitor import ProgressBar, ProgressMonitor, LazyProgress, BaseProgressMonitor
 from winnow.storage.base_repr_storage import BaseReprStorage
 from winnow.storage.file_key import FileKey
 
@@ -40,7 +40,7 @@ class CondensedFingerprints:
     fingerprints: np.ndarray
     file_keys_df: pd.DataFrame
 
-    def to_feature_vectors(self, progress: ProgressMonitor = ProgressMonitor.NULL) -> List[FeatureVector]:
+    def to_feature_vectors(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> List[FeatureVector]:
         """
         Convert condensed fingerprints into list of `FeatureVector`s
 
@@ -54,7 +54,7 @@ class CondensedFingerprints:
         progress.complete()
         return result
 
-    def to_file_keys(self, progress: ProgressMonitor = ProgressMonitor.NULL) -> List[FileKey]:
+    def to_file_keys(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> List[FileKey]:
         """
         Convert file-keys data-frame to
         """
@@ -73,7 +73,7 @@ class CondensedFingerprints:
     @staticmethod
     def read_all(
         storage: BaseReprStorage,
-        progress: ProgressMonitor = ProgressMonitor.NULL,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
         logger: logging.Logger = None,
         expected_shape=(500,),
     ):
@@ -83,7 +83,7 @@ class CondensedFingerprints:
 
         logger.info("Discovering fingerprints")
         file_keys = list(storage.list())
-        logger.info("Found %s fingerprings", len(file_keys))
+        logger.info("Found %s fingerprints", len(file_keys))
 
         progress.increase(0.01)
 
@@ -119,7 +119,7 @@ class CondensedFingerprintsTarget(luigi.Target):
 
     CondensedFingerprints are stored as two files:
       1. <name>.npy file with condensed fingerprints
-      2. <name>.files.csv file with the conrresponding file keys in the same order.
+      2. <name>.files.csv file with the corresponding file keys in the same order.
     """
 
     def __init__(self, output_directory: str, name: str):
@@ -138,7 +138,7 @@ class CondensedFingerprintsTarget(luigi.Target):
 
     @cached_property
     def keys_file_path(self) -> str:
-        """Get file-kyes file path."""
+        """Get file-keys file path."""
         return os.path.join(self._output_directory, f"{self._name}.files.csv")
 
     @cached_property
@@ -160,7 +160,7 @@ class CondensedFingerprintsTarget(luigi.Target):
             np.save(fingerprints_out, condensed.fingerprints)
             condensed.file_keys_df.to_csv(keys_out)
 
-    def read(self, progress: ProgressMonitor = ProgressMonitor.NULL) -> CondensedFingerprints:
+    def read(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> CondensedFingerprints:
         """Read condensed fingerprints."""
         progress.scale(1.0)
         with self.fingerprints_target.open("r") as fingerprints_file, self.keys_target.open("r") as file_keys_file:
@@ -187,7 +187,7 @@ class CondensedFingerprintsTarget(luigi.Target):
         with self.keys_target.open("r") as file_keys_file:
             return FileKeyDF.read_csv(file_keys_file)
 
-    def read_file_keys(self, progress: ProgressMonitor = ProgressMonitor.NULL) -> List[FileKey]:
+    def read_file_keys(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> List[FileKey]:
         """Read only file-keys as a list."""
         file_keys_df = self.read_file_keys_df()
         return FileKeyDF.to_file_keys(file_keys_df, progress)
@@ -196,7 +196,7 @@ class CondensedFingerprintsTarget(luigi.Target):
 class CondenseFingerprintsTask(PipelineTask):
     """Condense fingerprints from the representation storage."""
 
-    fingerprint_size = luigi.IntParameter(default=500)
+    fingerprint_size: int = luigi.IntParameter(default=500)
 
     def run(self):
         self.logger.info("Reading fingerprints")
@@ -205,7 +205,7 @@ class CondenseFingerprintsTask(PipelineTask):
             storage=self.pipeline.repr_storage.signature,
             logger=self.logger,
             expected_shape=expected_shape,
-            progress=ProgressMonitor(),
+            progress=self.progress,
         )
         self.logger.info("Found %s fingerprints", len(condensed))
 

@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from winnow.pipeline.luigi.matches import MatchesReportTask
 from winnow.pipeline.luigi.platform import PipelineTask, Match
 from winnow.pipeline.luigi.utils import MatchesDF, FileKeyDF
-from winnow.pipeline.progress_monitor import ProgressMonitor, ProgressBar, LazyProgress
+from winnow.pipeline.progress_monitor import ProgressMonitor, LazyProgress, BaseProgressMonitor
 from winnow.storage.file_key import FileKey
 
 # Type hint for function calculating graph edge weight from match distance
@@ -43,7 +43,7 @@ class MatchGraphBuilder:
     def add_matches(
         self,
         matches: List[Match],
-        progress: ProgressMonitor = ProgressMonitor.NULL,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
     ) -> "MatchGraphBuilder":
         """Add a list of matches."""
         progress = LazyProgress(progress.scale(total_work=len(matches), unit="matches"))
@@ -81,7 +81,7 @@ class MatchGraph:
     graph: nk.Graph
     file_keys: Dict[int, FileKey]  # node_id -> FileKey
 
-    def to_file_keys_df(self, progress: ProgressMonitor = ProgressMonitor.NULL) -> pd.DataFrame:
+    def to_file_keys_df(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> pd.DataFrame:
         """Get DataFrame containing all the file-keys in the correct order."""
         return FileKeyDF.from_index_to_key_dict(self.file_keys, progress)
 
@@ -89,7 +89,7 @@ class MatchGraph:
     def from_matches(
         matches: List[Match],
         weight: WeightFunc,
-        progress: ProgressMonitor = ProgressMonitor.NULL,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
     ) -> "MatchGraph":
         """Create MatchGraph from matches DataFrame."""
         return MatchGraphBuilder(weight).add_matches(matches, progress).build()
@@ -146,7 +146,7 @@ class MatchGraphTarget(luigi.Target):
     def write(
         self,
         matches: MatchGraph,
-        progress: ProgressMonitor = ProgressMonitor.NULL,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
         logger: logging.Logger = None,
     ):
         """Write graph to local disc storage."""
@@ -162,7 +162,7 @@ class MatchGraphTarget(luigi.Target):
             nk.graphio.writeGraph(matches.graph, self.graph_file_path, self.format)
         progress.complete()
 
-    def read(self, progress: ProgressMonitor = ProgressMonitor.NULL) -> MatchGraph:
+    def read(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> MatchGraph:
         """Read match graph from local disc storage."""
         if not self.exists():
             raise Exception(f"Local MatchGraph not found: directory={self.directory}, name={self.name}")
@@ -181,7 +181,7 @@ class MatchGraphTarget(luigi.Target):
 class MatchGraphTask(PipelineTask):
     """Build match graph."""
 
-    format = luigi.Parameter(default=nk.Format.METIS.name)
+    format: str = luigi.Parameter(default=nk.Format.METIS.name)
 
     def requires(self):
         return MatchesReportTask(config_path=self.config_path)
@@ -200,7 +200,7 @@ class MatchGraphTask(PipelineTask):
         self.logger.info("Loaded %s matches from csv-report", len(matches_df.index))
 
         self.logger.info("Preparing matches for graph construction")
-        matches = MatchesDF.to_matches(matches_df, ProgressBar(unit="matches"))
+        matches = MatchesDF.to_matches(matches_df, self.progress.subtask(0.3))
         self.logger.info("Prepared %s matches", len(matches))
 
         self.logger.info("Building graph")
@@ -208,13 +208,13 @@ class MatchGraphTask(PipelineTask):
         result = MatchGraph.from_matches(
             matches=matches,
             weight=MatchGraph.normalized_proximity(max_distance),
-            progress=ProgressBar(unit="matches"),
+            progress=self.progress.subtask(0.3),
         )
-        self.logger.info("Builing graph is done.")
+        self.logger.info("Building graph is done.")
 
         target = self.output()
         self.logger.info("Writing graph to %s", target.graph_file_path)
-        target.write(result, ProgressBar(unit="nodes"))
+        target.write(result, self.progress.remaining())
         self.logger.info("Writing graph is done.")
 
     @cached_property

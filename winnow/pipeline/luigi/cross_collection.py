@@ -16,12 +16,12 @@ from winnow.pipeline.luigi.match_graph import MatchGraphBuilder
 from winnow.pipeline.luigi.matches import MatchesReportTask
 from winnow.pipeline.luigi.platform import PipelineTask
 from winnow.pipeline.luigi.utils import prefix, MatchesDF
-from winnow.pipeline.progress_monitor import ProgressBar, ProgressMonitor
+from winnow.pipeline.progress_monitor import ProgressBar, ProgressMonitor, BaseProgressMonitor
 
 
 class CrossCollectionMatches(PipelineTask):
-    other_config_path = luigi.Parameter()
-    other_collection_name = luigi.Parameter(default="cross")
+    other_config_path: str = luigi.Parameter()
+    other_collection_name: str = luigi.Parameter(default="cross")
 
     @cached_property
     def output_path(self) -> str:
@@ -37,13 +37,14 @@ class CrossCollectionMatches(PipelineTask):
         other_condensed: CondensedFingerprints = other_coll.read()
         self.logger.info("Loaded %s fingerprints from this collection", len(this_condensed))
         self.logger.info("Loaded %s fingerprints from other collection", len(other_condensed))
+        self.progress.increase(0.05)
 
         self.logger.info("Preparing this collection feature-vectors for matching")
-        this_collection_feature_vectors = this_condensed.to_feature_vectors(ProgressBar())
+        this_collection_feature_vectors = this_condensed.to_feature_vectors(self.progress.subtask(0.1))
         self.logger.info("Prepared %s feature-vectors for matching", len(this_collection_feature_vectors))
 
         self.logger.info("Preparing other collection feature-vectors for matching")
-        other_collection_feature_vectors = other_condensed.to_feature_vectors(ProgressBar())
+        other_collection_feature_vectors = other_condensed.to_feature_vectors(self.progress.subtask(0.1))
         self.logger.info("Prepared %s feature-vectors for matching", len(other_collection_feature_vectors))
 
         self.logger.info("Building fingerprints index.")
@@ -54,9 +55,10 @@ class CrossCollectionMatches(PipelineTask):
             max_distance=self.config.proc.match_distance,
         )
         self.logger.info("Found %s matches", len(matches))
+        self.progress.increase(0.6)
 
         self.logger.info("Preparing file matches for saving")
-        matches_df = MatchesDF.make(matches, ProgressBar())
+        matches_df = MatchesDF.make(matches, self.progress.subtask(0.1))
         self.logger.info("Prepared %s file matches for saving", len(matches_df.index))
 
         self.logger.info("Saving matches report")
@@ -87,24 +89,24 @@ class CrossCollectionCommunities(PipelineTask):
         builder = MatchGraphBuilder(weight=MatchGraphBuilder.normalized_proximity(max_distance))
 
         self.logger.info("Adding this collection matches")
-        self.add_matches(builder, this_matches_input, ProgressMonitor())
+        self.add_matches(builder, this_matches_input, self.progress.subtask(0.1))
 
         self.logger.info("Adding other collection matches")
-        self.add_matches(builder, other_matches_input, ProgressMonitor())
+        self.add_matches(builder, other_matches_input, self.progress.subtask(0.1))
 
         self.logger.info("Building partition for both collections separately")
-        partition_separate = self.save_separate_communities(builder, ProgressBar())
+        partition_separate = self.save_separate_communities(builder, self.progress.subtask(0.1))
 
         self.logger.info("Adding cross-collection matches")
-        self.add_matches(builder, cross_matches_input, ProgressMonitor())
+        self.add_matches(builder, cross_matches_input, self.progress.subtask(0.1))
 
         self.logger.info("Building partition for merged graph")
-        merged_communities = MatchGraphCommunities.detect(builder.build(), ProgressBar())
+        merged_communities = MatchGraphCommunities.detect(builder.build(), self.progress.subtask(0.1))
         self.logger.info("Detected %s communities in merged graph", len(merged_communities))
 
         self.logger.info("Saving merged communities")
         merged_target: LocalMatchGraphCommunitiesTarget = self.output()[1]
-        merged_target.write(merged_communities, ProgressBar())
+        merged_target.write(merged_communities, self.progress.subtask(0.1))
 
         self.logger.info("Calculating dissimilarity measures.")
 
@@ -147,7 +149,7 @@ class CrossCollectionCommunities(PipelineTask):
     def save_separate_communities(
         self,
         builder: MatchGraphBuilder,
-        progress: ProgressMonitor = ProgressMonitor.NULL,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
     ) -> nk.Partition:
         """Calculate and save communities for each collection separately."""
         progress.scale(1.0)
@@ -166,7 +168,7 @@ class CrossCollectionCommunities(PipelineTask):
         self,
         builder: MatchGraphBuilder,
         matches_input: luigi.LocalTarget,
-        progress: ProgressMonitor = ProgressMonitor.NULL,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
     ):
         """Add matches from csv-target to the graph."""
         progress.scale(1.0)

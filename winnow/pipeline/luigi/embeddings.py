@@ -13,10 +13,12 @@ class EmbeddingsTask(PipelineTask, abc.ABC):
         self.logger.info("Loading fingerprints from cache")
         condensed = self.read_fingerprints()
         self.logger.info("Loaded %s fingerprints", len(condensed))
+        self.progress.increase(0.005)
 
-        self.logger.info(f"Reducing fingerprint dimensions using {self.alogrithm_name}")
+        self.logger.info(f"Reducing fingerprint dimensions using {self.algorithm_name}")
         embeddings = self.fit_transform(condensed)
-        self.logger.info(f"{self.alogrithm_name} dimension reduction is done")
+        self.logger.info(f"{self.algorithm_name} dimension reduction is done")
+        self.progress.increase(0.99)
 
         self.logger.info("Saving embeddings to %s", self.output().fingerprints_file_path)
         self.output().write(embeddings)
@@ -35,11 +37,11 @@ class EmbeddingsTask(PipelineTask, abc.ABC):
     @cached_property
     def output_name(self) -> str:
         """File path to save embeddings."""
-        return f"{self.alogrithm_name.lower()}_embeddings"
+        return f"{self.algorithm_name.lower()}_embeddings"
 
     @property
     @abc.abstractmethod
-    def alogrithm_name(self) -> str:
+    def algorithm_name(self) -> str:
         """Dimension reduction algorithm name."""
         pass
 
@@ -56,7 +58,7 @@ class UmapEmbeddingsTask(EmbeddingsTask):
     """
 
     @property
-    def alogrithm_name(self) -> str:
+    def algorithm_name(self) -> str:
         return "UMAP"
 
     def fit_transform(self, original: CondensedFingerprints) -> CondensedFingerprints:
@@ -78,7 +80,7 @@ class TriMapEmbeddingsTask(EmbeddingsTask):
     """
 
     @property
-    def alogrithm_name(self) -> str:
+    def algorithm_name(self) -> str:
         return "TriMap"
 
     def fit_transform(self, original: CondensedFingerprints) -> CondensedFingerprints:
@@ -95,7 +97,7 @@ class PaCMAPEmbeddingsTask(EmbeddingsTask):
     """
 
     @property
-    def alogrithm_name(self) -> str:
+    def algorithm_name(self) -> str:
         return "PaCMAP"
 
     def fit_transform(self, original: CondensedFingerprints) -> CondensedFingerprints:
@@ -113,7 +115,7 @@ class TSNEEmbeddingsTask(EmbeddingsTask):
     """
 
     @property
-    def alogrithm_name(self) -> str:
+    def algorithm_name(self) -> str:
         return "t-SNE"
 
     def fit_transform(self, original: CondensedFingerprints) -> CondensedFingerprints:

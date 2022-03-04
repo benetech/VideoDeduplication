@@ -13,7 +13,7 @@ from typing.io import IO
 from winnow.pipeline.luigi.match_graph import MatchGraphTask, MatchGraphTarget, MatchGraph
 from winnow.pipeline.luigi.platform import PipelineTask
 from winnow.pipeline.luigi.utils import FileKeyDF
-from winnow.pipeline.progress_monitor import ProgressBar, ProgressMonitor, LazyProgress
+from winnow.pipeline.progress_monitor import ProgressMonitor, LazyProgress, BaseProgressMonitor
 from winnow.storage.file_key import FileKey
 
 
@@ -33,7 +33,7 @@ class CommunitiesDF:
     def make(
         partition: nk.Partition,
         node_to_file_key: Dict[int, FileKey],
-        progress: ProgressMonitor = ProgressMonitor.NULL,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
     ) -> pd.DataFrame:
         """Create from partition."""
         communities_df = FileKeyDF.from_index_to_key_dict(node_to_file_key, progress.scale(1.0).subtask(0.5))
@@ -66,7 +66,7 @@ class MatchGraphCommunities:
         return self.partition.subsetSizeMap().get(self.subsetId(file_key))
 
     @staticmethod
-    def detect(match: MatchGraph, progress: ProgressMonitor = ProgressMonitor.NULL):
+    def detect(match: MatchGraph, progress: BaseProgressMonitor = ProgressMonitor.NULL):
         """Detect communities in match graph."""
         progress.scale(1.0)
         partition: nk.Partition = nk.community.detectCommunities(match.graph)
@@ -128,7 +128,7 @@ class LocalMatchGraphCommunitiesTarget(luigi.Target):
     def exists(self):
         return self.partition_target.exists() and self.file_keys_target.exists()
 
-    def write(self, communities: MatchGraphCommunities, progress: ProgressMonitor = ProgressMonitor.NULL):
+    def write(self, communities: MatchGraphCommunities, progress: BaseProgressMonitor = ProgressMonitor.NULL):
         """Write MatchGraphCommunities to the local file system."""
         progress.scale(1.0)
 
@@ -140,7 +140,7 @@ class LocalMatchGraphCommunitiesTarget(luigi.Target):
             progress.increase(0.5)
         progress.complete()
 
-    def read(self, progress: ProgressMonitor = ProgressMonitor.NULL) -> MatchGraphCommunities:
+    def read(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> MatchGraphCommunities:
         """Read MatchGraphCommunities from the local file system."""
         if not self.exists():
             raise Exception(f"Local MatchGraphCommunities not found: directory={self.directory}, name={self.name}")
@@ -164,11 +164,11 @@ class GraphCommunitiesTask(PipelineTask):
     def run(self):
         graph_input: MatchGraphTarget = self.input()
         self.logger.info("Loading match graph from %s", graph_input.graph_file_path)
-        matches = graph_input.read(progress=ProgressBar())
+        matches = graph_input.read(progress=self.progress.subtask(0.2))
         self.logger.info("Loaded match graph with %s links", matches.graph.numberOfEdges())
 
         self.logger.info("Detecting communities")
-        communities = MatchGraphCommunities.detect(matches)
+        communities = MatchGraphCommunities.detect(matches, progress=self.progress.subtask(0.6))
         modularity = communities.modularity(matches.graph)
         self.logger.info(
             "Detected %s communities, modularity = %s", communities.partition.numberOfSubsets(), modularity
@@ -176,7 +176,7 @@ class GraphCommunitiesTask(PipelineTask):
 
         target = self.output()
         self.logger.info("Saving communities to %s", target.partition_path)
-        target.write(communities, ProgressBar())
+        target.write(communities, self.progress.remaining())
         self.logger.info("Saved communities successfully")
 
     def requires(self):
