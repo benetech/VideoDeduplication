@@ -9,7 +9,6 @@ dependencies:
   - pandas
   - scikit-learn==0.23.2
   - scipy
-  - tensorflow-gpu==1.15
   - tqdm
   - sqlalchemy
   - psycopg2
@@ -54,4 +53,6 @@ dependencies:
       - typing_extensions==4.1.1
       - grpcio==1.43.0
       - grpcio-tools==1.43.0
+      - tensorflow==2.6.2
+      - tf-slim
 
