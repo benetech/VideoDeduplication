@@ -1,7 +1,7 @@
 """The repr module offers high-level utility functions to work with intermediate representations."""
 import logging
 from os import PathLike
-from typing import Callable
+from typing import Callable, Union
 
 from winnow.config import Config
 from winnow.config.config import StorageType
@@ -17,8 +17,11 @@ from winnow.utils.files import get_hash
 # Default logger module
 logger = logging.getLogger(__name__)
 
+# Type hint for FileKey-resolver function
+FileKeyResolver = Callable[[Union[str, PathLike]], FileKey]
 
-def filekey_resolver(config: Config) -> Callable[[str], FileKey]:
+
+def filekey_resolver(config: Config) -> FileKeyResolver:
     """Create a function to generate video FileKey(storage-path, hash) from the path.
 
     Args:
@@ -27,7 +30,7 @@ def filekey_resolver(config: Config) -> Callable[[str], FileKey]:
     storepath = path_resolver(config.sources.root)
 
     def filekey(path: PathLike, hash: str = None) -> FileKey:
-        """Convert path and optional hash to the FileKey. Caclulate missing hashes."""
+        """Convert path and optional hash to the FileKey. Calculate missing hashes."""
         if hash is None:
             hash = get_hash(path, config.repr.hash_mode)
         return FileKey(path=storepath(path), hash=hash)

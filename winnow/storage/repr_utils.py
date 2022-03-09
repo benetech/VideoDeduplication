@@ -1,6 +1,8 @@
-import os
-from pathlib import Path
 import logging
+import os
+from os import PathLike
+from pathlib import Path
+from typing import Callable, Union
 
 logger = logging.getLogger()
 logger.setLevel(logging.ERROR)
@@ -8,7 +10,11 @@ output_file_handler = logging.FileHandler("processing_error.log")
 logger.addHandler(output_file_handler)
 
 
-def path_resolver(source_root):
+# Type hint to file path resolver.
+PathResolver = Callable[[Union[str, PathLike]], str]
+
+
+def path_resolver(source_root: Union[str, PathLike]) -> PathResolver:
     """Construct a function to calculate paths inside source root folder.
 
     Args:
@@ -22,7 +28,7 @@ def path_resolver(source_root):
     # Get canonical path of the content root folder
     source_root = Path(os.path.abspath(source_root))
 
-    def storepath(path):
+    def storepath(path: PathLike) -> str:
         """Get path relative to content root."""
         absolute_path = os.path.abspath(path)
         if source_root not in Path(absolute_path).parents:

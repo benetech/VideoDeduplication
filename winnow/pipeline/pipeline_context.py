@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Callable
+from typing import Collection
 
 from cached_property import cached_property
 
@@ -13,7 +13,6 @@ from winnow.remote.connect import RepoConnector, DatabaseConnector, ReprConnecto
 from winnow.remote.repository_dao import DBRemoteRepoDAO, CsvRemoteRepoDAO, RemoteRepoDAO
 from winnow.security import SecureStorage
 from winnow.storage.db_result_storage import DBResultStorage
-from winnow.storage.file_key import FileKey
 from winnow.storage.metadata import FeaturesMetadata
 from winnow.storage.remote_signatures_dao import (
     DBRemoteSignaturesDAO,
@@ -21,8 +20,9 @@ from winnow.storage.remote_signatures_dao import (
     RemoteSignaturesDAO,
 )
 from winnow.storage.repr_storage import ReprStorage
-from winnow.storage.repr_utils import path_resolver
-from winnow.utils.repr import repr_storage_factory, filekey_resolver
+from winnow.storage.repr_utils import path_resolver, PathResolver
+from winnow.utils.files import scan_videos
+from winnow.utils.repr import repr_storage_factory, filekey_resolver, FileKeyResolver
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class PipelineContext:
         return database
 
     @cached_property
-    def filekey(self) -> Callable[[str], FileKey]:
+    def filekey(self) -> FileKeyResolver:
         """Get representation key getter."""
         return filekey_resolver(self.config)
 
@@ -65,7 +65,7 @@ class PipelineContext:
         return FeaturesMetadata(frame_sampling=self.config.proc.frame_sampling)
 
     @cached_property
-    def storepath(self) -> Callable:
+    def storepath(self) -> PathResolver:
         """Get a function to convert absolute file paths to storage root-relative paths."""
         return path_resolver(self.config.sources.root)
 
@@ -131,3 +131,7 @@ class PipelineContext:
     def file_storage(self) -> FileStorage:
         """Create file storage for template examples."""
         return LocalFileStorage(directory=self.config.file_storage.directory)
+
+    def query_paths(self, glob_pattern: str = "**") -> Collection[str]:
+        """Query local file-system paths of dataset files satisfying the glob pattern."""
+        return scan_videos(self.config.sources.root, glob_pattern, extensions=self.config.sources.extensions)
