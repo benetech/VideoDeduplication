@@ -2,13 +2,14 @@ import cv2
 import numpy as np
 
 
-def load_video(video, desired_size, frame_sampling):
+def load_video(video, desired_size, frame_sampling) -> np.ndarray:
     """
           Function that loads a video and converts it to the desired size.
 
           Args:
             video: path to video
             desired_size: desired shape of each frame
+            frame_sampling:
 
           Returns:
             video_tensor: the tensor of the given video
