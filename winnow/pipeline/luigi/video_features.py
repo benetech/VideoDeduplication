@@ -1,85 +1,127 @@
 import logging
-from typing import Collection, List
+from functools import lru_cache as cached
+from typing import Collection
 
 import luigi
 
 from winnow.feature_extraction.loading_utils import global_vector
-from winnow.pipeline.luigi.feature_targets import FilePatternFeaturesTarget, FileListFeaturesTarget
-from winnow.pipeline.luigi.frame_features import FrameFeaturesListTask
+from winnow.pipeline.luigi.feature_targets import PathListFeatureTarget, PathListFileFeatureTarget, PrefixFeatureTarget
+from winnow.pipeline.luigi.frame_features import (
+    FrameFeaturesByPathListTask,
+    FrameFeaturesByPathListFileTask,
+    FrameFeaturesByPrefixTask,
+)
 from winnow.pipeline.luigi.platform import PipelineTask
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor, BaseProgressMonitor
 from winnow.storage.file_key import FileKey
 
 
-class VideoFeaturesListTask(PipelineTask):
-    """Extract frame-level features for the listed files."""
+class VideoFeaturesByPrefixTask(PipelineTask):
+    """Extract video-level features for files with prefix."""
 
-    file_paths: List[str] = luigi.ListParameter()
-
-    def output(self):
-        return FileListFeaturesTarget(
-            file_paths=self.file_paths,
-            reprs=self.pipeline.repr_storage.video_level,
-            resolve_key=self.pipeline.filekey,
-        )
+    prefix: str = luigi.Parameter(default=".")
 
     def requires(self):
-        target = self.output()
-        return FrameFeaturesListTask(
+        return FrameFeaturesByPrefixTask(
             config_path=self.config_path,
-            file_paths=target.remaining_paths,
+            prefix=self.prefix,
+        )
+
+    @cached()
+    def output(self) -> PrefixFeatureTarget:
+        return PrefixFeatureTarget(
+            prefix=self.prefix,
+            coll=self.pipeline.coll,
+            reprs=self.pipeline.repr_storage.video_level,
+        )
+
+    def run(self):
+        target = self.output()
+        self.logger.info(
+            "Starting video-level feature extraction for %s file with prefix %s",
+            len(target.remaining_keys),
+            self.prefix,
+        )
+
+        extract_video_level_features(
+            file_keys=target.remaining_keys,
+            pipeline=self.pipeline,
+            progress=self.progress,
+            logger=self.logger,
+        )
+
+
+class VideoFeaturesByPathListFileTask(PipelineTask):
+    """Extract video-level features for paths specified in the given text file."""
+
+    path_list_file: str = luigi.Parameter()
+
+    def requires(self):
+        return FrameFeaturesByPathListFileTask(
+            config_path=self.config_path,
+            path_list_file=self.path_list_file,
+        )
+
+    @cached()
+    def output(self) -> PathListFileFeatureTarget:
+        return PathListFileFeatureTarget(
+            path_list_file=self.path_list_file,
+            coll=self.pipeline.coll,
+            reprs=self.pipeline.repr_storage.video_level,
+        )
+
+    def run(self):
+        target = self.output()
+        self.logger.info(
+            "Starting video-level feature extraction for %s files from the list %s",
+            len(target.remaining_keys),
+            self.path_list_file,
+        )
+
+        extract_video_level_features(
+            file_keys=target.remaining_keys,
+            pipeline=self.pipeline,
+            progress=self.progress,
+            logger=self.logger,
+        )
+
+
+class VideoFeaturesByPathListTask(PipelineTask):
+    """Extract video-level features for files from the given list.
+
+    Suitable for small file lists.
+    """
+
+    path_list: str = luigi.ListParameter()
+
+    def requires(self):
+        return FrameFeaturesByPathListTask(
+            config_path=self.config_path,
+            path_list=self.path_list,
+        )
+
+    @cached()
+    def output(self) -> PathListFeatureTarget:
+        return PathListFeatureTarget(
+            coll_path_list=self.path_list,
+            coll=self.pipeline.coll,
+            reprs=self.pipeline.repr_storage.video_level,
         )
 
     def run(self):
         target = self.output()
         self.logger.info(
             "Starting video-level feature extraction for %s of %s files",
-            len(target.remaining_paths),
-            len(target.file_paths),
+            len(target.remaining_keys),
+            len(self.path_list),
         )
 
         extract_video_level_features(
-            target.remaining_keys,
-            self.pipeline,
-            self.progress,
-            self.logger,
-        )
-
-
-class VideoFeaturesPatternTask(PipelineTask):
-    """Extract frame-level features for the files satisfying the glob pattern."""
-
-    path_pattern: str = luigi.Parameter()
-
-    def output(self):
-        return FilePatternFeaturesTarget(
-            path_pattern=self.path_pattern,
-            reprs=self.pipeline.repr_storage.video_level,
-            resolve_key=self.pipeline.filekey,
-            query_paths=self.pipeline.query_paths,
-        )
-
-    def requires(self):
-        target = self.output()
-        return FrameFeaturesListTask(
-            config_path=self.config_path,
-            file_paths=target.remaining_paths,
-        )
-
-    def run(self):
-        target = self.output()
-        self.logger.info(
-            "Starting video-level feature extraction for %s of satisfying pattern %s",
-            len(target.remaining_paths),
-            self.path_pattern,
-        )
-
-        extract_video_level_features(
-            target.remaining_keys,
-            self.pipeline,
-            self.progress,
-            self.logger,
+            file_keys=target.remaining_keys,
+            pipeline=self.pipeline,
+            progress=self.progress,
+            logger=self.logger,
         )
 
 
@@ -87,10 +129,9 @@ def extract_video_level_features(
     file_keys: Collection[FileKey],
     pipeline: PipelineContext,
     progress: BaseProgressMonitor = ProgressMonitor.NULL,
-    logger: logging.Logger = None,
+    logger: logging.Logger = logging.getLogger(__name__),
 ):
     """Extract video-level features from the dataset videos."""
-    logger = logger or logging.getLogger(__name__)
 
     # Skip step if required results already exist
     if not file_keys:
@@ -98,19 +139,7 @@ def extract_video_level_features(
         progress.complete()
         return
 
-    frame_to_global(file_keys, pipeline, progress.remaining())
-    logger.info("Done video-level feature extraction.")
-    progress.complete()
-
-
-def frame_to_global(
-    file_keys: Collection[FileKey],
-    pipeline: PipelineContext,
-    progress: BaseProgressMonitor = ProgressMonitor.NULL,
-    logger: logging.Logger = None,
-):
-    """Calculate and save video-level feature vectors based on frame-level representation."""
-    logger = logger or logging.getLogger(__name__)
+    # Convert frame features to global features
     progress.scale(len(file_keys))
     for key in file_keys:
         try:
@@ -121,4 +150,5 @@ def frame_to_global(
             logger.exception("Error computing video-level features for file: %s", key)
         finally:
             progress.increase(1)
+    logger.info("Done video-level feature extraction.")
     progress.complete()

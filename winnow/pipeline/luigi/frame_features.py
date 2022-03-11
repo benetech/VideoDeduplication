@@ -1,108 +1,137 @@
 import logging
 import multiprocessing
-from typing import Collection, List
+from functools import lru_cache as cached
+from typing import Collection
 
 import luigi
+import numpy as np
 
 from winnow.feature_extraction import IntermediateCnnExtractor
-from winnow.pipeline.luigi.feature_targets import FileListFeaturesTarget, FilePatternFeaturesTarget
+from winnow.pipeline.luigi.feature_targets import PrefixFeatureTarget, PathListFileFeatureTarget, PathListFeatureTarget
 from winnow.pipeline.luigi.platform import PipelineTask
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor, BaseProgressMonitor
+from winnow.storage.file_key import FileKey
 
 
-class FrameFeaturesListTask(PipelineTask):
-    """Extract frame-level features for the listed files."""
+class FrameFeaturesByPrefixTask(PipelineTask):
+    """Extract frame-level features for files with prefix."""
 
-    file_paths: List[str] = luigi.ListParameter()
+    prefix: str = luigi.Parameter(default=".")
 
-    # This task has maximal relative time complexity
-    progress_weight = 20.0
+    @cached()
+    def output(self) -> PrefixFeatureTarget:
+        return PrefixFeatureTarget(
+            prefix=self.prefix,
+            coll=self.pipeline.coll,
+            reprs=self.pipeline.repr_storage.frame_level,
+        )
 
-    def output(self):
-        return FileListFeaturesTarget(
-            file_paths=self.file_paths,
-            reprs=self.pipeline.repr_storage.frames,
-            resolve_key=self.pipeline.filekey,
+    def run(self):
+        target = self.output()
+        self.logger.info(
+            "Starting frame-level feature extraction for %s file with prefix %s",
+            len(target.remaining_keys),
+            self.prefix,
+        )
+
+        extract_frame_level_features(
+            file_keys=target.remaining_keys,
+            pipeline=self.pipeline,
+            progress=self.progress,
+            logger=self.logger,
+        )
+
+
+class FrameFeaturesByPathListFileTask(PipelineTask):
+    """Extract frame-level features for paths specified in the given text file."""
+
+    path_list_file: str = luigi.Parameter()
+
+    @cached()
+    def output(self) -> PathListFileFeatureTarget:
+        return PathListFileFeatureTarget(
+            path_list_file=self.path_list_file,
+            coll=self.pipeline.coll,
+            reprs=self.pipeline.repr_storage.frame_level,
+        )
+
+    def run(self):
+        target = self.output()
+        self.logger.info(
+            "Starting frame-level feature extraction for %s files from the list %s",
+            len(target.remaining_keys),
+            self.path_list_file,
+        )
+
+        extract_frame_level_features(
+            file_keys=target.remaining_keys,
+            pipeline=self.pipeline,
+            progress=self.progress,
+            logger=self.logger,
+        )
+
+
+class FrameFeaturesByPathListTask(PipelineTask):
+    """Extract frame-level features for files from the given list.
+
+    Suitable for small file lists.
+    """
+
+    path_list: str = luigi.ListParameter()
+
+    @cached()
+    def output(self) -> PathListFeatureTarget:
+        return PathListFeatureTarget(
+            coll_path_list=self.path_list,
+            coll=self.pipeline.coll,
+            reprs=self.pipeline.repr_storage.frame_level,
         )
 
     def run(self):
         target = self.output()
         self.logger.info(
             "Starting frame-level feature extraction for %s of %s files",
-            len(target.remaining_paths),
-            len(target.file_paths),
+            len(target.remaining_keys),
+            len(self.path_list),
         )
 
         extract_frame_level_features(
-            self.output().remaining_paths,
-            self.pipeline,
-            self.progress,
-            self.logger,
-        )
-
-
-class FrameFeaturesPatternTask(PipelineTask):
-    """Extract frame-level features for the files satisfying the glob pattern."""
-
-    path_pattern: str = luigi.Parameter()
-
-    # This task has maximal relative time complexity
-    progress_weight = 20.0
-
-    def output(self):
-        return FilePatternFeaturesTarget(
-            path_pattern=self.path_pattern,
-            reprs=self.pipeline.repr_storage.frames,
-            resolve_key=self.pipeline.filekey,
-            query_paths=self.pipeline.query_paths,
-        )
-
-    def run(self):
-        target = self.output()
-        self.logger.info(
-            "Starting frame-level feature extraction for %s of satisfying pattern %s",
-            len(target.remaining_paths),
-            self.path_pattern,
-        )
-
-        extract_frame_level_features(
-            self.output().remaining_paths,
-            self.pipeline,
-            self.progress,
-            self.logger,
+            file_keys=target.remaining_keys,
+            pipeline=self.pipeline,
+            progress=self.progress,
+            logger=self.logger,
         )
 
 
 def extract_frame_level_features(
-    file_paths: Collection[str],
+    file_keys: Collection[FileKey],
     pipeline: PipelineContext,
     progress: BaseProgressMonitor = ProgressMonitor.NULL,
-    logger: logging.Logger = None,
+    logger: logging.Logger = logging.getLogger(__name__),
 ):
     """Extract frame-level features from dataset videos."""
 
     config = pipeline.config
-    logger = logger or logging.getLogger(__name__)
 
     # Skip step if required results already exist
-    if not file_paths:
+    if not file_keys:
         logger.info("All required frame-level features already exist. Skipping...")
         progress.complete()
         return
 
-    progress.scale(total_work=len(file_paths), unit="file")
+    progress.scale(total_work=len(file_keys), unit="files")
 
-    def save_features(file_path, frames_tensor, frames_features):
+    def save_features(file_key: FileKey, frames_tensor: np.ndarray, frames_features: np.ndarray):
         """Handle features extracted from a single video file."""
-        key = pipeline.filekey(file_path)
-        pipeline.repr_storage.frame_level.write(key, frames_features)
+        pipeline.repr_storage.frame_level.write(file_key, frames_features)
         if pipeline.config.proc.save_frames:
-            pipeline.repr_storage.frames.write(key, frames_tensor)
+            pipeline.repr_storage.frames.write(file_key, frames_tensor)
         progress.increase(1)
 
     extractor = IntermediateCnnExtractor(
-        videos=file_paths,
+        video_paths=[pipeline.coll.local_fs_path(key) for key in file_keys],
+        video_ids=file_keys,
         on_extracted=save_features,
         frame_sampling=config.proc.frame_sampling,
         model=pipeline.pretrained_model,
