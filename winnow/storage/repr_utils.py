@@ -2,7 +2,11 @@ import logging
 import os
 from os import PathLike
 from pathlib import Path
-from typing import Callable, Union
+from typing import Callable, Union, Dict
+
+import numpy as np
+
+from winnow.storage.file_key import FileKey
 
 logger = logging.getLogger()
 logger.setLevel(logging.ERROR)
@@ -38,7 +42,7 @@ def path_resolver(source_root: Union[str, PathLike]) -> PathResolver:
     return storepath
 
 
-def bulk_read(store, select=None):
+def bulk_read(store, select=None) -> Dict[FileKey, np.ndarray]:
     """Read representations for the given storage keys.
 
     If select is None, all the entries from the provided representation store are loaded.

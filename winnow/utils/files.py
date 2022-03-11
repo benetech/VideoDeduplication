@@ -1,9 +1,11 @@
 """The files module offers high-level operations with file-system."""
 import hashlib
 import os
+from datetime import datetime
+from functools import lru_cache
 from glob import glob
 from pathlib import Path
-from functools import lru_cache
+from typing import Collection, Callable
 
 from winnow.config.config import HashMode
 
@@ -16,7 +18,7 @@ def read_chunks(file_object, buffer_size=64 * 1024):
         chunk = file_object.read(buffer_size)
 
 
-def get_hash(file_path, mode=HashMode.FILE, buffer_size=64 * 1024):
+def get_hash(file_path: str, mode: HashMode = HashMode.FILE, buffer_size: int = 64 * 1024) -> str:
     """Get sha256 hash of the file."""
     if mode == HashMode.FILE:
         with open(file_path, "rb") as file:
@@ -28,7 +30,7 @@ def get_hash(file_path, mode=HashMode.FILE, buffer_size=64 * 1024):
 
 
 @lru_cache(maxsize=None)
-def hash_object(hashable, iterable=True):
+def hash_object(hashable, iterable=True) -> str:
     """Get sha256 hash of the specified object."""
     sha256 = hashlib.sha256()
     if iterable:
@@ -88,3 +90,51 @@ def create_video_list(videos_to_be_processed, file_path):
         for item in videos_to_be_processed:
             f.write("%s\n" % item)
     return os.path.abspath(file_path)
+
+
+def iter_files(path: str):
+    """Iterate files recursively."""
+    if os.path.isfile(path):
+        yield path
+    elif os.path.isdir(path):
+        for entry_name in os.listdir(path):
+            entry_path = os.path.join(path, entry_name)
+            yield from iter_files(entry_path)
+
+
+def extension_filter(extensions: Collection[str] = ()) -> Callable[[str], bool]:
+    """Create path extensions filter."""
+    extensions = {f".{ext}".lower() for ext in extensions}
+
+    def predicate(path: str) -> bool:
+        """Check if the path has expected extension."""
+        return Path(path).suffix.lower() in extensions
+
+    return predicate
+
+
+def mtime_filter(min_mtime: datetime = None, max_mtime: datetime = None) -> Callable[[str], bool]:
+    """Filter paths by last modified time."""
+    min_timestamp = None
+    max_timestamp = None
+    if min_mtime is not None:
+        min_timestamp = min_mtime.timestamp()
+    if max_mtime is not None:
+        max_timestamp = max_mtime.timestamp()
+
+    if min_timestamp is None and max_timestamp is None:
+
+        def always_true(path: str) -> bool:
+            """None of the filters is specified."""
+            return True
+
+        return always_true
+
+    def predicate(path: str) -> bool:
+        """Check last modified date of the path."""
+        timestamp = os.path.getmtime(path)
+        return (min_timestamp is None or min_timestamp <= timestamp) and (
+            max_timestamp is None or timestamp <= max_timestamp
+        )
+
+    return predicate

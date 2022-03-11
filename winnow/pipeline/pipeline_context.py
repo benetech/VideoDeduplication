@@ -1,12 +1,13 @@
 import logging
 import os
-from typing import Collection
 
 from cached_property import cached_property
 
 from db import Database
 from template_support.file_storage import FileStorage, LocalFileStorage
 from winnow import remote
+from winnow.collection.file_collection import FileCollection
+from winnow.collection.local_collection import LocalFileCollection
 from winnow.config import Config
 from winnow.remote import RemoteRepository
 from winnow.remote.connect import RepoConnector, DatabaseConnector, ReprConnector
@@ -21,7 +22,7 @@ from winnow.storage.remote_signatures_dao import (
 )
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import path_resolver, PathResolver
-from winnow.utils.files import scan_videos
+from winnow.utils.files import get_hash
 from winnow.utils.repr import repr_storage_factory, filekey_resolver, FileKeyResolver
 
 logger = logging.getLogger(__name__)
@@ -132,6 +133,16 @@ class PipelineContext:
         """Create file storage for template examples."""
         return LocalFileStorage(directory=self.config.file_storage.directory)
 
-    def query_paths(self, glob_pattern: str = "**") -> Collection[str]:
-        """Query local file-system paths of dataset files satisfying the glob pattern."""
-        return scan_videos(self.config.sources.root, glob_pattern, extensions=self.config.sources.extensions)
+    @cached_property
+    def coll(self) -> FileCollection:
+        """Get collection."""
+
+        def calculate_hash(file_path: str) -> str:
+            """Calculate hash."""
+            return get_hash(file_path, mode=self.config.repr.hash_mode)
+
+        return LocalFileCollection(
+            root_path=self.config.sources.root,
+            extensions=self.config.sources.extensions,
+            calculate_hash=calculate_hash,
+        )
