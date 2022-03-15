@@ -1,5 +1,7 @@
 sources:
   root: data/
+  hash_mode: file
+  hash_cache: data/representations/hashes
 
   extensions:
     - mp4
@@ -12,7 +14,6 @@ sources:
 repr:
   directory: data/representations
   storage_type: detect
-  hash_mode: file
 
 processing:
   frame_sampling: 1

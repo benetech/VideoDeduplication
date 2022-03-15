@@ -41,6 +41,7 @@ class HashMode(enum.Enum):
 
     FILE = "file"
     PATH = "path"
+    PATH_MTIME = "path+mtime"
 
     @staticmethod
     def parse(value, default=None):
@@ -69,12 +70,16 @@ class SourcesConfig:
 
     root: str = None  # Root folder of the video files
     extensions: Tuple[str] = ("mp4", "ogv", "webm", "avi")
+    hash_mode: HashMode = HashMode.FILE
+    hash_cache: Optional[str] = None
 
     def read_env(self):
         """Read config from environment variables."""
         self.root = os.environ.get("WINNOW_SOURCES_ROOT", self.root)
         if "WINNOW_SOURCES_EXTENSIONS" in os.environ:
             self.extensions = tuple(map(str.strip, os.environ["WINNOW_SOURCES_EXTENSIONS"].lower().split(",")))
+        self.hash_mode = HashMode.parse(os.environ.get("WINNOW_REPR_HASH_MODE", self.hash_mode))
+        self.hash_cache = os.environ.get("WINNOW_SOURCES_HASH_CACHE_PATH", self.hash_cache)
 
 
 @dataclass
@@ -83,13 +88,11 @@ class RepresentationConfig:
 
     directory: str = None  # Root folder with intermediate representations
     storage_type: StorageType = StorageType.LMDB  # Specify representation storage type
-    hash_mode: HashMode = HashMode.FILE  # Specify hash mode
 
     def read_env(self):
         """Read config from environment variables."""
         self.directory = os.environ.get("WINNOW_REPR_DIRECTORY", self.directory)
         self.storage_type = StorageType.parse(os.environ.get("WINNOW_REPR_STORAGE_TYPE", self.storage_type))
-        self.hash_mode = HashMode.parse(os.environ.get("WINNOW_REPR_HASH_MODE", self.hash_mode))
 
     @staticmethod
     def fromdict(data: Dict):
@@ -157,7 +160,7 @@ class TemplatesConfig:
         self.source_path = os.environ.get("WINNOW_TEMPLATE_SOURCE_PATH", self.source_path)
         self.distance = float(os.environ.get("WINNOW_TEMPLATE_DISTANCE", self.distance))
         self.distance_min = float(os.environ.get("WINNOW_TEMPLATE_DISTANCE_MIN", self.distance_min))
-        self.override = float(os.environ.get("WINNOW_TEMPLATE_OVERRIDE", self.override))
+        self.override = bool(os.environ.get("WINNOW_TEMPLATE_OVERRIDE", self.override))
         if "WINNOW_TEMPLATE_EXTENSIONS" in os.environ:
             extensions_env = os.environ["WINNOW_TEMPLATE_EXTENSIONS"].lower()
             self.extensions = tuple(map(str.strip, extensions_env.split(",")))

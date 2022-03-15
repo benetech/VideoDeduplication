@@ -1,11 +1,11 @@
 import logging
 import os
 from datetime import datetime
-from typing import Iterator, Collection, Union, Callable, Optional
+from typing import Iterator, Collection, Union, Optional
 
 from winnow.collection.file_collection import FileCollection
 from winnow.storage.file_key import FileKey
-from winnow.utils.files import extension_filter, iter_files, mtime_filter, get_hash
+from winnow.utils.files import extension_filter, iter_files, mtime_filter, FileHashFunc
 
 
 class LocalFileCollection(FileCollection):
@@ -15,7 +15,7 @@ class LocalFileCollection(FileCollection):
 
     logger = logging.getLogger(f"{__name__}.LocalFileCollection")
 
-    def __init__(self, root_path: str, extensions: Collection[str], calculate_hash: Callable[[str], str] = get_hash):
+    def __init__(self, root_path: str, extensions: Collection[str], calculate_hash: FileHashFunc):
         self._root_path: str = root_path
         if not os.path.isdir(root_path):
             raise ValueError(f"Not a directory: {root_path}")

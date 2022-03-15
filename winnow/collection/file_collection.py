@@ -85,7 +85,7 @@ class FileCollection(abc.ABC):
         """
 
 
-class MediaFile(abc.ABC, PathLike):
+class MediaFile(PathLike):
     """This is draft for the abstract media file associated with some FileCollection."""
 
     @abc.abstractmethod

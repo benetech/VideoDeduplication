@@ -2,10 +2,11 @@
 import hashlib
 import os
 from datetime import datetime
-from functools import lru_cache
+from functools import lru_cache, wraps
 from glob import glob
+from os import PathLike, fspath
 from pathlib import Path
-from typing import Collection, Callable
+from typing import Collection, Callable, Union, MutableMapping, Iterator
 
 from winnow.config.config import HashMode
 
@@ -27,6 +28,119 @@ def get_hash(file_path: str, mode: HashMode = HashMode.FILE, buffer_size: int = 
         return hash_object(file_path, False)
     else:
         print('Error: mode "%s" is invalid. mode must be one of ("file", "path").' % str(mode))
+
+
+# Function to transform fs paths
+PathMapFunc = Callable[[Union[str, PathLike]], str]
+
+# Function to calculate hash for the given file
+FileHashFunc = Callable[[Union[str, PathLike]], str]
+
+
+class HashCache(MutableMapping[str, str]):
+    """Persistent hash cache."""
+
+    @staticmethod
+    def same_path(suffix: str) -> PathMapFunc:
+        """Path mapping strategy: place hash near the original file + append suffix."""
+
+        if len(Path(suffix).parts) > 1:
+            raise ValueError("Hash file suffix cannot contain directory delimiters.")
+
+        def get_hash_file(path: Union[str, PathLike]) -> str:
+            """Place hash near the original file + append suffix."""
+            return f"{fspath(path)}.{suffix}"
+
+        return get_hash_file
+
+    @staticmethod
+    def rebase_path(
+        files_root: Union[str, PathLike],
+        cache_root: Union[str, PathLike],
+        suffix: str,
+    ) -> PathMapFunc:
+        """Path mapping strategy: place hash in the same subdirectory but use different root folder."""
+
+        if len(Path(suffix).parts) > 1:
+            raise ValueError("Hash file suffix cannot contain directory delimiters.")
+
+        def get_hash_file(path: Union[str, PathLike]) -> str:
+            """Place hash in the same subdirectory but use different root folder."""
+            path_tail = os.path.relpath(path, files_root)
+            return f"{fspath(os.path.join(cache_root, path_tail))}.suffix"
+
+        return get_hash_file
+
+    def __init__(self, map_path: PathMapFunc):
+        self._map_path: PathMapFunc = map_path
+
+    def __setitem__(self, file_path: Union[str, PathLike], hash_sum: str) -> None:
+        """Save hash value."""
+        hash_file_path = self._map_path(file_path)
+        with open(hash_file_path, "w") as file:
+            file.write(hash_sum)
+
+    def __delitem__(self, file_path: Union[str, PathLike]) -> None:
+        """Remove cached hash value."""
+        hash_file_path = self._map_path(file_path)
+        if not os.path.isfile(hash_file_path):
+            raise KeyError(fspath(file_path))
+        os.remove(hash_file_path)
+
+    def __getitem__(self, file_path: Union[str, PathLike]) -> str:
+        """Get cached file hash."""
+        hash_file_path = self._map_path(file_path)
+        if not os.path.isfile(hash_file_path):
+            raise KeyError(fspath(file_path))
+        with open(hash_file_path, "r") as file:
+            return file.read().strip()
+
+    def __contains__(self, file_path: Union[str, PathLike]) -> bool:
+        """Check if the hash for the given file is cached."""
+        hash_file_path = self._map_path(file_path)
+        return os.path.isfile(hash_file_path)
+
+    def __len__(self) -> int:
+        """Getting length is not implemented."""
+        raise NotImplemented("Getting length of hash cache is not implemented.")
+
+    def __iter__(self) -> Iterator[str]:
+        """Iteration over keys is not implemented."""
+        raise NotImplemented("Iteration over hash cache is not implemented.")
+
+    def wrap(self, hash_func: FileHashFunc) -> FileHashFunc:
+        """Enable caching for the given hash function."""
+
+        @wraps(hash_func)
+        @lru_cache(maxsize=None)
+        def calculate_hash(path: Union[str, PathLike]) -> str:
+            """Calculate file hash."""
+            if path in self:
+                return self[path]
+            hash_sum = hash_func(path)
+            self[path] = hash_sum
+            return hash_sum
+
+        return calculate_hash
+
+
+def hash_path(path: Union[str, PathLike], algorithm=hashlib.sha256, mtime: bool = False) -> str:
+    """Calculate hash from path and last modified time."""
+    hash_sum = algorithm()
+    hash_sum.update(fspath(path).encode("utf-8"))
+    if mtime:
+        mtime = os.path.getmtime(path)
+        hash_sum.update(str(int(mtime * 1000)).encode("utf-8"))
+    return hash_sum.hexdigest()
+
+
+def hash_file(path: Union[str, PathLike], algorithm=hashlib.sha256, buffer_size: int = 64 * 1024) -> str:
+    """Geta hash of a single file."""
+    hash_sum = algorithm()
+    with open(path, "rb") as file:
+        for data in read_chunks(file, buffer_size):
+            hash_sum.update(data)
+    return hash_sum.hexdigest()
 
 
 @lru_cache(maxsize=None)

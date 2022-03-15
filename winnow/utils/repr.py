@@ -21,23 +21,6 @@ logger = logging.getLogger(__name__)
 FileKeyResolver = Callable[[Union[str, PathLike]], FileKey]
 
 
-def filekey_resolver(config: Config) -> FileKeyResolver:
-    """Create a function to generate video FileKey(storage-path, hash) from the path.
-
-    Args:
-        config (Config): Pipeline configuration.
-    """
-    storepath = path_resolver(config.sources.root)
-
-    def filekey(path: PathLike, hash: str = None) -> FileKey:
-        """Convert path and optional hash to the FileKey. Calculate missing hashes."""
-        if hash is None:
-            hash = get_hash(path, config.repr.hash_mode)
-        return FileKey(path=storepath(path), hash=hash)
-
-    return filekey
-
-
 def repr_storage_factory(
     storage_type: StorageType,
     default_factory: ReprStorageFactory = SimpleReprStorage,

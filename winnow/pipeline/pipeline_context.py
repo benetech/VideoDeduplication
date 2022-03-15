@@ -1,5 +1,8 @@
+import hashlib
 import logging
 import os
+from os import PathLike
+from typing import Union
 
 from cached_property import cached_property
 
@@ -9,6 +12,7 @@ from winnow import remote
 from winnow.collection.file_collection import FileCollection
 from winnow.collection.local_collection import LocalFileCollection
 from winnow.config import Config
+from winnow.config.config import HashMode
 from winnow.remote import RemoteRepository
 from winnow.remote.connect import RepoConnector, DatabaseConnector, ReprConnector
 from winnow.remote.repository_dao import DBRemoteRepoDAO, CsvRemoteRepoDAO, RemoteRepoDAO
@@ -22,8 +26,8 @@ from winnow.storage.remote_signatures_dao import (
 )
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import path_resolver, PathResolver
-from winnow.utils.files import get_hash
-from winnow.utils.repr import repr_storage_factory, filekey_resolver, FileKeyResolver
+from winnow.utils.files import FileHashFunc, hash_path, HashCache, hash_file
+from winnow.utils.repr import repr_storage_factory
 
 logger = logging.getLogger(__name__)
 
@@ -54,11 +58,6 @@ class PipelineContext:
         database = Database(uri=self.config.database.uri)
         database.create_tables()
         return database
-
-    @cached_property
-    def filekey(self) -> FileKeyResolver:
-        """Get representation key getter."""
-        return filekey_resolver(self.config)
 
     @cached_property
     def features_metadata(self) -> FeaturesMetadata:
@@ -134,15 +133,35 @@ class PipelineContext:
         return LocalFileStorage(directory=self.config.file_storage.directory)
 
     @cached_property
+    def calculate_hash(self) -> FileHashFunc:
+        """Get file hashing function."""
+
+        if self.config.sources.hash_mode == HashMode.PATH:
+            return hash_path
+        if self.config.sources.hash_mode == HashMode.PATH_MTIME:
+            return lambda path: hash_path(path, mtime=True)
+        if self.config.sources.hash_cache is None:
+            return hash_file
+
+        # Otherwise, cache file hashes
+        data_folder = self.config.sources.root
+        cache_folder = self.config.sources.hash_cache
+        os.makedirs(cache_folder, exist_ok=True)
+        cache = HashCache(map_path=HashCache.rebase_path(data_folder, cache_folder, suffix="sha256"))
+
+        @cache.wrap
+        def calculate_hash(path: Union[str, PathLike]) -> str:
+            """Calculate file hash."""
+            return hash_file(path, algorithm=hashlib.sha256)
+
+        return calculate_hash
+
+    @cached_property
     def coll(self) -> FileCollection:
         """Get collection."""
-
-        def calculate_hash(file_path: str) -> str:
-            """Calculate hash."""
-            return get_hash(file_path, mode=self.config.repr.hash_mode)
 
         return LocalFileCollection(
             root_path=self.config.sources.root,
             extensions=self.config.sources.extensions,
-            calculate_hash=calculate_hash,
+            calculate_hash=self.calculate_hash,
         )
