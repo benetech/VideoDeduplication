@@ -80,9 +80,11 @@ class Match:
     distance: float
 
 
-class SkipTarget(luigi.Target):
-    """Utility target to skip the task."""
+class ConstTarget(luigi.Target):
+    """Constant luigi task target.."""
+
+    def __init__(self, exists: bool):
+        self._exists = exists
 
     def exists(self):
-        """Always exists by definition."""
-        return True
+        return self._exists

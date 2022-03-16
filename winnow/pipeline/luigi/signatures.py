@@ -4,7 +4,7 @@ from typing import Collection
 import luigi
 
 from winnow.feature_extraction import SimilarityModel
-from winnow.pipeline.luigi.feature_targets import (
+from winnow.pipeline.luigi.targets import (
     PrefixFeatureTarget,
     PathListFeatureTarget,
     PathListFileFeatureTarget,

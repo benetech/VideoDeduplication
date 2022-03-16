@@ -1,12 +1,15 @@
 import os
+from datetime import datetime
+from glob import glob
 from os import PathLike, fspath
 from pathlib import Path
-from typing import List, Tuple, Union, IO, AnyStr, Dict, Collection
+from typing import List, Tuple, Union, IO, AnyStr, Dict, Collection, Iterator, Iterable, Optional
 
 import numpy as np
 import pandas as pd
 from dataclasses import astuple
 
+from winnow.collection.file_collection import FileCollection
 from winnow.duplicate_detection.neighbors import DetectedMatch
 from winnow.pipeline.luigi.platform import Match
 from winnow.pipeline.progress_monitor import ProgressMonitor, LazyProgress, BaseProgressMonitor
@@ -186,3 +189,76 @@ def prefix(value: str) -> str:
     if not value:
         return ""
     return f"{value}_"
+
+
+class KeyIter:
+    """FileKey iterator builder."""
+
+    @staticmethod
+    def from_file(coll: FileCollection, path_list_file: Union[str, PathLike]) -> Iterator[FileKey]:
+        """Iterate over file keys from file."""
+        with open(path_list_file, "r") as file:
+            for path in file.readlines():
+                file_key = coll.file_key(path.strip(), raise_exception=False)
+                if file_key is not None:
+                    yield file_key
+
+    @staticmethod
+    def from_paths(coll: FileCollection, paths: Iterable[str]) -> Iterator[FileKey]:
+        """Iterate over file keys from the collection path list."""
+        for path in paths:
+            file_key = coll.file_key(path, raise_exception=False)
+            if file_key is not None:
+                yield file_key
+
+
+class PathTime:
+    FORMAT = "%Y_%m_%d_%H%M%S%f"
+    DELIM = "__"
+
+    @staticmethod
+    def format(
+        directory: str,
+        name: str,
+        extension: str,
+        time: datetime,
+        format: str = FORMAT,
+        delim: str = DELIM,
+    ) -> str:
+        """Append datetime to path."""
+        timestamp = time.strftime(format)
+        return os.path.join(directory, f"{name}{delim}{timestamp}.{extension}")
+
+    @staticmethod
+    def stamp(path: str, time: datetime, format: str = FORMAT, delim: str = DELIM) -> str:
+        """Add timestamp to the file path."""
+        directory = os.path.dirname(path)
+        basename = os.path.basename(path)
+        name, extension = os.path.splitext(basename)
+        timestamp = time.strftime(format)
+        return os.path.join(directory, f"{name}{delim}{timestamp}{extension}")
+
+    @staticmethod
+    def parse(path: str, format: str = FORMAT, delim: str = DELIM) -> Optional[datetime]:
+        """Parse datetime from the file path."""
+        head, _ = os.path.splitext(path)
+        parts = head.rsplit(delim, maxsplit=1)
+        if len(parts) != 2:
+            return None
+        timestamp = parts[-1]
+        try:
+            return datetime.strptime(timestamp, format)
+        except ValueError:
+            return None
+
+    @staticmethod
+    def latest(pattern: str, format: str = FORMAT, delim: str = DELIM) -> Tuple[str, datetime]:
+        """Get path with the latest timestamp."""
+        latest_time = None
+        latest_path = None
+        for path in glob(pattern, recursive=True):
+            time = PathTime.parse(path, format=format, delim=delim)
+            if time is not None and (latest_time is None or time > latest_time):
+                latest_time = time
+                latest_path = path
+        return latest_path, latest_time

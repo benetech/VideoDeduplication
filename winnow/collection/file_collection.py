@@ -84,9 +84,9 @@ class FileCollection(abc.ABC):
         will be selected.
         """
 
-    def any(self, *, prefix: str = ".", min_modified: datetime = None, max_modified: datetime = None):
+    def any(self, *, prefix: str = ".", min_mtime: datetime = None, max_mtime: datetime = None):
         """Convenience method to check if any file-collection entry satisfies the given parameters."""
-        return any(self.iter_paths(prefix=prefix, min_mtime=min_modified, max_mtime=max_modified))
+        return any(self.iter_paths(prefix=prefix, min_mtime=min_mtime, max_mtime=max_mtime))
 
 
 class MediaFile(PathLike):
