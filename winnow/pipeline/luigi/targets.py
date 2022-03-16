@@ -4,8 +4,10 @@ import luigi
 from cached_property import cached_property
 
 from winnow.collection.file_collection import FileCollection
+from winnow.pipeline.luigi.utils import KeyIter
 from winnow.storage.base_repr_storage import BaseReprStorage
 from winnow.storage.file_key import FileKey
+from winnow.utils.iterators import skip
 
 
 class PrefixFeatureTarget(luigi.Target):
@@ -22,11 +24,8 @@ class PrefixFeatureTarget(luigi.Target):
     @cached_property
     def remaining_keys(self) -> Collection[FileKey]:
         """File keys with missing features."""
-        result = []
-        for file_key in self.coll.iter_keys(prefix=self.prefix):
-            if not self.reprs.exists(file_key):
-                result.append(file_key)
-        return tuple(result)
+        keys_iter = skip(self.reprs.exists, self.coll.iter_keys(prefix=self.prefix))
+        return tuple(keys_iter)
 
 
 class PathListFileFeatureTarget(luigi.Target):
@@ -43,13 +42,8 @@ class PathListFileFeatureTarget(luigi.Target):
     @cached_property
     def remaining_keys(self) -> Collection[FileKey]:
         """File keys with missing feature."""
-        result = []
-        with open(self.path_list_file, "r") as path_list:
-            for collection_path in path_list.readlines():
-                file_key = self.coll.file_key(collection_path.strip(), raise_exception=False)
-                if file_key is not None and not self.reprs.exists(file_key):
-                    result.append(file_key)
-        return tuple(result)
+        keys_iter = skip(self.reprs.exists, KeyIter.from_file(self.coll, self.path_list_file))
+        return tuple(keys_iter)
 
 
 class PathListFeatureTarget(luigi.Target):
@@ -66,9 +60,5 @@ class PathListFeatureTarget(luigi.Target):
     @cached_property
     def remaining_keys(self) -> Collection[FileKey]:
         """File keys with missing feature."""
-        result = []
-        for collection_path in self.coll_path_list:
-            file_key = self.coll.file_key(collection_path.strip(), raise_exception=False)
-            if file_key is not None and not self.reprs.exists(file_key):
-                result.append(file_key)
-        return tuple(result)
+        keys_iter = skip(self.reprs.exists, KeyIter.from_paths(self.coll, self.coll_path_list))
+        return tuple(keys_iter)
