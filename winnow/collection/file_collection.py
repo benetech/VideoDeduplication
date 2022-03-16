@@ -45,8 +45,8 @@ class FileCollection(abc.ABC):
         self,
         *,
         prefix: str = ".",
-        min_modified: datetime = None,
-        max_modified: datetime = None,
+        min_mtime: datetime = None,
+        max_mtime: datetime = None,
     ) -> Iterator[str]:
         """Iterate over all the paths inside the collection satisfying
         the given filtering criteria.
@@ -77,12 +77,16 @@ class FileCollection(abc.ABC):
         """
 
     @abc.abstractmethod
-    def max_modified(self, *, prefix: str = ".") -> datetime:
+    def max_mtime(self, *, prefix: str = ".") -> datetime:
         """Get maximal last modified time among the files satisfying the criteria.
 
         If `prefix` is specified only paths starting with the given prefix
         will be selected.
         """
+
+    def any(self, *, prefix: str = ".", min_modified: datetime = None, max_modified: datetime = None):
+        """Convenience method to check if any file-collection entry satisfies the given parameters."""
+        return any(self.iter_paths(prefix=prefix, min_mtime=min_modified, max_mtime=max_modified))
 
 
 class MediaFile(PathLike):

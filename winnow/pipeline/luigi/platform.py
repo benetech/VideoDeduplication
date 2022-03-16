@@ -78,3 +78,11 @@ class Match:
     source: FileKey
     target: FileKey
     distance: float
+
+
+class SkipTarget(luigi.Target):
+    """Utility target to skip the task."""
+
+    def exists(self):
+        """Always exists by definition."""
+        return True

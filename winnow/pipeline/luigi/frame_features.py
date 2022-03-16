@@ -1,6 +1,5 @@
 import logging
 import multiprocessing
-from functools import lru_cache as cached
 from typing import Collection
 
 import luigi
@@ -14,12 +13,11 @@ from winnow.pipeline.progress_monitor import ProgressMonitor, BaseProgressMonito
 from winnow.storage.file_key import FileKey
 
 
-class FrameFeaturesByPrefixTask(PipelineTask):
+class FrameFeaturesTask(PipelineTask):
     """Extract frame-level features for files with prefix."""
 
     prefix: str = luigi.Parameter(default=".")
 
-    @cached()
     def output(self) -> PrefixFeatureTarget:
         return PrefixFeatureTarget(
             prefix=self.prefix,
@@ -30,7 +28,7 @@ class FrameFeaturesByPrefixTask(PipelineTask):
     def run(self):
         target = self.output()
         self.logger.info(
-            "Starting frame-level feature extraction for %s file with prefix %s",
+            "Starting frame-level feature extraction for %s file with prefix '%s'",
             len(target.remaining_keys),
             self.prefix,
         )
@@ -48,7 +46,6 @@ class FrameFeaturesByPathListFileTask(PipelineTask):
 
     path_list_file: str = luigi.Parameter()
 
-    @cached()
     def output(self) -> PathListFileFeatureTarget:
         return PathListFileFeatureTarget(
             path_list_file=self.path_list_file,
@@ -80,7 +77,6 @@ class FrameFeaturesByPathListTask(PipelineTask):
 
     path_list: str = luigi.ListParameter()
 
-    @cached()
     def output(self) -> PathListFeatureTarget:
         return PathListFeatureTarget(
             coll_path_list=self.path_list,
@@ -129,6 +125,7 @@ def extract_frame_level_features(
             pipeline.repr_storage.frames.write(file_key, frames_tensor)
         progress.increase(1)
 
+    logger.info("Initializing IntermediateCnnExtractor")
     extractor = IntermediateCnnExtractor(
         video_paths=[pipeline.coll.local_fs_path(key) for key in file_keys],
         video_ids=file_keys,
@@ -137,7 +134,7 @@ def extract_frame_level_features(
         model=pipeline.pretrained_model,
     )
 
-    # Do extract frame-level features
+    logger.info("Extracting frame-level features.")
     extractor.extract_features(batch_size=16, cores=multiprocessing.cpu_count())
     logger.info("Done frame-level feature extraction.")
     progress.complete()

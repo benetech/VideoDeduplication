@@ -47,7 +47,7 @@ class PathListFileFeatureTarget(luigi.Target):
         with open(self.path_list_file, "r") as path_list:
             for collection_path in path_list.readlines():
                 file_key = self.coll.file_key(collection_path.strip(), raise_exception=False)
-                if file_key is not None:
+                if file_key is not None and not self.reprs.exists(file_key):
                     result.append(file_key)
         return tuple(result)
 
@@ -69,6 +69,6 @@ class PathListFeatureTarget(luigi.Target):
         result = []
         for collection_path in self.coll_path_list:
             file_key = self.coll.file_key(collection_path.strip(), raise_exception=False)
-            if file_key is not None:
+            if file_key is not None and not self.reprs.exists(file_key):
                 result.append(file_key)
         return tuple(result)

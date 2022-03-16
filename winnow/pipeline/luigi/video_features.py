@@ -1,5 +1,4 @@
 import logging
-from functools import lru_cache as cached
 from typing import Collection
 
 import luigi
@@ -9,7 +8,7 @@ from winnow.pipeline.luigi.feature_targets import PathListFeatureTarget, PathLis
 from winnow.pipeline.luigi.frame_features import (
     FrameFeaturesByPathListTask,
     FrameFeaturesByPathListFileTask,
-    FrameFeaturesByPrefixTask,
+    FrameFeaturesTask,
 )
 from winnow.pipeline.luigi.platform import PipelineTask
 from winnow.pipeline.pipeline_context import PipelineContext
@@ -17,18 +16,17 @@ from winnow.pipeline.progress_monitor import ProgressMonitor, BaseProgressMonito
 from winnow.storage.file_key import FileKey
 
 
-class VideoFeaturesByPrefixTask(PipelineTask):
+class VideoFeaturesTask(PipelineTask):
     """Extract video-level features for files with prefix."""
 
     prefix: str = luigi.Parameter(default=".")
 
     def requires(self):
-        return FrameFeaturesByPrefixTask(
+        return FrameFeaturesTask(
             config_path=self.config_path,
             prefix=self.prefix,
         )
 
-    @cached()
     def output(self) -> PrefixFeatureTarget:
         return PrefixFeatureTarget(
             prefix=self.prefix,
@@ -39,7 +37,7 @@ class VideoFeaturesByPrefixTask(PipelineTask):
     def run(self):
         target = self.output()
         self.logger.info(
-            "Starting video-level feature extraction for %s file with prefix %s",
+            "Starting video-level feature extraction for %s file with prefix '%s'",
             len(target.remaining_keys),
             self.prefix,
         )
@@ -63,7 +61,6 @@ class VideoFeaturesByPathListFileTask(PipelineTask):
             path_list_file=self.path_list_file,
         )
 
-    @cached()
     def output(self) -> PathListFileFeatureTarget:
         return PathListFileFeatureTarget(
             path_list_file=self.path_list_file,
@@ -101,7 +98,6 @@ class VideoFeaturesByPathListTask(PipelineTask):
             path_list=self.path_list,
         )
 
-    @cached()
     def output(self) -> PathListFeatureTarget:
         return PathListFeatureTarget(
             coll_path_list=self.path_list,

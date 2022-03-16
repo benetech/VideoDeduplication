@@ -1,5 +1,4 @@
 import logging
-from functools import lru_cache as cached
 from typing import Collection
 
 import luigi
@@ -12,7 +11,7 @@ from winnow.pipeline.luigi.feature_targets import (
 )
 from winnow.pipeline.luigi.platform import PipelineTask
 from winnow.pipeline.luigi.video_features import (
-    VideoFeaturesByPrefixTask,
+    VideoFeaturesTask,
     VideoFeaturesByPathListFileTask,
     VideoFeaturesByPathListTask,
 )
@@ -22,18 +21,17 @@ from winnow.storage.file_key import FileKey
 from winnow.storage.repr_utils import bulk_read, bulk_write
 
 
-class SignaturesByPrefixTask(PipelineTask):
+class SignaturesTask(PipelineTask):
     """Extract fingerprints for files with prefix."""
 
     prefix: str = luigi.Parameter(default=".")
 
     def requires(self):
-        return VideoFeaturesByPrefixTask(
+        return VideoFeaturesTask(
             config_path=self.config_path,
             prefix=self.prefix,
         )
 
-    @cached()
     def output(self) -> PrefixFeatureTarget:
         return PrefixFeatureTarget(
             prefix=self.prefix,
@@ -44,12 +42,12 @@ class SignaturesByPrefixTask(PipelineTask):
     def run(self):
         target = self.output()
         self.logger.info(
-            "Starting fingerprint extraction for %s file with prefix %s",
+            "Starting fingerprint extraction for %s file with prefix '%s'",
             len(target.remaining_keys),
             self.prefix,
         )
 
-        extract_video_signatures(
+        extract_signatures(
             file_keys=target.remaining_keys,
             pipeline=self.pipeline,
             progress=self.progress,
@@ -68,7 +66,6 @@ class SignaturesByPathListFileTask(PipelineTask):
             path_list_file=self.path_list_file,
         )
 
-    @cached()
     def output(self) -> PathListFileFeatureTarget:
         return PathListFileFeatureTarget(
             path_list_file=self.path_list_file,
@@ -84,7 +81,7 @@ class SignaturesByPathListFileTask(PipelineTask):
             self.path_list_file,
         )
 
-        extract_video_signatures(
+        extract_signatures(
             file_keys=target.remaining_keys,
             pipeline=self.pipeline,
             progress=self.progress,
@@ -106,7 +103,6 @@ class SignaturesByPathListTask(PipelineTask):
             path_list=self.path_list,
         )
 
-    @cached()
     def output(self) -> PathListFeatureTarget:
         return PathListFeatureTarget(
             coll_path_list=self.path_list,
@@ -122,7 +118,7 @@ class SignaturesByPathListTask(PipelineTask):
             len(self.path_list),
         )
 
-        extract_video_signatures(
+        extract_signatures(
             file_keys=target.remaining_keys,
             pipeline=self.pipeline,
             progress=self.progress,
@@ -130,13 +126,15 @@ class SignaturesByPathListTask(PipelineTask):
         )
 
 
-def extract_video_signatures(
+def extract_signatures(
     file_keys: Collection[FileKey],
     pipeline: PipelineContext,
     progress: BaseProgressMonitor = ProgressMonitor.NULL,
     logger: logging.Logger = logging.getLogger(__name__),
 ):
-    """Calculate and save signatures for the given files to repr-storage."""
+    """Calculate and save signatures for the given files to repr-storage
+    assuming the corresponding video-level features are already available.
+    """
 
     # Skip step if required results already exist
     if not file_keys:

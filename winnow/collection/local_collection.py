@@ -47,8 +47,8 @@ class LocalFileCollection(FileCollection):
         self,
         *,
         prefix: str = ".",
-        min_modified: datetime = None,
-        max_modified: datetime = None,
+        min_mtime: datetime = None,
+        max_mtime: datetime = None,
     ) -> Iterator[str]:
         """Iterate over all the paths inside the collection satisfying
         the given filtering criteria.
@@ -57,7 +57,7 @@ class LocalFileCollection(FileCollection):
         will be selected. If `min_modified` or `max_modified` are specified
         the paths will be filtered by the last modified time.
         """
-        for local_path in self._iter_local_paths(prefix, min_modified, max_modified):
+        for local_path in self._iter_local_paths(prefix, min_mtime, max_mtime):
             yield self._collection_path(local_path)
 
     def local_fs_path(self, key_or_path: Union[FileKey, str], raise_exception=True) -> Optional[str]:
@@ -93,7 +93,7 @@ class LocalFileCollection(FileCollection):
         local_path = self._local_fs_path(self._key_path(key_or_path))
         return self._correct_local_path(local_path)
 
-    def max_modified(self, *, prefix: str = ".") -> datetime:
+    def max_mtime(self, *, prefix: str = ".") -> datetime:
         """Get maximal last modified time among the files satisfying the criteria.
 
         If `prefix` is specified only paths starting with the given prefix
@@ -106,14 +106,14 @@ class LocalFileCollection(FileCollection):
     def _iter_local_paths(
         self,
         prefix: str = ".",
-        min_modified: datetime = None,
-        max_modified: datetime = None,
+        min_mtime: datetime = None,
+        max_mtime: datetime = None,
     ) -> Iterator[str]:
         """Iterate over local paths of files in the collection."""
         parent_path = self._local_fs_path(prefix)
         paths = filter(self._extensions_filter, iter_files(parent_path))
-        if min_modified is not None or max_modified is not None:
-            correct_mtime = mtime_filter(min_mtime=min_modified, max_mtime=max_modified)
+        if min_mtime is not None or max_mtime is not None:
+            correct_mtime = mtime_filter(min_mtime=min_mtime, max_mtime=max_mtime)
             paths = filter(correct_mtime, paths)
         return paths
 
