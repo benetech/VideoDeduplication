@@ -44,6 +44,8 @@ services:
       PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
       PGADMIN_DEFAULT_PASSWORD: "admin"
       WINNOW_CONFIG: "/project/config/config.yaml"
+      DISABLE_JUPYTER: "true"
+      
 # TODO: Migrate to v3 and uncomment (issue #267)
 #      BENETECH_MASTER_KEY_PATH: "${BENETECH_MASTER_KEY_PATH}"
     volumes:

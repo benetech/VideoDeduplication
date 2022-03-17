@@ -72,12 +72,12 @@ def load_model(path_to_model=None, path_to_w2v=None) -> CrossModalNetwork:
     path_to_model = os.path.abspath(path_to_model)
     path_to_w2v = os.path.abspath(path_to_w2v)
 
-    pickle.load = partial(pickle.load, encoding="latin1")
-    pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
+    # pickle.load = partial(pickle.load, encoding="latin1")
+    # pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
     checkpoint = torch.load(
         os.path.join(path_to_model),
         map_location=lambda storage, loc: storage,
-        pickle_module=pickle,
+        # pickle_module=pickle,
         encoding="latin1",
     )
     config = checkpoint["config"]

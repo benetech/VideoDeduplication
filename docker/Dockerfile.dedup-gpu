@@ -1,19 +1,10 @@
 # Build image: sudo docker build -t <tag> . -f docker/Dockerfile.dedup-gpu --target prod
 # Run tests: sudo docker build -t <tag> . -f docker/Dockerfile.dedup-gpu --target tests
 
-FROM tensorflow/tensorflow:2.6.1-gpu AS prod
+FROM rapidsai/rapidsai-core:22.02-cuda11.5-base-ubuntu20.04-py3.8 AS prod
 
 # Install required os dependencies
-RUN apt-get update && apt-get install -y curl libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx mediainfo
-
-# Install Anaconda
-# See https://docs.anaconda.com/anaconda/install/linux/
-ENV PATH=/anaconda/bin:${PATH}
-RUN curl -LO https://repo.anaconda.com/archive/Anaconda3-2019.07-Linux-x86_64.sh && \
-    bash Anaconda3-2019.07-Linux-x86_64.sh -p /anaconda -b && \
-    rm Anaconda3-2019.07-Linux-x86_64.sh && \
-    conda update -y conda
-
+RUN apt-get update && apt-get install -y curl libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx mediainfo gcc g++
 
 # Install dedup-app Python dependencies
 ADD environment-gpu.yaml /tmp/environment.yaml

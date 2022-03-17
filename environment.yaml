@@ -1,16 +1,17 @@
 name: winnow
 channels:
+  - pytorch-nightly
+  - nvidia
   - conda-forge
   - defaults
 dependencies:
-  - python=3.6
-  - pip
-  - numpy
-  - matplotlib
-  - pandas
-  - scikit-learn==0.23.2
-  - scipy
-  - tensorflow==1.15
+  - python=3.8
+  - cuml==0.19 
+  - numpy==1.22.3
+  - matplotlib==3.5.1
+  - pandas==1.2.4  
+  - scikit-learn==1.0.2
+  - scipy==1.8.0
   - tqdm
   - sqlalchemy
   - psycopg2
@@ -18,15 +19,15 @@ dependencies:
   - jupyter
   - jupyterlab
   - pysoundfile
-  - h5py==2.9.0
-  - ffmpeg
+  - h5py==3.6.0
+  - ffmpeg==5.0.0
   - numba
   - pynndescent
   - luigi
   - tabulate
   - umap-learn
   - networkit
-  - pip
+  - pip==22.0.4
   - pip:
       - lmdb
       - image
@@ -35,10 +36,10 @@ dependencies:
       - opencv-contrib-python
       - pillow
       - scenedetect
-      - pyyaml
+      - pyyaml==6.0
       - cached-property
       - dataclasses
-      - celery==5.0.5
+      - celery
       - redis
       - billiard
       - librosa
@@ -49,11 +50,17 @@ dependencies:
       - yt-dlp
       - dacite
       - deprecation
+      - grpcio==1.44.0
+      - grpcio-tools==1.44.0
+      - tensorflow==2.8.0
       - trimap
       - pacmap
+<<<<<<< HEAD
       - torch
       - typing_extensions==4.1.1
       - grpcio==1.43.0
       - grpcio-tools==1.43.0
+=======
+      - tf-slim
+>>>>>>> final environment changes
 
-prefix: C:\ProgramData\Anaconda3\envs\winnow
