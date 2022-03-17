@@ -11,23 +11,25 @@ import numpy as np
 import pandas as pd
 from pandas import json_normalize
 
+from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonitor
+
 logger = logging.getLogger(__name__)
 
 
-def findVideoMetada_mediainfo(pathToInputVideo):
+def find_video_metadata_mediainfo(path_to_input_video):
     """Assumes the mediainfo cli is installed and runs it on the input video
 
     Args:
-        pathToInputVideo ([String]): Path to input video
+        path_to_input_video ([String]): Path to input video
 
     Returns:
-        [String]: Text output from runnning the mediainfo command
+        [String]: Text output from running the mediainfo command
     """
     mi = "mediainfo -f --Language=raw"
-    cmd = "{} {}".format(mi, shlex.quote(pathToInputVideo))
+    cmd = "{} {}".format(mi, shlex.quote(path_to_input_video))
     args = shlex.split(cmd)
-    mediaInfo_output = subprocess.check_output(args).decode("utf-8")
-    return mediaInfo_output
+    media_info_output = subprocess.check_output(args).decode("utf-8")
+    return media_info_output
 
 
 def process_media_info(info):
@@ -89,26 +91,26 @@ def normalize_duration(metadata, file_path):
     return metadata
 
 
-def extract_from_list_of_videos(video_files):
+def extract_from_list_of_videos(video_files, progress: BaseProgressMonitor = ProgressMonitor.NULL):
     """Processes a list of video files and returns a list of dicts containing the mediainfo output for each file
 
     Args:
         video_files ([List[Strings]]): List of file paths to video files
+        progress: progress monitor
     """
-
+    progress.scale(total_work=len(video_files), unit="files")
     video_metadata = []
     for file_path in video_files:
-
         try:
-            raw_metadata = findVideoMetada_mediainfo(file_path)
+            raw_metadata = find_video_metadata_mediainfo(file_path)
             metadata = process_media_info(raw_metadata)
             metadata = normalize_duration(metadata, file_path)
             video_metadata.append(metadata)
         except Exception as exc:
-
             logging.info("Problems processing file '%s': %s", file_path, exc)
             video_metadata.append({"General": {"FileName": os.path.basename(file_path)}})
-
+        progress.increase(1)
+    progress.complete()
     return video_metadata
 
 

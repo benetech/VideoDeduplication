@@ -1,5 +1,5 @@
-from annoy import AnnoyIndex
 import numpy as np
+from annoy import AnnoyIndex
 
 
 class AnnoyNNeighbors:
@@ -28,6 +28,35 @@ class AnnoyNNeighbors:
 
     """
 
+    @staticmethod
+    def _resolve_metric(metric: str) -> str:
+        """Resolve annoy metric."""
+        if metric == "cosine":
+            return "angular"
+        return metric
+
+    @staticmethod
+    def load(
+        annoy_index_path: str,
+        n_neighbors=20,
+        metric="euclidean",
+        n_trees=10,
+        feature_size=500,
+        search_k_intensity=100,
+    ) -> "AnnoyNNeighbors":
+        """Load AnnoyNNeighbors from file."""
+        annoy_index = AnnoyIndex(feature_size, AnnoyNNeighbors._resolve_metric(metric))
+        annoy_index.load(annoy_index_path)
+        model = AnnoyNNeighbors(
+            n_neighbors=n_neighbors,
+            metric=metric,
+            n_trees=n_trees,
+            feature_size=feature_size,
+            search_k_intensity=search_k_intensity,
+        )
+        model.annoy_index = annoy_index
+        return model
+
     def __init__(
         self,
         n_neighbors=20,
@@ -37,16 +66,14 @@ class AnnoyNNeighbors:
         feature_size=500,
         search_k_intensity=100,
     ):
-        if metric == "cosine":
-            metric = "angular"
-
         self.n_neighbors = n_neighbors
-        self.metric = metric
+        self.metric = self._resolve_metric(metric)
         self.feature_size = feature_size
         self.n_trees = n_trees
         self.optimize_trees = optimize_trees
         self.search_k_intensity = search_k_intensity
         self.search_k = self.search_k_intensity * (n_trees * n_neighbors)
+        self.annoy_index = None
 
     def fit(self, data):
 

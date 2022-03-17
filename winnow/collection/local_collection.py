@@ -27,17 +27,17 @@ class LocalFileCollection(FileCollection):
         self,
         *,
         prefix: str = ".",
-        min_modified: datetime = None,
-        max_modified: datetime = None,
+        min_mtime: datetime = None,
+        max_mtime: datetime = None,
     ) -> Iterator[FileKey]:
         """Iterate over all the file keys inside the collection satisfying
         the given filtering criteria.
 
         If `prefix` is specified only paths starting with the given prefix
-        will be selected. If `min_modified` or `max_modified` are specified
+        will be selected. If `min_mtime` or `max_mtime` are specified
         the keys will be filtered by the last modified time.
         """
-        for local_fs_path in self._iter_local_paths(prefix, min_modified, max_modified):
+        for local_fs_path in self._iter_local_paths(prefix, min_mtime, max_mtime):
             yield FileKey(
                 path=self._collection_path(local_fs_path),
                 hash=self._calculate_hash(local_fs_path),
@@ -54,7 +54,7 @@ class LocalFileCollection(FileCollection):
         the given filtering criteria.
 
         If `prefix` is specified only paths starting with the given prefix
-        will be selected. If `min_modified` or `max_modified` are specified
+        will be selected. If `min_mtime` or `max_mtime` are specified
         the paths will be filtered by the last modified time.
         """
         for local_path in self._iter_local_paths(prefix, min_mtime, max_mtime):

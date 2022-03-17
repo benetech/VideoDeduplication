@@ -27,7 +27,8 @@ def process_directory(
 ):
     from .luigi_support import LuigiRootProgressMonitor, run_luigi
     from winnow.utils.config import resolve_config_path
-    from winnow.pipeline.luigi.signatures import SignaturesTask
+    from winnow.pipeline.luigi.matches import DBMatchesTask
+    from winnow.pipeline.luigi.exif import ExifTask
 
     # Initialize a progress monitor
     progress = LuigiRootProgressMonitor(celery_task=self)
@@ -36,7 +37,10 @@ def process_directory(
     logger.info("Loading config file")
     config_path = resolve_config_path()
 
-    run_luigi(SignaturesTask(config_path=config_path, prefix=directory))
+    run_luigi(
+        DBMatchesTask(config_path=config_path, prefix=directory),
+        ExifTask(config_path=config_path, prefix=directory),
+    )
     progress.complete()
 
 

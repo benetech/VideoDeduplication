@@ -4,28 +4,28 @@ from itertools import repeat
 from typing import Callable, Any, Collection, Tuple
 
 import numpy as np
+import tensorflow as tf
 from tqdm import tqdm
 
 from winnow.utils.multiproc import multiprocessing as mp
 from .model_tf import CNN_tf
 from .utils import load_video
 
-logger = logging.getLogger(__name__)
-
-
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-def process_video(task: Tuple[str, Any, CNN_tf, int, int]) -> Tuple[Any, np.ndarray, np.ndarray]:
+def process_video(task: Tuple[str, Any, Any, int, int]) -> Tuple[Any, np.ndarray]:
     """Process a single video.
 
     Takes a tuple (video_path, video_id, model, frame_sampling, batch_size).
     Returns a tuple (video_id, frames_tensor, frame_features)
     """
-    video_path, video_id, model, frame_sampling, batch_sz = task
-    frames_tensor = load_video(video_path, model.desired_size, frame_sampling)
-    frame_features = model.extract(frames_tensor, batch_sz)
-    return video_id, frames_tensor, frame_features
+    logger = logging.getLogger(f"{__name__}.process_video")
+    video_path, video_id, image_size, frame_sampling, batch_sz = task
+    logger.info("Preparing frames for %s", video_path)
+    frames_tensor = load_video(video_path, image_size, frame_sampling)
+    logger.info("Done preparing frames for %s", video_path)
+    return video_id, frames_tensor
 
 
 # Type hint for a function tha will be called when a particular
@@ -41,6 +41,7 @@ def feature_extraction_videos(
     cores: int = 4,
     batch_sz: int = 8,
     frame_sampling: int = 1,
+    logger: logging.Logger = logging.getLogger(f"{__name__}.feature_extraction_videos"),
 ):
     """
     Function that extracts the intermediate CNN features
@@ -54,28 +55,29 @@ def feature_extraction_videos(
         cores: CPU cores for the parallel video loading
         batch_sz: batch size fed to the CNN network
         frame_sampling: Minimal distance (in sec.) between frames to be saved.
+        logger: logger to be used.
     """
-    video_list = {i: video for i, video in enumerate(video_paths)}
-
-    logger.info("Number of videos: %s", len(video_list))
+    file_count = len(video_paths)
+    logger.info("Number of videos: %s", file_count)
     logger.info("CPU cores: %s", cores)
     logger.info("Batch size: %s", batch_sz)
     logger.info("Starting Feature Extraction Process")
+    logger.info("GPU is available: %s", tf.test.is_gpu_available())
 
     pool = mp.Pool(cores)
-
-    file_count = len(video_paths)
     tasks = zip(
         video_paths,
         video_ids,
-        repeat(model, file_count),
+        repeat(model.desired_size, file_count),
         repeat(frame_sampling, file_count),
         repeat(batch_sz, file_count),
     )
 
     progress_bar = iter(tqdm(range(file_count), mininterval=1.0, unit="video"))
-    for video, frames, features in pool.imap_unordered(process_video, tasks):
-        on_extracted(video, frames, features)
+    for video_id, frame_tensor in pool.imap_unordered(process_video, tasks, chunksize=1):
+        logger.info("Extracting features for %s", video_id)
+        frame_features = model.extract(frame_tensor, batch_sz)
+        on_extracted(video_id, frame_tensor, frame_features)
         next(progress_bar)
 
 

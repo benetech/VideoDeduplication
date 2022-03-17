@@ -15,7 +15,7 @@ ProgressObservers = Union[ProgressObserver, Collection[ProgressObserver]]
 
 class BaseProgressMonitor(abc.ABC):
     @abc.abstractmethod
-    def scale(self, total_work: float, unit: str = ""):
+    def scale(self, total_work: float, unit: str = "") -> "BaseProgressMonitor":
         """Change total amount of work."""
 
     @abc.abstractmethod

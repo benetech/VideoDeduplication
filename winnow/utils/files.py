@@ -6,7 +6,7 @@ from functools import lru_cache, wraps
 from glob import glob
 from os import PathLike, fspath
 from pathlib import Path
-from typing import Collection, Callable, Union, MutableMapping, Iterator
+from typing import Collection, Callable, Union, MutableMapping, Iterator, Tuple
 
 from winnow.config.config import HashMode
 
@@ -67,7 +67,7 @@ class HashCache(MutableMapping[str, str]):
         def get_hash_file(path: Union[str, PathLike]) -> str:
             """Place hash in the same subdirectory but use different root folder."""
             path_tail = os.path.relpath(path, files_root)
-            return f"{fspath(os.path.join(cache_root, path_tail))}.suffix"
+            return f"{fspath(os.path.join(cache_root, path_tail))}.{suffix}"
 
         return get_hash_file
 
@@ -77,6 +77,7 @@ class HashCache(MutableMapping[str, str]):
     def __setitem__(self, file_path: Union[str, PathLike], hash_sum: str) -> None:
         """Save hash value."""
         hash_file_path = self._map_path(file_path)
+        os.makedirs(os.path.dirname(hash_file_path), exist_ok=True)
         with open(hash_file_path, "w") as file:
             file.write(hash_sum)
 
@@ -247,8 +248,21 @@ def mtime_filter(min_mtime: datetime = None, max_mtime: datetime = None) -> Call
     def predicate(path: str) -> bool:
         """Check last modified date of the path."""
         timestamp = os.path.getmtime(path)
-        return (min_timestamp is None or min_timestamp <= timestamp) and (
+        return (min_timestamp is None or min_timestamp < timestamp) and (
             max_timestamp is None or timestamp <= max_timestamp
         )
 
     return predicate
+
+
+def split_suffix(path: str, suffix: str = None) -> Tuple[str, str]:
+    """Split path into a pair (base-name, suffix).
+
+    If suffix is provided, it will try to chop the provided suffix.
+    Otherwise, the file extension will be chopped.
+    """
+    if suffix is None:
+        return os.path.splitext(path)
+    if path.endswith(suffix):
+        return path[:-len(suffix)], suffix
+    return path, ""

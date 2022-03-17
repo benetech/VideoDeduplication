@@ -18,10 +18,6 @@ class FileCollection(abc.ABC):
      * The collection may provide a local file system path of its entries.
        In case of remote collection this may result in downloading a file
        to a temporary location behind the scenes.
-
-    NOTE:
-        FileCollection will most likely be extended in future to completely
-        encapsulate access to the user files.
     """
 
     @abc.abstractmethod
@@ -29,14 +25,14 @@ class FileCollection(abc.ABC):
         self,
         *,
         prefix: str = ".",
-        min_modified: datetime = None,
-        max_modified: datetime = None,
+        min_mtime: datetime = None,
+        max_mtime: datetime = None,
     ) -> Iterator[FileKey]:
         """Iterate over all the file keys inside the collection satisfying
         the given filtering criteria.
 
         If `prefix` is specified only paths starting with the given prefix
-        will be selected. If `min_modified` or `max_modified` are specified
+        will be selected. If `min_mtime` or `max_mtime` are specified
         the keys will be filtered by the last modified time.
         """
 
@@ -52,7 +48,7 @@ class FileCollection(abc.ABC):
         the given filtering criteria.
 
         If `prefix` is specified only paths starting with the given prefix
-        will be selected. If `min_modified` or `max_modified` are specified
+        will be selected. If `min_mtime` or `max_mtime` are specified
         the paths will be filtered by the last modified time.
         """
 
