@@ -1,13 +1,16 @@
 import { format as formatDate } from "date-fns";
 import MatchesTransformer from "./MatchesTransformer";
 import parseDate from "../../../lib/helpers/parseDate";
-import { QueryParams } from "../dto/query";
+import { QueryParams, QueryResultsDTO } from "../dto/query";
 import {
   ClusterFilters,
   Contributor,
+  ContributorFilters,
   FileFilters,
   FileMetadata,
   Repository,
+  RepositoryFilters,
+  RepositoryPrototype,
   Scene,
   VideoFile,
 } from "../../../model/VideoFile";
@@ -20,6 +23,7 @@ import {
 import {
   ListFilesResults,
   ListRequest,
+  ListResults,
   QueryClusterRequest,
   QueryClusterResults,
   QueryFileMatchesRequest,
@@ -27,10 +31,12 @@ import {
 } from "../../ServerAPI";
 import {
   ContributorDTO,
+  CreateRepositoryDTO,
   FileDTO,
   FileQueryResultsDTO,
   RepositoryDTO,
   SceneDTO,
+  UpdateRepositoryDTO,
 } from "../dto/files";
 import {
   FileMatchDTO,
@@ -38,6 +44,7 @@ import {
   MatchDTO,
   QueryClusterResultsDTO,
 } from "../dto/matches";
+import { Updates } from "../../../lib/entity/Entity";
 
 /**
  * Argument and result transformer for file API endpoint.
@@ -95,6 +102,21 @@ export default class FilesTransformer {
     if (filters?.templates != null && filters.templates.length > 0) {
       params.templates = filters.templates.join(",");
     }
+    if (filters?.contributors != null && filters.contributors.length > 0) {
+      params.contributors = filters.contributors.join(",");
+    }
+    if (
+      filters?.semantic.query != null &&
+      filters?.semantic.query.trim().length > 0
+    ) {
+      params.semantic_query = filters.semantic.query.trim();
+    }
+    if (filters?.semantic.maxHits != null) {
+      params.max_semantic_search_hits = filters.semantic.maxHits;
+    }
+    if (filters?.semantic.minSimilarity != null) {
+      params.min_semantic_similarity = filters.semantic.minSimilarity;
+    }
     return params;
   }
 
@@ -142,6 +164,31 @@ export default class FilesTransformer {
   }
 
   /**
+   * Convert repository filters to query params.
+   */
+  repositoriesParams(filters: RepositoryFilters): QueryParams {
+    const params: QueryParams = {};
+    if (filters.name != null && filters.name.length > 0) {
+      params.name = filters.name.trim();
+    }
+    return params;
+  }
+
+  /**
+   * Convert contributor filters to query params.
+   */
+  contributorsParams(filters: ContributorFilters): QueryParams {
+    const params: QueryParams = {};
+    if (filters.name != null && filters.name.length > 0) {
+      params.name = filters.name.trim();
+    }
+    if (filters.repositoryId != null) {
+      params.repository_id = filters.repositoryId;
+    }
+    return params;
+  }
+
+  /**
    * Transform list files results.
    */
   files(
@@ -155,7 +202,7 @@ export default class FilesTransformer {
       unique: response.unique,
     };
 
-    const files = response.items.map((post) => this.file(post));
+    const files = response.items.map((fileDTO) => this.file(fileDTO));
     return { request, total: counts.all, items: files, counts };
   }
 
@@ -163,17 +210,17 @@ export default class FilesTransformer {
    * Transform file DTO to file object.
    */
   file(data: FileDTO): VideoFile {
-    const meta = this._metadata(data);
+    const meta = this.metadata(data);
     return {
       id: data.id,
       filename: data.file_path,
       metadata: {
-        fileType: this._type(data),
+        fileType: this.type(data),
         hasAudio: data.exif && !!data.exif.Audio_Format,
         // Always false, until exif is actually extracted
         // TODO: https://github.com/benetech/VideoDeduplication/issues/313
         hasEXIF: false,
-        created: this._creationDate(data),
+        created: this.creationDate(data),
         ...meta,
       },
       hash: data.sha256,
@@ -181,12 +228,15 @@ export default class FilesTransformer {
       exif: data.exif,
       preview: `/api/v1/files/${data.id}/thumbnail?time=0`,
       playbackURL: `/api/v1/files/${data.id}/watch`,
-      scenes: this._scenes(data),
+      scenes: this.scenes(data),
       relatedCount: data.related_count,
       duplicatesCount: data.duplicates_count,
       matchedTemplateIds: data.matched_templates,
       external: data.contributor != null,
-      contributor: this._contributor(data.contributor),
+      contributor:
+        data.contributor != null
+          ? this.contributor(data.contributor)
+          : undefined,
     };
   }
 
@@ -200,7 +250,7 @@ export default class FilesTransformer {
     return {
       request,
       total: data.total,
-      matches: data.matches.map((match) => this._clusterMatch(match)),
+      matches: data.matches.map((match) => this.clusterMatch(match)),
       files: data.files.map((file) => this.file(file)),
     };
   }
@@ -232,7 +282,7 @@ export default class FilesTransformer {
     };
   }
 
-  _creationDate(data: FileDTO): Date | undefined {
+  private creationDate(data: FileDTO): Date | undefined {
     const value = data?.exif?.General_Encoded_Date;
     if (value == null) {
       return;
@@ -240,7 +290,7 @@ export default class FilesTransformer {
     return new Date(value * 1000);
   }
 
-  _metadata(data: FileDTO): FileMetadata {
+  private metadata(data: FileDTO): FileMetadata {
     if (!data.meta) {
       return {
         length: data.exif?.General_Duration || 0,
@@ -253,7 +303,7 @@ export default class FilesTransformer {
     };
   }
 
-  _type(file: FileDTO): string | undefined {
+  private type(file: FileDTO): string | undefined {
     if (file.exif && file.exif.General_FileExtension) {
       return file.exif.General_FileExtension;
     }
@@ -265,7 +315,7 @@ export default class FilesTransformer {
     }
   }
 
-  _scene(scene: SceneDTO, file: FileDTO): Scene {
+  private scene(scene: SceneDTO, file: FileDTO): Scene {
     return {
       id: scene.id,
       preview: `/api/v1/files/${file.id}/thumbnail?time=${
@@ -276,9 +326,9 @@ export default class FilesTransformer {
     };
   }
 
-  _scenes(file: FileDTO): Scene[] {
+  private scenes(file: FileDTO): Scene[] {
     const scenes =
-      file.scenes && file.scenes.map((scene) => this._scene(scene, file));
+      file.scenes && file.scenes.map((scene) => this.scene(scene, file));
     if (!scenes || scenes.length === 0) {
       return [
         {
@@ -292,28 +342,71 @@ export default class FilesTransformer {
     return scenes;
   }
 
-  _clusterMatch(match: MatchDTO): Match {
+  private clusterMatch(match: MatchDTO): Match {
     return this.matchTransform.match(match);
   }
 
-  _contributor(data: ContributorDTO | undefined): Contributor | undefined {
-    if (data == null) {
-      return undefined;
-    }
+  contributors(
+    response: QueryResultsDTO<ContributorDTO>,
+    request: ListRequest<ContributorFilters>
+  ): ListResults<Contributor, ContributorFilters> {
     return {
-      id: data.id,
-      name: data.name,
-      repository: this._repository(data.repository),
+      request,
+      total: response.total,
+      items: response.items.map((contribDTO) => this.contributor(contribDTO)),
     };
   }
 
-  _repository(data: RepositoryDTO): Repository {
+  contributor(data: ContributorDTO): Contributor {
+    return {
+      id: data.id,
+      name: data.name,
+      repository: this.repository(data.repository),
+      stats: {
+        totalFingerprintsCount: data.stats?.total_fingerprints_count || 0,
+        pulledFingerprintsCount: data.stats?.pulled_fingerprints_count || 0,
+      },
+    };
+  }
+
+  repositories(
+    response: QueryResultsDTO<RepositoryDTO>,
+    request: ListRequest<RepositoryFilters>
+  ): ListResults<Repository, RepositoryFilters> {
+    return {
+      request,
+      total: response.total,
+      items: response.items.map((repoDTO) => this.repository(repoDTO)),
+    };
+  }
+
+  repository(data: RepositoryDTO): Repository {
     return {
       id: data.id,
       name: data.name,
       address: data.address,
       login: data.login,
       type: data.type,
+      lastSynced:
+        data.last_synced != null ? new Date(data.last_synced) : undefined,
+      stats: {
+        partnersCount: data.stats?.partners_count || 0,
+        totalFingerprintsCount: data.stats?.total_fingerprints_count || 0,
+        pushedFingerprintsCount: data.stats?.pushed_fingerprints_count || 0,
+        pulledFingerprintsCount: data.stats?.pulled_fingerprints_count || 0,
+      },
+    };
+  }
+
+  createRepositoryDTO(repository: RepositoryPrototype): CreateRepositoryDTO {
+    return {
+      ...repository,
+    };
+  }
+
+  updateRepositoryDTO(repository: Updates<Repository>): UpdateRepositoryDTO {
+    return {
+      name: repository.name,
     };
   }
 }

@@ -2,7 +2,7 @@ import os
 
 from cryptography.fernet import Fernet
 
-from winnow.security import SecureStorage
+from security import SecureStorage
 
 
 def make_secure_storage(directory) -> SecureStorage:

@@ -36,7 +36,7 @@ function getValue(option: React.ReactElement, index: number): any {
 function bindProperties<T = any>(
   selectedValue: T | undefined,
   onChange: ((value: T) => void) | undefined,
-  selectedIndex: number,
+  selectedIndex: number | undefined,
   classes: ClassNameMap
 ): (option: React.ReactNode) => React.ReactNode | null {
   let currentIndex = 0;
@@ -70,8 +70,8 @@ function bindProperties<T = any>(
 function selectionIndex<T>(
   children: React.ReactNode,
   selectedValue: T | undefined
-) {
-  let selectedIndex = 0;
+): number | undefined {
+  let selectedIndex: number | undefined = undefined;
   React.Children.forEach(children, (element, index) => {
     if (
       React.isValidElement(element) &&
@@ -89,7 +89,7 @@ function selectionIndex<T>(
  */
 function getStyles(
   currentIndex: number,
-  selectedIndex: number,
+  selectedIndex: number | undefined,
   classes: ClassNameMap
 ): string {
   const beforeSelected = currentIndex + 1 === selectedIndex;

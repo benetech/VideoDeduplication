@@ -31,5 +31,13 @@ export default function getTaskTextDescription(
       return intl.formatMessage({ id: "actions.findFrame" });
     case TaskRequestType.PROCESS_ONLINE_VIDEO:
       return intl.formatMessage({ id: "task.type.processOnline" });
+    case TaskRequestType.PUSH_FINGERPRINTS:
+      return intl.formatMessage({ id: "task.type.pushFingerprints" });
+    case TaskRequestType.PULL_FINGERPRINTS:
+      return intl.formatMessage({ id: "task.type.pullFingerprints" });
+    case TaskRequestType.MATCH_REMOTE_FINGERPRINTS:
+      return intl.formatMessage({ id: "task.type.matchRemote" });
+    case TaskRequestType.PREPARE_SEMANTIC_SEARCH:
+      return intl.formatMessage({ id: "task.type.prepareSemanticSearch" });
   }
 }

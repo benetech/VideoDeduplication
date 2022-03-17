@@ -7,7 +7,8 @@ from typing import Optional, List, Dict
 from celery.utils.log import get_task_logger
 
 from db.access.templates import TemplatesDAO
-from db.schema import Template, Files
+from db.schema import Template, Files, Repository
+from .progress_monitor import make_progress_monitor
 from .winnow_task import winnow_task
 
 logger = get_task_logger(__name__)
@@ -283,6 +284,127 @@ def process_online_video(
 
     monitor.complete()
     return result
+
+
+@winnow_task(bind=True)
+def push_fingerprints_task(
+    self,
+    repository_id: int,
+):
+    from winnow.utils.config import resolve_config
+    from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.pipeline.push_fingerprints import push_fingerprints
+
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
+    # Load configuration file
+    logger.info("Loading config file")
+    config = resolve_config()
+    config.database.use = True
+
+    # Run pipeline
+    monitor.update(0)
+    pipeline_context = PipelineContext(config)
+
+    with pipeline_context.database.session_scope(expunge=True) as session:
+        repo: Repository = session.query(Repository).filter(Repository.id == repository_id).one()
+
+    push_fingerprints(repo.name, pipeline_context, monitor.subtask(work_amount=1.0))
+    monitor.complete()
+
+
+@winnow_task(bind=True)
+def pull_fingerprints_task(
+    self,
+    repository_id: int,
+):
+    from winnow.utils.config import resolve_config
+    from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.pipeline.pull_fingerprints import pull_fingerprints
+
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
+    # Load configuration file
+    logger.info("Loading config file")
+    config = resolve_config()
+    config.database.use = True
+
+    # Run pipeline
+    monitor.update(0)
+    pipeline_context = PipelineContext(config)
+
+    with pipeline_context.database.session_scope(expunge=True) as session:
+        repo: Repository = session.query(Repository).filter(Repository.id == repository_id).one()
+
+    pull_fingerprints(repo.name, pipeline_context, monitor.subtask(work_amount=1.0))
+    monitor.complete()
+
+
+@winnow_task(bind=True)
+def match_remote_fingerprints(
+    self,
+    repository_id: int = None,
+    contributor_name: str = None,
+):
+    from winnow.utils.config import resolve_config
+    from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.pipeline.generate_remote_matches import generate_remote_matches
+
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
+    # Load configuration file
+    logger.info("Loading config file")
+    config = resolve_config()
+    config.database.use = True
+
+    # Run pipeline
+    monitor.update(0)
+    pipeline_context = PipelineContext(config)
+
+    if repository_id is None and contributor_name is not None:
+        raise ValueError("Cannot specify contributor name when repository id is not specified")
+
+    repository_name = None
+    if repository_id is not None:
+        with pipeline_context.database.session_scope() as session:
+            repo = session.query(Repository).filter(Repository.id == repository_id).one()
+            repository_name = repo.name
+
+    generate_remote_matches(
+        repository_name=repository_name,
+        contributor_name=contributor_name,
+        pipeline=pipeline_context,
+        progress=monitor.subtask(work_amount=1.0),
+    )
+    monitor.complete()
+
+
+@winnow_task(bind=True)
+def prepare_semantic_search(self, force: bool = True):
+    from winnow.utils.config import resolve_config
+    from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.pipeline.prepare_text_search import prepare_text_search
+    import torch
+
+    torch.multiprocessing.set_start_method("spawn")
+
+    # Initialize a progress monitor
+    monitor = make_progress_monitor(task=self, total_work=1.0)
+
+    # Load configuration file
+    logger.info("Loading config file")
+    config = resolve_config()
+    config.database.use = True
+
+    # Run pipeline
+    monitor.update(0)
+    pipeline_context = PipelineContext(config)
+
+    prepare_text_search(pipeline_context, force, monitor.subtask(1.0))
+    monitor.complete()
 
 
 def fibo(n):

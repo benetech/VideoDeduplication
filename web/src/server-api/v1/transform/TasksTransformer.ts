@@ -2,14 +2,22 @@ import utcDate, { defaultDateFormat } from "../../../lib/helpers/utcDate";
 import {
   FindFrameRequest,
   FindFrameResult,
+  MatchRemoteFingerprintsRequest,
+  MatchRemoteFingerprintsResult,
   MatchTemplatesRequest,
   MatchTemplatesResult,
+  PrepareSemanticSearchRequest,
+  PrepareSemanticSearchResult,
   ProcessDirectoryRequest,
   ProcessDirectoryResult,
   ProcessFileListRequest,
   ProcessFileListResult,
   ProcessOnlineVideoRequest,
   ProcessOnlineVideoResult,
+  PullFingerprintsRequest,
+  PullFingerprintsResult,
+  PushFingerprintsRequest,
+  PushFingerprintsResult,
   Task,
   TaskConfig,
   TaskError,
@@ -22,14 +30,22 @@ import {
 import {
   FindFrameRequestDTO,
   FindFrameResultDTO,
+  MatchRemoteFingerprintsRequestDTO,
+  MatchRemoteFingerprintsResultDTO,
   MatchTemplatesRequestDTO,
   MatchTemplatesResultDTO,
+  PrepareSemanticSearchRequestDTO,
+  PrepareSemanticSearchResultDTO,
   ProcessDirectoryRequestDTO,
   ProcessDirectoryResultDTO,
   ProcessFileListRequestDTO,
   ProcessFileListResultDTO,
   ProcessOnlineVideoRequestDTO,
   ProcessOnlineVideoResultDTO,
+  PullFingerprintsRequestDTO,
+  PullFingerprintsResultDTO,
+  PushFingerprintsRequestDTO,
+  PushFingerprintsResultDTO,
   RawTaskStatus,
   RawTaskType,
   RequestConfigDTO,
@@ -53,6 +69,14 @@ class TaskRequestTransformer {
         return this.findFrameReq(data);
       case RawTaskType.ProcessOnlineVideo:
         return this.processOnlineVideoReq(data);
+      case RawTaskType.PushFingerprints:
+        return this.pushFingerprintsReq(data);
+      case RawTaskType.PullFingerprints:
+        return this.pullFingerprintsReq(data);
+      case RawTaskType.MatchRemoteFingerprints:
+        return this.matchRemoteFingerprintsReq(data);
+      case RawTaskType.PrepareSemanticSearch:
+        return this.prepareSemanticSearchReq(data);
     }
   }
 
@@ -68,6 +92,14 @@ class TaskRequestTransformer {
         return this.findFrameDTO(req);
       case TaskRequestType.PROCESS_ONLINE_VIDEO:
         return this.processOnlineVideoDTO(req);
+      case TaskRequestType.PUSH_FINGERPRINTS:
+        return this.pushFingerprintsDTO(req);
+      case TaskRequestType.PULL_FINGERPRINTS:
+        return this.pullFingerprintsDTO(req);
+      case TaskRequestType.MATCH_REMOTE_FINGERPRINTS:
+        return this.matchRemoteFingerprintsDTO(req);
+      case TaskRequestType.PREPARE_SEMANTIC_SEARCH:
+        return this.prepareSemanticSearchDTO(req);
     }
   }
 
@@ -167,6 +199,80 @@ class TaskRequestTransformer {
     };
   }
 
+  pushFingerprintsReq(
+    data: PushFingerprintsRequestDTO
+  ): PushFingerprintsRequest {
+    return {
+      type: TaskRequestType.PUSH_FINGERPRINTS,
+      repositoryId: data.repository_id,
+    };
+  }
+
+  pushFingerprintsDTO(
+    req: PushFingerprintsRequest
+  ): PushFingerprintsRequestDTO {
+    return {
+      type: RawTaskType.PushFingerprints,
+      repository_id: req.repositoryId,
+    };
+  }
+
+  pullFingerprintsReq(
+    data: PullFingerprintsRequestDTO
+  ): PullFingerprintsRequest {
+    return {
+      type: TaskRequestType.PULL_FINGERPRINTS,
+      repositoryId: data.repository_id,
+    };
+  }
+
+  pullFingerprintsDTO(
+    req: PullFingerprintsRequest
+  ): PullFingerprintsRequestDTO {
+    return {
+      type: RawTaskType.PullFingerprints,
+      repository_id: req.repositoryId,
+    };
+  }
+
+  matchRemoteFingerprintsReq(
+    data: MatchRemoteFingerprintsRequestDTO
+  ): MatchRemoteFingerprintsRequest {
+    return {
+      type: TaskRequestType.MATCH_REMOTE_FINGERPRINTS,
+      repositoryId: data.repository_id,
+      contributorName: data.contributor_name,
+    };
+  }
+
+  matchRemoteFingerprintsDTO(
+    req: MatchRemoteFingerprintsRequest
+  ): MatchRemoteFingerprintsRequestDTO {
+    return {
+      type: RawTaskType.MatchRemoteFingerprints,
+      repository_id: req.repositoryId,
+      contributor_name: req.contributorName,
+    };
+  }
+
+  prepareSemanticSearchReq(
+    data: PrepareSemanticSearchRequestDTO
+  ): PrepareSemanticSearchRequest {
+    return {
+      type: TaskRequestType.PREPARE_SEMANTIC_SEARCH,
+      force: data.force,
+    };
+  }
+
+  prepareSemanticSearchDTO(
+    req: PrepareSemanticSearchRequest
+  ): PrepareSemanticSearchRequestDTO {
+    return {
+      type: RawTaskType.PrepareSemanticSearch,
+      force: req.force,
+    };
+  }
+
   configReq(data: RequestConfigDTO): TaskConfig {
     return {
       darkThreshold: data.dark_threshold,
@@ -213,6 +319,22 @@ class TaskResultTransformer {
         return this.processOnlineVideoRes(
           task.result as ProcessOnlineVideoResultDTO | null
         );
+      case RawTaskType.PushFingerprints:
+        return this.pushFingerprintsRes(
+          task.result as PushFingerprintsResultDTO | null
+        );
+      case RawTaskType.PullFingerprints:
+        return this.pullFingerprintsRes(
+          task.result as PullFingerprintsResultDTO | null
+        );
+      case RawTaskType.MatchRemoteFingerprints:
+        return this.matchRemoteFingerprintsRes(
+          task.result as MatchRemoteFingerprintsResultDTO | null
+        );
+      case RawTaskType.PrepareSemanticSearch:
+        return this.prepareSemanticSearchRes(
+          task.result as PrepareSemanticSearchResultDTO | null
+        );
     }
   }
 
@@ -258,6 +380,30 @@ class TaskResultTransformer {
   processOnlineVideoRes(
     data: ProcessOnlineVideoResultDTO | null
   ): ProcessOnlineVideoResult | null {
+    return data; // no difference
+  }
+
+  pushFingerprintsRes(
+    data: PushFingerprintsResultDTO | null
+  ): PushFingerprintsResult | null {
+    return data; // no difference
+  }
+
+  pullFingerprintsRes(
+    data: PullFingerprintsResultDTO | null
+  ): PullFingerprintsResult | null {
+    return data; // no difference
+  }
+
+  matchRemoteFingerprintsRes(
+    data: MatchRemoteFingerprintsResultDTO | null
+  ): MatchRemoteFingerprintsResult | null {
+    return data; // no difference
+  }
+
+  prepareSemanticSearchRes(
+    data: PrepareSemanticSearchResultDTO | null
+  ): PrepareSemanticSearchResult | null {
     return data; // no difference
   }
 }

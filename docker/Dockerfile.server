@@ -20,6 +20,9 @@ ADD ["db", "/server/db"]
 ADD ["task_queue", "/server/task_queue"]
 ADD ["template_support", "/server/template_support"]
 ADD ["thumbnail", "/server/thumbnail"]
+ADD ["remote", "/server/remote"]
+ADD ["security", "/server/security"]
+ADD ["rpc", "/server/rpc"]
 WORKDIR /server
 
 # Install ffmpeg

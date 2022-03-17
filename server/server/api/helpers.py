@@ -1,16 +1,25 @@
 import enum
 import os
 import re
+from contextlib import contextmanager
 from datetime import datetime
+from functools import lru_cache
 from http import HTTPStatus
-from typing import Type
+from typing import Type, Iterator
 
+import grpc
 from flask import current_app, abort
 
+import rpc.rpc_pb2_grpc as services
+from db import Database
 from db.access.fields import Fields
+from remote.repository_dao_database import DBRemoteRepoDAO
+from security.storage import SecureStorage
 from template_support.file_storage import FileStorage
 from thumbnail.cache import ThumbnailCache
+from ..cache import FileQueryCache
 from ..config import Config
+from ..model import database
 from ..queue import TaskQueue
 from ..queue.framework import TaskLogStorage
 from ..socket.log_watcher import LogWatcher
@@ -44,6 +53,36 @@ def get_log_watcher() -> LogWatcher:
 def get_thumbnails() -> ThumbnailCache:
     """Get current application thumbnail cache."""
     return current_app.config.get("THUMBNAILS")
+
+
+def get_security_storage() -> SecureStorage:
+    """Get secured credentials storage."""
+    config = get_config()
+    return SecureStorage(path=config.security_storage_path, master_key_path=config.master_key_path)
+
+
+@lru_cache()
+def get_repos_dao() -> DBRemoteRepoDAO:
+    return DBRemoteRepoDAO(
+        database=Database(
+            engine=database.engine,
+            make_session=lambda: database.session,
+        ),
+        secret_storage=get_security_storage(),
+    )
+
+
+@contextmanager
+def semantic_search() -> Iterator[services.SemanticSearchStub]:
+    """Get semantic search service."""
+    config = get_config()
+    with grpc.insecure_channel(config.rpc_server.address) as channel:
+        yield services.SemanticSearchStub(channel)
+
+
+def get_cache() -> FileQueryCache:
+    """Get file query cache."""
+    return current_app.config.get("FILE_QUERY_CACHE")
 
 
 def resolve_video_file_path(file_path):

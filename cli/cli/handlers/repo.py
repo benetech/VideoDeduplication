@@ -10,8 +10,8 @@ from cli.platform.transform import Transform
 from cli.platform.validate import valid_string, valid_enum, positive_int, valid_sequence
 from db.schema import RepositoryType
 from winnow.pipeline.pipeline_context import PipelineContext
-from winnow.remote import RemoteRepository
-from winnow.security.storage import SecureStorage
+from remote import RemoteRepository
+from security.storage import SecureStorage
 
 
 class RepoCli:

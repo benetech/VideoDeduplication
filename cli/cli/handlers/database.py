@@ -19,13 +19,13 @@ class DatabaseCli:
     @handle_errors
     def create(self, verbose=False):
         """Apply database schema."""
-        database = Database(self._config.database.uri, echo=verbose)
+        database = Database.from_uri(self._config.database.uri, echo=verbose)
         database.create_tables()
 
     @handle_errors
     def drop(self, force=False, verbose=False):
         """Drop all tables."""
-        database = Database(self._config.database.uri, echo=verbose)
+        database = Database.from_uri(self._config.database.uri, echo=verbose)
         confirm("All data will be lost. Are you sure you want to drop database?", force=force)
         database.drop_tables()
 

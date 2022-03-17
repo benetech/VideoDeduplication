@@ -69,18 +69,12 @@ services:
   redis:
     image: "redis:alpine"
     ports:
-      - 6379:6379
+      - "6379:6379"
     networks:
       - postgres-compose-network
 
   celery-worker:
     image: "johnhbenetech/videodeduplication:${BENETECH_RUNTIME:-gpu}${BENETECH_MODE}"
-    build:
-      context: .
-      dockerfile: "docker/Dockerfile.dedup-${BENETECH_RUNTIME:-gpu}"
-      target: prod
-      args:
-        GIT_HASH: "${GIT_HASH:-UNKNOWN}"
     runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
     command: bash -ic "python -m task_queue.application worker --loglevel=INFO -E"
     environment:
@@ -91,6 +85,34 @@ services:
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
       TASK_LOG_DIRECTORY: "/project/pipeline-logs"
       LUIGI_CONFIG_PATH: "/project/config/luigi.cfg"
+    volumes:
+      # Set the BENETECH_DATA_LOCATION environment variable to the path
+      # on your host machine where you placed the source data
+      - "${BENETECH_DATA_LOCATION:?\n\nPlease set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
+      # You may want to set BENETECH_TASK_LOGS environment variable to
+      # keep pipeline logs in a specific directory in your host fs.
+      - "${BENETECH_TASK_LOGS:-pipeline-logs}:/project/pipeline-logs"
+      # You can specify BENETECH_FILE_STORAGE_DIRECTORY environment variable to
+      # keep template examples in a specific directory in your host fs.
+      - "${BENETECH_FILE_STORAGE_DIRECTORY:-file-storage}:/project/file-storage"
+      # You can specify BENETECH_CONFIG_DIRECTORY environment variable to
+      # keep application configs in a specific directory in your host fs.
+      - "${BENETECH_CONFIG_DIRECTORY:-config}:/project/config"
+    depends_on:
+      - postgres
+    networks:
+      - postgres-compose-network
+
+  rpc:
+    image: "johnhbenetech/videodeduplication:${BENETECH_RUNTIME:-gpu}${BENETECH_MODE}"
+    runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
+    command: bash -ic "python -m rpc.server"
+    environment:
+      WINNOW_CONFIG: "/project/config/config.yaml"
+      RPC_SERVER_PORT: 50051
+      RPC_SERVER_HOST: rpc
+    ports:
+      - "50051:50051"
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed the source data
@@ -128,6 +150,9 @@ services:
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
       TASK_LOG_DIRECTORY: "/project/pipeline-logs"
       FILE_STORE_DIRECTORY: "/project/file-storage"
+      SECURITY_STORAGE_PATH: "/project/data/representations"
+      RPC_SERVER_HOST: "rpc"
+      RPC_SERVER_PORT: 50051
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed your video files

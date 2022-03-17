@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 from db import Database
 from db.access.files import FilesDAO
 from db.schema import Matches, Repository, Contributor, Files, Signature
-from winnow.remote.model import RemoteFingerprint
+from remote.model import RemoteFingerprint
 from winnow.storage.base_repr_storage import ReprStorageFactory, BaseReprStorage
 from winnow.storage.file_key import FileKey
 from winnow.storage.legacy.repr_key import ReprKey

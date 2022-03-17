@@ -1,13 +1,15 @@
 import base64
 import math
+import time
 from datetime import datetime
 from functools import wraps
 from typing import Dict, Optional
 
+from dataclasses import dataclass
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect
 
-from db.access.files import FileData
+from db.access.files import FileData, ListFilesRequest
 from db.schema import (
     Contributor,
     Repository,
@@ -31,6 +33,20 @@ _SERIALIZE = {
     datetime: datetime.timestamp,
     float: lambda value: value if math.isfinite(value) else None,
 }
+
+
+@dataclass(frozen=True)
+class RepoStats:
+    partners_count: int
+    total_fingerprints_count: int
+    pushed_fingerprints_count: int
+    pulled_fingerprints_count: int
+
+
+@dataclass(frozen=True)
+class ContributorStats:
+    total_fingerprints_count: int
+    pulled_fingerprints_count: int
 
 
 def prepare_serialization(data):
@@ -181,7 +197,12 @@ class Transform:
 
     @staticmethod
     @serializable
-    def contributor(contributor: Optional[Contributor], *, repository=True) -> Dict:
+    def contributor(
+        contributor: Optional[Contributor],
+        *,
+        repository=True,
+        stats: Optional[ContributorStats] = None,
+    ) -> Dict:
         """Get plain data representation for contributor."""
         if contributor is None:
             return None
@@ -191,21 +212,37 @@ class Transform:
         }
         if repository:
             data["repository"] = Transform.repository(contributor.repository)
+        if stats is not None:
+            data["stats"] = {
+                "total_fingerprints_count": stats.total_fingerprints_count,
+                "pulled_fingerprints_count": stats.pulled_fingerprints_count,
+            }
         return data
 
     @staticmethod
     @serializable
-    def repository(repository: Optional[Repository]) -> Dict:
+    def repository(repository: Optional[Repository], stats: Optional[RepoStats] = None) -> Dict:
         """Get plain data representation for repository."""
         if repository is None:
             return None
-        return {
+        data = {
             "id": repository.id,
             "name": repository.name,
-            "address": repository.network_address,
             "login": repository.account_id,
             "type": repository.repository_type.value,
+            "address": repository.network_address,
+            "last_synced": (
+                None if repository.last_sync is None else int(time.mktime(repository.last_sync.timetuple()) * 1000)
+            ),
         }
+        if stats is not None:
+            data["stats"] = {
+                "partners_count": stats.partners_count,
+                "total_fingerprints_count": stats.total_fingerprints_count,
+                "pushed_fingerprints_count": stats.pushed_fingerprints_count,
+                "pulled_fingerprints_count": stats.pulled_fingerprints_count,
+            }
+        return data
 
     @staticmethod
     @serializable
@@ -275,3 +312,12 @@ class Transform:
             "file": Transform.file(exclusion.file),
             "template": Transform.template(exclusion.template),
         }
+
+
+@dataclass
+class ListFilesApiRequest(ListFilesRequest):
+    """Augmented List-Files request."""
+
+    semantic_query: str = None
+    min_semantic_similarity: float = 0.05
+    max_semantic_search_hits: int = 10000

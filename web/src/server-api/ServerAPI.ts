@@ -2,8 +2,13 @@ import { Preset, PresetFilters } from "../model/Preset";
 import { Entity, Transient, Updates } from "../lib/entity/Entity";
 import {
   ClusterFilters,
+  Contributor,
+  ContributorFilters,
   FileFilters,
   FrameDescriptor,
+  Repository,
+  RepositoryFilters,
+  RepositoryPrototype,
   VideoFile,
 } from "../model/VideoFile";
 import {
@@ -25,6 +30,7 @@ import {
 } from "../model/Template";
 import { SocketAPI } from "./SocketAPI";
 import { ExtensionsStats } from "../model/Stats";
+import { ServerHealthStatus } from "../model/health";
 
 /**
  * Generic request to list multiple entities.
@@ -208,6 +214,25 @@ export interface TemplateExclusionsAPI
 }
 
 /**
+ * Repositories API endpoint.
+ */
+export interface RepositoriesAPI
+  extends ReadOnlyEndpoint<Repository, RepositoryFilters> {
+  create(repository: RepositoryPrototype): Promise<Repository>;
+  update(repository: Updates<Repository>): Promise<Repository>;
+  delete(repository: Repository | Repository["id"]): Promise<void>;
+  checkCredentials(repository: RepositoryPrototype): Promise<boolean>;
+  synchronize(
+    repository: Updates<Repository> | Repository["id"]
+  ): Promise<Repository>;
+}
+
+/**
+ * Contributors API endpoint.
+ */
+export type ContributorsAPI = ReadOnlyEndpoint<Contributor, ContributorFilters>;
+
+/**
  * Statistics API endpoint.
  */
 export interface StatsAPI {
@@ -223,6 +248,18 @@ export interface ServerAPI {
   readonly examples: TemplateExamplesAPI;
   readonly templateMatches: TemplateMatchesAPI;
   readonly templateExclusions: TemplateExclusionsAPI;
+  readonly repositories: RepositoriesAPI;
+  readonly contributors: ContributorsAPI;
   readonly stats: StatsAPI;
   readonly socket: SocketAPI;
+
+  /**
+   * Check for internet connection on backend side.
+   */
+  isOnline(): Promise<boolean>;
+
+  /**
+   * server health check.
+   */
+  getHealth(): Promise<ServerHealthStatus>;
 }

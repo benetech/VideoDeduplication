@@ -33,3 +33,31 @@ export function idComparator(
 }
 
 export type ComparatorFn<T> = (first: T, second: T) => number;
+
+export function attrComparator<Type>(attr: keyof Type): ComparatorFn<Type> {
+  return (a, b) => {
+    if (a[attr] > b[attr]) {
+      return 1;
+    } else if (b[attr] > a[attr]) {
+      return -1;
+    } else {
+      return 0;
+    }
+  };
+}
+
+export function funcComparator<Type>(
+  getter: (value: Type) => number | string
+): ComparatorFn<Type> {
+  return (a, b) => {
+    const valueA = getter(a);
+    const valueB = getter(b);
+    if (valueA > valueB) {
+      return 1;
+    } else if (valueB > valueA) {
+      return -1;
+    } else {
+      return 0;
+    }
+  };
+}

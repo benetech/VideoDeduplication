@@ -16,6 +16,7 @@ import AppPage from "../components/app/AppPage";
 import TemplatesRootPage from "../pages/TemplatesRootPage/TemplatesRootPage";
 import ProcessingRootPage from "../pages/ProcessingRootPage";
 import React from "react";
+import CollaboratorsRootPage from "../pages/CollaboratorsRootPage";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   root: {
@@ -80,10 +81,7 @@ export default function JusticeAIRootComponent(
               <TemplatesRootPage className={classes.body} />
             </Route>
             <Route path={routes.collaborators.home}>
-              <AppPage
-                title={intl.formatMessage({ id: "nav.collaborators" })}
-                className={classes.body}
-              />
+              <CollaboratorsRootPage className={classes.body} />
             </Route>
             <Route path={routes.processing.home}>
               <ProcessingRootPage className={classes.body} />

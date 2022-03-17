@@ -3,11 +3,11 @@ import clsx from "clsx";
 import { makeStyles } from "@material-ui/styles";
 import { TextField, Theme } from "@material-ui/core";
 import { useIntl } from "react-intl";
-import Description from "../Description";
+import Description from "../../../forms/Description";
 import ConfigurationForm from "./ConfigurationForm";
 import Section from "../Section";
 import { validateTaskConfig } from "./validation";
-import InputContainer from "../InputContainer";
+import InputContainer from "../../../forms/InputContainer";
 import { TaskBuilderProps } from "../model";
 import {
   makeProcessOnlineVideoRequest,

@@ -22,12 +22,13 @@ def read_chunks(file_object, buffer_size=64 * 1024):
 def get_hash(file_path: str, mode: HashMode = HashMode.FILE, buffer_size: int = 64 * 1024) -> str:
     """Get sha256 hash of the file."""
     if mode == HashMode.FILE:
-        with open(file_path, "rb") as file:
-            return hash_object(read_chunks(file, buffer_size), True)
+        return hash_file(file_path, buffer_size=buffer_size)
     elif mode == HashMode.PATH:
-        return hash_object(file_path, False)
+        return hash_str(file_path)
     else:
-        print('Error: mode "%s" is invalid. mode must be one of ("file", "path").' % str(mode))
+        hash_modes = [e.value for e in HashMode]
+        hash_modes_str = '", "'.join(hash_modes)
+        print('Error: mode "%s" is invalid. mode must be one of ("%s").' % (str(mode), hash_modes_str))
 
 
 # Function to transform fs paths
@@ -144,15 +145,10 @@ def hash_file(path: Union[str, PathLike], algorithm=hashlib.sha256, buffer_size:
     return hash_sum.hexdigest()
 
 
-@lru_cache(maxsize=None)
-def hash_object(hashable, iterable=True) -> str:
-    """Get sha256 hash of the specified object."""
+def hash_str(data: str, encoding="utf-8") -> str:
+    """Hash given string."""
     sha256 = hashlib.sha256()
-    if iterable:
-        for data in hashable:
-            sha256.update(data)
-    else:
-        sha256.update(hashable)
+    sha256.update(data.encode(encoding))
     return sha256.hexdigest()
 
 
@@ -264,5 +260,5 @@ def split_suffix(path: str, suffix: str = None) -> Tuple[str, str]:
     if suffix is None:
         return os.path.splitext(path)
     if path.endswith(suffix):
-        return path[:-len(suffix)], suffix
+        return path[: -len(suffix)], suffix
     return path, ""

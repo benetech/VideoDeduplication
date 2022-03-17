@@ -6,6 +6,7 @@ import IconButton from "@material-ui/core/IconButton";
 import { Doughnut } from "react-chartjs-2";
 import Dashlet from "./Dashlet";
 import { useIntl } from "react-intl";
+import * as ChartJS from "chart.js";
 
 const useStyles = makeStyles<Theme>(() => ({
   content: {
@@ -28,7 +29,7 @@ const data = (categories: ChartDataCategory[], theme: Theme) => ({
   labels: categories.map((category) => category.name),
 });
 
-const options = (theme: Theme) => ({
+const options = (theme: Theme): ChartJS.ChartOptions => ({
   legend: {
     display: true,
     position: "bottom",
@@ -38,8 +39,6 @@ const options = (theme: Theme) => ({
   cutoutPercentage: 60,
   layout: {
     padding: 0,
-    width: "100%",
-    height: "100%",
   },
   tooltips: {
     enabled: true,

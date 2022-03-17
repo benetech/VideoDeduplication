@@ -1,13 +1,11 @@
 import os
 
-from winnow.config import Config
-
 
 class PipelineCli:
     """Process video files."""
 
-    def __init__(self, config: Config):
-        self._config: Config = config
+    def __init__(self, config):
+        self._config = config
 
     def all(self):
         """Process all video files."""

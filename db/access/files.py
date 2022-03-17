@@ -1,10 +1,10 @@
 import abc
 import enum
 import itertools
-from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional, Iterator, Set
+from typing import List, Optional, Iterator, Set, Iterable, Collection, Union
 
+from dataclasses import dataclass
 from sqlalchemy import or_, and_, func, literal_column, tuple_
 from sqlalchemy.orm import aliased, Query, Session, joinedload
 
@@ -37,6 +37,7 @@ class FileSort(enum.Enum):
     LENGTH = "length"
     RELATED = "related"
     DUPLICATES = "duplicates"
+    RELEVANCE = "relevance"
 
 
 class FileInclude(enum.Enum):
@@ -51,7 +52,7 @@ class FileInclude(enum.Enum):
     TEMPLATES = "templates"
 
 
-# Some of the included data are mapped to the File fields.
+# Some included data are mapped to the File fields.
 _FILE_FIELDS = {
     FileInclude.EXIF: Files.exif,
     FileInclude.META: Files.meta,
@@ -68,8 +69,8 @@ def get_file_fields(included_fields: Set[FileInclude]):
 class ListFilesRequest:
     """Parameters for list-files query."""
 
-    limit: int = 20
-    offset: int = 0
+    limit: Optional[int] = 20
+    offset: Optional[int] = 0
     path_query: str = None
     extensions: List[str] = ()
     exif: bool = None
@@ -78,8 +79,8 @@ class ListFilesRequest:
     max_length: int = None
     date_from: datetime = None
     date_to: datetime = None
-    include: List[FileInclude] = ()
-    sort: Optional[FileSort] = None
+    include: Collection[FileInclude] = ()
+    sort: Optional[FileSort] = FileSort.RELEVANCE
     match_filter: FileMatchFilter = FileMatchFilter.ALL
     related_distance: float = 0.4
     duplicate_distance: float = 0.1
@@ -88,6 +89,7 @@ class ListFilesRequest:
     repository: Optional[str] = None
     sha256: str = None
     templates: Optional[List[int]] = None
+    contributors: Optional[List[int]] = None
 
 
 @dataclass
@@ -104,7 +106,7 @@ class Counts:
 class FileData:
     """Retrieved File along with some additional data."""
 
-    file: Files
+    file: Union[Files, int]  # File or File.id
     duplicate_count: Optional[int] = None
     related_count: Optional[int] = None
     matched_templates: Optional[List[int]] = None
@@ -241,23 +243,27 @@ class FilesDAO:
     _countable_match = aliased(Matches)
 
     @staticmethod
-    def list_files(req: ListFilesRequest, session) -> ListFilesResults:
+    def list_files(
+        req: ListFilesRequest, session, entity=Files, selected_ids: Iterable[int] = None
+    ) -> ListFilesResults:
         """Query multiple files."""
         # Count files
-        query = session.query(Files)
+        query = session.query(Files.id)
+        query = FilesDAO._filter_ids(query, selected_ids)
         query = FilesDAO._filter_by_file_attributes(req, query)
         counts = FilesDAO.counts(query, req.related_distance, req.duplicate_distance)
 
         # Select files
         included_values = FilesDAO._make_loaders(req)
-        query = session.query(Files, *(included.value for included in included_values))
+        query = session.query(entity, *(included.value for included in included_values))
+        query = FilesDAO._filter_ids(query, selected_ids)
         query = FilesDAO._filter_by_file_attributes(req, query)
         query = FilesDAO._filter_by_matches(req, query)
         query = FilesDAO._advice_query(query, req, included_values)
         query = FilesDAO._sort_items(req, query)
+        query = FilesDAO._apply_limit_offset(req, query)
 
         # Retrieve slice
-        query = query.offset(req.offset).limit(req.limit)
         items = FilesDAO._collect_items(query.all(), included_values)
 
         return ListFilesResults(items=items, counts=counts)
@@ -295,6 +301,15 @@ class FilesDAO:
         return query
 
     @staticmethod
+    def _apply_limit_offset(req: ListFilesRequest, query: Query) -> Query:
+        """Apply limit and offset params."""
+        if req.limit is not None:
+            query = query.limit(req.limit)
+        if req.offset is not None:
+            query = query.offset(req.offset)
+        return query
+
+    @staticmethod
     def _make_loaders(req: ListFilesRequest, loader_types=_VALUE_LOADERS) -> List[QueryValueLoader]:
         """Get loaders for required values."""
         result = []
@@ -318,7 +333,7 @@ class FilesDAO:
             # Each item is a File entity
             return list(map(FileData, items))
 
-        # Otherwise each item is a tuple of values
+        # Otherwise, each item is a tuple of values
         result = []
         for item in items:
             file_data = FileData(file=item[0])
@@ -352,6 +367,13 @@ class FilesDAO:
                 .group_by(Files.id, exif.id)
                 .order_by(exif.General_Encoded_Date.desc(), Files.id.asc())
             )
+        return query
+
+    @staticmethod
+    def _filter_ids(query: Query, selected_ids: Iterable[int] = None) -> Query:
+        """Ensure ids are from the provided collection."""
+        if selected_ids is not None:
+            query = query.filter(Files.id.in_(tuple(selected_ids)))
         return query
 
     @staticmethod
@@ -462,6 +484,17 @@ class FilesDAO:
         return query
 
     @staticmethod
+    def _filter_contributors(req: ListFilesRequest, query: Query) -> Query:
+        """Filter by contributors."""
+        if req.contributors is not None and len(req.contributors) > 0:
+            return query.filter(
+                Files.contributor.has(
+                    Contributor.id.in_(tuple(req.contributors)),
+                )
+            )
+        return query
+
+    @staticmethod
     def _filter_by_file_attributes(req: ListFilesRequest, query: Query) -> Query:
         """Apply filters related to the properties of video file itself."""
         query = FilesDAO._filter_path(req, query)
@@ -474,12 +507,20 @@ class FilesDAO:
         query = FilesDAO._filter_repository(req, query)
         query = FilesDAO._filter_contributor(req, query)
         query = FilesDAO._filter_templates(req, query)
+        query = FilesDAO._filter_contributors(req, query)
         return query
 
     @staticmethod
     def query_local_files(session: Session, path_hash_pairs) -> Query:
         """Query local files by (path, hash) pairs."""
         query = session.query(Files).filter(Files.contributor == None)  # noqa: E711
+        query = query.filter(tuple_(Files.file_path, Files.sha256).in_(tuple(path_hash_pairs)))
+        return query
+
+    @staticmethod
+    def query_local_file_ids(session: Session, path_hash_pairs) -> Query:
+        """Query local files by (path, hash) pairs."""
+        query = session.query(Files.id).filter(Files.contributor == None)  # noqa: E711
         query = query.filter(tuple_(Files.file_path, Files.sha256).in_(tuple(path_hash_pairs)))
         return query
 

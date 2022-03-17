@@ -5,7 +5,7 @@ from typing import Iterable, List, Dict
 from winnow.duplicate_detection.neighbors import NeighborMatcher, FeatureVector, DetectedMatch
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor, ProgressBar
-from winnow.remote.model import RemoteFingerprint
+from remote.model import RemoteFingerprint
 from winnow.storage.remote_signatures_dao import RemoteMatch
 from winnow.storage.repr_utils import bulk_read
 from winnow.utils.iterators import chunks

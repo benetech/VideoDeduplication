@@ -9,8 +9,10 @@ from dataclasses import replace
 from db import Database
 from db.schema import RepositoryType
 from tests.winnow.remote.helpers import make_secure_storage
-from winnow.remote.model import RemoteRepository
-from winnow.remote.repository_dao import DBRemoteRepoDAO, CsvRemoteRepoDAO, RemoteRepoDAO
+from remote.model import RemoteRepository
+from remote.repository_dao import RemoteRepoDAO
+from remote.repository_dao_csv import CsvRemoteRepoDAO
+from remote.repository_dao_database import DBRemoteRepoDAO
 
 
 # NOTE: The same tests are executed for each repository storage type.

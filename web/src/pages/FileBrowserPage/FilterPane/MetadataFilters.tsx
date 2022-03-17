@@ -13,6 +13,8 @@ import {
 } from "../../../lib/helpers/date-range";
 import useFilesColl from "../../../application/api/files/useFilesColl";
 import { DefaultFilters } from "../../../model/VideoFile";
+import FilterContainer from "./FilterContainer";
+import ContributorSelect from "../../../components/remote/ContributorSelect";
 
 /**
  * Get i18n text.
@@ -44,6 +46,12 @@ function useMessages() {
     originLocal: intl.formatMessage({
       id: "filter.origin.local",
     }),
+    partners: intl.formatMessage({
+      id: "repos.attr.partners",
+    }),
+    partnersHelp: intl.formatMessage({
+      id: "filter.partners.help",
+    }),
   };
 }
 
@@ -57,7 +65,8 @@ function useActiveFilters(): number {
     Number(Boolean(diff.extensions)) +
     Number(Boolean(diff.date)) +
     Number(Boolean(diff.audio)) +
-    Number(Boolean(diff.remote))
+    Number(Boolean(diff.remote)) +
+    Number(Boolean(diff.contributors))
   );
 }
 
@@ -89,9 +98,18 @@ function MetadataFilters(props: MetadataFiltersProps): JSX.Element {
     [setFilters]
   );
   const handleRemoteChange = useCallback(
-    (remote) =>
+    (remote) => {
       setFilters({
         remote,
+        contributors: remote ? filters.contributors : [],
+      });
+    },
+    [setFilters]
+  );
+  const handleContributorsChange = useCallback(
+    (contributors) =>
+      setFilters({
+        contributors: contributors.sort(),
       }),
     [setFilters]
   );
@@ -122,6 +140,17 @@ function MetadataFilters(props: MetadataFiltersProps): JSX.Element {
         trueText={messages.originRemote}
         falseText={messages.originLocal}
       />
+
+      <FilterContainer
+        title={messages.partners}
+        tooltip={messages.partnersHelp}
+      >
+        <ContributorSelect
+          disabled={!filters.remote}
+          selected={filters.contributors}
+          onSelectedChange={handleContributorsChange}
+        />
+      </FilterContainer>
     </FilterList>
   );
 }

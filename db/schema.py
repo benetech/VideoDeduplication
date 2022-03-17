@@ -277,6 +277,12 @@ class Repository(Base):
     network_address = Column(String, nullable=False)
     # Account id or username which we use to access the repository
     account_id = Column(String, nullable=False)
+    # Optional total fingerprint count
+    total_fingerprint_count = Column(Integer, nullable=False, default=0)
+    # Optional pushed fingerprint count
+    pushed_fingerprint_count = Column(Integer, nullable=False, default=0)
+    # Last synchronization time
+    last_sync = Column(DateTime, nullable=True)
 
     # Relationships
 
@@ -293,6 +299,8 @@ class Contributor(Base):
     name = Column(String, nullable=False)
     # A repository from which this contributor is known
     repository_id = Column(Integer, ForeignKey("repositories.id"), nullable=False)
+    # Optional total count of fingerprints
+    fingerprints_count = Column(Integer, nullable=False, default=0)
 
     # Relationships
 

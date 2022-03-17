@@ -33,18 +33,13 @@ module.exports = {
       },
       {
         test: /\.(jpe?g|gif|png|svg|woff(2)?|ttf)$/,
-        use: [
-          {
-            loader: "file-loader",
-            options: {},
-          },
-        ],
+        type: "asset/resource",
       },
       {
         test: /i18n\/locales\/[^/]*\.json$/,
         loader: "file-loader",
         type: "javascript/auto",
-        exclude: [/default\.[^/]*\.json$/],
+        exclude: /default\.[^/]*\.json$/,
       },
       {
         test: /\.css$/i,

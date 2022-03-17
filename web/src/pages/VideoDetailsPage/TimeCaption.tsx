@@ -21,6 +21,7 @@ type TimeCaptionProps = React.HTMLProps<HTMLDivElement> & {
    * Time in milliseconds.
    */
   time: number;
+  className?: string;
 };
 
 export default TimeCaption;

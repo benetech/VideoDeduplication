@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/styles";
 import { TextField, Theme } from "@material-ui/core";
-import InputContainer from "../InputContainer";
+import InputContainer from "../../../forms/InputContainer/InputContainer";
 import { useIntl } from "react-intl";
 import {
   ProcessDirectoryRequest,
@@ -11,7 +11,7 @@ import {
   TaskRequestType,
 } from "../../../../model/Task";
 import Section from "../Section";
-import Description from "../Description";
+import Description from "../../../forms/Description";
 import { validateTaskConfig } from "./validation";
 import ConfigurationForm from "./ConfigurationForm";
 import { TaskBuilderProps } from "../model";

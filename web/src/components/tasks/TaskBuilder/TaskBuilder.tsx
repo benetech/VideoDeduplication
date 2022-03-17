@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import clsx from "clsx";
 import { makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
 import Button from "../../basic/Button";
@@ -11,6 +10,9 @@ import useRunTask from "../../../application/api/tasks/useRunTask";
 import { makeTaskRequest, TaskRequest } from "../../../model/Task";
 import { TaskViewDescriptor } from "./model";
 import TaskBuilderForm from "./TaskBuilderForm";
+import FlatPane from "../../basic/FlatPane/FlatPane";
+import Title from "../../basic/Title";
+import Spacer from "../../basic/Spacer";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   root: {
@@ -80,9 +82,9 @@ function TaskBuilder(props: TaskBuilderProps): JSX.Element {
   }, []);
 
   return (
-    <div className={clsx(classes.root, className)} {...other}>
-      <div className={classes.header}>
-        <div className={classes.title}>{messages.newTask}</div>
+    <FlatPane className={className} {...other}>
+      <Title text={messages.newTask} variant="subtitle">
+        <Spacer />
         <TypeSelector
           value={taskView}
           onChange={handleViewChange}
@@ -98,7 +100,7 @@ function TaskBuilder(props: TaskBuilderProps): JSX.Element {
           <PlayArrowOutlinedIcon />
           {messages.runTask}
         </Button>
-      </div>
+      </Title>
       <TaskBuilderForm
         valid={valid}
         request={req}
@@ -106,7 +108,7 @@ function TaskBuilder(props: TaskBuilderProps): JSX.Element {
         onValidated={setValid}
         className={classes.taskForm}
       />
-    </div>
+    </FlatPane>
   );
 }
 

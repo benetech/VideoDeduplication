@@ -5,9 +5,9 @@ from uuid import uuid4 as uuid
 import pytest
 
 from db.schema import RepositoryType
-from winnow.remote.bare_database.client import BareDatabaseClient
-from winnow.remote.bare_database.schema import RepoDatabase
-from winnow.remote.model import LocalFingerprint, RemoteFingerprint, RemoteRepository
+from remote.bare_database.client import BareDatabaseClient
+from remote.bare_database.schema import RepoDatabase
+from remote.model import LocalFingerprint, RemoteFingerprint, RemoteRepository
 
 
 @pytest.fixture

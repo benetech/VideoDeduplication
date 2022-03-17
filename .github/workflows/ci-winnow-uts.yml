@@ -28,14 +28,14 @@ jobs:
       - name: Check formatting with black
         run: |
           # Check formatting of the dedup-app python files
-          black --line-length 120 --check *.py db winnow tests task_queue cli
+          black --line-length 120 --check *.py db winnow tests task_queue remote security template_support thumbnail cli rpc --exclude='rpc_pb2*'
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
-          flake8 winnow db tests task_queue cli --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 winnow db tests task_queue remote security template_support thumbnail cli rpc --exclude 'rpc_pb2*' --count --select=E9,F63,F7,F82 --show-source --statistics
           # --ignore=E203 as it is not PEP8 and black style compliant. See: https://github.com/psf/black/issues/315
           # Also --ignore=W503 as it is not compatible with black style.
-          flake8 winnow db tests task_queue cli --count --max-complexity=10 --ignore=E203,W503 --max-line-length=120 --statistics
+          flake8 winnow db tests task_queue remote security template_support thumbnail cli rpc --exclude 'rpc_pb2*' --count --max-complexity=10 --ignore=E203,W503 --max-line-length=120 --statistics
       - name: Test with pytest
         run: |
           export PYTHONPATH="$(pwd)"

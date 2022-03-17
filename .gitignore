@@ -9,3 +9,4 @@ winnow/feature_extraction/pretrained_models/**
 notebooks/.ipynb_checkpoints/
 tests/test_data/test_output/
 .env
+winnow/text_search/models/**

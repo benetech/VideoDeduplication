@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import { Theme } from "@material-ui/core";
 import { MatchTemplatesRequest } from "../../../../model/Task";
 import { useIntl } from "react-intl";
-import Description from "../Description";
+import Description from "../../../forms/Description";
 import { TaskBuilderProps } from "../model";
 
 const useStyles = makeStyles<Theme>((theme) => ({

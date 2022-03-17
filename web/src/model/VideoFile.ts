@@ -1,5 +1,7 @@
 import { TextAttributes } from "../lib/types/TextAttributes";
 import { PartialRange } from "../lib/helpers/Range";
+import { Transient } from "../lib/entity/Entity";
+import { Template } from "./Template";
 
 /**
  * File cluster query filters.
@@ -18,6 +20,7 @@ export enum FileSort {
   length = "length",
   related = "related",
   duplicates = "duplicates",
+  relevance = "relevance",
 }
 
 /**
@@ -31,6 +34,15 @@ export enum MatchCategory {
 }
 
 /**
+ * Semantic search filters.
+ */
+export type SemanticFilters = {
+  query: string;
+  minSimilarity?: number;
+  maxHits?: number;
+};
+
+/**
  * File query filters.
  */
 export type FileFilters = {
@@ -42,7 +54,9 @@ export type FileFilters = {
   matches: MatchCategory;
   sort: FileSort;
   remote: boolean | null;
-  templates: number[];
+  templates: Template["id"][];
+  contributors: Contributor["id"][];
+  semantic: SemanticFilters;
 };
 
 /**
@@ -55,9 +69,13 @@ export const DefaultFilters: FileFilters = {
   date: { lower: null, upper: null },
   audio: null,
   matches: MatchCategory.all,
-  sort: FileSort.date,
-  remote: null,
+  sort: FileSort.relevance,
+  remote: false,
   templates: [],
+  contributors: [],
+  semantic: {
+    query: "",
+  },
 };
 
 /**
@@ -90,6 +108,16 @@ export enum RepositoryType {
 }
 
 /**
+ * Repository statistics.
+ */
+export type RepositoryStats = {
+  partnersCount: number;
+  totalFingerprintsCount: number;
+  pushedFingerprintsCount: number;
+  pulledFingerprintsCount: number;
+};
+
+/**
  * Remote signature repository.
  */
 export type Repository = {
@@ -98,6 +126,23 @@ export type Repository = {
   address: string;
   login: string;
   type: RepositoryType;
+  lastSynced?: Date;
+  stats?: RepositoryStats;
+};
+
+/**
+ * Remote repository prototype
+ */
+export type RepositoryPrototype = Transient<Repository> & {
+  credentials: string;
+};
+
+/**
+ * Contributor statistics.
+ */
+export type ContributorStats = {
+  totalFingerprintsCount: number;
+  pulledFingerprintsCount: number;
 };
 
 /**
@@ -107,6 +152,22 @@ export type Contributor = {
   id: number;
   name: string;
   repository: Repository;
+  stats?: ContributorStats;
+};
+
+/**
+ * Remote repository filters.
+ */
+export type RepositoryFilters = {
+  name?: string;
+};
+
+/**
+ * Remote repo contributor filters.
+ */
+export type ContributorFilters = {
+  name?: string;
+  repositoryId?: number;
 };
 
 /**

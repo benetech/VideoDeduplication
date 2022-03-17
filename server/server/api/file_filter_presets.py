@@ -17,7 +17,7 @@ from ..model import database, Transform
 def list_file_filter_presets():
     limit = parse_positive_int(request.args, "limit", 100)
     offset = parse_positive_int(request.args, "offset", 0)
-    name = request.args.get("path", "", type=str).strip()
+    name = request.args.get("name", "", type=str).strip()
 
     query = database.session.query(FileFilterPreset)
 

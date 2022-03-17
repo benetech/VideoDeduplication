@@ -1,7 +1,7 @@
 import enum
 import os
 from functools import cached_property
-from typing import List
+from typing import List, Type
 
 
 def parse_list(comma_separated_list: str, default=None, item_type=str, delimeter: str = ",") -> List:
@@ -9,6 +9,38 @@ def parse_list(comma_separated_list: str, default=None, item_type=str, delimeter
     if comma_separated_list is None or len(comma_separated_list.strip()) == 0:
         return default
     return [item_type(item_str.strip()) for item_str in comma_separated_list.split(delimeter)]
+
+
+def parse_enum_value(enum_cls: Type[enum.Enum], value, default):
+    """Try to parse enum value."""
+    if value is None:
+        return enum_cls(default)
+    if isinstance(value, enum_cls):
+        return value
+    if isinstance(value, str):
+        return enum_cls(value.lower().strip())
+    return enum_cls(value)
+
+
+class RPCServerConfig:
+    """RPC-Server configuration."""
+
+    def __init__(self):
+        self.host = os.environ.get("RPC_SERVER_HOST", "localhost")
+        self.port = int(os.environ.get("RPC_SERVER_PORT", 50051))
+
+    @property
+    def address(self) -> str:
+        return f"{self.host}:{self.port}"
+
+
+class CacheConfig:
+    """API Cache config."""
+
+    def __init__(self):
+        self.host = os.environ.get("REDIS_CACHE_HOST", "redis")
+        self.port = int(os.environ.get("REDIS_CACHE_PORT", 6379))
+        self.db = int(os.environ.get("REDIS_CACHE_DB", 0))
 
 
 class DatabaseConfig:
@@ -60,13 +92,20 @@ class QueueType(enum.Enum):
     @staticmethod
     def parse(value, default=CELERY):
         """Try to parse task queue type from the given value."""
-        if value is None:
-            return QueueType(default)
-        if isinstance(value, QueueType):
-            return value
-        if isinstance(value, str):
-            return QueueType(value.lower().strip())
-        raise TypeError(f"Unrecognized QueueType value: {value}")
+        return parse_enum_value(QueueType, value, default)
+
+
+class OnlinePolicy(enum.Enum):
+    """Online status policy."""
+
+    ONLINE = "online"
+    OFFLINE = "offline"
+    DETECT = "detect"
+
+    @staticmethod
+    def parse(value, default=DETECT):
+        """Try to parse online policy."""
+        return parse_enum_value(OnlinePolicy, value, default)
 
 
 class Config:
@@ -74,6 +113,8 @@ class Config:
 
     def __init__(self):
         self.database = DatabaseConfig()
+        self.rpc_server = RPCServerConfig()
+        self.cache = CacheConfig()
         self.host = os.environ.get("SERVER_HOST", "0.0.0.0")
         self.port = int(os.environ.get("SERVER_PORT", 5000))
         self.static_folder = os.environ.get("STATIC_FOLDER", "static")
@@ -87,6 +128,9 @@ class Config:
         self.file_store_directory = os.environ.get("FILE_STORE_DIRECTORY", "./app_files")
         self.max_upload_size = int(os.environ.get("MAX_UPLOAD_SIZE", 20 * 1024 * 1024))
         self.allowed_origins = self.read_allowed_origins()
+        self.online_policy = OnlinePolicy.parse(os.environ.get("ONLINE_POLICY", OnlinePolicy.DETECT))
+        self.security_storage_path = os.environ.get("SECURITY_STORAGE_PATH", ".")
+        self.master_key_path = os.environ.get("SECURITY_MASTER_KEY_PATH")
 
     @staticmethod
     def read_allowed_origins():
