@@ -15,7 +15,6 @@ from remote.repository_dao_csv import CsvRemoteRepoDAO
 from remote.repository_dao_database import DBRemoteRepoDAO
 from security import SecureStorage
 from template_support.file_storage import FileStorage, LocalFileStorage
-from winnow import remote
 from winnow.collection.file_collection import FileCollection
 from winnow.collection.local_collection import LocalFileCollection
 from winnow.config import Config
