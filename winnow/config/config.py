@@ -99,7 +99,6 @@ class RepresentationConfig:
         """Construct repr config from dict data."""
         result = RepresentationConfig(**data)
         result.storage_type = StorageType.parse(result.storage_type)
-        result.hash_mode = HashMode.parse(result.hash_mode)
         return result
 
 
