@@ -1,7 +1,7 @@
 # Build image: sudo docker build -t <tag> . -f docker/Dockerfile.dedup-gpu --target prod
 # Run tests: sudo docker build -t <tag> . -f docker/Dockerfile.dedup-gpu --target tests
 
-FROM rapidsai/rapidsai-core:22.02-cuda11.5-base-ubuntu20.04-py3.8 AS prod
+FROM tensorflow/tensorflow:2.7.1-gpu AS prod
 
 # Install required os dependencies
 RUN apt-get update && apt-get install -y curl libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx mediainfo gcc g++
