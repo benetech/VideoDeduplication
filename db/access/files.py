@@ -2,7 +2,7 @@ import abc
 import enum
 import itertools
 from datetime import datetime
-from typing import List, Optional, Iterator, Set, Iterable, Collection, Union
+from typing import List, Optional, Iterator, Set, Iterable, Collection, Union, Sequence
 
 from dataclasses import dataclass
 from sqlalchemy import or_, and_, func, literal_column, tuple_
@@ -514,13 +514,6 @@ class FilesDAO:
     def query_local_files(session: Session, path_hash_pairs) -> Query:
         """Query local files by (path, hash) pairs."""
         query = session.query(Files).filter(Files.contributor == None)  # noqa: E711
-        query = query.filter(tuple_(Files.file_path, Files.sha256).in_(tuple(path_hash_pairs)))
-        return query
-
-    @staticmethod
-    def query_local_file_ids(session: Session, path_hash_pairs) -> Query:
-        """Query local files by (path, hash) pairs."""
-        query = session.query(Files.id).filter(Files.contributor == None)  # noqa: E711
         query = query.filter(tuple_(Files.file_path, Files.sha256).in_(tuple(path_hash_pairs)))
         return query
 

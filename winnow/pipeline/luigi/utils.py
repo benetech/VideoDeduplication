@@ -1,9 +1,7 @@
 import os
-from datetime import datetime
-from glob import glob
 from os import PathLike, fspath
 from pathlib import Path
-from typing import List, Tuple, Union, IO, AnyStr, Dict, Collection, Iterator, Iterable, Optional, Sequence
+from typing import List, Tuple, Union, IO, AnyStr, Dict, Collection, Iterator, Iterable
 
 import numpy as np
 import pandas as pd
@@ -13,7 +11,6 @@ from winnow.collection.file_collection import FileCollection
 from winnow.pipeline.luigi.platform import Match
 from winnow.pipeline.progress_monitor import ProgressMonitor, LazyProgress, BaseProgressMonitor
 from winnow.storage.file_key import FileKey
-from winnow.utils.files import split_suffix
 
 
 class FileKeyDF:
@@ -210,77 +207,3 @@ class KeyIter:
             file_key = coll.file_key(path, raise_exception=False)
             if file_key is not None:
                 yield file_key
-
-
-class PathTime:
-    FORMAT = "%Y_%m_%d_%H%M%S%f"
-    DELIM = "__"
-
-    @staticmethod
-    def stamp(path: str, time: datetime, suffix: str = None, format: str = FORMAT, delim: str = DELIM) -> str:
-        """Add timestamp to the file path."""
-        directory = os.path.dirname(path)
-        basename = os.path.basename(path)
-        name, extension = split_suffix(basename, suffix)
-        timestamp = time.strftime(format)
-        return os.path.join(directory, f"{name}{delim}{timestamp}{extension}")
-
-    @staticmethod
-    def parse(path: str, suffix: str = None, format: str = FORMAT, delim: str = DELIM) -> Optional[datetime]:
-        """Parse datetime from the file path."""
-        head, _ = split_suffix(path, suffix)
-        parts = head.rsplit(delim, maxsplit=1)
-        if len(parts) != 2:
-            return None
-        timestamp = parts[-1]
-        try:
-            return datetime.strptime(timestamp, format)
-        except ValueError:
-            return None
-
-    @staticmethod
-    def latest(pattern: str, suffix: str = None, format: str = FORMAT, delim: str = DELIM) -> Tuple[str, datetime]:
-        """Get path with the latest timestamp."""
-        latest_time = None
-        latest_path = None
-        for path in glob(pattern, recursive=True):
-            time = PathTime.parse(path, suffix=suffix, format=format, delim=delim)
-            if time is not None and (latest_time is None or time > latest_time):
-                latest_time = time
-                latest_path = path
-        return latest_path, latest_time
-
-    @staticmethod
-    def find(
-        pattern: str, suffix: str = None, format: str = FORMAT, delim: str = DELIM
-    ) -> Iterator[Tuple[str, datetime]]:
-        """Find all timestamped paths."""
-        for path in glob(pattern, recursive=True):
-            time = PathTime.parse(path, suffix=suffix, format=format, delim=delim)
-            if time is not None:
-                yield path, time
-
-    @staticmethod
-    def latest_group(
-        common_prefix: str, suffixes=Sequence[str], format: str = FORMAT, delim: str = DELIM
-    ) -> Tuple[Optional[Sequence[str]], Optional[datetime]]:
-        """Find the latest group of timestamped files with the same timestamp."""
-        timestamps_per_suffix: List[Dict[datetime, str]] = []
-        for suffix in suffixes:
-            path_pattern = f"{common_prefix}*{suffix}"
-            found_paths = PathTime.find(path_pattern, suffix, format, delim)
-            timestamps_per_suffix.append(dict(map(reversed, found_paths)))
-
-        common_timestamps = None
-        for timestamps in timestamps_per_suffix:
-            if common_timestamps is None:
-                common_timestamps = set(timestamps.keys())
-            else:
-                common_timestamps = common_timestamps & set(timestamps.keys())
-
-        if not common_timestamps:
-            return None, None
-
-        latest_time = max(common_timestamps)
-        latest_paths = [timestamps[latest_time] for timestamps in timestamps_per_suffix]
-        return latest_paths, latest_time

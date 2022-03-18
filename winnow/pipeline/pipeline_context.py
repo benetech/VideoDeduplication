@@ -2,7 +2,7 @@ import hashlib
 import logging
 import os
 from os import PathLike
-from typing import Union
+from typing import Union, Tuple
 
 from cached_property import cached_property
 
@@ -32,7 +32,7 @@ from winnow.storage.repr_utils import path_resolver, PathResolver
 from winnow.text_search.main_utils import load_model as load_text_search_model, VideoSearch
 from winnow.text_search.model import CrossModalNetwork
 from winnow.text_search.similarity_index import AnnoySimilarityIndex, SimilarityIndex
-from winnow.utils.files import FileHashFunc, hash_path, HashCache, hash_file
+from winnow.utils.files import FileHashFunc, hash_path, HashCache, hash_file, PathTime
 from winnow.utils.repr import repr_storage_factory
 
 logger = logging.getLogger(__name__)
@@ -184,33 +184,37 @@ class PipelineContext:
             calculate_hash=self.calculate_hash,
         )
 
-    def text_search_id_index_exists(self) -> bool:
-        """Check if text index exists."""
-        return AnnoySimilarityIndex.exists(
-            directory=self.config.repr.directory,
-            index_name=self.TEXT_SEARCH_INDEX_NAME,
-            ids_name=self.TEXT_SEARCH_DATABASE_IDS_NAME,
-        )
-
     @cached_property
     def text_search_model(self) -> CrossModalNetwork:
         """Get prepared semantic text search model."""
         return load_text_search_model()
 
     @cached_property
+    def text_search_index_prefix(self) -> str:
+        return os.path.join(self.config.repr.directory, "text_search/similarity")
+
+    @cached_property
+    def text_search_index_suffixes(self) -> Tuple[str, str]:
+        return ".index.annoy", ".ids.npy"
+
+    @cached_property
     def text_search_id_index(self) -> SimilarityIndex:
         """Get semantic search index."""
         index = AnnoySimilarityIndex()
-        try:
-            index.load(
-                directory=self.config.repr.directory,
-                index_name=self.TEXT_SEARCH_INDEX_NAME,
-                ids_name=self.TEXT_SEARCH_DATABASE_IDS_NAME,
-                n_features=self.TEXT_SEARCH_N_FEATURES,
-                allow_pickle=True,
-            )
-        except FileNotFoundError:
+        paths, _ = PathTime.latest_group(
+            common_prefix=self.text_search_index_prefix,
+            suffixes=self.text_search_index_suffixes,
+        )
+        if paths is None:
             raise ComponentNotAvailable("Semantic text search index not found. Did you forget to create one?")
+
+        index_path, ids_path = paths
+        index.load(
+            index_path=index_path,
+            ids_path=ids_path,
+            n_features=self.TEXT_SEARCH_N_FEATURES,
+            allow_pickle=True,
+        )
         return index
 
     @cached_property

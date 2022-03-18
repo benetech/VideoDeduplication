@@ -88,3 +88,13 @@ class ConstTarget(luigi.Target):
 
     def exists(self):
         return self._exists
+
+
+class CheckTarget(luigi.Target):
+    """Generic function -> luigi.Target adapter."""
+
+    def __init__(self, should_execute: Callable[[], bool]):
+        self.should_execute = should_execute
+
+    def exists(self):
+        return not self.should_execute()
