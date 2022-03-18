@@ -7,7 +7,7 @@ import luigi
 import pandas as pd
 
 from winnow.pipeline.luigi.platform import PipelineTask
-from winnow.pipeline.luigi.targets import PrefixTarget
+from winnow.pipeline.luigi.targets import FileWithTimestampTarget
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor, BaseProgressMonitor
 from winnow.storage.file_key import FileKey
@@ -22,11 +22,9 @@ class ExifTask(PipelineTask):
     def output(self):
         coll = self.pipeline.coll
 
-        return PrefixTarget(
-            target_folder=os.path.join(self.config.repr.directory, "exif"),
-            target_name="exif_metadata",
-            target_ext=".csv",
-            prefix=self.prefix,
+        return FileWithTimestampTarget(
+            path_prefix=os.path.join(self.output_directory, "exif", self.prefix, "exif"),
+            name_suffix=".csv",
             need_updates=lambda time: coll.any(prefix=self.prefix, min_mtime=time),
         )
 
@@ -41,7 +39,7 @@ class ExifTask(PipelineTask):
 
         latest_path = target.latest_result_path
         target_time = datetime.now()
-        target_path = target.path(target_time)
+        target_path = target.suggest_path(target_time)
         file_keys = list(self.pipeline.coll.iter_keys(prefix=self.prefix, min_mtime=latest_time))
         exif_df = extract_exif(
             file_keys=file_keys,
