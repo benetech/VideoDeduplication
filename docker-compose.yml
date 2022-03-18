@@ -38,13 +38,14 @@ services:
       target: prod
       args:
         GIT_HASH: "${GIT_HASH:-UNKNOWN}"
-    runtime: "${BENETECH_DOCKER_RUNTIME:-nvidia}"
+    runtime: "nvidia"
     command: bash -ic "bash serve_jupyter.sh"
     environment:
       PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
       PGADMIN_DEFAULT_PASSWORD: "admin"
       WINNOW_CONFIG: "/project/config/config.yaml"
       DISABLE_JUPYTER: "true"
+      NVIDIA_VISIBLE_DEVICES: "all"
       
 # TODO: Migrate to v3 and uncomment (issue #267)
 #      BENETECH_MASTER_KEY_PATH: "${BENETECH_MASTER_KEY_PATH}"
