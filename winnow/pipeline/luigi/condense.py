@@ -223,40 +223,35 @@ class CondenseFingerprintsTask(PipelineTask):
         loaded_count = len(previous_results) if previous_results is not None else 0
         self.logger.info("Loaded %s previously condensed fingerprints", loaded_count)
 
+        new_results_time = self.pipeline.coll.max_mtime(prefix=self.prefix)
+        since_time = previous_results_time or "the very beginning"
+        self.logger.info("Collecting file-keys since %s", since_time)
+        new_keys = list(
+            self.pipeline.coll.iter_keys(
+                prefix=self.prefix,
+                min_mtime=previous_results_time,
+                max_mtime=new_results_time,
+            )
+        )
+        self.logger.info("Collected %s file keys", len(new_keys))
+
         self.logger.info("Reading fingerprints")
         expected_shape = (self.fingerprint_size,)
+        condensed = CondensedFingerprints.read_entries(
+            file_keys=new_keys,
+            storage=self.pipeline.repr_storage.signature,
+            logger=self.logger,
+            expected_shape=expected_shape,
+            progress=self.progress.subtask(0.7),
+        )
+        self.logger.info("Loaded %s new fingerprints.", len(condensed))
 
-        if previous_results is None:
-            new_results_time = None
-            condensed = CondensedFingerprints.read_all(
-                storage=self.pipeline.repr_storage.signature,
-                logger=self.logger,
-                expected_shape=expected_shape,
-                progress=self.progress.remaining(),
-            )
-            self.logger.info("Found %s fingerprints", len(condensed))
-        else:
-            new_results_time = self.pipeline.coll.max_mtime(prefix=self.prefix)
-            new_keys = list(
-                self.pipeline.coll.iter_keys(
-                    prefix=self.prefix,
-                    min_mtime=previous_results_time,
-                    max_mtime=new_results_time,
-                )
-            )
-            new_condensed = CondensedFingerprints.read_entries(
-                file_keys=new_keys,
-                storage=self.pipeline.repr_storage.signature,
-                logger=self.logger,
-                expected_shape=expected_shape,
-                progress=self.progress.subtask(0.8),
-            )
-            self.logger.info("Loaded %s new fingerprints.", len(new_condensed))
-            condensed = CondensedFingerprints.update(previous_results, new_condensed)
+        if previous_results is not None:
+            self.logger.info("Merging new fingerprints list with the existing %s fingerprints", len(previous_results))
+            condensed = CondensedFingerprints.update(previous_results, condensed, progress=self.progress.subtask(0.1))
             self.logger.info("Merged previous results with new fingerprints.")
 
-        output_directory = self.pipeline.config.repr.directory
-        self.logger.info("Writing %s condensed fingerprints to %s", len(condensed), output_directory)
+        self.logger.info("Writing %s fingerprints to %s", len(condensed), target.suggest_paths(new_results_time))
         target.write(condensed, new_results_time)
 
         if self.clean_existing and previous_results_paths is not None:
