@@ -53,6 +53,14 @@ class BaseProgressMonitor(abc.ABC):
         remaining_work = self.total - self.progress * self.total
         return self.subtask(work_amount=remaining_work)
 
+    def bar(self, amount: float = None, scale: float = 1.0, unit: str = "work") -> "BaseProgressMonitor":
+        """Create progress bar."""
+        if amount is not None:
+            subtask = self.subtask(work_amount=amount).scale(scale)
+        else:
+            subtask = self.remaining().scale(scale)
+        return LazyProgress(ProgressBar(subtask, unit=unit))
+
 
 class _NullProgressMonitor(BaseProgressMonitor):
     """A NoOp implementation of progress monitor."""
