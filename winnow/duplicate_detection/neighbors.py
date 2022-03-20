@@ -1,6 +1,6 @@
 """This module offers functions to find duplicates among the nearest neighbors."""
 import logging
-from typing import Any, Collection, Sequence, Iterable, Optional
+from typing import Any, Sequence, Iterable, Optional
 
 from dataclasses import dataclass
 
@@ -107,7 +107,7 @@ class NeighborMatcher:
         self,
         needles: Iterable[FeatureVector],
         max_distance: float = None,
-    ) -> Collection[DetectedMatch]:
+    ) -> Sequence[DetectedMatch]:
         """Find close matches of needle-vectors among haystack-vectors set."""
         needles = tuple(needles)
         distances, indices = self.model.kneighbors([needle.features for needle in needles])

@@ -33,8 +33,8 @@ class LocalFileCollection(FileCollection):
         """Iterate over all the file keys inside the collection satisfying
         the given filtering criteria.
 
-        If `prefix` is specified only paths starting with the given prefix
-        will be selected. If `min_mtime` or `max_mtime` are specified
+        If ``prefix`` is specified only paths starting with the given prefix
+        will be selected. If ``min_mtime`` or ``max_mtime`` are specified
         the keys will be filtered by the last modified time.
         """
         for local_fs_path in self._iter_local_paths(prefix, min_mtime, max_mtime):
@@ -53,8 +53,8 @@ class LocalFileCollection(FileCollection):
         """Iterate over all the paths inside the collection satisfying
         the given filtering criteria.
 
-        If `prefix` is specified only paths starting with the given prefix
-        will be selected. If `min_mtime` or `max_mtime` are specified
+        If ``prefix`` is specified only paths starting with the given prefix
+        will be selected. If ``min_mtime`` or ``max_mtime`` are specified
         the paths will be filtered by the last modified time.
         """
         for local_path in self._iter_local_paths(prefix, min_mtime, max_mtime):
@@ -63,7 +63,7 @@ class LocalFileCollection(FileCollection):
     def local_fs_path(self, key_or_path: Union[FileKey, str], raise_exception=True) -> Optional[str]:
         """Convert path inside collection to the path on local file system.
 
-        If `raise_exception` is False, None will be returned on missing key or path.
+        If ``raise_exception`` is False, None will be returned on missing key or path.
         Otherwise, KeyError will be raised.
         """
         collection_path = self._key_path(key_or_path)
@@ -77,7 +77,7 @@ class LocalFileCollection(FileCollection):
     def file_key(self, collection_path: str, raise_exception=True) -> Optional[FileKey]:
         """Convert path inside collection into FileKey.
 
-        If `raise_exception` is False, None will be returned on missing path.
+        If ``raise_exception`` is False, None will be returned on missing path.
         Otherwise, KeyError will be raised.
         """
         local_fs_path = self._local_fs_path(collection_path)
@@ -96,7 +96,7 @@ class LocalFileCollection(FileCollection):
     def max_mtime(self, *, prefix: str = ".") -> datetime:
         """Get maximal last modified time among the files satisfying the criteria.
 
-        If `prefix` is specified only paths starting with the given prefix
+        If ``prefix`` is specified only paths starting with the given prefix
         will be selected.
         """
         file_paths = self._iter_local_paths(prefix)

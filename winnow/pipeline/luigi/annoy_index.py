@@ -54,8 +54,9 @@ class AnnoyIndexTask(PipelineTask):
 
     def output(self):
         coll = self.pipeline.coll
+        file_name = f"annoy_{self.metric}_{self.n_trees}trees"
         return FileGroupTarget(
-            common_prefix=os.path.join(self.output_directory, "annoy", self.prefix, "annoy_index"),
+            common_prefix=os.path.join(self.output_directory, "annoy", self.prefix, file_name),
             suffixes=(".annoy", ".files.csv"),
             need_updates=lambda time: coll.any(prefix=self.prefix, min_mtime=time),
         )

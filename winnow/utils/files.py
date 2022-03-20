@@ -269,6 +269,39 @@ class PathTime:
     DELIM = "__"
 
     @staticmethod
+    def previous(
+        path: str, suffix: str = None, format: str = FORMAT, delim: str = DELIM
+    ) -> Tuple[Optional[str], Optional[datetime]]:
+        """Get the equivalent existing path with the latest timestamp smaller than the given path timestamp."""
+        this_time = PathTime.parse(path, suffix, format, delim)
+        pattern = PathTime.pattern(path, suffix, delim)
+        candidates = {}
+        for path, time in PathTime.find(pattern, suffix, format, delim):
+            if time < this_time:
+                candidates[time] = path
+        if not candidates:
+            return None, None
+        previous_time = max(candidates.keys())
+        previous_path = candidates[previous_time]
+        return previous_path, previous_time
+
+    @staticmethod
+    def pattern(path: str, suffix: str = None, delim: str = DELIM) -> str:
+        """Get timestamped files pattern."""
+        head, _, suffix = PathTime.split(path, suffix, delim)
+        return f"{head}{delim}*{suffix}"
+
+    @staticmethod
+    def split(path: str, suffix: str = None, delim: str = DELIM) -> Tuple[str, str, str]:
+        """Split timestamped path into a tuple (prefix, timestamp, suffix)."""
+        prefix, suffix = split_suffix(path, suffix)
+        prefix_parts = prefix.rsplit(delim, maxsplit=1)
+        timestamp = ""
+        if len(prefix_parts) == 2:
+            prefix, timestamp = prefix_parts
+        return prefix, timestamp, suffix
+
+    @staticmethod
     def stamp(path: str, time: datetime, suffix: str = None, format: str = FORMAT, delim: str = DELIM) -> str:
         """Add timestamp to the file path."""
         directory = os.path.dirname(path)
