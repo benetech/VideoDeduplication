@@ -184,7 +184,7 @@ class MatchGraphTask(PipelineTask):
     format: str = luigi.Parameter(default=nk.Format.METIS.name)
 
     def requires(self):
-        return MatchesReportTask(config_path=self.config_path)
+        return MatchesReportTask(config=self.config)
 
     def output(self) -> MatchGraphTarget:
         return MatchGraphTarget(

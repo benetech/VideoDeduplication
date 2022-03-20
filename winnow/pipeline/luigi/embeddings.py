@@ -28,7 +28,7 @@ class EmbeddingsTask(PipelineTask, abc.ABC):
         return CondensedFingerprintsTarget(output_directory=self.output_directory, name=self.output_name)
 
     def requires(self):
-        return CondenseFingerprintsTask(config_path=self.config_path)
+        return CondenseFingerprintsTask(config=self.config)
 
     def read_fingerprints(self) -> CondensedFingerprints:
         """Read fingerprints."""
@@ -130,7 +130,7 @@ class TSNEEmbeddingsTask(EmbeddingsTask):
 
 class AllEmbeddingsTask(PipelineTask):
     def requires(self):
-        yield UmapEmbeddingsTask(config_path=self.config_path)
-        yield PaCMAPEmbeddingsTask(config_path=self.config_path)
-        yield TriMapEmbeddingsTask(config_path=self.config_path)
-        yield TSNEEmbeddingsTask(config_path=self.config_path)
+        yield UmapEmbeddingsTask(config=self.config)
+        yield PaCMAPEmbeddingsTask(config=self.config)
+        yield TriMapEmbeddingsTask(config=self.config)
+        yield TSNEEmbeddingsTask(config=self.config)

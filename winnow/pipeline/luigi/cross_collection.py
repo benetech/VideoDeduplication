@@ -68,8 +68,8 @@ class CrossCollectionMatches(PipelineTask):
         return luigi.LocalTarget(self.output_path)
 
     def requires(self):
-        yield CondenseFingerprintsTask(config_path=self.config_path)
-        yield CondenseFingerprintsTask(config_path=self.other_config_path)
+        yield CondenseFingerprintsTask(config=self.config)
+        yield CondenseFingerprintsTask(config=self.other_config)
 
     def save_matches_csv(self, matches_df: pd.DataFrame):
         """Save matches to csv file."""
@@ -161,8 +161,8 @@ class CrossCollectionCommunities(PipelineTask):
 
     def requires(self):
         yield self.clone(CrossCollectionMatches)
-        yield MatchesReportTask(config_path=self.config_path)
-        yield MatchesReportTask(config_path=self.other_config_path)
+        yield MatchesReportTask(config=self.config)
+        yield MatchesReportTask(config=self.other_config)
 
     def add_matches(
         self,

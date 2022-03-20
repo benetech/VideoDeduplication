@@ -24,7 +24,7 @@ class FindFrameTask(PipelineTask):
     output_path: str = luigi.Parameter()
 
     def requires(self):
-        return FrameFeaturesTask(config_path=self.config_path, prefix=self.among_files_prefix)
+        return FrameFeaturesTask(config=self.config, prefix=self.among_files_prefix)
 
     def output(self):
         return luigi.LocalTarget(self.output_path)

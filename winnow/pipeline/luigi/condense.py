@@ -273,4 +273,4 @@ class CondenseFingerprintsTask(PipelineTask):
         )
 
     def requires(self):
-        return SignaturesTask(config_path=self.config_path, prefix=self.prefix)
+        return SignaturesTask(config=self.config, prefix=self.prefix)

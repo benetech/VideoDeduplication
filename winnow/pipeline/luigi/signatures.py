@@ -35,7 +35,7 @@ class SignaturesTask(PipelineTask):
 
     def requires(self):
         return VideoFeaturesTask(
-            config_path=self.config_path,
+            config=self.config,
             prefix=self.prefix,
         )
 
@@ -69,7 +69,7 @@ class SignaturesByPathListFileTask(PipelineTask):
 
     def requires(self):
         return VideoFeaturesByPathListFileTask(
-            config_path=self.config_path,
+            config=self.config,
             path_list_file=self.path_list_file,
         )
 
@@ -106,7 +106,7 @@ class SignaturesByPathListTask(PipelineTask):
 
     def requires(self):
         return VideoFeaturesByPathListTask(
-            config_path=self.config_path,
+            config=self.config,
             path_list=self.path_list,
         )
 
@@ -191,7 +191,7 @@ class DBSignaturesTask(PipelineTask):
 
     def requires(self):
         return SignaturesTask(
-            config_path=self.config_path,
+            config=self.config,
             prefix=self.prefix,
         )
 
@@ -226,7 +226,7 @@ class DBSignaturesByPathListFileTask(PipelineTask):
 
     def requires(self):
         return SignaturesByPathListFileTask(
-            config_path=self.config_path,
+            config=self.config,
             path_list_file=self.path_list_file,
         )
 
@@ -264,7 +264,7 @@ class DBSignaturesByPathListTask(PipelineTask):
 
     def requires(self):
         return SignaturesByPathListTask(
-            config_path=self.config_path,
+            config=self.config,
             path_list=self.path_list,
         )
 

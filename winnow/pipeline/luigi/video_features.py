@@ -23,7 +23,7 @@ class VideoFeaturesTask(PipelineTask):
 
     def requires(self):
         return FrameFeaturesTask(
-            config_path=self.config_path,
+            config=self.config,
             prefix=self.prefix,
         )
 
@@ -57,7 +57,7 @@ class VideoFeaturesByPathListFileTask(PipelineTask):
 
     def requires(self):
         return FrameFeaturesByPathListFileTask(
-            config_path=self.config_path,
+            config=self.config,
             path_list_file=self.path_list_file,
         )
 
@@ -94,7 +94,7 @@ class VideoFeaturesByPathListTask(PipelineTask):
 
     def requires(self):
         return FrameFeaturesByPathListTask(
-            config_path=self.config_path,
+            config=self.config,
             path_list=self.path_list,
         )
 

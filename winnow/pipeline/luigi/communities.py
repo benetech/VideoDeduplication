@@ -180,7 +180,7 @@ class GraphCommunitiesTask(PipelineTask):
         self.logger.info("Saved communities successfully")
 
     def requires(self):
-        return MatchGraphTask(config_path=self.config_path)
+        return MatchGraphTask(config=self.config)
 
     def output(self):
         match_distance = self.config.proc.match_distance

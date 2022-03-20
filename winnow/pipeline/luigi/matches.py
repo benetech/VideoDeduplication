@@ -63,7 +63,7 @@ class DBMatchesTask(PipelineTask):
 
     def requires(self):
         yield AnnoyIndexTask(
-            config_path=self.config_path,
+            config=self.config,
             prefix=self.among_prefix,
             fingerprint_size=self.fingerprint_size,
             metric=self.metric,
@@ -71,7 +71,7 @@ class DBMatchesTask(PipelineTask):
             clean_existing=self.clean_existing,
         )
         yield CondenseFingerprintsTask(
-            config_path=self.config_path,
+            config=self.config,
             prefix=self.prefix,
             fingerprint_size=self.fingerprint_size,
         )
@@ -112,7 +112,7 @@ class MatchesReportTask(PipelineTask):
         return luigi.LocalTarget(self.output_path)
 
     def requires(self):
-        return CondenseFingerprintsTask(config_path=self.config_path)
+        return CondenseFingerprintsTask(config=self.config)
 
     def save_matches_csv(self, matches_df: pd.DataFrame):
         """Save matches to csv file."""

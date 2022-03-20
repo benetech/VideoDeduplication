@@ -28,7 +28,7 @@ class PrepareTextSearchTask(PipelineTask):
         )
 
     def requires(self):
-        return CondenseFingerprintsTask(config_path=self.config_path, prefix=".")
+        return CondenseFingerprintsTask(config=self.config, prefix=".")
 
     def run(self):
         target = self.output()

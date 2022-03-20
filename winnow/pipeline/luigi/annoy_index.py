@@ -61,4 +61,4 @@ class AnnoyIndexTask(PipelineTask):
         )
 
     def requires(self):
-        return CondenseFingerprintsTask(config_path=self.config_path, prefix=self.prefix)
+        return CondenseFingerprintsTask(config=self.config, prefix=self.prefix)

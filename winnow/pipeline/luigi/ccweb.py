@@ -54,7 +54,7 @@ class CCWebImageTask(LabeledEmbeddingsImageTask):
     """Draw CCWeb embeddings with the corresponding category labels."""
 
     def requires(self):
-        yield PrepareCCWeb(config_path=self.config_path)
+        yield PrepareCCWeb(config=self.config)
         yield self.embeddings_task
 
     def read_embeddings(self) -> CondensedFingerprints:
@@ -119,7 +119,7 @@ class CCWebUmapImageTask(CCWebImageTask):
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
-        return UmapEmbeddingsTask(config_path=self.config_path)
+        return UmapEmbeddingsTask(config=self.config)
 
 
 class CCWebTriMapImageTask(CCWebImageTask):
@@ -131,7 +131,7 @@ class CCWebTriMapImageTask(CCWebImageTask):
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
-        return TriMapEmbeddingsTask(config_path=self.config_path)
+        return TriMapEmbeddingsTask(config=self.config)
 
 
 class CCWebPaCMAPImageTask(CCWebImageTask):
@@ -143,7 +143,7 @@ class CCWebPaCMAPImageTask(CCWebImageTask):
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
-        return PaCMAPEmbeddingsTask(config_path=self.config_path)
+        return PaCMAPEmbeddingsTask(config=self.config)
 
 
 class CCWebTSNEImageTask(CCWebImageTask):
@@ -155,7 +155,7 @@ class CCWebTSNEImageTask(CCWebImageTask):
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
-        return TSNEEmbeddingsTask(config_path=self.config_path)
+        return TSNEEmbeddingsTask(config=self.config)
 
 
 class AllCCWebImagesTask(PipelineTask):

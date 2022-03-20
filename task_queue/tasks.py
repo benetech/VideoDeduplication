@@ -29,20 +29,29 @@ def process_directory(
     min_duration: Optional[Number] = None,
 ):
     from .luigi_support import LuigiRootProgressMonitor, run_luigi
-    from winnow.utils.config import resolve_config_path
     from winnow.pipeline.luigi.matches import DBMatchesTask
     from winnow.pipeline.luigi.exif import ExifTask
+    from winnow.utils.config import resolve_config
 
     # Initialize a progress monitor
     progress = LuigiRootProgressMonitor(celery_task=self)
 
     # Load configuration file
     logger.info("Loading config file")
-    config_path = resolve_config_path()
+    config = resolve_config(
+        frame_sampling=frame_sampling,
+        save_frames=save_frames,
+        filter_dark=filter_dark,
+        dark_threshold=dark_threshold,
+        extensions=extensions,
+        match_distance=match_distance,
+        min_duration=min_duration,
+    )
+    config.database.use = True
 
     run_luigi(
-        DBMatchesTask(config_path=config_path, prefix=directory),
-        ExifTask(config_path=config_path, prefix=directory),
+        DBMatchesTask(config=config, prefix=directory),
+        ExifTask(config=config, prefix=directory),
     )
     progress.complete()
 
@@ -179,29 +188,41 @@ def find_frame_task(
     match_distance: Optional[float] = None,
     min_duration: Optional[Number] = None,
 ):
-    from winnow.utils.config import resolve_config
     from winnow.pipeline.pipeline_context import PipelineContext
     from .luigi_support import LuigiRootProgressMonitor, run_luigi
-    from winnow.utils.config import resolve_config_path
     from winnow.pipeline.luigi.find_frame import FindFrameTask
+    from winnow.utils.config import resolve_config
 
     # Initialize a progress monitor
     progress = LuigiRootProgressMonitor(celery_task=self)
 
     # Load configuration file
     logger.info("Loading config file")
-    config_path = resolve_config_path()
-    config = resolve_config(config_path)
+    config = resolve_config(
+        frame_sampling=frame_sampling,
+        save_frames=save_frames,
+        filter_dark=filter_dark,
+        templates_distance=template_distance,
+        templates_distance_min=template_distance_min,
+        dark_threshold=dark_threshold,
+        extensions=extensions,
+        match_distance=match_distance,
+        min_duration=min_duration,
+    )
+    config.database.use = True
     pipeline = PipelineContext(config)
+    logger.info("Loaded config: %s", config)
+
     with pipeline.database.session_scope(expunge=True) as session:
         file = session.query(Files).filter(Files.id == file_id).one()
 
-    with tempfile.TemporaryDirectory(prefix="file-storage-") as directory:
-        result_path = os.path.join(directory, "found_frames.json")
+    with tempfile.TemporaryDirectory(prefix="file-storage-") as output_directory:
+        result_path = os.path.join(output_directory, "found_frames.json")
         find_frame = FindFrameTask(
-            config_path=config_path,
+            config=config,
             frame_video_path=file.file_path,
             frame_time_millis=float(frame_time_millis),
+            among_files_prefix=directory,
             output_path=result_path,
         )
         run_luigi(find_frame)
@@ -271,19 +292,20 @@ def push_fingerprints_task(
     repository_id: int,
 ):
     from .luigi_support import LuigiRootProgressMonitor, run_luigi
-    from winnow.utils.config import resolve_config_path
     from winnow.pipeline.luigi.remote_fingerprints import PushFingerprintsTask
-    from winnow.utils.config import resolve_config
     from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.utils.config import resolve_config
 
     # Initialize a progress monitor
     progress = LuigiRootProgressMonitor(celery_task=self)
 
     # Load configuration file
     logger.info("Loading config file")
-    config_path = resolve_config_path()
-    config = resolve_config(config_path)
+    config = resolve_config()
+    config.database.use = True
     pipeline = PipelineContext(config)
+    logger.info("Loaded config: %s", config)
+
     with pipeline.database.session_scope(expunge=True) as session:
         repository: Repository = session.query(Repository).filter(Repository.id == repository_id).one()
 
@@ -297,23 +319,24 @@ def pull_fingerprints_task(
     repository_id: int,
 ):
     from .luigi_support import LuigiRootProgressMonitor, run_luigi
-    from winnow.utils.config import resolve_config_path
     from winnow.pipeline.luigi.remote_fingerprints import PullFingerprintsTask
-    from winnow.utils.config import resolve_config
     from winnow.pipeline.pipeline_context import PipelineContext
+    from winnow.utils.config import resolve_config
 
     # Initialize a progress monitor
     progress = LuigiRootProgressMonitor(celery_task=self)
 
     # Load configuration file
     logger.info("Loading config file")
-    config_path = resolve_config_path()
-    config = resolve_config(config_path)
+    config = resolve_config()
+    config.database.use = True
     pipeline = PipelineContext(config)
+    logger.info("Loaded config: %s", config)
+
     with pipeline.database.session_scope(expunge=True) as session:
         repository: Repository = session.query(Repository).filter(Repository.id == repository_id).one()
 
-    run_luigi(PullFingerprintsTask(config_path=config_path, repository_name=repository.name))
+    run_luigi(PullFingerprintsTask(config=config, repository_name=repository.name))
     progress.complete()
 
 
@@ -360,17 +383,19 @@ def match_remote_fingerprints(
 @winnow_task(bind=True)
 def prepare_semantic_search(self, force: bool = True):
     from .luigi_support import LuigiRootProgressMonitor, run_luigi
-    from winnow.utils.config import resolve_config_path
     from winnow.pipeline.luigi.text_search import PrepareTextSearchTask
+    from winnow.utils.config import resolve_config
 
     # Initialize a progress monitor
     progress = LuigiRootProgressMonitor(celery_task=self)
 
     # Load configuration file
     logger.info("Loading config file")
-    config_path = resolve_config_path()
+    config = resolve_config()
+    config.database.use = True
+    logger.info("Loaded config: %s", config)
 
-    run_luigi(PrepareTextSearchTask(config_path=config_path))
+    run_luigi(PrepareTextSearchTask(config=config))
     progress.complete()
 
 

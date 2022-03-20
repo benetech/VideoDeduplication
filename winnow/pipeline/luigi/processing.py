@@ -11,5 +11,5 @@ class ProcessFilesTask(PipelineTask):
     prefix: str = luigi.Parameter(default=".")
 
     def requires(self):
-        yield DBMatchesTask(config_path=self.config_path, prefix=self.prefix)
-        yield ExifTask(config_path=self.config_path, prefix=self.prefix)
+        yield DBMatchesTask(config=self.config, prefix=self.prefix)
+        yield ExifTask(config=self.config, prefix=self.prefix)

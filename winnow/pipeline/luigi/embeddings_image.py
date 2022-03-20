@@ -69,7 +69,7 @@ class EmbeddingsImageTask(PipelineTask, abc.ABC):
         return luigi.LocalTarget(self.output_path)
 
     def requires(self):
-        yield GraphCommunitiesTask(config_path=self.config_path)
+        yield GraphCommunitiesTask(config=self.config)
         yield self.embeddings_task
 
     def read_communities(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> MatchGraphCommunities:
@@ -294,7 +294,7 @@ class UmapImageTask(EmbeddingsImageTask):
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
-        return UmapEmbeddingsTask(config_path=self.config_path)
+        return UmapEmbeddingsTask(config=self.config)
 
     @property
     def algorithm_name(self) -> str:
@@ -306,7 +306,7 @@ class UmapTopCommunitiesImageTask(TopCommunitiesImageTask):
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
-        return UmapEmbeddingsTask(config_path=self.config_path)
+        return UmapEmbeddingsTask(config=self.config)
 
     @property
     def algorithm_name(self) -> str:
@@ -318,7 +318,7 @@ class TriMapImageTask(EmbeddingsImageTask):
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
-        return TriMapEmbeddingsTask(config_path=self.config_path)
+        return TriMapEmbeddingsTask(config=self.config)
 
     @property
     def algorithm_name(self) -> str:
@@ -330,7 +330,7 @@ class TriMapTopCommunitiesImageTask(TopCommunitiesImageTask):
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
-        return TriMapEmbeddingsTask(config_path=self.config_path)
+        return TriMapEmbeddingsTask(config=self.config)
 
     @property
     def algorithm_name(self) -> str:
@@ -342,7 +342,7 @@ class PaCMAPImageTask(EmbeddingsImageTask):
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
-        return PaCMAPEmbeddingsTask(config_path=self.config_path)
+        return PaCMAPEmbeddingsTask(config=self.config)
 
     @property
     def algorithm_name(self) -> str:
@@ -354,7 +354,7 @@ class PaCMAPTopCommunitiesImageTask(TopCommunitiesImageTask):
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
-        return PaCMAPEmbeddingsTask(config_path=self.config_path)
+        return PaCMAPEmbeddingsTask(config=self.config)
 
     @property
     def algorithm_name(self) -> str:
@@ -366,7 +366,7 @@ class TSNEImageTask(EmbeddingsImageTask):
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
-        return TSNEEmbeddingsTask(config_path=self.config_path)
+        return TSNEEmbeddingsTask(config=self.config)
 
     @property
     def algorithm_name(self) -> str:
@@ -378,7 +378,7 @@ class TSNETopCommunitiesImageTask(TopCommunitiesImageTask):
 
     @property
     def embeddings_task(self) -> EmbeddingsTask:
-        return TSNEEmbeddingsTask(config_path=self.config_path)
+        return TSNEEmbeddingsTask(config=self.config)
 
     @property
     def algorithm_name(self) -> str:

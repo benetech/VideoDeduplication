@@ -10,7 +10,7 @@ from winnow.config import Config
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonitor
 from winnow.storage.file_key import FileKey
-from winnow.utils.cli import create_pipeline
+from winnow.utils.config import resolve_config
 
 
 class WithLogger:
@@ -50,20 +50,23 @@ class JusticeAITask(luigi.Task, WithLogger):
         self.progress.complete()
 
 
+class ConfigParameter(luigi.Parameter):
+    """Parameter whose value is the application ``Config``."""
+
+    def parse(self, path: str):
+        """Interpret CLI argument as a ``Config`` path."""
+        return resolve_config(config_path=path)
+
+
 class PipelineTask(JusticeAITask):
     """Base class for pipeline tasks."""
 
-    config_path = luigi.Parameter()
+    config: Config = ConfigParameter()
 
     @cached_property
     def pipeline(self) -> PipelineContext:
         """Get current pipeline."""
-        return create_pipeline(self.config_path)
-
-    @cached_property
-    def config(self) -> Config:
-        """Get resolved config."""
-        return self.pipeline.config
+        return PipelineContext(self.config)
 
     @cached_property
     def output_directory(self) -> str:
@@ -91,7 +94,7 @@ class ConstTarget(luigi.Target):
 
 
 class CheckTarget(luigi.Target):
-    """Generic function -> luigi.Target adapter."""
+    """Generic function -> ``luigi.Target`` adapter."""
 
     def __init__(self, should_execute: Callable[[], bool]):
         self.should_execute = should_execute
