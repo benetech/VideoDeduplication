@@ -33,7 +33,7 @@ database:
   uri: postgresql://postgres:admin@postgres:5432/videodeduplicationdb
 
 templates:
-  source_path: data/templates/test-group/CCSI Object Recognition External/
+  source_path: data/templates/
   distance: 0.07
   distance_min: 0.05
 

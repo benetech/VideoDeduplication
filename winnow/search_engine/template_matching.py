@@ -2,12 +2,13 @@ import logging
 import os
 import shutil
 from glob import glob
-from typing import List, Iterator
+from typing import Iterator, Sequence, Optional
 
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
 
+from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonitor
 from winnow.search_engine.black_list import BlackList, Cover
 from winnow.search_engine.model import Template
 from winnow.storage.base_repr_storage import BaseReprStorage
@@ -41,10 +42,12 @@ class SearchEngine:
 
     def create_annotation_report(
         self,
-        templates: List[Template],
-        threshold=0.07,
-        frame_sampling=1,
-        distance_min=0.05,
+        templates: Sequence[Template],
+        threshold: float = 0.07,
+        frame_sampling: int = 1,
+        distance_min: float = 0.05,
+        file_keys: Optional[Sequence[FileKey]] = None,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
     ) -> pd.DataFrame:
         """Find the given templates in all the available files.
 
@@ -56,14 +59,18 @@ class SearchEngine:
         """
         _logger.info("Searching for templates: %s", [template.name for template in templates])
         template_reports = []
+        progress.scale(len(templates))
         for template in templates:
             template_report = self.find_template(
                 template,
                 threshold=threshold,
                 distance_min=distance_min,
                 frame_sampling=frame_sampling,
+                file_keys=file_keys,
+                progress=progress.subtask(1),
             )
             template_reports.append(template_report)
+        progress.complete()
         return pd.concat(template_reports, ignore_index=True)
 
     def distance_from_min(self, data, thr=0.05):
@@ -78,12 +85,14 @@ class SearchEngine:
         threshold=0.07,
         frame_sampling=1,
         distance_min=0.05,
+        file_keys: Optional[Sequence[FileKey]] = None,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
     ) -> pd.DataFrame:
         """Find the given template matches in all available files."""
         _logger.info("Loaded query embeddings %s", template.features.shape)
         file_reports = []  # reports for individual files
 
-        for file_key in self._searchable_files(template):
+        for file_key in self._searchable_files(template, file_keys, progress):
             try:
                 excluded_time = self.black_list.excluded_time(template, file_key)
                 found_matches = self.find_template_in_file(
@@ -154,13 +163,27 @@ class SearchEngine:
         # Return empty report otherwise
         return pd.DataFrame(columns=self.report_columns)
 
-    def _searchable_files(self, template: Template) -> Iterator[FileKey]:
+    def _searchable_files(
+        self,
+        template: Template,
+        file_keys: Optional[Sequence[FileKey]] = None,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
+    ) -> Iterator[FileKey]:
         """File keys available for template matching."""
+        if file_keys is None:
+            file_keys = self._frame_features.list()
+            file_key_count = len(self._frame_features)
+        else:
+            file_key_count = len(file_keys)
+        progress.scale(file_key_count)
+
         excluded_files = self.black_list.excluded_files(template)
-        for file_key in self._frame_features.list():
+        for file_key in file_keys:
             # Skip files excluded from the template scope
             if (file_key.path, file_key.hash) not in excluded_files:
                 yield file_key
+            progress.increase(1)
+        progress.complete()
 
     def _time(self, frame, sampling):
         """Convert frame number to time in milliseconds."""

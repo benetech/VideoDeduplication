@@ -2,7 +2,7 @@
 import hashlib
 import os
 from datetime import datetime
-from functools import lru_cache, wraps
+from functools import lru_cache, wraps, reduce
 from glob import glob
 from os import PathLike, fspath
 from pathlib import Path
@@ -346,26 +346,42 @@ class PathTime:
                 yield path, time
 
     @staticmethod
-    def latest_group(
+    def find_groups(
         common_prefix: str, suffixes=Sequence[str], format: str = FORMAT, delim: str = DELIM
-    ) -> Tuple[Optional[Sequence[str]], Optional[datetime]]:
-        """Find the latest group of timestamped files with the same timestamp."""
+    ) -> Sequence[Tuple[Sequence[str], datetime]]:
+        """List all groups of files with different timestamps."""
+        # For each suffix collect all paths for this suffix as dict(time->path)
         timestamps_per_suffix: List[Dict[datetime, str]] = []
         for suffix in suffixes:
             path_pattern = f"{common_prefix}*{suffix}"
             found_paths = PathTime.find(path_pattern, suffix, format, delim)
-            timestamps_per_suffix.append(dict(map(reversed, found_paths)))
+            suffix_timestamps: Dict[datetime, str] = {}
+            for path, time in found_paths:
+                suffix_timestamps[time] = path
+            timestamps_per_suffix.append(suffix_timestamps)
 
-        common_timestamps = None
-        for timestamps in timestamps_per_suffix:
-            if common_timestamps is None:
-                common_timestamps = set(timestamps.keys())
-            else:
-                common_timestamps = common_timestamps & set(timestamps.keys())
+        # Calculate timestamps that exist for all suffixes
+        timestamp_sets_per_suffix = [set(ts.keys()) for ts in timestamps_per_suffix]
+        common_timestamps = sorted(reduce(lambda a, b: a & b, timestamp_sets_per_suffix))
 
-        if not common_timestamps:
-            return None, None
+        # Build results list
+        results = []
+        for time in common_timestamps:
+            paths = []
+            for time_path in timestamps_per_suffix:
+                paths.append(time_path[time])
+            results.append((paths, time))
+        return results
 
-        latest_time = max(common_timestamps)
-        latest_paths = [timestamps[latest_time] for timestamps in timestamps_per_suffix]
+    @staticmethod
+    def latest_group(
+        common_prefix: str, suffixes=Sequence[str], format: str = FORMAT, delim: str = DELIM
+    ) -> Tuple[Optional[Sequence[str]], Optional[datetime]]:
+        """Find the latest group of timestamped files with the same timestamp."""
+        latest_paths: Optional[Sequence[str]] = None
+        latest_time: Optional[datetime] = None
+        for paths, time in PathTime.find_groups(common_prefix, suffixes, format, delim):
+            if latest_time is None or latest_time < time:
+                latest_paths = paths
+                latest_time = time
         return latest_paths, latest_time

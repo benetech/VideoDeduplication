@@ -15,6 +15,7 @@ from sqlalchemy import (
     event,
     CheckConstraint,
     Enum,
+    func,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, object_session
@@ -318,3 +319,23 @@ class FileFilterPreset(Base):
     name = Column(String(100), nullable=False, unique=True)
     # Any filter data as JSON blob
     filters = Column(JSON, nullable=False)
+
+
+class TaskLogRecord(Base):
+    """Task execution log.
+
+    Task execution log consists of records indicating
+    some data-processing task was executed. This is
+    useful if we don't have an efficient way to ensure
+    that task is already finished, and we don't need to
+    redo all the work (e.g. it is not possible to check
+    if wanted file matches are stored into database
+    without logging the corresponding task execution).
+    """
+
+    __tablename__ = "task_logs"
+
+    id = Column(Integer, primary_key=True)
+    task_name = Column(String(100), nullable=False, unique=False)
+    timestamp = Column(DateTime, nullable=False)
+    details = Column(JSON)
