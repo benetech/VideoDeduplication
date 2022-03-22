@@ -78,24 +78,24 @@ class TemplateMatchesReportTarget(luigi.Target):
 
 
 class TemplateMatchesReportTask(PipelineTask):
-    """Performs template matching on the files with coll-path starting with the
-    given ``prefix`` and produces the report on local file system.
+    """Match templates against files whose path starts with the given ``prefix`` and store
+    the results to the file system.
 
-    Report
-    ------
-    The template matches report consists of two files:
-      * ``template_matches__{timestamp}.csv`` - contains template matches details.
-      * ``template_matches__{timestamp}.templates.hash`` - contains templates list hash.
+    Results
+    -------
+    The task generates two files:
+      * ``template_matches__{timestamp}.csv`` containing all found matches.
+      * ``template_matches__{timestamp}.templates.hash`` containing hash-sum of applied templates.
 
-    The templates list hash is required to check if templates are changed since the last
-    task execution and hence a matching should be performed again to update the report.
+    The hash-sum is required to check if templates have changed since the last execution.
+    In this case the task must be executed from scratch.
 
-    Existence Criteria
-    ------------------
-    If the file collection has changed since the previous run, the template matching
-    will be performed against updated/new files. If the template list has changed
-    all the files from the collection (with the path ``prefix``) will be evaluated
-    during the template matching.
+    Completion Criteria
+    -------------------
+    If file collection has changed since the previous run, the template matching
+    will be performed against updated/new files. If the template list has changed,
+    all the files from the collection (whose path starts with ``prefix``) will
+    be evaluated during the template matching.
     """
 
     prefix: str = luigi.Parameter(default=".")
@@ -238,30 +238,32 @@ class TemplateMatchesReportTask(PipelineTask):
 
 
 class DBTemplateMatchesTarget(luigi.Target):
-    """Task target representing the template-matching results in database.
+    """Task target representing the template-matching results in the database.
 
-    Task Results
-    ------------
-    The ``DBTemplateMatchesTask`` produces template matches and a new ``TaskLogRecord``.
-    The ``TaskLogRecord`` contains timestamp of the last task execution, task ``prefix``
-    and a hash of templates list used to match files.
+    Results
+    -------
+    The template-matching results consist of the following:
+      * ``db.schema.Template`` entity for each found template match.
+      * a single ``db.schema.TaskLogRecord`` entity containing timestamp and
+        hash-sum of applied templates.
 
-    The templates list hash is required to check if templates are changed since the last
-    task execution and hence a matching should be performed again to update the report.
+    The hash-sum is required to check if templates have changed since the last execution.
+    In this case the task must be executed from scratch.
 
+    Existence Criteria
+    ------------------
+    If file collection has changed since the previous run, the template matching
+    must be performed against updated/new files. If the template list has changed,
+    all the files from the collection (whose path starts with ``prefix``) will
+    be evaluated during the template matching.
+
+    TaskLogRecord
+    -------------
     There is no way to determine whether the template matching was done just by looking
     at template matches alone. For example if none of the files match the existing templates
     there will be zero template-matches in the database. So the template-matches before
     and after task execution will be the same. Thus, some indication that the task was
-    successfully executed is needed. The ``DBTemplateMatchesTarget`` uses the ``TaskLogRecord``
-    as such indication.
-
-    Existence Criteria
-    ------------------
-    If the file collection has changed since the previous run, the template matching
-    will be performed against updated/new files. If the template list has changed
-    all the files from the collection (with the path ``prefix``) will be evaluated
-    during the template matching.
+    successfully executed is needed. ``TaskLogRecord`` fills this gap.
     """
 
     def __init__(self, prefix: str, database: Database, coll: FileCollection, templates: Sequence[Template]):
@@ -320,13 +322,25 @@ class DBTemplateMatchesTarget(luigi.Target):
 
 
 class DBTemplateMatchesTask(PipelineTask):
-    """Performs template matching on the files with coll-path starting with the
-    given ``prefix`` and store the results to the database.
+    """Match templates against files whose path starts with the given ``prefix`` and store
+    the results to database.
 
-    If the file collection has changed since the previous run, the template matching
-    will be performed against updated/new files. If the template list has changed
-    all the files from the collection (with the path ``prefix``) will be evaluated
-    during the template matching.
+    Results
+    -------
+    The task writes the following data to the database:
+      * ``db.schema.Template`` for each found template match.
+      * a single ``db.schema.TaskLogRecord`` containing timestamp and
+        hash-sum of applied templates.
+
+    The hash-sum is required to check if templates have changed since the last execution.
+    In this case the task must be executed from scratch.
+
+    Completion Criteria
+    -------------------
+    If file collection has changed since the previous run, the template matching
+    will be performed against updated/new files. If the template list has changed,
+    all the files from the collection (whose path starts with ``prefix``) will
+    be evaluated during the template matching.
     """
 
     prefix: str = luigi.Parameter(default=".")

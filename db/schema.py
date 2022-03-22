@@ -323,13 +323,13 @@ class FileFilterPreset(Base):
 class TaskLogRecord(Base):
     """Task execution log.
 
-    Task execution log consists of records indicating
-    some data-processing task was executed. This is
-    useful if we don't have an efficient way to ensure
-    that task is already finished, and we don't need to
-    redo all the work (e.g. it is not possible to check
-    if wanted file matches are stored into database
-    without logging the corresponding task execution).
+    Motivation
+    ----------
+    Sometimes there is no way to determine whether the task is already completed just by looking
+    at the results alone. For example if template-matching is performed and no matches was found
+    there will be zero ``TemplateMatches`` in the database. So the results before and after the
+    run will be identical. Thus, some indication that the task was successfully executed is
+    needed. ``TaskLogRecord`` fills this gap.
     """
 
     __tablename__ = "task_logs"
