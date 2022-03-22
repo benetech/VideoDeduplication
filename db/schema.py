@@ -15,7 +15,6 @@ from sqlalchemy import (
     event,
     CheckConstraint,
     Enum,
-    func,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, object_session

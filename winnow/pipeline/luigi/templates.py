@@ -7,7 +7,13 @@ import luigi
 import numpy as np
 import pandas as pd
 from cached_property import cached_property
+from sqlalchemy import func
+from sqlalchemy.orm import joinedload, Session
+from sqlalchemy.sql.elements import BinaryExpression
 
+from db import Database
+from db.schema import TemplateFileExclusion, TemplateMatches, TaskLogRecord
+from winnow.collection.file_collection import FileCollection
 from winnow.pipeline.luigi.frame_features import FrameFeaturesTask
 from winnow.pipeline.luigi.platform import PipelineTask, ConstTarget
 from winnow.pipeline.luigi.targets import FileGroupTarget
@@ -75,13 +81,17 @@ class TemplateMatchesReportTask(PipelineTask):
     """Performs template matching on the files with coll-path starting with the
     given ``prefix`` and produces the report on local file system.
 
+    Report
+    ------
     The template matches report consists of two files:
       * ``template_matches__{timestamp}.csv`` - contains template matches details.
       * ``template_matches__{timestamp}.templates.hash`` - contains templates list hash.
 
-    The templates list hash is required to check if templates are changed and hence
-    a matching should be performed again to update report.
+    The templates list hash is required to check if templates are changed since the last
+    task execution and hence a matching should be performed again to update the report.
 
+    Existence Criteria
+    ------------------
     If the file collection has changed since the previous run, the template matching
     will be performed against updated/new files. If the template list has changed
     all the files from the collection (with the path ``prefix``) will be evaluated
@@ -227,6 +237,88 @@ class TemplateMatchesReportTask(PipelineTask):
         return merged_results_df
 
 
+class DBTemplateMatchesTarget(luigi.Target):
+    """Task target representing the template-matching results in database.
+
+    Task Results
+    ------------
+    The ``DBTemplateMatchesTask`` produces template matches and a new ``TaskLogRecord``.
+    The ``TaskLogRecord`` contains timestamp of the last task execution, task ``prefix``
+    and a hash of templates list used to match files.
+
+    The templates list hash is required to check if templates are changed since the last
+    task execution and hence a matching should be performed again to update the report.
+
+    There is no way to determine whether the template matching was done just by looking
+    at template matches alone. For example if none of the files match the existing templates
+    there will be zero template-matches in the database. So the template-matches before
+    and after task execution will be the same. Thus, some indication that the task was
+    successfully executed is needed. The ``DBTemplateMatchesTarget`` uses the ``TaskLogRecord``
+    as such indication.
+
+    Existence Criteria
+    ------------------
+    If the file collection has changed since the previous run, the template matching
+    will be performed against updated/new files. If the template list has changed
+    all the files from the collection (with the path ``prefix``) will be evaluated
+    during the template matching.
+    """
+
+    def __init__(self, prefix: str, database: Database, coll: FileCollection, templates: Sequence[Template]):
+        self.prefix: str = prefix
+        self.database: Database = database
+        self.coll: FileCollection = coll
+        self.templates: Sequence[Template] = templates
+
+    def exists(self):
+        if len(self.templates) == 0:
+            return True
+        last_hash, last_time = self.last_results
+        return last_hash == hash_templates(self.templates) and not self.coll.any(
+            prefix=self.prefix, min_mtime=last_time
+        )
+
+    @property
+    def last_results(self) -> Tuple[Optional[str], Optional[datetime]]:
+        """Get the templates hash and timestamp from the last DBTemplateMatchesTask run."""
+        with self.database.session_scope() as session:
+            last_record_query = session.query(TaskLogRecord).filter(*self._log_record_filters(session))
+            last_record: TaskLogRecord = last_record_query.one_or_none()
+            if last_record is None:
+                return None, None
+            last_time = last_record.timestamp
+            last_hash = (last_record.details or {}).get(DBTemplateMatchesTask.LOG_HASH_ATTR)
+            return last_hash, last_time
+
+    @property
+    def continue_time(self) -> Optional[datetime]:
+        """Get timestamp from which to continue processing file collection."""
+        last_hash, last_time = self.last_results
+        if last_hash != hash_templates(self.templates):
+            return None
+        return last_time
+
+    def _log_record_filters(self, session: Session) -> Sequence[BinaryExpression]:
+        """Filters to find task log records created by equivalent DBTemplateMatchesTask."""
+        task_filter = TaskLogRecord.task_name == DBTemplateMatchesTask.LOG_TASK_NAME
+        prefix_filter = TaskLogRecord.details[DBTemplateMatchesTask.LOG_PREF_ATTR].as_string() == self.prefix
+        latest_time = session.query(func.max(TaskLogRecord.timestamp)).filter(task_filter, prefix_filter)
+        return task_filter, prefix_filter, TaskLogRecord.timestamp == latest_time
+
+    def write_db_log(self, time: datetime):
+        """Create a new ``TaskLogRecord`` in the database."""
+        with self.database.session_scope() as session:
+            record = TaskLogRecord(
+                task_name=DBTemplateMatchesTask.LOG_TASK_NAME,
+                timestamp=time,
+                details={
+                    DBTemplateMatchesTask.LOG_PREF_ATTR: self.prefix,
+                    DBTemplateMatchesTask.LOG_HASH_ATTR: hash_templates(self.templates),
+                },
+            )
+            session.add(record)
+
+
 class DBTemplateMatchesTask(PipelineTask):
     """Performs template matching on the files with coll-path starting with the
     given ``prefix`` and store the results to the database.
@@ -239,9 +331,61 @@ class DBTemplateMatchesTask(PipelineTask):
 
     prefix: str = luigi.Parameter(default=".")
 
+    # Task logs attributes
+    LOG_PREF_ATTR = "prefix"
+    LOG_HASH_ATTR = "templates_hash"
+    LOG_TASK_NAME = "DBTemplateMatchesTask"
+
+    def run(self):
+        target: DBTemplateMatchesTarget = self.output()
+        continue_time = target.continue_time
+        results_time = self.pipeline.coll.max_mtime(prefix=self.prefix)
+        self.logger.info(
+            "Going to perform template matching on files with prefix '%s' since %s",
+            self.prefix,
+            continue_time or "the very beginning",
+        )
+
+        black_list = self.black_list
+        self.logger.info("Found %s file exclusions", black_list.time_exclusions_count)
+        self.logger.info("Found %s time exclusions", black_list.time_exclusions_count)
+
+        self.logger.info("Collecting file keys")
+        file_keys = list(self.pipeline.coll.iter_keys(prefix=self.prefix, min_mtime=continue_time))
+        self.progress.increase(0.1)
+        self.logger.info("Collected %s files to match templates", len(file_keys))
+
+        self.logger.info("Starting template matching against %s templates", len(self.templates))
+        se = SearchEngine(frame_features=self.pipeline.repr_storage.frame_level, black_list=black_list)
+        template_matches_df = se.create_annotation_report(
+            templates=self.templates,
+            threshold=self.config.templates.distance,
+            frame_sampling=self.config.proc.frame_sampling,
+            distance_min=self.config.templates.distance_min,
+            file_keys=file_keys,
+            progress=self.progress.subtask(0.8),
+        )
+        self.logger.info("Found %s template matches", len(template_matches_df.index))
+
+        self.logger.info("Going to save %s matches to the database", len(template_matches_df.index))
+        tm_entries = template_matches_df[["path", "hash"]]
+        tm_entries["template_matches"] = template_matches_df.drop(columns=["path", "hash"]).to_dict("records")
+
+        result_storage = self.pipeline.result_storage
+        template_names = {template.name for template in self.templates}
+        result_storage.add_template_matches(template_names, tm_entries.to_numpy())
+        target.write_db_log(time=results_time)
+        self.logger.info("Saved %s template matches", len(template_matches_df.index))
+
     def output(self):
         if not self.config.database.use:
             return ConstTarget(exists=True)
+        return DBTemplateMatchesTarget(
+            prefix=self.prefix,
+            database=self.pipeline.database,
+            templates=self.templates,
+            coll=self.pipeline.coll,
+        )
 
     def requires(self):
         return FrameFeaturesTask(config=self.config, prefix=self.prefix)
@@ -254,13 +398,18 @@ class DBTemplateMatchesTask(PipelineTask):
             file_storage=self.pipeline.file_storage,
         )
 
+    @cached_property
+    def black_list(self) -> BlackList:
+        """Load black list from the database."""
+        return load_blacklist_db(self.pipeline.database)
+
 
 def hash_template(template: Template, include_name: bool = False) -> str:
     """Get template hash.
 
     Guarantees:
-      * The calculated hash is guaranteed to change if template example list has changed.
-      * The result doesn't depend on the order of examples in the list or their storage-keys.
+      * The result must change if any template example was added, deleted or modified.
+      * The result must be independent of the order of examples in the list.
     """
     example_hashes = []
     for example_features in template.features:
@@ -281,9 +430,38 @@ def hash_templates(templates: Sequence[Template], include_names: bool = False) -
 
     The hash is guaranteed to change if any template is changed.
     The hash is independent of the templates order in the sequence.
+
+    Guarantees:
+      * The result must change if any template was added, deleted or modified.
+      * The result must be independent of templates order in the list.
     """
     hashes = sorted(hash_template(template, include_names) for template in templates)
     hash_sum = hashlib.sha256()
     for template_hash in hashes:
         hash_sum.update(template_hash.encode("utf-8"))
     return hash_sum.hexdigest()
+
+
+def load_blacklist_db(database: Database) -> BlackList:
+    """Load templates black-list from the database."""
+    with database.session_scope(expunge=True) as session:
+        file_exclusions = (
+            session.query(TemplateFileExclusion)
+            .options(joinedload(TemplateFileExclusion.file))
+            .options(joinedload(TemplateFileExclusion.template))
+            .all()
+        )
+        time_exclusions = (
+            session.query(TemplateMatches)
+            .options(joinedload(TemplateMatches.file))
+            .options(joinedload(TemplateMatches.template))
+            .filter(TemplateMatches.false_positive == True)  # noqa: E712
+            .all()
+        )
+    # Populate black list
+    black_list = BlackList()
+    for file_exclusion in file_exclusions:
+        black_list.exclude_file_entity(file_exclusion)
+    for time_exclusion in time_exclusions:
+        black_list.exclude_time_range(time_exclusion)
+    return black_list

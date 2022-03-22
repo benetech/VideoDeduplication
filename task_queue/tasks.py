@@ -3,7 +3,6 @@ import os
 import tempfile
 import time
 from numbers import Number
-from pathlib import Path
 from typing import Optional, List, Dict
 
 from celery.utils.log import get_task_logger
@@ -50,7 +49,7 @@ def process_directory(
     config.database.use = True
 
     run_luigi(
-        DBMatchesTask(config=config, prefix=directory),
+        DBMatchesTask(config=config, needles_prefix=directory),
         ExifTask(config=config, prefix=directory),
     )
     progress.complete()
@@ -116,59 +115,41 @@ def match_all_templates(
     template_distance_min: Optional[float] = None,
     min_duration: Optional[Number] = None,
 ) -> Dict:
-    from .progress_monitor import make_progress_monitor
-    from winnow.utils.config import resolve_config
-    from winnow.utils.files import scan_videos
-    from winnow.pipeline.extract_exif import extract_exif
-    from winnow.pipeline.match_templates import match_templates
     from winnow.pipeline.pipeline_context import PipelineContext
+    from .luigi_support import LuigiRootProgressMonitor, run_luigi
+    from winnow.pipeline.luigi.templates import DBTemplateMatchesTask
+    from winnow.utils.config import resolve_config
 
     # Initialize a progress monitor
-    monitor = make_progress_monitor(task=self, total_work=1.0)
+    progress = LuigiRootProgressMonitor(celery_task=self)
 
     # Load configuration file
     logger.info("Loading config file")
     config = resolve_config(
         frame_sampling=frame_sampling,
         save_frames=save_frames,
+        filter_dark=filter_dark,
         templates_distance=template_distance,
         templates_distance_min=template_distance_min,
-        filter_dark=filter_dark,
         dark_threshold=dark_threshold,
         extensions=extensions,
         match_distance=match_distance,
         min_duration=min_duration,
     )
-
-    # Make sure templates are loaded from the database
-    config.templates.source_path = None
     config.database.use = True
+    logger.info("Loaded config: %s", config)
 
-    # Resolve list of video files from the directory
-    directory = "."  # dataset root
-    logger.info(f"Resolving video list for directory {directory}")
-    absolute_root = os.path.abspath(config.sources.root)
-    absolute_dir = os.path.abspath(os.path.join(absolute_root, directory))
-    if Path(config.sources.root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:
-        raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
-
-    videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
-
-    # Run pipeline
-    monitor.update(0)
-    pipeline_context = PipelineContext(config)
-    extract_exif(videos, pipeline_context, progress_monitor=monitor.subtask(work_amount=0.1))
-    match_templates(videos, pipeline_context, progress=monitor.subtask(work_amount=0.9))
+    run_luigi(DBTemplateMatchesTask(config=config, prefix="."))
 
     # Fetch matched file counts
-    database = pipeline_context.database
+    pipeline = PipelineContext(config)
+    database = pipeline.database
     with database.session_scope() as session:
         templates = session.query(Template)
         raw_counts = TemplatesDAO.query_file_counts(session, templates)
         file_counts = [{"template": template_id, "file_count": count} for template_id, count in raw_counts.items()]
 
-    monitor.complete()
-
+    progress.complete()
     return {"file_counts": file_counts}
 
 
