@@ -6,7 +6,10 @@ from typing import Optional, Sequence, Dict, Tuple
 import luigi
 import pandas as pd
 from cached_property import cached_property
+from sqlalchemy import func
 
+from db import Database
+from db.schema import TaskLogRecord
 from remote.model import RemoteFingerprint
 from winnow.collection.file_collection import FileCollection
 from winnow.duplicate_detection.neighbors import NeighborMatcher, DetectedMatch, FeatureVector
@@ -74,6 +77,59 @@ class MatchesBaseTask(PipelineTask, abc.ABC):
         )
 
 
+class DBMatchesTarget(luigi.Target):
+    def __init__(self, haystack_prefix: str, needles_prefix: str, database: Database, coll: FileCollection):
+        self.haystack_prefix: str = haystack_prefix
+        self.needles_prefix: str = needles_prefix
+        self.database: Database = database
+        self.coll: FileCollection = coll
+
+    def exists(self):
+        last_time = self.last_time
+        # Must run if not previous results are available
+        if last_time is None:
+            return False
+        # Must run if new "needles" fingerprints are available
+        if self.coll.any(prefix=self.haystack_prefix, min_mtime=last_time):
+            return False
+        # Must run if new "haystack" fingerprints are available
+        return not self.coll.any(prefix=self.haystack_prefix, min_mtime=last_time)
+
+    @property
+    def last_time(self) -> Optional[datetime]:
+        """Get the last log record."""
+        with self.database.session_scope() as session:
+            task_name = TaskLogRecord.task_name == DBMatchesTask.LOG_TASK_NAME
+            haystack = TaskLogRecord.details[DBMatchesTask.LOG_HAYSTACK_ATTR].as_string() == self.haystack_prefix
+            needles = TaskLogRecord.details[DBMatchesTask.LOG_NEEDLES_ATTR].as_string() == self.needles_prefix
+            task_filters = (task_name, haystack, needles)
+            last_time = session.query(func.max(TaskLogRecord.timestamp)).filter(*task_filters)
+            latest = TaskLogRecord.timestamp == last_time
+            record: TaskLogRecord = session.query(TaskLogRecord).filter(latest, *task_filters).one_or_none()
+            if record is None:
+                return None
+            return record.timestamp
+
+    def write_log(self):
+        record = TaskLogRecord(
+            task_name=DBMatchesTask.LOG_TASK_NAME,
+            timestamp=self.result_timestamp,
+            details={
+                DBMatchesTask.LOG_HAYSTACK_ATTR: self.haystack_prefix,
+                DBMatchesTask.LOG_NEEDLES_ATTR: self.needles_prefix,
+            },
+        )
+        with self.database.session_scope() as session:
+            session.add(record)
+
+    @cached_property
+    def result_timestamp(self) -> datetime:
+        return max(
+            self.coll.max_mtime(prefix=self.haystack_prefix),
+            self.coll.max_mtime(prefix=self.needles_prefix),
+        )
+
+
 class DBMatchesTask(PipelineTask):
     """Populate database with file matches."""
 
@@ -83,7 +139,14 @@ class DBMatchesTask(PipelineTask):
     metric: str = luigi.Parameter(default="angular")
     n_trees: int = luigi.IntParameter(default=10)
 
+    # Task logs properties
+    LOG_TASK_NAME = "MatchFilesTask"
+    LOG_HAYSTACK_ATTR = "haystack_prefix"
+    LOG_NEEDLES_ATTR = "needles_prefix"
+
     def run(self):
+        target = self.output()
+
         annoy_input, condensed_input = self.input()
         self.logger.info("Reading condensed fingerprints")
         condensed: CondensedFingerprints = condensed_input.read(self.progress.subtask(0.1))
@@ -110,12 +173,18 @@ class DBMatchesTask(PipelineTask):
         self.logger.info("Saving %s matches to the database", len(matches))
         result_storage = self.pipeline.result_storage
         result_storage.add_matches(_entry(match) for match in matches)
+        target.write_log()
         self.logger.info("Done!")
 
     def output(self):
-        # Currently, we cannot know in advance if the task could be skipped
-        # So we have to always execute this task.
-        return ConstTarget(exists=not self.config.database.use)
+        if not self.config.database.use:
+            return ConstTarget(exists=True)
+        return DBMatchesTarget(
+            haystack_prefix=self.haystack_prefix,
+            needles_prefix=self.needles_prefix,
+            database=self.pipeline.database,
+            coll=self.pipeline.coll,
+        )
 
     def requires(self):
         yield AnnoyIndexTask(
