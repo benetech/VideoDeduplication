@@ -157,6 +157,14 @@ class CondensedFingerprints:
         logger: logging.Logger = logging.getLogger(__name__),
     ) -> "CondensedFingerprints":
         """Concatenate two condensed fingerprints collections."""
+        if len(old) == 0:
+            progress.complete()
+            return new
+
+        if len(new) == 0:
+            progress.complete()
+            return old
+
         progress.scale(1.0)
         new_paths = set(new.file_keys_df["path"])
         not_updated = np.array(~old.file_keys_df["path"].isin(new_paths))

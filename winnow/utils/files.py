@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from functools import lru_cache, wraps, reduce
 from glob import glob
+from math import floor
 from os import PathLike, fspath
 from pathlib import Path
 from typing import Collection, Callable, Union, MutableMapping, Iterator, Tuple, Optional, Sequence, List, Dict
@@ -107,11 +108,11 @@ class HashCache(MutableMapping[str, str]):
 
     def __len__(self) -> int:
         """Getting length is not implemented."""
-        raise NotImplemented("Getting length of hash cache is not implemented.")
+        raise NotImplementedError("Getting length of hash cache is not implemented.")
 
     def __iter__(self) -> Iterator[str]:
         """Iteration over keys is not implemented."""
-        raise NotImplemented("Iteration over hash cache is not implemented.")
+        raise NotImplementedError("Iteration over hash cache is not implemented.")
 
     def wrap(self, hash_func: FileHashFunc) -> FileHashFunc:
         """Enable caching for the given hash function."""
@@ -232,9 +233,9 @@ def mtime_filter(min_mtime: datetime = None, max_mtime: datetime = None) -> Call
     min_timestamp = None
     max_timestamp = None
     if min_mtime is not None:
-        min_timestamp = min_mtime.timestamp()
+        min_timestamp = floor(min_mtime.timestamp() * 1000)
     if max_mtime is not None:
-        max_timestamp = max_mtime.timestamp()
+        max_timestamp = floor(max_mtime.timestamp() * 1000)
 
     if min_timestamp is None and max_timestamp is None:
 
@@ -246,7 +247,7 @@ def mtime_filter(min_mtime: datetime = None, max_mtime: datetime = None) -> Call
 
     def predicate(path: str) -> bool:
         """Check last modified date of the path."""
-        timestamp = os.path.getmtime(path)
+        timestamp = floor(os.path.getmtime(path) * 1000)
         return (min_timestamp is None or min_timestamp < timestamp) and (
             max_timestamp is None or timestamp <= max_timestamp
         )
