@@ -78,6 +78,13 @@ class MatchesBaseTask(PipelineTask, abc.ABC):
 
 
 class DBMatchesTarget(luigi.Target):
+    """Represents file matches search results in the database.
+
+    There is no way to determine task completion by looking only on existing matches.
+    Thus, we rely on ``TaskLogRecord`` to make sure we are not repeating the same work
+    multiple times.
+    """
+
     def __init__(self, haystack_prefix: str, needles_prefix: str, database: Database, coll: FileCollection):
         self.haystack_prefix: str = haystack_prefix
         self.needles_prefix: str = needles_prefix
@@ -86,14 +93,9 @@ class DBMatchesTarget(luigi.Target):
 
     def exists(self):
         last_time = self.last_time
-        # Must run if not previous results are available
         if last_time is None:
             return False
-        # Must run if new "needles" fingerprints are available
-        if self.coll.any(prefix=self.haystack_prefix, min_mtime=last_time):
-            return False
-        # Must run if new "haystack" fingerprints are available
-        return not self.coll.any(prefix=self.haystack_prefix, min_mtime=last_time)
+        return last_time >= self.result_timestamp
 
     @property
     def last_time(self) -> Optional[datetime]:
@@ -111,6 +113,7 @@ class DBMatchesTarget(luigi.Target):
             return record.timestamp
 
     def write_log(self):
+        """Make sure we saved the indication that the task is already completed."""
         record = TaskLogRecord(
             task_name=DBMatchesTask.LOG_TASK_NAME,
             timestamp=self.result_timestamp,
@@ -161,8 +164,9 @@ class DBMatchesTask(PipelineTask):
         self.logger.info("Loaded Nearest Neighbor matcher with %s entries.", len(neighbor_matcher.haystack_keys))
 
         self.logger.info("Searching for the matches.")
-        matches = neighbor_matcher.find_matches(needles=feature_vectors, max_distance=self.config.proc.match_distance)
-        self.progress.increase(0.6)
+        distance = self.config.proc.match_distance
+        matching = self.progress.subtask(0.6)
+        matches = neighbor_matcher.find_matches(needles=feature_vectors, max_distance=distance, progress=matching)
         self.logger.info("Found %s matches", len(matches))
 
         def _entry(detected_match: DetectedMatch):
@@ -228,8 +232,9 @@ class MatchesReportTask(PipelineTask):
         self.logger.info("Loaded Nearest Neighbor matcher with %s entries.", len(neighbor_matcher.haystack_keys))
 
         self.logger.info("Searching for the matches.")
-        matches = neighbor_matcher.find_matches(needles=feature_vectors, max_distance=self.config.proc.match_distance)
-        self.progress.increase(0.6)
+        distance = self.config.proc.match_distance
+        matching = self.progress.subtask(0.6)
+        matches = neighbor_matcher.find_matches(needles=feature_vectors, max_distance=distance, progress=matching)
         self.logger.info("Found %s matches", len(matches))
 
         self.logger.info("Preparing file matches for saving")
@@ -368,9 +373,10 @@ class RemoteMatchesTask(PipelineTask):
         self.logger.info("Loaded %s remote signatures", len(needles))
 
         self.logger.info("Starting remote match detection")
-        found_matches = neighbor_matcher.find_matches(needles=needles, max_distance=self.config.proc.match_distance)
+        distance = self.config.proc.match_distance
+        matching = self.progress.subtask(0.4)
+        found_matches = neighbor_matcher.find_matches(needles=needles, max_distance=distance, progress=matching)
         self.logger.info("Found %s remote matches")
-        self.progress.increase(0.4)
 
         self.logger.info("Preparing remote matches to save", len(found_matches))
         report = self._remote_matches(found_matches, sig_index, self.progress.subtask(0.1))

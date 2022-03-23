@@ -1,7 +1,8 @@
 """This module offers functions to find duplicates among the nearest neighbors."""
 import logging
-from typing import Any, Sequence, Iterable, Optional
+from typing import Any, Sequence, Iterable, Optional, Union
 
+import numpy as np
 from dataclasses import dataclass
 
 from .annoy_neighbors import AnnoyNNeighbors
@@ -14,12 +15,14 @@ class FeatureVector:
     """
     FeatureVector is a single point in a dataset for neighbor detection.
 
-    The `key` attribute may be anything that associates a feature-vector with the corresponding object in the real world
-    (e.g. it could be an entity id in a database, or filepath of the corresponding file, or any other natural key).
+    The ``key`` attribute may be anything that associates a feature-vector
+    with the corresponding object in the real  world (e.g. it could be an
+    entity id in a database, or filepath of the corresponding file, or any
+    other natural key).
     """
 
     key: Any
-    features: Sequence[float]
+    features: Union[np.ndarray, Sequence[float]]
 
 
 @dataclass(frozen=True)
@@ -35,7 +38,7 @@ class NeighborMatcher:
     """NeighborMatcher is a low-level feature-vector duplicate detector based on nearest neighbor evaluation.
 
     NeighborMatcher takes a (potentially larger) set of feature-vectors (a haystack) and builds a reusable index based
-    on that vectors. Then it allows to search near-duplicates for any set of feature-vectors (needles) among the
+    on that vectors. Then it allows searching near-duplicates for any set of feature-vectors (needles) among the
     haystack vectors.
 
     The NeighborMatcher is a low-level meaning it knows nothing about the origin and the semantics of the
@@ -107,10 +110,14 @@ class NeighborMatcher:
         self,
         needles: Iterable[FeatureVector],
         max_distance: float = None,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
     ) -> Sequence[DetectedMatch]:
         """Find close matches of needle-vectors among haystack-vectors set."""
         needles = tuple(needles)
-        distances, indices = self.model.kneighbors([needle.features for needle in needles])
+        distances, indices = self.model.kneighbors(
+            [needle.features for needle in needles],
+            progress=progress.subtask(0.7),
+        )
 
         if max_distance is not None:
             distances, indices = self._filter_results(distances, indices, threshold=max_distance)
@@ -132,10 +139,11 @@ class NeighborMatcher:
                 results.append(DetectedMatch(needle_key=needle.key, haystack_key=haystack_key, distance=distance))
                 seen.add((needle.key, haystack_key))
                 seen.add((haystack_key, needle.key))
-
+        progress.complete()
         return results
 
-    def _filter_results(self, distances, indices, threshold):
+    @staticmethod
+    def _filter_results(distances: np.ndarray, indices: np.ndarray, threshold: float):
         results_indices = []
         results_distances = []
         mask = distances < threshold

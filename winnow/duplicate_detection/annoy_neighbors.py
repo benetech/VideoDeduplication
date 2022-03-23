@@ -1,5 +1,9 @@
+from typing import Sequence
+
 import numpy as np
 from annoy import AnnoyIndex
+
+from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonitor
 
 
 class AnnoyNNeighbors:
@@ -76,7 +80,6 @@ class AnnoyNNeighbors:
         self.annoy_index = None
 
     def fit(self, data):
-
         annoy_index = AnnoyIndex(self.feature_size, self.metric)
         for i, v in enumerate(data):
             annoy_index.add_item(i, list(v))
@@ -86,31 +89,32 @@ class AnnoyNNeighbors:
             self.search_k = self.search_k_intensity * (self.n_trees * self.n_neighbors)
 
         annoy_index.build(self.n_trees)
-
         self.annoy_index = annoy_index
-
         return self
 
-    def kneighbors(self, data, optimize=False, return_distance=True, search_k_intensity=False):
-
+    def kneighbors(
+        self,
+        data: Sequence[np.ndarray],
+        optimize: bool = False,
+        return_distance: bool = True,
+        search_k_intensity: bool = False,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
+    ):
         if search_k_intensity:
-
             self.search_k = search_k_intensity * (self.n_trees * self.n_neighbors)
 
         if optimize:
-
             self.n_neighbors = self._optimize(data)
 
-        results = [
-            self.annoy_index.get_nns_by_vector(
-                data[i], self.n_neighbors, include_distances=True, search_k=self.search_k
-            )
-            for i, d in enumerate(data)
-        ]
         distances, indices = [], []
-        for i, d in results:
-            distances.append(d)
-            indices.append(i)
+        progress = progress.bar(scale=len(data), unit="vectors")
+        for features in data:
+            vec_indices, vec_distances = self.annoy_index.get_nns_by_vector(
+                features, self.n_neighbors, include_distances=True, search_k=self.search_k
+            )
+            distances.append(vec_distances)
+            indices.append(vec_indices)
+            progress.increase(1)
 
         distances = np.vstack(distances)
         indices = np.vstack(indices).astype(np.int)
@@ -119,10 +123,9 @@ class AnnoyNNeighbors:
             # convert distances to cosine distances from angular
             distances = np.power(distances, 2) / 2.0
 
+        progress.complete()
         if not return_distance:
-
             return distances
-
         return distances, indices
 
     @staticmethod
