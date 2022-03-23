@@ -2,7 +2,7 @@ import abc
 import enum
 import itertools
 from datetime import datetime
-from typing import List, Optional, Iterator, Set, Iterable, Collection, Union, Sequence
+from typing import List, Optional, Iterator, Set, Iterable, Collection, Union
 
 from dataclasses import dataclass
 from sqlalchemy import or_, and_, func, literal_column, tuple_

@@ -22,6 +22,7 @@ from winnow.storage.remote_signatures_dao import (
     ReprRemoteSignaturesDAO,
     RemoteSignaturesDAO,
     RemoteMatch,
+    RemoteMatchesDAO,
 )
 
 

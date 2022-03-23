@@ -8,7 +8,6 @@ from cached_property import cached_property
 from winnow.collection.file_collection import FileCollection
 from winnow.pipeline.luigi.exif import extract_exif, save_exif_database
 from winnow.pipeline.luigi.platform import PipelineTask
-from winnow.pipeline.luigi.signatures import SignaturesByPathListTask
 from winnow.utils.download import download_path, download_videos
 
 

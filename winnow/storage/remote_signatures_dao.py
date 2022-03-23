@@ -458,7 +458,7 @@ class RemoteMatchesReportDAO(RemoteMatchesDAO):
 
     def _path_prefix(self, haystack_prefix: str, repository_name: str) -> str:
         """Get report path prefix."""
-        path_prefix = os.path.join(self._directory, repository_name, haystack_prefix, f"remote_matches")
+        path_prefix = os.path.join(self._directory, repository_name, haystack_prefix, "remote_matches")
         if not is_parent(path=path_prefix, parent_path=self._directory):
             raise ValueError(f"Invalid prefix: {repository_name}/{haystack_prefix}")
         return path_prefix
