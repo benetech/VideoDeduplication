@@ -84,6 +84,10 @@ class FileCollection(abc.ABC):
         """Convenience method to check if any file-collection entry satisfies the given parameters."""
         return any(self.iter_paths(prefix=prefix, min_mtime=min_mtime, max_mtime=max_mtime))
 
+    @abc.abstractmethod
+    def store(self, local_fs_path: str, coll_path: str, exist_ok: bool = False) -> FileKey:
+        """Store file from the filesystem to the collection by the given collection path."""
+
 
 class MediaFile(PathLike):
     """This is draft for the abstract media file associated with some FileCollection."""

@@ -226,13 +226,13 @@ def process_online_video(
     match_distance: Optional[float] = None,
     min_duration: Optional[Number] = None,
 ):
-    from .progress_monitor import make_progress_monitor
-    from winnow.utils.config import resolve_config
+    from .luigi_support import LuigiRootProgressMonitor, run_luigi
+    from winnow.pipeline.luigi.download import DownloadFilesTask
     from winnow.pipeline.pipeline_context import PipelineContext
-    from winnow.pipeline.process_urls import process_urls
+    from winnow.utils.config import resolve_config
 
     # Initialize a progress monitor
-    monitor = make_progress_monitor(task=self, total_work=1.0)
+    progress = LuigiRootProgressMonitor(celery_task=self)
 
     # Load configuration file
     logger.info("Loading config file")
@@ -246,23 +246,18 @@ def process_online_video(
         min_duration=min_duration,
     )
     config.database.use = True
+    pipeline = PipelineContext(config)
+    logger.info("Loaded config: %s", config)
 
-    # Run pipeline
-    monitor.update(0)
-    pipeline_context = PipelineContext(config)
-    file_paths = process_urls(
-        urls=urls,
-        destination_template=destination_template,
-        pipeline=pipeline_context,
-        progress=monitor,
-    )
+    download_task = DownloadFilesTask(config=config, urls=urls, destination_template=destination_template)
+    file_paths = download_task.output().remaining_coll_paths
+    run_luigi(DownloadFilesTask(config=config, urls=urls, destination_template=destination_template))
 
-    with pipeline_context.database.session_scope() as session:
-        store_paths = tuple(pipeline_context.storepath(path) for path in file_paths)
-        files = session.query(Files).filter(Files.file_path.in_(store_paths)).all()
+    with pipeline.database.session_scope() as session:
+        files = session.query(Files).filter(Files.file_path.in_(file_paths)).all()
         result = {"files": [{"id": file.id, "path": file.file_path} for file in files]}
 
-    monitor.complete()
+    progress.complete()
     return result
 
 
@@ -289,7 +284,7 @@ def push_fingerprints_task(
     with pipeline.database.session_scope(expunge=True) as session:
         repository: Repository = session.query(Repository).filter(Repository.id == repository_id).one()
 
-    run_luigi(PushFingerprintsTask(config_path=config_path, repository_name=repository.name))
+    run_luigi(PushFingerprintsTask(config=config, repository_name=repository.name))
     progress.complete()
 
 

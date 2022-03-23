@@ -94,13 +94,16 @@ class HashCache(MutableMapping[str, str]):
         hash_file_path = self._map_path(file_path)
         if not os.path.isfile(hash_file_path):
             raise KeyError(fspath(file_path))
+        # Check if hash outdated
+        if os.path.getmtime(hash_file_path) < os.path.getmtime(file_path):
+            raise KeyError(fspath(file_path))
         with open(hash_file_path, "r") as file:
             return file.read().strip()
 
     def __contains__(self, file_path: Union[str, PathLike]) -> bool:
         """Check if the hash for the given file is cached."""
         hash_file_path = self._map_path(file_path)
-        return os.path.isfile(hash_file_path)
+        return os.path.isfile(hash_file_path) and os.path.getmtime(hash_file_path) >= os.path.getmtime(file_path)
 
     def __len__(self) -> int:
         """Getting length is not implemented."""

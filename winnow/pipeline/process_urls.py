@@ -1,4 +1,5 @@
 import logging
+from typing import Collection
 
 from winnow.pipeline.detect_scenes import detect_scenes
 from winnow.pipeline.extract_exif import extract_exif
@@ -9,7 +10,7 @@ from winnow.utils.download import download_videos
 
 
 def process_urls(
-    urls: str,
+    urls: Collection[str],
     pipeline: PipelineContext,
     destination_template: str = "%(title)s.%(ext)s",
     progress=ProgressMonitor.NULL,

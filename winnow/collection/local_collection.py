@@ -1,11 +1,12 @@
 import logging
 import os
+import shutil
 from datetime import datetime
 from typing import Iterator, Collection, Union, Optional
 
 from winnow.collection.file_collection import FileCollection
 from winnow.storage.file_key import FileKey
-from winnow.utils.files import extension_filter, iter_files, mtime_filter, FileHashFunc
+from winnow.utils.files import extension_filter, iter_files, mtime_filter, FileHashFunc, is_parent
 
 
 class LocalFileCollection(FileCollection):
@@ -16,7 +17,7 @@ class LocalFileCollection(FileCollection):
     logger = logging.getLogger(f"{__name__}.LocalFileCollection")
 
     def __init__(self, root_path: str, extensions: Collection[str], calculate_hash: FileHashFunc):
-        self._root_path: str = root_path
+        self._root_path: str = os.path.normpath(root_path)
         if not os.path.isdir(root_path):
             raise ValueError(f"Not a directory: {root_path}")
         self._extensions = tuple(extensions)
@@ -67,6 +68,7 @@ class LocalFileCollection(FileCollection):
         Otherwise, KeyError will be raised.
         """
         collection_path = self._key_path(key_or_path)
+        self._ensure_valid_path(collection_path)
         local_path = self._local_fs_path(collection_path)
         if not self._correct_local_path(local_path):
             if raise_exception:
@@ -80,6 +82,7 @@ class LocalFileCollection(FileCollection):
         If ``raise_exception`` is False, None will be returned on missing path.
         Otherwise, KeyError will be raised.
         """
+        self._ensure_valid_path(collection_path)
         local_fs_path = self._local_fs_path(collection_path)
         if not self._correct_local_path(local_fs_path):
             if raise_exception:
@@ -90,7 +93,9 @@ class LocalFileCollection(FileCollection):
 
     def exists(self, key_or_path: Union[FileKey, str]) -> bool:
         """Check if the key or path exists inside the collection. """
-        local_path = self._local_fs_path(self._key_path(key_or_path))
+        coll_path = self._key_path(key_or_path)
+        self._ensure_valid_path(coll_path)
+        local_path = self._local_fs_path(coll_path)
         return self._correct_local_path(local_path)
 
     def max_mtime(self, *, prefix: str = ".") -> datetime:
@@ -103,6 +108,20 @@ class LocalFileCollection(FileCollection):
         max_timestamp = max(map(os.path.getmtime, file_paths))
         return datetime.fromtimestamp(max_timestamp)
 
+    def store(self, local_fs_path: str, coll_path: str, exist_ok: bool = False) -> FileKey:
+        """Store file from the filesystem to the collection by the given collection path."""
+        if not os.path.isfile(local_fs_path):
+            raise ValueError(f"Not a file path: {local_fs_path}")
+        if not self._extensions_filter(local_fs_path):
+            raise ValueError(f"Unexpected file type: {local_fs_path}")
+        if self.exists(coll_path) and not exist_ok:
+            raise RuntimeError(f"File collection entry path already exists: {coll_path}")
+        self._ensure_valid_path(coll_path)
+        destination_path = self._local_fs_path(coll_path)
+        os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+        shutil.copy(src=local_fs_path, dst=destination_path)
+        return FileKey(path=coll_path, hash=self._calculate_hash(destination_path))
+
     def _iter_local_paths(
         self,
         prefix: str = ".",
@@ -110,6 +129,7 @@ class LocalFileCollection(FileCollection):
         max_mtime: datetime = None,
     ) -> Iterator[str]:
         """Iterate over local paths of files in the collection."""
+        self._ensure_valid_prefix(prefix)
         parent_path = self._local_fs_path(prefix)
         paths = filter(self._extensions_filter, iter_files(parent_path))
         if min_mtime is not None or max_mtime is not None:
@@ -117,17 +137,27 @@ class LocalFileCollection(FileCollection):
             paths = filter(correct_mtime, paths)
         return paths
 
-    def _local_fs_path(self, path: str) -> str:
+    def _local_fs_path(self, coll_path: str) -> str:
         """Get local path from the collection path."""
-        return os.path.join(self._root_path, path)
+        return os.path.join(self._root_path, coll_path)
 
-    def _collection_path(self, local_path: str) -> str:
+    def _collection_path(self, local_fs_path: str) -> str:
         """Convert local file-system path to storage path."""
-        return os.path.relpath(local_path, start=self._root_path)
+        return os.path.relpath(local_fs_path, start=self._root_path)
 
     def _correct_local_path(self, local_fs_path: str) -> bool:
         """Check if the local path corresponds to the existing media file."""
         return os.path.isfile(local_fs_path) and self._extensions_filter(local_fs_path)
+
+    def _ensure_valid_prefix(self, prefix: str):
+        local_fs_path = os.path.normpath(self._local_fs_path(prefix))
+        if local_fs_path != self._root_path and not is_parent(local_fs_path, self._root_path):
+            raise ValueError(f"Invalid file collection prefix: {local_fs_path}")
+
+    def _ensure_valid_path(self, coll_path: str):
+        local_fs_path = os.path.normpath(self._local_fs_path(coll_path))
+        if not is_parent(local_fs_path, self._root_path):
+            raise ValueError(f"Invalid collection path: {coll_path}")
 
     @staticmethod
     def _key_path(key_or_path: Union[FileKey, str]) -> str:
