@@ -9,7 +9,6 @@ from celery.utils.log import get_task_logger
 
 from db.access.templates import TemplatesDAO
 from db.schema import Template, Files, Repository
-from .progress_monitor import make_progress_monitor
 from .winnow_task import winnow_task
 
 logger = get_task_logger(__name__)
@@ -327,38 +326,27 @@ def match_remote_fingerprints(
     repository_id: int = None,
     contributor_name: str = None,
 ):
-    from winnow.utils.config import resolve_config
+    from .luigi_support import LuigiRootProgressMonitor, run_luigi
     from winnow.pipeline.pipeline_context import PipelineContext
-    from winnow.pipeline.generate_remote_matches import generate_remote_matches
+    from winnow.utils.config import resolve_config
+    from winnow.pipeline.luigi.matches import RemoteMatchesTask
 
     # Initialize a progress monitor
-    monitor = make_progress_monitor(task=self, total_work=1.0)
+    progress = LuigiRootProgressMonitor(celery_task=self)
 
     # Load configuration file
     logger.info("Loading config file")
     config = resolve_config()
     config.database.use = True
+    pipeline = PipelineContext(config)
+    logger.info("Loaded config: %s", config)
 
-    # Run pipeline
-    monitor.update(0)
-    pipeline_context = PipelineContext(config)
+    with pipeline.database.session_scope() as session:
+        repo = session.query(Repository).filter(Repository.id == repository_id).one()
+        repository_name = repo.name
 
-    if repository_id is None and contributor_name is not None:
-        raise ValueError("Cannot specify contributor name when repository id is not specified")
-
-    repository_name = None
-    if repository_id is not None:
-        with pipeline_context.database.session_scope() as session:
-            repo = session.query(Repository).filter(Repository.id == repository_id).one()
-            repository_name = repo.name
-
-    generate_remote_matches(
-        repository_name=repository_name,
-        contributor_name=contributor_name,
-        pipeline=pipeline_context,
-        progress=monitor.subtask(work_amount=1.0),
-    )
-    monitor.complete()
+    run_luigi(RemoteMatchesTask(config=config, repository_name=repository_name, haystack_prefix="."))
+    progress.complete()
 
 
 @winnow_task(bind=True)

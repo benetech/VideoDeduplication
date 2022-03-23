@@ -251,6 +251,11 @@ def mtime_filter(min_mtime: datetime = None, max_mtime: datetime = None) -> Call
     return predicate
 
 
+def is_parent(path: Union[str, PathLike], parent_path: Union[str, PathLike]) -> bool:
+    """Check if ``path`` is located under the ``parent_path``."""
+    return Path(parent_path) in Path(path).parents
+
+
 def split_suffix(path: str, suffix: str = None) -> Tuple[str, str]:
     """Split path into a pair (base-name, suffix).
 
@@ -347,7 +352,7 @@ class PathTime:
 
     @staticmethod
     def find_groups(
-        common_prefix: str, suffixes=Sequence[str], format: str = FORMAT, delim: str = DELIM
+        common_prefix: str, suffixes: Sequence[str], format: str = FORMAT, delim: str = DELIM
     ) -> Sequence[Tuple[Sequence[str], datetime]]:
         """List all groups of files with different timestamps."""
         # For each suffix collect all paths for this suffix as dict(time->path)
@@ -375,7 +380,7 @@ class PathTime:
 
     @staticmethod
     def latest_group(
-        common_prefix: str, suffixes=Sequence[str], format: str = FORMAT, delim: str = DELIM
+        common_prefix: str, suffixes: Sequence[str], format: str = FORMAT, delim: str = DELIM
     ) -> Tuple[Optional[Sequence[str]], Optional[datetime]]:
         """Find the latest group of timestamped files with the same timestamp."""
         latest_paths: Optional[Sequence[str]] = None
@@ -385,3 +390,14 @@ class PathTime:
                 latest_paths = paths
                 latest_time = time
         return latest_paths, latest_time
+
+    @staticmethod
+    def stamp_group(
+        common_prefix: str, suffixes: Sequence[str], time: datetime, format: str = FORMAT, delim: str = DELIM
+    ) -> Sequence[str]:
+        """Timestamp file path group."""
+        result = []
+        for suffix in suffixes:
+            path = f"{common_prefix}{suffix}"
+            result.append(PathTime.stamp(path, time, suffix, format, delim))
+        return result

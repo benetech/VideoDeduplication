@@ -25,6 +25,9 @@ from winnow.storage.remote_signatures_dao import (
     DBRemoteSignaturesDAO,
     ReprRemoteSignaturesDAO,
     RemoteSignaturesDAO,
+    DBRemoteMatchesDAO,
+    RemoteMatchesDAO,
+    RemoteMatchesReportDAO,
 )
 from winnow.storage.repr_storage import ReprStorage
 from winnow.storage.repr_utils import path_resolver, PathResolver
@@ -94,6 +97,14 @@ class PipelineContext:
             return DBRemoteSignaturesDAO(self.database)
         storage_root = os.path.join(self.config.repr.directory, "remote_signatures")
         return ReprRemoteSignaturesDAO(root_directory=storage_root, output_directory=self.config.repr.directory)
+
+    @cached_property
+    def remote_matches_dao(self) -> RemoteMatchesDAO:
+        """Get remote matches storge."""
+        if self.config.database.use:
+            return DBRemoteMatchesDAO(self.database)
+        storage_root = os.path.join(self.config.repr.directory, "remote_matches")
+        return RemoteMatchesReportDAO(directory=storage_root)
 
     @cached_property
     def repository_dao(self) -> RemoteRepoDAO:

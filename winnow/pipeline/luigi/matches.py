@@ -1,12 +1,14 @@
 import abc
 import os
 from datetime import datetime
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Dict, Tuple
 
 import luigi
 import pandas as pd
 from cached_property import cached_property
 
+from remote.model import RemoteFingerprint
+from winnow.collection.file_collection import FileCollection
 from winnow.duplicate_detection.neighbors import NeighborMatcher, DetectedMatch, FeatureVector
 from winnow.pipeline.luigi.annoy_index import AnnoyIndexTask
 from winnow.pipeline.luigi.condense import CondenseFingerprintsTask, CondensedFingerprints
@@ -14,6 +16,7 @@ from winnow.pipeline.luigi.platform import PipelineTask, ConstTarget
 from winnow.pipeline.luigi.targets import FileGroupTarget
 from winnow.pipeline.luigi.utils import MatchesDF
 from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonitor
+from winnow.storage.remote_signatures_dao import RemoteMatch, RemoteSignaturesDAO, RemoteMatchesDAO, RemoteMatchesReport
 from winnow.utils.files import PathTime
 
 
@@ -57,14 +60,7 @@ class MatchesBaseTask(PipelineTask, abc.ABC):
 
     def load_nn_matcher(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> NeighborMatcher:
         """Load nearest-neighbors matcher."""
-        progress.scale(1.0)
-        (annoy_path, keys_path), _ = self.annoy_input.latest_result
-        return NeighborMatcher.load(
-            annoy_path,
-            keys_path,
-            metric=self.metric,
-            progress=progress,
-        )
+        return load_nn(self.annoy_input, self.metric, progress)
 
     @cached_property
     def annoy_dependency(self) -> AnnoyIndexTask:
@@ -98,13 +94,7 @@ class DBMatchesTask(PipelineTask):
         self.logger.info("Prepared %s feature-vectors for matching", len(feature_vectors))
 
         self.logger.info("Loading Nearest Neighbor matcher.")
-        (annoy_path, keys_path), _ = annoy_input.latest_result
-        neighbor_matcher = NeighborMatcher.load(
-            annoy_path,
-            keys_path,
-            metric=self.metric,
-            progress=self.progress.subtask(0.1),
-        )
+        neighbor_matcher = load_nn(annoy_input, self.metric, self.progress.subtask(0.1))
         self.logger.info("Loaded Nearest Neighbor matcher with %s entries.", len(neighbor_matcher.haystack_keys))
 
         self.logger.info("Searching for the matches.")
@@ -143,7 +133,7 @@ class DBMatchesTask(PipelineTask):
 
 
 class MatchesReportTask(PipelineTask):
-    """Matches csv-report."""
+    """Find file matches and write results into CSV report."""
 
     needles_prefix: str = luigi.Parameter(default=".")
     haystack_prefix: str = luigi.Parameter(default=".")
@@ -165,13 +155,7 @@ class MatchesReportTask(PipelineTask):
         self.logger.info("Prepared %s feature-vectors for matching", len(feature_vectors))
 
         self.logger.info("Loading Nearest Neighbor matcher.")
-        (annoy_path, keys_path), _ = annoy_input.latest_result
-        neighbor_matcher = NeighborMatcher.load(
-            annoy_path,
-            keys_path,
-            metric=self.metric,
-            progress=self.progress.subtask(0.1),
-        )
+        neighbor_matcher = load_nn(annoy_input, self.metric, self.progress.subtask(0.1))
         self.logger.info("Loaded Nearest Neighbor matcher with %s entries.", len(neighbor_matcher.haystack_keys))
 
         self.logger.info("Searching for the matches.")
@@ -244,3 +228,136 @@ class MatchesReportTask(PipelineTask):
             previous_path, _ = PathTime.previous(self.result_path)
             return previous_path
         return None
+
+
+class RemoteMatchesTarget(luigi.Target):
+    """Represents remote matches results."""
+
+    def __init__(
+        self,
+        haystack_prefix: str,
+        repository_name: str,
+        remote_signatures: RemoteSignaturesDAO,
+        remote_matches: RemoteMatchesDAO,
+        coll: FileCollection,
+    ):
+        self.haystack_prefix: str = haystack_prefix
+        self.repository_name: str = repository_name
+        self.remote_signatures: RemoteSignaturesDAO = remote_signatures
+        self.remote_matches: RemoteMatchesDAO = remote_matches
+        self.coll: FileCollection = coll
+
+    def exists(self):
+        last_result = self.remote_matches.latest_results(self.haystack_prefix, self.repository_name)
+        # Must run if no previous results are available
+        if last_result is None:
+            return False
+        # Must run if new remote signatures are available
+        if last_result.max_remote_id < self.remote_signatures.last_remote_id(self.repository_name):
+            return False
+        # Must run if new local signatures are available
+        return not self.coll.any(prefix=self.haystack_prefix, min_mtime=last_result.timestamp)
+
+
+class RemoteMatchesTask(PipelineTask):
+    """Find matches between local and remote files."""
+
+    repository_name: str = luigi.Parameter()
+    haystack_prefix: str = luigi.Parameter(default=".")
+
+    fingerprint_size: int = luigi.IntParameter(default=500)
+    metric: str = luigi.Parameter(default="angular")
+    n_trees: int = luigi.IntParameter(default=10)
+
+    def output(self):
+        return RemoteMatchesTarget(
+            haystack_prefix=self.haystack_prefix,
+            repository_name=self.repository_name,
+            remote_signatures=self.pipeline.remote_signature_dao,
+            remote_matches=self.pipeline.remote_matches_dao,
+            coll=self.pipeline.coll,
+        )
+
+    def requires(self):
+        yield AnnoyIndexTask(
+            config=self.config,
+            prefix=self.haystack_prefix,
+            fingerprint_size=self.fingerprint_size,
+            metric=self.metric,
+            n_trees=self.n_trees,
+        )
+
+    def run(self):
+        annoy_input = self.input()
+
+        self.logger.info("Loading NN-matcher for local files with prefix '%s'", self.haystack_prefix)
+        neighbor_matcher = load_nn(annoy_input, self.metric, self.progress.subtask(0.1))
+        self.logger.info("Loaded NN-matcher with %s entries.", len(neighbor_matcher.haystack_keys))
+
+        self.logger.info("Preparing remote signatures for matching")
+        needles, sig_index = self._prepare_remote_signatures(self.progress.subtask(0.1))
+        self.logger.info("Loaded %s remote signatures", len(needles))
+
+        self.logger.info("Starting remote match detection")
+        found_matches = neighbor_matcher.find_matches(needles=needles, max_distance=self.config.proc.match_distance)
+        self.logger.info("Found %s remote matches")
+        self.progress.increase(0.4)
+
+        self.logger.info("Preparing remote matches to save", len(found_matches))
+        report = self._remote_matches(found_matches, sig_index, self.progress.subtask(0.1))
+        self.logger.info("Prepared %s remote matches", len(report.matches))
+
+        self.logger.info("Saving remote matches")
+        self.pipeline.remote_matches_dao.save_matches(report, self.progress.remaining())
+        self.logger.info("Successfully saved %s matches", len(report.matches))
+
+    def _prepare_remote_signatures(
+        self, progress: BaseProgressMonitor = ProgressMonitor.NULL
+    ) -> Tuple[Sequence[FeatureVector], Dict[int, RemoteFingerprint]]:
+        """Retrieve remote signatures and convert them to ``FeatureVector``s."""
+        progress.scale(1.0)
+        remote_signatures = list(self.pipeline.remote_signature_dao.query_signatures(self.repository_name))
+        progress.increase(0.3)
+        sig_index = {remote.id: remote for remote in remote_signatures}
+        progress.increase(0.3)
+        feature_vectors = []
+        converting = progress.bar(scale=len(remote_signatures), unit="remote sigs")
+        for remote in remote_signatures:
+            feature_vectors.append(FeatureVector(key=remote.id, features=remote.fingerprint))
+            converting.increase(1)
+        converting.complete()
+        return feature_vectors, sig_index
+
+    def _remote_matches(
+        self,
+        detected_matches: Sequence[DetectedMatch],
+        remote_sigs: Dict[int, RemoteFingerprint],
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
+    ) -> RemoteMatchesReport:
+        """Convert detected feature-vector matches to remote matches."""
+        remote_matches = []
+        progress = progress.bar(scale=len(detected_matches), unit="matches")
+        for detected_match in detected_matches:
+            remote_match = RemoteMatch(
+                remote=remote_sigs[detected_match.needle_key],
+                local=detected_match.haystack_key,
+                distance=detected_match.distance,
+            )
+            remote_matches.append(remote_match)
+            progress.increase(1)
+        progress.complete()
+        return RemoteMatchesReport(
+            haystack_prefix=self.haystack_prefix,
+            repository_name=self.repository_name,
+            timestamp=self.pipeline.coll.max_mtime(prefix=self.haystack_prefix),
+            max_remote_id=self.pipeline.remote_signature_dao.last_remote_id(self.repository_name),
+            matches=remote_matches,
+        )
+
+
+def load_nn(
+    annoy_input: FileGroupTarget, metric: str = "angular", progress: BaseProgressMonitor = ProgressMonitor.NULL
+) -> NeighborMatcher:
+    """Load the ``NeighborMatcher`` from the Annoy-index."""
+    (annoy_path, keys_path), _ = annoy_input.latest_result
+    return NeighborMatcher.load(annoy_path, keys_path, metric=metric, progress=progress)

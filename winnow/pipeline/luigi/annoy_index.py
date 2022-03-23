@@ -6,7 +6,6 @@ from annoy import AnnoyIndex
 from winnow.pipeline.luigi.condense import CondenseFingerprintsTask, CondensedFingerprints
 from winnow.pipeline.luigi.platform import PipelineTask
 from winnow.pipeline.luigi.targets import FileGroupTarget
-from winnow.pipeline.progress_monitor import LazyProgress, ProgressBar
 
 
 class AnnoyIndexTask(PipelineTask):
@@ -29,7 +28,7 @@ class AnnoyIndexTask(PipelineTask):
 
         self.logger.info("Building Annoy index")
         annoy_index = AnnoyIndex(self.fingerprint_size, "angular")
-        fitting_progress = LazyProgress(ProgressBar(self.progress.subtask(0.6).scale(len(condensed)), unit="sigs"))
+        fitting_progress = self.progress.bar(0.6, scale=len(condensed), unit="sigs")
         for i, fingerprint in enumerate(condensed.fingerprints):
             annoy_index.add_item(i, fingerprint)
             fitting_progress.increase(1)
