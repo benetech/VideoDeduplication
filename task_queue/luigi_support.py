@@ -1,3 +1,4 @@
+import logging
 import os
 from contextlib import contextmanager
 
@@ -62,7 +63,7 @@ def luigi_config(
     progress = LuigiRootProgressMonitor(celery_task=celery_task)
 
     # Load configuration file
-    logger = get_task_logger("task_queue.tasks")
+    logger: logging.Logger = get_task_logger("task_queue.tasks")
     logger.info("Loading config file")
     config = resolve_config(
         frame_sampling=frame_sampling,
@@ -78,8 +79,19 @@ def luigi_config(
     config.database.use = True
     logger.info("Loaded config: %s", config)
 
+    luigi_error = None
+
+    @JusticeAITask.event_handler(luigi.Event.FAILURE)
+    def handle_error(task, exception):
+        """Handle errors originated from the luigi pipeline."""
+        nonlocal luigi_error
+        logger.error("Error occurred while executing luigi tasks: %s, %s", task, exception)
+        luigi_error = exception
+
     yield config
 
+    if luigi_error is not None:
+        raise luigi_error
     progress.complete()
 
 
