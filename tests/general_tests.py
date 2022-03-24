@@ -41,6 +41,12 @@ def dataset(config):
 
 # FIXME: Fix broken tests #476
 
+
+def test_dummy():
+    """Just do nothing."""
+    pass
+
+
 # def test_extract_frame_level_features(dataset, pipeline: PipelineContext):
 #     extract_frame_level_features(files=dataset, pipeline=pipeline)
 #     features_storage = pipeline.repr_storage.frame_level
