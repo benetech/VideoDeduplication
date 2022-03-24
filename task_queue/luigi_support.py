@@ -1,4 +1,5 @@
 import os
+from contextlib import contextmanager
 
 import luigi
 
@@ -37,6 +38,58 @@ class LuigiRootProgressMonitor(ProgressMonitor):
     def _handle_task_progress(self, amount):
         """Handle progress reported by some task."""
         self.increase(amount)
+
+
+@contextmanager
+def luigi_config(
+    celery_task,
+    frame_sampling=None,
+    save_frames=None,
+    filter_dark=None,
+    dark_threshold=None,
+    extensions=None,
+    match_distance=None,
+    min_duration=None,
+    template_distance=None,
+    template_distance_min=None,
+    **_,
+):
+    """Convenience context-manager to prepare and tear-down luigi run."""
+    from winnow.utils.config import resolve_config
+    from celery.utils.log import get_task_logger
+
+    # Initialize a progress monitor
+    progress = LuigiRootProgressMonitor(celery_task=celery_task)
+
+    # Load configuration file
+    logger = get_task_logger("task_queue.tasks")
+    logger.info("Loading config file")
+    config = resolve_config(
+        frame_sampling=frame_sampling,
+        save_frames=save_frames,
+        filter_dark=filter_dark,
+        dark_threshold=dark_threshold,
+        extensions=extensions,
+        match_distance=match_distance,
+        min_duration=min_duration,
+        templates_distance=template_distance,
+        templates_distance_min=template_distance_min,
+    )
+    config.database.use = True
+    logger.info("Loaded config: %s", config)
+
+    yield config
+
+    progress.complete()
+
+
+@contextmanager
+def luigi_pipeline(celery_task, **config_overrides):
+    """Convenience context-manager to set up a luigi run when a pipeline is required."""
+    from winnow.pipeline.pipeline_context import PipelineContext
+
+    with luigi_config(celery_task, **config_overrides) as config:
+        yield PipelineContext(config)
 
 
 def resolve_luigi_config_path() -> str:
