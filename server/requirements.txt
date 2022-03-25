@@ -17,6 +17,7 @@ redis==4.1.2
 
 # Locked dependencies
 amqp==5.1.0
+attrs==21.4.0
 bidict==0.22.0
 billiard==3.6.4.0
 cffi==1.15.0
@@ -27,19 +28,24 @@ click-repl==0.2.0
 Deprecated==1.2.13
 dnspython==1.16.0
 greenlet==1.1.2
+iniconfig==1.1.1
 Jinja2==3.1.0
 kombu==5.2.4
 MarkupSafe==2.1.1
 packaging==21.3
+pluggy==1.0.0
 prompt-toolkit==3.0.28
 protobuf==3.19.4
+py==1.11.0
 pycparser==2.21
 pyparsing==3.0.7
+pytest==7.1.1
 python-engineio==4.3.1
 python-socketio==5.5.2
 pytz==2022.1
 six==1.16.0
 termcolor==1.1.0
+tomli==2.0.1
 vine==5.0.0
 wcwidth==0.2.5
 wrapt==1.14.0
