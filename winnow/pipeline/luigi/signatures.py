@@ -8,14 +8,13 @@ from dataclasses import astuple
 
 from db import Database
 from db.access.files import FilesDAO
-
 from winnow.feature_extraction import SimilarityModel
+from winnow.pipeline.luigi.platform import PipelineTask, ConstTarget
 from winnow.pipeline.luigi.targets import (
     PrefixFeatureTarget,
     PathListFeatureTarget,
     PathListFileFeatureTarget,
 )
-from winnow.pipeline.luigi.platform import PipelineTask, ConstTarget
 from winnow.pipeline.luigi.utils import KeyIter
 from winnow.pipeline.luigi.video_features import (
     VideoFeaturesTask,
@@ -181,7 +180,7 @@ class DBSignaturesTarget(luigi.Target):
         with self.database.session_scope() as session:
             path_hash_pairs = map(astuple, self.keys)
             missing_signatures = FilesDAO.select_missing_signatures(path_hash_pairs, session)
-            return tuple(map(FileKey, missing_signatures))
+            return tuple(map(lambda path_hash: FileKey(*path_hash), missing_signatures))
 
 
 class DBSignaturesTask(PipelineTask):

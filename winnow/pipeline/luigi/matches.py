@@ -18,6 +18,7 @@ from winnow.duplicate_detection.neighbors import NeighborMatcher, DetectedMatch,
 from winnow.pipeline.luigi.annoy_index import AnnoyIndexTask
 from winnow.pipeline.luigi.condense import CondenseFingerprintsTask, CondensedFingerprints
 from winnow.pipeline.luigi.platform import PipelineTask, ConstTarget
+from winnow.pipeline.luigi.signatures import SignaturesByPathListFileTask
 from winnow.pipeline.luigi.targets import FileGroupTarget
 from winnow.pipeline.luigi.utils import MatchesDF
 from winnow.pipeline.pipeline_context import PipelineContext
@@ -25,7 +26,7 @@ from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonito
 from winnow.storage.file_key import FileKey
 from winnow.storage.remote_signatures_dao import RemoteMatch, RemoteSignaturesDAO, RemoteMatchesDAO, RemoteMatchesReport
 from winnow.utils.brightness import get_brightness_estimation
-from winnow.utils.files import PathTime
+from winnow.utils.files import PathTime, hash_file
 
 
 class MatchesBaseTask(PipelineTask, abc.ABC):
@@ -324,6 +325,63 @@ class MatchesReportTask(PipelineTask):
             previous_path, _ = PathTime.previous(self.result_path)
             return previous_path
         return None
+
+
+class MatchesByFileListTask(PipelineTask):
+    """Find matches for videos listed in a text file."""
+
+    path_list_file: str = luigi.Parameter()
+    output_path: str = luigi.Parameter(default=None)
+    metric: str = luigi.Parameter(default="cosine")
+    max_matches: int = luigi.IntParameter(default=20)
+
+    def requires(self):
+        SignaturesByPathListFileTask(config=self.config, path_list_file=self.path_list_file)
+
+    def output(self):
+        return luigi.LocalTarget(self.result_path)
+
+    def run(self):
+        self.logger.info("Reading paths list from %s", self.path_list_file)
+        with open(self.path_list_file, "r") as list_file:
+            paths = list(map(str.strip, list_file.readlines()))
+        self.progress.increase(0.1)
+        self.logger.info("%s paths was loaded from %s", len(paths), self.path_list_file)
+
+        self.logger.info("Reading fingerprints", len(paths))
+        file_keys = list(map(self.pipeline.coll.file_key, paths))
+        signatures = self.pipeline.repr_storage.signature
+        feature_vectors = [FeatureVector(key=key, features=signatures.read(key)) for key in file_keys]
+        self.progress.increase(0.1)
+        self.logger.info("Loaded %s fingerprints", len(feature_vectors))
+
+        max_distance = self.config.proc.match_distance
+        self.logger.info("Performing match detection wi.")
+        matching = self.progress.subtask(0.7)
+        neighbor_matcher = NeighborMatcher(haystack=feature_vectors, max_matches=self.max_matches, metric=self.metric)
+        matches = neighbor_matcher.find_matches(needles=feature_vectors, max_distance=max_distance, progress=matching)
+        self.logger.info("Found %s matches", len(matches))
+
+        if self.config.proc.filter_dark_videos:
+            self.logger.info("Filtering dark videos with threshold %s", self.config.proc.filter_dark_videos_thr)
+            matches, _ = filter_dark(file_keys, matches, self.pipeline, self.progress.subtask(0.05), self.logger)
+
+        self.logger.info("Preparing file matches for saving")
+        matches_df = MatchesDF.make(matches, self.progress.remaining())
+        self.logger.info("Prepared %s file matches for saving", len(matches_df.index))
+
+        self.logger.info("Saving matches report to %s", self.result_path)
+        with self.output().open("w") as output:
+            matches_df.to_csv(output)
+
+    @cached_property
+    def result_path(self) -> str:
+        """Resolved result report path."""
+        if self.output_path is not None:
+            return self.output_path
+        list_hash = hash_file(self.path_list_file)[10:]
+        filename = f"matches_{self.max_matches}max_{self.metric}_list_{list_hash}.csv"
+        return os.path.join(self.output_directory, "matches", filename)
 
 
 class RemoteMatchesTarget(luigi.Target):

@@ -5,12 +5,14 @@ from typing import Iterable, Iterator, Any, Tuple
 
 import luigi
 import pandas as pd
+from cached_property import cached_property
 
 from winnow.pipeline.luigi.platform import PipelineTask
 from winnow.pipeline.luigi.targets import FileWithTimestampTarget
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor, BaseProgressMonitor
 from winnow.storage.file_key import FileKey
+from winnow.utils.files import hash_file
 from winnow.utils.metadata_extraction import extract_from_list_of_videos, convert_to_df, parse_and_filter_metadata_df
 
 
@@ -61,6 +63,49 @@ class ExifTask(PipelineTask):
             self.logger.info("Saving EXIF to database")
             save_exif_database(file_keys=file_keys, exif_df=exif_df, pipeline=self.pipeline)
         self.progress.complete()
+
+
+class ExifFileListFileTask(PipelineTask):
+    """Extract EXIF data and save it to the CSV."""
+
+    path_list_file: str = luigi.Parameter()
+    output_path: str = luigi.Parameter(default=None)
+
+    def output(self):
+        return luigi.LocalTarget(self.result_path)
+
+    def run(self):
+        self.logger.info("Reading paths list from %s", self.path_list_file)
+        with open(self.path_list_file, "r") as list_file:
+            paths = list(map(str.strip, list_file.readlines()))
+        self.logger.info("%s paths was selected", len(paths))
+
+        file_keys = list(map(self.pipeline.coll.file_key, paths))
+        exif_df = extract_exif(
+            file_keys=file_keys,
+            pipeline=self.pipeline,
+            progress=self.progress.subtask(0.9),
+            logger=self.logger,
+        )
+
+        self.logger.info("Saving EXIF metadata to %s", self.result_path)
+        os.makedirs(os.path.dirname(self.result_path), exist_ok=True)
+        with self.output().open("w") as output:
+            exif_df.to_csv(output)
+        self.progress.increase(0.05)
+
+        if self.config.database.use:
+            self.logger.info("Saving EXIF to database")
+            save_exif_database(file_keys=file_keys, exif_df=exif_df, pipeline=self.pipeline)
+        self.progress.complete()
+
+    @cached_property
+    def result_path(self) -> str:
+        """Resolved result report path."""
+        if self.output_path is not None:
+            return self.output_path
+        list_hash = hash_file(self.path_list_file)[10:]
+        return os.path.join(self.output_directory, "exif", f"exif_list_{list_hash}.csv")
 
 
 def extract_exif(

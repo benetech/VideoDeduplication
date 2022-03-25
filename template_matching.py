@@ -1,22 +1,15 @@
+import logging.config
 import os
 
 import click
+import luigi
 
-from winnow.pipeline.match_templates import match_templates
-from winnow.pipeline.pipeline_context import PipelineContext
+from winnow.pipeline.luigi.templates import TemplateMatchesReportTask
 from winnow.utils.config import resolve_config
-from winnow.utils.files import scan_videos, scan_videos_from_txt
-from winnow.utils.logging import configure_logging_cli
 
 
 @click.command()
 @click.option("--config", "-cp", help="path to the project config file", default=os.environ.get("WINNOW_CONFIG"))
-@click.option(
-    "--list-of-files",
-    "-lof",
-    help="path to txt with a list of files for processing - overrides source folder from the config file",
-    default=None,
-)
 @click.option(
     "--frame-sampling",
     "-fs",
@@ -43,9 +36,8 @@ from winnow.utils.logging import configure_logging_cli
     help="path to a directory containing templates - overrides source folder from the config file",
     default=None,
 )
-def main(config, list_of_files, frame_sampling, save_frames, override, template_dir):
-    logger = configure_logging_cli()
-    logger.info("Loading config file")
+def main(config, frame_sampling, save_frames, override, template_dir):
+    logging.config.fileConfig("./logging.conf")
     config = resolve_config(
         config_path=config,
         frame_sampling=frame_sampling,
@@ -54,13 +46,7 @@ def main(config, list_of_files, frame_sampling, save_frames, override, template_
         templates_dir=template_dir,
     )
 
-    logger.info("Searching for Dataset Video Files")
-    if list_of_files is None:
-        videos = scan_videos(config.sources.root, "**", extensions=config.sources.extensions)
-    else:
-        videos = scan_videos_from_txt(list_of_files, extensions=config.sources.extensions)
-
-    match_templates(files=videos, pipeline=PipelineContext(config))
+    luigi.build([TemplateMatchesReportTask(config=config)], local_scheduler=True, workers=1)
 
 
 if __name__ == "__main__":
