@@ -3,7 +3,7 @@ import os
 import sys
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterable, List
+from typing import List, Collection
 
 import yt_dlp
 from tqdm import tqdm
@@ -105,17 +105,30 @@ class YDLProgressTracker:
             self._started = False
 
 
+def download_path(
+    video_url: str,
+    output_template: str,
+    output_directory: str,
+) -> str:
+    """Get target path of the file to be downloaded without actually downloading it."""
+    resolved_template = _complete_template(output_directory, output_template)
+    ydl_options = {"format": "mp4", "outtmpl": resolved_template}
+    with yt_dlp.YoutubeDL(ydl_options) as ydl:
+        video_info = ydl.extract_info(video_url, download=False)
+        return ydl.prepare_filename(video_info)
+
+
 def download_video(
     video_url: str,
     output_template: str,
-    root_directory: str,
+    output_directory: str,
     progress=ProgressMonitor.NULL,
     logger: logging.Logger = _logger,
 ) -> str:
     """Download a single video from by URL."""
 
     # Resolve output template
-    output_template = _complete_template(root_directory, output_template)
+    output_template = _complete_template(output_directory, output_template)
     logger.info("Starting video download URL=%s destination=%s", video_url, output_template)
 
     # Setup progress-tracking
@@ -144,7 +157,7 @@ def download_video(
 
 
 def download_videos(
-    urls: Iterable[str],
+    urls: Collection[str],
     output_template: str,
     root_directory: str,
     progress=ProgressMonitor.NULL,
@@ -162,7 +175,7 @@ def download_videos(
             file_path = download_video(
                 video_url,
                 output_template=output_template,
-                root_directory=root_directory,
+                output_directory=root_directory,
                 progress=subtask,
                 logger=logger,
             )

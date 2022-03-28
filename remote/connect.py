@@ -37,8 +37,16 @@ class RemoteConnector(abc.ABC):
     def pull_all(self, chunk_size=1000, progress: BaseProgressMonitor = ProgressMonitor.NULL):
         """Pull all available fingerprints form the remote repository and save them locally."""
 
+    @abc.abstractmethod
+    def push_available(self) -> bool:
+        """Check if more fingerprints are available for push."""
 
-class DatabaseConnector:
+    @abc.abstractmethod
+    def pull_available(self) -> bool:
+        """Check if more fingerprints are available for pull."""
+
+
+class DatabaseConnector(RemoteConnector):
     """DatabaseConnector provides integration between local database
     and remote repository offers coarse-grained operations to push
     and pull all available fingerprints.
@@ -51,6 +59,11 @@ class DatabaseConnector:
     def _repo(self, session) -> Repository:
         """Get repository entity."""
         return session.query(Repository).filter(Repository.name == self.client.repository.name).one()
+
+    @property
+    def repository(self) -> RemoteRepository:
+        """Get repository."""
+        return self.client.repository
 
     def push_all(self, chunk_size=1000, progress: BaseProgressMonitor = ProgressMonitor.NULL):
         """Push all fingerprints from the given local database to the remote repository."""
@@ -97,7 +110,7 @@ class DatabaseConnector:
         return resume_id
 
     def _get_latest_pulled_fingerprint_id(self) -> int:
-        """Get latest file from the local database that was pulled from the given repository."""
+        """Get the latest file from the local database that was pulled from the given repository."""
         with self.database.session_scope() as session:
             repo = self._repo(session)
             query = session.query(func.max(Files.external_id))
@@ -139,8 +152,24 @@ class DatabaseConnector:
         session.add_all(new_contributors)
         return {contributor.name: contributor for contributor in (existing_contributors + new_contributors)}
 
+    def push_available(self) -> bool:
+        """Check if more fingerprints are available for push."""
+        stats = self.client.get_stats()
+        with self.database.session_scope() as session:
+            local_query = session.query(Files).filter(Files.contributor == None)  # noqa: E711
+            local_count = local_query.distinct(Files.sha256).count()
+        return local_count > stats.pushed_count
 
-class ReprConnector:
+    def pull_available(self) -> bool:
+        """Check if more fingerprints are available for pull."""
+        stats = self.client.get_stats()
+        with self.database.session_scope() as session:
+            from_this_repository = Files.contributor.has(Contributor.name == self.repository.name)
+            pulled_count = session.query(Files).filter(from_this_repository).count()
+        return pulled_count < stats.total_count
+
+
+class ReprConnector(RemoteConnector):
     """ReprConnector provides integration between local repr storage
     and remote fingerprint repository when local database is disabled.
     Offers coarse-grained operations to push and pull all available
@@ -156,6 +185,10 @@ class ReprConnector:
         self._client: RepositoryClient = repo_client
         self._remote_signature_dao = remote_signature_dao
         self._signature_storage: BaseReprStorage = signature_storage
+
+    @property
+    def repository(self) -> RemoteRepository:
+        return self._client.repository
 
     def push_all(self, chunk_size=1000, progress: BaseProgressMonitor = ProgressMonitor.NULL):
         """Push all fingerprints from the given local database to the remote repository."""
@@ -184,6 +217,16 @@ class ReprConnector:
     @staticmethod
     def to_local_fingerprints(keys: Iterable[FileKey], storage: BaseReprStorage) -> List[LocalFingerprint]:
         return [LocalFingerprint(sha256=key.hash, fingerprint=pickle.dumps(storage.read(key))) for key in keys]
+
+    def push_available(self) -> bool:
+        """Check if more fingerprints are available for push."""
+        stats = self._client.get_stats()
+        return len(self._signature_storage) > stats.pushed_count
+
+    def pull_available(self) -> bool:
+        """Check if more fingerprints are available for pull."""
+        stats = self._client.get_stats()
+        return stats.total_count > self._remote_signature_dao.count(repository_name=self.repository.name)
 
 
 RepoConnector = Union[DatabaseConnector, ReprConnector]

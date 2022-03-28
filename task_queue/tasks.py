@@ -1,434 +1,154 @@
+import json
 import os
+import tempfile
 import time
-from numbers import Number
-from pathlib import Path
-from typing import Optional, List, Dict
+from typing import List, Dict
 
 from celery.utils.log import get_task_logger
 
 from db.access.templates import TemplatesDAO
 from db.schema import Template, Files, Repository
-from .progress_monitor import make_progress_monitor
 from .winnow_task import winnow_task
 
 logger = get_task_logger(__name__)
 
 
 @winnow_task(bind=True)
-def process_directory(
-    self,
-    directory: str,
-    save_frames: Optional[int] = None,
-    frame_sampling: Optional[int] = None,
-    filter_dark: Optional[bool] = None,
-    dark_threshold: Optional[Number] = None,
-    extensions: Optional[List[str]] = None,
-    match_distance: Optional[float] = None,
-    min_duration: Optional[Number] = None,
-):
-    from winnow.utils.config import resolve_config
-    from winnow.utils.files import scan_videos
-    from winnow.pipeline.extract_exif import extract_exif
-    from winnow.pipeline.detect_scenes import detect_scenes
-    from winnow.pipeline.generate_local_matches import generate_local_matches
-    from winnow.pipeline.pipeline_context import PipelineContext
-    from winnow.utils.files import get_hash
+def process_directory(self, directory: str, **config_overrides):
+    """Perform basic directory processing: extract exif + match files."""
+    from .luigi_support import luigi_config, run_luigi
+    from winnow.pipeline.luigi.matches import DBMatchesTask
+    from winnow.pipeline.luigi.exif import ExifTask
 
-    # Initialize a progress monitor
-    monitor = make_progress_monitor(task=self, total_work=1.0)
-
-    # Load configuration file
-    logger.info("Loading config file")
-    config = resolve_config(
-        frame_sampling=frame_sampling,
-        save_frames=save_frames,
-        filter_dark=filter_dark,
-        dark_threshold=dark_threshold,
-        extensions=extensions,
-        match_distance=match_distance,
-        min_duration=min_duration,
-    )
-    config.database.use = True
-
-    # Resolve list of video files from the directory
-    logger.info(f"Resolving video list for directory {directory}")
-
-    absolute_root = os.path.abspath(config.sources.root)
-    absolute_dir = os.path.abspath(os.path.join(absolute_root, directory))
-    if Path(config.sources.root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:
-        raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
-
-    videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
-    hashes = [get_hash(file, config.repr.hash_mode) for file in videos]
-
-    # Run pipeline
-    monitor.update(0)
-    pipeline_context = PipelineContext(config)
-    generate_local_matches(
-        files=videos, pipeline=pipeline_context, hashes=hashes, progress=monitor.subtask(work_amount=0.9)
-    )
-    detect_scenes(files=videos, pipeline=pipeline_context, progress=monitor.subtask(0.01))
-    extract_exif(videos, pipeline_context, progress_monitor=monitor.subtask(work_amount=0.05))
-
-    monitor.complete()
+    with luigi_config(celery_task=self, **config_overrides) as config:
+        match_files = DBMatchesTask(config=config, needles_prefix=directory)
+        extract_exif = ExifTask(config=config, prefix=directory)
+        run_luigi(match_files, extract_exif)
 
 
 @winnow_task(bind=True)
-def process_file_list(
-    self,
-    files: List[str],
-    save_frames: Optional[int] = None,
-    frame_sampling: Optional[int] = None,
-    filter_dark: Optional[bool] = None,
-    dark_threshold: Optional[Number] = None,
-    extensions: Optional[List[str]] = None,
-    match_distance: Optional[float] = None,
-    min_duration: Optional[Number] = None,
-):
-    from winnow.utils.config import resolve_config
-    from winnow.utils.files import get_hash
-    from winnow.pipeline.extract_exif import extract_exif
-    from winnow.pipeline.detect_scenes import detect_scenes
-    from winnow.pipeline.generate_local_matches import generate_local_matches
-    from winnow.pipeline.pipeline_context import PipelineContext
-
-    # Initialize a progress monitor
-    monitor = make_progress_monitor(task=self, total_work=1.0)
-
-    # Load configuration file
-    logger.info("Loading config file")
-    config = resolve_config(
-        frame_sampling=frame_sampling,
-        save_frames=save_frames,
-        filter_dark=filter_dark,
-        dark_threshold=dark_threshold,
-        extensions=extensions,
-        match_distance=match_distance,
-        min_duration=min_duration,
-    )
-    config.database.use = True
-
-    # Run pipeline
-    monitor.update(0)
-    pipeline_context = PipelineContext(config)
-    hashes = [get_hash(file, config.repr.hash_mode) for file in files]
-    generate_local_matches(files, pipeline=pipeline_context, hashes=hashes, progress=monitor.subtask(work_amount=0.9))
-    detect_scenes(files, pipeline=pipeline_context, progress=monitor.subtask(0.01))
-    extract_exif(files, pipeline_context, progress_monitor=monitor.subtask(work_amount=0.05))
-
-    monitor.complete()
+def process_file_list(**_):
+    """The task was not hooked up in the UI."""
+    raise NotImplementedError("Process file list task is not implemented.")
 
 
 @winnow_task(bind=True)
-def match_all_templates(
-    self,
-    save_frames: Optional[int] = None,
-    frame_sampling: Optional[int] = None,
-    filter_dark: Optional[bool] = None,
-    dark_threshold: Optional[Number] = None,
-    extensions: Optional[List[str]] = None,
-    match_distance: Optional[float] = None,
-    template_distance: Optional[float] = None,
-    template_distance_min: Optional[float] = None,
-    min_duration: Optional[Number] = None,
-) -> Dict:
-    from winnow.utils.config import resolve_config
-    from winnow.utils.files import scan_videos
-    from winnow.pipeline.extract_exif import extract_exif
-    from winnow.pipeline.match_templates import match_templates
-    from winnow.pipeline.pipeline_context import PipelineContext
+def match_all_templates(self, **config_overrides) -> Dict:
+    """Match all templates."""
+    from .luigi_support import luigi_pipeline, run_luigi
+    from winnow.pipeline.luigi.templates import DBTemplateMatchesTask
 
-    # Initialize a progress monitor
-    monitor = make_progress_monitor(task=self, total_work=1.0)
+    with luigi_pipeline(celery_task=self, **config_overrides) as pipeline:
+        run_luigi(DBTemplateMatchesTask(config=pipeline.config, prefix="."))
 
-    # Load configuration file
-    logger.info("Loading config file")
-    config = resolve_config(
-        frame_sampling=frame_sampling,
-        save_frames=save_frames,
-        templates_distance=template_distance,
-        templates_distance_min=template_distance_min,
-        filter_dark=filter_dark,
-        dark_threshold=dark_threshold,
-        extensions=extensions,
-        match_distance=match_distance,
-        min_duration=min_duration,
-    )
+        database = pipeline.database
+        with database.session_scope() as session:
+            templates = session.query(Template)
+            raw_counts = TemplatesDAO.query_file_counts(session, templates)
+            file_counts = [{"template": template_id, "file_count": count} for template_id, count in raw_counts.items()]
 
-    # Make sure templates are loaded from the database
-    config.templates.source_path = None
-    config.database.use = True
-
-    # Resolve list of video files from the directory
-    directory = "."  # dataset root
-    logger.info(f"Resolving video list for directory {directory}")
-    absolute_root = os.path.abspath(config.sources.root)
-    absolute_dir = os.path.abspath(os.path.join(absolute_root, directory))
-    if Path(config.sources.root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:
-        raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
-
-    videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
-
-    # Run pipeline
-    monitor.update(0)
-    pipeline_context = PipelineContext(config)
-    extract_exif(videos, pipeline_context, progress_monitor=monitor.subtask(work_amount=0.1))
-    match_templates(videos, pipeline_context, progress=monitor.subtask(work_amount=0.9))
-
-    # Fetch matched file counts
-    database = pipeline_context.database
-    with database.session_scope() as session:
-        templates = session.query(Template)
-        raw_counts = TemplatesDAO.query_file_counts(session, templates)
-        file_counts = [{"template": template_id, "file_count": count} for template_id, count in raw_counts.items()]
-
-    monitor.complete()
-
-    return {"file_counts": file_counts}
+        return {"file_counts": file_counts}
 
 
 @winnow_task(bind=True)
-def find_frame_task(
-    self,
-    file_id: int,
-    frame_time_millis: int,
-    directory: str = ".",
-    template_distance: Optional[float] = None,
-    template_distance_min: Optional[float] = None,
-    save_frames: Optional[int] = None,
-    frame_sampling: Optional[int] = None,
-    filter_dark: Optional[bool] = None,
-    dark_threshold: Optional[Number] = None,
-    extensions: Optional[List[str]] = None,
-    match_distance: Optional[float] = None,
-    min_duration: Optional[Number] = None,
-):
-    from winnow.utils.config import resolve_config
-    from winnow.utils.files import scan_videos
-    from winnow.pipeline.pipeline_context import PipelineContext
-    from winnow.pipeline.find_frame import find_frame
-    from winnow.search_engine.model import Frame
-    from .frame_matches import get_frame_matches
+def find_frame_task(self, file_id: int, frame_time_millis: int, directory: str = ".", **config_overrides):
+    """Find similar frames among other videos."""
+    from .luigi_support import luigi_pipeline, run_luigi
+    from winnow.pipeline.luigi.find_frame import FindFrameTask
 
-    # Initialize a progress monitor
-    monitor = make_progress_monitor(task=self, total_work=1.0)
+    with luigi_pipeline(celery_task=self, **config_overrides) as pipeline:
+        # Fetch file details by id
+        with pipeline.database.session_scope(expunge=True) as session:
+            file = session.query(Files).filter(Files.id == file_id).one()
 
-    # Load configuration file
-    logger.info("Loading config file")
-    config = resolve_config(
-        frame_sampling=frame_sampling,
-        save_frames=save_frames,
-        filter_dark=filter_dark,
-        dark_threshold=dark_threshold,
-        extensions=extensions,
-        match_distance=match_distance,
-        min_duration=min_duration,
-        templates_distance=template_distance,
-        templates_distance_min=template_distance_min,
-    )
-    config.database.use = True
+        # Write frame-search report to the temporary file
+        with tempfile.TemporaryDirectory(prefix="file-storage-") as output_directory:
+            result_path = os.path.join(output_directory, "found_frames.json")
+            find_frame = FindFrameTask(
+                config=pipeline.config,
+                frame_video_path=file.file_path,
+                frame_time_millis=float(frame_time_millis),
+                among_files_prefix=directory,
+                output_path=result_path,
+            )
+            run_luigi(find_frame)
 
-    # Resolve list of video files from the directory
-    logger.info(f"Resolving video list for directory {directory}")
+            # Read the matches from the temporary report-file
+            with open(result_path, "r") as result_file:
+                matches = json.load(result_file)
 
-    absolute_root = os.path.abspath(config.sources.root)
-    absolute_dir = os.path.abspath(os.path.join(absolute_root, directory))
-    if Path(config.sources.root) not in Path(absolute_dir).parents and absolute_root != absolute_dir:
-        raise ValueError(f"Directory '{directory}' is outside of content root folder '{config.sources.root}'")
-
-    videos = scan_videos(absolute_dir, "**", extensions=config.sources.extensions)
-
-    # Run pipeline
-    monitor.update(0)
-    pipeline_context = PipelineContext(config)
-
-    with pipeline_context.database.session_scope() as session:
-        file = session.query(Files).filter(Files.id == file_id).one()
-        storage_root = pipeline_context.config.sources.root
-        file_path = os.path.join(storage_root, file.file_path)
-
-    matches = find_frame(
-        frame=Frame(path=file_path, time=frame_time_millis),
-        files=videos,
-        pipeline=pipeline_context,
-        progress=monitor.subtask(work_amount=1.0),
-    )
-
-    monitor.complete()
-    return {"matches": get_frame_matches(matches, pipeline_context)}
+        return {"matches": matches}
 
 
 @winnow_task(bind=True)
-def process_online_video(
-    self,
-    urls: List[str],
-    destination_template: str,
-    save_frames: Optional[int] = None,
-    frame_sampling: Optional[int] = None,
-    filter_dark: Optional[bool] = None,
-    dark_threshold: Optional[Number] = None,
-    extensions: Optional[List[str]] = None,
-    match_distance: Optional[float] = None,
-    min_duration: Optional[Number] = None,
-):
-    from winnow.utils.config import resolve_config
-    from winnow.pipeline.pipeline_context import PipelineContext
-    from winnow.pipeline.process_urls import process_urls
+def process_online_video(self, urls: List[str], destination_template: str, **config_overrides):
+    """Download online videos and perform basic processing."""
+    from .luigi_support import luigi_pipeline, run_luigi
+    from winnow.pipeline.luigi.download import DownloadFilesTask
 
-    # Initialize a progress monitor
-    monitor = make_progress_monitor(task=self, total_work=1.0)
+    with luigi_pipeline(celery_task=self, **config_overrides) as pipeline:
+        download_task = DownloadFilesTask(config=pipeline.config, urls=urls, destination_template=destination_template)
+        file_paths = download_task.output().remaining_coll_paths
+        run_luigi(download_task)
 
-    # Load configuration file
-    logger.info("Loading config file")
-    config = resolve_config(
-        frame_sampling=frame_sampling,
-        save_frames=save_frames,
-        filter_dark=filter_dark,
-        dark_threshold=dark_threshold,
-        extensions=extensions,
-        match_distance=match_distance,
-        min_duration=min_duration,
-    )
-    config.database.use = True
+        # Prepare task results
+        with pipeline.database.session_scope() as session:
+            files = session.query(Files).filter(Files.file_path.in_(file_paths)).all()
+            result = {"files": [{"id": file.id, "path": file.file_path} for file in files]}
 
-    # Run pipeline
-    monitor.update(0)
-    pipeline_context = PipelineContext(config)
-    file_paths = process_urls(
-        urls=urls,
-        destination_template=destination_template,
-        pipeline=pipeline_context,
-        progress=monitor,
-    )
-
-    with pipeline_context.database.session_scope() as session:
-        store_paths = tuple(pipeline_context.storepath(path) for path in file_paths)
-        files = session.query(Files).filter(Files.file_path.in_(store_paths)).all()
-        result = {"files": [{"id": file.id, "path": file.file_path} for file in files]}
-
-    monitor.complete()
-    return result
+        return result
 
 
 @winnow_task(bind=True)
-def push_fingerprints_task(
-    self,
-    repository_id: int,
-):
-    from winnow.utils.config import resolve_config
-    from winnow.pipeline.pipeline_context import PipelineContext
-    from winnow.pipeline.push_fingerprints import push_fingerprints
+def push_fingerprints_task(self, repository_id: int):
+    """Push local fingerprints to remote repository."""
+    from .luigi_support import luigi_pipeline, run_luigi
+    from winnow.pipeline.luigi.remote_fingerprints import PushFingerprintsTask
 
-    # Initialize a progress monitor
-    monitor = make_progress_monitor(task=self, total_work=1.0)
-
-    # Load configuration file
-    logger.info("Loading config file")
-    config = resolve_config()
-    config.database.use = True
-
-    # Run pipeline
-    monitor.update(0)
-    pipeline_context = PipelineContext(config)
-
-    with pipeline_context.database.session_scope(expunge=True) as session:
-        repo: Repository = session.query(Repository).filter(Repository.id == repository_id).one()
-
-    push_fingerprints(repo.name, pipeline_context, monitor.subtask(work_amount=1.0))
-    monitor.complete()
+    with luigi_pipeline(celery_task=self) as pipeline:
+        # Fetch repository to determine repository name by id
+        with pipeline.database.session_scope(expunge=True) as session:
+            repository: Repository = session.query(Repository).filter(Repository.id == repository_id).one()
+        # Push local fingerprints to remote repository
+        run_luigi(PushFingerprintsTask(config=pipeline.config, repository_name=repository.name))
 
 
 @winnow_task(bind=True)
-def pull_fingerprints_task(
-    self,
-    repository_id: int,
-):
-    from winnow.utils.config import resolve_config
-    from winnow.pipeline.pipeline_context import PipelineContext
-    from winnow.pipeline.pull_fingerprints import pull_fingerprints
+def pull_fingerprints_task(self, repository_id: int):
+    from .luigi_support import luigi_pipeline, run_luigi
+    from winnow.pipeline.luigi.remote_fingerprints import PullFingerprintsTask
 
-    # Initialize a progress monitor
-    monitor = make_progress_monitor(task=self, total_work=1.0)
-
-    # Load configuration file
-    logger.info("Loading config file")
-    config = resolve_config()
-    config.database.use = True
-
-    # Run pipeline
-    monitor.update(0)
-    pipeline_context = PipelineContext(config)
-
-    with pipeline_context.database.session_scope(expunge=True) as session:
-        repo: Repository = session.query(Repository).filter(Repository.id == repository_id).one()
-
-    pull_fingerprints(repo.name, pipeline_context, monitor.subtask(work_amount=1.0))
-    monitor.complete()
+    with luigi_pipeline(celery_task=self) as pipeline:
+        # Fetch repository to determine repository name by id
+        with pipeline.database.session_scope(expunge=True) as session:
+            repository: Repository = session.query(Repository).filter(Repository.id == repository_id).one()
+        # Pull remote fingerprints
+        run_luigi(PullFingerprintsTask(config=pipeline.config, repository_name=repository.name))
 
 
 @winnow_task(bind=True)
-def match_remote_fingerprints(
-    self,
-    repository_id: int = None,
-    contributor_name: str = None,
-):
-    from winnow.utils.config import resolve_config
-    from winnow.pipeline.pipeline_context import PipelineContext
-    from winnow.pipeline.generate_remote_matches import generate_remote_matches
+def match_remote_fingerprints(self, repository_id: int = None, **_):
+    """Match fingerprints from the given remote repository with the local fingerprints."""
+    from .luigi_support import luigi_pipeline, run_luigi
+    from winnow.pipeline.luigi.matches import RemoteMatchesTask
 
-    # Initialize a progress monitor
-    monitor = make_progress_monitor(task=self, total_work=1.0)
-
-    # Load configuration file
-    logger.info("Loading config file")
-    config = resolve_config()
-    config.database.use = True
-
-    # Run pipeline
-    monitor.update(0)
-    pipeline_context = PipelineContext(config)
-
-    if repository_id is None and contributor_name is not None:
-        raise ValueError("Cannot specify contributor name when repository id is not specified")
-
-    repository_name = None
-    if repository_id is not None:
-        with pipeline_context.database.session_scope() as session:
-            repo = session.query(Repository).filter(Repository.id == repository_id).one()
+    with luigi_pipeline(celery_task=self) as pipeline:
+        # Determine repository name by ID
+        with pipeline.database.session_scope() as session:
+            repo: Repository = session.query(Repository).filter(Repository.id == repository_id).one()
             repository_name = repo.name
 
-    generate_remote_matches(
-        repository_name=repository_name,
-        contributor_name=contributor_name,
-        pipeline=pipeline_context,
-        progress=monitor.subtask(work_amount=1.0),
-    )
-    monitor.complete()
+        run_luigi(RemoteMatchesTask(config=pipeline.config, repository_name=repository_name, haystack_prefix="."))
 
 
 @winnow_task(bind=True)
-def prepare_semantic_search(self, force: bool = True):
-    from winnow.utils.config import resolve_config
-    from winnow.pipeline.pipeline_context import PipelineContext
-    from winnow.pipeline.prepare_text_search import prepare_text_search
-    import torch
+def prepare_semantic_search(self, **_):
+    """Prepare semantic search model."""
+    from .luigi_support import luigi_config, run_luigi
+    from winnow.pipeline.luigi.text_search import PrepareTextSearchTask
 
-    torch.multiprocessing.set_start_method("spawn")
-
-    # Initialize a progress monitor
-    monitor = make_progress_monitor(task=self, total_work=1.0)
-
-    # Load configuration file
-    logger.info("Loading config file")
-    config = resolve_config()
-    config.database.use = True
-
-    # Run pipeline
-    monitor.update(0)
-    pipeline_context = PipelineContext(config)
-
-    prepare_text_search(pipeline_context, force, monitor.subtask(1.0))
-    monitor.complete()
+    with luigi_config(celery_task=self) as config:
+        run_luigi(PrepareTextSearchTask(config=config))
 
 
 def fibo(n):
@@ -440,6 +160,8 @@ def fibo(n):
 
 @winnow_task(bind=True)
 def test_fibonacci(self, n, delay):
+    from .progress_monitor import make_progress_monitor
+
     # Initialize a progress monitor
     monitor = make_progress_monitor(task=self, total_work=n)
     for step in range(n):

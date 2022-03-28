@@ -20,6 +20,12 @@ dependencies:
   - pysoundfile
   - h5py==2.9.0
   - ffmpeg
+  - numba
+  - pynndescent
+  - luigi
+  - tabulate
+  - umap-learn
+  - networkit
   - pip
   - pip:
       - lmdb
@@ -43,6 +49,8 @@ dependencies:
       - yt-dlp
       - dacite
       - deprecation
+      - trimap
+      - pacmap
       - torch
       - grpcio==1.43.0
       - grpcio-tools==1.43.0

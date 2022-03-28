@@ -1,6 +1,5 @@
-import io
 import json
-from typing import Dict, Union
+from typing import Dict, Union, TextIO, BinaryIO
 
 import dacite
 from dataclasses import asdict, dataclass
@@ -15,7 +14,7 @@ class DataLoader:
     def __init__(self, data_class):
         self._data_class = data_class
 
-    def load(self, reader: Union[io.StringIO, io.BytesIO], **kwargs):
+    def load(self, reader: Union[TextIO, BinaryIO], **kwargs):
         """Load dataclass object from the File-Like object."""
         data = json.load(reader, **kwargs)
         return self.fromdict(data)
@@ -25,7 +24,7 @@ class DataLoader:
         data = json.loads(text, **kwargs)
         return self.fromdict(data)
 
-    def dump(self, data_object, writer: Union[io.StringIO, io.BytesIO], **kwargs):
+    def dump(self, data_object, writer: Union[TextIO, BinaryIO], **kwargs):
         """Dump dataclass object to the File-Like writer."""
         data = self.asdict(data_object)
         kwargs.setdefault("indent", 4)
@@ -39,7 +38,8 @@ class DataLoader:
         kwargs.setdefault("sort_keys", True)
         return json.dumps(data, **kwargs)
 
-    def asdict(self, data_object) -> Dict:
+    @staticmethod
+    def asdict(data_object) -> Dict:
         """Convert dataclass object to dict."""
         return asdict(data_object)
 

@@ -1,7 +1,10 @@
+import logging.config
 import os
 
 import click
+import luigi
 
+from winnow.pipeline.luigi.download import DownloadFilesTask
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.process_urls import process_urls
 from winnow.utils.config import resolve_config
@@ -31,12 +34,12 @@ from winnow.utils.logging import configure_logging_cli
 )
 def main(url, output, config, frame_sampling, save_frames):
     """Entry point for processing video by URL."""
-    logger = configure_logging_cli()
-    logger.info("Loading config file")
     config = resolve_config(config_path=config, frame_sampling=frame_sampling, save_frames=save_frames)
+    logging.config.fileConfig("./logging.conf")
 
-    pipeline = PipelineContext(config)
-    process_urls(urls=[url], destination_template=output, pipeline=pipeline)
+    luigi.build(
+        [DownloadFilesTask(config=config, urls=[url], destination_template=output)], local_scheduler=True, workers=1
+    )
 
 
 if __name__ == "__main__":

@@ -5,24 +5,27 @@ import pickle
 from datetime import datetime
 from os import listdir
 from os.path import isdir
-from typing import Dict, Iterable, Iterator, Tuple, Optional
+from typing import Dict, Iterable, Iterator, Tuple, Optional, Collection
 
 import pandas as pd
 from dataclasses import dataclass
-from sqlalchemy import tuple_
+from sqlalchemy import tuple_, func
 from sqlalchemy.orm import Session
 
 from db import Database
 from db.access.files import FilesDAO
-from db.schema import Matches, Repository, Contributor, Files, Signature
+from db.schema import Matches, Repository, Contributor, Files, Signature, TaskLogRecord
 from remote.model import RemoteFingerprint
+from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonitor
 from winnow.storage.base_repr_storage import ReprStorageFactory, BaseReprStorage
 from winnow.storage.file_key import FileKey
-from winnow.storage.legacy.repr_key import ReprKey
 from winnow.storage.metadata import DataLoader
 from winnow.storage.simple_repr_storage import SimpleReprStorage
 
 # Default module logger
+from winnow.utils.files import is_parent, PathTime
+from winnow.utils.iterators import chunks
+
 logger = logging.getLogger(__name__)
 
 
@@ -41,31 +44,50 @@ class RemoteSignaturesDAO(abc.ABC):
     @abc.abstractmethod
     def query_signatures(
         self,
-        repository_name: str = None,
-        contributor_name: str = None,
+        repository_name: Optional[str] = None,
+        contributor_name: Optional[str] = None,
     ) -> Iterator[RemoteFingerprint]:
         """Iterate over remote signatures."""
-        pass
 
     @abc.abstractmethod
     def save_signatures(self, signatures: Iterable[RemoteFingerprint]):
         """Save remote fingerprints to the local storage."""
-        pass
 
     @abc.abstractmethod
     def get_signature(self, repository_name: str, contributor_name: str, sha256: str) -> Optional[RemoteFingerprint]:
         """Get single remote fingerprint."""
-        pass
 
     @abc.abstractmethod
-    def count(self, repository_name: str = None, contributor_name: str = None) -> int:
+    def count(self, repository_name: Optional[str] = None, contributor_name: Optional[str] = None) -> int:
         """Count remote signatures."""
-        pass
 
     @abc.abstractmethod
-    def save_matches(self, matches: Iterable[RemoteMatch]):
+    def last_remote_id(self, repository_name: Optional[str]) -> int:
+        """Get the latest downloaded remote id."""
+
+
+@dataclass
+class RemoteMatchesReport:
+    """Collection of found remote matches."""
+
+    haystack_prefix: str
+    repository_name: str
+    timestamp: datetime
+    max_remote_id: int
+    matches: Optional[Collection[RemoteMatch]] = None
+
+
+class RemoteMatchesDAO(abc.ABC):
+    """Remote matches storage API."""
+
+    @abc.abstractmethod
+    def save_matches(self, report: RemoteMatchesReport, progress: BaseProgressMonitor = ProgressMonitor.NULL):
         """Save multiple DetectedMatches where needle is a remote signature key, haystack is a local file key."""
         pass
+
+    @abc.abstractmethod
+    def latest_results(self, haystack_prefix: str, repository_name: str) -> Optional[RemoteMatchesReport]:
+        """Get the remote matches report."""
 
 
 class DBRemoteSignaturesDAO(RemoteSignaturesDAO):
@@ -125,7 +147,7 @@ class DBRemoteSignaturesDAO(RemoteSignaturesDAO):
                 return None
             return self._remote_fingerprint(file)
 
-    def count(self, repository_name: str = None, contributor_name: str = None) -> int:
+    def count(self, repository_name: Optional[str] = None, contributor_name: Optional[str] = None) -> int:
         """Count remote signatures."""
         with self._database.session_scope() as session:
             return FilesDAO.query_remote_files(
@@ -134,53 +156,18 @@ class DBRemoteSignaturesDAO(RemoteSignaturesDAO):
                 contributor_name=contributor_name,
             ).count()
 
-    def save_matches(self, matches: Iterable[RemoteMatch]):
-        """Save multiple DetectedMatches where needle is a remote signature key, haystack is a local file key."""
-        with self._database.session_scope() as session:
-            matches = tuple(matches)
-            local_ids = self._local_file_ids(session, file_keys=(match.local for match in matches))
-            remote_ids = self._remote_file_ids(session, external_ids=(match.remote.id for match in matches))
-
-            # Update existing matches
-            id_pairs = ((remote_ids[match.remote.id], local_ids[match.local]) for match in matches)
-            existing_matches = self._get_existing_matches(session, id_pairs)
-
-            for detected_match in matches:
-                remote_id, local_id = remote_ids[detected_match.remote.id], local_ids[detected_match.local]
-                match_entity = existing_matches.get((remote_id, local_id))
-                if match_entity is None:
-                    match_entity = Matches(query_video_file_id=remote_id, match_video_file_id=local_id)
-                    session.add(match_entity)
-                match_entity.distance = detected_match.distance
-
-    def _local_file_ids(self, session: Session, file_keys: Iterable[FileKey]) -> Dict[FileKey, int]:
-        """Get local files keys -> database ids."""
-        path_hash_pairs = ((key.path, key.hash) for key in file_keys)
-        local_files = FilesDAO.query_local_files(session, path_hash_pairs).yield_per(10 ** 4)
-        return {FileKey(file.file_path, file.sha256): file.id for file in local_files}
-
-    def _remote_file_ids(self, session: Session, external_ids: Iterable[int]) -> Dict[int, int]:
-        """Get remote files external_ids -> database ids."""
-        remote_files = session.query(Files).filter(Files.external_id.in_(tuple(external_ids))).yield_per(10 ** 4)
-        return {file.external_id: file.id for file in remote_files}
-
-    def _get_existing_matches(self, session: Session, id_pairs) -> Dict[Tuple[int, int], Matches]:
-        """Get existing matches for the given id pairs."""
-        matched_file_ids = tuple_(Matches.query_video_file_id, Matches.match_video_file_id)
-        existing_matches = session.query(Matches).filter(matched_file_ids.in_(tuple(id_pairs)))
-        return {(match.query_video_file_id, match.match_video_file_id): match for match in existing_matches}
-
-    def _get_repos(self, session: Session, repo_names: Iterable[str]) -> Dict[str, Repository]:
+    @staticmethod
+    def _get_repos(session: Session, repo_names: Iterable[str]) -> Dict[str, Repository]:
         """Get repositories by names. Raise KeyError if repo not found."""
         repo_names = set(repo_names)
         repos = session.query(Repository).filter(Repository.name.in_(repo_names)).all()
         missing_repos = repo_names - set(repo.name for repo in repos)
         if len(missing_repos) > 0:
-            raise KeyError(f"Unknwon remote fingerprint repositories: {', '.join(missing_repos)}")
+            raise KeyError(f"Unknown remote fingerprint repositories: {', '.join(missing_repos)}")
         return {repo.name: repo for repo in repos}
 
+    @staticmethod
     def _get_contributors(
-        self,
         session: Session,
         repos: Dict[str, Repository],
         repo_contrib_pairs: Iterable[Tuple[str, str]],
@@ -196,7 +183,8 @@ class DBRemoteSignaturesDAO(RemoteSignaturesDAO):
             contributors[(repo_name, contrib_name)] = Contributor(name=contrib_name, repository=repos[repo_name])
         return contributors
 
-    def _remote_fingerprint(self, remote_file: Files) -> RemoteFingerprint:
+    @staticmethod
+    def _remote_fingerprint(remote_file: Files) -> RemoteFingerprint:
         """Convert remote file to RemoteFingerprint."""
         return RemoteFingerprint(
             id=remote_file.external_id,
@@ -205,6 +193,102 @@ class DBRemoteSignaturesDAO(RemoteSignaturesDAO):
             repository=remote_file.contributor.repository.name,
             contributor=remote_file.contributor.name,
         )
+
+    def last_remote_id(self, repository_name: Optional[str]) -> int:
+        with self._database.session_scope() as session:
+            query = session.query(func.max(Files.external_id))
+            query = query.filter(Files.contributor.has(Contributor.repository.has(Repository.name == repository_name)))
+            result = query.one()[0]
+            if result is None:
+                return 0
+            return result
+
+
+class DBRemoteMatchesDAO(RemoteMatchesDAO):
+    """Database storage of remote matches."""
+
+    # TaskLogRecord attributes:
+    LOG_TASK_NAME = "MatchRemoteFingerprints"
+    LOG_PREF_ATTR = "haystack_prefix"
+    LOG_MAX_ID_ATTR = "max_remote_id"
+    LOG_REPO_ATTR = "repository_name"
+
+    def __init__(self, database: Database):
+        self._database: Database = database
+
+    def save_matches(self, report: RemoteMatchesReport, progress: BaseProgressMonitor = ProgressMonitor.NULL):
+        """Save multiple DetectedMatches where needle is a remote signature key, haystack is a local file key."""
+        saving = progress.bar(0.9, scale=len(report.matches), unit="matches")
+        for matches in chunks(report.matches, size=10000):
+            with self._database.session_scope() as session:
+                local_ids = self._local_file_ids(session, file_keys=(match.local for match in matches))
+                remote_ids = self._remote_file_ids(session, external_ids=(match.remote.id for match in matches))
+
+                # Update existing matches
+                id_pairs = ((remote_ids[match.remote.id], local_ids[match.local]) for match in matches)
+                existing_matches = self._get_existing_matches(session, id_pairs)
+
+                for detected_match in matches:
+                    remote_id, local_id = remote_ids[detected_match.remote.id], local_ids[detected_match.local]
+                    match_entity = existing_matches.get((remote_id, local_id))
+                    if match_entity is None:
+                        match_entity = Matches(query_video_file_id=remote_id, match_video_file_id=local_id)
+                        session.add(match_entity)
+                    match_entity.distance = detected_match.distance
+                    saving.increase(1)
+        saving.complete()
+        with self._database.session_scope() as session:
+            log_record = TaskLogRecord(
+                task_name=self.LOG_TASK_NAME,
+                timestamp=report.timestamp,
+                details={
+                    self.LOG_PREF_ATTR: report.haystack_prefix,
+                    self.LOG_MAX_ID_ATTR: report.max_remote_id,
+                    self.LOG_REPO_ATTR: report.repository_name,
+                },
+            )
+            session.add(log_record)
+        progress.complete()
+
+    def latest_results(self, haystack_prefix: str, repository_name: str) -> Optional[RemoteMatchesReport]:
+        """Get the latest results."""
+        with self._database.session_scope() as session:
+            task_name = TaskLogRecord.task_name == self.LOG_TASK_NAME
+            repo_name = TaskLogRecord.details[self.LOG_REPO_ATTR].as_string() == repository_name
+            haystack = TaskLogRecord.details[self.LOG_PREF_ATTR].as_string() == haystack_prefix
+            filters = (task_name, repo_name, haystack)
+            last_time = session.query(func.max(TaskLogRecord.timestamp)).filter(*filters)
+            latest = TaskLogRecord.timestamp == last_time
+            last_record: TaskLogRecord = session.query(TaskLogRecord).filter(latest, *filters).one_or_none()
+            if last_record is None:
+                return None
+            return RemoteMatchesReport(
+                haystack_prefix=haystack_prefix,
+                repository_name=repository_name,
+                max_remote_id=last_record.details[self.LOG_MAX_ID_ATTR],
+                timestamp=last_record.timestamp,
+                matches=None,
+            )
+
+    @staticmethod
+    def _local_file_ids(session: Session, file_keys: Iterable[FileKey]) -> Dict[FileKey, int]:
+        """Get local files keys -> database ids."""
+        path_hash_pairs = ((key.path, key.hash) for key in file_keys)
+        local_files = FilesDAO.query_local_files(session, path_hash_pairs).yield_per(10 ** 4)
+        return {FileKey(file.file_path, file.sha256): file.id for file in local_files}
+
+    @staticmethod
+    def _remote_file_ids(session: Session, external_ids: Iterable[int]) -> Dict[int, int]:
+        """Get remote files external_ids -> database ids."""
+        remote_files = session.query(Files).filter(Files.external_id.in_(tuple(external_ids))).yield_per(10 ** 4)
+        return {file.external_id: file.id for file in remote_files}
+
+    @staticmethod
+    def _get_existing_matches(session: Session, id_pairs) -> Dict[Tuple[int, int], Matches]:
+        """Get existing matches for the given id pairs."""
+        matched_file_ids = tuple_(Matches.query_video_file_id, Matches.match_video_file_id)
+        existing_matches = session.query(Matches).filter(matched_file_ids.in_(tuple(id_pairs)))
+        return {(match.query_video_file_id, match.match_video_file_id): match for match in existing_matches}
 
 
 class ReprRemoteSignaturesDAO(RemoteSignaturesDAO):
@@ -268,7 +352,7 @@ class ReprRemoteSignaturesDAO(RemoteSignaturesDAO):
         """Save remote fingerprints to the local representation storage."""
         for item in signatures:
             storage = self._get_storage(repo=item.repository, contributor=item.contributor)
-            key = ReprKey(path=item.sha256, hash=item.sha256)
+            key = FileKey(path=item.sha256, hash=item.sha256)
             metadata = self.RemoteFingerprintMetadata(external_id=item.id)
             storage.write(key, item.fingerprint, metadata=metadata)
 
@@ -286,7 +370,7 @@ class ReprRemoteSignaturesDAO(RemoteSignaturesDAO):
             contributor=contributor_name,
         )
 
-    def count(self, repository_name: str = None, contributor_name: str = None) -> int:
+    def count(self, repository_name: Optional[str] = None, contributor_name: Optional[str] = None) -> int:
         """Count remote signatures."""
         total_count = 0
         for repo in self._repos(repository_name):
@@ -294,36 +378,6 @@ class ReprRemoteSignaturesDAO(RemoteSignaturesDAO):
                 storage = self._get_storage(repo, contributor)
                 total_count += len(storage)
         return total_count
-
-    def save_matches(self, matches: Iterable[RemoteMatch]):
-        """Save multiple DetectedMatches where needle is a remote signature key, haystack is a local file key."""
-        timestamp = datetime.now().strftime("%Y_%m_%d_%H%M%S%f")
-        report_file_name = os.path.join(self._output_directory, f"remote_matches_{timestamp}.csv")
-        dataframe = pd.DataFrame(
-            tuple(self._csv_entry(match) for match in matches),
-            columns=[
-                "remote_id",
-                "remote_repository",
-                "remote_contributor",
-                "remote_sha256",
-                "local_path",
-                "local_sha256",
-                "distance",
-            ],
-        )
-        dataframe.to_csv(report_file_name)
-
-    def _csv_entry(self, match: RemoteMatch):
-        """Flatten match to a tuple."""
-        return (
-            match.remote.id,
-            match.remote.repository,
-            match.remote.contributor,
-            match.remote.sha256,
-            match.local.path,
-            match.local.hash,
-            match.distance,
-        )
 
     def _repos(self, name=None):
         """List repositories."""
@@ -356,9 +410,106 @@ class ReprRemoteSignaturesDAO(RemoteSignaturesDAO):
             self._storages[(repo, contributor)] = self._storage_factory(storage_directory)
         return self._storages[(repo, contributor)]
 
-    def _external_id(self, repo: str, contributor: str, key: FileKey, storage: BaseReprStorage):
+    @staticmethod
+    def _external_id(repo: str, contributor: str, key: FileKey, storage: BaseReprStorage):
         """Get external id of the remote fingerprint."""
         metadata = storage.read_metadata(key)
         if metadata is None or metadata.external_id is None:
             return repo, contributor, key.hash  # Backward compatible way
         return metadata.external_id
+
+    def last_remote_id(self, repository_name: Optional[str]) -> int:
+        return self.count(repository_name=repository_name)
+
+
+@dataclass
+class _ReportDetails:
+    """Persistent report details."""
+
+    max_remote_id: int
+
+
+class RemoteMatchesReportDAO(RemoteMatchesDAO):
+    """Local file-system storage of remote matches."""
+
+    _REPORT_SUFFIXES = (".csv", ".details.json")
+
+    def __init__(self, directory: str):
+        self._directory: str = directory
+        self._loader = DataLoader(data_class=_ReportDetails)
+        os.makedirs(self._directory, exist_ok=True)
+
+    def save_matches(self, report: RemoteMatchesReport, progress: BaseProgressMonitor = ProgressMonitor.NULL):
+        """Save multiple DetectedMatches where needle is a remote signature key, haystack is a local file key."""
+        report_df = self._make_df(report, progress.subtask(0.9))
+        csv_path, details_path = self._paths(report)
+        os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+        os.makedirs(os.path.dirname(details_path), exist_ok=True)
+        with open(details_path, "w") as details_file:
+            report_df.to_csv(csv_path)
+            self._loader.dump(_ReportDetails(max_remote_id=report.max_remote_id), details_file)
+        progress.complete()
+
+    def _paths(self, report: RemoteMatchesReport) -> Tuple[str, str]:
+        """Get report paths."""
+        path_prefix = self._path_prefix(report.haystack_prefix, report.repository_name)
+        csv_path, details_path = PathTime.stamp_group(path_prefix, self._REPORT_SUFFIXES, time=report.timestamp)
+        return csv_path, details_path
+
+    def _path_prefix(self, haystack_prefix: str, repository_name: str) -> str:
+        """Get report path prefix."""
+        path_prefix = os.path.join(self._directory, repository_name, haystack_prefix, "remote_matches")
+        if not is_parent(path=path_prefix, parent_path=self._directory):
+            raise ValueError(f"Invalid prefix: {repository_name}/{haystack_prefix}")
+        return path_prefix
+
+    def latest_results(self, haystack_prefix: str, repository_name: str) -> Optional[RemoteMatchesReport]:
+        common_prefix = self._path_prefix(haystack_prefix, repository_name)
+        latest_paths, latest_time = PathTime.latest_group(common_prefix, self._REPORT_SUFFIXES)
+        if latest_paths is None:
+            return None
+        csv_path, details_path = latest_paths
+        with open(details_path, "r") as details_file:
+            details: _ReportDetails = self._loader.load(details_file)
+        return RemoteMatchesReport(
+            haystack_prefix=haystack_prefix,
+            repository_name=repository_name,
+            timestamp=latest_time,
+            max_remote_id=details.max_remote_id,
+            matches=None,
+        )
+
+    @staticmethod
+    def _make_df(report: RemoteMatchesReport, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> pd.DataFrame:
+        progress.scale(len(report.matches))
+        entries = []
+        for match in report.matches:
+            entries.append(RemoteMatchesReportDAO._csv_entry(match))
+            progress.increase(1)
+        report_df = pd.DataFrame(
+            entries,
+            columns=[
+                "remote_id",
+                "remote_repository",
+                "remote_contributor",
+                "remote_sha256",
+                "local_path",
+                "local_sha256",
+                "distance",
+            ],
+        )
+        progress.complete()
+        return report_df
+
+    @staticmethod
+    def _csv_entry(match: RemoteMatch):
+        """Flatten match to a tuple."""
+        return (
+            match.remote.id,
+            match.remote.repository,
+            match.remote.contributor,
+            match.remote.sha256,
+            match.local.path,
+            match.local.hash,
+            match.distance,
+        )

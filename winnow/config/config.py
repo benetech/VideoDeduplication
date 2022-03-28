@@ -1,6 +1,8 @@
 import enum
+import io
+import logging
 import os
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Type, Any, Optional
 
 import yaml
 from dataclasses import dataclass, asdict, field
@@ -13,22 +15,38 @@ def _bool_env(variable_name, default):
     return os.environ[variable_name].lower() == "true"
 
 
+def _parse_enum(enum_cls: Type[enum.Enum], value: Any, default: Any = None):
+    """Parse enum value."""
+    if value is None:
+        return default
+    if isinstance(value, enum_cls):
+        return value
+    if isinstance(value, str):
+        return enum_cls(value.lower().strip())
+    return enum_cls(value)
+
+
+def _parse_enum_name(enum_cls: Type[enum.Enum], name: Optional[str], default: Any = None):
+    """Parse enum by name."""
+    if name is None:
+        return default
+    try:
+        return enum_cls[name]
+    except KeyError:
+        raise ValueError(f"{name} is not a valid {enum_cls.__name__} name.")
+
+
 class HashMode(enum.Enum):
     """Supported hash modes."""
 
     FILE = "file"
     PATH = "path"
+    PATH_MTIME = "path+mtime"
 
     @staticmethod
     def parse(value, default=None):
         """Create a HashMode described by the given value."""
-        if value is None:
-            return default
-        if isinstance(value, HashMode):
-            return value
-        if isinstance(value, str):
-            return HashMode(value.lower().strip())
-        raise TypeError(f"Unrecognized value for HashMode: {value}")
+        return _parse_enum(HashMode, value, default)
 
 
 class StorageType(enum.Enum):
@@ -38,17 +56,12 @@ class StorageType(enum.Enum):
     LMDB = "lmdb"
     SIMPLE = "simple"
     SQLITE = "sqlite"
+    NOHASH = "nohash"
 
     @staticmethod
     def parse(value, default=None):
         """Create a StorageType described by the given value."""
-        if value is None:
-            return default
-        if isinstance(value, StorageType):
-            return value
-        if isinstance(value, str):
-            return StorageType(value.lower().strip())
-        raise TypeError(f"Unrecognized value for StorageType: {value}")
+        return _parse_enum(StorageType, value, default)
 
 
 @dataclass
@@ -57,12 +70,16 @@ class SourcesConfig:
 
     root: str = None  # Root folder of the video files
     extensions: Tuple[str] = ("mp4", "ogv", "webm", "avi")
+    hash_mode: HashMode = HashMode.FILE
+    hash_cache: Optional[str] = None
 
     def read_env(self):
         """Read config from environment variables."""
         self.root = os.environ.get("WINNOW_SOURCES_ROOT", self.root)
         if "WINNOW_SOURCES_EXTENSIONS" in os.environ:
             self.extensions = tuple(map(str.strip, os.environ["WINNOW_SOURCES_EXTENSIONS"].lower().split(",")))
+        self.hash_mode = HashMode.parse(os.environ.get("WINNOW_REPR_HASH_MODE", self.hash_mode))
+        self.hash_cache = os.environ.get("WINNOW_SOURCES_HASH_CACHE_PATH", self.hash_cache)
 
 
 @dataclass
@@ -71,20 +88,17 @@ class RepresentationConfig:
 
     directory: str = None  # Root folder with intermediate representations
     storage_type: StorageType = StorageType.LMDB  # Specify representation storage type
-    hash_mode: HashMode = HashMode.FILE  # Specify hash mode
 
     def read_env(self):
         """Read config from environment variables."""
         self.directory = os.environ.get("WINNOW_REPR_DIRECTORY", self.directory)
         self.storage_type = StorageType.parse(os.environ.get("WINNOW_REPR_STORAGE_TYPE", self.storage_type))
-        self.hash_mode = HashMode.parse(os.environ.get("WINNOW_REPR_HASH_MODE", self.hash_mode))
 
     @staticmethod
     def fromdict(data: Dict):
         """Construct repr config from dict data."""
         result = RepresentationConfig(**data)
         result.storage_type = StorageType.parse(result.storage_type)
-        result.hash_mode = HashMode.parse(result.hash_mode)
         return result
 
 
@@ -146,7 +160,7 @@ class TemplatesConfig:
         self.source_path = os.environ.get("WINNOW_TEMPLATE_SOURCE_PATH", self.source_path)
         self.distance = float(os.environ.get("WINNOW_TEMPLATE_DISTANCE", self.distance))
         self.distance_min = float(os.environ.get("WINNOW_TEMPLATE_DISTANCE_MIN", self.distance_min))
-        self.override = float(os.environ.get("WINNOW_TEMPLATE_OVERRIDE", self.override))
+        self.override = bool(os.environ.get("WINNOW_TEMPLATE_OVERRIDE", self.override))
         if "WINNOW_TEMPLATE_EXTENSIONS" in os.environ:
             extensions_env = os.environ["WINNOW_TEMPLATE_EXTENSIONS"].lower()
             self.extensions = tuple(map(str.strip, extensions_env.split(",")))
@@ -174,6 +188,42 @@ class FileStorageConfig:
         self.directory = os.environ.get("WINNOW_FILE_STORAGE_DIRECTORY", self.directory)
 
 
+class LogLevel(enum.Enum):
+    """Predefined log levels."""
+
+    CRITICAL = logging.CRITICAL
+    FATAL = logging.FATAL
+    ERROR = logging.ERROR
+    WARNING = logging.WARNING
+    INFO = logging.INFO
+    DEBUG = logging.DEBUG
+    NOTSET = logging.NOTSET
+
+    @staticmethod
+    def parse(name: Optional[str], default=WARNING):
+        """Create a LogLevel described by the given name."""
+        return _parse_enum_name(LogLevel, name, default)
+
+
+@dataclass
+class LoggingConfig:
+    """Configuration for application logging."""
+
+    file_path: str = "./processing_error.log"
+    file_format: str = "[%(asctime)s: %(levelname)s] [%(name)s] %(message)s"
+    file_level: LogLevel = LogLevel.ERROR
+    console_format: str = "[%(asctime)s: %(levelname)s] %(message)s"
+    console_level: LogLevel = LogLevel.INFO
+
+    def read_env(self):
+        """Read config from environment variables."""
+        self.file_path = os.environ.get("WINNOW_LOG_FILE_PATH", self.file_path)
+        self.file_format = os.environ.get("WINNOW_LOG_FILE_FORMAT", self.file_format)
+        self.file_level = LogLevel.parse(os.environ.get("WINNOW_LOG_FILE_LEVEL", self.file_level.name))
+        self.console_format = os.environ.get("WINNOW_LOG_CONSOLE_FORMAT", self.console_format)
+        self.console_level = LogLevel.parse(os.environ.get("WINNOW_LOG_CONSOLE_LEVEL", self.console_level.name))
+
+
 @dataclass
 class Config:
     """Root application configuration."""
@@ -185,6 +235,7 @@ class Config:
     templates: TemplatesConfig = field(default_factory=TemplatesConfig)
     security: SecurityConfig = field(default_factory=SecurityConfig)
     file_storage: FileStorageConfig = field(default_factory=FileStorageConfig)
+    logging: LoggingConfig = field(default_factory=LoggingConfig)
 
     @property
     def proc(self):
@@ -206,6 +257,7 @@ class Config:
         processing = ProcessingConfig(**data.pop("processing", {}))
         security = SecurityConfig(**data.pop("security", {}))
         file_storage = FileStorageConfig(**data.pop("file_storage", {}))
+        logging_config = LoggingConfig(**data.pop("logging", {}))
         return Config(
             database=database,
             processing=processing,
@@ -214,6 +266,7 @@ class Config:
             templates=templates,
             security=security,
             file_storage=file_storage,
+            logging=logging_config,
         )
 
     @staticmethod
@@ -233,6 +286,12 @@ class Config:
         data = asdict(self)
         yaml.dump(data, file)
 
+    def dumps(self) -> str:
+        """Dump config to string."""
+        stream = io.StringIO()
+        self.dump(stream)
+        return stream.getvalue()
+
     def read_env(self):
         """Read config from environment variables."""
         self.sources.read_env()
@@ -242,3 +301,4 @@ class Config:
         self.templates.read_env()
         self.security.read_env()
         self.file_storage.read_env()
+        self.logging.read_env()

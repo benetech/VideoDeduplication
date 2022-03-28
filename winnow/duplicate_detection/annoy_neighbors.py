@@ -1,5 +1,9 @@
+from typing import Sequence
+
 import numpy as np
 from annoy import AnnoyIndex
+
+from winnow.pipeline.progress_monitor import BaseProgressMonitor, ProgressMonitor
 
 
 class AnnoyNNeighbors:
@@ -28,6 +32,35 @@ class AnnoyNNeighbors:
 
     """
 
+    @staticmethod
+    def _resolve_metric(metric: str) -> str:
+        """Resolve annoy metric."""
+        if metric == "cosine":
+            return "angular"
+        return metric
+
+    @staticmethod
+    def load(
+        annoy_index_path: str,
+        n_neighbors=20,
+        metric="euclidean",
+        n_trees=10,
+        feature_size=500,
+        search_k_intensity=100,
+    ) -> "AnnoyNNeighbors":
+        """Load AnnoyNNeighbors from file."""
+        annoy_index = AnnoyIndex(feature_size, AnnoyNNeighbors._resolve_metric(metric))
+        annoy_index.load(annoy_index_path)
+        model = AnnoyNNeighbors(
+            n_neighbors=n_neighbors,
+            metric=metric,
+            n_trees=n_trees,
+            feature_size=feature_size,
+            search_k_intensity=search_k_intensity,
+        )
+        model.annoy_index = annoy_index
+        return model
+
     def __init__(
         self,
         n_neighbors=20,
@@ -37,19 +70,16 @@ class AnnoyNNeighbors:
         feature_size=500,
         search_k_intensity=100,
     ):
-        if metric == "cosine":
-            metric = "angular"
-
         self.n_neighbors = n_neighbors
-        self.metric = metric
+        self.metric = self._resolve_metric(metric)
         self.feature_size = feature_size
         self.n_trees = n_trees
         self.optimize_trees = optimize_trees
         self.search_k_intensity = search_k_intensity
         self.search_k = self.search_k_intensity * (n_trees * n_neighbors)
+        self.annoy_index = None
 
     def fit(self, data):
-
         annoy_index = AnnoyIndex(self.feature_size, self.metric)
         for i, v in enumerate(data):
             annoy_index.add_item(i, list(v))
@@ -59,31 +89,32 @@ class AnnoyNNeighbors:
             self.search_k = self.search_k_intensity * (self.n_trees * self.n_neighbors)
 
         annoy_index.build(self.n_trees)
-
         self.annoy_index = annoy_index
-
         return self
 
-    def kneighbors(self, data, optimize=False, return_distance=True, search_k_intensity=False):
-
+    def kneighbors(
+        self,
+        data: Sequence[np.ndarray],
+        optimize: bool = False,
+        return_distance: bool = True,
+        search_k_intensity: bool = False,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
+    ):
         if search_k_intensity:
-
             self.search_k = search_k_intensity * (self.n_trees * self.n_neighbors)
 
         if optimize:
-
             self.n_neighbors = self._optimize(data)
 
-        results = [
-            self.annoy_index.get_nns_by_vector(
-                data[i], self.n_neighbors, include_distances=True, search_k=self.search_k
-            )
-            for i, d in enumerate(data)
-        ]
         distances, indices = [], []
-        for i, d in results:
-            distances.append(d)
-            indices.append(i)
+        progress = progress.bar(scale=len(data), unit="vectors")
+        for features in data:
+            vec_indices, vec_distances = self.annoy_index.get_nns_by_vector(
+                features, self.n_neighbors, include_distances=True, search_k=self.search_k
+            )
+            distances.append(vec_distances)
+            indices.append(vec_indices)
+            progress.increase(1)
 
         distances = np.vstack(distances)
         indices = np.vstack(indices).astype(np.int)
@@ -92,10 +123,9 @@ class AnnoyNNeighbors:
             # convert distances to cosine distances from angular
             distances = np.power(distances, 2) / 2.0
 
+        progress.complete()
         if not return_distance:
-
             return distances
-
         return distances, indices
 
     @staticmethod

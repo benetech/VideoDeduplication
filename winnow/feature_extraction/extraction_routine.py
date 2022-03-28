@@ -1,108 +1,86 @@
 import logging
 import os
-from typing import Callable
+from itertools import repeat
+from typing import Callable, Any, Collection, Tuple
 
+import numpy as np
+import tensorflow as tf
 from tqdm import tqdm
-import time
 
 from winnow.utils.multiproc import multiprocessing as mp
 from .model_tf import CNN_tf
 from .utils import load_video
 
-logger = logging.getLogger(__name__)
-
-
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-def pload_video(p, size, frame_sampling):
-    return p, load_video(p, size, frame_sampling)
+def process_video(task: Tuple[str, Any, Any, int, int]) -> Tuple[Any, np.ndarray]:
+    """Process a single video.
+
+    Takes a tuple (video_path, video_id, model, frame_sampling, batch_size).
+    Returns a tuple (video_id, frames_tensor, frame_features)
+    """
+    logger = logging.getLogger(f"{__name__}.process_video")
+    video_path, video_id, image_size, frame_sampling, batch_sz = task
+    logger.info("Preparing frames for %s", video_path)
+    frames_tensor = load_video(video_path, image_size, frame_sampling)
+    logger.info("Done preparing frames for %s", video_path)
+    return video_id, frames_tensor
+
+
+# Type hint for a function tha will be called when a particular
+# file is processed: callback(path_or_id, frames, frame_features)
+OnExtractedCallback = Callable[[Any, np.ndarray, np.ndarray], Any]
 
 
 def feature_extraction_videos(
     model,
-    videos,
-    on_extracted: Callable,
-    cores=4,
-    batch_sz=8,
-    frame_sampling=1,
+    video_paths: Collection[str],
+    video_ids: Collection[Any],
+    on_extracted: OnExtractedCallback,
+    cores: int = 4,
+    batch_sz: int = 8,
+    frame_sampling: int = 1,
+    logger: logging.Logger = logging.getLogger(f"{__name__}.feature_extraction_videos"),
 ):
     """
     Function that extracts the intermediate CNN features
     of each video in a provided video list.
     Args:
         model: CNN network
-        videos: list of video file paths
+        video_paths: list of video file paths
+        video_ids: list of video ids (must be of the same size as video paths).
         on_extracted: a callback receiving (file_path, frames_tensor, frames_features) to handle
             extracted file features which is invoked on each file processing finish
         cores: CPU cores for the parallel video loading
         batch_sz: batch size fed to the CNN network
         frame_sampling: Minimal distance (in sec.) between frames to be saved.
+        logger: logger to be used.
     """
-    video_list = {i: video for i, video in enumerate(videos)}
-
-    logger.info("Number of videos: %s", len(video_list))
+    file_count = len(video_paths)
+    logger.info("Number of videos: %s", file_count)
     logger.info("CPU cores: %s", cores)
     logger.info("Batch size: %s", batch_sz)
     logger.info("Starting Feature Extraction Process")
+    logger.info("GPU is available: %s", tf.test.is_gpu_available())
 
     pool = mp.Pool(cores)
+    tasks = zip(
+        video_paths,
+        video_ids,
+        repeat(model.desired_size, file_count),
+        repeat(frame_sampling, file_count),
+        repeat(batch_sz, file_count),
+    )
 
-    unprocessed_videos = [v for v in videos]
-    future_videos = {}
-    processed_videos = []
-    progress_bar = tqdm(range(len(videos)), mininterval=1.0, unit="video").__iter__()
-
-    # Make sure proper number of video loading threads are going
-    def fill_cores():
-        nonlocal unprocessed_videos, future_videos, progress_bar
-        while len(future_videos) < cores:
-            if len(unprocessed_videos) > 0:
-                next_video_path = unprocessed_videos[0]
-                unprocessed_videos = unprocessed_videos[1:]
-                if os.path.exists(next_video_path):
-                    future_videos[next_video_path] = pool.apply_async(
-                        pload_video,
-                        args=[next_video_path, model.desired_size, frame_sampling],
-                        callback=update_callback,
-                    )
-                else:
-                    # Handling UI behavior when a video is skipped for not existing
-                    next(progress_bar)
-                    # postfix removed so progress_bar could be an iterator:
-                    # progress_bar.set_postfix(video=os.path.basename(next_video_path))
-            else:
-                break
-
-    # Called when a video is done loading
-    # Note: nonlocal object safety is guaranteed because the callback is run on one result at a time, never in parallel
-    def update_callback(result):
-        nonlocal future_videos, processed_videos, progress_bar
-        # Get path and tensor
-        video_file_path, video_tensor = result
+    progress_bar = iter(tqdm(range(file_count), mininterval=1.0, unit="video"))
+    for video_id, frame_tensor in pool.imap_unordered(process_video, tasks, chunksize=1):
+        logger.info("Extracting features for %s", video_id)
+        frame_features = model.extract(frame_tensor, batch_sz)
+        on_extracted(video_id, frame_tensor, frame_features)
         next(progress_bar)
-        # postfix removed so progress_bar could be an iterator:
-        # progress_bar.set_postfix(video=os.path.basename(video_file_path))
-
-        try:
-            # start loading new video
-            del future_videos[video_file_path]
-            fill_cores()
-
-            # extract features
-            features = model.extract(video_tensor, batch_sz)
-            on_extracted(video_file_path, video_tensor, features)
-            processed_videos += [video_file_path]
-        except Exception:
-            logger.exception(f"Error processing file:{video_file_path}")
-
-    # Start loading + processing
-    fill_cores()
-    # wait until all data processing is done, checking at 1-second intervals
-    while len(processed_videos) < len(videos):
-        time.sleep(1)
 
 
-def load_featurizer(pretrained_local_path):
+def load_featurizer(pretrained_local_path) -> CNN_tf:
     """Load pretrained model."""
     return CNN_tf("vgg", pretrained_local_path)

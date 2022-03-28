@@ -84,6 +84,7 @@ services:
       CELERY_BROKER: "redis://redis:6379/0"
       CELERY_RESULT_BACKEND: "redis://redis:6379/0"
       TASK_LOG_DIRECTORY: "/project/pipeline-logs"
+      LUIGI_CONFIG_PATH: "/project/config/luigi.cfg"
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed the source data

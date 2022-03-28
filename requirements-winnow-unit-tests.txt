@@ -12,3 +12,4 @@ dacite
 pandas
 cached_property
 cryptography
+tqdm

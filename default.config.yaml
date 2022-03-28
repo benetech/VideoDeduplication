@@ -1,5 +1,7 @@
 sources:
   root: data/
+  hash_mode: file
+  hash_cache: data/representations/hashes
 
   extensions:
     - mp4
@@ -12,7 +14,6 @@ sources:
 repr:
   directory: data/representations
   storage_type: detect
-  hash_mode: file
 
 processing:
   frame_sampling: 1
@@ -32,7 +33,7 @@ database:
   uri: postgresql://postgres:admin@postgres:5432/videodeduplicationdb
 
 templates:
-  source_path: data/templates/test-group/CCSI Object Recognition External/
+  source_path: data/templates/
   distance: 0.07
   distance_min: 0.05
 

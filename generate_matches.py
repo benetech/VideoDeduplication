@@ -1,13 +1,11 @@
+import logging.config
 import os
 
 import click
+import luigi
 
-from winnow.pipeline.detect_scenes import detect_scenes
-from winnow.pipeline.generate_local_matches import generate_local_matches
-from winnow.pipeline.pipeline_context import PipelineContext
+from winnow.pipeline.luigi.matches import MatchesReportTask, MatchesByFileListTask
 from winnow.utils.config import resolve_config
-from winnow.utils.files import scan_videos, scan_videos_from_txt
-from winnow.utils.logging import configure_logging_cli
 
 
 @click.command()
@@ -36,19 +34,15 @@ from winnow.utils.logging import configure_logging_cli
     is_flag=True,
 )
 def main(config, list_of_files, frame_sampling, save_frames):
-    logger = configure_logging_cli()
-    logger.info("Loading config file")
     config = resolve_config(config_path=config, frame_sampling=frame_sampling, save_frames=save_frames)
+    logging.config.fileConfig("./logging.conf")
 
-    logger.info("Searching for Dataset Video Files")
     if list_of_files is None:
-        videos = scan_videos(config.sources.root, "**", extensions=config.sources.extensions)
+        luigi.build([MatchesReportTask(config=config)], local_scheduler=True, workers=1)
     else:
-        videos = scan_videos_from_txt(list_of_files, extensions=config.sources.extensions)
-
-    pipeline = PipelineContext(config)
-    generate_local_matches(files=videos, pipeline=pipeline)
-    detect_scenes(files=videos, pipeline=pipeline)
+        luigi.build(
+            [MatchesByFileListTask(config=config, path_list_file=list_of_files)], local_scheduler=True, workers=1
+        )
 
 
 if __name__ == "__main__":

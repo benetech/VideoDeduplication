@@ -1,11 +1,11 @@
+import logging.config
 import os
 
 import click
+import luigi
 
-from winnow.pipeline.generate_remote_matches import generate_remote_matches
-from winnow.pipeline.pipeline_context import PipelineContext
+from winnow.pipeline.luigi.matches import RemoteMatchesTask
 from winnow.utils.config import resolve_config
-from winnow.utils.logging import configure_logging_cli
 
 
 @click.command()
@@ -14,11 +14,6 @@ from winnow.utils.logging import configure_logging_cli
     "--repo",
     "-r",
     help="remote repository name",
-    default=None,
-)
-@click.option(
-    "--contributor",
-    help="remote contributor name",
     default=None,
 )
 @click.option(
@@ -38,11 +33,10 @@ from winnow.utils.logging import configure_logging_cli
     default=None,
     is_flag=True,
 )
-def main(repo, contributor, config, frame_sampling, save_frames):
-    logger = configure_logging_cli()
-    logger.info("Loading config file")
+def main(repo, config, frame_sampling, save_frames):
     config = resolve_config(config_path=config, frame_sampling=frame_sampling, save_frames=save_frames)
-    generate_remote_matches(repository_name=repo, contributor_name=contributor, pipeline=PipelineContext(config))
+    logging.config.fileConfig("./logging.conf")
+    luigi.build([RemoteMatchesTask(config=config, repository_name=repo)], local_scheduler=True, workers=1)
 
 
 if __name__ == "__main__":

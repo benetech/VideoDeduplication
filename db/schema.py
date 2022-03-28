@@ -318,3 +318,23 @@ class FileFilterPreset(Base):
     name = Column(String(100), nullable=False, unique=True)
     # Any filter data as JSON blob
     filters = Column(JSON, nullable=False)
+
+
+class TaskLogRecord(Base):
+    """Task execution log.
+
+    Motivation
+    ----------
+    Sometimes there is no way to determine whether the task is already completed just by looking
+    at the results alone. For example if template-matching is performed and no matches was found
+    there will be zero ``TemplateMatches`` in the database. So the results before and after the
+    run will be identical. Thus, some indication that the task was successfully executed is
+    needed. ``TaskLogRecord`` fills this gap.
+    """
+
+    __tablename__ = "task_logs"
+
+    id = Column(Integer, primary_key=True)
+    task_name = Column(String(100), nullable=False, unique=False)
+    timestamp = Column(DateTime, nullable=False)
+    details = Column(JSON)
