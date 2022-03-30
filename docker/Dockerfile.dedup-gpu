@@ -4,7 +4,7 @@
 FROM nvcr.io/nvidia/pytorch:21.08-py3 AS prod
 
 # Install required os dependencies
-RUN apt-get update && apt-get install -y curl libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx mediainfo gcc g++
+RUN apt-get update && apt-get install -y curl libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx mediainfo gcc g++ libstdc++6
 
 ENV PATH=/anaconda/bin:${PATH}
 RUN curl -LO https://repo.anaconda.com/archive/Anaconda3-2019.07-Linux-x86_64.sh && \
@@ -31,7 +31,7 @@ RUN /bin/bash -c "source activate winnow && \
 RUN /bin/bash -c "source activate winnow && \
     pip install torch==1.11.0+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html"
 
-RUN apt-get upgrade -y libstdc++6
+# RUN apt-get upgrade -y libstdc++6 
 
 # Install application CLI tool
 ENV PATH /project/cli/bin:$PATH
