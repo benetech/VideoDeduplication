@@ -5,10 +5,7 @@ import click
 import luigi
 
 from winnow.pipeline.luigi.download import DownloadFilesTask
-from winnow.pipeline.pipeline_context import PipelineContext
-from winnow.pipeline.process_urls import process_urls
 from winnow.utils.config import resolve_config
-from winnow.utils.logging import configure_logging_cli
 
 
 @click.command()

@@ -1,7 +1,6 @@
 from typing import Optional
 
 from cli.handlers.errors import handle_errors
-from winnow.utils.logging import configure_logging_cli
 
 
 class FinderCli:
@@ -13,30 +12,22 @@ class FinderCli:
     @handle_errors
     def local_matches(self):
         """Find matches between local videos."""
-        from winnow.pipeline.generate_local_matches import generate_local_matches
-        from winnow.utils.files import scan_videos
+        import luigi
 
-        config = self._pipeline.config
-        configure_logging_cli(config.logging)
+        from winnow.pipeline.luigi.matches import MatchesReportTask
 
-        videos = scan_videos(config.sources.root, "**", extensions=config.sources.extensions)
-        generate_local_matches(files=videos, pipeline=self._pipeline)
+        luigi.build([MatchesReportTask(config=self._pipeline.config)], local_scheduler=True, workers=1)
 
-    def remote_matches(self, repo: Optional[str] = None, contributor: Optional[str] = None):
+    def remote_matches(self, repo: Optional[str] = None):
         """Find matches between local files and remote fingerprints."""
-        from winnow.pipeline.generate_remote_matches import generate_remote_matches
+        import logging.config
+        import luigi
 
-        config = self._pipeline.config
-        configure_logging_cli(config.logging)
+        from winnow.pipeline.luigi.matches import RemoteMatchesTask
 
-        if repo is not None:
-            repo = str(repo)
-
-        if contributor is not None:
-            contributor = str(contributor)
-
-        generate_remote_matches(
-            pipeline=self._pipeline,
-            repository_name=repo,
-            contributor_name=contributor,
+        logging.config.fileConfig("./logging.conf")
+        luigi.build(
+            [RemoteMatchesTask(config=self._pipeline.config, repository_name=repo)],
+            local_scheduler=True,
+            workers=1,
         )
