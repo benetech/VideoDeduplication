@@ -4,7 +4,12 @@ import os
 import click
 import luigi
 
-from winnow.pipeline.luigi.matches import MatchesReportTask, MatchesByFileListTask
+from winnow.pipeline.luigi.matches import (
+    MatchesReportTask,
+    MatchesByFileListTask,
+    DBMatchesTask,
+    DBMatchesByFileListTask,
+)
 from winnow.utils.config import resolve_config
 
 
@@ -38,10 +43,19 @@ def main(config, list_of_files, frame_sampling, save_frames):
     logging.config.fileConfig("./logging.conf")
 
     if list_of_files is None:
-        luigi.build([MatchesReportTask(config=config)], local_scheduler=True, workers=1)
+        luigi.build(
+            [MatchesReportTask(config=config), DBMatchesTask(config=config)],
+            local_scheduler=True,
+            workers=1,
+        )
     else:
         luigi.build(
-            [MatchesByFileListTask(config=config, path_list_file=list_of_files)], local_scheduler=True, workers=1
+            [
+                MatchesByFileListTask(config=config, path_list_file=list_of_files),
+                DBMatchesByFileListTask(config=config, path_list_file=list_of_files),
+            ],
+            local_scheduler=True,
+            workers=1,
         )
 
 
