@@ -5,7 +5,7 @@ Flask-SQLAlchemy==2.4.4
 PyYAML==5.4
 psycopg2==2.8.6
 fire==0.3.1
-celery==5.0.5
+celery==5.2.3
 Flask-SocketIO==5.0.0
 eventlet==0.31.0
 Werkzeug==2.0.3
@@ -21,7 +21,7 @@ attrs==21.4.0
 bidict==0.22.0
 billiard==3.6.4.0
 cffi==1.15.0
-click==7.1.2
+click==8.1.0
 click-didyoumean==0.3.0
 click-plugins==1.1.1
 click-repl==0.2.0
