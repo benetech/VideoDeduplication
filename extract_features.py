@@ -46,7 +46,6 @@ def main(config, list_of_files, frame_sampling, save_frames):
     if list_of_files is None:
         luigi.build(
             [
-                ExifTask(config=config),
                 SignaturesTask(config=config),
                 DBSignaturesTask(config=config),
             ],
@@ -56,7 +55,6 @@ def main(config, list_of_files, frame_sampling, save_frames):
     else:
         luigi.build(
             [
-                ExifFileListFileTask(config=config, path_list_file=list_of_files),
                 SignaturesByPathListFileTask(config=config, path_list_file=list_of_files),
                 DBSignaturesByPathListFileTask(config=config, path_list_file=list_of_files),
             ],
