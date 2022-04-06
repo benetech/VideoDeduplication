@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class _LogFileStream(LogStream):
-    def __init__(self, file: TextIO, callback: Callable, finished: bool, chunk_size=100 * 2 ** 10):
+    def __init__(self, file: TextIO, callback: Callable, finished: bool, chunk_size=100 * 2**10):
         self._file: TextIO = file
         self._callback: Callable = callback
         self._finished = finished
@@ -57,7 +57,7 @@ class _LogFileStream(LogStream):
 
 
 class FileStreamer:
-    def __init__(self, timeout: float = 0.1, chunk_size: int = 100 * 2 ** 10):
+    def __init__(self, timeout: float = 0.1, chunk_size: int = 100 * 2**10):
         self._timeout: float = timeout
         self._chunk_size: int = chunk_size
         self._poll_condition = threading.Condition()

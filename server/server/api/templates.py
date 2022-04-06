@@ -420,7 +420,7 @@ def validate_frame_dto(data: Dict) -> str:
 
 
 def handle_create_example_from_frame(template: Template):
-    """Create example from the """
+    """Create example from the"""
 
     request_payload = request.get_json()
     if request_payload is None:
