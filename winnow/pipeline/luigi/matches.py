@@ -221,6 +221,65 @@ class DBMatchesTask(PipelineTask):
         )
 
 
+class DBMatchesByFileListTask(PipelineTask):
+    """Populate database with file matches for videos listed in a text file."""
+
+    path_list_file: str = luigi.Parameter()
+    fingerprint_size: int = luigi.IntParameter(default=500)
+    metric: str = luigi.Parameter(default="angular")
+    n_trees: int = luigi.IntParameter(default=10)
+    max_matches: int = luigi.IntParameter(default=20)
+
+    # Task logs properties
+    LOG_TASK_NAME = "MatchFilesTask"
+    LOG_HAYSTACK_ATTR = "haystack_prefix"
+    LOG_NEEDLES_ATTR = "needles_prefix"
+
+    def run(self):
+        self.logger.info("Reading paths list from %s", self.path_list_file)
+        with open(self.path_list_file, "r") as list_file:
+            paths = list(map(str.strip, list_file.readlines()))
+        self.progress.increase(0.1)
+        self.logger.info("%s paths was loaded from %s", len(paths), self.path_list_file)
+
+        self.logger.info("Reading fingerprints", len(paths))
+        file_keys = list(map(self.pipeline.coll.file_key, paths))
+        signatures = self.pipeline.repr_storage.signature
+        feature_vectors = [FeatureVector(key=key, features=signatures.read(key)) for key in file_keys]
+        self.progress.increase(0.1)
+        self.logger.info("Loaded %s fingerprints", len(feature_vectors))
+
+        max_distance = self.config.proc.match_distance
+        self.logger.info("Performing match detection with max distance=%s.", max_distance)
+        matching = self.progress.subtask(0.7)
+        neighbor_matcher = NeighborMatcher(haystack=feature_vectors, max_matches=self.max_matches, metric=self.metric)
+        matches = neighbor_matcher.find_matches(needles=feature_vectors, max_distance=max_distance, progress=matching)
+        self.logger.info("Found %s matches", len(matches))
+
+        if self.config.proc.filter_dark_videos:
+            self.logger.info("Filtering dark videos with threshold %s", self.config.proc.filter_dark_videos_thr)
+            matches, metadata = filter_dark(file_keys, matches, self.pipeline, self.progress.subtask(0.03), self.logger)
+            result_storage = self.pipeline.result_storage
+            result_storage.add_metadata((key.path, key.hash, meta) for key, meta in metadata.items())
+            self.progress.increase(0.03)
+
+        def _entry(detected_match: DetectedMatch):
+            """Flatten (query_key, match_key, dist) match entry."""
+            query, match = detected_match.needle_key, detected_match.haystack_key
+            return query.path, query.hash, match.path, match.hash, detected_match.distance
+
+        self.logger.info("Saving %s matches to the database", len(matches))
+        result_storage = self.pipeline.result_storage
+        result_storage.add_matches(_entry(match) for match in matches)
+        self.logger.info("Done!")
+
+    def output(self):
+        return ConstTarget(exists=False)
+
+    def requires(self):
+        SignaturesByPathListFileTask(config=self.config, path_list_file=self.path_list_file)
+
+
 class MatchesReportTask(PipelineTask):
     """Find file matches and write results into CSV report."""
 
@@ -356,7 +415,7 @@ class MatchesByFileListTask(PipelineTask):
         self.logger.info("Loaded %s fingerprints", len(feature_vectors))
 
         max_distance = self.config.proc.match_distance
-        self.logger.info("Performing match detection wi.")
+        self.logger.info("Performing match detection with max distance=%s.", max_distance)
         matching = self.progress.subtask(0.7)
         neighbor_matcher = NeighborMatcher(haystack=feature_vectors, max_matches=self.max_matches, metric=self.metric)
         matches = neighbor_matcher.find_matches(needles=feature_vectors, max_distance=max_distance, progress=matching)
