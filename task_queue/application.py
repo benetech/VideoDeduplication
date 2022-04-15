@@ -1,5 +1,5 @@
 import os
-
+import sys
 from celery import Celery
 
 # Configuration parameters
@@ -20,4 +20,4 @@ if __name__ == "__main__":
     # Apply celery config
     import task_queue.celery_config  # noqa
 
-    celery_application.start()
+    celery_application.start(sys.argv[1:])
