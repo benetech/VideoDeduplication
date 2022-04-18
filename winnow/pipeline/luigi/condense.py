@@ -127,7 +127,11 @@ class CondensedFingerprints:
         logger.info("Creating ndarray with fingerprints")
         fingerprints = np.array(fingerprints)
         logger.info("Creating file-keys DataFrame")
+        logger.info(len(file_key_tuples))
         file_keys_df = FileKeyDF.make(tuples=file_key_tuples)
+        logger.info(file_keys_df.shape)
+
+        logger.info("Creating file-keys DataFrame")
         return CondensedFingerprints(fingerprints=fingerprints, file_keys_df=file_keys_df)
 
     @staticmethod
@@ -201,9 +205,9 @@ class CondensedFingerprintsTarget(FileGroupTarget):
         fingerprints_path, keys_path = self.suggest_paths(time)
         fingerprints_target = luigi.LocalTarget(fingerprints_path, format=luigi.format.Nop)
         keys_target = luigi.LocalTarget(keys_path)
-        with fingerprints_target.open("w") as fingerprints_out, keys_target.open("w") as keys_out:
+        with fingerprints_target.open("w") as fingerprints_out:
             np.save(fingerprints_out, condensed.fingerprints)
-            condensed.file_keys_df.to_csv(keys_out)
+            condensed.file_keys_df.to_csv(keys_path)
 
     def read(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> Optional[CondensedFingerprints]:
         """Read condensed fingerprints."""
@@ -260,6 +264,7 @@ class CondenseFingerprintsTask(PipelineTask):
             self.logger.info("Merged previous results with new fingerprints.")
 
         self.logger.info("Writing %s fingerprints to %s", len(condensed), target.suggest_paths(new_results_time))
+        
         target.write(condensed, new_results_time)
 
         if self.clean_existing and previous_results_paths is not None:

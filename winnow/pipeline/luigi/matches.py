@@ -349,8 +349,8 @@ class MatchesReportTask(PipelineTask):
 
     def save_matches_csv(self, matches_df: pd.DataFrame):
         """Save matches to csv file."""
-        with self.output().open("w") as output:
-            matches_df.to_csv(output)
+        
+        matches_df.to_csv(self.output())
 
     @cached_property
     def result_timestamp(self) -> datetime:
