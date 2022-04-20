@@ -131,6 +131,7 @@ class Config:
         self.online_policy = OnlinePolicy.parse(os.environ.get("ONLINE_POLICY", OnlinePolicy.DETECT))
         self.security_storage_path = os.environ.get("SECURITY_STORAGE_PATH", ".")
         self.master_key_path = os.environ.get("SECURITY_MASTER_KEY_PATH")
+        self.embeddings_folder = os.environ.get("EMBEDDINGS_FOLDER", "./embeddings")
 
     @staticmethod
     def read_allowed_origins():

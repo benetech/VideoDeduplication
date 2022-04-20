@@ -2,7 +2,7 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import Optional
 
-from server.queue import time_utils
+from server import time_utils
 from server.queue.model import Request
 from server.queue.request_transformer import RequestTransformer
 

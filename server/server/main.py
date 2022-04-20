@@ -26,8 +26,13 @@ def _setup_frontend(app, basename=""):
 def create_application(config):
     """Create configured flask application."""
     from server.api import api as api_blueprint
+    from werkzeug.routing import IntegerConverter
+
+    class SignedIntConverter(IntegerConverter):
+        regex = r"-?\d+"
 
     app = Flask(__name__, static_url_path="/static", static_folder=path.abspath(config.static_folder))
+    app.url_map.converters["signed_int"] = SignedIntConverter
 
     app.debug = False
     app.config["SQLALCHEMY_DATABASE_URI"] = config.database.uri

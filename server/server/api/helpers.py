@@ -80,6 +80,14 @@ def semantic_search() -> Iterator[services.SemanticSearchStub]:
         yield services.SemanticSearchStub(channel)
 
 
+@contextmanager
+def embeddings_rpc() -> Iterator[services.EmbeddingsStub]:
+    """Get embeddings service."""
+    config = get_config()
+    with grpc.insecure_channel(config.rpc_server.address) as channel:
+        yield services.EmbeddingsStub(channel)
+
+
 def get_cache() -> FileQueryCache:
     """Get file query cache."""
     return current_app.config.get("FILE_QUERY_CACHE")

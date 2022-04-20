@@ -20,6 +20,7 @@ from . import (  # noqa: F401
     online,
     processing,
     health,
+    embeddings,
 )
 from .blueprint import api
 
