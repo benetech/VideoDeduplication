@@ -11,13 +11,13 @@ import useTilesInfo from "../../../application/api/embeddings/useTilesInfo";
 import EmbeddingsMapTiles from "./EmbeddingsMapTiles";
 import EmbeddingsMapStub from "./EmbeddingsMapStub";
 
-const useStyles = makeStyles<Theme>((theme) => ({
+const useStyles = makeStyles<Theme>({
   embeddingsMap: {},
   mapContainer: {
     width: "100%",
     height: 400,
   },
-}));
+});
 
 type EmbeddingsMapProps = {
   className?: string;

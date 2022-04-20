@@ -14,7 +14,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import Tooltip from "@material-ui/core/Tooltip";
 
-const useStyles = makeStyles<Theme>((theme) => ({
+const useStyles = makeStyles<Theme>({
   embeddingsActions: {
     minWidth: 400,
     display: "flex",
@@ -26,7 +26,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
     flexGrow: 0,
     justifyContent: "flex-end",
   },
-}));
+});
 
 /**
  * Get translated text.

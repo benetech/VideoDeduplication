@@ -113,7 +113,7 @@ export default function GenerateTiles(
             labelWidth={75}
           >
             {EmbeddingAlgorithms.map((algorithm) => (
-              <MenuItem value={algorithm}>
+              <MenuItem value={algorithm} key={algorithm}>
                 {embeddingAlgoName(algorithm)}
               </MenuItem>
             ))}
@@ -134,7 +134,9 @@ export default function GenerateTiles(
             labelWidth={85}
           >
             {[1, 2, 3, 4, 5, 6, 7, 8].map((level) => (
-              <MenuItem value={level}>{level}</MenuItem>
+              <MenuItem value={level} key={level}>
+                {level}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
