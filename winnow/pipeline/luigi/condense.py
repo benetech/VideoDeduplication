@@ -51,7 +51,7 @@ class CondensedFingerprints:
         """
         progress = LazyProgress(progress.scale(len(self.file_keys_df.index), unit="fingerprints"))
         result = []
-        for fingerprint, row in zip(self.fingerprints, self.file_keys_df.itertuples()):
+        for fingerprint, row in zip(self.fingerprints, self.file_keys_df.to_pandas().itertuples()):
             result.append(FeatureVector(key=FileKey(path=row.path, hash=row.hash), features=fingerprint))
             progress.increase(1)
         progress.complete()
@@ -127,10 +127,7 @@ class CondensedFingerprints:
         logger.info("Creating ndarray with fingerprints")
         fingerprints = np.array(fingerprints)
         logger.info("Creating file-keys DataFrame")
-        logger.info(len(file_key_tuples))
         file_keys_df = FileKeyDF.make(tuples=file_key_tuples)
-        logger.info(file_keys_df.shape)
-
         logger.info("Creating file-keys DataFrame")
         return CondensedFingerprints(fingerprints=fingerprints, file_keys_df=file_keys_df)
 

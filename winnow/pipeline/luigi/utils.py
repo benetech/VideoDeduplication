@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import List, Tuple, Union, IO, AnyStr, Dict, Collection, Iterator, Iterable
 
 import numpy as np
-import pandas as pd
+# import pandas as pd
+import cudf as pd
 from dataclasses import astuple
 
 from winnow.collection.file_collection import FileCollection
@@ -49,7 +50,7 @@ class FileKeyDF:
         """
         progress = LazyProgress(progress.scale(len(file_keys_df.index)))
         result = []
-        for entry in file_keys_df.itertuples():
+        for entry in file_keys_df.to_pandas().itertuples():
             result.append(FileKey(path=entry.path, hash=entry.hash))
             progress.increase(1)
         progress.complete()
