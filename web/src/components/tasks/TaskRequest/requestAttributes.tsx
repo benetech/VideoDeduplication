@@ -7,12 +7,15 @@ import LinkList from "./LinkList";
 import {
   BaseTaskRequest,
   FindFrameRequest,
+  GenerateTilesRequest,
   MatchTemplatesRequest,
   PrepareSemanticSearchRequest,
   ProcessDirectoryRequest,
   ProcessOnlineVideoRequest,
 } from "../../../model/Task";
 import { AttributeRenderer } from "../../../lib/types/AttributeRenderer";
+import embeddingAlgoName from "../../../lib/messages/embeddingAlgoName";
+import ValueBadge from "../../basic/ValueBadge";
 
 export const commonRequestAttributes: AttributeRenderer<BaseTaskRequest>[] = [
   {
@@ -125,6 +128,32 @@ export const prepareSemanticSearchAttributes: AttributeRenderer<PrepareSemanticS
   [
     {
       title: "task.attr.forcePrepareSemantic",
+      // eslint-disable-next-line react/display-name
+      value: (request) => <Bool value={request.force} />,
+    },
+  ];
+
+/**
+ * Prepare semantic search request attributes.
+ */
+export const generateTilesAttributes: AttributeRenderer<GenerateTilesRequest>[] =
+  [
+    {
+      title: "task.attr.embeddingAlgorithm",
+      // eslint-disable-next-line react/display-name
+      value: (request) => (
+        <ValueBadge
+          value={embeddingAlgoName(request.algorithm)}
+          color="secondary"
+        />
+      ),
+    },
+    {
+      title: "task.attr.generateTilesMaxZoom",
+      value: (request) => request.maxZoom,
+    },
+    {
+      title: "task.attr.forceGenerateTiles",
       // eslint-disable-next-line react/display-name
       value: (request) => <Bool value={request.force} />,
     },

@@ -140,6 +140,7 @@ def download_video(
         "logger": YDLLogger(logger),
         "progress_hooks": [progress_tracker.hook],
         "outtmpl": output_template,
+        "retries": 10,
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:

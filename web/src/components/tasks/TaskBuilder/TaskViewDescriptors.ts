@@ -30,6 +30,10 @@ const TaskViewDescriptors: TaskViewDescriptor[] = [
     type: TaskRequestType.PREPARE_SEMANTIC_SEARCH,
     title: "task.type.prepareSemanticSearch",
   },
+  {
+    type: TaskRequestType.GENERATE_TILES,
+    title: "task.type.generateTiles",
+  },
 ];
 
 export default TaskViewDescriptors;

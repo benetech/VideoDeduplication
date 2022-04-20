@@ -2,6 +2,7 @@ import utcDate, { defaultDateFormat } from "../../../lib/helpers/utcDate";
 import {
   FindFrameRequest,
   FindFrameResult,
+  GenerateTilesRequest,
   MatchRemoteFingerprintsRequest,
   MatchRemoteFingerprintsResult,
   MatchTemplatesRequest,
@@ -30,6 +31,7 @@ import {
 import {
   FindFrameRequestDTO,
   FindFrameResultDTO,
+  GenerateTilesRequestDTO,
   MatchRemoteFingerprintsRequestDTO,
   MatchRemoteFingerprintsResultDTO,
   MatchTemplatesRequestDTO,
@@ -77,6 +79,8 @@ class TaskRequestTransformer {
         return this.matchRemoteFingerprintsReq(data);
       case RawTaskType.PrepareSemanticSearch:
         return this.prepareSemanticSearchReq(data);
+      case RawTaskType.GenerateTiles:
+        return this.generateTilesReq(data);
     }
   }
 
@@ -100,6 +104,8 @@ class TaskRequestTransformer {
         return this.matchRemoteFingerprintsDTO(req);
       case TaskRequestType.PREPARE_SEMANTIC_SEARCH:
         return this.prepareSemanticSearchDTO(req);
+      case TaskRequestType.GENERATE_TILES:
+        return this.generateTilesDTO(req);
     }
   }
 
@@ -270,6 +276,24 @@ class TaskRequestTransformer {
     return {
       type: RawTaskType.PrepareSemanticSearch,
       force: req.force,
+    };
+  }
+
+  generateTilesReq(data: GenerateTilesRequestDTO): GenerateTilesRequest {
+    return {
+      type: TaskRequestType.GENERATE_TILES,
+      force: data.force,
+      maxZoom: data.max_zoom,
+      algorithm: data.algorithm,
+    };
+  }
+
+  generateTilesDTO(req: GenerateTilesRequest): GenerateTilesRequestDTO {
+    return {
+      type: RawTaskType.GenerateTiles,
+      force: req.force,
+      max_zoom: req.maxZoom,
+      algorithm: req.algorithm,
     };
   }
 

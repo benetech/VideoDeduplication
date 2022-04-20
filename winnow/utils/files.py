@@ -333,7 +333,9 @@ class PathTime:
             return None
 
     @staticmethod
-    def latest(pattern: str, suffix: str = None, format: str = FORMAT, delim: str = DELIM) -> Tuple[str, datetime]:
+    def latest(
+        pattern: str, suffix: str = None, format: str = FORMAT, delim: str = DELIM
+    ) -> Tuple[Optional[str], Optional[datetime]]:
         """Get path with the latest timestamp."""
         latest_time = None
         latest_path = None

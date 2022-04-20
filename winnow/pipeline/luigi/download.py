@@ -65,6 +65,7 @@ class DownloadFilesTask(PipelineTask):
 
     urls: Sequence[str] = luigi.ListParameter()
     destination_template: str = luigi.Parameter(default="%(title)s.%(ext)s")
+    override_existing: bool = luigi.BoolParameter(default=True, significant=False)
 
     def run(self):
         target = self.output()
@@ -87,7 +88,7 @@ class DownloadFilesTask(PipelineTask):
 
             self.logger.info("Storing files to the user file collection")
             for file_path, coll_path in zip(download_paths, remaining_coll_paths):
-                coll.store(file_path, coll_path)
+                coll.store(file_path, coll_path, exist_ok=self.override_existing)
             self.logger.info("Successfully stored %s files to user file collection", len(download_paths))
 
         if self.config.database.use:

@@ -8,6 +8,7 @@ import PullFingerprints from "./forms/PullFingerprints";
 import PushFingerprints from "./forms/PushFingerprints";
 import MatchRemoteFingerprints from "./forms/MatchRemoteFingerprints";
 import PrepareSemanticSearch from "./forms/PrepareSemanticSearch";
+import GenerateTiles from "./forms/GenerateTiles";
 
 function TaskBuilderForm(props: TaskBuilderProps): JSX.Element | null {
   const { request } = props;
@@ -26,6 +27,8 @@ function TaskBuilderForm(props: TaskBuilderProps): JSX.Element | null {
       return <MatchRemoteFingerprints {...props} request={request} />;
     case TaskRequestType.PREPARE_SEMANTIC_SEARCH:
       return <PrepareSemanticSearch {...props} request={request} />;
+    case TaskRequestType.GENERATE_TILES:
+      return <GenerateTiles {...props} request={request} />;
     default:
       return null;
   }

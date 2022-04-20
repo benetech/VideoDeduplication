@@ -36,7 +36,8 @@ class JusticeAITask(luigi.Task, WithLogger):
 
         def observer(_, change):
             """Progress observer that sends Luigi messages honoring current task progress weight."""
-            self.trigger_event(luigi.Event.PROGRESS, self.progress_weight * change)
+            if change > 0:
+                self.trigger_event(luigi.Event.PROGRESS, self.progress_weight * change)
 
         return observer
 
