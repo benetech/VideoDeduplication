@@ -1,6 +1,6 @@
 import { TilesInfo } from "../../../model/embeddings";
 import { LatLng } from "leaflet";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useMapEvents } from "react-leaflet";
 import FileMarkerPopup from "./FileMarkerPopup";
 
@@ -19,6 +19,8 @@ export default function FileMarker(props: FileMarkerProps): JSX.Element | null {
       // map.flyTo(e.latlng, map.getZoom());
     },
   });
+
+  useEffect(() => setPosition(null), [info.algorithm]);
 
   return position === null ? null : (
     <FileMarkerPopup

@@ -12,7 +12,7 @@ const useStyles = makeStyles<Theme>({
   map: {
     width: "100%",
     height: "100%",
-    backgroundColor: "#aaa",
+    backgroundColor: "#fff",
   },
 });
 
