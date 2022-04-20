@@ -5,8 +5,12 @@ import luigi
 from annoy import AnnoyIndex
 
 from winnow.pipeline.luigi.condense import CondensedFingerprints
-from winnow.pipeline.luigi.embeddings import UmapEmbeddingsTask, TSNEEmbeddingsTask, TriMapEmbeddingsTask, \
-    PaCMAPEmbeddingsTask
+from winnow.pipeline.luigi.embeddings import (
+    UmapEmbeddingsTask,
+    TSNEEmbeddingsTask,
+    TriMapEmbeddingsTask,
+    PaCMAPEmbeddingsTask,
+)
 from winnow.pipeline.luigi.platform import PipelineTask
 from winnow.pipeline.luigi.targets import FileGroupTarget
 
