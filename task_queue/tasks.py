@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import tempfile
 import time
 from typing import List, Dict
@@ -149,6 +150,48 @@ def prepare_semantic_search(self, **_):
 
     with luigi_config(celery_task=self) as config:
         run_luigi(PrepareTextSearchTask(config=config))
+
+
+@winnow_task(bind=True)
+def generate_tiles(self, algorithm: str, max_zoom: int = 8, force: bool = False, **_):
+    """Prepare semantic search model."""
+    from .luigi_support import luigi_config, run_luigi
+    from winnow.pipeline.luigi.embeddings_tiles import (
+        TriMAPTilesTask,
+        PaCMAPTilesTask,
+        UMAPTilesTask,
+        TSNETilesTask,
+    )
+    from winnow.pipeline.luigi.embeddings_annoy_index import (
+        PaCMAPAnnoyIndexTask,
+        TriMAPAnnoyIndexTask,
+        TSNEAnnoyIndexTask,
+        UMAPAnnoyIndexTask,
+    )
+
+    if max_zoom < 0:
+        raise ValueError(f"Negative max_zoom: {max_zoom}")
+
+    with luigi_config(celery_task=self) as config:
+        if algorithm == "pacmap":
+            tiles_task = PaCMAPTilesTask(config=config, max_zoom=max_zoom, clean_existing=True)
+            index_task = PaCMAPAnnoyIndexTask(config=config)
+        elif algorithm == "trimap":
+            tiles_task = TriMAPTilesTask(config=config, max_zoom=max_zoom, clean_existing=True)
+            index_task = TriMAPAnnoyIndexTask(config=config)
+        elif algorithm == "umap":
+            tiles_task = UMAPTilesTask(config=config, max_zoom=max_zoom, clean_existing=True)
+            index_task = UMAPAnnoyIndexTask(config=config)
+        elif algorithm == "t-sne":
+            tiles_task = TSNETilesTask(config=config, max_zoom=max_zoom, clean_existing=True)
+            index_task = TSNEAnnoyIndexTask(config=config)
+        else:
+            raise ValueError(f"Unknown embeddings algorithm: {algorithm}")
+
+        existing_tiles_path = tiles_task.output().latest_result_path
+        if force and existing_tiles_path is not None:
+            shutil.rmtree(existing_tiles_path)
+        run_luigi(tiles_task, index_task)
 
 
 def fibo(n):

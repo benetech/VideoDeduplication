@@ -5,19 +5,28 @@ from contextlib import contextmanager
 import luigi
 
 from task_queue.metadata import TaskRuntimeMetadata
+from task_queue.winnow_task import WinnowTask
 from winnow.pipeline.luigi.platform import JusticeAITask
 from winnow.pipeline.progress_monitor import ProgressMonitor
+
+
+class ProgressObserver:
+    def __init__(self, celery_task: WinnowTask, resolution: float = 0.001):
+        self.celery_task: WinnowTask = celery_task
+        self.resolution: float = resolution
+        self.last_update: float = -resolution
+
+    def __call__(self, progress: float, change: float):
+        if progress - self.last_update >= self.resolution:
+            self.celery_task.update_metadata(TaskRuntimeMetadata(progress=progress))
+            self.last_update = progress
 
 
 class LuigiRootProgressMonitor(ProgressMonitor):
     """Root progress monitor to track progress made by entire multitask run."""
 
-    def __init__(self, celery_task):
-        def update_progress(progress, _):
-            """Send a metadata update."""
-            celery_task.update_metadata(TaskRuntimeMetadata(progress=progress))
-
-        super().__init__(update_progress)
+    def __init__(self, celery_task: WinnowTask):
+        super().__init__(ProgressObserver(celery_task))
         self._seen_tasks = set()
         JusticeAITask.event_handler(luigi.Event.DEPENDENCY_DISCOVERED)(self._update_total_work)
         JusticeAITask.event_handler(luigi.Event.PROGRESS)(self._handle_task_progress)
