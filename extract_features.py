@@ -4,7 +4,6 @@ import os
 import click
 import luigi
 
-from winnow.pipeline.luigi.exif import ExifTask, ExifFileListFileTask
 from winnow.pipeline.luigi.signatures import (
     SignaturesTask,
     DBSignaturesTask,
