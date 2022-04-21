@@ -1,3 +1,5 @@
+import { RawEmbeddingAlgorithm } from "./embeddings";
+
 export type TaskErrorDTO = {
   exc_type: string;
   exc_message: string;
@@ -23,6 +25,7 @@ export enum RawTaskType {
   PullFingerprints = "PullFingerprints",
   MatchRemoteFingerprints = "MatchRemoteFingerprints",
   PrepareSemanticSearch = "PrepareSemanticSearch",
+  GenerateTiles = "GenerateTiles",
 }
 
 export type TypedRequestDTO = {
@@ -147,6 +150,19 @@ export function isPrepareSemanticSearchRequestDTO(
   return data.type === RawTaskType.PrepareSemanticSearch;
 }
 
+export type GenerateTilesRequestDTO = {
+  type: RawTaskType.GenerateTiles;
+  algorithm: RawEmbeddingAlgorithm;
+  max_zoom: number;
+  force: boolean;
+};
+
+export function isGenerateTilesRequestDTO(
+  data: TypedRequestDTO
+): data is GenerateTilesRequestDTO {
+  return data.type === RawTaskType.GenerateTiles;
+}
+
 export type TaskRequestDTO =
   | ProcessDirectoryRequestDTO
   | ProcessFileListRequestDTO
@@ -156,7 +172,8 @@ export type TaskRequestDTO =
   | PushFingerprintsRequestDTO
   | PullFingerprintsRequestDTO
   | MatchRemoteFingerprintsRequestDTO
-  | PrepareSemanticSearchRequestDTO;
+  | PrepareSemanticSearchRequestDTO
+  | GenerateTilesRequestDTO;
 
 export type FileCountDTO = {
   template: number;
@@ -183,6 +200,7 @@ export type PushFingerprintsResultDTO = undefined;
 export type PullFingerprintsResultDTO = undefined;
 export type MatchRemoteFingerprintsResultDTO = undefined;
 export type PrepareSemanticSearchResultDTO = undefined;
+export type GenerateTilesResultDTO = undefined;
 
 export type TaskResultDTO =
   | ProcessDirectoryResultDTO
@@ -193,7 +211,8 @@ export type TaskResultDTO =
   | PushFingerprintsResultDTO
   | PullFingerprintsResultDTO
   | MatchRemoteFingerprintsResultDTO
-  | PrepareSemanticSearchResultDTO;
+  | PrepareSemanticSearchResultDTO
+  | GenerateTilesResultDTO;
 
 export type TaskDTO = {
   id: string;

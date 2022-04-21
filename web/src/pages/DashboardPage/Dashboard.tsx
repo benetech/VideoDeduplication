@@ -9,7 +9,8 @@ import Grid from "@material-ui/core/Grid";
 import { MatchCategory } from "../../model/VideoFile";
 import useMatchStats from "../../application/api/stats/useMatchStats";
 import useFilesColl from "../../application/api/files/useFilesColl";
-import { useShowCollection } from "../../routing/hooks"; // import useUniqueId from "../../../common/hooks/useUniqueId";
+import { useShowCollection } from "../../routing/hooks";
+import EmbeddingsMap from "./EmbeddingsMap"; // import useUniqueId from "../../../common/hooks/useUniqueId";
 
 const useStyles = makeStyles<Theme>((theme) => ({
   dashboardContainer: {
@@ -183,6 +184,9 @@ function Dashboard(props: DashboardProps): JSX.Element {
                 title="Database Matches"
                 {...dbMatches(theme)}
               />
+            </Grid>
+            <Grid item xs={12}>
+              <EmbeddingsMap />
             </Grid>
           </Grid>
         </div>

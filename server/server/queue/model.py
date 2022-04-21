@@ -5,7 +5,7 @@ from typing import List, Optional, Dict, Union
 
 from dataclasses import dataclass, asdict
 
-from server.queue import time_utils
+from server import time_utils
 
 # Type hint for json-serializable data.
 JsonData = Union[List, Dict, Number, bool, str]
@@ -172,6 +172,15 @@ class PrepareSemanticSearch(Request):
     """Generate indexes required for semantic search."""
 
     force: bool = True
+
+
+@dataclass
+class GenerateTiles(Request):
+    """Generate interactive map tiles with embeddings."""
+
+    algorithm: str
+    max_zoom: int = 8
+    force: bool = False
 
 
 @dataclass

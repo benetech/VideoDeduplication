@@ -51,6 +51,7 @@ dependencies:
       - trimap
       - pacmap
       - torch
+      - typing_extensions==4.1.1
       - grpcio==1.43.0
       - grpcio-tools==1.43.0
 

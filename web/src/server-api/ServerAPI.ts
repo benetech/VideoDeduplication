@@ -31,6 +31,11 @@ import {
 import { SocketAPI } from "./SocketAPI";
 import { ExtensionsStats } from "../model/Stats";
 import { ServerHealthStatus } from "../model/health";
+import {
+  EmbeddingAlgorithm,
+  EmbeddingNeighbor,
+  TilesInfo,
+} from "../model/embeddings";
 
 /**
  * Generic request to list multiple entities.
@@ -233,6 +238,25 @@ export interface RepositoriesAPI
 export type ContributorsAPI = ReadOnlyEndpoint<Contributor, ContributorFilters>;
 
 /**
+ * Request of neighbors in embedding space.
+ */
+export type NeighborsRequest = {
+  algorithm: string;
+  x: number;
+  y: number;
+  maxDistance: number;
+  maxCount: number;
+};
+
+/**
+ * Embeddings API endpoint.
+ */
+export interface EmbeddingsAPI {
+  getTileInfo(algorithm: EmbeddingAlgorithm): Promise<TilesInfo>;
+  getNeighbors(request: NeighborsRequest): Promise<EmbeddingNeighbor[]>;
+}
+
+/**
  * Statistics API endpoint.
  */
 export interface StatsAPI {
@@ -252,6 +276,7 @@ export interface ServerAPI {
   readonly contributors: ContributorsAPI;
   readonly stats: StatsAPI;
   readonly socket: SocketAPI;
+  readonly embeddings: EmbeddingsAPI;
 
   /**
    * Check for internet connection on backend side.

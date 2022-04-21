@@ -39,5 +39,7 @@ export default function getTaskTextDescription(
       return intl.formatMessage({ id: "task.type.matchRemote" });
     case TaskRequestType.PREPARE_SEMANTIC_SEARCH:
       return intl.formatMessage({ id: "task.type.prepareSemanticSearch" });
+    case TaskRequestType.GENERATE_TILES:
+      return intl.formatMessage({ id: "task.type.generateTiles" });
   }
 }

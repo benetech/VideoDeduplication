@@ -72,4 +72,10 @@ export const TaskResultViews: TaskResultViewMap = {
       component: RawResults,
     },
   ],
+  [TaskRequestType.GENERATE_TILES]: [
+    {
+      title: "view.raw",
+      component: RawResults,
+    },
+  ],
 };

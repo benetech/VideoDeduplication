@@ -6,456 +6,564 @@ from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
-
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
 
 
+
+
 DESCRIPTOR = _descriptor.FileDescriptor(
-    name="rpc/rpc.proto",
-    package="rpc.proto",
-    syntax="proto3",
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-    serialized_pb=b'\n\rrpc/rpc.proto\x12\trpc.proto"M\n\x11TextSearchRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\x16\n\x0emin_similarity\x18\x02 \x01(\x02\x12\x11\n\tmax_count\x18\x03 \x01(\x05"\'\n\nFoundVideo\x12\n\n\x02id\x18\x01 \x01(\x04\x12\r\n\x05score\x18\x02 \x01(\x02"\x9f\x01\n\x11TextSearchResults\x12%\n\x06videos\x18\x01 \x03(\x0b\x32\x15.rpc.proto.FoundVideo\x12\x16\n\x0eoriginal_query\x18\x02 \x01(\t\x12\x0e\n\x06tokens\x18\x03 \x03(\t\x12\x14\n\x0c\x63lean_tokens\x18\x04 \x03(\t\x12\x16\n\x0ehuman_readable\x18\x05 \x01(\t\x12\r\n\x05score\x18\x06 \x01(\x02"\x0f\n\rStatusRequest" \n\x0eStatusResponse\x12\x0e\n\x06status\x18\x01 \x01(\x08\x32\xa3\x01\n\x0eSemanticSearch\x12L\n\x0cquery_videos\x12\x1c.rpc.proto.TextSearchRequest\x1a\x1c.rpc.proto.TextSearchResults"\x00\x12\x43\n\nget_status\x12\x18.rpc.proto.StatusRequest\x1a\x19.rpc.proto.StatusResponse"\x00\x62\x06proto3',
+  name='rpc/rpc.proto',
+  package='rpc.proto',
+  syntax='proto3',
+  serialized_options=None,
+  create_key=_descriptor._internal_create_key,
+  serialized_pb=b'\n\rrpc/rpc.proto\x12\trpc.proto\"M\n\x11TextSearchRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\x16\n\x0emin_similarity\x18\x02 \x01(\x02\x12\x11\n\tmax_count\x18\x03 \x01(\x05\"\'\n\nFoundVideo\x12\n\n\x02id\x18\x01 \x01(\x04\x12\r\n\x05score\x18\x02 \x01(\x02\"\x9f\x01\n\x11TextSearchResults\x12%\n\x06videos\x18\x01 \x03(\x0b\x32\x15.rpc.proto.FoundVideo\x12\x16\n\x0eoriginal_query\x18\x02 \x01(\t\x12\x0e\n\x06tokens\x18\x03 \x03(\t\x12\x14\n\x0c\x63lean_tokens\x18\x04 \x03(\t\x12\x16\n\x0ehuman_readable\x18\x05 \x01(\t\x12\r\n\x05score\x18\x06 \x01(\x02\"\x0f\n\rStatusRequest\" \n\x0eStatusResponse\x12\x0e\n\x06status\x18\x01 \x01(\x08\"k\n\x17NearestNeighborsRequest\x12\x11\n\talgorithm\x18\x01 \x01(\t\x12\t\n\x01x\x18\x02 \x01(\x02\x12\t\n\x01y\x18\x03 \x01(\x02\x12\x14\n\x0cmax_distance\x18\x04 \x01(\x02\x12\x11\n\tmax_count\x18\x05 \x01(\x05\"F\n\x17NearestNeighborsResults\x12+\n\tneighbors\x18\x01 \x03(\x0b\x32\x18.rpc.proto.FoundNeighbor\"]\n\rFoundNeighbor\x12\x11\n\tfile_path\x18\x01 \x01(\t\x12\x11\n\tfile_hash\x18\x02 \x01(\t\x12\t\n\x01x\x18\x03 \x01(\x02\x12\t\n\x01y\x18\x04 \x01(\x02\x12\x10\n\x08\x64istance\x18\x05 \x01(\x02\",\n\x17\x45mbeddingsStatusRequest\x12\x11\n\talgorithm\x18\x01 \x01(\t2\xa3\x01\n\x0eSemanticSearch\x12L\n\x0cquery_videos\x12\x1c.rpc.proto.TextSearchRequest\x1a\x1c.rpc.proto.TextSearchResults\"\x00\x12\x43\n\nget_status\x12\x18.rpc.proto.StatusRequest\x1a\x19.rpc.proto.StatusResponse\"\x00\x32\xc0\x01\n\nEmbeddings\x12\x63\n\x17query_nearest_neighbors\x12\".rpc.proto.NearestNeighborsRequest\x1a\".rpc.proto.NearestNeighborsResults\"\x00\x12M\n\nget_status\x12\".rpc.proto.EmbeddingsStatusRequest\x1a\x19.rpc.proto.StatusResponse\"\x00\x62\x06proto3'
 )
 
 
+
+
 _TEXTSEARCHREQUEST = _descriptor.Descriptor(
-    name="TextSearchRequest",
-    full_name="rpc.proto.TextSearchRequest",
-    filename=None,
-    file=DESCRIPTOR,
-    containing_type=None,
-    create_key=_descriptor._internal_create_key,
-    fields=[
-        _descriptor.FieldDescriptor(
-            name="query",
-            full_name="rpc.proto.TextSearchRequest.query",
-            index=0,
-            number=1,
-            type=9,
-            cpp_type=9,
-            label=1,
-            has_default_value=False,
-            default_value=b"".decode("utf-8"),
-            message_type=None,
-            enum_type=None,
-            containing_type=None,
-            is_extension=False,
-            extension_scope=None,
-            serialized_options=None,
-            file=DESCRIPTOR,
-            create_key=_descriptor._internal_create_key,
-        ),
-        _descriptor.FieldDescriptor(
-            name="min_similarity",
-            full_name="rpc.proto.TextSearchRequest.min_similarity",
-            index=1,
-            number=2,
-            type=2,
-            cpp_type=6,
-            label=1,
-            has_default_value=False,
-            default_value=float(0),
-            message_type=None,
-            enum_type=None,
-            containing_type=None,
-            is_extension=False,
-            extension_scope=None,
-            serialized_options=None,
-            file=DESCRIPTOR,
-            create_key=_descriptor._internal_create_key,
-        ),
-        _descriptor.FieldDescriptor(
-            name="max_count",
-            full_name="rpc.proto.TextSearchRequest.max_count",
-            index=2,
-            number=3,
-            type=5,
-            cpp_type=1,
-            label=1,
-            has_default_value=False,
-            default_value=0,
-            message_type=None,
-            enum_type=None,
-            containing_type=None,
-            is_extension=False,
-            extension_scope=None,
-            serialized_options=None,
-            file=DESCRIPTOR,
-            create_key=_descriptor._internal_create_key,
-        ),
-    ],
-    extensions=[],
-    nested_types=[],
-    enum_types=[],
-    serialized_options=None,
-    is_extendable=False,
-    syntax="proto3",
-    extension_ranges=[],
-    oneofs=[],
-    serialized_start=28,
-    serialized_end=105,
+  name='TextSearchRequest',
+  full_name='rpc.proto.TextSearchRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='query', full_name='rpc.proto.TextSearchRequest.query', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='min_similarity', full_name='rpc.proto.TextSearchRequest.min_similarity', index=1,
+      number=2, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='max_count', full_name='rpc.proto.TextSearchRequest.max_count', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=28,
+  serialized_end=105,
 )
 
 
 _FOUNDVIDEO = _descriptor.Descriptor(
-    name="FoundVideo",
-    full_name="rpc.proto.FoundVideo",
-    filename=None,
-    file=DESCRIPTOR,
-    containing_type=None,
-    create_key=_descriptor._internal_create_key,
-    fields=[
-        _descriptor.FieldDescriptor(
-            name="id",
-            full_name="rpc.proto.FoundVideo.id",
-            index=0,
-            number=1,
-            type=4,
-            cpp_type=4,
-            label=1,
-            has_default_value=False,
-            default_value=0,
-            message_type=None,
-            enum_type=None,
-            containing_type=None,
-            is_extension=False,
-            extension_scope=None,
-            serialized_options=None,
-            file=DESCRIPTOR,
-            create_key=_descriptor._internal_create_key,
-        ),
-        _descriptor.FieldDescriptor(
-            name="score",
-            full_name="rpc.proto.FoundVideo.score",
-            index=1,
-            number=2,
-            type=2,
-            cpp_type=6,
-            label=1,
-            has_default_value=False,
-            default_value=float(0),
-            message_type=None,
-            enum_type=None,
-            containing_type=None,
-            is_extension=False,
-            extension_scope=None,
-            serialized_options=None,
-            file=DESCRIPTOR,
-            create_key=_descriptor._internal_create_key,
-        ),
-    ],
-    extensions=[],
-    nested_types=[],
-    enum_types=[],
-    serialized_options=None,
-    is_extendable=False,
-    syntax="proto3",
-    extension_ranges=[],
-    oneofs=[],
-    serialized_start=107,
-    serialized_end=146,
+  name='FoundVideo',
+  full_name='rpc.proto.FoundVideo',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='id', full_name='rpc.proto.FoundVideo.id', index=0,
+      number=1, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='score', full_name='rpc.proto.FoundVideo.score', index=1,
+      number=2, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=107,
+  serialized_end=146,
 )
 
 
 _TEXTSEARCHRESULTS = _descriptor.Descriptor(
-    name="TextSearchResults",
-    full_name="rpc.proto.TextSearchResults",
-    filename=None,
-    file=DESCRIPTOR,
-    containing_type=None,
-    create_key=_descriptor._internal_create_key,
-    fields=[
-        _descriptor.FieldDescriptor(
-            name="videos",
-            full_name="rpc.proto.TextSearchResults.videos",
-            index=0,
-            number=1,
-            type=11,
-            cpp_type=10,
-            label=3,
-            has_default_value=False,
-            default_value=[],
-            message_type=None,
-            enum_type=None,
-            containing_type=None,
-            is_extension=False,
-            extension_scope=None,
-            serialized_options=None,
-            file=DESCRIPTOR,
-            create_key=_descriptor._internal_create_key,
-        ),
-        _descriptor.FieldDescriptor(
-            name="original_query",
-            full_name="rpc.proto.TextSearchResults.original_query",
-            index=1,
-            number=2,
-            type=9,
-            cpp_type=9,
-            label=1,
-            has_default_value=False,
-            default_value=b"".decode("utf-8"),
-            message_type=None,
-            enum_type=None,
-            containing_type=None,
-            is_extension=False,
-            extension_scope=None,
-            serialized_options=None,
-            file=DESCRIPTOR,
-            create_key=_descriptor._internal_create_key,
-        ),
-        _descriptor.FieldDescriptor(
-            name="tokens",
-            full_name="rpc.proto.TextSearchResults.tokens",
-            index=2,
-            number=3,
-            type=9,
-            cpp_type=9,
-            label=3,
-            has_default_value=False,
-            default_value=[],
-            message_type=None,
-            enum_type=None,
-            containing_type=None,
-            is_extension=False,
-            extension_scope=None,
-            serialized_options=None,
-            file=DESCRIPTOR,
-            create_key=_descriptor._internal_create_key,
-        ),
-        _descriptor.FieldDescriptor(
-            name="clean_tokens",
-            full_name="rpc.proto.TextSearchResults.clean_tokens",
-            index=3,
-            number=4,
-            type=9,
-            cpp_type=9,
-            label=3,
-            has_default_value=False,
-            default_value=[],
-            message_type=None,
-            enum_type=None,
-            containing_type=None,
-            is_extension=False,
-            extension_scope=None,
-            serialized_options=None,
-            file=DESCRIPTOR,
-            create_key=_descriptor._internal_create_key,
-        ),
-        _descriptor.FieldDescriptor(
-            name="human_readable",
-            full_name="rpc.proto.TextSearchResults.human_readable",
-            index=4,
-            number=5,
-            type=9,
-            cpp_type=9,
-            label=1,
-            has_default_value=False,
-            default_value=b"".decode("utf-8"),
-            message_type=None,
-            enum_type=None,
-            containing_type=None,
-            is_extension=False,
-            extension_scope=None,
-            serialized_options=None,
-            file=DESCRIPTOR,
-            create_key=_descriptor._internal_create_key,
-        ),
-        _descriptor.FieldDescriptor(
-            name="score",
-            full_name="rpc.proto.TextSearchResults.score",
-            index=5,
-            number=6,
-            type=2,
-            cpp_type=6,
-            label=1,
-            has_default_value=False,
-            default_value=float(0),
-            message_type=None,
-            enum_type=None,
-            containing_type=None,
-            is_extension=False,
-            extension_scope=None,
-            serialized_options=None,
-            file=DESCRIPTOR,
-            create_key=_descriptor._internal_create_key,
-        ),
-    ],
-    extensions=[],
-    nested_types=[],
-    enum_types=[],
-    serialized_options=None,
-    is_extendable=False,
-    syntax="proto3",
-    extension_ranges=[],
-    oneofs=[],
-    serialized_start=149,
-    serialized_end=308,
+  name='TextSearchResults',
+  full_name='rpc.proto.TextSearchResults',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='videos', full_name='rpc.proto.TextSearchResults.videos', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='original_query', full_name='rpc.proto.TextSearchResults.original_query', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='tokens', full_name='rpc.proto.TextSearchResults.tokens', index=2,
+      number=3, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='clean_tokens', full_name='rpc.proto.TextSearchResults.clean_tokens', index=3,
+      number=4, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='human_readable', full_name='rpc.proto.TextSearchResults.human_readable', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='score', full_name='rpc.proto.TextSearchResults.score', index=5,
+      number=6, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=149,
+  serialized_end=308,
 )
 
 
 _STATUSREQUEST = _descriptor.Descriptor(
-    name="StatusRequest",
-    full_name="rpc.proto.StatusRequest",
-    filename=None,
-    file=DESCRIPTOR,
-    containing_type=None,
-    create_key=_descriptor._internal_create_key,
-    fields=[],
-    extensions=[],
-    nested_types=[],
-    enum_types=[],
-    serialized_options=None,
-    is_extendable=False,
-    syntax="proto3",
-    extension_ranges=[],
-    oneofs=[],
-    serialized_start=310,
-    serialized_end=325,
+  name='StatusRequest',
+  full_name='rpc.proto.StatusRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=310,
+  serialized_end=325,
 )
 
 
 _STATUSRESPONSE = _descriptor.Descriptor(
-    name="StatusResponse",
-    full_name="rpc.proto.StatusResponse",
-    filename=None,
-    file=DESCRIPTOR,
-    containing_type=None,
-    create_key=_descriptor._internal_create_key,
-    fields=[
-        _descriptor.FieldDescriptor(
-            name="status",
-            full_name="rpc.proto.StatusResponse.status",
-            index=0,
-            number=1,
-            type=8,
-            cpp_type=7,
-            label=1,
-            has_default_value=False,
-            default_value=False,
-            message_type=None,
-            enum_type=None,
-            containing_type=None,
-            is_extension=False,
-            extension_scope=None,
-            serialized_options=None,
-            file=DESCRIPTOR,
-            create_key=_descriptor._internal_create_key,
-        ),
-    ],
-    extensions=[],
-    nested_types=[],
-    enum_types=[],
-    serialized_options=None,
-    is_extendable=False,
-    syntax="proto3",
-    extension_ranges=[],
-    oneofs=[],
-    serialized_start=327,
-    serialized_end=359,
+  name='StatusResponse',
+  full_name='rpc.proto.StatusResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='status', full_name='rpc.proto.StatusResponse.status', index=0,
+      number=1, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=327,
+  serialized_end=359,
 )
 
-_TEXTSEARCHRESULTS.fields_by_name["videos"].message_type = _FOUNDVIDEO
-DESCRIPTOR.message_types_by_name["TextSearchRequest"] = _TEXTSEARCHREQUEST
-DESCRIPTOR.message_types_by_name["FoundVideo"] = _FOUNDVIDEO
-DESCRIPTOR.message_types_by_name["TextSearchResults"] = _TEXTSEARCHRESULTS
-DESCRIPTOR.message_types_by_name["StatusRequest"] = _STATUSREQUEST
-DESCRIPTOR.message_types_by_name["StatusResponse"] = _STATUSRESPONSE
+
+_NEARESTNEIGHBORSREQUEST = _descriptor.Descriptor(
+  name='NearestNeighborsRequest',
+  full_name='rpc.proto.NearestNeighborsRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='algorithm', full_name='rpc.proto.NearestNeighborsRequest.algorithm', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='x', full_name='rpc.proto.NearestNeighborsRequest.x', index=1,
+      number=2, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='y', full_name='rpc.proto.NearestNeighborsRequest.y', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='max_distance', full_name='rpc.proto.NearestNeighborsRequest.max_distance', index=3,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='max_count', full_name='rpc.proto.NearestNeighborsRequest.max_count', index=4,
+      number=5, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=361,
+  serialized_end=468,
+)
+
+
+_NEARESTNEIGHBORSRESULTS = _descriptor.Descriptor(
+  name='NearestNeighborsResults',
+  full_name='rpc.proto.NearestNeighborsResults',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='neighbors', full_name='rpc.proto.NearestNeighborsResults.neighbors', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=470,
+  serialized_end=540,
+)
+
+
+_FOUNDNEIGHBOR = _descriptor.Descriptor(
+  name='FoundNeighbor',
+  full_name='rpc.proto.FoundNeighbor',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='file_path', full_name='rpc.proto.FoundNeighbor.file_path', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='file_hash', full_name='rpc.proto.FoundNeighbor.file_hash', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='x', full_name='rpc.proto.FoundNeighbor.x', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='y', full_name='rpc.proto.FoundNeighbor.y', index=3,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='distance', full_name='rpc.proto.FoundNeighbor.distance', index=4,
+      number=5, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=542,
+  serialized_end=635,
+)
+
+
+_EMBEDDINGSSTATUSREQUEST = _descriptor.Descriptor(
+  name='EmbeddingsStatusRequest',
+  full_name='rpc.proto.EmbeddingsStatusRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='algorithm', full_name='rpc.proto.EmbeddingsStatusRequest.algorithm', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=637,
+  serialized_end=681,
+)
+
+_TEXTSEARCHRESULTS.fields_by_name['videos'].message_type = _FOUNDVIDEO
+_NEARESTNEIGHBORSRESULTS.fields_by_name['neighbors'].message_type = _FOUNDNEIGHBOR
+DESCRIPTOR.message_types_by_name['TextSearchRequest'] = _TEXTSEARCHREQUEST
+DESCRIPTOR.message_types_by_name['FoundVideo'] = _FOUNDVIDEO
+DESCRIPTOR.message_types_by_name['TextSearchResults'] = _TEXTSEARCHRESULTS
+DESCRIPTOR.message_types_by_name['StatusRequest'] = _STATUSREQUEST
+DESCRIPTOR.message_types_by_name['StatusResponse'] = _STATUSRESPONSE
+DESCRIPTOR.message_types_by_name['NearestNeighborsRequest'] = _NEARESTNEIGHBORSREQUEST
+DESCRIPTOR.message_types_by_name['NearestNeighborsResults'] = _NEARESTNEIGHBORSRESULTS
+DESCRIPTOR.message_types_by_name['FoundNeighbor'] = _FOUNDNEIGHBOR
+DESCRIPTOR.message_types_by_name['EmbeddingsStatusRequest'] = _EMBEDDINGSSTATUSREQUEST
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-TextSearchRequest = _reflection.GeneratedProtocolMessageType(
-    "TextSearchRequest",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _TEXTSEARCHREQUEST,
-        "__module__": "rpc.rpc_pb2"
-        # @@protoc_insertion_point(class_scope:rpc.proto.TextSearchRequest)
-    },
-)
+TextSearchRequest = _reflection.GeneratedProtocolMessageType('TextSearchRequest', (_message.Message,), {
+  'DESCRIPTOR' : _TEXTSEARCHREQUEST,
+  '__module__' : 'rpc.rpc_pb2'
+  # @@protoc_insertion_point(class_scope:rpc.proto.TextSearchRequest)
+  })
 _sym_db.RegisterMessage(TextSearchRequest)
 
-FoundVideo = _reflection.GeneratedProtocolMessageType(
-    "FoundVideo",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _FOUNDVIDEO,
-        "__module__": "rpc.rpc_pb2"
-        # @@protoc_insertion_point(class_scope:rpc.proto.FoundVideo)
-    },
-)
+FoundVideo = _reflection.GeneratedProtocolMessageType('FoundVideo', (_message.Message,), {
+  'DESCRIPTOR' : _FOUNDVIDEO,
+  '__module__' : 'rpc.rpc_pb2'
+  # @@protoc_insertion_point(class_scope:rpc.proto.FoundVideo)
+  })
 _sym_db.RegisterMessage(FoundVideo)
 
-TextSearchResults = _reflection.GeneratedProtocolMessageType(
-    "TextSearchResults",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _TEXTSEARCHRESULTS,
-        "__module__": "rpc.rpc_pb2"
-        # @@protoc_insertion_point(class_scope:rpc.proto.TextSearchResults)
-    },
-)
+TextSearchResults = _reflection.GeneratedProtocolMessageType('TextSearchResults', (_message.Message,), {
+  'DESCRIPTOR' : _TEXTSEARCHRESULTS,
+  '__module__' : 'rpc.rpc_pb2'
+  # @@protoc_insertion_point(class_scope:rpc.proto.TextSearchResults)
+  })
 _sym_db.RegisterMessage(TextSearchResults)
 
-StatusRequest = _reflection.GeneratedProtocolMessageType(
-    "StatusRequest",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _STATUSREQUEST,
-        "__module__": "rpc.rpc_pb2"
-        # @@protoc_insertion_point(class_scope:rpc.proto.StatusRequest)
-    },
-)
+StatusRequest = _reflection.GeneratedProtocolMessageType('StatusRequest', (_message.Message,), {
+  'DESCRIPTOR' : _STATUSREQUEST,
+  '__module__' : 'rpc.rpc_pb2'
+  # @@protoc_insertion_point(class_scope:rpc.proto.StatusRequest)
+  })
 _sym_db.RegisterMessage(StatusRequest)
 
-StatusResponse = _reflection.GeneratedProtocolMessageType(
-    "StatusResponse",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _STATUSRESPONSE,
-        "__module__": "rpc.rpc_pb2"
-        # @@protoc_insertion_point(class_scope:rpc.proto.StatusResponse)
-    },
-)
+StatusResponse = _reflection.GeneratedProtocolMessageType('StatusResponse', (_message.Message,), {
+  'DESCRIPTOR' : _STATUSRESPONSE,
+  '__module__' : 'rpc.rpc_pb2'
+  # @@protoc_insertion_point(class_scope:rpc.proto.StatusResponse)
+  })
 _sym_db.RegisterMessage(StatusResponse)
+
+NearestNeighborsRequest = _reflection.GeneratedProtocolMessageType('NearestNeighborsRequest', (_message.Message,), {
+  'DESCRIPTOR' : _NEARESTNEIGHBORSREQUEST,
+  '__module__' : 'rpc.rpc_pb2'
+  # @@protoc_insertion_point(class_scope:rpc.proto.NearestNeighborsRequest)
+  })
+_sym_db.RegisterMessage(NearestNeighborsRequest)
+
+NearestNeighborsResults = _reflection.GeneratedProtocolMessageType('NearestNeighborsResults', (_message.Message,), {
+  'DESCRIPTOR' : _NEARESTNEIGHBORSRESULTS,
+  '__module__' : 'rpc.rpc_pb2'
+  # @@protoc_insertion_point(class_scope:rpc.proto.NearestNeighborsResults)
+  })
+_sym_db.RegisterMessage(NearestNeighborsResults)
+
+FoundNeighbor = _reflection.GeneratedProtocolMessageType('FoundNeighbor', (_message.Message,), {
+  'DESCRIPTOR' : _FOUNDNEIGHBOR,
+  '__module__' : 'rpc.rpc_pb2'
+  # @@protoc_insertion_point(class_scope:rpc.proto.FoundNeighbor)
+  })
+_sym_db.RegisterMessage(FoundNeighbor)
+
+EmbeddingsStatusRequest = _reflection.GeneratedProtocolMessageType('EmbeddingsStatusRequest', (_message.Message,), {
+  'DESCRIPTOR' : _EMBEDDINGSSTATUSREQUEST,
+  '__module__' : 'rpc.rpc_pb2'
+  # @@protoc_insertion_point(class_scope:rpc.proto.EmbeddingsStatusRequest)
+  })
+_sym_db.RegisterMessage(EmbeddingsStatusRequest)
+
 
 
 _SEMANTICSEARCH = _descriptor.ServiceDescriptor(
-    name="SemanticSearch",
-    full_name="rpc.proto.SemanticSearch",
-    file=DESCRIPTOR,
+  name='SemanticSearch',
+  full_name='rpc.proto.SemanticSearch',
+  file=DESCRIPTOR,
+  index=0,
+  serialized_options=None,
+  create_key=_descriptor._internal_create_key,
+  serialized_start=684,
+  serialized_end=847,
+  methods=[
+  _descriptor.MethodDescriptor(
+    name='query_videos',
+    full_name='rpc.proto.SemanticSearch.query_videos',
     index=0,
+    containing_service=None,
+    input_type=_TEXTSEARCHREQUEST,
+    output_type=_TEXTSEARCHRESULTS,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
-    serialized_start=362,
-    serialized_end=525,
-    methods=[
-        _descriptor.MethodDescriptor(
-            name="query_videos",
-            full_name="rpc.proto.SemanticSearch.query_videos",
-            index=0,
-            containing_service=None,
-            input_type=_TEXTSEARCHREQUEST,
-            output_type=_TEXTSEARCHRESULTS,
-            serialized_options=None,
-            create_key=_descriptor._internal_create_key,
-        ),
-        _descriptor.MethodDescriptor(
-            name="get_status",
-            full_name="rpc.proto.SemanticSearch.get_status",
-            index=1,
-            containing_service=None,
-            input_type=_STATUSREQUEST,
-            output_type=_STATUSRESPONSE,
-            serialized_options=None,
-            create_key=_descriptor._internal_create_key,
-        ),
-    ],
-)
+  ),
+  _descriptor.MethodDescriptor(
+    name='get_status',
+    full_name='rpc.proto.SemanticSearch.get_status',
+    index=1,
+    containing_service=None,
+    input_type=_STATUSREQUEST,
+    output_type=_STATUSRESPONSE,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+])
 _sym_db.RegisterServiceDescriptor(_SEMANTICSEARCH)
 
-DESCRIPTOR.services_by_name["SemanticSearch"] = _SEMANTICSEARCH
+DESCRIPTOR.services_by_name['SemanticSearch'] = _SEMANTICSEARCH
+
+
+_EMBEDDINGS = _descriptor.ServiceDescriptor(
+  name='Embeddings',
+  full_name='rpc.proto.Embeddings',
+  file=DESCRIPTOR,
+  index=1,
+  serialized_options=None,
+  create_key=_descriptor._internal_create_key,
+  serialized_start=850,
+  serialized_end=1042,
+  methods=[
+  _descriptor.MethodDescriptor(
+    name='query_nearest_neighbors',
+    full_name='rpc.proto.Embeddings.query_nearest_neighbors',
+    index=0,
+    containing_service=None,
+    input_type=_NEARESTNEIGHBORSREQUEST,
+    output_type=_NEARESTNEIGHBORSRESULTS,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='get_status',
+    full_name='rpc.proto.Embeddings.get_status',
+    index=1,
+    containing_service=None,
+    input_type=_EMBEDDINGSSTATUSREQUEST,
+    output_type=_STATUSRESPONSE,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+])
+_sym_db.RegisterServiceDescriptor(_EMBEDDINGS)
+
+DESCRIPTOR.services_by_name['Embeddings'] = _EMBEDDINGS
 
 # @@protoc_insertion_point(module_scope)

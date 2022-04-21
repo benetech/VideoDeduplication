@@ -2,7 +2,7 @@ import abc
 import collections
 import math
 import sys
-from typing import Any, Callable, Union, Collection, List
+from typing import Any, Callable, Union, Collection, List, Optional
 
 from tqdm import tqdm
 
@@ -53,13 +53,15 @@ class BaseProgressMonitor(abc.ABC):
         remaining_work = self.total - self.progress * self.total
         return self.subtask(work_amount=remaining_work)
 
-    def bar(self, amount: float = None, scale: float = 1.0, unit: str = "work") -> "BaseProgressMonitor":
+    def bar(
+        self, amount: float = None, scale: float = 1.0, unit: str = "work", lazy_portion: Optional[float] = None
+    ) -> "BaseProgressMonitor":
         """Create progress bar."""
         if amount is not None:
             subtask = self.subtask(work_amount=amount).scale(scale)
         else:
             subtask = self.remaining().scale(scale)
-        return LazyProgress(ProgressBar(subtask, unit=unit))
+        return LazyProgress(ProgressBar(subtask, unit=unit), portion=lazy_portion)
 
 
 class _NullProgressMonitor(BaseProgressMonitor):
@@ -269,7 +271,7 @@ class LazyProgress(BaseProgressMonitor):
 
     @property
     def total(self) -> float:
-        return self._delegate.progress
+        return self._delegate.total
 
     def observe(self, observer):
         self._delegate.observe(observer)

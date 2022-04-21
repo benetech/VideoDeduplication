@@ -41,3 +41,34 @@ message StatusRequest {
 message StatusResponse {
   bool status = 1;
 }
+
+// Embeddings service
+service Embeddings {
+  // Get nearest neighbors
+  rpc query_nearest_neighbors (NearestNeighborsRequest) returns (NearestNeighborsResults) {}
+  rpc get_status (EmbeddingsStatusRequest) returns (StatusResponse) {}
+}
+
+message NearestNeighborsRequest {
+  string algorithm = 1;
+  float x = 2;
+  float y = 3;
+  float max_distance = 4;
+  int32 max_count = 5;
+}
+
+message NearestNeighborsResults {
+  repeated FoundNeighbor neighbors = 1;
+}
+
+message FoundNeighbor {
+  string file_path = 1;
+  string file_hash = 2;
+  float x = 3;
+  float y = 4;
+  float distance = 5;
+}
+
+message EmbeddingsStatusRequest {
+  string algorithm = 1;
+}

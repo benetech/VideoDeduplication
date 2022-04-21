@@ -153,6 +153,7 @@ services:
       SECURITY_STORAGE_PATH: "/project/data/representations"
       RPC_SERVER_HOST: "rpc"
       RPC_SERVER_PORT: 50051
+      EMBEDDINGS_FOLDER: "/project/data/representations/embeddings"
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed your video files

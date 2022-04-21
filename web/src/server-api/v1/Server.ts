@@ -17,6 +17,7 @@ import { makeServerError } from "../ServerError";
 import { OnlineDTO } from "./dto/online";
 import { ServerHealthStatus } from "../../model/health";
 import { HealthDTO } from "./dto/health";
+import EmbeddingsEndpoint from "./endpoints/EmbeddingsEndpoint";
 
 type RestServerOptions = {
   baseURL?: string;
@@ -40,6 +41,7 @@ export default class Server implements ServerAPI {
   readonly contributors: ContributorsEndpoint;
   readonly stats: StatsEndpoint;
   readonly socket: Socket;
+  readonly embeddings: EmbeddingsEndpoint;
 
   constructor(options: RestServerOptions = {}) {
     this.baseURL = options.baseURL || "/api/v1";
@@ -63,6 +65,7 @@ export default class Server implements ServerAPI {
     this.repositories = new RepositoryEndpoint(this.axios);
     this.contributors = new ContributorsEndpoint(this.axios);
     this.stats = new StatsEndpoint(this.axios);
+    this.embeddings = new EmbeddingsEndpoint(this.axios);
     this.socket = new Socket();
   }
 

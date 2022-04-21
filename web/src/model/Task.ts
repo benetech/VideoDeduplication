@@ -1,5 +1,6 @@
 import { JsonObject } from "../lib/types/Json";
 import { Repository } from "./VideoFile";
+import { EmbeddingAlgorithm } from "./embeddings";
 
 /**
  * Task query filters.
@@ -22,6 +23,7 @@ export enum TaskRequestType {
   PULL_FINGERPRINTS = "PullFingerprints",
   MATCH_REMOTE_FINGERPRINTS = "MatchRemoteFingerprints",
   PREPARE_SEMANTIC_SEARCH = "PrepareSemanticSearch",
+  GENERATE_TILES = "GenerateTiles",
 }
 
 /**
@@ -101,6 +103,13 @@ export type PrepareSemanticSearchRequest = {
   force: boolean;
 };
 
+export type GenerateTilesRequest = {
+  type: TaskRequestType.GENERATE_TILES;
+  algorithm: EmbeddingAlgorithm;
+  maxZoom: number;
+  force: boolean;
+};
+
 export type TaskRequest =
   | ProcessDirectoryRequest
   | ProcessFileListRequest
@@ -110,7 +119,8 @@ export type TaskRequest =
   | PushFingerprintsRequest
   | PullFingerprintsRequest
   | MatchRemoteFingerprintsRequest
-  | PrepareSemanticSearchRequest;
+  | PrepareSemanticSearchRequest
+  | GenerateTilesRequest;
 
 export type FileCount = {
   templateId: number;
@@ -137,13 +147,15 @@ export type PushFingerprintsResult = undefined;
 export type PullFingerprintsResult = undefined;
 export type MatchRemoteFingerprintsResult = undefined;
 export type PrepareSemanticSearchResult = undefined;
+export type GenerateTilesResult = undefined;
 
 export type TaskResult =
   | ProcessDirectoryResult
   | ProcessFileListResult
   | MatchTemplatesResult
   | FindFrameResult
-  | ProcessOnlineVideoResult;
+  | ProcessOnlineVideoResult
+  | GenerateTilesResult;
 
 /**
  * Task type to request type mapping.
@@ -158,6 +170,7 @@ export type TaskRequestMap = {
   [TaskRequestType.PULL_FINGERPRINTS]: PullFingerprintsRequest;
   [TaskRequestType.MATCH_REMOTE_FINGERPRINTS]: MatchRemoteFingerprintsRequest;
   [TaskRequestType.PREPARE_SEMANTIC_SEARCH]: PrepareSemanticSearchRequest;
+  [TaskRequestType.GENERATE_TILES]: GenerateTilesRequest;
 };
 
 /**
@@ -173,6 +186,7 @@ export type TaskResultMap = {
   [TaskRequestType.PULL_FINGERPRINTS]: PullFingerprintsResult;
   [TaskRequestType.MATCH_REMOTE_FINGERPRINTS]: MatchRemoteFingerprintsResult;
   [TaskRequestType.PREPARE_SEMANTIC_SEARCH]: PrepareSemanticSearchResult;
+  [TaskRequestType.GENERATE_TILES]: GenerateTilesResult;
 };
 
 /**
@@ -329,6 +343,21 @@ export function makePrepareSemanticSearchRequest(
 }
 
 /**
+ * Make default GenerateTilesRequest
+ */
+export function makeGenerateTilesRequest(
+  req: Partial<GenerateTilesRequest> = {}
+): GenerateTilesRequest {
+  return {
+    type: TaskRequestType.GENERATE_TILES,
+    algorithm: "pacmap",
+    maxZoom: 8,
+    force: false,
+    ...req,
+  };
+}
+
+/**
  * Make default request (correct shape, but possible invalid data).
  */
 export function makeTaskRequest(type: TaskRequestType): TaskRequest {
@@ -351,5 +380,7 @@ export function makeTaskRequest(type: TaskRequestType): TaskRequest {
       return makeMatchRemoteFingerprintsRequest();
     case TaskRequestType.PREPARE_SEMANTIC_SEARCH:
       return makePrepareSemanticSearchRequest();
+    case TaskRequestType.GENERATE_TILES:
+      return makeGenerateTilesRequest();
   }
 }

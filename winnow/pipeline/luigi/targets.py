@@ -6,9 +6,9 @@ from cached_property import cached_property
 
 from winnow.collection.file_collection import FileCollection
 from winnow.pipeline.luigi.utils import KeyIter
-from winnow.utils.files import PathTime
 from winnow.storage.base_repr_storage import BaseReprStorage
 from winnow.storage.file_key import FileKey
+from winnow.utils.files import PathTime
 from winnow.utils.iterators import skip
 
 
@@ -99,7 +99,7 @@ class FileWithTimestampTarget(luigi.Target):
         return latest_time
 
     @property
-    def latest_result_path(self) -> str:
+    def latest_result_path(self) -> Optional[str]:
         """Get path of the latest result."""
         latest_path, _ = PathTime.latest(f"{self.path_prefix}*{self.name_suffix}")
         return latest_path

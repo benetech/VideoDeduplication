@@ -56,6 +56,7 @@ Server honors the following environment variables:
  * `REDIS_CACHE_HOST` - redis cache host (default is `redis`)
  * `REDIS_CACHE_PORT` - redis cache port (default `6379`)
  * `REDIS_CACHE_DB` - redis cache db (default is `0`)
+ * `EMBEDDINGS_FOLDER` - folder with embeddings tiles (default is `./embeddings`)
 
 
 Server accepts the following command-line arguments:

@@ -7,6 +7,7 @@ from google.protobuf.json_format import MessageToJson
 
 import rpc.rpc_pb2 as proto
 import rpc.rpc_pb2_grpc as services
+from rpc.embeddings import EmbeddingLoader
 from rpc.errors import unavailable
 from rpc.logging import configure_logging
 from winnow.config.path import resolve_config_path
@@ -72,6 +73,27 @@ class SemanticSearch(services.SemanticSearchServicer):
             raise unavailable(context, str(error))
 
 
+class EmbeddingsService(services.EmbeddingsServicer):
+    def __init__(self, loader: EmbeddingLoader):
+        self._loader = loader
+
+    def query_nearest_neighbors(
+        self,
+        request: proto.NearestNeighborsRequest,
+        context: grpc.ServicerContext,
+    ) -> proto.NearestNeighborsResults:
+        index = self._loader.load(request.algorithm)
+        if index is None:
+            return proto.NearestNeighborsResults(neighbors=[])
+        found = index.query(x=request.x, y=request.y, max_distance=request.max_distance, max_count=request.max_count)
+        return proto.NearestNeighborsResults(neighbors=found)
+
+    def get_status(self, request: proto.EmbeddingsStatusRequest, context: grpc.ServicerContext) -> proto.StatusResponse:
+        index = self._loader.load(request.algorithm)
+        available = index is not None
+        return proto.StatusResponse(status=available)
+
+
 def initialize_search_engine(pipeline: PipelineContext):
     """Try to eagerly initialize semantic search engine."""
     logger.info("Trying to initialize semantic search engine.")
@@ -84,13 +106,20 @@ def initialize_search_engine(pipeline: PipelineContext):
 
 
 def serve(host: str, port: int, pipeline: PipelineContext, eager: bool = False):
+    embeddings_loader = EmbeddingLoader(pipeline)
+    embeddings_service = EmbeddingsService(loader=embeddings_loader)
     semantic_search = SemanticSearch(pipeline)
     if eager:
         initialize_search_engine(pipeline)
+        embeddings_loader.load("pacmap")
+        embeddings_loader.load("t-sne")
+        embeddings_loader.load("trimap")
+        embeddings_loader.load("umap")
 
     listen_address = f"{host}:{port}"
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     services.add_SemanticSearchServicer_to_server(semantic_search, server)
+    services.add_EmbeddingsServicer_to_server(embeddings_service, server)
     server.add_insecure_port(listen_address)
     logger.info("JusticeAI RPC server is initialized.")
 
