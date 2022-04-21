@@ -2,7 +2,7 @@ import itertools
 import logging
 from functools import wraps
 from time import time
-from typing import Dict
+from typing import Dict, Iterator, Tuple
 
 from sqlalchemy import tuple_
 from sqlalchemy.orm import joinedload, aliased
@@ -282,7 +282,7 @@ class DBResultStorage:
             session.add(exif_entity)
 
     @benchmark
-    def add_exifs(self, entries):
+    def add_exifs(self, entries: Iterator[Tuple[str, str, Dict]]):
         """Add metadata to multiple files.
 
         Args:

@@ -203,7 +203,7 @@ def get_neighbors(algorithm):
             continue
         results.append(
             {
-                "file": Transform.file(file),
+                "file": Transform.file(file, exif=True),
                 "distance": neighbor.distance,
                 "x": neighbor.x,
                 "y": neighbor.y,

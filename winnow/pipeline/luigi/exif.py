@@ -1,13 +1,17 @@
 import logging
 import os
 from datetime import datetime
-from typing import Iterable, Iterator, Any, Tuple
+from typing import Iterable, Iterator, Any, Tuple, Optional
 
 import luigi
 import pandas as pd
 from cached_property import cached_property
+from sqlalchemy import func
 
-from winnow.pipeline.luigi.platform import PipelineTask
+from db import Database
+from db.schema import TaskLogRecord
+from winnow.collection.file_collection import FileCollection
+from winnow.pipeline.luigi.platform import PipelineTask, ConstTarget
 from winnow.pipeline.luigi.targets import FileWithTimestampTarget
 from winnow.pipeline.pipeline_context import PipelineContext
 from winnow.pipeline.progress_monitor import ProgressMonitor, BaseProgressMonitor
@@ -16,7 +20,83 @@ from winnow.utils.files import hash_file
 from winnow.utils.metadata_extraction import extract_from_list_of_videos, convert_to_df, parse_and_filter_metadata_df
 
 
-class ExifTask(PipelineTask):
+class DBExifTarget(luigi.Target):
+    """Exif data in the database."""
+
+    # Database task log prefix attribute
+    LOG_TASK_NAME = "extract-exif"
+    LOG_PREFIX_ATTR = "prefix"
+
+    def __init__(self, prefix: str, database: Database, coll: FileCollection):
+        self.prefix: str = prefix
+        self.database: Database = database
+        self.coll: FileCollection = coll
+
+    def exists(self):
+        return not self.coll.any(prefix=self.prefix, min_mtime=self.last_time)
+
+    @property
+    def last_time(self) -> Optional[datetime]:
+        """Get the last log record."""
+        with self.database.session_scope() as session:
+            task_name = TaskLogRecord.task_name == self.LOG_TASK_NAME
+            has_prefix = TaskLogRecord.details[self.LOG_PREFIX_ATTR].as_string() == self.prefix
+            task_filters = (task_name, has_prefix)
+            last_time = session.query(func.max(TaskLogRecord.timestamp)).filter(*task_filters)
+            latest = TaskLogRecord.timestamp == last_time
+            record: TaskLogRecord = session.query(TaskLogRecord).filter(latest, *task_filters).one_or_none()
+            if record is None:
+                return None
+            return record.timestamp
+
+    def write_log(self, time: datetime):
+        """Write a log record."""
+        with self.database.session_scope() as session:
+            details = {self.LOG_PREFIX_ATTR: self.prefix}
+            record = TaskLogRecord(task_name=self.LOG_TASK_NAME, timestamp=time, details=details)
+            session.add(record)
+
+
+class DBExifTask(PipelineTask):
+    """Extract EXIF data and save it to the database."""
+
+    prefix: str = luigi.Parameter(default=".")
+
+    def output(self):
+        if not self.config.database.use:
+            return ConstTarget(exists=True)
+        return DBExifTarget(
+            prefix=self.prefix,
+            database=self.pipeline.database,
+            coll=self.pipeline.coll,
+        )
+
+    def run(self):
+        target = self.output()
+        latest_time = target.last_time
+        self.logger.info(
+            "Extracting EXIF metadata from files with prefix '%s' created after %s",
+            self.prefix,
+            latest_time,
+        )
+
+        target_time = self.pipeline.coll.max_mtime(prefix=self.prefix)
+        file_keys = list(self.pipeline.coll.iter_keys(prefix=self.prefix, min_mtime=latest_time))
+        self.logger.info("Extracting exif for %s files", len(file_keys))
+        exif_df = extract_exif(
+            file_keys=file_keys,
+            pipeline=self.pipeline,
+            progress=self.progress.subtask(0.9),
+            logger=self.logger,
+        )
+
+        self.logger.info("Saving EXIF to database")
+        save_exif_database(file_keys=file_keys, exif_df=exif_df, pipeline=self.pipeline)
+        target.write_log(target_time)
+        self.progress.complete()
+
+
+class ExifReportTask(PipelineTask):
     """Extract EXIF data and save it to the CSV."""
 
     prefix: str = luigi.Parameter(default=".")
@@ -59,13 +139,8 @@ class ExifTask(PipelineTask):
             self.logger.info("Removing previous EXIF file %s", latest_path)
             os.remove(latest_path)
 
-        if self.config.database.use:
-            self.logger.info("Saving EXIF to database")
-            save_exif_database(file_keys=file_keys, exif_df=exif_df, pipeline=self.pipeline)
-        self.progress.complete()
 
-
-class ExifFileListFileTask(PipelineTask):
+class ExifReportFileListFileTask(PipelineTask):
     """Extract EXIF data and save it to the CSV."""
 
     path_list_file: str = luigi.Parameter()
@@ -94,11 +169,6 @@ class ExifFileListFileTask(PipelineTask):
             exif_df.to_csv(output)
         self.progress.increase(0.05)
 
-        if self.config.database.use:
-            self.logger.info("Saving EXIF to database")
-            save_exif_database(file_keys=file_keys, exif_df=exif_df, pipeline=self.pipeline)
-        self.progress.complete()
-
     @cached_property
     def result_path(self) -> str:
         """Resolved result report path."""
@@ -106,6 +176,16 @@ class ExifFileListFileTask(PipelineTask):
             return self.output_path
         list_hash = hash_file(self.path_list_file)[10:]
         return os.path.join(self.output_directory, "exif", f"exif_list_{list_hash}.csv")
+
+
+class ExifTask(PipelineTask):
+    """Extract exif task."""
+
+    prefix: str = luigi.Parameter(default=".")
+
+    def requires(self):
+        yield ExifReportTask(config=self.config, prefix=self.prefix)
+        yield DBExifTask(config=self.config, prefix=self.prefix)
 
 
 def extract_exif(
