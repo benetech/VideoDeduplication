@@ -45,6 +45,7 @@ import {
   QueryClusterResultsDTO,
 } from "../dto/matches";
 import { Updates } from "../../../lib/entity/Entity";
+import thumbnailURL from "../../../application/api/files/helpers/thumbnailURL";
 
 /**
  * Argument and result transformer for file API endpoint.
@@ -226,7 +227,7 @@ export default class FilesTransformer {
       hash: data.sha256,
       fingerprint: data.signature,
       exif: data.exif,
-      preview: `/api/v1/files/${data.id}/thumbnail?time=0`,
+      preview: thumbnailURL(data.id, meta.length / 2),
       playbackURL: `/api/v1/files/${data.id}/watch`,
       scenes: this.scenes(data),
       relatedCount: data.related_count,
