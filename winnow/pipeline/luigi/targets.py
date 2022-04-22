@@ -1,9 +1,12 @@
 from datetime import datetime
-from typing import Collection, Optional, Sequence, Tuple, Callable
+from typing import Collection, Optional, Sequence, Tuple, Callable, Dict
 
 import luigi
 from cached_property import cached_property
+from sqlalchemy import func
 
+from db import Database
+from db.schema import TaskLogRecord
 from winnow.collection.file_collection import FileCollection
 from winnow.pipeline.luigi.utils import KeyIter
 from winnow.storage.base_repr_storage import BaseReprStorage
@@ -154,3 +157,43 @@ class FileGroupTarget(luigi.Target):
         for suffix in self.suffixes:
             result.append(PathTime.stamp(f"{self.common_prefix}{suffix}", time, suffix))
         return result
+
+
+class TaskLogRecordTarget(luigi.Target):
+    """Target which checks for presence of a TaskLogRecord in the database."""
+
+    def __init__(
+        self,
+        task_name: str,
+        details: Dict[str, str],
+        database: Database,
+        need_updates: Callable[[datetime], bool],
+    ):
+        self._task_name: str = task_name
+        self._details: Dict[str, str] = details
+        self._database: Database = database
+        self._need_updates = need_updates
+
+    def exists(self):
+        return not self._need_updates(self.last_time)
+
+    @property
+    def last_time(self) -> Optional[datetime]:
+        """Get the last log record."""
+        with self._database.session_scope() as session:
+            task_filters = [TaskLogRecord.task_name == self._task_name]
+            for attr_name, attr_value in self._details.items():
+                attr_filter = TaskLogRecord.details[attr_name].as_string() == attr_value
+                task_filters.append(attr_filter)
+            last_time = session.query(func.max(TaskLogRecord.timestamp)).filter(*task_filters)
+            latest = TaskLogRecord.timestamp == last_time
+            record: TaskLogRecord = session.query(TaskLogRecord).filter(latest, *task_filters).one_or_none()
+            if record is None:
+                return None
+            return record.timestamp
+
+    def write_log(self, time: datetime):
+        """Write a log record."""
+        with self._database.session_scope() as session:
+            record = TaskLogRecord(task_name=self._task_name, timestamp=time, details=self._details)
+            session.add(record)

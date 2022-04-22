@@ -2,7 +2,7 @@ import itertools
 import logging
 from functools import wraps
 from time import time
-from typing import Dict, Iterator, Tuple
+from typing import Dict, Iterator, Tuple, Sequence
 
 from sqlalchemy import tuple_
 from sqlalchemy.orm import joinedload, aliased
@@ -137,7 +137,7 @@ class DBResultStorage:
                     session.add(file)
 
     @benchmark
-    def add_scenes(self, entries, override=False):
+    def add_scenes(self, entries: Iterator[Tuple[str, str, Sequence[float]]], override=False):
         """Bulk add scenes.
 
         Args:
@@ -164,7 +164,7 @@ class DBResultStorage:
                     if len(file.scenes) > 0:
                         continue
 
-                    # Otherwise write scenes
+                    # Otherwise, write scenes
                     file.scenes = self._create_scenes(file, durations)
 
                 # Create missing files
