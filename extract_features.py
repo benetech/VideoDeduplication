@@ -4,6 +4,7 @@ import os
 import click
 import luigi
 
+from winnow.pipeline.luigi.scenes import ScenesTask
 from winnow.pipeline.luigi.signatures import (
     SignaturesTask,
     DBSignaturesTask,
@@ -47,6 +48,7 @@ def main(config, list_of_files, frame_sampling, save_frames):
             [
                 SignaturesTask(config=config),
                 DBSignaturesTask(config=config),
+                ScenesTask(config=config),
             ],
             local_scheduler=True,
             workers=1,

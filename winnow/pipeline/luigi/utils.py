@@ -1,5 +1,6 @@
-import os
-from os import PathLike, fspath
+import json
+import logging
+from os import PathLike
 from pathlib import Path
 from typing import List, Tuple, Union, IO, AnyStr, Dict, Collection, Iterator, Iterable
 
@@ -167,18 +168,45 @@ class MatchesDF:
         return result
 
 
-def random_mask(total_size, true_count) -> np.ndarray:
-    """Create random True/False mask."""
-    mask = np.full(total_size, fill_value=False)
-    mask[: min(true_count, len(mask))] = True
-    np.random.shuffle(mask)
-    return mask
+class ScenesDF:
+    """Collection of utilities to work with DataFrames with detected scenes."""
 
+    columns = ("path", "hash", "scene_duration_seconds", "video_duration_seconds")
 
-def without_ext(path: PathLike) -> str:
-    """File path without extension."""
-    result, _ = os.path.splitext(fspath(path))
-    return result
+    @staticmethod
+    def read_csv(file: Union[str, Path, IO[AnyStr]], **kwargs) -> pd.DataFrame:
+        """Read matches DataFrame from csv file."""
+        scenes_df = pd.read_csv(file, index_col=0, **kwargs)
+        scenes_df.fillna("", inplace=True)
+        scenes_df["scene_duration_seconds"] = scenes_df["scene_duration_seconds"].apply(json.loads)
+        return scenes_df
+
+    @staticmethod
+    def merge(
+        old_scenes_df: pd.DataFrame,
+        new_scenes_df: pd.DataFrame,
+        progress: BaseProgressMonitor = ProgressMonitor.NULL,
+        logger: logging.Logger = logging.getLogger(f"{__name__}.ScenesDF.merge"),
+    ) -> pd.DataFrame:
+        """Concatenate two scenes metadata collections."""
+        if len(old_scenes_df) == 0:
+            progress.complete()
+            return new_scenes_df
+
+        if len(new_scenes_df) == 0:
+            progress.complete()
+            return old_scenes_df
+
+        progress.scale(1.0)
+        new_paths = set(new_scenes_df["path"])
+        not_updated_df = old_scenes_df[np.array(~old_scenes_df["path"].isin(new_paths))]
+        logger.debug("%s scene metadata items were not updated", len(not_updated_df))
+        progress.increase(0.5)
+
+        updated_scenes_df = pd.concat([not_updated_df, new_scenes_df], ignore_index=True)
+        logger.debug("Concatenated existing metadata with %s new scenes", len(new_scenes_df))
+        progress.complete()
+        return updated_scenes_df
 
 
 def prefix(value: str) -> str:
