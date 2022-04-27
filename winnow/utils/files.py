@@ -228,7 +228,11 @@ def extension_filter(extensions: Collection[str] = ()) -> Callable[[str], bool]:
     return predicate
 
 
-def mtime_filter(min_mtime: datetime = None, max_mtime: datetime = None) -> Callable[[str], bool]:
+def mtime_filter(
+    min_mtime: datetime = None,
+    max_mtime: datetime = None,
+    get_time: Callable[[str], float] = os.path.getmtime,
+) -> Callable[[str], bool]:
     """Filter paths by last modified time."""
     min_timestamp = None
     max_timestamp = None
@@ -247,7 +251,7 @@ def mtime_filter(min_mtime: datetime = None, max_mtime: datetime = None) -> Call
 
     def predicate(path: str) -> bool:
         """Check last modified date of the path."""
-        timestamp = floor(os.path.getmtime(path) * 1000)
+        timestamp = floor(get_time(path) * 1000)
         return (min_timestamp is None or min_timestamp < timestamp) and (
             max_timestamp is None or timestamp <= max_timestamp
         )
