@@ -5,6 +5,7 @@ import shlex
 import subprocess
 from collections import defaultdict
 from datetime import datetime, timezone
+from typing import Dict
 
 import cv2
 import numpy as np
@@ -105,6 +106,7 @@ def extract_from_list_of_videos(video_files, progress: BaseProgressMonitor = Pro
             raw_metadata = find_video_metadata_mediainfo(file_path)
             metadata = process_media_info(raw_metadata)
             metadata = normalize_duration(metadata, file_path)
+            metadata = ensure_encoded_date_exists(metadata, file_path)
             video_metadata.append(metadata)
         except Exception as exc:
             logging.info("Problems processing file '%s': %s", file_path, exc)
@@ -112,6 +114,15 @@ def extract_from_list_of_videos(video_files, progress: BaseProgressMonitor = Pro
         progress.increase(1)
     progress.complete()
     return video_metadata
+
+
+def ensure_encoded_date_exists(metadata: Dict, file_path: str) -> Dict:
+    """Ensure encoded date exists on each file."""
+    if "General" not in metadata or "Encoded_Date" not in metadata["General"]:
+        time = datetime.fromtimestamp(min(os.path.getmtime(file_path), os.path.getctime(file_path)))
+        timestamp = time.strftime(f"UTC {_EXIF_DATE_FORMAT}")
+        metadata.setdefault("General", {}).setdefault("Encoded_Date", timestamp)
+    return metadata
 
 
 def convert_to_df(video_metadata):
