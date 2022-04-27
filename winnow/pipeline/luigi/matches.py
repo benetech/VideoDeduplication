@@ -443,6 +443,34 @@ class MatchesByFileListTask(PipelineTask):
         return os.path.join(self.output_directory, "matches", filename)
 
 
+class MatchesTask(PipelineTask):
+    """Convenience task to generate both csv-report and db-entries for detected matches."""
+
+    needles_prefix: str = luigi.Parameter(default=".")
+    haystack_prefix: str = luigi.Parameter(default=".")
+    fingerprint_size: int = luigi.IntParameter(default=500)
+    metric: str = luigi.Parameter(default="angular")
+    n_trees: int = luigi.IntParameter(default=10)
+
+    def requires(self):
+        yield DBMatchesTask(
+            config=self.config,
+            needles_prefix=self.needles_prefix,
+            haystack_prefix=self.haystack_prefix,
+            fingerprint_size=self.fingerprint_size,
+            metric=self.metric,
+            n_trees=self.n_trees,
+        )
+        yield MatchesReportTask(
+            config=self.config,
+            needles_prefix=self.needles_prefix,
+            haystack_prefix=self.haystack_prefix,
+            fingerprint_size=self.fingerprint_size,
+            metric=self.metric,
+            n_trees=self.n_trees,
+        )
+
+
 class RemoteMatchesTarget(luigi.Target):
     """Represents remote matches results."""
 

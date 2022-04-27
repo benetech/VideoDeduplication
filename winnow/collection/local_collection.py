@@ -105,7 +105,7 @@ class LocalFileCollection(FileCollection):
         will be selected.
         """
         file_paths = self._iter_local_paths(prefix)
-        max_timestamp = max(map(os.path.getmtime, file_paths))
+        max_timestamp = max(map(self._get_mtime, file_paths))
         return datetime.fromtimestamp(max_timestamp)
 
     def store(self, local_fs_path: str, coll_path: str, exist_ok: bool = False) -> FileKey:
@@ -133,7 +133,7 @@ class LocalFileCollection(FileCollection):
         parent_path = self._local_fs_path(prefix)
         paths = filter(self._extensions_filter, iter_files(parent_path))
         if min_mtime is not None or max_mtime is not None:
-            correct_mtime = mtime_filter(min_mtime=min_mtime, max_mtime=max_mtime)
+            correct_mtime = mtime_filter(min_mtime=min_mtime, max_mtime=max_mtime, get_time=self._get_mtime)
             paths = filter(correct_mtime, paths)
         return paths
 
@@ -165,3 +165,8 @@ class LocalFileCollection(FileCollection):
         if isinstance(key_or_path, FileKey):
             return key_or_path.path
         return key_or_path
+
+    @staticmethod
+    def _get_mtime(path: str) -> float:
+        """Get last modification time."""
+        return max(os.path.getmtime(path), os.path.getctime(path))

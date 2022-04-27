@@ -18,12 +18,12 @@ logger = get_task_logger(__name__)
 def process_directory(self, directory: str, **config_overrides):
     """Perform basic directory processing: extract exif + match files."""
     from .luigi_support import luigi_config, run_luigi
-    from winnow.pipeline.luigi.matches import DBMatchesTask
+    from winnow.pipeline.luigi.matches import MatchesTask
     from winnow.pipeline.luigi.exif import ExifTask
     from winnow.pipeline.luigi.scenes import ScenesTask
 
     with luigi_config(celery_task=self, **config_overrides) as config:
-        match_files = DBMatchesTask(config=config, needles_prefix=directory)
+        match_files = MatchesTask(config=config, needles_prefix=directory)
         extract_exif = ExifTask(config=config, prefix=directory)
         detect_scenes = ScenesTask(config=config, prefix=directory)
         run_luigi(match_files, extract_exif, detect_scenes)
