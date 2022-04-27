@@ -181,7 +181,7 @@ const LocalFileGridListItem = React.memo(function FpLocalFileGridListItem(
       </div>
       <div className={classes.attrRow}>
         <AttributeText
-          value={formatDate(file.metadata?.uploadDate, intl)}
+          value={formatDate(file.metadata?.created, intl)}
           icon={EventAvailableOutlinedIcon}
           variant="normal"
           defaultValue="Unknown"
