@@ -8,7 +8,7 @@ import luigi
 import luigi.format
 import luigi.setup_logging
 import numpy as np
-import pandas as pd
+import cudf as pd
 from dataclasses import asdict, astuple, dataclass
 
 from winnow.collection.file_collection import FileCollection
@@ -51,7 +51,7 @@ class CondensedFingerprints:
         """
         progress = LazyProgress(progress.scale(len(self.file_keys_df.index), unit="fingerprints"))
         result = []
-        for fingerprint, row in zip(self.fingerprints, self.file_keys_df.itertuples()):
+        for fingerprint, row in zip(self.fingerprints, self.file_keys_df.to_pandas().itertuples()):
             result.append(FeatureVector(key=FileKey(path=row.path, hash=row.hash), features=fingerprint))
             progress.increase(1)
         progress.complete()
@@ -128,6 +128,7 @@ class CondensedFingerprints:
         fingerprints = np.array(fingerprints)
         logger.info("Creating file-keys DataFrame")
         file_keys_df = FileKeyDF.make(tuples=file_key_tuples)
+        logger.info("Creating file-keys DataFrame")
         return CondensedFingerprints(fingerprints=fingerprints, file_keys_df=file_keys_df)
 
     @staticmethod
@@ -166,8 +167,8 @@ class CondensedFingerprints:
             return old
 
         progress.scale(1.0)
-        new_paths = set(new.file_keys_df["path"])
-        not_updated = np.array(~old.file_keys_df["path"].isin(new_paths))
+        new_paths = set(new.file_keys_df.to_pandas()["path"])
+        not_updated = np.array(~old.file_keys_df.to_pandas()["path"].isin(new_paths))
         file_keys_df = old.file_keys_df[not_updated]
         fingerprints = old.fingerprints[not_updated]
         logger.info("%s previously condensed fingerprints were not updated", len(fingerprints))
@@ -201,9 +202,9 @@ class CondensedFingerprintsTarget(FileGroupTarget):
         fingerprints_path, keys_path = self.suggest_paths(time)
         fingerprints_target = luigi.LocalTarget(fingerprints_path, format=luigi.format.Nop)
         keys_target = luigi.LocalTarget(keys_path)
-        with fingerprints_target.open("w") as fingerprints_out, keys_target.open("w") as keys_out:
+        with fingerprints_target.open("w") as fingerprints_out:
             np.save(fingerprints_out, condensed.fingerprints)
-            condensed.file_keys_df.to_csv(keys_out)
+            condensed.file_keys_df.to_csv(keys_path)
 
     def read(self, progress: BaseProgressMonitor = ProgressMonitor.NULL) -> Optional[CondensedFingerprints]:
         """Read condensed fingerprints."""
@@ -260,6 +261,7 @@ class CondenseFingerprintsTask(PipelineTask):
             self.logger.info("Merged previous results with new fingerprints.")
 
         self.logger.info("Writing %s fingerprints to %s", len(condensed), target.suggest_paths(new_results_time))
+        
         target.write(condensed, new_results_time)
 
         if self.clean_existing and previous_results_paths is not None:

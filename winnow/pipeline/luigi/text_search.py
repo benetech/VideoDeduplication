@@ -42,7 +42,7 @@ class PrepareTextSearchTask(PipelineTask):
 
         self.logger.info("Getting database ids.")
         file_ids = []
-        path_hashes = condensed.file_keys_df.itertuples(index=False, name=None)
+        path_hashes = condensed.file_keys_df.to_pandas().itertuples(index=False, name=None)
         retrieve_progress = self.progress.subtask(0.2).scale(len(condensed.file_keys_df.index))
         retrieve_progress = ProgressBar(retrieve_progress, unit="ids")
         for chunk in chunks(path_hashes, size=10000):

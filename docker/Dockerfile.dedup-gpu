@@ -1,19 +1,16 @@
 # Build image: sudo docker build -t <tag> . -f docker/Dockerfile.dedup-gpu --target prod
 # Run tests: sudo docker build -t <tag> . -f docker/Dockerfile.dedup-gpu --target tests
 
-FROM tensorflow/tensorflow:1.15.0-gpu-py3 AS prod
+FROM nvcr.io/nvidia/pytorch:21.08-py3 AS prod
 
 # Install required os dependencies
-RUN apt-get update && apt-get install -y curl libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx mediainfo
+RUN apt-get update && apt-get install -y curl libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx mediainfo gcc g++ libstdc++6
 
-# Install Anaconda
-# See https://docs.anaconda.com/anaconda/install/linux/
 ENV PATH=/anaconda/bin:${PATH}
 RUN curl -LO https://repo.anaconda.com/archive/Anaconda3-2019.07-Linux-x86_64.sh && \
     bash Anaconda3-2019.07-Linux-x86_64.sh -p /anaconda -b && \
     rm Anaconda3-2019.07-Linux-x86_64.sh && \
     conda update -y conda
-
 
 # Install dedup-app Python dependencies
 ADD environment-gpu.yaml /tmp/environment.yaml
@@ -30,6 +27,11 @@ WORKDIR /project/
 # Install application
 RUN /bin/bash -c "source activate winnow && \
     pip install -e ."
+
+RUN /bin/bash -c "source activate winnow && \
+    pip install torch==1.11.0+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html"
+
+# RUN apt-get upgrade -y libstdc++6 
 
 # Install application CLI tool
 ENV PATH /project/cli/bin:$PATH

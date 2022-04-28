@@ -33,6 +33,9 @@ import warnings
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore")
     import tensorflow as tf
+    import tf_slim as slim
+    from tensorflow.python.framework.ops import disable_eager_execution
+    disable_eager_execution()
 
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
@@ -96,13 +99,14 @@ class CNN_tf:
         else:
             raise ValueError("Supported networks: vgg, resnet, inception")
 
-        self.input = tf.compat.v1.placeholder(
-            tf.uint8, shape=(None, self.desired_size, self.desired_size, 3), name="input"
+        self.input = tf.keras.Input(
+            dtype=tf.uint8, shape=(self.desired_size, self.desired_size, 3), name="input"
         )
         vid_processed = preprocess(self.input)
 
         # create the CNN network
-        with tf.contrib.slim.arg_scope(arg_scope):
+        print(vid_processed.shape)
+        with slim.arg_scope(arg_scope):
             _, net = network(vid_processed, num_classes=None, is_training=False)
 
         # 1. normalize on channel dimension
@@ -110,7 +114,7 @@ class CNN_tf:
         # 3. normalize feature vector
         net = [
             tf.nn.l2_normalize(
-                tf.reduce_max(tf.nn.l2_normalize(tf.nn.relu(net[lay]), 3, epsilon=1e-15), axis=(1, 2)), 1, epsilon=1e-15
+                tf.reduce_max(input_tensor=tf.nn.l2_normalize(tf.nn.relu(net[lay]), 3, epsilon=1e-15), axis=(1, 2)), 1, epsilon=1e-15
             )
             for lay in self.layers
         ]
@@ -135,14 +139,14 @@ class CNN_tf:
         Returns:
           tf_init: variables initializer
         """
-        previous_variables = [var_name for var_name, _ in tf.contrib.framework.list_variables(model_ckpt)]
+        previous_variables = [var_name for var_name, _ in tf.train.list_variables(model_ckpt)]
         restore_map = {
             variable.op.name: variable
             for variable in tf.compat.v1.global_variables()
             if variable.op.name in previous_variables
         }
 
-        tf.contrib.framework.init_from_checkpoint(model_ckpt, restore_map)
+        tf.compat.v1.train.init_from_checkpoint(model_ckpt, restore_map)
         tf_init = tf.compat.v1.global_variables_initializer()
         return tf_init
 
@@ -158,7 +162,7 @@ class CNN_tf:
         Returns:
           images_pre: processed tf tensor of input images
         """
-        images = tf.to_float(images)
+        images = tf.cast(images, dtype=tf.float32)
         num_channels = images.get_shape().as_list()[-1]
         ax = images.get_shape().ndims - 1
         channels = tf.split(axis=ax, num_or_size_splits=num_channels, value=images)

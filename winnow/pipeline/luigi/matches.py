@@ -14,7 +14,8 @@ from db import Database
 from db.schema import TaskLogRecord
 from remote.model import RemoteFingerprint
 from winnow.collection.file_collection import FileCollection
-from winnow.duplicate_detection.neighbors import NeighborMatcher, DetectedMatch, FeatureVector
+from winnow.duplicate_detection.neighbors import DetectedMatch, FeatureVector
+from winnow.duplicate_detection.neighbors_rapids import NeighborMatcher
 from winnow.pipeline.luigi.annoy_index import AnnoyIndexTask
 from winnow.pipeline.luigi.condense import CondenseFingerprintsTask, CondensedFingerprints
 from winnow.pipeline.luigi.platform import PipelineTask, ConstTarget
@@ -324,6 +325,7 @@ class MatchesReportTask(PipelineTask):
         self.logger.info("Prepared %s file matches for saving", len(matches_df.index))
 
         self.logger.info("Saving matches report")
+
         self.save_matches_csv(matches_df)
 
         if self.clean_existing and self.previous_results is not None:
@@ -349,8 +351,12 @@ class MatchesReportTask(PipelineTask):
 
     def save_matches_csv(self, matches_df: pd.DataFrame):
         """Save matches to csv file."""
-        with self.output().open("w") as output:
-            matches_df.to_csv(output)
+        
+        dst = self.output().path
+        parent = os.path.split(dst)[0]
+        if not os.path.exists(parent):
+            os.makedirs(parent)
+        matches_df.to_pandas().to_csv(dst)
 
     @cached_property
     def result_timestamp(self) -> datetime:
@@ -372,7 +378,7 @@ class MatchesReportTask(PipelineTask):
         # Otherwise, suggest default output path
         match_distance = self.config.proc.match_distance
         default_filename = f"matches_{match_distance}dist.csv"
-        default_output_path = os.path.join(self.output_directory, "matches", self.needles_prefix, default_filename)
+        default_output_path = os.path.join(self.output_directory, "matches", default_filename)
         if self.timestamp_results:
             return PathTime.stamp(default_output_path, time=self.result_timestamp)
         return default_output_path

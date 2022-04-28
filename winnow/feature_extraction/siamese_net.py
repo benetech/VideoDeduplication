@@ -8,6 +8,7 @@ import warnings
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore")
     import tensorflow as tf
+    from tf_slim.layers import layers as _layers
 
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
@@ -45,7 +46,7 @@ class DNN(object):
 
         self.input = tf.compat.v1.placeholder(tf.float32, shape=(None, input_dimensions), name="input")
 
-        reg = tf.contrib.layers.l2_regularizer(scale=weight_decay)
+        reg = tf.keras.regularizers.l2(l=0.5 * (weight_decay))
 
         self.regularizer = reg if trainable else None
         if load_model:
@@ -56,23 +57,23 @@ class DNN(object):
         self.saver = tf.compat.v1.train.Saver()
         if trainable:
             self.global_step = 1
-            with tf.name_scope("training"):
+            with tf.compat.v1.name_scope("training"):
                 anchor, positive, negative = tf.unstack(
                     tf.reshape(self.output, [-1, 3, self.output.get_shape().as_list()[1]]), 3, 1
                 )
                 loss, error = self.triplet_loss(anchor, positive, negative, gamma)
 
-                reg_variables = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
+                reg_variables = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.REGULARIZATION_LOSSES)
 
                 reg_term = tf.contrib.layers.apply_regularization(self.regularizer, reg_variables)
-                with tf.name_scope("cost"):
+                with tf.compat.v1.name_scope("cost"):
                     cost = loss + reg_term
-                    tf.summary.scalar("cost", cost)
+                    tf.compat.v1.summary.scalar("cost", cost)
 
-                train = tf.train.AdamOptimizer(learning_rate).minimize(cost)
+                train = tf.compat.v1.train.AdamOptimizer(learning_rate).minimize(cost)
                 self.train_op = [train, cost, error]
 
-            summary = tf.summary.merge_all()
+            summary = tf.compat.v1.summary.merge_all()
             self.test_op = [summary, cost, error]
 
         config = tf.compat.v1.ConfigProto()
@@ -81,7 +82,7 @@ class DNN(object):
         self.sess = tf.compat.v1.Session(config=config)
         self.sess.run(init)
         if trainable:
-            self.summary_writer = tf.summary.FileWriter(model_path, self.sess.graph)
+            self.summary_writer = tf.compat.v1.summary.FileWriter(model_path, self.sess.graph)
 
     def build(self, hidden_layer_sizes):
         """
@@ -96,7 +97,7 @@ class DNN(object):
         """
         net = self.input
         for M in hidden_layer_sizes:
-            net = tf.contrib.layers.fully_connected(
+            net = _layers.fully_connected(
                 net,
                 M,
                 activation_fn=tf.nn.tanh,
@@ -105,7 +106,7 @@ class DNN(object):
                 trainable=self.trainable,
             )
 
-        with tf.name_scope("embeddings"):
+        with tf.compat.v1.name_scope("embeddings"):
             net = tf.nn.l2_normalize(net, 1, 1e-15)
             tf.compat.v1.summary.histogram("embeddings", net)
         return net
@@ -116,18 +117,18 @@ class DNN(object):
         """
         previous_sizes = [
             size[1]
-            for name, size in tf.contrib.framework.list_variables(self.path)
+            for name, size in tf.train.list_variables(self.path)
             if len(size) == 2 and "Adam" not in name
         ]
         net = self.build(previous_sizes)
 
-        previous_variables = [var_name for var_name, _ in tf.contrib.framework.list_variables(self.path)]
+        previous_variables = [var_name for var_name, _ in tf.train.list_variables(self.path)]
         restore_map = {
             variable.op.name: variable
             for variable in tf.compat.v1.global_variables()
             if variable.op.name in previous_variables
         }
-        tf.contrib.framework.init_from_checkpoint(self.path, restore_map)
+        tf.compat.v1.train.init_from_checkpoint(self.path, restore_map)
         return net
 
     def euclidean_distance(self, x, y):
@@ -142,8 +143,8 @@ class DNN(object):
         Returns:
           their euclidean distance in sample N dimension (axis 1)
         """
-        with tf.name_scope("euclidean_distance"):
-            return tf.reduce_sum(tf.square(tf.subtract(x, y)), 1)
+        with tf.compat.v1.name_scope("euclidean_distance"):
+            return tf.reduce_sum(input_tensor=tf.square(tf.subtract(x, y)), axis=1)
 
     def triplet_loss(self, anchor, positive, negative, gamma):
         """
@@ -160,19 +161,19 @@ class DNN(object):
           loss: total triplet loss
           error: number of triplets with positive loss
         """
-        with tf.name_scope("triplet_loss"):
+        with tf.compat.v1.name_scope("triplet_loss"):
             pos_dist = self.euclidean_distance(anchor, positive)
             neg_dist = self.euclidean_distance(anchor, negative)
             loss = tf.maximum(0.0, pos_dist - neg_dist + gamma)
 
-            e1 = tf.count_nonzero(loss, dtype=tf.float32)
-            e2 = tf.cast(tf.shape(anchor)[0], tf.float32)
+            e1 = tf.math.count_nonzero(loss, dtype=tf.float32)
+            e2 = tf.cast(tf.shape(input=anchor)[0], tf.float32)
             e3 = tf.constant(100.0)
 
             error = e1 / e2 * e3
-            loss = tf.reduce_mean(loss)
-            tf.summary.scalar("loss", loss)
-            tf.summary.scalar("error", error)
+            loss = tf.reduce_mean(input_tensor=loss)
+            tf.compat.v1.summary.scalar("loss", loss)
+            tf.compat.v1.summary.scalar("error", error)
             return loss, error
 
     def save(self):
