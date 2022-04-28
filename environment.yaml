@@ -58,8 +58,5 @@ dependencies:
       - torch==1.11
       - trimap
       - pacmap
-<<<<<<< HEAD
       - typing_extensions==4.1.1
-=======
-      - typing_extensions==4.1.1
->>>>>>> final environment changes
+      
