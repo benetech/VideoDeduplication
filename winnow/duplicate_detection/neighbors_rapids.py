@@ -120,8 +120,6 @@ class NeighborMatcher:
             progress=progress.subtask(0.7),
         )
 
-        self.logger.info('filtering!!!')
-
         if max_distance is not None:
             distances, indices = self._filter_results(distances, indices, threshold=max_distance)
 

@@ -8,7 +8,7 @@ import luigi
 import luigi.format
 import luigi.setup_logging
 import numpy as np
-import pandas as pd
+import cudf as pd
 from dataclasses import asdict, astuple, dataclass
 
 from winnow.collection.file_collection import FileCollection
@@ -167,8 +167,8 @@ class CondensedFingerprints:
             return old
 
         progress.scale(1.0)
-        new_paths = set(new.file_keys_df["path"])
-        not_updated = np.array(~old.file_keys_df["path"].isin(new_paths))
+        new_paths = set(new.file_keys_df.to_pandas()["path"])
+        not_updated = np.array(~old.file_keys_df.to_pandas()["path"].isin(new_paths))
         file_keys_df = old.file_keys_df[not_updated]
         fingerprints = old.fingerprints[not_updated]
         logger.info("%s previously condensed fingerprints were not updated", len(fingerprints))

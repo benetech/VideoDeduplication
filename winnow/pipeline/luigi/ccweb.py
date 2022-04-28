@@ -39,7 +39,7 @@ class PrepareCCWeb(PipelineTask):
 
         self.logger.info("Creating file-keys dataframe")
         path_hash_pairs = []
-        for entry in file_labels.itertuples():
+        for entry in file_labels.to_pandas().itertuples():
             path_hash_pairs.append((os.path.join(entry.label, entry.basename), ""))
         file_keys_df = FileKeyDF.make(tuples=path_hash_pairs, progress=self.progress.subtask(0.7))
         self.logger.info("Created file-keys dataframe")

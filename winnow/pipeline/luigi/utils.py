@@ -66,7 +66,7 @@ class FileKeyDF:
         """
         progress = LazyProgress(progress.scale(len(file_keys_df.index)))
         result = {}
-        for entry in file_keys_df.itertuples():
+        for entry in file_keys_df.to_pandas().itertuples():
             result[entry.Index] = FileKey(path=entry.path, hash=entry.hash)
             progress.increase(1)
         progress.complete()
@@ -82,7 +82,7 @@ class FileKeyDF:
         """
         progress = LazyProgress(progress.scale(len(file_keys_df.index)))
         result = {}
-        for entry in file_keys_df.itertuples():
+        for entry in file_keys_df.to_pandas().itertuples():
             result[FileKey(path=entry.path, hash=entry.hash)] = entry.Index
             progress.increase(1)
         progress.complete()
@@ -157,7 +157,7 @@ class MatchesDF:
         """Convert matches DataFrame to list of matches."""
         progress = LazyProgress(progress.scale(total_work=len(matches_df.index), unit="matches"))
         result = []
-        for row in matches_df.itertuples():
+        for row in matches_df.to_pandas().to_pandas().itertuples():
             match = Match(
                 source=FileKey(path=row.query_video, hash=row.query_sha256),
                 target=FileKey(path=row.match_video, hash=row.match_sha256),
@@ -177,7 +177,7 @@ class ScenesDF:
     @staticmethod
     def read_csv(file: Union[str, Path, IO[AnyStr]], **kwargs) -> pd.DataFrame:
         """Read matches DataFrame from csv file."""
-        scenes_df = pd.read_csv(file, index_col=0, **kwargs)
+        scenes_df = pd.read_csv(file, index_col=0, **kwargs).to_pandas()
         scenes_df.fillna("", inplace=True)
         scenes_df["scene_duration_seconds"] = scenes_df["scene_duration_seconds"].apply(json.loads)
         return scenes_df
