@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import List, Optional, Iterator, Set, Iterable, Collection, Union
 
 from dataclasses import dataclass
-from sqlalchemy import or_, and_, func, literal_column, tuple_
+from sqlalchemy import or_, and_, func, literal_column, tuple_, distinct
 from sqlalchemy.orm import aliased, Query, Session, joinedload
 
 from db.schema import Files, Matches, Exif, Contributor, Repository, Signature, TemplateMatches, Template
@@ -143,7 +143,7 @@ class MatchCount(QueryValueLoader):
 
     @property
     def value(self):
-        return func.count(self._match_alias.id).label(self._label)
+        return func.count(distinct(self._match_alias.id)).label(self._label)
 
     def _query_match_count(self, query: Query, distance_threshold: float) -> Query:
         """Join by matches count."""
