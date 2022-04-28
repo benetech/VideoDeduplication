@@ -47,10 +47,6 @@ def list_file_matches(file_id):
     # Sort matches
     query = MatchesDAO.sort_matches(query, sort=match_sort, direction=sort_direction)
 
-    # Preload file fields
-    query = FILE_FIELDS.preload(query, include_fields, Matches.match_video_file)
-    query = FILE_FIELDS.preload(query, include_fields, Matches.query_video_file)
-
     # Get requested slice
     total = query.count()
     items = query.offset(offset).limit(limit).all()
