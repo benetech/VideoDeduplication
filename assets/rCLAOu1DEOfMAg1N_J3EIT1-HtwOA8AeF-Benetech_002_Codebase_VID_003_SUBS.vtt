@@ -1,0 +1,41 @@
+﻿WEBVTT
+
+00:00:00.000 --> 00:00:04.110
+The next step is to get the code
+base from GitHub. Make sure to
+
+00:00:04.110 --> 00:00:07.980
+change drives to where you want
+to store the code base. Also
+
+00:00:08.040 --> 00:00:11.340
+remove any old versions of the
+code if you need to, so you're
+
+00:00:11.340 --> 00:00:15.870
+starting fresh. Now write 'git
+clone', then copy or type out
+
+00:00:15.870 --> 00:00:19.380
+the repository name you can find
+in the green code button dropped
+
+00:00:19.380 --> 00:00:23.370
+down in GitHub. Alternatively,
+you can download it as a zip
+
+00:00:23.370 --> 00:00:27.540
+file if you prefer not to use
+terminal. So now the code base
+
+00:00:27.540 --> 00:00:30.510
+is cloned you can change
+directories to get into its
+
+00:00:30.510 --> 00:00:34.800
+folder, type 'LS' just to make
+sure everything is complete, and
+
+00:00:34.800 --> 00:00:36.690
+you're done installing the code
+base.

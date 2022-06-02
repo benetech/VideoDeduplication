@@ -1,0 +1,94 @@
+{
+  "version": "3.49.24347.0",
+  "scenes": [
+    {
+      "title": "Search sort and filter"
+    }
+  ],
+  "slides": [
+    {
+      "id": "6hwrxiMVpjD",
+      "title": "Search",
+      "scene_index": "1.1"
+    },
+    {
+      "id": "5naBh46xPuP",
+      "title": "Click list",
+      "scene_index": "1.2"
+    },
+    {
+      "id": "64qMPHdkixd",
+      "title": "Back to grid view",
+      "scene_index": "1.3"
+    },
+    {
+      "id": "6WB9Y3dMAaV",
+      "title": "Duplicated",
+      "scene_index": "1.4"
+    },
+    {
+      "id": "6oGZGZaAze2",
+      "title": "Possibly related",
+      "scene_index": "1.5"
+    },
+    {
+      "id": "6cvxQekDsHn",
+      "title": "Unique files",
+      "scene_index": "1.6"
+    },
+    {
+      "id": "5YUutEDZSLf",
+      "title": "Click on filter button",
+      "scene_index": "1.7"
+    },
+    {
+      "id": "5ZV4KHetZ8m",
+      "title": "Filter by content",
+      "scene_index": "1.8"
+    },
+    {
+      "id": "6QnBg0qS6ra",
+      "title": "Length",
+      "scene_index": "1.9"
+    },
+    {
+      "id": "5zgCtRaPZ2O",
+      "title": "Matched templates",
+      "scene_index": "1.10"
+    },
+    {
+      "id": "6iGUIIJV2dl",
+      "title": "Template filter",
+      "scene_index": "1.11"
+    },
+    {
+      "id": "5zAT2lEtfij",
+      "title": "Metadata filters",
+      "scene_index": "1.12"
+    },
+    {
+      "id": "6E3hiHIVuaP",
+      "title": "Select Presets",
+      "scene_index": "1.13"
+    },
+    {
+      "id": "6Q5WDmmHMXD",
+      "title": "Restore defaults",
+      "scene_index": "1.14"
+    },
+    {
+      "id": "6kSUKHNeLtE",
+      "title": "Hide filters",
+      "scene_index": "1.15"
+    }
+  ],
+  "player": {
+    "name": "unified",
+    "width": 1940,
+    "height": 1151
+  },
+  "stage": {
+    "width": 1920,
+    "height": 1080
+  }
+}

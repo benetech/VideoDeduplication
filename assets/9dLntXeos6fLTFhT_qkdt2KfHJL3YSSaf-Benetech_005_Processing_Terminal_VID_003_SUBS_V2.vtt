@@ -1,0 +1,150 @@
+﻿WEBVTT
+
+00:00:01.050 --> 00:00:04.470
+To process via the terminal you
+need to enter the processing
+
+00:00:04.470 --> 00:00:07.920
+Docker container by copying and
+pasting the code from GitHub.
+
+00:00:13.680 --> 00:00:17.760
+In this directory, you'll need
+to type 'nano
+
+00:00:17.820 --> 00:00:21.450
+default.config.yaml'. This is
+the text file version of the
+
+00:00:21.450 --> 00:00:24.570
+various settings you'll find in
+the front-end interface plus a
+
+00:00:24.570 --> 00:00:27.930
+few additions. Here's where you
+can add or remove file
+
+00:00:27.930 --> 00:00:28.740
+extensions.
+
+00:00:34.030 --> 00:00:41.740
+Change the frame sampling, match
+distance and filtering. One key
+
+00:00:41.740 --> 00:00:45.370
+thing is the database value.
+This enables the output to be
+
+00:00:45.370 --> 00:00:49.150
+saved in the database as opposed
+to just in file. This is much
+
+00:00:49.150 --> 00:00:52.390
+more effective for bulk
+collections. By default, the
+
+00:00:52.390 --> 00:00:57.280
+tool produces big CSV files of
+all the matches. But by setting
+
+00:00:57.280 --> 00:01:00.610
+this to 'true', it will save the
+results to the database and
+
+00:01:00.610 --> 00:01:03.940
+allow you to use the front end
+interface to organise everything
+
+00:01:03.940 --> 00:01:04.600
+later on.
+
+00:01:10.800 --> 00:01:15.240
+Press 'Ctrl O' and then 'Ctrl X'
+to save and come out of the
+
+00:01:15.240 --> 00:01:18.690
+settings once you have finished
+selecting them. You are now
+
+00:01:18.690 --> 00:01:21.660
+ready to process the videos and
+you can do this by running
+
+00:01:21.690 --> 00:01:30.240
+'python extract_features.py'.
+This will kick off the pipeline.
+
+00:01:30.780 --> 00:01:34.260
+First a few configuration steps
+and then a progress bar will
+
+00:01:34.260 --> 00:01:38.310
+appear as each video is
+processed. This will take more
+
+00:01:38.310 --> 00:01:41.670
+or less time depending on how
+many videos you are processing,
+
+00:01:41.760 --> 00:01:45.240
+the length of your videos frame
+sampling settings, and GPU
+
+00:01:45.240 --> 00:01:48.450
+processing power. This is
+something that you leave running
+
+00:01:48.450 --> 00:01:52.590
+overnight or even a couple of
+days. Now that you've processed
+
+00:01:52.620 --> 00:01:57.150
+all of the files, occasionally a
+packet mismatch note may appear,
+
+00:01:57.180 --> 00:02:00.120
+that's just indicating that a
+frame was corrupted in a
+
+00:02:00.120 --> 00:02:03.330
+specific video but the rest of
+the video should be processed
+
+00:02:03.330 --> 00:02:07.170
+correctly. To use the front end
+interface you need to type
+
+00:02:07.200 --> 00:02:13.710
+'python extract_exif.py'. This
+will pull out metadata around
+
+00:02:13.710 --> 00:02:17.430
+the files to display in the
+front end. Finally, you will
+
+00:02:17.430 --> 00:02:22.260
+want to run 'python
+generate_matches.py' this will
+
+00:02:22.260 --> 00:02:25.140
+look at all the extracted
+information from the last two
+
+00:02:25.140 --> 00:02:28.290
+scripts and then perform
+distance analysis to find
+
+00:02:28.290 --> 00:02:30.300
+related and similar video
+content.
+
+00:02:38.340 --> 00:02:41.940
+Okay, now that the processing is
+complete, and you can return to
+
+00:02:41.940 --> 00:02:44.970
+the front-end interface and
+refresh it to view your videos
+
+00:02:45.000 --> 00:02:45.840
+in your collection

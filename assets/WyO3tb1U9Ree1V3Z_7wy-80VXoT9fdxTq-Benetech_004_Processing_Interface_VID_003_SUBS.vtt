@@ -1,0 +1,108 @@
+﻿WEBVTT
+
+00:00:00.570 --> 00:00:03.732
+Open the front-end user
+interface via the link in the
+
+00:00:03.792 --> 00:00:07.551
+GitHub readme and click on the
+processing tab in the menu. Here
+
+00:00:07.611 --> 00:00:10.893
+you'll find the configuration
+settings. It will use the
+
+00:00:10.953 --> 00:00:14.772
+directory you choose during the
+installation as a starting point
+
+00:00:14.831 --> 00:00:18.173
+for processing, but if you want
+to select a subdirectory
+
+00:00:18.233 --> 00:00:22.470
+instead, you can do so here. You
+could choose specific file extensions.
+
+00:00:33.110 --> 00:00:37.161
+Frame sampling. This allows you
+to select how often you want to
+
+00:00:37.225 --> 00:00:41.083
+sample each frame. For example,
+once every x seconds, if you
+
+00:00:41.148 --> 00:00:45.199
+increase this time, there would
+be less frames overall, helping
+
+00:00:45.263 --> 00:00:48.607
+save hard drive space and
+increase processing speed.
+
+00:00:48.671 --> 00:00:52.143
+However, you might lose some
+results if you sample too
+
+00:00:52.208 --> 00:00:55.809
+infrequently. The recommended
+default is one frame every
+
+00:00:55.873 --> 00:00:59.538
+second. Match distance. This is
+how closely it matches up
+
+00:00:59.603 --> 00:01:03.332
+similar content, we would
+recommend keeping the default of
+
+00:01:03.397 --> 00:01:07.319
+0.75. If you lower it to a 0.4
+it will only show very similar
+
+00:01:07.384 --> 00:01:11.113
+matches whereas 0.75 shows you
+both duplicates and similar
+
+00:01:11.177 --> 00:01:14.907
+content. Darkness threshold.
+This is the level at which it
+
+00:01:14.971 --> 00:01:18.958
+removes videos that might have
+been corrupted or shot at night
+
+00:01:19.023 --> 00:01:22.817
+causing the entire video to be a
+black screen. We recommend
+
+00:01:22.881 --> 00:01:26.803
+starting with the default of two
+and if you want to adjust it
+
+00:01:26.868 --> 00:01:30.919
+later, you can do so.  Minimum
+duration. This filters out short
+
+00:01:30.983 --> 00:01:34.906
+videos .Filter dark videos. This
+is the switch to remove dark
+
+00:01:34.970 --> 00:01:38.250
+videos based on the darkness
+threshold shown above.
+
+00:01:46.470 --> 00:01:50.160
+Once configured, you can hit the
+run button to start processing.
+
+00:01:52.890 --> 00:02:01.170
+Once it's finished processing,
+you can view the log here now
+
+00:02:01.170 --> 00:02:03.480
+you're ready to go to your
+collection and view the newly
+
+00:02:03.480 --> 00:02:04.650
+processed videos

@@ -1,0 +1,34 @@
+{
+  "version": "3.49.24347.0",
+  "scenes": [
+    {
+      "title": "Processing via terminal"
+    }
+  ],
+  "slides": [
+    {
+      "id": "64ZIKNwt79O",
+      "title": "Video Processing",
+      "scene_index": "1.1"
+    },
+    {
+      "id": "6RVpwB9PqK3",
+      "title": "Extract Exif",
+      "scene_index": "1.2"
+    },
+    {
+      "id": "5mIjwpbHM8c",
+      "title": "Generate Matches",
+      "scene_index": "1.3"
+    }
+  ],
+  "player": {
+    "name": "unified",
+    "width": 1940,
+    "height": 1151
+  },
+  "stage": {
+    "width": 1920,
+    "height": 1080
+  }
+}

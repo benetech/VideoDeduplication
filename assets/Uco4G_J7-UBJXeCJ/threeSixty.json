@@ -1,0 +1,59 @@
+{
+  "version": "3.49.24347.0",
+  "scenes": [
+    {
+      "title": "Docker Compose"
+    }
+  ],
+  "slides": [
+    {
+      "id": "6kBej13wGmQ",
+      "title": "Install docker compose 2",
+      "scene_index": "1.1"
+    },
+    {
+      "id": "6hfqTKh0OHF",
+      "title": "Permissions",
+      "scene_index": "1.2"
+    },
+    {
+      "id": "6M31N0P7hVe",
+      "title": "Enable GPU Support for Docker",
+      "scene_index": "1.3"
+    },
+    {
+      "id": "5bImDSCJbZI",
+      "title": "Install MakeRun3",
+      "scene_index": "1.4"
+    },
+    {
+      "id": "5wkuQRWXCSh",
+      "title": "Folder for videos used on platform",
+      "scene_index": "1.5"
+    },
+    {
+      "id": "6hgEBwdi4YV",
+      "title": "GPU or CPU",
+      "scene_index": "1.6"
+    },
+    {
+      "id": "6kvE0UPsYOR",
+      "title": "Production docker images",
+      "scene_index": "1.7"
+    },
+    {
+      "id": "6lZEwMCJLO6",
+      "title": "Production docker images",
+      "scene_index": "1.8"
+    }
+  ],
+  "player": {
+    "name": "unified",
+    "width": 1940,
+    "height": 1151
+  },
+  "stage": {
+    "width": 1920,
+    "height": 1080
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "version": "3.49.24347.0",
+  "scenes": [
+    {
+      "title": "Docker"
+    }
+  ],
+  "slides": [
+    {
+      "id": "6DOWMLRy7Ni",
+      "title": "Run script",
+      "scene_index": "1.1"
+    },
+    {
+      "id": "5sn67JsjCy0",
+      "title": "Run bash",
+      "scene_index": "1.2"
+    },
+    {
+      "id": "6eBEA2ApCjJ",
+      "title": "Type Password",
+      "scene_index": "1.3"
+    },
+    {
+      "id": "5VN8yRenCgF",
+      "title": "Create the docker group",
+      "scene_index": "1.4"
+    },
+    {
+      "id": "5smsFrkqIUs",
+      "title": "Add user to docker group",
+      "scene_index": "1.5"
+    },
+    {
+      "id": "5hgcHhWG910",
+      "title": "Activate changes to docker group",
+      "scene_index": "1.6"
+    },
+    {
+      "id": "65zmgjkp3aP",
+      "title": "Run docker",
+      "scene_index": "1.7"
+    }
+  ],
+  "player": {
+    "name": "unified",
+    "width": 1940,
+    "height": 1151
+  },
+  "stage": {
+    "width": 1920,
+    "height": 1080
+  }
+}

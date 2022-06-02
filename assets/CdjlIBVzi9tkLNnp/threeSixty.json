@@ -1,0 +1,34 @@
+{
+  "version": "3.49.24347.0",
+  "scenes": [
+    {
+      "title": "Codebase"
+    }
+  ],
+  "slides": [
+    {
+      "id": "5Z4eUnJ4w2j",
+      "title": "Change drives 3",
+      "scene_index": "1.1"
+    },
+    {
+      "id": "6LAxnsejLWS",
+      "title": "Change directory",
+      "scene_index": "1.2"
+    },
+    {
+      "id": "6DcRQ9W7sgy",
+      "title": "LS",
+      "scene_index": "1.3"
+    }
+  ],
+  "player": {
+    "name": "unified",
+    "width": 1940,
+    "height": 1152
+  },
+  "stage": {
+    "width": 1920,
+    "height": 1081
+  }
+}

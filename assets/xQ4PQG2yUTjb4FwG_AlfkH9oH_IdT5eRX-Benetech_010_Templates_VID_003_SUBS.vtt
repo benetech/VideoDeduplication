@@ -1,0 +1,92 @@
+﻿WEBVTT
+
+00:00:00.599 --> 00:00:04.139
+Templates enable you to specify
+reference images that can be
+
+00:00:04.139 --> 00:00:07.499
+used to search all your videos
+finding frames that contain
+
+00:00:07.499 --> 00:00:11.309
+visually similar content. For
+example, we've pre-created a
+
+00:00:11.309 --> 00:00:14.879
+couple here, one for cat
+containing two photos of a cat
+
+00:00:14.909 --> 00:00:19.679
+that can then be used to find
+similar frames. Also soccer
+
+00:00:19.709 --> 00:00:23.099
+containing a couple of pictures
+of soccer players, the images
+
+00:00:23.099 --> 00:00:24.809
+can be previewed by clicking on
+them.
+
+00:00:33.090 --> 00:00:37.315
+To create your own template,
+click on 'add template'. You can
+
+00:00:37.385 --> 00:00:41.264
+then pick a new icon for the
+template by clicking on the
+
+00:00:41.333 --> 00:00:45.421
+default one. For this scenario,
+we're going to search for a
+
+00:00:45.490 --> 00:00:49.439
+vehicle so you could type in
+'truck', select an icon that
+
+00:00:49.508 --> 00:00:53.734
+fits and then click 'done'. Now
+you would give the template a
+
+00:00:53.803 --> 00:00:57.821
+title in this case 'vehicle',
+then hit 'create'. Next, you
+
+00:00:57.890 --> 00:01:02.047
+will want to add references
+images, so click on 'edit'. Then
+
+00:01:02.116 --> 00:01:06.065
+hit the plus symbol to go to
+your folder browser. At this
+
+00:01:06.134 --> 00:01:10.291
+point, you can find and select
+an image you want to use as a
+
+00:01:10.360 --> 00:01:12.300
+reference for your template.
+
+00:01:27.840 --> 00:01:31.692
+And then hit 'done'. Your
+template is now created so you
+
+00:01:31.761 --> 00:01:35.820
+can head over to processing
+using the left hand panel. Head
+
+00:01:35.888 --> 00:01:40.016
+up to the task drop down and
+select 'match templates'. Click
+
+00:01:40.085 --> 00:01:44.006
+the 'run' button to start the
+templating job. To view the
+
+00:01:44.075 --> 00:01:48.133
+matches you can then head over
+to my collection and use the
+
+00:01:48.202 --> 00:01:51.780
+filters menu to select any that
+match your template.

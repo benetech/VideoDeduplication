@@ -1,0 +1,99 @@
+{
+  "version": "3.49.24347.0",
+  "scenes": [
+    {
+      "title": "Similarities"
+    }
+  ],
+  "slides": [
+    {
+      "id": "697m4C9DMDO",
+      "title": "Filter Review",
+      "scene_index": "1.1"
+    },
+    {
+      "id": "5bbVcypfzNk",
+      "title": "Show thumbnails",
+      "scene_index": "1.2"
+    },
+    {
+      "id": "5hq8vt1EVJM",
+      "title": "Blur vids on",
+      "scene_index": "1.3"
+    },
+    {
+      "id": "6GDmI0vwwQQ",
+      "title": "Click video",
+      "scene_index": "1.4"
+    },
+    {
+      "id": "6967l5f83uh",
+      "title": "Watch Vid",
+      "scene_index": "1.5"
+    },
+    {
+      "id": "6YYgjRIl1o4",
+      "title": "Jump to scene",
+      "scene_index": "1.6"
+    },
+    {
+      "id": "6E6ugVXAg1b",
+      "title": "Vid Info",
+      "scene_index": "1.7"
+    },
+    {
+      "id": "5xSwrLOYw2g",
+      "title": "Vid Metadata",
+      "scene_index": "1.8"
+    },
+    {
+      "id": "5ZRTUMhvwp4",
+      "title": "Metadata search",
+      "scene_index": "1.9"
+    },
+    {
+      "id": "6TsOqgZOz7n",
+      "title": "Compare",
+      "scene_index": "1.10"
+    },
+    {
+      "id": "6HtFji3OwHq",
+      "title": "Side by side",
+      "scene_index": "1.11"
+    },
+    {
+      "id": "6IvrTHQionJ",
+      "title": "Similar",
+      "scene_index": "1.12"
+    },
+    {
+      "id": "5W6oLMESeVn",
+      "title": "Watch similar",
+      "scene_index": "1.13"
+    },
+    {
+      "id": "62wQEoJnOK9",
+      "title": "Click on cluster",
+      "scene_index": "1.14"
+    },
+    {
+      "id": "5kqhq073DFD",
+      "title": "Cluster",
+      "scene_index": "1.15"
+    },
+    {
+      "id": "6i1wLcUPn6E",
+      "title": "Child match",
+      "scene_index": "1.16"
+    }
+  ],
+  "player": {
+    "name": "unified",
+    "width": 1940,
+    "height": 1151
+  },
+  "stage": {
+    "width": 1920,
+    "height": 1080
+  }
+}
