@@ -19,6 +19,11 @@
 - [Configuration](#configuration)
 - [Running](#running)
 
+# e-Learning Module
+
+To find out more about the project, installation, and running the tool you may review our e-Learning module:
+https://benetech.github.io/VideoDeduplication/
+
 # Installation (Ubuntu with Docker)
 
 ## Prerequisites
