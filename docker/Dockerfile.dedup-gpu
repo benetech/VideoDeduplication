@@ -2,7 +2,7 @@
 # Run tests: sudo docker build -t <tag> . -f docker/Dockerfile.dedup-gpu --target tests
 
 FROM tensorflow/tensorflow:1.15.0-gpu-py3 AS prod
-
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
 # Install required os dependencies
 RUN apt-get update && apt-get install -y curl libsm6 libxext6 libxrender-dev nano libgl1-mesa-glx mediainfo
 
