@@ -37,7 +37,7 @@ class TaskError:
 
 
 class TaskStatus(Enum):
-    """Enum for """
+    """Enum for"""
 
     PENDING = "PENDING"
     RUNNING = "RUNNING"
