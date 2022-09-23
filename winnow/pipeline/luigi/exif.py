@@ -4,6 +4,7 @@ from typing import Iterable, Iterator, Any, Tuple, Union
 
 import luigi
 import pandas as pd
+import numpy as np
 from cached_property import cached_property
 
 from winnow.pipeline.luigi.platform import PipelineTask, ConstTarget
@@ -51,7 +52,7 @@ class DBExifTask(PipelineTask):
             progress=self.progress.subtask(0.9),
             logger=self.logger,
         )
-
+        exif_df = exif_df.replace({np.nan: None})
         self.logger.info("Saving EXIF to database")
         save_exif_database(file_keys=file_keys, exif_df=exif_df, pipeline=self.pipeline)
         target.write_log(target_time)
