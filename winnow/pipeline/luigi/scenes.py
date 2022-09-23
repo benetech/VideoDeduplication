@@ -96,7 +96,7 @@ class ScenesReportTask(PipelineTask):
             self.logger.info("Merged with %s existing detection results", len(old_scenes_df))
 
         self.logger.info("Saving detected scenes to %s", target_path)
-
+        os.makedirs(os.path.dirname(target_path), exist_ok=True)
         
         scenes_df.to_csv(luigi.LocalTarget(target_path).path)
 
