@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 'black~=20.8b1'
+          pip install flake8 'black~=22.3.0'
           pip install -r requirements-winnow-unit-tests.txt
       - name: Check formatting with black
         run: |
