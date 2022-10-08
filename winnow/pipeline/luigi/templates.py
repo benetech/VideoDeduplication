@@ -146,9 +146,10 @@ class TemplateMatchesReportTask(PipelineTask):
 
         self.logger.info("Going to save report to %s", report_paths)
         matches_path, hash_path = report_paths
+        os.makedirs(os.path.dirname(matches_path), exist_ok=True)
         matches_target, hash_target = luigi.LocalTarget(matches_path), luigi.LocalTarget(hash_path)
-        with matches_target.open("w") as matches_file, hash_target.open("w") as hash_target:
-            template_matches_df.to_csv(matches_file)
+        template_matches_df.to_csv(matches_path)
+        with hash_target.open("w") as hash_target:
             hash_target.write(hash_templates(self.templates))
         self.logger.info("Report is saved to %s", report_paths)
 
