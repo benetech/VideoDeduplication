@@ -190,7 +190,7 @@ class SearchEngine:
         return frame * sampling * 1000
 
 
-def download_sample_templates(templates_path, url="https://s3.amazonaws.com/winnowpretrainedmodels/templates.tar.gz"):
+def download_sample_templates(templates_path, url="https://s3.amazonaws.com/justiceaipretrainedmodels/templates.tar.gz"):
     if os.path.exists(templates_path):
         _logger.info("Templates Found", glob(templates_path + "/**"))
     else:
