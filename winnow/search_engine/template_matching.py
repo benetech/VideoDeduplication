@@ -119,7 +119,7 @@ class SearchEngine:
         self.results_cache = pd.concat([self.results_cache, *dfs], ignore_index=True)
 
 
-def download_sample_templates(TEMPLATES_PATH, URL="https://s3.amazonaws.com/winnowpretrainedmodels/templates.tar.gz"):
+def download_sample_templates(TEMPLATES_PATH, URL="https://s3.amazonaws.com/justiceaipretrainedmodels/templates.tar.gz"):
 
     if os.path.exists(TEMPLATES_PATH):
         _logger.info("Templates Found", glob(TEMPLATES_PATH + "/**"))
