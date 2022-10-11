@@ -3,7 +3,7 @@ from os.path import join, dirname
 from winnow.storage.remote_file_repo import RemoteFileRepo, BaseUrl
 
 # Default pretrained models base URL
-DEFAULT_URL = "https://s3.amazonaws.com/winnowpretrainedmodels/"
+DEFAULT_URL = "https://s3.amazonaws.com/justiceaipretrainedmodels/"
 
 # Default pretrained model file name
 DEFAULT_MODEL = "vgg_16.ckpt"
