@@ -132,6 +132,7 @@ class LocalFileCollection(FileCollection):
         self._ensure_valid_prefix(prefix)
         parent_path = self._local_fs_path(prefix)
         paths = filter(self._extensions_filter, iter_files(parent_path))
+        paths = filter(lambda x: len(os.path.basename(x).encode('utf-8')) < 173, paths)
         if min_mtime is not None or max_mtime is not None:
             correct_mtime = mtime_filter(min_mtime=min_mtime, max_mtime=max_mtime, get_time=self._get_mtime)
             paths = filter(correct_mtime, paths)
