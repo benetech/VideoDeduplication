@@ -14,8 +14,8 @@ from db import Database
 from db.schema import TaskLogRecord
 from remote.model import RemoteFingerprint
 from winnow.collection.file_collection import FileCollection
-from winnow.duplicate_detection.neighbors import DetectedMatch, FeatureVector
-from winnow.duplicate_detection.neighbors_rapids import NeighborMatcher
+from winnow.duplicate_detection.neighbors import DetectedMatch, FeatureVector, NeighborMatcher
+# from winnow.duplicate_detection.neighbors_rapids import NeighborMatcher
 from winnow.pipeline.luigi.annoy_index import AnnoyIndexTask
 from winnow.pipeline.luigi.condense import CondenseFingerprintsTask, CondensedFingerprints
 from winnow.pipeline.luigi.platform import PipelineTask, ConstTarget
