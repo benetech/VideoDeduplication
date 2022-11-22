@@ -124,7 +124,7 @@ class PaCMAPEmbeddingsTask(EmbeddingsTask):
     def fit_transform(self, original: CondensedFingerprints) -> CondensedFingerprints:
         import pacmap
 
-        transformer = pacmap.PaCMAP(n_dims=2, n_neighbors=min(50, len(original)), MN_ratio=0.5, FP_ratio=2.0)
+        transformer = pacmap.PaCMAP(n_neighbors=min(50, len(original)), MN_ratio=0.5, FP_ratio=2.0)
         embeddings = transformer.fit_transform(original.fingerprints)
         return CondensedFingerprints(fingerprints=embeddings, file_keys_df=original.file_keys_df)
 
