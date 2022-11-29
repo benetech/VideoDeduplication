@@ -2,7 +2,7 @@ version: '2.3'
 
 services:
   postgres:
-    image: postgres
+    image: postgres:14
     environment:
       # Remember to change the config.yaml [database.uri] file if you change this
       POSTGRES_PASSWORD: "admin"
