@@ -49,7 +49,7 @@ services:
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed the source data
-      - "${BENETECH_DATA_LOCATION:?\n\nPlease set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
+      - "${BENETECH_DATA_LOCATION:?Please set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
       # You can specify BENETECH_FILE_STORAGE_DIRECTORY environment variable to
       # keep template examples in a specific directory in your host fs.
       - "${BENETECH_FILE_STORAGE_DIRECTORY:-file-storage}:/project/file-storage"
@@ -93,7 +93,7 @@ services:
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed the source data
-      - "${BENETECH_DATA_LOCATION:?\n\nPlease set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
+      - "${BENETECH_DATA_LOCATION:?Please set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
       # You may want to set BENETECH_TASK_LOGS environment variable to
       # keep pipeline logs in a specific directory in your host fs.
       - "${BENETECH_TASK_LOGS:-pipeline-logs}:/project/pipeline-logs"
@@ -130,7 +130,7 @@ services:
     volumes:
       # Set the BENETECH_DATA_LOCATION environment variable to the path
       # on your host machine where you placed your video files
-      - "${BENETECH_DATA_LOCATION:?\n\nPlease set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
+      - "${BENETECH_DATA_LOCATION:?Please set \"BENETECH_DATA_LOCATION\" environment variable to the root folder of your video files.}:/project/data"
       # You may want to set BENETECH_TASK_LOGS environment variable to
       # keep pipeline logs in a specific directory in your host fs.
       - "${BENETECH_TASK_LOGS:-pipeline-logs}:/project/pipeline-logs"
